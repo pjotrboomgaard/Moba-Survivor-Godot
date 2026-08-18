@@ -1,0 +1,144 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/bootstrap/bootstrap.gd" id="1_bootstrap"]
+
+[node name="Bootstrap" type="Node"]
+script = ExtResource("1_bootstrap")
+
+[node name="StatusLayer" type="CanvasLayer" parent="."]
+
+[node name="Backdrop" type="ColorRect" parent="StatusLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.025, 0.035, 0.055, 1)
+
+[node name="LobbyPanel" type="PanelContainer" parent="StatusLayer"]
+offset_left = 330.0
+offset_top = 20.0
+offset_right = 950.0
+offset_bottom = 700.0
+
+[node name="Margin" type="MarginContainer" parent="StatusLayer/LobbyPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="Layout" type="VBoxContainer" parent="StatusLayer/LobbyPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 31
+text = "CO-OP SURVIVOR"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)
+text = "PHASE 1 NETWORK PLAYTEST"
+horizontal_alignment = 1
+
+[node name="SpacerTop" type="Control" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="ModeRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ClassicButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
+custom_minimum_size = Vector2(266, 54)
+layout_mode = 2
+toggle_mode = true
+text = "CLASSIC\nArc Staff only"
+
+[node name="PjotrButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
+custom_minimum_size = Vector2(266, 54)
+layout_mode = 2
+toggle_mode = true
+text = "PJOTR MODE\n4 heroes · waves · bosses"
+
+[node name="ClassLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)
+text = "Choose your role"
+
+[node name="ClassGrid" type="GridContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="ClassButton0" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
+custom_minimum_size = Vector2(266, 72)
+layout_mode = 2
+toggle_mode = true
+text = "CLASS 1"
+
+[node name="ClassButton1" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
+custom_minimum_size = Vector2(266, 72)
+layout_mode = 2
+toggle_mode = true
+text = "CLASS 2"
+
+[node name="ClassButton2" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
+custom_minimum_size = Vector2(266, 72)
+layout_mode = 2
+toggle_mode = true
+text = "CLASS 3"
+
+[node name="ClassButton3" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
+custom_minimum_size = Vector2(266, 72)
+layout_mode = 2
+toggle_mode = true
+text = "CLASS 4"
+
+[node name="ClassDescription" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.82, 0.95, 1)
+text = "Role summary"
+autowrap_mode = 3
+
+[node name="SoloButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "SOLO TEST"
+
+[node name="HostButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "HOST CO-OP GAME"
+
+[node name="JoinLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+text = "Server address"
+
+[node name="AddressInput" type="LineEdit" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "127.0.0.1:27015"
+placeholder_text = "127.0.0.1:27015"
+
+[node name="JoinButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "JOIN GAME"
+
+[node name="StatusLabel" type="Label" parent="StatusLayer"]
+offset_left = 330.0
+offset_top = 596.0
+offset_right = 950.0
+offset_bottom = 636.0
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Choose a mode"
+horizontal_alignment = 1
+vertical_alignment = 1

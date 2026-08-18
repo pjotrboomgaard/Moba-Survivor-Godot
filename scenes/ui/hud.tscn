@@ -1,0 +1,212 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+
+[node name="HUD" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_hud")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="Layout" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="MarginContainer/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "VANGUARD // MOVEMENT PLAYGROUND"
+
+[node name="HealthBar" type="ProgressBar" parent="MarginContainer/Layout"]
+custom_minimum_size = Vector2(320, 26)
+layout_mode = 2
+size_flags_horizontal = 0
+value = 100.0
+show_percentage = false
+
+[node name="HealthLabel" type="Label" parent="MarginContainer/Layout"]
+layout_mode = 2
+text = "HP 100 / 100"
+
+[node name="Instructions" type="Label" parent="MarginContainer/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+text = "WASD  Move     Hold left mouse  Aim and cast Arc Staff     R  Restart solo run"
+
+[node name="Spacer" type="Control" parent="MarginContainer/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GameOver" type="Label" parent="MarginContainer/Layout"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.3, 1)
+theme_override_font_sizes/font_size = 38
+text = "YOU FELL\nPress R to restart"
+horizontal_alignment = 1
+
+[node name="XPBar" type="ProgressBar" parent="."]
+offset_left = 440.0
+offset_top = 24.0
+offset_right = 840.0
+offset_bottom = 38.0
+show_percentage = false
+
+[node name="LevelLabel" type="Label" parent="."]
+offset_left = 440.0
+offset_top = 42.0
+offset_right = 840.0
+offset_bottom = 64.0
+text = "LVL 1   0 / 40 XP"
+horizontal_alignment = 1
+
+[node name="BossPanel" type="VBoxContainer" parent="."]
+visible = false
+offset_left = 340.0
+offset_top = 84.0
+offset_right = 940.0
+offset_bottom = 132.0
+theme_override_constants/separation = 4
+
+[node name="BossName" type="Label" parent="BossPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.42, 0.42, 1)
+theme_override_font_sizes/font_size = 22
+text = "BOSS"
+horizontal_alignment = 1
+
+[node name="BossBar" type="ProgressBar" parent="BossPanel"]
+custom_minimum_size = Vector2(600, 20)
+layout_mode = 2
+show_percentage = false
+
+[node name="WaveLabel" type="Label" parent="."]
+offset_left = 1000.0
+offset_top = 48.0
+offset_right = 1252.0
+offset_bottom = 78.0
+theme_override_colors/font_color = Color(1, 0.78, 0.45, 1)
+theme_override_font_sizes/font_size = 24
+text = "WAVE 1"
+horizontal_alignment = 2
+
+[node name="ConnectionLabel" type="Label" parent="."]
+offset_left = 1000.0
+offset_top = 22.0
+offset_right = 1252.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(0.55, 0.72, 0.86, 1)
+text = "OFFLINE"
+horizontal_alignment = 2
+
+[node name="GoldLabel" type="Label" parent="."]
+visible = false
+offset_left = 1000.0
+offset_top = 78.0
+offset_right = 1252.0
+offset_bottom = 104.0
+theme_override_colors/font_color = Color(1, 0.79, 0.24, 1)
+theme_override_font_sizes/font_size = 20
+text = "0 GOLD"
+horizontal_alignment = 2
+
+[node name="ThemeBanner" type="Label" parent="."]
+visible = false
+offset_left = 240.0
+offset_top = 168.0
+offset_right = 1040.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(1, 0.86, 0.6, 1)
+theme_override_font_sizes/font_size = 40
+text = "WAVE 1"
+horizontal_alignment = 1
+
+[node name="DebutBanner" type="Label" parent="."]
+visible = false
+offset_left = 240.0
+offset_top = 222.0
+offset_right = 1040.0
+offset_bottom = 254.0
+theme_override_colors/font_color = Color(1, 0.45, 0.45, 1)
+theme_override_font_sizes/font_size = 24
+text = "NEW ENEMY"
+horizontal_alignment = 1
+
+[node name="AbilityLabel" type="Label" parent="."]
+visible = false
+offset_left = 1000.0
+offset_top = 106.0
+offset_right = 1252.0
+offset_bottom = 132.0
+theme_override_colors/font_color = Color(0.58, 0.87, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "SPACE  DASH"
+horizontal_alignment = 2
+
+[node name="ShopPanel" type="PanelContainer" parent="."]
+visible = false
+offset_left = 150.0
+offset_top = 105.0
+offset_right = 1130.0
+offset_bottom = 645.0
+
+[node name="ShopLayout" type="VBoxContainer" parent="ShopPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ShopTitle" type="Label" parent="ShopPanel/ShopLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.79, 0.24, 1)
+theme_override_font_sizes/font_size = 30
+text = "SHOP"
+horizontal_alignment = 1
+
+[node name="ShopGold" type="Label" parent="ShopPanel/ShopLayout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "0 GOLD"
+horizontal_alignment = 1
+
+[node name="ShopGrid" type="GridContainer" parent="ShopPanel/ShopLayout"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 3
+
+[node name="ShopContinue" type="Button" parent="ShopPanel/ShopLayout"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "START NEXT WAVE"
+
+[node name="UpgradePanel" type="PanelContainer" parent="."]
+visible = false
+offset_left = 190.0
+offset_top = 220.0
+offset_right = 1090.0
+offset_bottom = 500.0
+
+[node name="Choices" type="HBoxContainer" parent="UpgradePanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Choice1" type="Button" parent="UpgradePanel/Choices"]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 2
+text = "UPGRADE 1"
+
+[node name="Choice2" type="Button" parent="UpgradePanel/Choices"]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 2
+text = "UPGRADE 2"
+
+[node name="Choice3" type="Button" parent="UpgradePanel/Choices"]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 2
+text = "UPGRADE 3"

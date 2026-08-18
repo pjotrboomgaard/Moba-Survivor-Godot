@@ -1,0 +1,10 @@
+.godot/
+build/
+exports/
+*.log
+.DS_Store
+
+# Local editor settings and credentials must never be committed.
+.env
+.env.*
+!.env.example

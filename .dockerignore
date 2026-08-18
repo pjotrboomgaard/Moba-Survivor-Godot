@@ -1,0 +1,9 @@
+.git
+.godot
+deliverables
+build
+exports
+upload
+*.zip
+*.log
+.DS_Store
