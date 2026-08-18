@@ -1,0 +1,13 @@
+services:
+  game-server:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "27015:27015/udp"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true

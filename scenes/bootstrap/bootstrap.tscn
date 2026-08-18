@@ -1,0 +1,86 @@
+[gd_scene format=3 uid="uid://busi1562uoper"]
+
+[ext_resource type="Script" uid="uid://hgtgjg85yoeq" path="res://scenes/bootstrap/bootstrap.gd" id="1_bootstrap"]
+
+[node name="Bootstrap" type="Node" unique_id=1237250216]
+script = ExtResource("1_bootstrap")
+
+[node name="StatusLayer" type="CanvasLayer" parent="." unique_id=1842272277]
+
+[node name="Backdrop" type="ColorRect" parent="StatusLayer" unique_id=190807188]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.025, 0.035, 0.055, 1)
+
+[node name="LobbyPanel" type="PanelContainer" parent="StatusLayer" unique_id=922698920]
+offset_left = 430.0
+offset_top = 150.0
+offset_right = 850.0
+offset_bottom = 570.0
+
+[node name="Margin" type="MarginContainer" parent="StatusLayer/LobbyPanel" unique_id=1564010888]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="Layout" type="VBoxContainer" parent="StatusLayer/LobbyPanel/Margin" unique_id=1527482352]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout" unique_id=322257707]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 31
+text = "CO-OP SURVIVOR"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout" unique_id=1623026094]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)
+text = "PHASE 1 NETWORK PLAYTEST"
+horizontal_alignment = 1
+
+[node name="SpacerTop" type="Control" parent="StatusLayer/LobbyPanel/Margin/Layout" unique_id=1748550165]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="SoloButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout" unique_id=1080678824]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "SOLO TEST"
+
+[node name="HostButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout" unique_id=2117399430]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "HOST CO-OP GAME"
+
+[node name="JoinLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout" unique_id=2140984095]
+layout_mode = 2
+text = "Server address"
+
+[node name="AddressInput" type="LineEdit" parent="StatusLayer/LobbyPanel/Margin/Layout" unique_id=771427603]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "127.0.0.1:27015"
+placeholder_text = "127.0.0.1:27015"
+
+[node name="JoinButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout" unique_id=2057844856]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "JOIN GAME"
+
+[node name="StatusLabel" type="Label" parent="StatusLayer" unique_id=1328721885]
+offset_left = 330.0
+offset_top = 596.0
+offset_right = 950.0
+offset_bottom = 636.0
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Choose a mode"
+horizontal_alignment = 1
+vertical_alignment = 1
