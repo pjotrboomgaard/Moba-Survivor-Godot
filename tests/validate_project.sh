@@ -202,6 +202,11 @@ if ! rg -q '^ability=' project.godot || ! rg -q 'func ability_held' autoload/inp
   exit 1
 fi
 
+if ! rg -q 'SHOP_WAVE_INTERVAL' scripts/wave_director.gd || ! rg -q 'shop_opens_before' scripts/main.gd; then
+  echo "The shop must only open on its wave interval" >&2
+  exit 1
+fi
+
 if ! rg -q 'func try_cheat_death' scripts/player.gd; then
   echo "Aegis Sigil must hook into lethal damage" >&2
   exit 1

@@ -301,7 +301,9 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 			client_announce_wave.rpc_id(peer_id, wave, theme_name, debut_type_id)
 
 
-func _on_intermission_started(_next_wave: int, _seconds: float) -> void:
+func _on_intermission_started(next_wave: int, _seconds: float) -> void:
+	if not WaveDirector.shop_opens_before(next_wave):
+		return
 	if not GameRuntime.is_dedicated_server():
 		hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 	if GameRuntime.is_server():

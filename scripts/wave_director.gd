@@ -65,6 +65,9 @@ const IMPROVISED_NAMES := {
 }
 
 const INTERMISSION_SECONDS := 14.0
+const SHOP_INTERMISSION_SECONDS := 30.0
+## The shop only opens after every tenth wave, right on the heels of a boss.
+const SHOP_WAVE_INTERVAL := 10
 const GROUP_INTERVAL_SECONDS := 2.2
 const AMBUSH_GROUP_INTERVAL := 0.2
 const WAVE_TIMEOUT_SECONDS := 120.0
@@ -153,9 +156,15 @@ func _process_classic(delta: float) -> void:
 	group_ready.emit(EnemyType.DEFAULT_TYPE_ID, EnemyType.Formation.SCATTERED, 1, 1.0, 1.0)
 
 
+## True while the breather before the given wave is a shopping break.
+static func shop_opens_before(next_wave: int) -> bool:
+	return next_wave > 1 and (next_wave - 1) % SHOP_WAVE_INTERVAL == 0
+
+
 func _begin_intermission() -> void:
-	intermission_timer = INTERMISSION_SECONDS
-	intermission_started.emit(wave + 1, INTERMISSION_SECONDS)
+	var next_wave := wave + 1
+	intermission_timer = SHOP_INTERMISSION_SECONDS if shop_opens_before(next_wave) else INTERMISSION_SECONDS
+	intermission_started.emit(next_wave, intermission_timer)
 
 
 ## Skips the rest of the breather, used when everyone is done shopping.

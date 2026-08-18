@@ -102,10 +102,13 @@ func set_wave(wave: int, archetype_name: String = "") -> void:
 		wave_label.visible = false
 		return
 	wave_label.visible = true
+	var wave_number := maxi(1, wave)
 	if archetype_name.is_empty():
-		wave_label.text = "WAVE %d" % maxi(1, wave)
+		wave_label.text = "WAVE %d" % wave_number
 	else:
-		wave_label.text = "WAVE %d — %s" % [maxi(1, wave), archetype_name.to_upper()]
+		wave_label.text = "WAVE %d — %s" % [wave_number, archetype_name.to_upper()]
+	if WaveDirector.shop_opens_before(wave_number + 1):
+		wave_label.text += "   SHOP NEXT"
 	var pulse := create_tween()
 	pulse.tween_property(wave_label, "scale", Vector2(1.18, 1.18), 0.12)
 	pulse.tween_property(wave_label, "scale", Vector2.ONE, 0.18)

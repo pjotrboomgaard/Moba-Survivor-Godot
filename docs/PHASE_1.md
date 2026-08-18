@@ -22,7 +22,7 @@
 - Enemy projectiles, explosions, death splits and summons are resolved on the server; clients receive cosmetic copies.
 - The current wave and its theme name travel in the snapshot and are shown in the HUD.
 - Hand-written wave themes with debut waves that introduce one new enemy at a time.
-- Shared gold per kill, replicated per player, with server-validated shop purchases between waves.
+- Shared gold per kill, replicated per player, with server-validated shop purchases in the breather after every tenth wave.
 - Shop items sell mechanics (reflect, lifesteal, regeneration, resistance pierce, cheat death, burn aura, on-hit slow, pickup range) plus one active, Phase Boots, so they never duplicate the level-up stat pool.
 - Pixel art sprites for heroes, enemies, projectiles and pickups, baked by tools/sprite_forge.tscn.
 - Enemy movement, contact damage, death and XP collection are server-owned.
@@ -43,7 +43,7 @@ The most reliable test uses one host build and one client build:
 7. Confirm both windows show the same weapon effect for each role.
 8. Kill enemies and confirm XP orbs disappear for both players when collected.
 9. Reach a level, choose an upgrade and confirm the run continues.
-10. Clear a wave and confirm both players see the shop, their shared gold and identical prices.
+10. Clear wave ten and confirm both players see the shop, their shared gold and identical prices, and that earlier waves never open it.
 10. Close the client and confirm its character disappears on the host.
 
 For a LAN test, enter the host Mac's local IPv4 address instead of `127.0.0.1`. Internet play still requires port forwarding or the hosted dedicated server planned for the next infrastructure checkpoint.

@@ -10,7 +10,7 @@ Production-oriented Godot project for a one-to-four-player cooperative action su
 - Four playable roles, each strong and weak against different enemies.
 - Hand-authored pixel art for every hero, enemy, projectile and pickup.
 - XP drops, levels and three upgrade choices.
-- Gold from every kill and a between-wave shop.
+- Gold from every kill and a shop that opens once every ten waves.
 - Health, death and restart.
 
 ## Game modes
@@ -90,11 +90,11 @@ Waves 1 to 20 are hand-written, each with its own name and composition. From wav
 
 Underneath the themes sit seven archetypes — Advance, Swarm, Air Assault, Snipers, Ambush, Elite Guard and Boss — plus modifiers that reshape a wave without new content: Enraged makes everything 18% faster, Armoured trades numbers for 25% more health, and Fragile Horde sends half again as many enemies at 70% health.
 
-The director spends a budget of `4 + wave × 1.5`, scaled up by 45% per extra player. Enemy health grows 5% per wave while speed and damage stay fixed. A wave ends once it is cleared, followed by a breather in which the shop opens.
+The director spends a budget of `4 + wave × 1.5`, scaled up by 45% per extra player. Enemy health grows 5% per wave while speed and damage stay fixed. A wave ends once it is cleared, followed by a fourteen second breather, or a thirty second one on the wave-ten boundaries where the shop opens.
 
 ## Gold and the shop
 
-Every kill pays the whole party, so nobody races their team mates to a corpse. Between waves the shop opens, and its price climbs with each copy you own.
+Every kill pays the whole party, so nobody races their team mates to a corpse. The shop only opens once every ten waves, in the long breather right after a boss, so gold piles up into a real spending spree instead of trickling away every wave. The wave counter warns you with `SHOP NEXT` during the wave before it. Prices climb with each copy you own.
 
 The shop deliberately never sells the plain stat lines the level-up screen already sells — no raw damage, attack speed, movement speed, max health or mitigation. It sells MOBA-style mechanics instead, in the spirit of Thornmail, Satanic and Phase Boots:
 
@@ -110,7 +110,7 @@ The shop deliberately never sells the plain stat lines the level-up screen alrea
 | Frostbite Charm | Your hits slow enemies by 20% for a second |
 | Lodestone | Pulls XP orbs in from 60% further away |
 
-Phase Boots is the only active: hold Space and the HUD shows the cooldown next to your gold. Aegis Sigil recharges at the start of every wave. In a solo run the game pauses while the shop is open and resumes when you start the next wave; online the fourteen second breather keeps running. The server validates every purchase.
+Phase Boots is the only active: hold Space and the HUD shows the cooldown next to your gold. Aegis Sigil recharges at the start of every wave. In a solo run the game pauses while the shop is open and resumes when you start the next wave; online the thirty second shopping break keeps running. The server validates every purchase.
 
 ## Pixel art
 

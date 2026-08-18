@@ -31,6 +31,7 @@ func _ready() -> void:
 	_test_wave_modifiers()
 	_test_gold_rewards()
 	_test_shop()
+	_test_shop_schedule()
 	_test_shop_items_are_not_level_up_stats()
 	_test_item_effects()
 
@@ -675,6 +676,18 @@ func _test_shop() -> void:
 	_check(replicated.stacks_of("carapace") == 2, "Owned items must replicate so prices show correctly")
 
 	_cleanup([player, proxy, replicated])
+
+
+func _test_shop_schedule() -> void:
+	for next_wave in [2, 3, 5, 9, 10, 12, 20, 30]:
+		_check(not WaveDirector.shop_opens_before(next_wave), "The shop must stay shut before wave %d" % next_wave)
+	for next_wave in [11, 21, 31, 101]:
+		_check(WaveDirector.shop_opens_before(next_wave), "The shop must open before wave %d" % next_wave)
+	_check(not WaveDirector.shop_opens_before(1), "There is nothing to spend before the first wave")
+	_check(
+		WaveDirector.SHOP_INTERMISSION_SECONDS > WaveDirector.INTERMISSION_SECONDS,
+		"A shopping break should be longer than a normal breather"
+	)
 
 
 ## The shop must sell mechanics, never the plain stat lines the level-up pool sells.
