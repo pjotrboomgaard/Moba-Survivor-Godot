@@ -6,6 +6,7 @@ extends Node2D
 @export var snapshot_rate := 20.0
 @export var input_send_rate := 30.0
 
+@onready var arena: Node2D = $Arena
 @onready var actors: Node2D = $Actors
 @onready var wave_director: WaveDirector = $WaveDirector
 @onready var hud: GameHUD = $HUD
@@ -349,7 +350,7 @@ func _spawn_enemy(offset: Vector2, type_id: String, health_multiplier: float, sp
 	var candidate_position := focus.global_position + offset
 	candidate_position.x = clampf(candidate_position.x, -1160.0, 1160.0)
 	candidate_position.y = clampf(candidate_position.y, -760.0, 760.0)
-	enemy.global_position = candidate_position
+	enemy.global_position = arena.free_position_near(candidate_position, 22.0)
 	actors.add_child(enemy)
 	enemy.configure(entity_id, true, type_id, health_multiplier, speed_multiplier)
 	enemy.defeated.connect(_on_enemy_defeated)

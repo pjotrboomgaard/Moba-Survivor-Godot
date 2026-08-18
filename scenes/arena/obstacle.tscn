@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/obstacle.gd" id="1_obstacle"]
+
+[sub_resource type="CircleShape2D" id="CircleShape_obstacle"]
+radius = 30.0
+
+[node name="Obstacle" type="StaticBody2D" groups=["obstacles"]]
+collision_layer = 1
+collision_mask = 6
+script = ExtResource("1_obstacle")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape_obstacle")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture_filter = 1

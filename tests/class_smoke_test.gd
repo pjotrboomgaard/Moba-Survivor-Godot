@@ -2,6 +2,7 @@ extends Node
 
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player/player.tscn")
 const ENEMY_SCENE: PackedScene = preload("res://scenes/enemy/enemy.tscn")
+const ARENA_SCENE: PackedScene = preload("res://scenes/arena/arena.tscn")
 
 var failures: Array[String] = []
 var next_entity_id := 1
@@ -30,6 +31,7 @@ func _ready() -> void:
 	_test_wave_themes_and_debuts()
 	_test_wave_modifiers()
 	_test_gold_rewards()
+	_test_arena_field()
 	_test_shop()
 	_test_shop_schedule()
 	_test_shop_items_are_not_level_up_stats()
@@ -676,6 +678,55 @@ func _test_shop() -> void:
 	_check(replicated.stacks_of("carapace") == 2, "Owned items must replicate so prices show correctly")
 
 	_cleanup([player, proxy, replicated])
+
+
+func _test_arena_field() -> void:
+	var previous_mode := GameRuntime.game_mode
+	GameRuntime.set_game_mode(GameRuntime.GameMode.PJOTR)
+	var arena := ARENA_SCENE.instantiate()
+	add_child(arena)
+
+	_check(arena.obstacles.size() > 8, "The field should be littered with rocks, got %d" % arena.obstacles.size())
+	for obstacle in arena.obstacles:
+		_check(
+			obstacle.global_position.length() >= arena.SPAWN_CLEARANCE,
+			"A rock sits on top of the party spawn"
+		)
+		_check(arena._inside_playfield(obstacle.global_position), "A rock is stuck in the arena wall")
+		for other in arena.obstacles:
+			if other == obstacle:
+				continue
+			_check(
+				obstacle.global_position.distance_to(other.global_position) >= arena.OBSTACLE_SPACING,
+				"Two rocks are packed too tightly to walk between"
+			)
+
+	var rock: Obstacle = arena.obstacles[0]
+	_check(arena.is_blocked(rock.global_position, 4.0), "is_blocked missed a rock it sits inside")
+	_check(not arena.is_blocked(Vector2.ZERO, 4.0), "The spawn point must stay walkable")
+	var freed := arena.free_position_near(rock.global_position, 22.0)
+	_check(not arena.is_blocked(freed, 22.0), "free_position_near handed back a blocked spot")
+	_check(rock.collision.shape is CircleShape2D, "Rocks need a collision shape to walk around")
+	_check(rock.collision.shape != arena.obstacles[1].collision.shape, "Rocks must not share one collision shape")
+	_check(rock.has_sprite(), "Rocks are missing their pixel art")
+
+	# The layout is seeded, so every peer builds the same field without syncing it.
+	var twin := ARENA_SCENE.instantiate()
+	add_child(twin)
+	_check(twin.obstacles.size() == arena.obstacles.size(), "The rock layout is not deterministic")
+	for index in arena.obstacles.size():
+		_check(
+			arena.obstacles[index].global_position.is_equal_approx(twin.obstacles[index].global_position),
+			"Rock %d landed somewhere else on a second build" % index
+		)
+
+	GameRuntime.set_game_mode(GameRuntime.GameMode.CLASSIC)
+	var classic_arena := ARENA_SCENE.instantiate()
+	add_child(classic_arena)
+	_check(classic_arena.obstacles.is_empty(), "Classic mode must keep its clean grid arena")
+
+	GameRuntime.set_game_mode(previous_mode)
+	_cleanup([arena, twin, classic_arena])
 
 
 func _test_shop_schedule() -> void:
