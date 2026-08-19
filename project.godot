@@ -31,6 +31,10 @@ window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 
+[gui]
+
+theme/custom_font="res://assets/fonts/CourierPrime-Regular.ttf"
+
 [input]
 
 move_left={
@@ -94,10 +98,6 @@ show_stats={
 ]
 }
 
-[gui]
-
-theme/custom_font="res://assets/fonts/CourierPrime-Regular.ttf"
-
 [layer_names]
 
 2d_physics/layer_1="World"
@@ -107,6 +107,6 @@ theme/custom_font="res://assets/fonts/CourierPrime-Regular.ttf"
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/canvas_textures/default_texture_filter=0
