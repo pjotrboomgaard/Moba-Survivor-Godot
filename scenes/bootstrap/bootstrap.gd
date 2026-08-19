@@ -19,6 +19,11 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 
 var game_loaded := false
 var class_buttons: Array[Button] = []
+## Steam init is async (see SteamService.INIT_TIMEOUT_SECONDS); Host must not be clickable
+## until we know either way, or a click during that window silently falls back to a
+## LAN-only host with no lobby or invite at all.
+var _steam_status_known := false
+var _lobby_enabled := true
 
 
 func _ready() -> void:
@@ -52,23 +57,29 @@ func _start_runtime() -> void:
 
 
 func _on_steam_ready() -> void:
+	_steam_status_known = true
 	_refresh_steam_status()
 	_check_pending_steam_invite()
 
 
 func _on_steam_unavailable(_reason: String) -> void:
+	_steam_status_known = true
 	_refresh_steam_status()
 
 
 func _refresh_steam_status() -> void:
 	if steam_status_label == null:
 		return
-	if SteamService.is_available():
+	if not _steam_status_known:
+		steam_status_label.text = "Checking Steam..."
+		join_label.text = "Server address"
+	elif SteamService.is_available():
 		steam_status_label.text = "Steam: signed in as %s — Host opens an invite" % SteamService.local_persona_name()
 		join_label.text = "LAN / direct IP (advanced)"
 	else:
 		steam_status_label.text = "Steam not detected — host/join by LAN address only"
 		join_label.text = "Server address"
+	host_button.disabled = not _lobby_enabled or not _steam_status_known
 
 
 ## A friend accepted a Steam invite or clicked "Join Game": connect straight away, from
@@ -307,8 +318,9 @@ func _show_lobby(message: String) -> void:
 
 
 func _set_lobby_enabled(enabled: bool) -> void:
+	_lobby_enabled = enabled
 	solo_button.disabled = not enabled
-	host_button.disabled = not enabled
+	host_button.disabled = not enabled or not _steam_status_known
 	join_button.disabled = not enabled
 	address_input.editable = enabled
 	classic_button.disabled = not enabled

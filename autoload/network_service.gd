@@ -92,21 +92,25 @@ func is_online() -> bool:
 
 
 func _on_steam_lobby_created(lobby_id: int) -> void:
+	print("[NetworkService] Steam lobby created: ", lobby_id, " (pending role: ", _pending_steam_role, ")")
 	if _pending_steam_role != "host":
 		return
 	_pending_steam_role = ""
 	var peer := SteamMultiplayerPeer.new()
 	var error := peer.host_with_lobby(lobby_id)
 	if error != OK:
+		print("[NetworkService] host_with_lobby failed: ", error)
 		server_start_failed.emit(error)
 		return
 	steam_peer = peer
 	current_steam_lobby_id = lobby_id
 	multiplayer.multiplayer_peer = peer
+	print("[NetworkService] Steam host ready, lobby_id=", lobby_id)
 	server_started.emit(0)
 
 
-func _on_steam_lobby_create_failed(_reason: String) -> void:
+func _on_steam_lobby_create_failed(reason: String) -> void:
+	print("[NetworkService] Steam lobby create failed: ", reason)
 	if _pending_steam_role != "host":
 		return
 	_pending_steam_role = ""

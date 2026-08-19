@@ -36,12 +36,15 @@ var _waiting_for_init := false
 func _ready() -> void:
 	if not Engine.has_singleton("Steam"):
 		init_error = "GodotSteam extension not loaded"
+		print("[SteamService] ", init_error)
 		steam_unavailable.emit(init_error)
 		return
 	if not Steam.isSteamRunning():
 		init_error = "Steam client is not running"
+		print("[SteamService] ", init_error)
 		steam_unavailable.emit(init_error)
 		return
+	print("[SteamService] Steam extension loaded and client detected, starting init thread...")
 	_init_mutex = Mutex.new()
 	_init_thread = Thread.new()
 	_waiting_for_init = true
@@ -85,11 +88,13 @@ func _finish_init(result: Dictionary) -> void:
 	if not initialized:
 		set_process(false)
 		init_error = str(result.get("verbal", "Steam is not running"))
+		print("[SteamService] init failed: ", init_error, " raw=", result)
 		steam_unavailable.emit(init_error)
 		return
 	Steam.lobby_created.connect(_on_lobby_created)
 	Steam.lobby_joined.connect(_on_lobby_joined)
 	Steam.join_requested.connect(_on_join_requested)
+	print("[SteamService] ready as ", Steam.getPersonaName())
 	steam_ready.emit()
 
 
