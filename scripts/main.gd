@@ -8,30 +8,36 @@ extends Node2D
 
 @onready var actors: Node2D = $Actors
 @onready var spawn_timer: Timer = $EnemySpawnTimer
-@onready var hud: CanvasLayer = $HUD
+@onready var hud: GameHUD = $HUD
 
 var player_scene: PackedScene = preload("res://scenes/player/player.tscn")
 var enemy_scene: PackedScene = preload("res://scenes/enemy/enemy.tscn")
 var xp_orb_scene: PackedScene = preload("res://scenes/xp/xp_orb.tscn")
 var lightning_scene: PackedScene = preload("res://scenes/effects/lightning_effect.tscn")
+var combat_text_scene: PackedScene = preload("res://scenes/effects/combat_text.tscn")
 
 var players: Dictionary = {}
 var enemies: Dictionary = {}
 var xp_orbs: Dictionary = {}
 var pending_inputs: Dictionary = {}
 var pending_upgrades: Dictionary = {}
+var queued_upgrade_choices: Dictionary = {}
 var registered_remote_peers: Dictionary = {}
 var next_entity_id := 1
 var snapshot_accumulator := 0.0
 var input_accumulator := 0.0
 var initial_wave_spawned := false
 var game_over := false
+var run_elapsed := 0.0
 
 
 func _ready() -> void:
 	randomize()
 	NetworkService.peer_left.connect(_on_peer_left)
 	hud.upgrade_chosen.connect(_on_local_upgrade_chosen)
+	hud.dev_command.connect(_on_local_dev_command)
+	hud.restart_requested.connect(_on_restart_requested)
+	hud.leave_requested.connect(_on_leave_requested)
 	hud.set_connection_text(GameRuntime.mode_name())
 
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
@@ -49,6 +55,10 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT and not game_over:
+		run_elapsed += delta
+	if not GameRuntime.is_dedicated_server():
+		hud.set_run_time(run_elapsed)
 	if GameRuntime.is_server():
 		_update_host_input()
 		snapshot_accumulator += delta
@@ -111,11 +121,17 @@ func client_receive_snapshot(snapshot: Dictionary) -> void:
 	_apply_player_snapshot(snapshot.get("players", []))
 	_apply_enemy_snapshot(snapshot.get("enemies", []))
 	_apply_xp_snapshot(snapshot.get("xp_orbs", []))
+	run_elapsed = float(snapshot.get("run_elapsed", run_elapsed))
 
 
 @rpc("authority", "call_remote", "reliable")
 func client_play_staff_effect(points: PackedVector2Array) -> void:
 	_play_staff_effect(points)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_play_combat_number(world_position: Vector2, value: float, kind: String, critical: bool) -> void:
+	_play_combat_number(world_position, value, kind, critical)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -133,6 +149,16 @@ func server_choose_upgrade(upgrade_id: String) -> void:
 	_apply_upgrade_choice(peer_id, upgrade_id)
 
 
+@rpc("any_peer", "call_remote", "reliable")
+func server_dev_command(command: String) -> void:
+	if not GameRuntime.is_server() or not OS.is_debug_build():
+		return
+	var peer_id := multiplayer.get_remote_sender_id()
+	if not registered_remote_peers.has(peer_id):
+		return
+	_apply_dev_command(peer_id, command)
+
+
 func _create_player(peer_id: int, mode: int, local_player: bool) -> Player:
 	if players.has(peer_id):
 		return players[peer_id] as Player
@@ -142,6 +168,7 @@ func _create_player(peer_id: int, mode: int, local_player: bool) -> Player:
 	actors.add_child(player)
 	player.configure(peer_id, mode, local_player)
 	player.staff_cast.connect(_on_staff_cast)
+	player.combat_number.connect(_on_combat_number)
 	player.player_died.connect(_on_player_died)
 	player.level_reached.connect(_on_player_level_reached.bind(peer_id))
 	players[peer_id] = player
@@ -199,9 +226,21 @@ func _apply_pending_input(peer_id: int) -> void:
 func _on_enemy_spawn_timer_timeout() -> void:
 	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT or game_over:
 		return
-	if enemies.size() >= max_enemies or players.is_empty():
+	var active_cap := mini(max_enemies + floori(run_elapsed / 45.0) * 4, 75)
+	if enemies.size() >= active_cap or players.is_empty():
 		return
-	_spawn_enemy(randf_range(0.0, TAU), randf_range(spawn_distance_min, spawn_distance_max))
+	var party_bonus := maxi(0, players.size() - 1)
+	var spawn_count := 1 + party_bonus
+	if run_elapsed >= 180.0:
+		spawn_count += 1
+	for index in spawn_count:
+		if enemies.size() >= active_cap:
+			break
+		_spawn_enemy(
+			randf_range(0.0, TAU),
+			randf_range(spawn_distance_min, spawn_distance_max),
+			_choose_enemy_kind()
+		)
 
 
 func _spawn_initial_wave() -> void:
@@ -212,7 +251,7 @@ func _spawn_initial_wave() -> void:
 		_spawn_enemy(index * TAU / 5.0, 420.0)
 
 
-func _spawn_enemy(angle: float, distance: float) -> Enemy:
+func _spawn_enemy(angle: float, distance: float, kind: String = "grunt") -> Enemy:
 	var focus := _first_active_player()
 	if focus == null:
 		return null
@@ -224,10 +263,22 @@ func _spawn_enemy(angle: float, distance: float) -> Enemy:
 	candidate_position.y = clampf(candidate_position.y, -760.0, 760.0)
 	enemy.global_position = candidate_position
 	actors.add_child(enemy)
-	enemy.configure(entity_id, true)
+	var difficulty := 1.0 + run_elapsed / 420.0
+	enemy.configure(entity_id, true, kind, difficulty)
 	enemy.defeated.connect(_on_enemy_defeated)
 	enemies[entity_id] = enemy
 	return enemy
+
+
+func _choose_enemy_kind() -> String:
+	var roll := randf()
+	if run_elapsed >= 120.0 and roll < 0.08:
+		return "elite"
+	if run_elapsed >= 75.0 and roll < 0.30:
+		return "brute"
+	if run_elapsed >= 30.0 and roll < 0.58:
+		return "swift"
+	return "grunt"
 
 
 func _spawn_xp_orb(position: Vector2, value: int) -> XPOrb:
@@ -265,6 +316,22 @@ func _play_staff_effect(points: PackedVector2Array) -> void:
 	add_child(effect)
 
 
+func _on_combat_number(world_position: Vector2, value: float, kind: String, critical: bool) -> void:
+	_play_combat_number(world_position, value, kind, critical)
+	if GameRuntime.is_server():
+		for peer_id in registered_remote_peers.keys():
+			client_play_combat_number.rpc_id(peer_id, world_position, value, kind, critical)
+
+
+func _play_combat_number(world_position: Vector2, value: float, kind: String, critical: bool) -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	var combat_text := combat_text_scene.instantiate() as CombatText
+	combat_text.global_position = world_position + Vector2(randf_range(-9.0, 9.0), -20.0)
+	add_child(combat_text)
+	combat_text.setup(value, kind, critical)
+
+
 func _on_player_died(_peer_id: int) -> void:
 	if _all_players_dead():
 		game_over = true
@@ -276,7 +343,19 @@ func _on_player_died(_peer_id: int) -> void:
 func _on_player_level_reached(_level: int, peer_id: int) -> void:
 	if not GameRuntime.is_server() and GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
 		return
-	var upgrade_ids: Array[String] = hud.random_upgrade_ids()
+	queued_upgrade_choices[peer_id] = int(queued_upgrade_choices.get(peer_id, 0)) + 1
+	_offer_next_upgrade(peer_id)
+
+
+func _offer_next_upgrade(peer_id: int) -> void:
+	if pending_upgrades.has(peer_id) or int(queued_upgrade_choices.get(peer_id, 0)) <= 0:
+		return
+	var player := players.get(peer_id) as Player
+	if player == null:
+		return
+	var upgrade_ids := hud.structured_upgrade_ids(player)
+	if upgrade_ids.size() < 3:
+		return
 	pending_upgrades[peer_id] = upgrade_ids
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
 		hud.show_upgrade_ids(players[peer_id], upgrade_ids, GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
@@ -300,6 +379,47 @@ func _apply_upgrade_choice(peer_id: int, upgrade_id: String) -> void:
 		return
 	player.apply_upgrade(upgrade_id)
 	pending_upgrades.erase(peer_id)
+	queued_upgrade_choices[peer_id] = maxi(0, int(queued_upgrade_choices.get(peer_id, 0)) - 1)
+	_offer_next_upgrade(peer_id)
+
+
+func _on_local_dev_command(command: String) -> void:
+	if not OS.is_debug_build():
+		return
+	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
+		server_dev_command.rpc_id(1, command)
+	else:
+		var player := _local_player()
+		if player != null:
+			_apply_dev_command(player.owner_peer_id, command)
+
+
+func _apply_dev_command(peer_id: int, command: String) -> void:
+	var player := players.get(peer_id) as Player
+	if player == null:
+		return
+	match command:
+		"add_xp":
+			player.add_xp(100)
+		"add_5_levels":
+			pending_upgrades.erase(peer_id)
+			queued_upgrade_choices[peer_id] = 0
+			player.dev_add_levels(5)
+		"spawn_elite":
+			_spawn_enemy(randf_range(0.0, TAU), 360.0, "elite")
+		"toggle_invulnerable":
+			player.set_invulnerable(not player.health.invulnerable)
+
+
+func _on_restart_requested() -> void:
+	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
+		get_tree().paused = false
+		get_parent().call_deferred("restart_game")
+
+
+func _on_leave_requested() -> void:
+	get_tree().paused = false
+	get_parent().call_deferred("leave_game")
 
 
 func _build_snapshot() -> Dictionary:
@@ -319,6 +439,7 @@ func _build_snapshot() -> Dictionary:
 		"players": player_states,
 		"enemies": enemy_states,
 		"xp_orbs": orb_states,
+		"run_elapsed": run_elapsed,
 	}
 
 
@@ -354,7 +475,7 @@ func _apply_enemy_snapshot(states: Array) -> void:
 			var enemy := enemy_scene.instantiate() as Enemy
 			enemy.global_position = state.get("position", Vector2.ZERO)
 			actors.add_child(enemy)
-			enemy.configure(entity_id, false)
+			enemy.configure(entity_id, false, str(state.get("kind", "grunt")))
 			enemies[entity_id] = enemy
 		(enemies[entity_id] as Enemy).apply_network_state(state)
 	_remove_missing_entities(enemies, seen)
@@ -391,6 +512,7 @@ func _remove_missing_entities(collection: Dictionary, seen: Dictionary) -> void:
 func _on_peer_left(peer_id: int) -> void:
 	pending_inputs.erase(peer_id)
 	pending_upgrades.erase(peer_id)
+	queued_upgrade_choices.erase(peer_id)
 	registered_remote_peers.erase(peer_id)
 	var player := players.get(peer_id) as Player
 	players.erase(peer_id)

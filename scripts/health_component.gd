@@ -8,6 +8,7 @@ signal died
 @export var max_health: float = 100.0
 var current_health: float
 var is_dead: bool = false
+var invulnerable := false
 
 
 func _ready() -> void:
@@ -16,7 +17,7 @@ func _ready() -> void:
 
 
 func take_damage(amount: float) -> void:
-	if is_dead or amount <= 0.0:
+	if is_dead or invulnerable or amount <= 0.0:
 		return
 	current_health = maxf(0.0, current_health - amount)
 	damaged.emit(amount)

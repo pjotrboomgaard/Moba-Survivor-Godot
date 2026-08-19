@@ -107,6 +107,16 @@ func restart_game() -> void:
 	_open_game()
 
 
+func leave_game() -> void:
+	var game := get_node_or_null("Main")
+	if game != null:
+		game.queue_free()
+	NetworkService.stop()
+	game_loaded = false
+	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
+	_show_lobby("Choose solo, host, or join")
+
+
 func _on_connection_failed() -> void:
 	_clear_connection_callbacks()
 	NetworkService.stop()

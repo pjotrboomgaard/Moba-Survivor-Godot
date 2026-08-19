@@ -34,7 +34,7 @@ func _physics_process(delta: float) -> void:
 	if distance <= pickup_distance:
 		target.add_xp(xp_value)
 		queue_free()
-	elif distance <= attraction_radius:
+	elif distance <= maxf(attraction_radius, target.xp_pickup_radius()):
 		global_position = global_position.move_toward(target.global_position, attraction_speed * delta)
 
 

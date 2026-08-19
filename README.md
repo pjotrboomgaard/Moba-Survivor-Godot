@@ -7,7 +7,11 @@ Production-oriented Godot project for a one-to-four-player cooperative action su
 - WASD movement in a bounded arena.
 - Enemy spawning, pursuit and contact damage.
 - Cursor-directed Arc Staff with a cyan primary bolt and purple chains.
-- XP drops, levels and three upgrade choices.
+- XP drops, levels and structured offence/survival/utility choices.
+- Arc Staff tech including extra chains, chain range and Split Current.
+- Critical hits, regeneration, lifesteal and XP pickup upgrades.
+- Floating damage, critical-hit, healing and XP numbers.
+- Live Arc Staff stat panel and escalating enemy silhouettes.
 - Health, death and restart.
 - Placeholder vector graphics only.
 
@@ -33,6 +37,13 @@ See [docs/PHASE_1.md](docs/PHASE_1.md) for the two-instance test and honest limi
 3. Press F6/F5 and choose Solo, Host or Join.
 4. Move with WASD and hold the left mouse button to aim and cast the Arc Staff.
 
+Gameplay test controls:
+
+- `Esc`: open the run menu.
+- `F1`: toggle developer tools in a debug build.
+- Dev tools can add XP, add five levels without opening pickers, spawn an elite
+  and toggle invulnerability. Online commands are validated by the server.
+
 Command-line development modes:
 
 ```bash
@@ -52,4 +63,7 @@ This checks the project layout and all `res://` file references. A full GDScript
 
 ## Next checkpoint
 
-After the two-instance Mac test passes, the next checkpoint adds client prediction/reconciliation, reconnect handling, a production Linux export preset and the first hosted dedicated-server deployment. Content expansion waits until this networking path is stable.
+The next gameplay checkpoint deepens the Arc Staff into mutually exclusive
+Chain Lightning and Storm Caller branches, then adds the first wave director
+and boss. Networking work continues in parallel with reconnect handling and
+the first hosted dedicated-server deployment.
