@@ -129,6 +129,39 @@ layout_mode = 2
 toggle_mode = true
 text = "PJOTR MODE\n4 heroes · waves · bosses"
 
+[node name="DifficultyLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)
+text = "Difficulty (enemy health)"
+
+[node name="DifficultyRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="EasyButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow"]
+custom_minimum_size = Vector2(147, 44)
+layout_mode = 2
+toggle_mode = true
+text = "EASY"
+
+[node name="NormalButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow"]
+custom_minimum_size = Vector2(147, 44)
+layout_mode = 2
+toggle_mode = true
+text = "NORMAL"
+
+[node name="HardButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow"]
+custom_minimum_size = Vector2(147, 44)
+layout_mode = 2
+toggle_mode = true
+text = "HARD"
+
+[node name="BrutalButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow"]
+custom_minimum_size = Vector2(147, 44)
+layout_mode = 2
+toggle_mode = true
+text = "BRUTAL"
+
 [node name="ClassLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)

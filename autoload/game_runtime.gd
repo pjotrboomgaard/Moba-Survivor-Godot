@@ -16,11 +16,21 @@ enum GameMode {
 	PJOTR,
 }
 
+## How hard enemy waves hit in Pjotr mode — see WaveDirector.DIFFICULTY_HEALTH_MULTIPLIERS
+## for the actual enemy-health multipliers each of these maps to.
+enum Difficulty {
+	EASY,
+	NORMAL,
+	HARD,
+	BRUTAL,
+}
+
 const DEFAULT_PORT := 27015
 const DEFAULT_MAX_PLAYERS := 4
 
 var mode: RuntimeMode = RuntimeMode.OFFLINE
 var game_mode: GameMode = GameMode.PJOTR
+var difficulty: Difficulty = Difficulty.NORMAL
 ## Debug aid: skip ahead so late waves and bosses can be reached without a full run.
 var start_wave := 1
 var server_address := "127.0.0.1"
@@ -60,6 +70,10 @@ func configure_from_arguments(arguments: PackedStringArray) -> void:
 			game_mode = GameMode.CLASSIC
 		elif argument == "--pjotr":
 			game_mode = GameMode.PJOTR
+		elif argument.begins_with("--difficulty="):
+			var requested_difficulty := argument.trim_prefix("--difficulty=").to_upper()
+			if requested_difficulty in Difficulty.keys():
+				difficulty = Difficulty[requested_difficulty]
 		elif argument.begins_with("--port="):
 			var requested_port := argument.trim_prefix("--port=").to_int()
 			if requested_port > 0 and requested_port <= 65535:
@@ -73,6 +87,14 @@ func configure_from_arguments(arguments: PackedStringArray) -> void:
 
 func set_game_mode(next_game_mode: GameMode) -> void:
 	game_mode = next_game_mode
+
+
+func set_difficulty(next_difficulty: Difficulty) -> void:
+	difficulty = next_difficulty
+
+
+func difficulty_name() -> String:
+	return Difficulty.keys()[difficulty].capitalize()
 
 
 func is_classic() -> bool:

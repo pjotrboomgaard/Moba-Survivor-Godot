@@ -81,6 +81,16 @@ const BOSS_WAVE_INTERVAL := 10
 ## than before, so the run keeps escalating rather than plateauing once players out-level it.
 const BASE_HEALTH_MULTIPLIER := 2.0
 const HEALTH_GROWTH_PER_WAVE := 0.10
+
+## The lobby's difficulty pick scales enemy health on top of the wave curve above (Pjotr mode
+## only — Classic's endless-grunt test loop stays flat regardless of this).
+const DIFFICULTY_HEALTH_MULTIPLIERS := {
+	GameRuntime.Difficulty.EASY: 0.65,
+	GameRuntime.Difficulty.NORMAL: 1.0,
+	GameRuntime.Difficulty.HARD: 1.5,
+	GameRuntime.Difficulty.BRUTAL: 2.25,
+}
+
 const CLASSIC_SPAWN_INTERVAL := 1.4
 const DEBUT_COUNT := 2
 
@@ -217,7 +227,8 @@ func _release_next_group() -> void:
 
 
 func health_multiplier_for_wave(target_wave: int) -> float:
-	return BASE_HEALTH_MULTIPLIER + HEALTH_GROWTH_PER_WAVE * float(maxi(0, target_wave - 1))
+	var base := BASE_HEALTH_MULTIPLIER + HEALTH_GROWTH_PER_WAVE * float(maxi(0, target_wave - 1))
+	return base * float(DIFFICULTY_HEALTH_MULTIPLIERS.get(GameRuntime.difficulty, 1.0))
 
 
 func budget_for_wave(target_wave: int) -> float:

@@ -42,6 +42,7 @@ func _ready() -> void:
 	_test_ability_offer_alternation()
 	_test_ability_archetypes_smoke()
 	_test_ability_aoe_and_cooldown()
+	_test_difficulty_health_scaling()
 
 	if failures.is_empty():
 		print("Class smoke test passed.")
@@ -997,6 +998,35 @@ func _test_ability_aoe_and_cooldown() -> void:
 	_check(first.health.current_health < first_before, "Static Bolt did not damage the first enemy in its blast")
 	_check(second.health.current_health < second_before, "Static Bolt did not damage the second enemy in its blast")
 	_cleanup([nuker, first, second])
+
+
+func _test_difficulty_health_scaling() -> void:
+	var previous_difficulty := GameRuntime.difficulty
+	var director := WaveDirector.new()
+	add_child(director)
+	director.set_player_count(1)
+
+	GameRuntime.set_difficulty(GameRuntime.Difficulty.NORMAL)
+	var normal_health := director.health_multiplier_for_wave(5)
+
+	GameRuntime.set_difficulty(GameRuntime.Difficulty.EASY)
+	var easy_health := director.health_multiplier_for_wave(5)
+	_check(easy_health < normal_health, "Easy must give enemies less health than Normal")
+
+	GameRuntime.set_difficulty(GameRuntime.Difficulty.HARD)
+	var hard_health := director.health_multiplier_for_wave(5)
+	_check(hard_health > normal_health, "Hard must give enemies more health than Normal")
+
+	GameRuntime.set_difficulty(GameRuntime.Difficulty.BRUTAL)
+	var brutal_health := director.health_multiplier_for_wave(5)
+	_check(brutal_health > hard_health, "Brutal must give enemies more health than Hard")
+
+	# The difficulty pick stacks with the existing per-wave curve, it doesn't replace it.
+	GameRuntime.set_difficulty(GameRuntime.Difficulty.NORMAL)
+	_check(director.health_multiplier_for_wave(20) > director.health_multiplier_for_wave(1), "Health must still climb across waves at Normal difficulty")
+
+	GameRuntime.set_difficulty(previous_difficulty)
+	director.free()
 
 
 func _cleanup(nodes: Array) -> void:

@@ -14,6 +14,12 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var class_description: Label = $StatusLayer/LobbyPanel/Margin/Layout/ClassDescription
 @onready var classic_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow/ClassicButton
 @onready var pjotr_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow/PjotrButton
+@onready var difficulty_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/DifficultyLabel
+@onready var difficulty_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow
+@onready var easy_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow/EasyButton
+@onready var normal_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow/NormalButton
+@onready var hard_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow/HardButton
+@onready var brutal_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow/BrutalButton
 @onready var steam_status_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/SteamStatusLabel
 @onready var join_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/JoinLabel
 @onready var mode_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow
@@ -52,6 +58,11 @@ const STEAM_OPERATION_TIMEOUT := 22.0
 func _ready() -> void:
 	classic_button.pressed.connect(_on_game_mode_pressed.bind(GameRuntime.GameMode.CLASSIC))
 	pjotr_button.pressed.connect(_on_game_mode_pressed.bind(GameRuntime.GameMode.PJOTR))
+	easy_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.EASY))
+	normal_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.NORMAL))
+	hard_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.HARD))
+	brutal_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.BRUTAL))
+	_refresh_difficulty()
 	_build_class_selection()
 	_refresh_game_mode()
 	solo_button.pressed.connect(_on_solo_pressed)
@@ -195,11 +206,29 @@ func _refresh_game_mode() -> void:
 	pjotr_button.button_pressed = not classic
 	class_label.visible = not classic
 	class_grid.visible = not classic
+	difficulty_label.visible = not classic
+	difficulty_row.visible = not classic
 	if classic:
 		var arclight := PlayerClass.by_id(PlayerClass.DEFAULT_CLASS_ID)
 		class_description.text = "Classic run — %s only, endless grunts, no waves or bosses." % arclight.name
 	else:
 		_refresh_class_selection()
+
+
+func _on_difficulty_pressed(next_difficulty: GameRuntime.Difficulty) -> void:
+	GameRuntime.set_difficulty(next_difficulty)
+	_refresh_difficulty()
+
+
+func _refresh_difficulty() -> void:
+	var buttons := {
+		GameRuntime.Difficulty.EASY: easy_button,
+		GameRuntime.Difficulty.NORMAL: normal_button,
+		GameRuntime.Difficulty.HARD: hard_button,
+		GameRuntime.Difficulty.BRUTAL: brutal_button,
+	}
+	for difficulty_option in buttons:
+		buttons[difficulty_option].button_pressed = difficulty_option == GameRuntime.difficulty
 
 
 func _on_class_pressed(class_id: String) -> void:
@@ -350,6 +379,8 @@ func _show_network_lobby() -> void:
 	status_label.text = "Invite friends, then start when everyone is ready." if _is_lobby_host else "Waiting for the host to start the game..."
 	_set_lobby_enabled(false)
 	mode_row.visible = false
+	difficulty_label.visible = false
+	difficulty_row.visible = false
 	class_label.visible = false
 	class_grid.visible = false
 	class_description.visible = false
@@ -597,6 +628,8 @@ func _show_lobby(message: String) -> void:
 	status_label.text = message
 	_set_lobby_enabled(true)
 	mode_row.visible = true
+	difficulty_label.visible = not GameRuntime.is_classic()
+	difficulty_row.visible = not GameRuntime.is_classic()
 	class_label.visible = not GameRuntime.is_classic()
 	class_grid.visible = not GameRuntime.is_classic()
 	class_description.visible = true
@@ -625,6 +658,10 @@ func _set_lobby_enabled(enabled: bool) -> void:
 	address_input.editable = enabled
 	classic_button.disabled = not enabled
 	pjotr_button.disabled = not enabled
+	easy_button.disabled = not enabled
+	normal_button.disabled = not enabled
+	hard_button.disabled = not enabled
+	brutal_button.disabled = not enabled
 	for button in class_buttons:
 		button.disabled = not enabled
 

@@ -187,6 +187,11 @@ const ABILITY_COOLDOWN_BASE_MULTIPLIER := 3.0
 const ABILITY_COOLDOWN_PER_RANK_MULTIPLIER := 4.2
 const ABILITY_COOLDOWN_MIN_MULTIPLIER := 1.6
 
+## Abilities hit twice as hard (damage/heal/shield/knockback) as their authored numbers below,
+## on top of everything else — a flat power multiplier so the whole roster stays proportional
+## instead of hand-doubling 48 entries.
+const ABILITY_POWER_MULTIPLIER := 2.0
+
 ## Area/chain/mobility abilities also grow physically stronger with rank, not just cheaper —
 ## a maxed-out ability should feel like it can clear a crowd, not just tick faster.
 const ABILITY_RADIUS_GROWTH_PER_RANK := 0.15
@@ -652,7 +657,7 @@ static func ability_values(ability_id: String, rank: int) -> Dictionary:
 		float(data.get("cooldown_base", 5.0)) * ABILITY_COOLDOWN_BASE_MULTIPLIER
 			+ float(data.get("cooldown_per_rank", 0.0)) * ABILITY_COOLDOWN_PER_RANK_MULTIPLIER * steps
 	)
-	var power := float(data.get("power_base", 0.0)) + float(data.get("power_per_rank", 0.0)) * steps
+	var power := (float(data.get("power_base", 0.0)) + float(data.get("power_per_rank", 0.0)) * steps) * ABILITY_POWER_MULTIPLIER
 	var duration := float(data.get("duration_base", 0.0)) + float(data.get("duration_per_rank", 0.0)) * steps
 	var radius := float(data.get("radius", 0.0))
 	if radius <= 0.0:
