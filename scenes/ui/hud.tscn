@@ -159,6 +159,17 @@ offset_right = 1252.0
 offset_bottom = 174.0
 text = "NEXT WAVE ▶"
 
+[node name="NextWaveTimer" type="Label" parent="."]
+visible = false
+offset_left = 1000.0
+offset_top = 176.0
+offset_right = 1252.0
+offset_bottom = 196.0
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+theme_override_font_sizes/font_size = 14
+text = "auto in 14s"
+horizontal_alignment = 2
+
 [node name="CodexPanel" type="PanelContainer" parent="."]
 visible = false
 offset_left = 140.0

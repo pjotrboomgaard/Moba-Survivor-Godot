@@ -35,8 +35,14 @@ var current_wave := 0
 var current_wave_name := ""
 var current_debut_type_id := ""
 var _near_shop_stand := false
+## Peer ids that have pressed the Next Wave button this breather (co-op requires everyone).
+var ready_for_next_wave: Dictionary = {}
+## peer_id of the downed player -> seconds a stationary teammate has stood next to them.
+var revive_progress: Dictionary = {}
 
 const SHOP_STAND_INTERACT_RADIUS := 70.0
+const REVIVE_RADIUS := 60.0
+const REVIVE_DURATION := 5.0
 
 
 func _ready() -> void:
@@ -87,6 +93,8 @@ func _physics_process(delta: float) -> void:
 			_send_local_input()
 	if not GameRuntime.is_dedicated_server() and not GameRuntime.is_classic():
 		_update_shop_stand_proximity()
+	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT:
+		_update_revives(delta)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -210,15 +218,38 @@ func client_open_shop() -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func client_show_next_wave_button() -> void:
-	hud.show_next_wave_button(true)
+func client_show_next_wave_button(seconds: float) -> void:
+	hud.show_next_wave_button(true, seconds)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_update_next_wave_ready(ready_count: int, total_count: int) -> void:
+	hud.set_next_wave_ready_count(ready_count, total_count)
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func server_skip_intermission() -> void:
+func server_ready_for_next_wave() -> void:
 	if not GameRuntime.is_server():
 		return
-	wave_director.skip_intermission()
+	_mark_ready_for_next_wave(multiplayer.get_remote_sender_id())
+
+
+## Solo just skips outright; co-op needs everyone in before the breather actually ends, so
+## nobody gets dropped into the next wave mid-shop because a teammate was trigger-happy.
+func _mark_ready_for_next_wave(peer_id: int) -> void:
+	if not players.has(peer_id) or ready_for_next_wave.get(peer_id, false):
+		return
+	ready_for_next_wave[peer_id] = true
+	var ready_count := ready_for_next_wave.size()
+	var total_count := players.size()
+	if not GameRuntime.is_dedicated_server():
+		hud.set_next_wave_ready_count(ready_count, total_count)
+	if GameRuntime.is_server():
+		for peer_id_to_notify in registered_remote_peers.keys():
+			client_update_next_wave_ready.rpc_id(peer_id_to_notify, ready_count, total_count)
+	if ready_count >= total_count:
+		ready_for_next_wave.clear()
+		wave_director.skip_intermission()
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -274,11 +305,55 @@ func _update_shop_stand_proximity() -> void:
 		hud.close_shop()
 
 
+## Solo has nobody to revive it (the loop below only ever finds the downed player itself),
+## so this only ever matters in co-op, which is the point — dying isn't a full reset there
+## as long as someone can reach you and hold position.
+func _update_revives(delta: float) -> void:
+	for peer_id in players.keys():
+		var downed := players[peer_id] as Player
+		if downed == null or not is_instance_valid(downed) or downed.active:
+			revive_progress.erase(peer_id)
+			continue
+		var reviver := _find_stationary_reviver(downed)
+		if reviver == null:
+			var fading: float = revive_progress.get(peer_id, 0.0)
+			if fading > 0.0:
+				revive_progress[peer_id] = maxf(0.0, fading - delta * 2.0)
+			continue
+		var progress: float = float(revive_progress.get(peer_id, 0.0)) + delta
+		if progress < REVIVE_DURATION:
+			revive_progress[peer_id] = progress
+			continue
+		revive_progress.erase(peer_id)
+		downed.revive()
+
+
+func _find_stationary_reviver(downed: Player) -> Player:
+	for candidate_node in players.values():
+		var candidate := candidate_node as Player
+		if candidate == null or not is_instance_valid(candidate) or candidate == downed or not candidate.active:
+			continue
+		if candidate.global_position.distance_to(downed.global_position) > REVIVE_RADIUS:
+			continue
+		var input_state: Dictionary = pending_inputs.get(candidate.owner_peer_id, {})
+		var moving: bool = (input_state.get("move", Vector2.ZERO) as Vector2).length() > 0.05
+		var attacking: bool = input_state.get("attack", false)
+		if moving or attacking:
+			continue
+		return candidate
+	return null
+
+
 func _on_local_next_wave_requested() -> void:
-	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
-		server_skip_intermission.rpc_id(1)
-	else:
+	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 		wave_director.skip_intermission()
+		return
+	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
+		server_ready_for_next_wave.rpc_id(1)
+		return
+	var local_player := _local_player()
+	if local_player != null:
+		_mark_ready_for_next_wave(local_player.owner_peer_id)
 
 
 func _create_player(peer_id: int, mode: int, local_player: bool, class_id: String = PlayerClass.DEFAULT_CLASS_ID) -> Player:
@@ -362,6 +437,7 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 	current_wave = wave
 	current_wave_name = theme_name
 	current_debut_type_id = debut_type_id
+	ready_for_next_wave.clear()
 	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT:
 		for player in players.values():
 			(player as Player).refresh_wave_items()
@@ -378,7 +454,7 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 ## Shop waves keep their own "START NEXT WAVE" button in the shop panel; the standalone
 ## Next Wave button only shows for the plain breathers between waves, so it doesn't sit
 ## underneath the shop panel doing the same thing twice.
-func _on_intermission_started(next_wave: int, _seconds: float) -> void:
+func _on_intermission_started(next_wave: int, seconds: float) -> void:
 	if WaveDirector.shop_opens_before(next_wave):
 		if not GameRuntime.is_dedicated_server():
 			hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
@@ -387,10 +463,10 @@ func _on_intermission_started(next_wave: int, _seconds: float) -> void:
 				client_open_shop.rpc_id(peer_id)
 		return
 	if not GameRuntime.is_dedicated_server():
-		hud.show_next_wave_button(true)
+		hud.show_next_wave_button(true, seconds)
 	if GameRuntime.is_server():
 		for peer_id in registered_remote_peers.keys():
-			client_show_next_wave_button.rpc_id(peer_id)
+			client_show_next_wave_button.rpc_id(peer_id, seconds)
 
 
 func _on_wave_group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float) -> void:
@@ -756,10 +832,15 @@ func _on_peer_left(peer_id: int) -> void:
 	pending_upgrades.erase(peer_id)
 	queued_upgrade_choices.erase(peer_id)
 	registered_remote_peers.erase(peer_id)
+	ready_for_next_wave.erase(peer_id)
+	revive_progress.erase(peer_id)
 	var player := players.get(peer_id) as Player
 	players.erase(peer_id)
 	if player != null:
 		player.queue_free()
+	if not ready_for_next_wave.is_empty() and ready_for_next_wave.size() >= players.size():
+		ready_for_next_wave.clear()
+		wave_director.skip_intermission()
 
 
 func _local_player() -> Player:

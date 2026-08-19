@@ -80,6 +80,14 @@ const ITEMS: Array[Dictionary] = [
 		"price_step": 20,
 		"max_stacks": 4,
 	},
+	{
+		"id": "bash",
+		"name": "War Maul",
+		"description": "Every hit knocks enemies back",
+		"base_price": 50,
+		"price_step": 35,
+		"max_stacks": 3,
+	},
 ]
 
 

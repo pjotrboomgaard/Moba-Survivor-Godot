@@ -36,14 +36,11 @@ func _draw() -> void:
 	for segment_index in range(points.size() - 1):
 		var color := main_color if segment_index == 0 else chain_color
 		color.a *= effect_alpha
-		_draw_bolt(
-			points[segment_index],
-			points[segment_index + 1],
-			color,
-			4.0 if segment_index == 0 else 2.4,
-			segment_index,
-			effect_alpha
-		)
+		var width := 4.0 if segment_index == 0 else 2.4
+		if style == PlayerClass.EffectStyle.WAVE:
+			_draw_wave(points[segment_index], points[segment_index + 1], color, width, segment_index, effect_alpha)
+		else:
+			_draw_bolt(points[segment_index], points[segment_index + 1], color, width, segment_index, effect_alpha)
 
 
 func _draw_burst(center: Vector2, radius: float, effect_alpha: float) -> void:
@@ -52,6 +49,30 @@ func _draw_burst(center: Vector2, radius: float, effect_alpha: float) -> void:
 	draw_circle(center, outer, Color(main_color, 0.18 * effect_alpha))
 	draw_arc(center, outer, 0.0, TAU, 48, Color(main_color, effect_alpha), 5.0, true)
 	draw_arc(center, outer * 0.72, 0.0, TAU, 40, Color(chain_color, effect_alpha * 0.85), 3.0, true)
+
+
+## Smooth sine curve tapering to zero at both ends, unlike _draw_bolt's jagged noise — reads
+## as a growing vine/tendril rather than a lightning strike.
+func _draw_wave(start: Vector2, finish: Vector2, color: Color, width: float, segment_index: int, effect_alpha: float) -> void:
+	var wave := PackedVector2Array([start])
+	var distance := start.distance_to(finish)
+	var steps := maxi(6, ceili(distance / 18.0))
+	var normal := start.direction_to(finish).orthogonal()
+	var amplitude := 9.0
+	var phase := float(flicker_seed % 100 + segment_index * 17)
+	for index in range(1, steps):
+		var progress := float(index) / float(steps)
+		var center := start.lerp(finish, progress)
+		var offset := sin(progress * TAU * 1.5 + phase) * amplitude * sin(progress * PI)
+		wave.append(center + normal * offset)
+	wave.append(finish)
+	draw_polyline(wave, Color(color, color.a * 0.25), width + 6.0, true)
+	draw_polyline(wave, color, width, true)
+	for index in range(2, steps, 3):
+		var progress := float(index) / float(steps)
+		var offset := sin(progress * TAU * 1.5 + phase) * amplitude * sin(progress * PI)
+		var bud := start.lerp(finish, progress) + normal * offset
+		draw_circle(bud, width * 0.6, Color(1.0, 1.0, 1.0, effect_alpha * 0.6))
 
 
 func _draw_bolt(start: Vector2, finish: Vector2, color: Color, width: float, segment_index: int, effect_alpha: float) -> void:

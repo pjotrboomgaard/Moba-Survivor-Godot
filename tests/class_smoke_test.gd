@@ -596,7 +596,7 @@ func _test_wave_themes_and_debuts() -> void:
 
 	# Wave 1 was front-loaded to be a real fight instead of easing players in (was 5.5,
 	# barely one group of grunts); the early game still has to stay bounded, just less calm.
-	_check(director.budget_for_wave(5) < 21.0, "The early game must stay bounded, got %.1f" % director.budget_for_wave(5))
+	_check(director.budget_for_wave(5) < 28.0, "The early game must stay bounded, got %.1f" % director.budget_for_wave(5))
 	director.free()
 
 

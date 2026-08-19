@@ -69,7 +69,12 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_body_entered(body: Node) -> void:
-	if is_cosmetic or not body.is_in_group(target_group):
+	if is_cosmetic:
+		return
+	if body.is_in_group("obstacles"):
+		queue_free()
+		return
+	if not body.is_in_group(target_group):
 		return
 	var health := body.get_node_or_null("HealthComponent") as HealthComponent
 	if health != null:

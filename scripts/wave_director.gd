@@ -68,12 +68,14 @@ const INTERMISSION_SECONDS := 14.0
 const SHOP_INTERMISSION_SECONDS := 30.0
 ## The shop only opens after every tenth wave, right on the heels of a boss.
 const SHOP_WAVE_INTERVAL := 10
-const GROUP_INTERVAL_SECONDS := 2.2
+const GROUP_INTERVAL_SECONDS := 1.7
 const AMBUSH_GROUP_INTERVAL := 0.2
 const WAVE_TIMEOUT_SECONDS := 120.0
 const ELITE_WAVE_INTERVAL := 5
 const BOSS_WAVE_INTERVAL := 10
-const HEALTH_GROWTH_PER_WAVE := 0.08
+## Lowered from 0.08: individual enemies stay a bit less spongy as waves go on, traded for a
+## bigger budget_for_wave() below so total enemy count keeps climbing instead.
+const HEALTH_GROWTH_PER_WAVE := 0.06
 const CLASSIC_SPAWN_INTERVAL := 1.4
 const DEBUT_COUNT := 2
 
@@ -218,8 +220,10 @@ func budget_for_wave(target_wave: int) -> float:
 	# grunts) instead of easing players in, and each extra player now pulls in
 	# proportionally more enemies (was +45% per player, now +70%) instead of a
 	# co-op group just splitting up roughly the same-sized wave a solo run gets.
-	var solo_budget := 9.0 + 1.9 * float(target_wave)
-	return solo_budget * (1.0 + 0.7 * float(player_count - 1))
+	# Bumped further alongside the lower HEALTH_GROWTH_PER_WAVE above: more total
+	# enemies, individually a bit less tanky, rather than fewer bullet sponges.
+	var solo_budget := 12.0 + 2.6 * float(target_wave)
+	return solo_budget * (1.0 + 0.85 * float(player_count - 1))
 
 
 ## Returns {name, archetype, modifier, debut} for any wave number.
@@ -248,7 +252,10 @@ func _improvised_archetype(target_wave: int) -> Archetype:
 		return Archetype.BOSS
 	if target_wave % ELITE_WAVE_INTERVAL == 0:
 		return Archetype.ELITE
+	# STANDARD gets an extra slot so fast/swarm-heavy archetypes (SWARM, AIR_ASSAULT with its
+	# drifter/bomber pair) don't dominate the late-game mix on their own.
 	var pool: Array[Archetype] = [
+		Archetype.STANDARD,
 		Archetype.STANDARD,
 		Archetype.STANDARD,
 		Archetype.SWARM,

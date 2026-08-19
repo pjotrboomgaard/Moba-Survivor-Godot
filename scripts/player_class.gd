@@ -11,6 +11,9 @@ enum Weapon {
 enum EffectStyle {
 	BOLT,
 	BURST,
+	## Smooth vine-like curve instead of a jagged bolt — Warden's Mending Bolt used to render
+	## as a green-tinted copy of Arclight's lightning, which read as the same weapon.
+	WAVE,
 }
 
 enum DamageType {
@@ -84,7 +87,7 @@ const CLASSES: Array[Dictionary] = [
 		"counters": "Strong vs hexers and summoners",
 		"damage_type": DamageType.NATURE,
 		"weapon": Weapon.MENDING_BOLT,
-		"effect_style": EffectStyle.BOLT,
+		"effect_style": EffectStyle.WAVE,
 		"body_color": "45d483",
 		"accent_color": "c8ffdf",
 		"effect_color": "7dffb4",

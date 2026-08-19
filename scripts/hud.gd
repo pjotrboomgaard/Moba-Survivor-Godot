@@ -9,7 +9,7 @@ signal leave_requested
 signal dev_command(command: String)
 signal next_wave_requested
 
-const UPGRADE_ICON_MAX_WIDTH := 72
+const UPGRADE_ICON_MAX_WIDTH := 40
 
 @onready var class_label: Label = $MarginContainer/Layout/Title
 @onready var instructions_label: Label = $MarginContainer/Layout/Instructions
@@ -21,6 +21,7 @@ const UPGRADE_ICON_MAX_WIDTH := 72
 @onready var connection_label: Label = $ConnectionLabel
 @onready var wave_label: Label = $WaveLabel
 @onready var next_wave_button: Button = $NextWaveButton
+@onready var next_wave_timer_label: Label = $NextWaveTimer
 @onready var boss_panel: VBoxContainer = $BossPanel
 @onready var boss_name_label: Label = $BossPanel/BossName
 @onready var boss_bar: ProgressBar = $BossPanel/BossBar
@@ -58,6 +59,7 @@ var shown_class_id := ""
 var shop_buttons: Dictionary = {}
 var _last_gold := -1
 var _escape_paused := false
+var _next_wave_countdown := 0.0
 
 
 func _ready() -> void:
@@ -137,11 +139,14 @@ func _on_dev_button_pressed(command: String) -> void:
 	dev_command.emit(command)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if shop_panel.visible:
 		_refresh_shop()
 	if dev_panel.visible:
 		_refresh_dev_panel()
+	if next_wave_timer_label.visible:
+		_next_wave_countdown = maxf(0.0, _next_wave_countdown - delta)
+		next_wave_timer_label.text = "auto in %ds" % ceili(_next_wave_countdown)
 	_refresh_ability()
 
 
@@ -237,14 +242,28 @@ func announce_wave(wave: int, theme_display_name: String, debut_type_id: String)
 
 
 ## Shown for the whole breather between waves (not just shop breathers), so anyone can cut
-## the wait short instead of always sitting out the full intermission timer.
-func show_next_wave_button(value: bool) -> void:
-	next_wave_button.visible = value and not GameRuntime.is_classic()
+## the wait short instead of always sitting out the full intermission timer. `seconds` is the
+## full breather length, counted down locally in _process for the "auto in Ns" label.
+func show_next_wave_button(value: bool, seconds: float = 0.0) -> void:
+	var show := value and not GameRuntime.is_classic()
+	next_wave_button.visible = show
+	next_wave_timer_label.visible = show
+	next_wave_button.disabled = false
+	next_wave_button.text = "NEXT WAVE ▶"
+	_next_wave_countdown = seconds
+
+
+## Solo skips the moment it's pressed; co-op needs everyone in, so the label tracks how many
+## players have pressed it so far instead of just vanishing on the first click.
+func set_next_wave_ready_count(ready_count: int, total_count: int) -> void:
+	if total_count <= 1:
+		return
+	next_wave_button.text = "NEXT WAVE ▶ (%d/%d READY)" % [ready_count, total_count]
 
 
 func _on_next_wave_pressed() -> void:
 	AudioService.play("ui_click")
-	next_wave_button.visible = false
+	next_wave_button.disabled = true
 	next_wave_requested.emit()
 
 
@@ -312,12 +331,16 @@ func _build_codex_text() -> String:
 	return "\n".join(lines)
 
 
+const SHOP_ICON_MAX_WIDTH := 48
+
 func _build_shop() -> void:
 	for item in ShopCatalog.ITEMS:
 		var button := Button.new()
 		button.custom_minimum_size = Vector2(300.0, 112.0)
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.icon = SpriteLibrary.texture_for(str(item.id))
+		button.expand_icon = true
+		button.add_theme_constant_override("icon_max_width", SHOP_ICON_MAX_WIDTH)
 		button.pressed.connect(_on_shop_item_pressed.bind(str(item.id)))
 		shop_grid.add_child(button)
 		shop_buttons[str(item.id)] = button

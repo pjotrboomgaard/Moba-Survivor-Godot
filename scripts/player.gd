@@ -70,6 +70,7 @@ var resistance_pierce := 0.0
 var ember_damage_per_second := 0.0
 var hit_slow_factor := 1.0
 var hit_slow_duration := 1.0
+var knockback_strength := 0.0
 var pickup_radius_bonus := 0.0
 var aegis_charges := 0
 var aegis_charges_left := 0
@@ -84,11 +85,15 @@ var command_attack := false
 var network_target_position := Vector2.ZERO
 
 
+var _normal_collision_mask := 0
+
+
 func _ready() -> void:
 	health.died.connect(_on_died)
 	health.damaged.connect(_on_damaged)
 	world_health_bar.bind_health(health)
 	xp_changed.emit(current_xp, xp_required, level)
+	_normal_collision_mask = collision_mask
 	queue_redraw()
 
 
@@ -153,7 +158,10 @@ func apply_network_state(state: Dictionary) -> void:
 	network_target_position = state.get("position", global_position)
 	facing_direction = state.get("facing", facing_direction)
 	aim_world_position = state.get("aim", aim_world_position)
+	var was_active := active
 	active = state.get("active", active)
+	if active != was_active:
+		modulate = Color.WHITE if active else Color(0.35, 0.35, 0.4, 1.0)
 	current_xp = state.get("xp", current_xp)
 	xp_required = state.get("xp_required", xp_required)
 	level = state.get("level", level)
@@ -214,12 +222,19 @@ func _physics_process(delta: float) -> void:
 
 
 func _update_sprint(delta: float, ability_held: bool) -> void:
+	var was_sprinting := sprint_timer > 0.0
 	sprint_timer = maxf(0.0, sprint_timer - delta)
 	sprint_cooldown = maxf(0.0, sprint_cooldown - delta)
 	if ability_held and has_active_item() and sprint_timer <= 0.0 and sprint_cooldown <= 0.0:
 		sprint_timer = SPRINT_DURATION
 		sprint_cooldown = SPRINT_COOLDOWN + SPRINT_DURATION
 		AudioService.play("dash")
+	## Phase Boots: the sprint genuinely phases through units and obstacles now, not just a
+	## speed boost — collision is off for the whole burst and restored the instant it ends.
+	if sprint_timer > 0.0 and not was_sprinting:
+		collision_mask = 0
+	elif sprint_timer <= 0.0 and was_sprinting:
+		collision_mask = _normal_collision_mask
 
 
 func _update_items(delta: float) -> void:
@@ -397,6 +412,8 @@ func _damage_enemy(target: Node2D, amount: float) -> void:
 		health.heal(dealt * lifesteal_ratio)
 	if hit_slow_factor < 1.0 and target.has_method("apply_slow"):
 		target.apply_slow(hit_slow_factor, hit_slow_duration)
+	if knockback_strength > 0.0 and target.has_method("apply_knockback"):
+		target.apply_knockback(global_position.direction_to(target.global_position) * knockback_strength)
 
 
 func add_gold(amount: int) -> void:
@@ -437,6 +454,7 @@ func _apply_shop_item(item_id: String) -> void:
 		"ember": ember_damage_per_second += 6.0
 		"lodestone": pickup_radius_bonus += 0.6
 		"frostbite": hit_slow_factor = maxf(0.4, hit_slow_factor - 0.2)
+		"bash": knockback_strength += 85.0
 		"phase_boots": sprint_cooldown = 0.0
 		"aegis":
 			aegis_charges += 1
@@ -558,6 +576,18 @@ func _on_died() -> void:
 	active = false
 	modulate = Color(0.35, 0.35, 0.4, 1.0)
 	player_died.emit(owner_peer_id)
+
+
+## Server-side only: a teammate stood still next to this downed player for long enough
+## (see main.gd's revive tracking).
+func revive() -> void:
+	if simulation_mode == SimulationMode.PROXY:
+		return
+	active = true
+	modulate = Color.WHITE
+	health.is_dead = false
+	health.current_health = health.max_health * 0.5
+	health.health_changed.emit(health.current_health, health.max_health)
 
 
 func _draw() -> void:

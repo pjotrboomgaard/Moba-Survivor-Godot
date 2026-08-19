@@ -8,6 +8,7 @@ signal exploded(origin: Vector2, radius: float, damage: float)
 
 const SEPARATION_RANGE := 62.0
 const SEPARATION_STRENGTH := 130.0
+const KNOCKBACK_DECAY := 720.0
 
 @export var movement_speed := 100.0
 @export var contact_damage := 6.0
@@ -45,6 +46,10 @@ var summon_interval := 0.0
 var charge_speed := 0.0
 var charge_windup := 0.0
 var charge_duration := 0.0
+var dash_interval := 0.0
+## Lurker-style camouflage: faded while approaching, snaps to fully visible once it commits
+## to its windup (see winding_up below) so the ambush still telegraphs fairly.
+var stealth_alpha := 1.0
 var separation_weight := 1.0
 
 var network_id := 0
@@ -61,6 +66,8 @@ var charging := false
 var winding_up := false
 var charge_direction := Vector2.RIGHT
 var has_exploded := false
+var dash_timer := 0.0
+var knockback_velocity := Vector2.ZERO
 
 
 func _ready() -> void:
@@ -109,6 +116,9 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	charge_speed = float(EnemyType.field(type_id, "charge_speed"))
 	charge_windup = float(EnemyType.field(type_id, "charge_windup"))
 	charge_duration = float(EnemyType.field(type_id, "charge_duration"))
+	dash_interval = float(EnemyType.field(type_id, "dash_interval"))
+	dash_timer = dash_interval * 0.5
+	stealth_alpha = float(EnemyType.field(type_id, "stealth_alpha"))
 	separation_weight = float(EnemyType.field(type_id, "separation_weight"))
 	summon_timer = summon_interval
 
@@ -144,12 +154,18 @@ func damage_multiplier_for(damage_type: int) -> float:
 
 
 func _physics_process(delta: float) -> void:
+	if stealth_alpha < 1.0:
+		modulate.a = 1.0 if winding_up else stealth_alpha
 	if not server_authoritative:
 		global_position = global_position.lerp(network_target_position, clampf(delta * 12.0, 0.0, 1.0))
 		if aura_radius > 0.0 or winding_up:
 			aura_pulse += delta
 			queue_redraw()
 		return
+
+	if knockback_velocity.length_squared() > 1.0:
+		global_position += knockback_velocity * delta
+		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_DECAY * delta)
 
 	_update_slow(delta)
 	attack_cooldown = maxf(0.0, attack_cooldown - delta)
@@ -162,6 +178,9 @@ func _physics_process(delta: float) -> void:
 		_apply_healing_aura(delta)
 	if summon_count > 0 and summon_interval > 0.0:
 		_update_summoning(delta)
+
+	if dash_interval > 0.0 and _process_boss_dash(delta):
+		return
 
 	match behaviour:
 		EnemyType.Behaviour.RANGED:
@@ -220,6 +239,41 @@ func _process_ranged() -> void:
 
 func _process_support() -> void:
 	_hold_preferred_distance()
+
+
+## A periodic lunge layered on top of a boss's normal behaviour (melee/ranged), so bosses stay
+## threatening instead of being kited forever. Reuses the same windup/charge state as the
+## CHARGER behaviour above — safe since no boss actually has that behaviour, so the vars are
+## otherwise unused for them. Returns true while it owns this frame's movement.
+func _process_boss_dash(delta: float) -> bool:
+	if charging:
+		charge_state_timer -= delta
+		_move(charge_direction * charge_speed * slow_factor)
+		if _try_contact_damage() or charge_state_timer <= 0.0:
+			charging = false
+			dash_timer = dash_interval
+		return true
+
+	if winding_up:
+		charge_state_timer -= delta
+		velocity = Vector2.ZERO
+		queue_redraw()
+		if charge_state_timer <= 0.0:
+			winding_up = false
+			charging = true
+			charge_state_timer = charge_duration
+			charge_direction = global_position.direction_to(target.global_position)
+		return true
+
+	dash_timer -= delta
+	if dash_timer <= 0.0:
+		winding_up = true
+		charge_state_timer = charge_windup
+		velocity = Vector2.ZERO
+		queue_redraw()
+		AudioService.play("charge")
+		return true
+	return false
 
 
 func _process_charger(delta: float) -> void:
@@ -339,6 +393,12 @@ func apply_slow(next_slow_factor: float, duration: float) -> void:
 	slow_factor = minf(slow_factor, clampf(next_slow_factor, 0.1, 1.0))
 	slow_timer = maxf(slow_timer, duration)
 	queue_redraw()
+
+
+func apply_knockback(impulse: Vector2) -> void:
+	if not server_authoritative:
+		return
+	knockback_velocity += impulse
 
 
 func _update_slow(delta: float) -> void:
