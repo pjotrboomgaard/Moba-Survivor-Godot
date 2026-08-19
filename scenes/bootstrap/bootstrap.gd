@@ -14,6 +14,8 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var class_description: Label = $StatusLayer/LobbyPanel/Margin/Layout/ClassDescription
 @onready var classic_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow/ClassicButton
 @onready var pjotr_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow/PjotrButton
+@onready var steam_status_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/SteamStatusLabel
+@onready var join_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/JoinLabel
 
 var game_loaded := false
 var class_buttons: Array[Button] = []
@@ -28,6 +30,10 @@ func _ready() -> void:
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
 	address_input.text_submitted.connect(_on_address_submitted)
+	SteamService.steam_ready.connect(_on_steam_ready)
+	SteamService.steam_unavailable.connect(_on_steam_unavailable)
+	SteamService.join_requested.connect(_on_steam_join_requested)
+	_refresh_steam_status()
 	call_deferred("_start_runtime")
 
 
@@ -35,12 +41,48 @@ func _start_runtime() -> void:
 	match GameRuntime.mode:
 		GameRuntime.RuntimeMode.OFFLINE:
 			_show_lobby("Choose solo, host, or join")
+			_check_pending_steam_invite()
 		GameRuntime.RuntimeMode.HOST:
 			_start_host()
 		GameRuntime.RuntimeMode.CLIENT:
 			_start_client(GameRuntime.server_address, GameRuntime.server_port)
 		GameRuntime.RuntimeMode.DEDICATED_SERVER:
 			_start_dedicated_server()
+
+
+func _on_steam_ready() -> void:
+	_refresh_steam_status()
+	_check_pending_steam_invite()
+
+
+func _on_steam_unavailable(_reason: String) -> void:
+	_refresh_steam_status()
+
+
+func _refresh_steam_status() -> void:
+	if steam_status_label == null:
+		return
+	if SteamService.is_available():
+		steam_status_label.text = "Steam: signed in as %s — Host opens an invite" % SteamService.local_persona_name()
+		join_label.text = "LAN / direct IP (advanced)"
+	else:
+		steam_status_label.text = "Steam not detected — host/join by LAN address only"
+		join_label.text = "Server address"
+
+
+## A friend accepted a Steam invite or clicked "Join Game": connect straight away, from
+## the lobby menu or (via +connect_lobby on the command line) from a cold launch.
+func _check_pending_steam_invite() -> void:
+	if not game_loaded and GameRuntime.pending_steam_lobby_id != 0 and SteamService.is_available():
+		var lobby_id := GameRuntime.pending_steam_lobby_id
+		GameRuntime.pending_steam_lobby_id = 0
+		_join_via_steam(lobby_id)
+
+
+func _on_steam_join_requested(lobby_id: int) -> void:
+	if game_loaded:
+		return
+	_join_via_steam(lobby_id)
 
 
 func _build_class_selection() -> void:
@@ -100,7 +142,10 @@ func _on_solo_pressed() -> void:
 
 func _on_host_pressed() -> void:
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.HOST)
-	_start_host()
+	if SteamService.is_available():
+		_start_steam_host()
+	else:
+		_start_host()
 
 
 func _on_join_pressed() -> void:
@@ -124,6 +169,47 @@ func _start_host() -> void:
 		_open_game()
 	else:
 		_show_lobby("Could not start host on UDP %d" % GameRuntime.server_port)
+
+
+func _start_steam_host() -> void:
+	_set_lobby_enabled(false)
+	_clear_host_callbacks()
+	NetworkService.server_started.connect(_on_steam_host_started, CONNECT_ONE_SHOT)
+	NetworkService.server_start_failed.connect(_on_steam_host_failed, CONNECT_ONE_SHOT)
+	status_label.text = "Creating Steam lobby..."
+	NetworkService.start_steam_host(GameRuntime.max_players)
+
+
+func _on_steam_host_started(_port: int) -> void:
+	_clear_host_callbacks()
+	SteamService.invite_friends(NetworkService.current_steam_lobby_id)
+	_open_game()
+
+
+func _on_steam_host_failed(_error: Error) -> void:
+	_clear_host_callbacks()
+	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
+	_show_lobby("Could not create Steam lobby. Try LAN / direct IP instead.")
+
+
+func _clear_host_callbacks() -> void:
+	if NetworkService.server_started.is_connected(_on_steam_host_started):
+		NetworkService.server_started.disconnect(_on_steam_host_started)
+	if NetworkService.server_start_failed.is_connected(_on_steam_host_failed):
+		NetworkService.server_start_failed.disconnect(_on_steam_host_failed)
+
+
+## Joins a Steam lobby, whether from an in-session invite (Steam overlay "Join Game") or a
+## cold launch via +connect_lobby.
+func _join_via_steam(lobby_id: int) -> void:
+	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.CLIENT)
+	_set_lobby_enabled(false)
+	_clear_connection_callbacks()
+	NetworkService.connection_succeeded.connect(_on_connection_succeeded, CONNECT_ONE_SHOT)
+	NetworkService.connection_failed.connect(_on_connection_failed, CONNECT_ONE_SHOT)
+	status_label.text = "Joining Steam lobby..."
+	if NetworkService.start_steam_client(lobby_id) != OK:
+		_show_lobby("Could not join Steam lobby")
 
 
 func _start_client(address: String, port: int) -> void:

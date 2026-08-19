@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.7")
 [autoload]
 
 GameRuntime="*res://autoload/game_runtime.gd"
+SteamService="*res://autoload/steam_service.gd"
 NetworkService="*res://autoload/network_service.gd"
 PlayerProfile="*res://autoload/player_profile.gd"
 InputService="*res://autoload/input_service.gd"

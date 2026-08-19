@@ -29,6 +29,19 @@
 - Level-up offers are generated and validated by the server.
 - Solo mode keeps pausing during a level choice; online players choose in real time.
 - Disconnect cleanup removes the departed player from the authoritative world.
+- Steam networking via the GodotSteam GDExtension (`addons/godotsteam`): a new `SteamService`
+  autoload wraps Steam init, lobby create/join and the overlay invite dialog; `NetworkService`
+  gained `start_steam_host()`/`start_steam_client()` which drop a `SteamMultiplayerPeer` into
+  `multiplayer.multiplayer_peer` exactly like the existing ENet path, so no gameplay code
+  changed. Hosting creates a friends-only lobby and opens the Steam invite overlay; accepting an
+  invite auto-joins, including from a cold launch via Steam's `+connect_lobby <id>` argument
+  (parsed in `GameRuntime.configure_from_arguments`). Steam init runs on a worker thread with an
+  8-second timeout, since a stale/dead local Steam registration can make the SDK's blocking init
+  call hang far longer than that — so a machine without a live Steam client (CI, the dedicated
+  server, a player without Steam) always falls back to the LAN/direct-IP flow instead of
+  freezing the menu. `steam_appid.txt` (480, Valve's public test App ID) and `addons/godotsteam`
+  ship trimmed to Windows/Linux/macOS 64-bit only; Android/iOS binaries aren't included since
+  those platforms aren't targeted yet.
 
 ## Test on one Mac
 
@@ -46,14 +59,14 @@ The most reliable test uses one host build and one client build:
 10. Clear wave ten and confirm both players see the shop, their shared gold and identical prices, and that earlier waves never open it.
 10. Close the client and confirm its character disappears on the host.
 
-For a LAN test, enter the host Mac's local IPv4 address instead of `127.0.0.1`. Internet play still requires port forwarding or the hosted dedicated server planned for the next infrastructure checkpoint.
+For a LAN test, enter the host Mac's local IPv4 address instead of `127.0.0.1`. For an internet test, run one instance signed into Steam, press Host, and send the Steam overlay invite to a second Steam account/friend — no port forwarding required. Plain direct-IP internet play still needs port forwarding or the hosted dedicated server planned for a future infrastructure checkpoint.
 
 ## Deliberate limitations
 
 - Movement is server-authoritative without client prediction, so remote movement may feel delayed. Prediction and reconciliation come after correctness is proven.
 - Snapshots currently contain complete small-world state rather than delta compression.
-- There is no Steam authentication, matchmaking or reconnect token yet.
-- The lobby does not list discoverable games; joining uses an address.
+- Steam is used only as a P2P transport/invite layer, not as an identity provider yet — player identity still comes from the local profile, and there's no Steam-linked account, matchmaking, or reconnect token.
+- The lobby does not list discoverable games; joining is by address (LAN) or Steam invite.
 - Art is hand-authored placeholder pixel art without animation frames.
 - Godot must still perform the engine-level smoke test on the development Mac.
 

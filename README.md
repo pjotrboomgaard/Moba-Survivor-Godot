@@ -126,6 +126,10 @@ The forge refuses to write anything if a grid is not square or uses a colour out
 
 - One Godot project for clients and the headless server.
 - In-game Solo, Host and Join menu plus dedicated-server startup mode.
+- Steam networking (GodotSteam GDExtension) when Steam is running: Host creates a friends-only
+  Steam lobby and opens the Steam overlay invite dialog, so friends connect with no port
+  forwarding — accepting an invite auto-joins, even from a cold launch. Falls back to the
+  LAN/direct-IP flow below when Steam isn't detected.
 - ENet/UDP transport with dynamic players and a four-player total limit.
 - Server-authoritative movement, enemy simulation, damage, health and XP.
 - Twenty world snapshots and thirty client input messages per second by default.
@@ -143,6 +147,13 @@ See [docs/PHASE_1.md](docs/PHASE_1.md) for the two-instance test and honest limi
 2. Import this folder through `project.godot`.
 3. Press F6/F5, pick a role, then choose Solo, Host or Join.
 4. Move with WASD and hold the left mouse button to aim and use the weapon.
+
+With Steam running, **Host** creates a Steam lobby and pops the Steam overlay invite dialog —
+send it to a friend and their client auto-connects the moment they accept, no address to type
+and no router configuration. `steam_appid.txt` currently holds `480`, Valve's public "Spacewar"
+test App ID, for development; a real release needs the studio's own Steamworks App ID there
+instead. Without Steam running, the menu falls back to the LAN / direct IP fields exactly as
+before.
 
 Command-line development modes:
 

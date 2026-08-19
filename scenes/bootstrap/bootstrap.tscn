@@ -45,6 +45,14 @@ theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)
 text = "PHASE 1 NETWORK PLAYTEST"
 horizontal_alignment = 1
 
+[node name="SteamStatusLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.8, 0.65, 1)
+theme_override_font_sizes/font_size = 14
+text = "Checking Steam..."
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="SpacerTop" type="Control" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2

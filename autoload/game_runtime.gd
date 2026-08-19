@@ -26,6 +26,9 @@ var start_wave := 1
 var server_address := "127.0.0.1"
 var server_port := DEFAULT_PORT
 var max_players := DEFAULT_MAX_PLAYERS
+## Set when Steam launches the game to accept a friend's invite while it wasn't already
+## running (Steam appends "+connect_lobby <id>" to the command line in that case).
+var pending_steam_lobby_id := 0
 
 
 func _ready() -> void:
@@ -40,8 +43,11 @@ func configure_from_arguments(arguments: PackedStringArray) -> void:
 	if OS.has_feature("dedicated_server"):
 		next_mode = RuntimeMode.DEDICATED_SERVER
 
-	for argument in arguments:
-		if argument == "--server":
+	for i in arguments.size():
+		var argument := arguments[i]
+		if argument == "+connect_lobby" and i + 1 < arguments.size():
+			pending_steam_lobby_id = arguments[i + 1].to_int()
+		elif argument == "--server":
 			next_mode = RuntimeMode.DEDICATED_SERVER
 		elif argument == "--host":
 			next_mode = RuntimeMode.HOST

@@ -18,7 +18,7 @@ Godot shared gameplay and data
 Clients
 ├── platform adapter (guest / Steam / Apple / Google)
 ├── neutral player_id and server-side entitlements
-└── ENet/UDP connection
+└── ENet/UDP connection, or Steam P2P (SteamMultiplayerPeer) when Steam is running
 
 Backend
 ├── account and entitlement API
@@ -27,6 +27,8 @@ Backend
 ```
 
 Steam, Apple and Google identities must be links to an internal player account. They must never become the canonical database key. Store SDK calls stay behind platform adapters, so gameplay code does not know which store launched it.
+
+Today's Steam integration (`autoload/steam_service.gd`, GodotSteam via `addons/godotsteam`) is transport only: it gives clients NAT-free P2P connectivity and overlay-based invites through `SteamMultiplayerPeer`, dropped into the same `multiplayer.multiplayer_peer` slot ENet uses. It intentionally does not yet touch identity — `PlayerProfile` still owns `player_id`. Wiring Steam's identity into the account system above is future work, not part of this transport layer.
 
 ## Authority rules
 
