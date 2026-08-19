@@ -64,8 +64,9 @@ const SOUND_LIBRARY: Dictionary = {
 const MUSIC_TRACK: AudioStreamOggVorbis = preload("res://assets/audio/music/arena_theme.ogg")
 const MUSIC_VOLUME_DB := -15.0
 
-## Turned off for now — the sourced takes didn't land well; music stays on separately.
+## Turned off for now — the sourced takes/track didn't land well.
 const SFX_ENABLED := false
+const MUSIC_ENABLED := false
 
 @onready var _music_player: AudioStreamPlayer = _make_music_player()
 
@@ -85,7 +86,7 @@ func play(sound_id: String) -> void:
 
 
 func play_music() -> void:
-	if not _music_player.playing:
+	if MUSIC_ENABLED and not _music_player.playing:
 		_music_player.play()
 
 
