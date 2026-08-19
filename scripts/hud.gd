@@ -77,6 +77,11 @@ func _ready() -> void:
 		choice_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		choice_button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 		choice_button.add_theme_constant_override("icon_max_width", UPGRADE_ICON_MAX_WIDTH)
+		## Ability cards run up to 4 lines (name, flavor, effect, modifier) — without wrapping
+		## and a smaller size, that text just overflows the button instead of fitting it.
+		choice_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		choice_button.add_theme_font_size_override("font_size", 15)
+		choice_button.clip_text = false
 	shop_continue.pressed.connect(_on_shop_continue_pressed)
 	resume_button.pressed.connect(_on_resume_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)

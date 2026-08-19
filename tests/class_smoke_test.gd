@@ -552,6 +552,13 @@ func _test_sprite_art() -> void:
 	for prop_name in ["spit", "bolt", "spark", "xp_orb", "coin"]:
 		_check(SpriteLibrary.texture_for(prop_name) != null, "Prop %s has no sprite" % prop_name)
 
+	for class_data in PlayerClass.CLASSES:
+		for ability_id in class_data.ability_pool:
+			_check(SpriteLibrary.texture_for(str(ability_id)) != null, "Ability %s has no icon" % ability_id)
+			_check(SpriteLibrary.texture_for("%s_fx0" % ability_id) != null, "Ability %s has no cast animation" % ability_id)
+
+	_check(SpriteLibrary.texture_for("arclight_static_bolt").get_width() == 16, "Ability icons must be 16×16")
+
 	_check(SpriteLibrary.texture_for("does_not_exist") == null, "A missing sprite must resolve to null, not crash")
 
 	var brute := _make_enemy(Vector2.ZERO, "brute")
@@ -655,6 +662,7 @@ func _test_gold_rewards() -> void:
 	player.gold = 0
 	player.add_gold(100)
 	_check(player.gold == 200, "The gold multiplier is not applied to income")
+	_check(GameRuntime.GOLD_AWARD_DIVISOR == 10, "Gold drops should be divided before they reach the player")
 	_cleanup([player])
 
 

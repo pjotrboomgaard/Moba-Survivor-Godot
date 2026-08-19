@@ -1111,7 +1111,9 @@ static func all_sprites() -> Dictionary:
 	_collect(sprites, BOSS_ROWS, BOSS_PALETTES)
 	_collect(sprites, PROP_ROWS, PROP_PALETTES)
 	_collect(sprites, ICON_ROWS, ICON_PALETTES)
-	_collect(sprites, ABILITY_ICON_ROWS, ABILITY_ICON_PALETTES)
+	var ability_sprites := AbilityArt.all_sprites()
+	for sprite_name in ability_sprites:
+		sprites[sprite_name] = ability_sprites[sprite_name]
 	_collect(sprites, TERRAIN_ROWS, TERRAIN_PALETTES)
 	return sprites
 

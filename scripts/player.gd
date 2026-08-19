@@ -6,7 +6,7 @@ signal xp_changed(current_xp: int, xp_required: int, level: int)
 signal gold_changed(gold: int)
 signal level_reached(level: int)
 signal staff_cast(effect_kind: String, points: PackedVector2Array)
-signal ability_cast(effect_kind: String, effect_style: int, points: PackedVector2Array)
+signal ability_cast(ability_id: String, effect_style: int, points: PackedVector2Array)
 
 enum SimulationMode {
 	OFFLINE,
@@ -84,6 +84,7 @@ var command_move := Vector2.ZERO
 var command_aim := Vector2.RIGHT * 100.0
 var command_attack := false
 var command_ability_slots: Array = [false, false, false, false]
+var _casting_ability_id := ""
 var network_target_position := Vector2.ZERO
 
 ## Hero abilities (see PlayerClass.ABILITIES). Each entry is {"id": String, "rank": int};
@@ -347,6 +348,7 @@ func _cast_known_ability(slot: int) -> void:
 	if data.is_empty():
 		return
 	var values := PlayerClass.ability_values(ability_id, int(entry.rank))
+	_casting_ability_id = ability_id
 	ability_cooldowns[slot] = values.cooldown
 	match int(data.archetype):
 		PlayerClass.Archetype.NUKE_BOLT:
@@ -374,7 +376,7 @@ func _cast_known_ability(slot: int) -> void:
 
 
 func _emit_ability_cast(style: int, points: PackedVector2Array) -> void:
-	ability_cast.emit(class_id, style, points)
+	ability_cast.emit(_casting_ability_id, style, points)
 
 
 ## Shared "the ability's primary hit landed on this enemy" handling: base damage plus

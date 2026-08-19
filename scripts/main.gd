@@ -15,6 +15,7 @@ var player_scene: PackedScene = preload("res://scenes/player/player.tscn")
 var enemy_scene: PackedScene = preload("res://scenes/enemy/enemy.tscn")
 var xp_orb_scene: PackedScene = preload("res://scenes/xp/xp_orb.tscn")
 var lightning_scene: PackedScene = preload("res://scenes/effects/lightning_effect.tscn")
+var ability_vfx_scene: PackedScene = preload("res://scenes/effects/ability_vfx.tscn")
 var projectile_scene: PackedScene = preload("res://scenes/projectile/projectile.tscn")
 
 var players: Dictionary = {}
@@ -218,8 +219,8 @@ func server_choose_ability(ability_id: String) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func client_play_ability_effect(effect_kind: String, effect_style: int, points: PackedVector2Array) -> void:
-	_play_ability_effect(effect_kind, effect_style, points)
+func client_play_ability_effect(ability_id: String, effect_style: int, points: PackedVector2Array) -> void:
+	_play_ability_effect(ability_id, effect_style, points)
 
 
 ## Dev-menu commands only ever apply to the sender's own player, and only in debug builds,
@@ -648,9 +649,12 @@ func _on_enemy_defeated(enemy: Enemy) -> void:
 func _award_gold(amount: int) -> void:
 	if GameRuntime.is_classic() or amount <= 0:
 		return
+	var scaled := maxi(0, amount / GameRuntime.GOLD_AWARD_DIVISOR)
+	if scaled <= 0:
+		return
 	for player in players.values():
 		if is_instance_valid(player) and (player as Player).active:
-			(player as Player).add_gold(amount)
+			(player as Player).add_gold(scaled)
 
 
 func _on_xp_orb_exited(entity_id: int) -> void:
@@ -677,26 +681,30 @@ func _play_staff_effect(effect_kind: String, points: PackedVector2Array) -> void
 	AudioService.play("cast_%s" % effect_kind)
 
 
-func _on_ability_cast(effect_kind: String, effect_style: int, points: PackedVector2Array) -> void:
-	_play_ability_effect(effect_kind, effect_style, points)
+func _on_ability_cast(ability_id: String, effect_style: int, points: PackedVector2Array) -> void:
+	_play_ability_effect(ability_id, effect_style, points)
 	if GameRuntime.is_server():
 		for peer_id in registered_remote_peers.keys():
-			client_play_ability_effect.rpc_id(peer_id, effect_kind, effect_style, points)
+			client_play_ability_effect.rpc_id(peer_id, ability_id, effect_style, points)
 
 
-## Same as _play_staff_effect (same class colors), but the ability picks its own visual shape
-## (bolt/burst) instead of always using the hero's weapon style.
-func _play_ability_effect(effect_kind: String, effect_style: int, points: PackedVector2Array) -> void:
-	if GameRuntime.is_dedicated_server():
+## Pixel-art cast animation for Pjotr-mode abilities, with a subtle vector flash underneath.
+func _play_ability_effect(ability_id: String, effect_style: int, points: PackedVector2Array) -> void:
+	if GameRuntime.is_dedicated_server() or GameRuntime.is_classic():
 		return
-	var class_data := PlayerClass.by_id(effect_kind)
-	var effect := lightning_scene.instantiate() as LightningEffect
-	effect.style = effect_style
-	effect.main_color = Color(class_data.effect_color)
-	effect.chain_color = Color(class_data.effect_secondary)
-	effect.points = points
-	add_child(effect)
-	AudioService.play("cast_%s" % effect_kind)
+	var class_prefix := ability_id.split("_")[0]
+	var class_data := PlayerClass.by_id(class_prefix)
+	var flash := lightning_scene.instantiate() as LightningEffect
+	flash.style = effect_style
+	flash.main_color = Color(class_data.effect_color)
+	flash.chain_color = Color(class_data.effect_secondary)
+	flash.lifetime = 0.1
+	flash.points = points
+	add_child(flash)
+	var vfx := ability_vfx_scene.instantiate() as AbilityVfx
+	vfx.configure(ability_id, effect_style, points)
+	add_child(vfx)
+	AudioService.play("cast_%s" % class_prefix)
 
 
 func _on_player_died(_peer_id: int) -> void:

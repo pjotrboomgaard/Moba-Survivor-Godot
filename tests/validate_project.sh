@@ -207,6 +207,21 @@ if ! rg -q 'SHOP_WAVE_INTERVAL' scripts/wave_director.gd || ! rg -q 'shop_opens_
   exit 1
 fi
 
+	if ! rg -q 'GOLD_AWARD_DIVISOR' autoload/game_runtime.gd; then
+  echo "Gold income must be scaled down for the shop economy" >&2
+  exit 1
+fi
+
+if ! rg -q 'class_name AbilityArt' tools/ability_art.gd; then
+  echo "Ability icons and cast animations must be generated" >&2
+  exit 1
+fi
+
+if ! rg -q 'class_name AbilityVfx' scripts/ability_vfx.gd; then
+  echo "Ability cast VFX must exist" >&2
+  exit 1
+fi
+
 if ! rg -q 'func try_cheat_death' scripts/player.gd; then
   echo "Aegis Sigil must hook into lethal damage" >&2
   exit 1
