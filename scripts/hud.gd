@@ -50,6 +50,8 @@ const UPGRADE_ICON_MAX_WIDTH := 40
 @onready var dev_invulnerable_button: Button = $DevPanel/DevLayout/DevButtons/InvulnerableButton
 @onready var codex_panel: PanelContainer = $CodexPanel
 @onready var codex_text: RichTextLabel = $CodexPanel/CodexLayout/CodexScroll/CodexText
+@onready var stats_panel: PanelContainer = $StatsPanel
+@onready var stats_text: Label = $StatsPanel/StatsLayout/StatsText
 
 var bound_player: Player
 var offered_upgrade_ids: Array[String] = []
@@ -84,6 +86,13 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("show_stats"):
+		stats_panel.visible = true
+		stats_text.text = _build_stats_text()
+		return
+	if event.is_action_released("show_stats"):
+		stats_panel.visible = false
+		return
 	if OS.is_debug_build() and event.is_action_pressed("dev_toggle"):
 		dev_panel.visible = not dev_panel.visible
 		return
@@ -144,10 +153,39 @@ func _process(delta: float) -> void:
 		_refresh_shop()
 	if dev_panel.visible:
 		_refresh_dev_panel()
+	if stats_panel.visible:
+		stats_text.text = _build_stats_text()
 	if next_wave_timer_label.visible:
 		_next_wave_countdown = maxf(0.0, _next_wave_countdown - delta)
 		next_wave_timer_label.text = "auto in %ds" % ceili(_next_wave_countdown)
 	_refresh_ability()
+
+
+## Hold SHIFT to see it — a live readout of the bound player's current combat stats,
+## including anything upgrades/shop items have changed so far this run.
+func _build_stats_text() -> String:
+	if bound_player == null:
+		return ""
+	var lines: Array[String] = []
+	lines.append("HP: %d / %d" % [ceili(bound_player.health.current_health), ceili(bound_player.health.max_health)])
+	lines.append("Damage: %.1f" % bound_player.weapon_damage)
+	lines.append("Attack speed: %.2f/s" % (1.0 / maxf(0.01, bound_player.attack_interval)))
+	lines.append("Range: %d" % int(bound_player.attack_range))
+	lines.append("Move speed: %d" % int(bound_player.movement_speed))
+	if bound_player.chain_count > 0:
+		lines.append("Chains: %d" % bound_player.chain_count)
+	if bound_player.health.damage_taken_multiplier < 1.0:
+		lines.append("Damage taken: x%.2f" % bound_player.health.damage_taken_multiplier)
+	if bound_player.lifesteal_ratio > 0.0:
+		lines.append("Lifesteal: %d%%" % roundi(bound_player.lifesteal_ratio * 100.0))
+	if bound_player.thorns_ratio > 0.0:
+		lines.append("Thorns: %d%%" % roundi(bound_player.thorns_ratio * 100.0))
+	if bound_player.knockback_strength > 0.0:
+		lines.append("Knockback: yes")
+	if bound_player.hit_slow_factor < 1.0:
+		lines.append("Hit slow: %d%%" % roundi((1.0 - bound_player.hit_slow_factor) * 100.0))
+	lines.append("Gold: %d" % bound_player.gold)
+	return "\n".join(lines)
 
 
 func _refresh_dev_panel() -> void:

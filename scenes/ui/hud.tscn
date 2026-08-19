@@ -170,6 +170,27 @@ theme_override_font_sizes/font_size = 14
 text = "auto in 14s"
 horizontal_alignment = 2
 
+[node name="StatsPanel" type="PanelContainer" parent="."]
+visible = false
+offset_left = 24.0
+offset_top = 140.0
+offset_right = 300.0
+offset_bottom = 380.0
+
+[node name="StatsLayout" type="VBoxContainer" parent="StatsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="StatsTitle" type="Label" parent="StatsPanel/StatsLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.87, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "STATS  (hold SHIFT)"
+
+[node name="StatsText" type="Label" parent="StatsPanel/StatsLayout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+
 [node name="CodexPanel" type="PanelContainer" parent="."]
 visible = false
 offset_left = 140.0
