@@ -1,8 +1,15 @@
+class_name Arena
 extends Node2D
 
 const ARENA_SIZE := Vector2(2400.0, 1600.0)
 
 const OBSTACLE_SCENE: PackedScene = preload("res://scenes/arena/obstacle.tscn")
+const SHOP_STAND_SCENE: PackedScene = preload("res://scenes/arena/shop_stand.tscn")
+
+## Walk-up shop, always open (unlike the forced breather every 10 waves) — see main.gd's
+## proximity check. Placed off-center so it doesn't sit in the middle of the fight.
+const SHOP_STAND_POSITION := Vector2(560.0, -260.0)
+const SHOP_STAND_CLEARANCE := 140.0
 
 ## One art pixel becomes this many world pixels, for ground, decals and rocks
 ## alike, so everything shares the same chunky grid.
@@ -77,9 +84,15 @@ func _build_field() -> void:
 		)
 		if candidate.length() < SPAWN_CLEARANCE:
 			continue
+		if candidate.distance_to(SHOP_STAND_POSITION) < SHOP_STAND_CLEARANCE:
+			continue
 		if _too_close_to_other_obstacle(candidate):
 			continue
 		_add_obstacle(candidate, OBSTACLE_TYPES[rng.randi() % OBSTACLE_TYPES.size()])
+
+	var shop_stand := SHOP_STAND_SCENE.instantiate() as Node2D
+	shop_stand.global_position = SHOP_STAND_POSITION
+	add_child(shop_stand)
 
 
 func _too_close_to_other_obstacle(candidate: Vector2) -> bool:

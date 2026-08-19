@@ -45,7 +45,7 @@ const SCRIPTED_WAVES: Array[Dictionary] = [
 	{"name": "Bombardment", "archetype": Archetype.STANDARD, "debut": "bomber"},
 	{"name": "Unholy Choir", "archetype": Archetype.STANDARD, "debut": "hexer"},
 	{"name": "Iron Line", "archetype": Archetype.STANDARD, "debut": "sentinel"},
-	{"name": "Ambush", "archetype": Archetype.AMBUSH},
+	{"name": "Ambush", "archetype": Archetype.AMBUSH, "debut": "lurker"},
 	{"name": "Division", "archetype": Archetype.STANDARD, "debut": "splitter"},
 	{"name": "Skyfall", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.ENRAGED},
 	{"name": "Stampede", "archetype": Archetype.STANDARD, "debut": "charger"},
@@ -73,7 +73,7 @@ const AMBUSH_GROUP_INTERVAL := 0.2
 const WAVE_TIMEOUT_SECONDS := 120.0
 const ELITE_WAVE_INTERVAL := 5
 const BOSS_WAVE_INTERVAL := 10
-const HEALTH_GROWTH_PER_WAVE := 0.065
+const HEALTH_GROWTH_PER_WAVE := 0.08
 const CLASSIC_SPAWN_INTERVAL := 1.4
 const DEBUT_COUNT := 2
 
@@ -215,9 +215,11 @@ func health_multiplier_for_wave(target_wave: int) -> float:
 
 func budget_for_wave(target_wave: int) -> float:
 	# Front-loaded so wave 1 is already a real fight (was 5.5, barely one group of
-	# grunts) instead of easing players in; growth per wave stays close to before.
-	var solo_budget := 7.5 + 1.6 * float(target_wave)
-	return solo_budget * (1.0 + 0.45 * float(player_count - 1))
+	# grunts) instead of easing players in, and each extra player now pulls in
+	# proportionally more enemies (was +45% per player, now +70%) instead of a
+	# co-op group just splitting up roughly the same-sized wave a solo run gets.
+	var solo_budget := 9.0 + 1.9 * float(target_wave)
+	return solo_budget * (1.0 + 0.7 * float(player_count - 1))
 
 
 ## Returns {name, archetype, modifier, debut} for any wave number.

@@ -7,6 +7,7 @@ signal shop_closed
 signal restart_requested
 signal leave_requested
 signal dev_command(command: String)
+signal next_wave_requested
 
 const UPGRADE_ICON_MAX_WIDTH := 72
 
@@ -19,6 +20,7 @@ const UPGRADE_ICON_MAX_WIDTH := 72
 @onready var level_label: Label = $LevelLabel
 @onready var connection_label: Label = $ConnectionLabel
 @onready var wave_label: Label = $WaveLabel
+@onready var next_wave_button: Button = $NextWaveButton
 @onready var boss_panel: VBoxContainer = $BossPanel
 @onready var boss_name_label: Label = $BossPanel/BossName
 @onready var boss_bar: ProgressBar = $BossPanel/BossBar
@@ -45,6 +47,8 @@ const UPGRADE_ICON_MAX_WIDTH := 72
 @onready var dev_add_levels_button: Button = $DevPanel/DevLayout/DevButtons/AddLevelsButton
 @onready var dev_spawn_elite_button: Button = $DevPanel/DevLayout/DevButtons/SpawnEliteButton
 @onready var dev_invulnerable_button: Button = $DevPanel/DevLayout/DevButtons/InvulnerableButton
+@onready var codex_panel: PanelContainer = $CodexPanel
+@onready var codex_text: RichTextLabel = $CodexPanel/CodexLayout/CodexScroll/CodexText
 
 var bound_player: Player
 var offered_upgrade_ids: Array[String] = []
@@ -72,12 +76,21 @@ func _ready() -> void:
 	dev_add_levels_button.pressed.connect(_on_dev_button_pressed.bind("add_5_levels"))
 	dev_spawn_elite_button.pressed.connect(_on_dev_button_pressed.bind("spawn_elite"))
 	dev_invulnerable_button.pressed.connect(_on_dev_button_pressed.bind("toggle_invulnerable"))
+	next_wave_button.pressed.connect(_on_next_wave_pressed)
+	codex_text.text = _build_codex_text()
 	_build_shop()
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if OS.is_debug_build() and event.is_action_pressed("dev_toggle"):
 		dev_panel.visible = not dev_panel.visible
+		return
+	## Quick "+1 level" without opening the panel — the panel's own button does +5 at once.
+	if OS.is_debug_build() and event.is_action_pressed("dev_add_level"):
+		dev_command.emit("add_1_level")
+		return
+	if event.is_action_pressed("codex_toggle"):
+		codex_panel.visible = not codex_panel.visible
 		return
 	if not event.is_action_pressed("pause_menu"):
 		return
@@ -223,6 +236,18 @@ func announce_wave(wave: int, theme_display_name: String, debut_type_id: String)
 	AudioService.play("boss_alert")
 
 
+## Shown for the whole breather between waves (not just shop breathers), so anyone can cut
+## the wait short instead of always sitting out the full intermission timer.
+func show_next_wave_button(value: bool) -> void:
+	next_wave_button.visible = value and not GameRuntime.is_classic()
+
+
+func _on_next_wave_pressed() -> void:
+	AudioService.play("ui_click")
+	next_wave_button.visible = false
+	next_wave_requested.emit()
+
+
 func _flash(label: Label, seconds: float) -> void:
 	label.visible = true
 	label.modulate = Color(1.0, 1.0, 1.0, 0.0)
@@ -252,6 +277,39 @@ func close_shop() -> void:
 	if shop_pauses_game:
 		get_tree().paused = false
 	shop_pauses_game = false
+
+
+## Static reference text, built once — enemies, shop items, and every class's upgrade pool.
+func _build_codex_text() -> String:
+	var lines: Array[String] = []
+
+	lines.append("[b][color=ff8f7a]ENEMIES[/color][/b]")
+	for type_data in EnemyType.TYPES:
+		var tag := " [color=ffd166](boss)[/color]" if bool(type_data.get("is_boss", false)) else ""
+		lines.append(
+			"[b]%s[/b]%s — %d HP, %d speed, wave %d+" % [
+				str(type_data.name),
+				tag,
+				int(type_data.max_health),
+				int(type_data.movement_speed),
+				int(type_data.unlock_wave),
+			]
+		)
+
+	lines.append("")
+	lines.append("[b][color=ffd166]SHOP ITEMS[/color][/b]")
+	for item in ShopCatalog.ITEMS:
+		lines.append("[b]%s[/b] (%dg+) — %s" % [str(item.name), int(item.base_price), str(item.description)])
+
+	lines.append("")
+	lines.append("[b][color=6fd6ff]UPGRADES[/color][/b]")
+	for class_data in PlayerClass.CLASSES:
+		lines.append("[i]%s[/i]" % str(class_data.name).to_upper())
+		for upgrade_id in class_data.upgrades:
+			var upgrade := PlayerClass.upgrade_info(str(upgrade_id))
+			lines.append("  [b]%s[/b] — %s" % [str(upgrade.name), str(upgrade.description)])
+
+	return "\n".join(lines)
 
 
 func _build_shop() -> void:

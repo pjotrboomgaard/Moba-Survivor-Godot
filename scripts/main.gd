@@ -34,6 +34,9 @@ var game_over := false
 var current_wave := 0
 var current_wave_name := ""
 var current_debut_type_id := ""
+var _near_shop_stand := false
+
+const SHOP_STAND_INTERACT_RADIUS := 70.0
 
 
 func _ready() -> void:
@@ -42,6 +45,7 @@ func _ready() -> void:
 	hud.upgrade_chosen.connect(_on_local_upgrade_chosen)
 	hud.shop_item_chosen.connect(_on_local_shop_item_chosen)
 	hud.shop_closed.connect(_on_local_shop_closed)
+	hud.next_wave_requested.connect(_on_local_next_wave_requested)
 	hud.restart_requested.connect(_on_restart_requested)
 	hud.leave_requested.connect(_on_leave_requested)
 	hud.dev_command.connect(_on_local_dev_command)
@@ -81,6 +85,8 @@ func _physics_process(delta: float) -> void:
 		if input_accumulator >= 1.0 / input_send_rate:
 			input_accumulator = 0.0
 			_send_local_input()
+	if not GameRuntime.is_dedicated_server() and not GameRuntime.is_classic():
+		_update_shop_stand_proximity()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -195,11 +201,24 @@ func client_announce_wave(wave: int, theme_name: String, debut_type_id: String) 
 	hud.close_shop()
 	hud.set_wave(wave, theme_name)
 	hud.announce_wave(wave, theme_name, debut_type_id)
+	hud.show_next_wave_button(false)
 
 
 @rpc("authority", "call_remote", "reliable")
 func client_open_shop() -> void:
 	hud.open_shop(false)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_show_next_wave_button() -> void:
+	hud.show_next_wave_button(true)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func server_skip_intermission() -> void:
+	if not GameRuntime.is_server():
+		return
+	wave_director.skip_intermission()
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -230,6 +249,35 @@ func _on_local_shop_item_chosen(item_id: String) -> void:
 ## Only the solo run may cut its own breather short.
 func _on_local_shop_closed() -> void:
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
+		wave_director.skip_intermission()
+
+
+## Lets a player pop the shop open by walking up to the arena's shop stand at any point in a
+## wave, not just during the forced breather every 10 waves. Purely a local UI toggle — the
+## stand's position is a shared constant, so every peer resolves this identically without
+## any networking, and purchases already go through the existing buy RPC either way.
+func _update_shop_stand_proximity() -> void:
+	var local_player := _local_player()
+	if local_player == null or not local_player.active or game_over:
+		if _near_shop_stand:
+			_near_shop_stand = false
+			hud.close_shop()
+		return
+	if hud.upgrade_panel.visible or hud.escape_menu.visible or hud.dev_panel.visible or hud.codex_panel.visible:
+		return
+	var in_range := local_player.global_position.distance_to(Arena.SHOP_STAND_POSITION) <= SHOP_STAND_INTERACT_RADIUS
+	if in_range and not _near_shop_stand:
+		_near_shop_stand = true
+		hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
+	elif not in_range and _near_shop_stand:
+		_near_shop_stand = false
+		hud.close_shop()
+
+
+func _on_local_next_wave_requested() -> void:
+	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
+		server_skip_intermission.rpc_id(1)
+	else:
 		wave_director.skip_intermission()
 
 
@@ -321,19 +369,28 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 		hud.close_shop()
 		hud.set_wave(wave, theme_name)
 		hud.announce_wave(wave, theme_name, debut_type_id)
+		hud.show_next_wave_button(false)
 	if GameRuntime.is_server():
 		for peer_id in registered_remote_peers.keys():
 			client_announce_wave.rpc_id(peer_id, wave, theme_name, debut_type_id)
 
 
+## Shop waves keep their own "START NEXT WAVE" button in the shop panel; the standalone
+## Next Wave button only shows for the plain breathers between waves, so it doesn't sit
+## underneath the shop panel doing the same thing twice.
 func _on_intermission_started(next_wave: int, _seconds: float) -> void:
-	if not WaveDirector.shop_opens_before(next_wave):
+	if WaveDirector.shop_opens_before(next_wave):
+		if not GameRuntime.is_dedicated_server():
+			hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
+		if GameRuntime.is_server():
+			for peer_id in registered_remote_peers.keys():
+				client_open_shop.rpc_id(peer_id)
 		return
 	if not GameRuntime.is_dedicated_server():
-		hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
+		hud.show_next_wave_button(true)
 	if GameRuntime.is_server():
 		for peer_id in registered_remote_peers.keys():
-			client_open_shop.rpc_id(peer_id)
+			client_show_next_wave_button.rpc_id(peer_id)
 
 
 func _on_wave_group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float) -> void:
@@ -583,6 +640,8 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 	match command:
 		"add_xp":
 			player.add_xp(100)
+		"add_1_level":
+			player.dev_add_levels(1)
 		"add_5_levels":
 			player.dev_add_levels(5)
 		"spawn_elite":

@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://scripts/minimap.gd" id="2_minimap"]
 
 [node name="HUD" type="CanvasLayer"]
 process_mode = 3
@@ -149,6 +150,51 @@ theme_override_colors/font_color = Color(0.58, 0.87, 1, 1)
 theme_override_font_sizes/font_size = 20
 text = "SPACE  DASH"
 horizontal_alignment = 2
+
+[node name="NextWaveButton" type="Button" parent="."]
+visible = false
+offset_left = 1000.0
+offset_top = 138.0
+offset_right = 1252.0
+offset_bottom = 174.0
+text = "NEXT WAVE ▶"
+
+[node name="CodexPanel" type="PanelContainer" parent="."]
+visible = false
+offset_left = 140.0
+offset_top = 40.0
+offset_right = 1140.0
+offset_bottom = 680.0
+
+[node name="CodexLayout" type="VBoxContainer" parent="CodexPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CodexTitle" type="Label" parent="CodexPanel/CodexLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.6, 1)
+theme_override_font_sizes/font_size = 22
+text = "CODEX  (TAB to close)"
+horizontal_alignment = 1
+
+[node name="CodexScroll" type="ScrollContainer" parent="CodexPanel/CodexLayout"]
+custom_minimum_size = Vector2(0, 570)
+layout_mode = 2
+
+[node name="CodexText" type="RichTextLabel" parent="CodexPanel/CodexLayout/CodexScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="MiniMap" type="Control" parent="."]
+offset_left = 1050.0
+offset_top = 556.0
+offset_right = 1260.0
+offset_bottom = 696.0
+script = ExtResource("2_minimap")
 
 [node name="ShopPanel" type="PanelContainer" parent="."]
 visible = false

@@ -7,8 +7,6 @@ signal gold_changed(gold: int)
 signal level_reached(level: int)
 signal staff_cast(effect_kind: String, points: PackedVector2Array)
 
-const CombatTextScene: PackedScene = preload("res://scenes/effects/combat_text.tscn")
-
 enum SimulationMode {
 	OFFLINE,
 	AUTHORITY,
@@ -543,10 +541,7 @@ func _on_damaged(amount: float) -> void:
 	var tween := create_tween()
 	tween.tween_property(self, "modulate", Color("ff7777"), 0.05)
 	tween.tween_property(self, "modulate", Color.WHITE, 0.12)
-	var text := CombatTextScene.instantiate() as CombatText
-	text.global_position = global_position + Vector2(randf_range(-9.0, 9.0), -30.0)
-	get_parent().add_child(text)
-	text.setup(amount)
+	CombatText.spawn(get_parent(), global_position + Vector2(randf_range(-9.0, 9.0), -30.0), amount)
 	_reflect_damage(amount)
 
 

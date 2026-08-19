@@ -102,6 +102,7 @@ const ENEMY_PALETTES := {
 	"splitter": {"o": "1f5c1f", "f": "6fdc6f", "l": "d6ffd6", "e": "0a2a0a", "w": "ffffff"},
 	"charger": {"o": "6b2f05", "f": "ff7a29", "l": "ffd0a8", "e": "2a1000", "w": "ffffff"},
 	"summoner": {"o": "4a1a6b", "f": "c85cff", "l": "eccfff", "e": "1c0630", "w": "ffffff"},
+	"lurker": {"o": "241809", "f": "5a3d2b", "l": "8a6a4a", "e": "120c04", "w": "ffe066"},
 }
 
 const ENEMY_ROWS := {
@@ -282,6 +283,24 @@ const ENEMY_ROWS := {
 		"....oooooooo....",
 		"....o.o..o.o....",
 		"...oo.o..o.oo...",
+		"................",
+		"................",
+	],
+	"lurker": [
+		"................",
+		"................",
+		"................",
+		"......oooo......",
+		"....offffffo....",
+		"...offewweffo...",
+		"..offffffffffo..",
+		".offfllllllfffo.",
+		".offffffffffffo.",
+		".offffffffffffo.",
+		"..offffffffffo..",
+		"...o.o....o.o...",
+		"..oo.o....o.oo..",
+		"................",
 		"................",
 		"................",
 	],
