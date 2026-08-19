@@ -77,9 +77,10 @@ const AMBUSH_GROUP_INTERVAL := 0.2
 const WAVE_TIMEOUT_SECONDS := 120.0
 const ELITE_WAVE_INTERVAL := 5
 const BOSS_WAVE_INTERVAL := 10
-## Lowered from 0.08: individual enemies stay a bit less spongy as waves go on, traded for a
-## bigger budget_for_wave() below so total enemy count keeps climbing instead.
-const HEALTH_GROWTH_PER_WAVE := 0.06
+## Enemies start noticeably tankier now (2x the old wave-1 health) and keep climbing faster
+## than before, so the run keeps escalating rather than plateauing once players out-level it.
+const BASE_HEALTH_MULTIPLIER := 2.0
+const HEALTH_GROWTH_PER_WAVE := 0.10
 const CLASSIC_SPAWN_INTERVAL := 1.4
 const DEBUT_COUNT := 2
 
@@ -216,17 +217,14 @@ func _release_next_group() -> void:
 
 
 func health_multiplier_for_wave(target_wave: int) -> float:
-	return 1.0 + HEALTH_GROWTH_PER_WAVE * float(maxi(0, target_wave - 1))
+	return BASE_HEALTH_MULTIPLIER + HEALTH_GROWTH_PER_WAVE * float(maxi(0, target_wave - 1))
 
 
 func budget_for_wave(target_wave: int) -> float:
-	# Front-loaded so wave 1 is already a real fight (was 5.5, barely one group of
-	# grunts) instead of easing players in, and each extra player now pulls in
-	# proportionally more enemies (was +45% per player, now +70%) instead of a
-	# co-op group just splitting up roughly the same-sized wave a solo run gets.
-	# Bumped further alongside the lower HEALTH_GROWTH_PER_WAVE above: more total
-	# enemies, individually a bit less tanky, rather than fewer bullet sponges.
-	var solo_budget := 12.0 + 2.6 * float(target_wave)
+	# Roughly double the old headcount at every wave (base 12->24, per-wave growth 2.6->6.0 —
+	# more than double, so the curve keeps getting steeper instead of just shifting up by a
+	# flat amount) on top of the doubled per-enemy health above, so both axes compound.
+	var solo_budget := 24.0 + 6.0 * float(target_wave)
 	return solo_budget * (1.0 + 0.85 * float(player_count - 1))
 
 

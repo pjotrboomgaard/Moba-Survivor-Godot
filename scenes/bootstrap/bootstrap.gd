@@ -16,6 +16,10 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var pjotr_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow/PjotrButton
 @onready var steam_status_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/SteamStatusLabel
 @onready var join_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/JoinLabel
+@onready var mode_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow
+@onready var roster_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/RosterLabel
+@onready var start_game_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/StartGameButton
+@onready var waiting_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/WaitingLabel
 
 var game_loaded := false
 var class_buttons: Array[Button] = []
@@ -24,6 +28,13 @@ var class_buttons: Array[Button] = []
 ## LAN-only host with no lobby or invite at all.
 var _steam_status_known := false
 var _lobby_enabled := true
+
+## True once the multiplayer peer is connected (host or client) but the match hasn't been
+## started yet — everyone sits here seeing who's connected until the host presses Start.
+var _in_network_lobby := false
+var _is_lobby_host := false
+## peer_id -> {"name": String, "class_id": String}
+var lobby_roster: Dictionary = {}
 
 
 func _ready() -> void:
@@ -35,6 +46,7 @@ func _ready() -> void:
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
 	address_input.text_submitted.connect(_on_address_submitted)
+	start_game_button.pressed.connect(_on_start_game_pressed)
 	SteamService.steam_ready.connect(_on_steam_ready)
 	SteamService.steam_unavailable.connect(_on_steam_unavailable)
 	SteamService.join_requested.connect(_on_steam_join_requested)
@@ -178,7 +190,7 @@ func _start_host() -> void:
 	_set_lobby_enabled(false)
 	status_label.text = "Starting host on UDP %d..." % GameRuntime.server_port
 	if NetworkService.start_server(GameRuntime.server_port, GameRuntime.max_players) == OK:
-		_open_game()
+		_enter_network_lobby(true)
 	else:
 		_show_lobby("Could not start host on UDP %d" % GameRuntime.server_port)
 
@@ -195,7 +207,7 @@ func _start_steam_host() -> void:
 func _on_steam_host_started(_port: int) -> void:
 	_clear_host_callbacks()
 	SteamService.invite_friends(NetworkService.current_steam_lobby_id)
-	_open_game()
+	_enter_network_lobby(true)
 
 
 func _on_steam_host_failed(_error: Error) -> void:
@@ -246,9 +258,110 @@ func _start_dedicated_server() -> void:
 	_open_game()
 
 
+## Waiting room between "connected" and "playing": everyone sees who's here, only the host
+## can press Start, and the match opens for every peer at the same moment (see
+## client_start_game below) instead of each peer falling straight into a game in progress.
+func _enter_network_lobby(is_host: bool) -> void:
+	_in_network_lobby = true
+	_is_lobby_host = is_host
+	if is_host:
+		lobby_roster = {1: {"name": PlayerProfile.display_name, "class_id": GameRuntime.active_class_id()}}
+		if not NetworkService.peer_left.is_connected(_on_lobby_peer_left):
+			NetworkService.peer_left.connect(_on_lobby_peer_left)
+	else:
+		lobby_roster = {}
+		server_submit_lobby_profile.rpc_id(1, {
+			"display_name": PlayerProfile.display_name,
+			"class_id": GameRuntime.active_class_id(),
+		})
+	_show_network_lobby()
+
+
+func _show_network_lobby() -> void:
+	backdrop.visible = true
+	lobby_panel.visible = true
+	status_label.visible = true
+	status_label.text = "Connected" if _is_lobby_host else "Connected to host"
+	_set_lobby_enabled(false)
+	mode_row.visible = false
+	class_label.visible = false
+	class_grid.visible = false
+	class_description.visible = false
+	solo_button.visible = false
+	host_button.visible = false
+	join_label.visible = false
+	address_input.visible = false
+	join_button.visible = false
+	steam_status_label.visible = false
+	roster_label.visible = true
+	start_game_button.visible = _is_lobby_host
+	waiting_label.visible = not _is_lobby_host
+	_refresh_roster_label()
+
+
+func _on_lobby_peer_left(peer_id: int) -> void:
+	lobby_roster.erase(peer_id)
+	_broadcast_roster()
+
+
+func _refresh_roster_label() -> void:
+	var lines: Array[String] = ["Players in lobby (%d/%d):" % [lobby_roster.size(), GameRuntime.max_players]]
+	for peer_id in lobby_roster.keys():
+		var entry: Dictionary = lobby_roster[peer_id]
+		var class_data := PlayerClass.by_id(str(entry.get("class_id", PlayerClass.DEFAULT_CLASS_ID)))
+		var host_tag := "  (host)" if peer_id == 1 else ""
+		lines.append("• %s — %s%s" % [str(entry.get("name", "Player")), class_data.name, host_tag])
+	roster_label.text = "\n".join(lines)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func server_submit_lobby_profile(profile: Dictionary) -> void:
+	if not GameRuntime.is_server():
+		return
+	var peer_id := multiplayer.get_remote_sender_id()
+	lobby_roster[peer_id] = {
+		"name": str(profile.get("display_name", "Player")),
+		"class_id": str(profile.get("class_id", PlayerClass.DEFAULT_CLASS_ID)),
+	}
+	_broadcast_roster()
+
+
+func _broadcast_roster() -> void:
+	_refresh_roster_label()
+	for peer_id in multiplayer.get_peers():
+		client_receive_roster.rpc_id(peer_id, lobby_roster)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_receive_roster(roster: Dictionary) -> void:
+	lobby_roster = roster
+	_refresh_roster_label()
+
+
+func _on_start_game_pressed() -> void:
+	if not _is_lobby_host:
+		return
+	for peer_id in multiplayer.get_peers():
+		client_start_game.rpc_id(peer_id)
+	_open_game()
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_start_game() -> void:
+	_open_game()
+
+
+func _leave_network_lobby() -> void:
+	if NetworkService.peer_left.is_connected(_on_lobby_peer_left):
+		NetworkService.peer_left.disconnect(_on_lobby_peer_left)
+	_in_network_lobby = false
+	lobby_roster.clear()
+
+
 func _open_game() -> void:
 	if game_loaded:
 		return
+	_leave_network_lobby()
 	game_loaded = true
 	var game := GAME_SCENE.instantiate()
 	add_child(game)
@@ -288,7 +401,7 @@ func _on_connection_succeeded() -> void:
 	_clear_connection_callbacks()
 	if not NetworkService.connection_failed.is_connected(_on_connection_lost):
 		NetworkService.connection_failed.connect(_on_connection_lost)
-	_open_game()
+	_enter_network_lobby(false)
 
 
 func _clear_connection_callbacks() -> void:
@@ -310,11 +423,25 @@ func _on_connection_lost() -> void:
 
 
 func _show_lobby(message: String) -> void:
+	_leave_network_lobby()
 	backdrop.visible = true
 	lobby_panel.visible = true
 	status_label.visible = true
 	status_label.text = message
 	_set_lobby_enabled(true)
+	mode_row.visible = true
+	class_label.visible = not GameRuntime.is_classic()
+	class_grid.visible = not GameRuntime.is_classic()
+	class_description.visible = true
+	solo_button.visible = true
+	host_button.visible = true
+	join_label.visible = true
+	address_input.visible = true
+	join_button.visible = true
+	steam_status_label.visible = true
+	roster_label.visible = false
+	start_game_button.visible = false
+	waiting_label.visible = false
 
 
 func _set_lobby_enabled(enabled: bool) -> void:

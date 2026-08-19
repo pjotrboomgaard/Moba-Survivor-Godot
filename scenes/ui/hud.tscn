@@ -151,6 +151,16 @@ theme_override_font_sizes/font_size = 20
 text = "SPACE  DASH"
 horizontal_alignment = 2
 
+[node name="AbilityBar" type="Label" parent="."]
+offset_left = 1000.0
+offset_top = 204.0
+offset_right = 1252.0
+offset_bottom = 320.0
+theme_override_colors/font_color = Color(0.85, 0.85, 0.92, 1)
+theme_override_font_sizes/font_size = 15
+text = ""
+horizontal_alignment = 2
+
 [node name="NextWaveButton" type="Button" parent="."]
 visible = false
 offset_left = 1000.0
@@ -265,29 +275,43 @@ text = "START NEXT WAVE"
 
 [node name="UpgradePanel" type="PanelContainer" parent="."]
 visible = false
-offset_left = 190.0
+offset_left = 40.0
 offset_top = 220.0
-offset_right = 1090.0
+offset_right = 1240.0
 offset_bottom = 500.0
 
-[node name="Choices" type="HBoxContainer" parent="UpgradePanel"]
+[node name="Layout" type="VBoxContainer" parent="UpgradePanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="OfferTitle" type="Label" parent="UpgradePanel/Layout"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "UPGRADE AN ABILITY"
+
+[node name="Choices" type="HBoxContainer" parent="UpgradePanel/Layout"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Choice1" type="Button" parent="UpgradePanel/Choices"]
-custom_minimum_size = Vector2(280, 220)
+[node name="Choice1" type="Button" parent="UpgradePanel/Layout/Choices"]
+custom_minimum_size = Vector2(268, 220)
 layout_mode = 2
 text = "UPGRADE 1"
 
-[node name="Choice2" type="Button" parent="UpgradePanel/Choices"]
-custom_minimum_size = Vector2(280, 220)
+[node name="Choice2" type="Button" parent="UpgradePanel/Layout/Choices"]
+custom_minimum_size = Vector2(268, 220)
 layout_mode = 2
 text = "UPGRADE 2"
 
-[node name="Choice3" type="Button" parent="UpgradePanel/Choices"]
-custom_minimum_size = Vector2(280, 220)
+[node name="Choice3" type="Button" parent="UpgradePanel/Layout/Choices"]
+custom_minimum_size = Vector2(268, 220)
 layout_mode = 2
 text = "UPGRADE 3"
+
+[node name="Choice4" type="Button" parent="UpgradePanel/Layout/Choices"]
+custom_minimum_size = Vector2(268, 220)
+layout_mode = 2
+text = "UPGRADE 4"
 
 [node name="EscapeMenu" type="PanelContainer" parent="."]
 visible = false

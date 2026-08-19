@@ -14,10 +14,29 @@ var last_damage_source: Node = null
 ## Dev-menu only (see main.gd's "toggle_invulnerable" command).
 var invulnerable := false
 
+## Ability-granted absorb shield (Fortify, Verdant Ward, Permafrost, ...). Ticked down by
+## whoever owns this component (Player already runs a per-frame timer loop for its other
+## buffs), not by this node itself, so HealthComponent never needs its own _process.
+var shield_amount: float = 0.0
+var shield_timer: float = 0.0
+
 
 func _ready() -> void:
 	current_health = max_health
 	health_changed.emit(current_health, max_health)
+
+
+func add_shield(amount: float, duration: float) -> void:
+	shield_amount = maxf(shield_amount, amount)
+	shield_timer = maxf(shield_timer, duration)
+
+
+func tick_shield(delta: float) -> void:
+	if shield_timer <= 0.0:
+		return
+	shield_timer = maxf(0.0, shield_timer - delta)
+	if shield_timer <= 0.0:
+		shield_amount = 0.0
 
 
 func take_damage(amount: float, source: Node = null) -> void:
@@ -25,6 +44,13 @@ func take_damage(amount: float, source: Node = null) -> void:
 		return
 	last_damage_source = source
 	var mitigated := amount * damage_taken_multiplier
+	if shield_amount > 0.0:
+		var absorbed := minf(shield_amount, mitigated)
+		shield_amount -= absorbed
+		mitigated -= absorbed
+	if mitigated <= 0.0:
+		health_changed.emit(current_health, max_health)
+		return
 	current_health = maxf(0.0, current_health - mitigated)
 	damaged.emit(mitigated)
 	health_changed.emit(current_health, max_health)

@@ -2,6 +2,7 @@ class_name GameHUD
 extends CanvasLayer
 
 signal upgrade_chosen(upgrade_id: String)
+signal ability_chosen(ability_id: String)
 signal shop_item_chosen(item_id: String)
 signal shop_closed
 signal restart_requested
@@ -27,6 +28,7 @@ const UPGRADE_ICON_MAX_WIDTH := 40
 @onready var boss_bar: ProgressBar = $BossPanel/BossBar
 @onready var gold_label: Label = $GoldLabel
 @onready var ability_label: Label = $AbilityLabel
+@onready var ability_bar_label: Label = $AbilityBar
 @onready var theme_banner: Label = $ThemeBanner
 @onready var debut_banner: Label = $DebutBanner
 @onready var shop_panel: PanelContainer = $ShopPanel
@@ -34,10 +36,12 @@ const UPGRADE_ICON_MAX_WIDTH := 40
 @onready var shop_grid: GridContainer = $ShopPanel/ShopLayout/ShopGrid
 @onready var shop_continue: Button = $ShopPanel/ShopLayout/ShopContinue
 @onready var upgrade_panel: PanelContainer = $UpgradePanel
+@onready var offer_title_label: Label = $UpgradePanel/Layout/OfferTitle
 @onready var choice_buttons: Array[Button] = [
-	$UpgradePanel/Choices/Choice1,
-	$UpgradePanel/Choices/Choice2,
-	$UpgradePanel/Choices/Choice3,
+	$UpgradePanel/Layout/Choices/Choice1,
+	$UpgradePanel/Layout/Choices/Choice2,
+	$UpgradePanel/Layout/Choices/Choice3,
+	$UpgradePanel/Layout/Choices/Choice4,
 ]
 @onready var escape_menu: PanelContainer = $EscapeMenu
 @onready var resume_button: Button = $EscapeMenu/EscapeLayout/ResumeButton
@@ -55,6 +59,7 @@ const UPGRADE_ICON_MAX_WIDTH := 40
 
 var bound_player: Player
 var offered_upgrade_ids: Array[String] = []
+var offer_kind := "stat"
 var pauses_game := false
 var shop_pauses_game := false
 var shown_class_id := ""
@@ -159,6 +164,7 @@ func _process(delta: float) -> void:
 		_next_wave_countdown = maxf(0.0, _next_wave_countdown - delta)
 		next_wave_timer_label.text = "auto in %ds" % ceili(_next_wave_countdown)
 	_refresh_ability()
+	_refresh_ability_bar()
 
 
 ## Hold SHIFT to see it — a live readout of the bound player's current combat stats,
@@ -210,6 +216,25 @@ func _refresh_ability() -> void:
 		ability_label.add_theme_color_override("font_color", Color("94ddff"))
 
 
+const ABILITY_SLOT_KEYS := ["1", "2", "3", "4"]
+
+
+func _refresh_ability_bar() -> void:
+	if bound_player == null or bound_player.known_abilities.is_empty():
+		ability_bar_label.text = ""
+		return
+	var lines: Array[String] = []
+	for slot in bound_player.known_abilities.size():
+		var entry := bound_player.known_abilities[slot]
+		var ability_id := str(entry.id)
+		var ability_data := PlayerClass.ability_info(ability_id)
+		var ability_name := str(ability_data.get("name", ability_id))
+		var cooldown_left := bound_player.ability_cooldowns[slot] if slot < bound_player.ability_cooldowns.size() else 0.0
+		var status := "READY" if cooldown_left <= 0.0 else "%.1fs" % cooldown_left
+		lines.append("%s  %s (Rk %d)  %s" % [ABILITY_SLOT_KEYS[slot], ability_name, int(entry.rank), status])
+	ability_bar_label.text = "\n".join(lines)
+
+
 func bind_player(player: Player) -> void:
 	if bound_player == player:
 		return
@@ -231,7 +256,7 @@ func show_player_class(class_id: String) -> void:
 	var class_data := PlayerClass.by_id(class_id)
 	class_label.text = "%s // %s" % [str(class_data.name).to_upper(), str(class_data.role).to_upper()]
 	class_label.add_theme_color_override("font_color", Color(class_data.accent_color))
-	instructions_label.text = "WASD  Move     Hold left mouse  Aim and use %s     R  Restart solo run" % class_data.weapon_name
+	instructions_label.text = "WASD  Move     Hold left mouse  Aim and use %s     1-4  Abilities     R  Restart solo run" % class_data.weapon_name
 
 
 func set_connection_text(mode: String) -> void:
@@ -359,12 +384,20 @@ func _build_codex_text() -> String:
 		lines.append("[b]%s[/b] (%dg+) — %s" % [str(item.name), int(item.base_price), str(item.description)])
 
 	lines.append("")
-	lines.append("[b][color=6fd6ff]UPGRADES[/color][/b]")
+	lines.append("[b][color=6fd6ff]STAT UPGRADES[/color][/b]  (every even level-up)")
 	for class_data in PlayerClass.CLASSES:
 		lines.append("[i]%s[/i]" % str(class_data.name).to_upper())
 		for upgrade_id in class_data.upgrades:
 			var upgrade := PlayerClass.upgrade_info(str(upgrade_id))
 			lines.append("  [b]%s[/b] — %s" % [str(upgrade.name), str(upgrade.description)])
+
+	lines.append("")
+	lines.append("[b][color=c8a4ff]ABILITIES[/color][/b]  (every odd level-up — learn a new one or rank up a known one, up to 4 known)")
+	for class_data in PlayerClass.CLASSES:
+		lines.append("[i]%s[/i]" % str(class_data.name).to_upper())
+		for ability_id in class_data.ability_pool:
+			var ability := PlayerClass.ability_info(str(ability_id))
+			lines.append("  [b]%s[/b] — %s" % [str(ability.name), str(ability.description)])
 
 	return "\n".join(lines)
 
@@ -443,7 +476,9 @@ func _on_xp_changed(current_xp: int, required_xp: int, next_level: int) -> void:
 func show_upgrade_ids(player: Player, upgrade_ids: Array[String], pause_game: bool) -> void:
 	bound_player = player
 	offered_upgrade_ids = upgrade_ids.duplicate()
+	offer_kind = "stat"
 	pauses_game = pause_game
+	offer_title_label.text = "UPGRADE A STAT"
 	for index in choice_buttons.size():
 		if index >= offered_upgrade_ids.size():
 			choice_buttons[index].visible = false
@@ -458,14 +493,47 @@ func show_upgrade_ids(player: Player, upgrade_ids: Array[String], pause_game: bo
 		get_tree().paused = true
 
 
+## Odd level-ups: a mix of not-yet-known abilities (learn) and already-known ones that still
+## have rank to give (upgrade) — see PlayerClass.ability_offer_ids for how the mix is built.
+func show_ability_offer(player: Player, ability_ids: Array[String], pause_game: bool) -> void:
+	bound_player = player
+	offered_upgrade_ids = ability_ids.duplicate()
+	offer_kind = "ability"
+	pauses_game = pause_game
+	offer_title_label.text = "LEARN OR UPGRADE AN ABILITY"
+	for index in choice_buttons.size():
+		if index >= offered_upgrade_ids.size():
+			choice_buttons[index].visible = false
+			continue
+		var ability_id := offered_upgrade_ids[index]
+		var current_rank := 0
+		for entry in player.known_abilities:
+			if entry.id == ability_id:
+				current_rank = int(entry.rank)
+				break
+		var target_rank := current_rank + 1 if current_rank > 0 else 1
+		var prefix := "UPGRADE (Rank %d)" % target_rank if current_rank > 0 else "LEARN"
+		choice_buttons[index].visible = true
+		choice_buttons[index].text = "[%s]\n%s" % [prefix, PlayerClass.ability_description(ability_id, target_rank)]
+		choice_buttons[index].icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(ability_id)
+	upgrade_panel.visible = true
+	AudioService.play("level_up")
+	if pauses_game:
+		get_tree().paused = true
+
+
 func _on_upgrade_selected(index: int) -> void:
 	if index >= offered_upgrade_ids.size():
 		return
 	AudioService.play("ui_click")
-	var upgrade_id := offered_upgrade_ids[index]
+	var chosen_id := offered_upgrade_ids[index]
+	var chosen_kind := offer_kind
 	upgrade_panel.visible = false
 	offered_upgrade_ids.clear()
 	if pauses_game:
 		get_tree().paused = false
 	pauses_game = false
-	upgrade_chosen.emit(upgrade_id)
+	if chosen_kind == "ability":
+		ability_chosen.emit(chosen_id)
+	else:
+		upgrade_chosen.emit(chosen_id)

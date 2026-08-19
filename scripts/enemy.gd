@@ -68,6 +68,10 @@ var charge_direction := Vector2.RIGHT
 var has_exploded := false
 var dash_timer := 0.0
 var knockback_velocity := Vector2.ZERO
+## Hero "mark" abilities (Track, Sunder, Frostbite Mark, ...): extra damage taken from every
+## source while it lasts, on top of the normal per-damage-type resistance.
+var vulnerability_bonus := 0.0
+var vulnerability_timer := 0.0
 
 
 func _ready() -> void:
@@ -168,6 +172,7 @@ func _physics_process(delta: float) -> void:
 		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_DECAY * delta)
 
 	_update_slow(delta)
+	_update_vulnerability(delta)
 	attack_cooldown = maxf(0.0, attack_cooldown - delta)
 	target = _find_nearest_player()
 	if target == null:
@@ -401,6 +406,17 @@ func apply_knockback(impulse: Vector2) -> void:
 	knockback_velocity += impulse
 
 
+func apply_mark(bonus_pct: float, duration: float) -> void:
+	if not server_authoritative:
+		return
+	vulnerability_bonus = maxf(vulnerability_bonus, bonus_pct)
+	vulnerability_timer = maxf(vulnerability_timer, duration)
+
+
+func vulnerability_multiplier() -> float:
+	return 1.0 + vulnerability_bonus
+
+
 func _update_slow(delta: float) -> void:
 	if slow_timer <= 0.0:
 		return
@@ -408,6 +424,14 @@ func _update_slow(delta: float) -> void:
 	if slow_timer <= 0.0:
 		slow_factor = 1.0
 		queue_redraw()
+
+
+func _update_vulnerability(delta: float) -> void:
+	if vulnerability_timer <= 0.0:
+		return
+	vulnerability_timer = maxf(0.0, vulnerability_timer - delta)
+	if vulnerability_timer <= 0.0:
+		vulnerability_bonus = 0.0
 
 
 func is_slowed() -> bool:

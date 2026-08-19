@@ -6,6 +6,7 @@ signal xp_changed(current_xp: int, xp_required: int, level: int)
 signal gold_changed(gold: int)
 signal level_reached(level: int)
 signal staff_cast(effect_kind: String, points: PackedVector2Array)
+signal ability_cast(effect_kind: String, effect_style: int, points: PackedVector2Array)
 
 enum SimulationMode {
 	OFFLINE,
@@ -82,7 +83,19 @@ var attack_cooldown := 0.0
 var command_move := Vector2.ZERO
 var command_aim := Vector2.RIGHT * 100.0
 var command_attack := false
+var command_ability_slots: Array = [false, false, false, false]
 var network_target_position := Vector2.ZERO
+
+## Hero abilities (see PlayerClass.ABILITIES). Each entry is {"id": String, "rank": int};
+## the index into known_abilities is also the ability's slot (ability_1..ability_4, and the
+## matching index into ability_cooldowns).
+var known_abilities: Array[Dictionary] = []
+var ability_cooldowns: Array[float] = [0.0, 0.0, 0.0, 0.0]
+## Temporary stat buff from a BUFF_SELF ability (Overclock, Last Stand, Chilling Clarity, ...).
+## Read alongside the permanent stats wherever they're consumed, and cleared on expiry.
+var ability_buff_timer := 0.0
+var ability_buff_stats: Dictionary = {}
+var _ability_damage_taken_factor := 1.0
 
 
 var _normal_collision_mask := 0
@@ -144,11 +157,12 @@ func has_sprite() -> bool:
 	return sprite != null and sprite.texture != null
 
 
-func set_authority_command(move_input: Vector2, aim_position: Vector2, attack_held: bool, ability_held: bool = false) -> void:
+func set_authority_command(move_input: Vector2, aim_position: Vector2, attack_held: bool, ability_held: bool = false, ability_slots_held: Array = [false, false, false, false]) -> void:
 	command_move = move_input.limit_length(1.0)
 	command_aim = aim_position
 	command_attack = attack_held
 	command_ability = ability_held
+	command_ability_slots = ability_slots_held
 
 
 func apply_network_state(state: Dictionary) -> void:
@@ -170,6 +184,8 @@ func apply_network_state(state: Dictionary) -> void:
 	shop_stacks = state.get("shop_stacks", shop_stacks)
 	sprint_cooldown = state.get("dash_cooldown", sprint_cooldown)
 	sprint_timer = state.get("dash_active", 0.0)
+	known_abilities = state.get("known_abilities", known_abilities)
+	ability_cooldowns = state.get("ability_cooldowns", ability_cooldowns)
 	gold_changed.emit(gold)
 	health.set_network_state(
 		state.get("health", health.current_health),
@@ -191,11 +207,16 @@ func _physics_process(delta: float) -> void:
 	var move_input := command_move
 	var attack_held := command_attack
 	var ability_held := command_ability
+	var ability_slots_held := command_ability_slots
 	if simulation_mode == SimulationMode.OFFLINE:
 		move_input = InputService.movement_vector()
 		command_aim = InputService.aim_world_position(self)
 		attack_held = InputService.primary_attack_held()
 		ability_held = InputService.ability_held()
+		ability_slots_held = [
+			InputService.ability_slot_held(0), InputService.ability_slot_held(1),
+			InputService.ability_slot_held(2), InputService.ability_slot_held(3),
+		]
 
 	aim_world_position = command_aim
 	var aim_direction := global_position.direction_to(aim_world_position)
@@ -203,7 +224,10 @@ func _physics_process(delta: float) -> void:
 		facing_direction = aim_direction
 
 	_update_sprint(delta, ability_held)
-	var speed := movement_speed
+	_update_ability_buff(delta)
+	health.tick_shield(delta)
+	_update_ability_slots(delta, ability_slots_held)
+	var speed := movement_speed * float(ability_buff_stats.get("movement_speed_mult", 1.0))
 	if sprint_timer > 0.0:
 		speed *= 1.0 + SPRINT_SPEED_BONUS
 	velocity = move_input * speed
@@ -217,7 +241,7 @@ func _physics_process(delta: float) -> void:
 	attack_cooldown = maxf(0.0, attack_cooldown - delta)
 	if attack_held and attack_cooldown <= 0.0:
 		_perform_attack()
-		attack_cooldown = attack_interval
+		attack_cooldown = attack_interval * float(ability_buff_stats.get("attack_interval_mult", 1.0))
 	queue_redraw()
 
 
@@ -275,6 +299,300 @@ func _apply_support_aura(delta: float) -> void:
 		var heal_rate := support_heal_per_second if ally != self else support_heal_per_second * 0.5
 		ally.health.heal(heal_rate * delta)
 		ally.receive_support_buff(support_damage_bonus)
+
+
+## --- Hero abilities -------------------------------------------------------------------
+
+func learn_ability(ability_id: String) -> void:
+	if simulation_mode == SimulationMode.PROXY or known_abilities.size() >= PlayerClass.MAX_KNOWN_ABILITIES:
+		return
+	for entry in known_abilities:
+		if entry.id == ability_id:
+			return
+	known_abilities.append({"id": ability_id, "rank": 1})
+	ability_cooldowns[known_abilities.size() - 1] = 0.0
+
+
+func upgrade_ability(ability_id: String) -> void:
+	if simulation_mode == SimulationMode.PROXY:
+		return
+	for entry in known_abilities:
+		if entry.id == ability_id:
+			entry.rank = mini(PlayerClass.MAX_ABILITY_RANK, int(entry.rank) + 1)
+			return
+
+
+## Very long runs can exhaust every ability offer (4 known, all maxed); this flat, choice-free
+## bump keeps a level-up meaningful instead of stalling on an empty screen.
+func apply_fallback_bonus() -> void:
+	if simulation_mode == SimulationMode.PROXY:
+		return
+	health.max_health += PlayerClass.FALLBACK_UPGRADE_HEALTH_BONUS
+	health.current_health = minf(health.max_health, health.current_health + PlayerClass.FALLBACK_UPGRADE_HEALTH_BONUS)
+	health.health_changed.emit(health.current_health, health.max_health)
+
+
+func _update_ability_slots(delta: float, slots_held: Array) -> void:
+	for slot in known_abilities.size():
+		ability_cooldowns[slot] = maxf(0.0, ability_cooldowns[slot] - delta)
+	for slot in known_abilities.size():
+		if slot < slots_held.size() and bool(slots_held[slot]) and ability_cooldowns[slot] <= 0.0:
+			_cast_known_ability(slot)
+
+
+func _cast_known_ability(slot: int) -> void:
+	var entry := known_abilities[slot]
+	var ability_id := str(entry.id)
+	var data := PlayerClass.ability_info(ability_id)
+	if data.is_empty():
+		return
+	var values := PlayerClass.ability_values(ability_id, int(entry.rank))
+	ability_cooldowns[slot] = values.cooldown
+	match int(data.archetype):
+		PlayerClass.Archetype.NUKE_BOLT:
+			_cast_ability_nuke_bolt(data, values)
+		PlayerClass.Archetype.CONE_BURST:
+			_cast_ability_cone_burst(data, values)
+		PlayerClass.Archetype.RADIUS_BURST:
+			_cast_ability_radius_burst(data, values)
+		PlayerClass.Archetype.CHAIN_NUKE:
+			_cast_ability_chain_nuke(data, values)
+		PlayerClass.Archetype.DASH_STRIKE:
+			_cast_ability_dash_strike(data, values)
+		PlayerClass.Archetype.BLINK:
+			_cast_ability_blink(data, values)
+		PlayerClass.Archetype.SELF_HEAL:
+			_cast_ability_self_heal(data, values)
+		PlayerClass.Archetype.AOE_HEAL:
+			_cast_ability_aoe_heal(data, values)
+		PlayerClass.Archetype.SHIELD_BURST:
+			_cast_ability_shield_burst(data, values)
+		PlayerClass.Archetype.BUFF_SELF:
+			_cast_ability_buff_self(data, values)
+		PlayerClass.Archetype.PUSH_PULL_BURST:
+			_cast_ability_push_pull_burst(data, values)
+
+
+func _emit_ability_cast(style: int, points: PackedVector2Array) -> void:
+	ability_cast.emit(class_id, style, points)
+
+
+## Shared "the ability's primary hit landed on this enemy" handling: base damage plus
+## whatever on-hit modifiers the ability carries (slow/stun/mark/lifesteal).
+func _apply_ability_hit(target: Node2D, data: Dictionary, values: Dictionary) -> void:
+	_damage_enemy(target, values.power)
+	if data.has("stun_on_hit") and target.has_method("apply_slow"):
+		target.apply_slow(0.1, float(data.stun_on_hit.duration))
+	if data.has("slow_on_hit") and target.has_method("apply_slow"):
+		target.apply_slow(float(data.slow_on_hit.factor), float(data.slow_on_hit.duration))
+	if data.has("mark_on_hit") and target.has_method("apply_mark"):
+		target.apply_mark(float(data.mark_on_hit.bonus_pct), float(data.mark_on_hit.duration))
+	if data.has("lifesteal_pct"):
+		health.heal(values.power * float(data.lifesteal_pct))
+
+
+func _nearest_enemy_in_range(range_limit: float) -> Node2D:
+	var nearest: Node2D
+	var nearest_distance_sq := range_limit * range_limit
+	for candidate in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(candidate) or not candidate is Node2D:
+			continue
+		if candidate.has_method("is_damageable") and not candidate.is_damageable():
+			continue
+		var distance_sq: float = global_position.distance_squared_to((candidate as Node2D).global_position)
+		if distance_sq <= nearest_distance_sq:
+			nearest = candidate
+			nearest_distance_sq = distance_sq
+	return nearest
+
+
+func _find_ability_chain_target(origin: Node2D, excluded: Array[Node2D], range_limit: float) -> Node2D:
+	var nearest: Node2D
+	var nearest_distance_sq := range_limit * range_limit
+	for candidate in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(candidate) or not candidate is Node2D or candidate in excluded:
+			continue
+		if candidate.has_method("is_damageable") and not candidate.is_damageable():
+			continue
+		var distance_sq: float = origin.global_position.distance_squared_to(candidate.global_position)
+		if distance_sq < nearest_distance_sq:
+			nearest = candidate
+			nearest_distance_sq = distance_sq
+	return nearest
+
+
+func _cast_ability_nuke_bolt(data: Dictionary, values: Dictionary) -> void:
+	var target := _nearest_enemy_in_range(values.range)
+	var points := PackedVector2Array([global_position])
+	if target == null:
+		points.append(global_position + facing_direction * minf(values.range, 180.0))
+	else:
+		points.append(target.global_position)
+		_apply_ability_hit(target, data, values)
+	_emit_ability_cast(PlayerClass.EffectStyle.BOLT, points)
+
+
+func _cast_ability_cone_burst(data: Dictionary, values: Dictionary) -> void:
+	var half_angle := deg_to_rad(PlayerClass.CONE_HALF_ANGLE_DEGREES)
+	for target in _enemies_in_radius(global_position, values.radius):
+		var to_target := global_position.direction_to(target.global_position)
+		if to_target.length_squared() > 0.0 and absf(facing_direction.angle_to(to_target)) > half_angle:
+			continue
+		_apply_ability_hit(target, data, values)
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
+
+
+func _cast_ability_radius_burst(data: Dictionary, values: Dictionary) -> void:
+	var center := global_position
+	if values.range > 0.0:
+		var travel := minf(values.range, global_position.distance_to(aim_world_position))
+		center = global_position + global_position.direction_to(aim_world_position) * travel
+	for target in _enemies_in_radius(center, values.radius):
+		_apply_ability_hit(target, data, values)
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(values.radius, 0.0)]))
+
+
+func _cast_ability_chain_nuke(data: Dictionary, values: Dictionary) -> void:
+	var primary := _nearest_enemy_in_range(values.range)
+	var points := PackedVector2Array([global_position])
+	if primary == null:
+		points.append(global_position + facing_direction * minf(values.range, 180.0))
+		_emit_ability_cast(PlayerClass.EffectStyle.BOLT, points)
+		return
+	var struck: Array[Node2D] = [primary]
+	points.append(primary.global_position)
+	_apply_ability_hit(primary, data, values)
+	var previous := primary
+	var chain_range := float(data.get("chain_range", 200.0))
+	for _chain_index in int(values.chain_count):
+		var next_target := _find_ability_chain_target(previous, struck, chain_range)
+		if next_target == null:
+			break
+		struck.append(next_target)
+		points.append(next_target.global_position)
+		_apply_ability_hit(next_target, data, values)
+		previous = next_target
+	_emit_ability_cast(PlayerClass.EffectStyle.BOLT, points)
+
+
+## Approximates "everything the dash passes through" as a capsule around the midpoint of the
+## line — cheap, and close enough at these dash lengths without needing swept collision.
+func _cast_ability_dash_strike(data: Dictionary, values: Dictionary) -> void:
+	var direction := global_position.direction_to(aim_world_position)
+	if direction.length_squared() <= 0.0:
+		direction = facing_direction
+	var origin := global_position
+	var destination := origin + direction * float(values.dash_distance)
+	var midpoint := origin.lerp(destination, 0.5)
+	var hit_radius := float(values.dash_distance) * 0.5 + float(values.radius)
+	for target in _enemies_in_radius(midpoint, hit_radius):
+		_apply_ability_hit(target, data, values)
+	global_position = destination
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([origin, Vector2(values.dash_distance, 0.0)]))
+
+
+func _cast_ability_blink(_data: Dictionary, values: Dictionary) -> void:
+	var direction := global_position.direction_to(aim_world_position)
+	if direction.length_squared() <= 0.0:
+		direction = facing_direction
+	global_position += direction * values.dash_distance
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(40.0, 0.0)]))
+
+
+func _cast_ability_self_heal(_data: Dictionary, values: Dictionary) -> void:
+	health.heal(values.power)
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(40.0, 0.0)]))
+
+
+func _cast_ability_aoe_heal(_data: Dictionary, values: Dictionary) -> void:
+	var radius_sq := float(values.radius) * float(values.radius)
+	for candidate in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(candidate) or not candidate is Player:
+			continue
+		var ally := candidate as Player
+		if not ally.active or ally.health.is_dead:
+			continue
+		if global_position.distance_squared_to(ally.global_position) > radius_sq:
+			continue
+		ally.health.heal(values.power)
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
+
+
+func _cast_ability_shield_burst(data: Dictionary, values: Dictionary) -> void:
+	var scope := str(data.get("target_scope", "self"))
+	if scope == "self":
+		health.add_shield(values.power, values.duration)
+	else:
+		var radius_sq := float(values.radius) * float(values.radius)
+		for candidate in get_tree().get_nodes_in_group("players"):
+			if not is_instance_valid(candidate) or not candidate is Player:
+				continue
+			var ally := candidate as Player
+			if not ally.active or ally.health.is_dead:
+				continue
+			if global_position.distance_squared_to(ally.global_position) > radius_sq:
+				continue
+			ally.health.add_shield(values.power, values.duration)
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius if scope != "self" else 40.0, 0.0)]))
+
+
+func _cast_ability_buff_self(data: Dictionary, values: Dictionary) -> void:
+	var stats: Dictionary = data.get("buff_stats", {})
+	var scope := str(data.get("target_scope", "self"))
+	if scope == "self":
+		_apply_ability_buff(stats, values.duration)
+	else:
+		var radius_sq := float(values.radius) * float(values.radius)
+		for candidate in get_tree().get_nodes_in_group("players"):
+			if not is_instance_valid(candidate) or not candidate is Player:
+				continue
+			var ally := candidate as Player
+			if not ally.active or ally.health.is_dead:
+				continue
+			if global_position.distance_squared_to(ally.global_position) > radius_sq:
+				continue
+			ally._apply_ability_buff(stats, values.duration)
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(40.0, 0.0)]))
+
+
+## power > 0 pulls enemies toward the caster, power < 0 knocks them away.
+func _cast_ability_push_pull_burst(_data: Dictionary, values: Dictionary) -> void:
+	var center := global_position
+	var strength := float(values.power)
+	for target in _enemies_in_radius(center, values.radius):
+		if not target.has_method("apply_knockback"):
+			continue
+		var away_direction := center.direction_to(target.global_position)
+		if away_direction.length_squared() <= 0.0:
+			away_direction = Vector2.RIGHT
+		var impulse_direction := away_direction if strength < 0.0 else -away_direction
+		target.apply_knockback(impulse_direction * absf(strength))
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(values.radius, 0.0)]))
+
+
+func _apply_ability_buff(stats: Dictionary, duration: float) -> void:
+	_clear_ability_buff()
+	ability_buff_stats = stats
+	ability_buff_timer = duration
+	if stats.has("damage_taken_mult"):
+		_ability_damage_taken_factor = float(stats.damage_taken_mult)
+		health.damage_taken_multiplier *= _ability_damage_taken_factor
+
+
+func _clear_ability_buff() -> void:
+	if _ability_damage_taken_factor != 1.0:
+		health.damage_taken_multiplier /= _ability_damage_taken_factor
+		_ability_damage_taken_factor = 1.0
+	ability_buff_stats = {}
+	ability_buff_timer = 0.0
+
+
+func _update_ability_buff(delta: float) -> void:
+	if ability_buff_timer <= 0.0:
+		return
+	ability_buff_timer = maxf(0.0, ability_buff_timer - delta)
+	if ability_buff_timer <= 0.0:
+		_clear_ability_buff()
 
 
 func _perform_attack() -> void:
@@ -406,7 +724,10 @@ func _damage_enemy(target: Node2D, amount: float) -> void:
 	# Rending Prism only cuts into resistance, it never trims a weakness bonus.
 	if resistance < 1.0 and resistance_pierce > 0.0:
 		resistance = lerpf(resistance, 1.0, resistance_pierce)
-	var dealt := amount * damage_dealt_multiplier * resistance
+	if target.has_method("vulnerability_multiplier"):
+		resistance *= target.vulnerability_multiplier()
+	var ability_damage_mult := float(ability_buff_stats.get("damage_dealt_mult", 1.0))
+	var dealt := amount * damage_dealt_multiplier * ability_damage_mult * resistance
 	target_health.take_damage(dealt, self)
 	if lifesteal_ratio > 0.0:
 		health.heal(dealt * lifesteal_ratio)
@@ -551,6 +872,8 @@ func snapshot() -> Dictionary:
 		"shop_stacks": shop_stacks,
 		"dash_cooldown": sprint_cooldown,
 		"dash_active": sprint_timer,
+		"known_abilities": known_abilities,
+		"ability_cooldowns": ability_cooldowns,
 	}
 
 
@@ -564,12 +887,13 @@ func _on_damaged(amount: float) -> void:
 
 
 func _reflect_damage(amount: float) -> void:
-	if simulation_mode == SimulationMode.PROXY or thorns_ratio <= 0.0:
+	var total_ratio := thorns_ratio + float(ability_buff_stats.get("reflect_pct", 0.0))
+	if simulation_mode == SimulationMode.PROXY or total_ratio <= 0.0:
 		return
 	var attacker := health.last_damage_source as Enemy
 	if attacker == null or not is_instance_valid(attacker) or attacker.health.is_dead:
 		return
-	attacker.health.take_damage(amount * thorns_ratio)
+	attacker.health.take_damage(amount * total_ratio)
 
 
 func _on_died() -> void:

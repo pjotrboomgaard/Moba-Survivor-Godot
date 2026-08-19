@@ -25,6 +25,15 @@ func ability_held() -> bool:
 	return Input.is_action_pressed("ability")
 
 
+const ABILITY_SLOT_ACTIONS := ["ability_1", "ability_2", "ability_3", "ability_4"]
+
+
+func ability_slot_held(slot: int) -> bool:
+	if slot < 0 or slot >= ABILITY_SLOT_ACTIONS.size():
+		return false
+	return Input.is_action_pressed(ABILITY_SLOT_ACTIONS[slot])
+
+
 func aim_world_position(source: CanvasItem) -> Vector2:
 	return source.get_global_mouse_position()
 

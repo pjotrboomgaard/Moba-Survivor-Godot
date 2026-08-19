@@ -692,6 +692,238 @@ const ICON_ROWS := {
 }
 
 
+## Hero ability icons, 8x8 like the shop/upgrade icons above. One shape per archetype (see
+## PlayerClass.Archetype), recolored per hero — abilities that share a hero and an archetype
+## (e.g. Arclight's three NUKE_BOLT abilities) intentionally share a silhouette, same as this
+## file already does for "boots"/"phase_boots" above; the level-up card's name and description
+## carry the real distinction, the icon is a secondary cue.
+const HERO_ABILITY_TONES := {
+	"arclight": {"o": "0b1b33", "f": "5aa6ff", "l": "d8ecff"},
+	"bulwark": {"o": "2a1405", "f": "ffb060", "l": "ffe3a8"},
+	"warden": {"o": "0d2b1a", "f": "5cd485", "l": "d9ffe0"},
+	"frostbinder": {"o": "0a2233", "f": "7fd4ff", "l": "eafcff"},
+}
+
+const SHAPE_NUKE_BOLT := [
+	"...ff...",
+	"..ff....",
+	".fff....",
+	"ffffff..",
+	"...fff..",
+	"....ff..",
+	"...ff...",
+	"........",
+]
+const SHAPE_CONE_BURST := [
+	"f.......",
+	"ff......",
+	"fff.....",
+	"ffff....",
+	"fff.....",
+	"ff......",
+	"f.......",
+	"........",
+]
+const SHAPE_RADIUS_BURST := [
+	"...f....",
+	"..fof...",
+	".ff.ff..",
+	"fo...of.",
+	".ff.ff..",
+	"..fof...",
+	"...f....",
+	"........",
+]
+const SHAPE_CHAIN_NUKE := [
+	".ff..ff.",
+	"f..ff..f",
+	"f..ff..f",
+	".ff..ff.",
+	".ff..ff.",
+	"f..ff..f",
+	"f..ff..f",
+	".ff..ff.",
+]
+const SHAPE_DASH_STRIKE := [
+	"o.......",
+	"fo......",
+	".fo.....",
+	"..fo....",
+	"...fo...",
+	"....fo..",
+	".....fo.",
+	"......fo",
+]
+const SHAPE_BLINK := [
+	"..oooo..",
+	".o....o.",
+	"o.fllf.o",
+	"o.lffl.o",
+	"o.lffl.o",
+	"o.fllf.o",
+	".o....o.",
+	"..oooo..",
+]
+const SHAPE_SELF_HEAL := [
+	"........",
+	"...ff...",
+	"...ff...",
+	"ffffffff",
+	"ffffffff",
+	"...ff...",
+	"...ff...",
+	"........",
+]
+const SHAPE_AOE_HEAL := [
+	"..oooo..",
+	".o.ff.o.",
+	"o..ff..o",
+	"ffffffff",
+	"ffffffff",
+	"o..ff..o",
+	".o.ff.o.",
+	"..oooo..",
+]
+const SHAPE_SHIELD_BURST := [
+	"..oooo..",
+	".offffo.",
+	"offllffo",
+	"offllffo",
+	"offllffo",
+	".offffo.",
+	"..offo..",
+	"...oo...",
+]
+const SHAPE_BUFF_SELF := [
+	"...ff...",
+	"..ffff..",
+	".ff..ff.",
+	"...ff...",
+	"...ff...",
+	"...ff...",
+	"...ff...",
+	"........",
+]
+const SHAPE_PUSH_PULL_BURST := [
+	"f.....f.",
+	".f...f..",
+	"..f.f...",
+	"...o....",
+	"..f.f...",
+	".f...f..",
+	"f.....f.",
+	"........",
+]
+
+const ABILITY_ICON_ROWS := {
+	"arclight_static_bolt": SHAPE_NUKE_BOLT,
+	"arclight_overcharge": SHAPE_CHAIN_NUKE,
+	"arclight_ion_storm": SHAPE_RADIUS_BURST,
+	"arclight_arc_flash": SHAPE_CONE_BURST,
+	"arclight_thunder_step": SHAPE_BLINK,
+	"arclight_overclock": SHAPE_BUFF_SELF,
+	"arclight_paralyzing_bolt": SHAPE_NUKE_BOLT,
+	"arclight_ball_lightning": SHAPE_DASH_STRIKE,
+	"arclight_volt_siphon": SHAPE_NUKE_BOLT,
+	"arclight_track": SHAPE_NUKE_BOLT,
+	"arclight_repulsor_field": SHAPE_PUSH_PULL_BURST,
+	"arclight_second_wind": SHAPE_SELF_HEAL,
+
+	"bulwark_shockwave_strike": SHAPE_NUKE_BOLT,
+	"bulwark_ground_slam": SHAPE_RADIUS_BURST,
+	"bulwark_cleave": SHAPE_CONE_BURST,
+	"bulwark_iron_charge": SHAPE_DASH_STRIKE,
+	"bulwark_fortify": SHAPE_SHIELD_BURST,
+	"bulwark_provoke": SHAPE_PUSH_PULL_BURST,
+	"bulwark_last_stand": SHAPE_BUFF_SELF,
+	"bulwark_aftershock": SHAPE_NUKE_BOLT,
+	"bulwark_second_wind": SHAPE_SELF_HEAL,
+	"bulwark_rallying_warcry": SHAPE_AOE_HEAL,
+	"bulwark_retribution": SHAPE_BUFF_SELF,
+	"bulwark_sunder": SHAPE_NUKE_BOLT,
+
+	"warden_vine_lash": SHAPE_NUKE_BOLT,
+	"warden_mending_wave": SHAPE_AOE_HEAL,
+	"warden_thorn_volley": SHAPE_CHAIN_NUKE,
+	"warden_entangle": SHAPE_NUKE_BOLT,
+	"warden_natures_grasp": SHAPE_RADIUS_BURST,
+	"warden_verdant_ward": SHAPE_SHIELD_BURST,
+	"warden_rising_choir": SHAPE_BUFF_SELF,
+	"warden_vine_step": SHAPE_BLINK,
+	"warden_natures_wrath": SHAPE_NUKE_BOLT,
+	"warden_second_bloom": SHAPE_SELF_HEAL,
+	"warden_vital_drain": SHAPE_NUKE_BOLT,
+	"warden_bramble_wall": SHAPE_PUSH_PULL_BURST,
+
+	"frostbinder_ice_spike": SHAPE_NUKE_BOLT,
+	"frostbinder_frost_nova": SHAPE_RADIUS_BURST,
+	"frostbinder_glacial_cone": SHAPE_CONE_BURST,
+	"frostbinder_deep_freeze": SHAPE_NUKE_BOLT,
+	"frostbinder_shatter_chain": SHAPE_CHAIN_NUKE,
+	"frostbinder_frost_step": SHAPE_BLINK,
+	"frostbinder_permafrost": SHAPE_SHIELD_BURST,
+	"frostbinder_vortex": SHAPE_PUSH_PULL_BURST,
+	"frostbinder_chilling_clarity": SHAPE_BUFF_SELF,
+	"frostbinder_rime_barrage": SHAPE_DASH_STRIKE,
+	"frostbinder_frostbite_mark": SHAPE_NUKE_BOLT,
+	"frostbinder_absolute_zero": SHAPE_RADIUS_BURST,
+}
+
+const ABILITY_ICON_PALETTES := {
+	"arclight_static_bolt": HERO_ABILITY_TONES.arclight,
+	"arclight_overcharge": HERO_ABILITY_TONES.arclight,
+	"arclight_ion_storm": HERO_ABILITY_TONES.arclight,
+	"arclight_arc_flash": HERO_ABILITY_TONES.arclight,
+	"arclight_thunder_step": HERO_ABILITY_TONES.arclight,
+	"arclight_overclock": HERO_ABILITY_TONES.arclight,
+	"arclight_paralyzing_bolt": HERO_ABILITY_TONES.arclight,
+	"arclight_ball_lightning": HERO_ABILITY_TONES.arclight,
+	"arclight_volt_siphon": HERO_ABILITY_TONES.arclight,
+	"arclight_track": HERO_ABILITY_TONES.arclight,
+	"arclight_repulsor_field": HERO_ABILITY_TONES.arclight,
+	"arclight_second_wind": HERO_ABILITY_TONES.arclight,
+
+	"bulwark_shockwave_strike": HERO_ABILITY_TONES.bulwark,
+	"bulwark_ground_slam": HERO_ABILITY_TONES.bulwark,
+	"bulwark_cleave": HERO_ABILITY_TONES.bulwark,
+	"bulwark_iron_charge": HERO_ABILITY_TONES.bulwark,
+	"bulwark_fortify": HERO_ABILITY_TONES.bulwark,
+	"bulwark_provoke": HERO_ABILITY_TONES.bulwark,
+	"bulwark_last_stand": HERO_ABILITY_TONES.bulwark,
+	"bulwark_aftershock": HERO_ABILITY_TONES.bulwark,
+	"bulwark_second_wind": HERO_ABILITY_TONES.bulwark,
+	"bulwark_rallying_warcry": HERO_ABILITY_TONES.bulwark,
+	"bulwark_retribution": HERO_ABILITY_TONES.bulwark,
+	"bulwark_sunder": HERO_ABILITY_TONES.bulwark,
+
+	"warden_vine_lash": HERO_ABILITY_TONES.warden,
+	"warden_mending_wave": HERO_ABILITY_TONES.warden,
+	"warden_thorn_volley": HERO_ABILITY_TONES.warden,
+	"warden_entangle": HERO_ABILITY_TONES.warden,
+	"warden_natures_grasp": HERO_ABILITY_TONES.warden,
+	"warden_verdant_ward": HERO_ABILITY_TONES.warden,
+	"warden_rising_choir": HERO_ABILITY_TONES.warden,
+	"warden_vine_step": HERO_ABILITY_TONES.warden,
+	"warden_natures_wrath": HERO_ABILITY_TONES.warden,
+	"warden_second_bloom": HERO_ABILITY_TONES.warden,
+	"warden_vital_drain": HERO_ABILITY_TONES.warden,
+	"warden_bramble_wall": HERO_ABILITY_TONES.warden,
+
+	"frostbinder_ice_spike": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_frost_nova": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_glacial_cone": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_deep_freeze": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_shatter_chain": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_frost_step": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_permafrost": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_vortex": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_chilling_clarity": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_rime_barrage": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_frostbite_mark": HERO_ABILITY_TONES.frostbinder,
+	"frostbinder_absolute_zero": HERO_ABILITY_TONES.frostbinder,
+}
+
+
 const TERRAIN_PALETTES := {
 	"grass_tile": {"a": "26401f", "b": "2f4f26", "c": "3a6130", "d": "47743a"},
 	"grass_tuft": {"c": "3a6130", "d": "47743a", "l": "5c8f47"},
@@ -879,6 +1111,7 @@ static func all_sprites() -> Dictionary:
 	_collect(sprites, BOSS_ROWS, BOSS_PALETTES)
 	_collect(sprites, PROP_ROWS, PROP_PALETTES)
 	_collect(sprites, ICON_ROWS, ICON_PALETTES)
+	_collect(sprites, ABILITY_ICON_ROWS, ABILITY_ICON_PALETTES)
 	_collect(sprites, TERRAIN_ROWS, TERRAIN_PALETTES)
 	return sprites
 

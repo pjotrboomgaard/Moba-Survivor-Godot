@@ -22,9 +22,14 @@ var enemies: Dictionary = {}
 var xp_orbs: Dictionary = {}
 var pending_inputs: Dictionary = {}
 var pending_upgrades: Dictionary = {}
+## Mirrors pending_upgrades but for the ability track (see offer_turn_index below).
+var pending_ability_offers: Dictionary = {}
 ## How many more upgrade choices a peer is owed, for when several levels land in one frame
 ## (a big XP orb, or the dev menu's "+5 levels") so no choice gets silently skipped.
 var queued_upgrade_choices: Dictionary = {}
+## Level-ups alternate: even count so far -> an ability choice (learn new or rank up known),
+## odd count so far -> the classic flat stat-upgrade choice. Incremented on every resolution.
+var offer_turn_index: Dictionary = {}
 var registered_remote_peers: Dictionary = {}
 var next_entity_id := 1
 var snapshot_accumulator := 0.0
@@ -49,6 +54,7 @@ func _ready() -> void:
 	randomize()
 	NetworkService.peer_left.connect(_on_peer_left)
 	hud.upgrade_chosen.connect(_on_local_upgrade_chosen)
+	hud.ability_chosen.connect(_on_local_ability_chosen)
 	hud.shop_item_chosen.connect(_on_local_shop_item_chosen)
 	hud.shop_closed.connect(_on_local_shop_closed)
 	hud.next_wave_requested.connect(_on_local_next_wave_requested)
@@ -130,7 +136,7 @@ func server_register_client(profile: Dictionary) -> void:
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
-func server_submit_input(move_input: Vector2, aim_position: Vector2, attack_held: bool, ability_held: bool = false) -> void:
+func server_submit_input(move_input: Vector2, aim_position: Vector2, attack_held: bool, ability_held: bool = false, ability_slots_held: Array = [false, false, false, false]) -> void:
 	if not GameRuntime.is_server():
 		return
 	var peer_id := multiplayer.get_remote_sender_id()
@@ -141,6 +147,7 @@ func server_submit_input(move_input: Vector2, aim_position: Vector2, attack_held
 		"aim": aim_position,
 		"attack": attack_held,
 		"ability": ability_held,
+		"ability_slots": ability_slots_held,
 	}
 	_apply_pending_input(peer_id)
 
@@ -193,6 +200,26 @@ func server_choose_upgrade(upgrade_id: String) -> void:
 		return
 	var peer_id := multiplayer.get_remote_sender_id()
 	_apply_upgrade_choice(peer_id, upgrade_id)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_offer_ability_choices(ability_ids: Array[String]) -> void:
+	var local_player := _local_player()
+	if local_player != null:
+		hud.show_ability_offer(local_player, ability_ids, false)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func server_choose_ability(ability_id: String) -> void:
+	if not GameRuntime.is_server():
+		return
+	var peer_id := multiplayer.get_remote_sender_id()
+	_apply_ability_choice(peer_id, ability_id)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_play_ability_effect(effect_kind: String, effect_style: int, points: PackedVector2Array) -> void:
+	_play_ability_effect(effect_kind, effect_style, points)
 
 
 ## Dev-menu commands only ever apply to the sender's own player, and only in debug builds,
@@ -366,6 +393,7 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 	actors.add_child(player)
 	player.configure(peer_id, mode, local_player, class_id)
 	player.staff_cast.connect(_on_staff_cast)
+	player.ability_cast.connect(_on_ability_cast)
 	player.player_died.connect(_on_player_died)
 	player.level_reached.connect(_on_player_level_reached.bind(peer_id))
 	players[peer_id] = player
@@ -387,6 +415,13 @@ func _spawn_position_for_peer(peer_id: int) -> Vector2:
 	return Vector2.RIGHT.rotated(angle) * 72.0
 
 
+func _local_ability_slots_held() -> Array:
+	return [
+		InputService.ability_slot_held(0), InputService.ability_slot_held(1),
+		InputService.ability_slot_held(2), InputService.ability_slot_held(3),
+	]
+
+
 func _update_host_input() -> void:
 	if GameRuntime.mode != GameRuntime.RuntimeMode.HOST or not players.has(1):
 		return
@@ -395,7 +430,8 @@ func _update_host_input() -> void:
 		InputService.movement_vector(),
 		InputService.aim_world_position(host_player),
 		InputService.primary_attack_held(),
-		InputService.ability_held()
+		InputService.ability_held(),
+		_local_ability_slots_held()
 	)
 
 
@@ -408,7 +444,8 @@ func _send_local_input() -> void:
 		InputService.movement_vector(),
 		InputService.aim_world_position(local_player),
 		InputService.primary_attack_held(),
-		InputService.ability_held()
+		InputService.ability_held(),
+		_local_ability_slots_held()
 	)
 
 
@@ -421,7 +458,8 @@ func _apply_pending_input(peer_id: int) -> void:
 		input_state.get("move", Vector2.ZERO),
 		input_state.get("aim", player.global_position + Vector2.RIGHT),
 		input_state.get("attack", false),
-		input_state.get("ability", false)
+		input_state.get("ability", false),
+		input_state.get("ability_slots", [false, false, false, false])
 	)
 
 
@@ -639,6 +677,28 @@ func _play_staff_effect(effect_kind: String, points: PackedVector2Array) -> void
 	AudioService.play("cast_%s" % effect_kind)
 
 
+func _on_ability_cast(effect_kind: String, effect_style: int, points: PackedVector2Array) -> void:
+	_play_ability_effect(effect_kind, effect_style, points)
+	if GameRuntime.is_server():
+		for peer_id in registered_remote_peers.keys():
+			client_play_ability_effect.rpc_id(peer_id, effect_kind, effect_style, points)
+
+
+## Same as _play_staff_effect (same class colors), but the ability picks its own visual shape
+## (bolt/burst) instead of always using the hero's weapon style.
+func _play_ability_effect(effect_kind: String, effect_style: int, points: PackedVector2Array) -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	var class_data := PlayerClass.by_id(effect_kind)
+	var effect := lightning_scene.instantiate() as LightningEffect
+	effect.style = effect_style
+	effect.main_color = Color(class_data.effect_color)
+	effect.chain_color = Color(class_data.effect_secondary)
+	effect.points = points
+	add_child(effect)
+	AudioService.play("cast_%s" % effect_kind)
+
+
 func _on_player_died(_peer_id: int) -> void:
 	if _all_players_dead():
 		game_over = true
@@ -654,18 +714,44 @@ func _on_player_level_reached(_level: int, peer_id: int) -> void:
 	_offer_next_upgrade(peer_id)
 
 
+## Level-ups alternate ability choices (learn a new one or rank up a known one) with the
+## classic flat stat-upgrade choices, tracked per peer by offer_turn_index's parity.
 func _offer_next_upgrade(peer_id: int) -> void:
-	if pending_upgrades.has(peer_id) or int(queued_upgrade_choices.get(peer_id, 0)) <= 0:
+	if pending_upgrades.has(peer_id) or pending_ability_offers.has(peer_id):
+		return
+	if int(queued_upgrade_choices.get(peer_id, 0)) <= 0:
 		return
 	var leveled_player := players.get(peer_id) as Player
 	if leveled_player == null:
 		return
+	var turn_index := int(offer_turn_index.get(peer_id, 0))
+	if turn_index % 2 == 0:
+		_offer_ability_turn(peer_id, leveled_player)
+	else:
+		_offer_stat_turn(peer_id, leveled_player)
+
+
+func _offer_stat_turn(peer_id: int, leveled_player: Player) -> void:
 	var upgrade_ids := PlayerClass.random_upgrade_ids(leveled_player.class_id)
 	pending_upgrades[peer_id] = upgrade_ids
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
 		hud.show_upgrade_ids(players[peer_id], upgrade_ids, GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 	else:
 		client_offer_upgrades.rpc_id(peer_id, upgrade_ids)
+
+
+func _offer_ability_turn(peer_id: int, leveled_player: Player) -> void:
+	var ability_ids := PlayerClass.ability_offer_ids(leveled_player.class_id, leveled_player.known_abilities)
+	if ability_ids.is_empty():
+		# All 4 abilities known and maxed — nothing left to offer, so this turn resolves itself.
+		leveled_player.apply_fallback_bonus()
+		_advance_offer(peer_id)
+		return
+	pending_ability_offers[peer_id] = ability_ids
+	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
+		hud.show_ability_offer(players[peer_id], ability_ids, GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
+	else:
+		client_offer_ability_choices.rpc_id(peer_id, ability_ids)
 
 
 func _on_local_upgrade_chosen(upgrade_id: String) -> void:
@@ -684,7 +770,39 @@ func _apply_upgrade_choice(peer_id: int, upgrade_id: String) -> void:
 		return
 	player.apply_upgrade(upgrade_id)
 	pending_upgrades.erase(peer_id)
+	_advance_offer(peer_id)
+
+
+func _on_local_ability_chosen(ability_id: String) -> void:
+	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
+		server_choose_ability.rpc_id(1, ability_id)
+	else:
+		var local_player := _local_player()
+		if local_player != null:
+			_apply_ability_choice(local_player.owner_peer_id, ability_id)
+
+
+func _apply_ability_choice(peer_id: int, ability_id: String) -> void:
+	var offered: Array = pending_ability_offers.get(peer_id, [])
+	var player := players.get(peer_id) as Player
+	if player == null or ability_id not in offered:
+		return
+	var already_known := false
+	for entry in player.known_abilities:
+		if entry.id == ability_id:
+			already_known = true
+			break
+	if already_known:
+		player.upgrade_ability(ability_id)
+	else:
+		player.learn_ability(ability_id)
+	pending_ability_offers.erase(peer_id)
+	_advance_offer(peer_id)
+
+
+func _advance_offer(peer_id: int) -> void:
 	queued_upgrade_choices[peer_id] = maxi(0, int(queued_upgrade_choices.get(peer_id, 0)) - 1)
+	offer_turn_index[peer_id] = int(offer_turn_index.get(peer_id, 0)) + 1
 	_offer_next_upgrade(peer_id)
 
 
@@ -831,7 +949,9 @@ func _remove_missing_entities(collection: Dictionary, seen: Dictionary) -> void:
 func _on_peer_left(peer_id: int) -> void:
 	pending_inputs.erase(peer_id)
 	pending_upgrades.erase(peer_id)
+	pending_ability_offers.erase(peer_id)
 	queued_upgrade_choices.erase(peer_id)
+	offer_turn_index.erase(peer_id)
 	registered_remote_peers.erase(peer_id)
 	ready_for_next_wave.erase(peer_id)
 	revive_progress.erase(peer_id)

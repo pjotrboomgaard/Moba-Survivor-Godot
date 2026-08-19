@@ -36,6 +36,11 @@ func _ready() -> void:
 	_test_shop_schedule()
 	_test_shop_items_are_not_level_up_stats()
 	_test_item_effects()
+	_test_ability_data_integrity()
+	_test_ability_rank_scaling()
+	_test_ability_learn_and_upgrade()
+	_test_ability_offer_alternation()
+	_test_ability_archetypes_smoke()
 
 	if failures.is_empty():
 		print("Class smoke test passed.")
@@ -459,7 +464,7 @@ func _test_wave_escalation() -> void:
 	director.set_player_count(1)
 
 	_check(director.budget_for_wave(5) > director.budget_for_wave(1), "Wave budget must grow over time")
-	_check(director.health_multiplier_for_wave(1) == 1.0, "Wave 1 should not scale enemy health")
+	_check(director.health_multiplier_for_wave(1) == WaveDirector.BASE_HEALTH_MULTIPLIER, "Wave 1 should start at the doubled baseline health")
 	_check(director.health_multiplier_for_wave(21) >= 2.0, "Late waves should meaningfully scale enemy health")
 
 	director.set_player_count(4)
@@ -597,9 +602,10 @@ func _test_wave_themes_and_debuts() -> void:
 			extra_drifters += 1
 	_check(extra_drifters == 0, "A debut wave must not bury the new enemy in more of the same")
 
-	# Wave 1 was front-loaded to be a real fight instead of easing players in (was 5.5,
-	# barely one group of grunts); the early game still has to stay bounded, just less calm.
-	_check(director.budget_for_wave(5) < 28.0, "The early game must stay bounded, got %.1f" % director.budget_for_wave(5))
+	# Wave 1 was front-loaded to be a real fight instead of easing players in, and the whole
+	# curve was later doubled on top of that; the early game still has to stay bounded, just
+	# at the new, much less forgiving baseline.
+	_check(director.budget_for_wave(5) < 60.0, "The early game must stay bounded, got %.1f" % director.budget_for_wave(5))
 	director.free()
 
 
@@ -832,6 +838,138 @@ func _test_item_effects() -> void:
 	_check(not barefoot.is_sprinting(), "A player without Phase Boots must not dash")
 
 	_cleanup([player, enemy, pierced_player, flier, aegis_player, runner, barefoot])
+
+
+func _test_ability_data_integrity() -> void:
+	for class_data in PlayerClass.CLASSES:
+		_check(class_data.ability_pool.size() == 12, "%s must have exactly 12 abilities, got %d" % [class_data.id, class_data.ability_pool.size()])
+		var seen: Dictionary = {}
+		for ability_id in class_data.ability_pool:
+			_check(not seen.has(ability_id), "%s lists %s twice" % [class_data.id, ability_id])
+			seen[ability_id] = true
+			var data := PlayerClass.ability_info(str(ability_id))
+			_check(not data.is_empty(), "%s references unknown ability %s" % [class_data.id, ability_id])
+			_check(not str(data.get("name", "")).is_empty(), "Ability %s has no name" % ability_id)
+
+
+func _test_ability_rank_scaling() -> void:
+	var rank_one := PlayerClass.ability_values("arclight_static_bolt", 1)
+	var rank_max := PlayerClass.ability_values("arclight_static_bolt", PlayerClass.MAX_ABILITY_RANK)
+	_check(rank_max.power > rank_one.power, "Ranking up Static Bolt should raise its damage")
+	_check(rank_max.cooldown < rank_one.cooldown, "Ranking up Static Bolt should lower its cooldown")
+	_check(rank_one.cooldown > float(PlayerClass.ability_info("arclight_static_bolt").cooldown_base), "Rank 1 cooldown should already be stretched above the authored base")
+
+	var chain_one := PlayerClass.ability_values("arclight_overcharge", 1)
+	var chain_max := PlayerClass.ability_values("arclight_overcharge", PlayerClass.MAX_ABILITY_RANK)
+	_check(chain_max.chain_count > chain_one.chain_count, "A maxed chain ability should bounce further than rank 1")
+
+	var burst_one := PlayerClass.ability_values("bulwark_ground_slam", 1)
+	var burst_max := PlayerClass.ability_values("bulwark_ground_slam", PlayerClass.MAX_ABILITY_RANK)
+	_check(burst_max.radius > burst_one.radius, "A maxed AoE ability should cover more ground than rank 1")
+
+
+func _test_ability_learn_and_upgrade() -> void:
+	var player := _make_player("arclight")
+	_check(player.known_abilities.is_empty(), "A fresh player should know no abilities")
+
+	for ability_id in ["arclight_static_bolt", "arclight_overcharge", "arclight_ion_storm", "arclight_arc_flash"]:
+		player.learn_ability(ability_id)
+	_check(player.known_abilities.size() == PlayerClass.MAX_KNOWN_ABILITIES, "Learning 4 abilities should fill every slot")
+
+	player.learn_ability("arclight_thunder_step")
+	_check(player.known_abilities.size() == PlayerClass.MAX_KNOWN_ABILITIES, "A 5th ability must not be learnable while 4 are already known")
+
+	player.learn_ability("arclight_static_bolt")
+	_check(player.known_abilities[0].rank == 1, "Learning an already-known ability again must be a no-op, not a duplicate")
+
+	for _step in PlayerClass.MAX_ABILITY_RANK:
+		player.upgrade_ability("arclight_static_bolt")
+	_check(player.known_abilities[0].rank == PlayerClass.MAX_ABILITY_RANK, "Static Bolt should cap out at MAX_ABILITY_RANK, got %d" % int(player.known_abilities[0].rank))
+	_cleanup([player])
+
+
+## The ability offer always tries for 4 total choices: one guaranteed upgrade slot per
+## already-known (unmaxed) ability, and the rest filled with random not-yet-known ones.
+func _test_ability_offer_alternation() -> void:
+	var player := _make_player("arclight")
+	var fresh_offer := PlayerClass.ability_offer_ids("arclight", player.known_abilities)
+	_check(fresh_offer.size() == 4, "A fresh hero should see 4 fresh abilities to learn, got %d" % fresh_offer.size())
+	for ability_id in fresh_offer:
+		_check(ability_id in PlayerClass.by_id("arclight").ability_pool, "Offered id %s is not one of Arclight's abilities" % ability_id)
+
+	player.learn_ability("arclight_static_bolt")
+	var one_known_offer := PlayerClass.ability_offer_ids("arclight", player.known_abilities)
+	_check(one_known_offer.size() == 4, "With 1 known ability the offer should still total 4, got %d" % one_known_offer.size())
+	_check("arclight_static_bolt" in one_known_offer, "The one known ability must always get an upgrade slot")
+	var new_count := 0
+	for ability_id in one_known_offer:
+		if ability_id != "arclight_static_bolt":
+			new_count += 1
+	_check(new_count == 3, "With 1 known ability, the other 3 slots must be fresh picks, got %d" % new_count)
+
+	for ability_id in ["arclight_overcharge", "arclight_ion_storm", "arclight_arc_flash"]:
+		player.learn_ability(ability_id)
+	var full_offer := PlayerClass.ability_offer_ids("arclight", player.known_abilities)
+	_check(full_offer.size() == 4, "With 4 known abilities the offer should still be 4, got %d" % full_offer.size())
+	for ability_id in ["arclight_static_bolt", "arclight_overcharge", "arclight_ion_storm", "arclight_arc_flash"]:
+		_check(ability_id in full_offer, "Once 4 abilities are known, every one of them must always be offered for upgrade, missing %s" % ability_id)
+
+	for entry in player.known_abilities:
+		for _step in PlayerClass.MAX_ABILITY_RANK:
+			player.upgrade_ability(str(entry.id))
+	var exhausted_offer := PlayerClass.ability_offer_ids("arclight", player.known_abilities)
+	_check(exhausted_offer.is_empty(), "A fully maxed 4-ability loadout must have nothing left to offer")
+	_cleanup([player])
+
+
+func _test_ability_archetypes_smoke() -> void:
+	var nuker := _make_player("arclight")
+	var target := _make_enemy(Vector2(120.0, 0.0))
+	nuker.learn_ability("arclight_static_bolt")
+	var before := target.health.current_health
+	nuker._cast_known_ability(0)
+	_check(target.health.current_health < before, "Static Bolt did not damage its target")
+	_check(nuker.ability_cooldowns[0] > 0.0, "Casting an ability must start its cooldown")
+	_cleanup([nuker, target])
+
+	var healer := _make_player("arclight")
+	healer.health.take_damage(40.0)
+	var wounded := healer.health.current_health
+	healer.learn_ability("arclight_second_wind")
+	healer._cast_known_ability(0)
+	_check(healer.health.current_health > wounded, "Vital Surge (self_heal) did not heal its caster")
+	_cleanup([healer])
+
+	var blinker := _make_player("arclight")
+	blinker.aim_world_position = blinker.global_position + Vector2(500.0, 0.0)
+	var start_position := blinker.global_position
+	blinker.learn_ability("arclight_thunder_step")
+	blinker._cast_known_ability(0)
+	_check(blinker.global_position.distance_to(start_position) > 100.0, "Thunder Step did not move its caster")
+	_cleanup([blinker])
+
+	var shielded := _make_player("bulwark")
+	shielded.learn_ability("bulwark_fortify")
+	shielded._cast_known_ability(0)
+	_check(shielded.health.shield_amount > 0.0, "Fortify did not grant a shield")
+	var health_before_shield := shielded.health.current_health
+	shielded.health.take_damage(10.0)
+	_check(is_equal_approx(shielded.health.current_health, health_before_shield), "A fresh shield should fully absorb a small hit")
+	_cleanup([shielded])
+
+	var puller := _make_player("bulwark", Vector2.ZERO)
+	var nearby_enemy := _make_enemy(Vector2(100.0, 0.0))
+	puller.learn_ability("bulwark_provoke")
+	puller._cast_known_ability(0)
+	_check(nearby_enemy.knockback_velocity.x < 0.0, "Provoke should pull the enemy back toward the caster")
+	_cleanup([puller, nearby_enemy])
+
+	var marker := _make_player("arclight")
+	var marked_enemy := _make_enemy(Vector2(120.0, 0.0))
+	marker.learn_ability("arclight_track")
+	marker._cast_known_ability(0)
+	_check(marked_enemy.vulnerability_bonus > 0.0, "Track did not mark its target as vulnerable")
+	_cleanup([marker, marked_enemy])
 
 
 func _cleanup(nodes: Array) -> void:

@@ -51,6 +51,11 @@ const CLASSES: Array[Dictionary] = [
 		"damage_taken_multiplier": 1.0,
 		"taunt_weight": 1.0,
 		"upgrades": ["rapid", "heavy", "chain", "boots", "vitality"],
+		"ability_pool": [
+			"arclight_static_bolt", "arclight_overcharge", "arclight_ion_storm", "arclight_arc_flash",
+			"arclight_thunder_step", "arclight_overclock", "arclight_paralyzing_bolt", "arclight_ball_lightning",
+			"arclight_volt_siphon", "arclight_track", "arclight_repulsor_field", "arclight_second_wind",
+		],
 	},
 	{
 		"id": "bulwark",
@@ -77,6 +82,11 @@ const CLASSES: Array[Dictionary] = [
 		"damage_taken_multiplier": 0.7,
 		"taunt_weight": 0.4,
 		"upgrades": ["plating", "reach", "heavy", "boots", "vitality"],
+		"ability_pool": [
+			"bulwark_shockwave_strike", "bulwark_ground_slam", "bulwark_cleave", "bulwark_iron_charge",
+			"bulwark_fortify", "bulwark_provoke", "bulwark_last_stand", "bulwark_aftershock",
+			"bulwark_second_wind", "bulwark_rallying_warcry", "bulwark_retribution", "bulwark_sunder",
+		],
 	},
 	{
 		"id": "warden",
@@ -103,6 +113,11 @@ const CLASSES: Array[Dictionary] = [
 		"damage_taken_multiplier": 1.0,
 		"taunt_weight": 1.25,
 		"upgrades": ["flow", "choir", "rapid", "boots", "vitality"],
+		"ability_pool": [
+			"warden_vine_lash", "warden_mending_wave", "warden_thorn_volley", "warden_entangle",
+			"warden_natures_grasp", "warden_verdant_ward", "warden_rising_choir", "warden_vine_step",
+			"warden_natures_wrath", "warden_second_bloom", "warden_vital_drain", "warden_bramble_wall",
+		],
 	},
 	{
 		"id": "frostbinder",
@@ -129,6 +144,11 @@ const CLASSES: Array[Dictionary] = [
 		"damage_taken_multiplier": 1.0,
 		"taunt_weight": 1.15,
 		"upgrades": ["depth", "shatter", "heavy", "boots", "vitality"],
+		"ability_pool": [
+			"frostbinder_ice_spike", "frostbinder_frost_nova", "frostbinder_glacial_cone", "frostbinder_deep_freeze",
+			"frostbinder_shatter_chain", "frostbinder_frost_step", "frostbinder_permafrost", "frostbinder_vortex",
+			"frostbinder_chilling_clarity", "frostbinder_rime_barrage", "frostbinder_frostbite_mark", "frostbinder_absolute_zero",
+		],
 	},
 ]
 
@@ -153,6 +173,385 @@ const UPGRADES: Dictionary = {
 	"choir": {"name": "Rising Choir", "description": "+6% team damage aura"},
 	"depth": {"name": "Deep Freeze", "description": "Stronger and longer slow"},
 	"shatter": {"name": "Shatter Front", "description": "+35 frost burst radius"},
+}
+
+
+## Abilities always cap at 4 known, and every known ability can keep ranking up this high.
+const MAX_KNOWN_ABILITIES := 4
+const MAX_ABILITY_RANK := 5
+
+## Cooldowns are authored short in the ABILITIES table below and then stretched here, so
+## every ability starts out slow at rank 1 (long cooldown to earn) and comes down hard as it
+## ranks up, instead of hand-tripling every one of the 48 entries individually.
+const ABILITY_COOLDOWN_BASE_MULTIPLIER := 3.0
+const ABILITY_COOLDOWN_PER_RANK_MULTIPLIER := 4.2
+const ABILITY_COOLDOWN_MIN_MULTIPLIER := 1.6
+
+## Area/chain/mobility abilities also grow physically stronger with rank, not just cheaper —
+## a maxed-out ability should feel like it can clear a crowd, not just tick faster.
+const ABILITY_RADIUS_GROWTH_PER_RANK := 0.15
+const ABILITY_RANGE_GROWTH_PER_RANK := 0.08
+const ABILITY_DASH_GROWTH_PER_RANK := 0.06
+const ABILITY_CHAIN_RANKS_PER_BONUS := 2
+
+## Very long runs eventually run out of things to offer (4 abilities, all maxed); rather than
+## stall the level-up screen, this flat, choice-free bump keeps the run moving.
+const FALLBACK_UPGRADE_HEALTH_BONUS := 20.0
+
+## Ability archetypes — the reusable cast "shapes" every ability id below picks from. See
+## Player._cast_known_ability for the matching gameplay code.
+enum Archetype {
+	NUKE_BOLT,
+	CONE_BURST,
+	RADIUS_BURST,
+	CHAIN_NUKE,
+	DASH_STRIKE,
+	BLINK,
+	SELF_HEAL,
+	AOE_HEAL,
+	SHIELD_BURST,
+	BUFF_SELF,
+	PUSH_PULL_BURST,
+}
+
+const ARCHETYPE_NAMES := {
+	Archetype.NUKE_BOLT: "nuke_bolt",
+	Archetype.CONE_BURST: "cone_burst",
+	Archetype.RADIUS_BURST: "radius_burst",
+	Archetype.CHAIN_NUKE: "chain_nuke",
+	Archetype.DASH_STRIKE: "dash_strike",
+	Archetype.BLINK: "blink",
+	Archetype.SELF_HEAL: "self_heal",
+	Archetype.AOE_HEAL: "aoe_heal",
+	Archetype.SHIELD_BURST: "shield_burst",
+	Archetype.BUFF_SELF: "buff_self",
+	Archetype.PUSH_PULL_BURST: "push_pull_burst",
+}
+
+## id -> data. Every hero picks 12 of these (see CLASSES[i].ability_pool). Numeric fields scale
+## linearly with rank via ability_values(); everything else (radius, chain_count, dash_distance,
+## on-hit modifiers, buff_stats) stays fixed across ranks to keep each entry small.
+const ABILITIES: Dictionary = {
+	# --- Arclight -----------------------------------------------------------------------
+	"arclight_static_bolt": {
+		"name": "Static Bolt", "archetype": Archetype.NUKE_BOLT,
+		"description": "Hurl a bolt of raw current at the nearest enemy.",
+		"cooldown_base": 3.4, "cooldown_per_rank": -0.4, "cooldown_min": 1.8,
+		"power_base": 46.0, "power_per_rank": 12.0, "range": 620.0,
+	},
+	"arclight_overcharge": {
+		"name": "Overcharge", "archetype": Archetype.CHAIN_NUKE,
+		"description": "A heavy bolt that arcs between packed enemies.",
+		"cooldown_base": 6.5, "cooldown_per_rank": -0.7, "cooldown_min": 3.6,
+		"power_base": 40.0, "power_per_rank": 10.0, "range": 620.0,
+		"chain_count": 4, "chain_range": 220.0,
+	},
+	"arclight_ion_storm": {
+		"name": "Ion Storm", "archetype": Archetype.RADIUS_BURST,
+		"description": "Discharge a ring of lightning around yourself.",
+		"cooldown_base": 7.0, "cooldown_per_rank": -0.8, "cooldown_min": 3.8,
+		"power_base": 24.0, "power_per_rank": 7.0, "range": 0.0, "radius": 170.0,
+	},
+	"arclight_arc_flash": {
+		"name": "Arc Flash", "archetype": Archetype.CONE_BURST,
+		"description": "Blast a forward cone with a wide arc of current.",
+		"cooldown_base": 5.5, "cooldown_per_rank": -0.6, "cooldown_min": 3.0,
+		"power_base": 30.0, "power_per_rank": 8.0, "radius": 260.0,
+	},
+	"arclight_thunder_step": {
+		"name": "Thunder Step", "archetype": Archetype.BLINK,
+		"description": "Teleport a short distance toward your cursor.",
+		"cooldown_base": 9.0, "cooldown_per_rank": -1.0, "cooldown_min": 5.0,
+		"power_base": 0.0, "power_per_rank": 0.0, "dash_distance": 300.0,
+	},
+	"arclight_overclock": {
+		"name": "Overclock", "archetype": Archetype.BUFF_SELF,
+		"description": "Overclock your staff, casting far faster for a moment.",
+		"cooldown_base": 13.0, "cooldown_per_rank": -1.2, "cooldown_min": 8.0,
+		"power_base": 0.0, "power_per_rank": 0.0,
+		"duration_base": 4.0, "duration_per_rank": 0.5,
+		"buff_stats": {"attack_interval_mult": 0.6, "movement_speed_mult": 1.15}, "target_scope": "self",
+	},
+	"arclight_paralyzing_bolt": {
+		"name": "Paralyzing Bolt", "archetype": Archetype.NUKE_BOLT,
+		"description": "A slow bolt that locks its target in place.",
+		"cooldown_base": 8.5, "cooldown_per_rank": -0.8, "cooldown_min": 5.0,
+		"power_base": 22.0, "power_per_rank": 6.0, "range": 560.0,
+		"stun_on_hit": {"duration": 1.1},
+	},
+	"arclight_ball_lightning": {
+		"name": "Ball Lightning", "archetype": Archetype.DASH_STRIKE,
+		"description": "Become a bolt and streak forward, scorching everything you pass.",
+		"cooldown_base": 8.0, "cooldown_per_rank": -0.8, "cooldown_min": 4.5,
+		"power_base": 34.0, "power_per_rank": 9.0, "dash_distance": 320.0, "radius": 60.0,
+	},
+	"arclight_volt_siphon": {
+		"name": "Volt Siphon", "archetype": Archetype.NUKE_BOLT,
+		"description": "Drain current from a target back into yourself.",
+		"cooldown_base": 6.0, "cooldown_per_rank": -0.6, "cooldown_min": 3.4,
+		"power_base": 30.0, "power_per_rank": 8.0, "range": 560.0, "lifesteal_pct": 0.5,
+	},
+	"arclight_track": {
+		"name": "Track", "archetype": Archetype.NUKE_BOLT,
+		"description": "Mark a target, exposing it to extra damage from all sources.",
+		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.0,
+		"power_base": 16.0, "power_per_rank": 4.0, "range": 640.0,
+		"mark_on_hit": {"bonus_pct": 0.25, "duration": 4.0},
+	},
+	"arclight_repulsor_field": {
+		"name": "Repulsor Field", "archetype": Archetype.PUSH_PULL_BURST,
+		"description": "Blast nearby enemies away from you.",
+		"cooldown_base": 10.0, "cooldown_per_rank": -1.0, "cooldown_min": 6.0,
+		"power_base": -380.0, "power_per_rank": -40.0, "range": 0.0, "radius": 190.0,
+	},
+	"arclight_second_wind": {
+		"name": "Vital Surge", "archetype": Archetype.SELF_HEAL,
+		"description": "Catch your breath and mend your wounds.",
+		"cooldown_base": 14.0, "cooldown_per_rank": -1.4, "cooldown_min": 8.0,
+		"power_base": 30.0, "power_per_rank": 9.0,
+	},
+	# --- Bulwark --------------------------------------------------------------------------
+	"bulwark_shockwave_strike": {
+		"name": "Shockwave Strike", "archetype": Archetype.NUKE_BOLT,
+		"description": "Slam the ground in front of you with a short-range shockwave.",
+		"cooldown_base": 4.0, "cooldown_per_rank": -0.4, "cooldown_min": 2.2,
+		"power_base": 40.0, "power_per_rank": 11.0, "range": 220.0,
+	},
+	"bulwark_ground_slam": {
+		"name": "Ground Slam", "archetype": Archetype.RADIUS_BURST,
+		"description": "Crack the earth around you in every direction.",
+		"cooldown_base": 6.0, "cooldown_per_rank": -0.6, "cooldown_min": 3.4,
+		"power_base": 34.0, "power_per_rank": 9.0, "range": 0.0, "radius": 190.0,
+	},
+	"bulwark_cleave": {
+		"name": "Cleave", "archetype": Archetype.CONE_BURST,
+		"description": "A wide hammer swing through everything in front of you.",
+		"cooldown_base": 4.5, "cooldown_per_rank": -0.4, "cooldown_min": 2.6,
+		"power_base": 32.0, "power_per_rank": 9.0, "radius": 190.0,
+	},
+	"bulwark_iron_charge": {
+		"name": "Iron Charge", "archetype": Archetype.DASH_STRIKE,
+		"description": "Charge forward, trampling anything in your path.",
+		"cooldown_base": 8.5, "cooldown_per_rank": -0.8, "cooldown_min": 5.0,
+		"power_base": 38.0, "power_per_rank": 10.0, "dash_distance": 280.0, "radius": 70.0,
+	},
+	"bulwark_fortify": {
+		"name": "Fortify", "archetype": Archetype.SHIELD_BURST,
+		"description": "Brace behind a wall of raw plating.",
+		"cooldown_base": 13.0, "cooldown_per_rank": -1.2, "cooldown_min": 8.0,
+		"power_base": 60.0, "power_per_rank": 16.0,
+		"duration_base": 5.0, "duration_per_rank": 0.6, "target_scope": "self",
+	},
+	"bulwark_provoke": {
+		"name": "Provoke", "archetype": Archetype.PUSH_PULL_BURST,
+		"description": "Bellow a challenge that drags nearby enemies toward you.",
+		"cooldown_base": 11.0, "cooldown_per_rank": -1.0, "cooldown_min": 6.5,
+		"power_base": 340.0, "power_per_rank": 35.0, "range": 0.0, "radius": 220.0,
+	},
+	"bulwark_last_stand": {
+		"name": "Last Stand", "archetype": Archetype.BUFF_SELF,
+		"description": "Dig in — damage barely fazes you for a moment.",
+		"cooldown_base": 15.0, "cooldown_per_rank": -1.4, "cooldown_min": 9.0,
+		"power_base": 0.0, "power_per_rank": 0.0,
+		"duration_base": 4.5, "duration_per_rank": 0.5,
+		"buff_stats": {"damage_taken_mult": 0.55, "movement_speed_mult": 1.2}, "target_scope": "self",
+	},
+	"bulwark_aftershock": {
+		"name": "Aftershock", "archetype": Archetype.NUKE_BOLT,
+		"description": "A follow-up quake that leaves its target reeling.",
+		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.0,
+		"power_base": 24.0, "power_per_rank": 6.0, "range": 200.0,
+		"stun_on_hit": {"duration": 1.0},
+	},
+	"bulwark_second_wind": {
+		"name": "Iron Recovery", "archetype": Archetype.SELF_HEAL,
+		"description": "Grit your teeth and shrug off the pain.",
+		"cooldown_base": 13.0, "cooldown_per_rank": -1.2, "cooldown_min": 7.5,
+		"power_base": 45.0, "power_per_rank": 12.0,
+	},
+	"bulwark_rallying_warcry": {
+		"name": "Rallying Warcry", "archetype": Archetype.AOE_HEAL,
+		"description": "Rally the party, mending everyone close by.",
+		"cooldown_base": 10.0, "cooldown_per_rank": -1.0, "cooldown_min": 6.0,
+		"power_base": 22.0, "power_per_rank": 6.0, "range": 0.0, "radius": 230.0,
+	},
+	"bulwark_retribution": {
+		"name": "Retribution", "archetype": Archetype.BUFF_SELF,
+		"description": "Coat your armour in barbs that punish attackers.",
+		"cooldown_base": 14.0, "cooldown_per_rank": -1.3, "cooldown_min": 8.5,
+		"power_base": 0.0, "power_per_rank": 0.0,
+		"duration_base": 4.0, "duration_per_rank": 0.5,
+		"buff_stats": {"reflect_pct": 0.4}, "target_scope": "self",
+	},
+	"bulwark_sunder": {
+		"name": "Sunder", "archetype": Archetype.NUKE_BOLT,
+		"description": "Crack a target's defences wide open.",
+		"cooldown_base": 9.5, "cooldown_per_rank": -0.9, "cooldown_min": 5.5,
+		"power_base": 18.0, "power_per_rank": 5.0, "range": 230.0,
+		"mark_on_hit": {"bonus_pct": 0.3, "duration": 4.5},
+	},
+	# --- Warden -----------------------------------------------------------------------------
+	"warden_vine_lash": {
+		"name": "Vine Lash", "archetype": Archetype.NUKE_BOLT,
+		"description": "Whip a barbed vine at the nearest enemy.",
+		"cooldown_base": 4.2, "cooldown_per_rank": -0.4, "cooldown_min": 2.4,
+		"power_base": 26.0, "power_per_rank": 7.0, "range": 520.0,
+	},
+	"warden_mending_wave": {
+		"name": "Mending Wave", "archetype": Archetype.AOE_HEAL,
+		"description": "Send out a wave of restorative light to the whole party.",
+		"cooldown_base": 8.0, "cooldown_per_rank": -0.8, "cooldown_min": 4.5,
+		"power_base": 30.0, "power_per_rank": 8.0, "range": 0.0, "radius": 260.0,
+	},
+	"warden_thorn_volley": {
+		"name": "Thorn Volley", "archetype": Archetype.CHAIN_NUKE,
+		"description": "Loose a volley of thorns that skips between enemies.",
+		"cooldown_base": 6.5, "cooldown_per_rank": -0.6, "cooldown_min": 3.6,
+		"power_base": 24.0, "power_per_rank": 6.0, "range": 520.0,
+		"chain_count": 3, "chain_range": 200.0,
+	},
+	"warden_entangle": {
+		"name": "Entangle", "archetype": Archetype.NUKE_BOLT,
+		"description": "Roots burst from the ground to hold a target fast.",
+		"cooldown_base": 8.5, "cooldown_per_rank": -0.8, "cooldown_min": 5.0,
+		"power_base": 14.0, "power_per_rank": 4.0, "range": 480.0,
+		"stun_on_hit": {"duration": 1.2},
+	},
+	"warden_natures_grasp": {
+		"name": "Nature's Grasp", "archetype": Archetype.RADIUS_BURST,
+		"description": "Choking vines slow everything in the area.",
+		"cooldown_base": 7.5, "cooldown_per_rank": -0.7, "cooldown_min": 4.2,
+		"power_base": 10.0, "power_per_rank": 3.0, "range": 380.0, "radius": 170.0,
+		"slow_on_hit": {"factor": 0.5, "duration": 2.2},
+	},
+	"warden_verdant_ward": {
+		"name": "Verdant Ward", "archetype": Archetype.SHIELD_BURST,
+		"description": "Wrap the party in a barrier of living wood.",
+		"cooldown_base": 13.0, "cooldown_per_rank": -1.2, "cooldown_min": 8.0,
+		"power_base": 40.0, "power_per_rank": 10.0, "range": 0.0, "radius": 220.0,
+		"duration_base": 5.0, "duration_per_rank": 0.6, "target_scope": "allies",
+	},
+	"warden_rising_choir": {
+		"name": "Battle Hymn", "archetype": Archetype.BUFF_SELF,
+		"description": "Lend the whole party a surge of striking power.",
+		"cooldown_base": 13.0, "cooldown_per_rank": -1.2, "cooldown_min": 8.0,
+		"power_base": 0.0, "power_per_rank": 0.0, "radius": 240.0,
+		"duration_base": 4.5, "duration_per_rank": 0.5,
+		"buff_stats": {"damage_dealt_mult": 1.2}, "target_scope": "allies",
+	},
+	"warden_vine_step": {
+		"name": "Vine Step", "archetype": Archetype.BLINK,
+		"description": "Ride a vine to close the distance to an ally.",
+		"cooldown_base": 8.5, "cooldown_per_rank": -0.9, "cooldown_min": 5.0,
+		"power_base": 0.0, "power_per_rank": 0.0, "dash_distance": 280.0,
+	},
+	"warden_natures_wrath": {
+		"name": "Nature's Wrath", "archetype": Archetype.NUKE_BOLT,
+		"description": "Curse a target, leaving it exposed to harm.",
+		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.0,
+		"power_base": 16.0, "power_per_rank": 4.0, "range": 500.0,
+		"mark_on_hit": {"bonus_pct": 0.25, "duration": 4.0},
+	},
+	"warden_second_bloom": {
+		"name": "Second Bloom", "archetype": Archetype.SELF_HEAL,
+		"description": "Draw on the grove's vitality to heal yourself.",
+		"cooldown_base": 11.0, "cooldown_per_rank": -1.0, "cooldown_min": 6.5,
+		"power_base": 34.0, "power_per_rank": 9.0,
+	},
+	"warden_vital_drain": {
+		"name": "Vital Drain", "archetype": Archetype.NUKE_BOLT,
+		"description": "Siphon a target's vitality back into your own.",
+		"cooldown_base": 6.5, "cooldown_per_rank": -0.6, "cooldown_min": 3.8,
+		"power_base": 20.0, "power_per_rank": 5.0, "range": 480.0, "lifesteal_pct": 0.6,
+	},
+	"warden_bramble_wall": {
+		"name": "Bramble Wall", "archetype": Archetype.PUSH_PULL_BURST,
+		"description": "Raise a wall of thorns that shoves enemies back.",
+		"cooldown_base": 10.0, "cooldown_per_rank": -0.9, "cooldown_min": 6.0,
+		"power_base": -300.0, "power_per_rank": -30.0, "range": 0.0, "radius": 200.0,
+	},
+	# --- Frostbinder --------------------------------------------------------------------------
+	"frostbinder_ice_spike": {
+		"name": "Ice Spike", "archetype": Archetype.NUKE_BOLT,
+		"description": "Launch a razor-sharp spike of ice.",
+		"cooldown_base": 3.8, "cooldown_per_rank": -0.4, "cooldown_min": 2.0,
+		"power_base": 30.0, "power_per_rank": 8.0, "range": 500.0,
+	},
+	"frostbinder_frost_nova": {
+		"name": "Frost Nova", "archetype": Archetype.RADIUS_BURST,
+		"description": "A ring of frost erupts from your feet.",
+		"cooldown_base": 7.0, "cooldown_per_rank": -0.7, "cooldown_min": 3.8,
+		"power_base": 26.0, "power_per_rank": 7.0, "range": 0.0, "radius": 170.0,
+		"slow_on_hit": {"factor": 0.5, "duration": 2.4},
+	},
+	"frostbinder_glacial_cone": {
+		"name": "Glacial Cone", "archetype": Archetype.CONE_BURST,
+		"description": "Breathe a cone of freezing wind.",
+		"cooldown_base": 5.5, "cooldown_per_rank": -0.5, "cooldown_min": 3.0,
+		"power_base": 24.0, "power_per_rank": 6.0, "radius": 240.0,
+		"slow_on_hit": {"factor": 0.55, "duration": 2.0},
+	},
+	"frostbinder_deep_freeze": {
+		"name": "Glacial Lock", "archetype": Archetype.NUKE_BOLT,
+		"description": "Encase a target in solid ice.",
+		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.2,
+		"power_base": 20.0, "power_per_rank": 5.0, "range": 460.0,
+		"stun_on_hit": {"duration": 1.3},
+	},
+	"frostbinder_shatter_chain": {
+		"name": "Shatter Chain", "archetype": Archetype.CHAIN_NUKE,
+		"description": "A shard of ice that shatters between enemies.",
+		"cooldown_base": 6.8, "cooldown_per_rank": -0.6, "cooldown_min": 3.8,
+		"power_base": 26.0, "power_per_rank": 7.0, "range": 500.0,
+		"chain_count": 3, "chain_range": 210.0,
+	},
+	"frostbinder_frost_step": {
+		"name": "Frost Step", "archetype": Archetype.BLINK,
+		"description": "Turn to mist and reform a short distance away.",
+		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.0,
+		"power_base": 0.0, "power_per_rank": 0.0, "dash_distance": 290.0,
+	},
+	"frostbinder_permafrost": {
+		"name": "Permafrost", "archetype": Archetype.SHIELD_BURST,
+		"description": "Armour yourself in a shell of packed ice.",
+		"cooldown_base": 13.0, "cooldown_per_rank": -1.2, "cooldown_min": 8.0,
+		"power_base": 50.0, "power_per_rank": 13.0,
+		"duration_base": 5.0, "duration_per_rank": 0.6, "target_scope": "self",
+	},
+	"frostbinder_vortex": {
+		"name": "Vortex", "archetype": Archetype.PUSH_PULL_BURST,
+		"description": "A freezing vortex hauls enemies into a cluster.",
+		"cooldown_base": 11.0, "cooldown_per_rank": -1.0, "cooldown_min": 6.5,
+		"power_base": 320.0, "power_per_rank": 32.0, "range": 0.0, "radius": 210.0,
+	},
+	"frostbinder_chilling_clarity": {
+		"name": "Chilling Clarity", "archetype": Archetype.BUFF_SELF,
+		"description": "Cold focus sharpens your casting and footwork.",
+		"cooldown_base": 13.0, "cooldown_per_rank": -1.2, "cooldown_min": 8.0,
+		"power_base": 0.0, "power_per_rank": 0.0,
+		"duration_base": 4.5, "duration_per_rank": 0.5,
+		"buff_stats": {"attack_interval_mult": 0.7, "movement_speed_mult": 1.2}, "target_scope": "self",
+	},
+	"frostbinder_rime_barrage": {
+		"name": "Rime Barrage", "archetype": Archetype.DASH_STRIKE,
+		"description": "Skate forward on ice, lancing everything you pass.",
+		"cooldown_base": 8.5, "cooldown_per_rank": -0.8, "cooldown_min": 4.8,
+		"power_base": 30.0, "power_per_rank": 8.0, "dash_distance": 300.0, "radius": 60.0,
+	},
+	"frostbinder_frostbite_mark": {
+		"name": "Frostbite Mark", "archetype": Archetype.NUKE_BOLT,
+		"description": "Bitter cold clings to a target, deepening any wound.",
+		"cooldown_base": 9.5, "cooldown_per_rank": -0.9, "cooldown_min": 5.5,
+		"power_base": 16.0, "power_per_rank": 4.0, "range": 480.0,
+		"mark_on_hit": {"bonus_pct": 0.3, "duration": 4.5},
+	},
+	"frostbinder_absolute_zero": {
+		"name": "Absolute Zero", "archetype": Archetype.RADIUS_BURST,
+		"description": "Call down a devastating pocket of absolute cold.",
+		"cooldown_base": 14.0, "cooldown_per_rank": -1.3, "cooldown_min": 8.5,
+		"power_base": 42.0, "power_per_rank": 11.0, "range": 420.0, "radius": 200.0,
+		"slow_on_hit": {"factor": 0.35, "duration": 3.0},
+	},
 }
 
 
@@ -191,3 +590,127 @@ static func random_upgrade_ids(class_id: String, amount: int = 3) -> Array[Strin
 
 static func upgrade_info(upgrade_id: String) -> Dictionary:
 	return UPGRADES.get(upgrade_id, {"name": upgrade_id, "description": ""})
+
+
+static func ability_pool_for(class_id: String) -> Array[String]:
+	var pool: Array[String] = []
+	for ability_id in by_id(class_id).ability_pool:
+		pool.append(ability_id)
+	return pool
+
+
+static func ability_info(ability_id: String) -> Dictionary:
+	return ABILITIES.get(ability_id, {})
+
+
+## The offer shown on an "ability" level-up: always up to `amount` (4) choices — one
+## guaranteed upgrade slot for every ability already known (that still has rank to give), and
+## the rest filled with random not-yet-known abilities from the same hero pool. So with 0
+## known it's 4 fresh picks; with 1 known it's that ability to upgrade plus 3 fresh picks;
+## with all 4 known (the cap) it's always all 4 up for a rank. Whether a given id in the
+## result is a "learn" or an "upgrade" is resolved at pick time by checking membership in the
+## player's known_abilities — the caller doesn't need a separate tag per candidate.
+static func ability_offer_ids(class_id: String, known: Array[Dictionary], amount: int = 4) -> Array[String]:
+	var known_ids: Array[String] = []
+	var upgrade_candidates: Array[String] = []
+	for entry in known:
+		var ability_id := str(entry.id)
+		known_ids.append(ability_id)
+		if int(entry.get("rank", 1)) < MAX_ABILITY_RANK:
+			upgrade_candidates.append(ability_id)
+
+	var new_pool: Array[String] = []
+	if known.size() < MAX_KNOWN_ABILITIES:
+		for ability_id in ability_pool_for(class_id):
+			if ability_id not in known_ids:
+				new_pool.append(ability_id)
+	new_pool.shuffle()
+
+	var result := upgrade_candidates.duplicate()
+	var new_slots_needed := maxi(0, amount - result.size())
+	result.append_array(new_pool.slice(0, new_slots_needed))
+	return result
+
+
+## Scales an ability's numbers for the given rank (1-based). Every field grows with rank —
+## cooldown/power/duration linearly from their per-ability authored rates, radius/range/dash
+## distance by a flat percentage per rank, and chain count by +1 every couple of ranks — so a
+## rank-5 ability is a visibly bigger, more dangerous version of its rank-1 self, not just a
+## faster-cycling one.
+static func ability_values(ability_id: String, rank: int) -> Dictionary:
+	var data := ability_info(ability_id)
+	var steps := maxi(0, rank - 1)
+	var cooldown := maxf(
+		float(data.get("cooldown_min", 1.0)) * ABILITY_COOLDOWN_MIN_MULTIPLIER,
+		float(data.get("cooldown_base", 5.0)) * ABILITY_COOLDOWN_BASE_MULTIPLIER
+			+ float(data.get("cooldown_per_rank", 0.0)) * ABILITY_COOLDOWN_PER_RANK_MULTIPLIER * steps
+	)
+	var power := float(data.get("power_base", 0.0)) + float(data.get("power_per_rank", 0.0)) * steps
+	var duration := float(data.get("duration_base", 0.0)) + float(data.get("duration_per_rank", 0.0)) * steps
+	var radius := float(data.get("radius", 0.0)) * (1.0 + ABILITY_RADIUS_GROWTH_PER_RANK * steps)
+	var range_value := float(data.get("range", 0.0)) * (1.0 + ABILITY_RANGE_GROWTH_PER_RANK * steps)
+	var dash_distance := float(data.get("dash_distance", 0.0)) * (1.0 + ABILITY_DASH_GROWTH_PER_RANK * steps)
+	var chain_count := int(data.get("chain_count", 0))
+	if chain_count > 0:
+		chain_count += int(steps / ABILITY_CHAIN_RANKS_PER_BONUS)
+	return {
+		"cooldown": cooldown,
+		"power": power,
+		"duration": duration,
+		"range": range_value,
+		"radius": radius,
+		"dash_distance": dash_distance,
+		"chain_count": chain_count,
+	}
+
+
+static func _modifier_description(data: Dictionary) -> String:
+	var parts: Array[String] = []
+	if data.has("stun_on_hit"):
+		parts.append("Stuns for %.1fs" % float(data.stun_on_hit.duration))
+	if data.has("slow_on_hit"):
+		parts.append("Slows by %d%% for %.1fs" % [int((1.0 - float(data.slow_on_hit.factor)) * 100.0), float(data.slow_on_hit.duration)])
+	if data.has("mark_on_hit"):
+		parts.append("Marks for +%d%% damage taken for %.1fs" % [int(float(data.mark_on_hit.bonus_pct) * 100.0), float(data.mark_on_hit.duration)])
+	if data.has("lifesteal_pct"):
+		parts.append("Heals you for %d%% of the damage dealt" % int(float(data.lifesteal_pct) * 100.0))
+	return "  ".join(parts)
+
+
+## Short, numbers-included description for a level-up choice card, at the rank it would be
+## cast at if picked/upgraded right now.
+static func ability_description(ability_id: String, rank: int) -> String:
+	var data := ability_info(ability_id)
+	if data.is_empty():
+		return ""
+	var values := ability_values(ability_id, rank)
+	var effect := ""
+	match int(data.archetype):
+		Archetype.NUKE_BOLT:
+			effect = "Deals %d damage. Cooldown %.1fs." % [int(values.power), values.cooldown]
+		Archetype.CONE_BURST, Archetype.RADIUS_BURST:
+			effect = "Deals %d damage in the area. Cooldown %.1fs." % [int(values.power), values.cooldown]
+		Archetype.CHAIN_NUKE:
+			effect = "Deals %d damage, bouncing to %d enemies. Cooldown %.1fs." % [int(values.power), int(values.chain_count), values.cooldown]
+		Archetype.DASH_STRIKE:
+			effect = "Dash %d units, dealing %d damage along the way. Cooldown %.1fs." % [int(values.dash_distance), int(values.power), values.cooldown]
+		Archetype.BLINK:
+			effect = "Blink %d units. Cooldown %.1fs." % [int(values.dash_distance), values.cooldown]
+		Archetype.SELF_HEAL:
+			effect = "Heals you for %d. Cooldown %.1fs." % [int(values.power), values.cooldown]
+		Archetype.AOE_HEAL:
+			effect = "Heals you and nearby allies for %d. Cooldown %.1fs." % [int(values.power), values.cooldown]
+		Archetype.SHIELD_BURST:
+			var scope := "you" if data.get("target_scope", "self") == "self" else "you and nearby allies"
+			effect = "Shields %s for %d, lasting %.1fs. Cooldown %.1fs." % [scope, int(values.power), values.duration, values.cooldown]
+		Archetype.BUFF_SELF:
+			var buff_scope := "you" if data.get("target_scope", "self") == "self" else "you and nearby allies"
+			effect = "Empowers %s for %.1fs. Cooldown %.1fs." % [buff_scope, values.duration, values.cooldown]
+		Archetype.PUSH_PULL_BURST:
+			var verb := "Pulls" if float(data.get("power_base", 0.0)) > 0.0 else "Knocks back"
+			effect = "%s nearby enemies. Cooldown %.1fs." % [verb, values.cooldown]
+	var modifier_text := _modifier_description(data)
+	var lines: Array[String] = [str(data.name), str(data.description), effect]
+	if not modifier_text.is_empty():
+		lines.append(modifier_text)
+	return "\n".join(lines)
