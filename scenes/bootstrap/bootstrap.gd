@@ -18,6 +18,12 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var join_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/JoinLabel
 @onready var mode_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow
 @onready var roster_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/RosterLabel
+@onready var lobby_title_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/LobbyTitleLabel
+@onready var player_slots: VBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/PlayerSlots
+@onready var lobby_action_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow
+@onready var invite_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow/InviteButton
+@onready var leave_lobby_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow/LeaveLobbyButton
+@onready var cancel_create_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow/CancelCreateButton
 @onready var start_game_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/StartGameButton
 @onready var waiting_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/WaitingLabel
 
@@ -35,6 +41,12 @@ var _in_network_lobby := false
 var _is_lobby_host := false
 ## peer_id -> {"name": String, "class_id": String}
 var lobby_roster: Dictionary = {}
+var _waiting_steam_operation := false
+var _steam_operation_elapsed := 0.0
+var _steam_lobby_members: Array[String] = []
+var _lobby_refresh_timer := 0.0
+
+const STEAM_OPERATION_TIMEOUT := 22.0
 
 
 func _ready() -> void:
@@ -47,12 +59,18 @@ func _ready() -> void:
 	join_button.pressed.connect(_on_join_pressed)
 	address_input.text_submitted.connect(_on_address_submitted)
 	start_game_button.pressed.connect(_on_start_game_pressed)
+	invite_button.pressed.connect(_on_invite_pressed)
+	leave_lobby_button.pressed.connect(_on_leave_lobby_pressed)
+	cancel_create_button.pressed.connect(_on_cancel_create_pressed)
 	SteamService.steam_ready.connect(_on_steam_ready)
 	SteamService.steam_unavailable.connect(_on_steam_unavailable)
 	SteamService.join_requested.connect(_on_steam_join_requested)
+	SteamService.lobby_members_changed.connect(_on_steam_lobby_members_changed)
+	NetworkService.peer_joined.connect(_on_lobby_peer_joined)
 	_refresh_steam_status()
 	AudioService.play_music()
 	call_deferred("_start_runtime")
+	set_process(true)
 
 
 func _start_runtime() -> void:
@@ -70,6 +88,7 @@ func _start_runtime() -> void:
 
 func _on_steam_ready() -> void:
 	_steam_status_known = true
+	_sync_steam_display_name()
 	_refresh_steam_status()
 	_check_pending_steam_invite()
 
@@ -77,6 +96,49 @@ func _on_steam_ready() -> void:
 func _on_steam_unavailable(_reason: String) -> void:
 	_steam_status_known = true
 	_refresh_steam_status()
+
+
+func _sync_steam_display_name() -> void:
+	if not SteamService.is_available():
+		return
+	var steam_name := SteamService.local_persona_name().strip_edges()
+	if steam_name.is_empty():
+		return
+	if PlayerProfile.display_name == "Player" or PlayerProfile.display_name.is_empty():
+		PlayerProfile.display_name = steam_name
+		PlayerProfile.save_display_name()
+
+
+func _process(delta: float) -> void:
+	if _waiting_steam_operation:
+		_steam_operation_elapsed += delta
+		if _steam_operation_elapsed >= STEAM_OPERATION_TIMEOUT:
+			_cancel_steam_operation("Steam lobby timed out. Check Steam is online, then try again.")
+		return
+	if _in_network_lobby and NetworkService.current_steam_lobby_id != 0:
+		_lobby_refresh_timer += delta
+		if _lobby_refresh_timer >= 1.0:
+			_lobby_refresh_timer = 0.0
+			_refresh_steam_lobby_members()
+			_refresh_player_slots()
+
+
+func _begin_steam_operation(message: String) -> void:
+	_waiting_steam_operation = true
+	_steam_operation_elapsed = 0.0
+	_set_lobby_enabled(false)
+	cancel_create_button.visible = true
+	lobby_title_label.visible = true
+	lobby_title_label.text = message
+	player_slots.visible = true
+	_refresh_player_slots()
+	status_label.text = message
+
+
+func _end_steam_operation() -> void:
+	_waiting_steam_operation = false
+	_steam_operation_elapsed = 0.0
+	cancel_create_button.visible = false
 
 
 func _refresh_steam_status() -> void:
@@ -196,22 +258,25 @@ func _start_host() -> void:
 
 
 func _start_steam_host() -> void:
-	_set_lobby_enabled(false)
+	_sync_steam_display_name()
+	_begin_steam_operation("Creating Steam lobby...")
 	_clear_host_callbacks()
 	NetworkService.server_started.connect(_on_steam_host_started, CONNECT_ONE_SHOT)
 	NetworkService.server_start_failed.connect(_on_steam_host_failed, CONNECT_ONE_SHOT)
-	status_label.text = "Creating Steam lobby..."
 	NetworkService.start_steam_host(GameRuntime.max_players)
 
 
 func _on_steam_host_started(_port: int) -> void:
 	_clear_host_callbacks()
-	SteamService.invite_friends(NetworkService.current_steam_lobby_id)
+	_end_steam_operation()
+	_refresh_steam_lobby_members()
 	_enter_network_lobby(true)
+	SteamService.invite_friends(NetworkService.current_steam_lobby_id)
 
 
 func _on_steam_host_failed(_error: Error) -> void:
 	_clear_host_callbacks()
+	_end_steam_operation()
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
 	_show_lobby("Could not create Steam lobby. Try LAN / direct IP instead.")
 
@@ -226,14 +291,14 @@ func _clear_host_callbacks() -> void:
 ## Joins a Steam lobby, whether from an in-session invite (Steam overlay "Join Game") or a
 ## cold launch via +connect_lobby.
 func _join_via_steam(lobby_id: int) -> void:
+	_sync_steam_display_name()
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.CLIENT)
-	_set_lobby_enabled(false)
+	_begin_steam_operation("Joining Steam lobby...")
 	_clear_connection_callbacks()
 	NetworkService.connection_succeeded.connect(_on_connection_succeeded, CONNECT_ONE_SHOT)
 	NetworkService.connection_failed.connect(_on_connection_failed, CONNECT_ONE_SHOT)
-	status_label.text = "Joining Steam lobby..."
 	if NetworkService.start_steam_client(lobby_id) != OK:
-		_show_lobby("Could not join Steam lobby")
+		_cancel_steam_operation("Could not join Steam lobby")
 
 
 func _start_client(address: String, port: int) -> void:
@@ -278,10 +343,11 @@ func _enter_network_lobby(is_host: bool) -> void:
 
 
 func _show_network_lobby() -> void:
+	_end_steam_operation()
 	backdrop.visible = true
 	lobby_panel.visible = true
 	status_label.visible = true
-	status_label.text = "Connected" if _is_lobby_host else "Connected to host"
+	status_label.text = "Invite friends, then start when everyone is ready." if _is_lobby_host else "Waiting for the host to start the game..."
 	_set_lobby_enabled(false)
 	mode_row.visible = false
 	class_label.visible = false
@@ -293,25 +359,123 @@ func _show_network_lobby() -> void:
 	address_input.visible = false
 	join_button.visible = false
 	steam_status_label.visible = false
-	roster_label.visible = true
+	lobby_title_label.visible = true
+	lobby_title_label.text = "Co-op Lobby"
+	player_slots.visible = true
+	lobby_action_row.visible = true
+	invite_button.visible = _is_lobby_host and NetworkService.current_steam_lobby_id != 0
+	leave_lobby_button.visible = true
+	roster_label.visible = false
 	start_game_button.visible = _is_lobby_host
 	waiting_label.visible = not _is_lobby_host
-	_refresh_roster_label()
+	_refresh_steam_lobby_members()
+	_refresh_player_slots()
+
+
+func _on_lobby_peer_joined(peer_id: int) -> void:
+	if not _in_network_lobby or not _is_lobby_host or peer_id == 1:
+		return
+	if lobby_roster.has(peer_id):
+		return
+	lobby_roster[peer_id] = {
+		"name": "Connecting...",
+		"class_id": PlayerClass.DEFAULT_CLASS_ID,
+	}
+	_broadcast_roster()
+
+
+func _on_steam_lobby_members_changed(lobby_id: int) -> void:
+	if lobby_id != NetworkService.current_steam_lobby_id:
+		return
+	_refresh_steam_lobby_members()
+
+
+func _refresh_steam_lobby_members() -> void:
+	var lobby_id := NetworkService.current_steam_lobby_id
+	if lobby_id == 0 or not SteamService.is_available():
+		_steam_lobby_members = []
+		return
+	_steam_lobby_members = SteamService.lobby_member_names(lobby_id)
+
+
+func _refresh_player_slots() -> void:
+	for child in player_slots.get_children():
+		child.queue_free()
+	var slot_entries: Array[Dictionary] = []
+	if _in_network_lobby:
+		var peer_ids: Array = lobby_roster.keys()
+		peer_ids.sort()
+		for peer_id in peer_ids:
+			var entry: Dictionary = lobby_roster[peer_id]
+			slot_entries.append({
+				"name": str(entry.get("name", "Player")),
+				"class_id": str(entry.get("class_id", PlayerClass.DEFAULT_CLASS_ID)),
+				"status": "Connected",
+				"host": int(peer_id) == 1,
+			})
+		for member_name in _steam_lobby_members:
+			var already_listed := false
+			for slot_data in slot_entries:
+				if str(slot_data.name) == member_name:
+					already_listed = true
+					break
+			if already_listed:
+				continue
+			slot_entries.append({
+				"name": member_name,
+				"class_id": "",
+				"status": "In Steam lobby",
+				"host": false,
+			})
+	else:
+		slot_entries.append({
+			"name": PlayerProfile.display_name,
+			"class_id": GameRuntime.active_class_id(),
+			"status": "Setting up...",
+			"host": true,
+		})
+	while slot_entries.size() < GameRuntime.max_players:
+		slot_entries.append({"name": "Empty slot", "class_id": "", "status": "", "host": false})
+	for index in GameRuntime.max_players:
+		var slot_data: Dictionary = slot_entries[index]
+		var label := Label.new()
+		var class_text := ""
+		if not str(slot_data.class_id).is_empty():
+			class_text = " — %s" % PlayerClass.by_id(str(slot_data.class_id)).name
+		var host_text := " [HOST]" if bool(slot_data.host) else ""
+		var status_text := ""
+		if not str(slot_data.status).is_empty():
+			status_text = " (%s)" % slot_data.status
+		label.text = "%d. %s%s%s%s" % [index + 1, slot_data.name, class_text, host_text, status_text]
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		player_slots.add_child(label)
+
+
+func _on_invite_pressed() -> void:
+	if NetworkService.current_steam_lobby_id != 0:
+		SteamService.invite_friends(NetworkService.current_steam_lobby_id)
+
+
+func _on_leave_lobby_pressed() -> void:
+	_cancel_steam_operation("Left the lobby.")
+
+
+func _on_cancel_create_pressed() -> void:
+	_cancel_steam_operation("Lobby creation cancelled.")
+
+
+func _cancel_steam_operation(message: String) -> void:
+	_end_steam_operation()
+	_clear_host_callbacks()
+	_clear_connection_callbacks()
+	NetworkService.stop()
+	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
+	_show_lobby(message)
 
 
 func _on_lobby_peer_left(peer_id: int) -> void:
 	lobby_roster.erase(peer_id)
 	_broadcast_roster()
-
-
-func _refresh_roster_label() -> void:
-	var lines: Array[String] = ["Players in lobby (%d/%d):" % [lobby_roster.size(), GameRuntime.max_players]]
-	for peer_id in lobby_roster.keys():
-		var entry: Dictionary = lobby_roster[peer_id]
-		var class_data := PlayerClass.by_id(str(entry.get("class_id", PlayerClass.DEFAULT_CLASS_ID)))
-		var host_tag := "  (host)" if peer_id == 1 else ""
-		lines.append("• %s — %s%s" % [str(entry.get("name", "Player")), class_data.name, host_tag])
-	roster_label.text = "\n".join(lines)
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -327,7 +491,7 @@ func server_submit_lobby_profile(profile: Dictionary) -> void:
 
 
 func _broadcast_roster() -> void:
-	_refresh_roster_label()
+	_refresh_player_slots()
 	for peer_id in multiplayer.get_peers():
 		client_receive_roster.rpc_id(peer_id, lobby_roster)
 
@@ -335,7 +499,7 @@ func _broadcast_roster() -> void:
 @rpc("authority", "call_remote", "reliable")
 func client_receive_roster(roster: Dictionary) -> void:
 	lobby_roster = roster
-	_refresh_roster_label()
+	_refresh_player_slots()
 
 
 func _on_start_game_pressed() -> void:
@@ -356,6 +520,7 @@ func _leave_network_lobby() -> void:
 		NetworkService.peer_left.disconnect(_on_lobby_peer_left)
 	_in_network_lobby = false
 	lobby_roster.clear()
+	_steam_lobby_members.clear()
 
 
 func _open_game() -> void:
@@ -392,6 +557,7 @@ func leave_game() -> void:
 
 func _on_connection_failed() -> void:
 	_clear_connection_callbacks()
+	_end_steam_operation()
 	NetworkService.stop()
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
 	_show_lobby("Connection failed. Check the address and host.")
@@ -399,6 +565,7 @@ func _on_connection_failed() -> void:
 
 func _on_connection_succeeded() -> void:
 	_clear_connection_callbacks()
+	_end_steam_operation()
 	if not NetworkService.connection_failed.is_connected(_on_connection_lost):
 		NetworkService.connection_failed.connect(_on_connection_lost)
 	_enter_network_lobby(false)
@@ -439,6 +606,12 @@ func _show_lobby(message: String) -> void:
 	address_input.visible = true
 	join_button.visible = true
 	steam_status_label.visible = true
+	lobby_title_label.visible = false
+	player_slots.visible = false
+	lobby_action_row.visible = false
+	invite_button.visible = false
+	leave_lobby_button.visible = false
+	cancel_create_button.visible = false
 	roster_label.visible = false
 	start_game_button.visible = false
 	waiting_label.visible = false

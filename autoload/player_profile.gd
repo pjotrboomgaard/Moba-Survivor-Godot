@@ -36,6 +36,10 @@ func select_class(class_id: String) -> void:
 	_save_profile()
 
 
+func save_display_name() -> void:
+	_save_profile()
+
+
 func _generate_local_player_id() -> String:
 	var source := "%s:%s:%s" % [
 		Time.get_unix_time_from_system(),

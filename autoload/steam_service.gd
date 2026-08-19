@@ -15,12 +15,10 @@ signal lobby_create_failed(reason: String)
 signal lobby_joined(lobby_id: int)
 signal lobby_join_failed(reason: String)
 signal join_requested(lobby_id: int)
+signal lobby_members_changed(lobby_id: int)
 
-## steamInitEx() is a blocking SDK call. isSteamRunning() alone isn't a reliable guard against
-## it hanging: it can report true from a stale local Steam registration even when there's no
-## live client to actually answer the handshake. Running the call on a worker thread with a
-## timeout means a dead/absent Steam install can never freeze the game's own startup.
 const INIT_TIMEOUT_SECONDS := 8.0
+const LOBBY_CREATE_TIMEOUT_SECONDS := 20.0
 
 var initialized := false
 var init_error := ""
@@ -31,6 +29,9 @@ var _init_done := false
 var _init_result: Dictionary
 var _init_elapsed := 0.0
 var _waiting_for_init := false
+
+var _creating_lobby := false
+var _lobby_create_elapsed := 0.0
 
 
 func _ready() -> void:
@@ -52,8 +53,6 @@ func _ready() -> void:
 	_init_thread.start(_run_steam_init)
 
 
-## Runs on the worker thread. Only touches Steam before any other code calls into it, so
-## there's no concurrent access to guard against.
 func _run_steam_init() -> void:
 	var result: Dictionary = Steam.steamInitEx()
 	_init_mutex.lock()
@@ -75,11 +74,16 @@ func _process(delta: float) -> void:
 		elif _init_elapsed >= INIT_TIMEOUT_SECONDS:
 			_waiting_for_init = false
 			set_process(false)
-			# The thread is abandoned, not killed: if steamInitEx() does eventually return,
-			# its result is simply never read.
 			init_error = "Steam did not respond in time"
 			steam_unavailable.emit(init_error)
 		return
+
+	if _creating_lobby:
+		_lobby_create_elapsed += delta
+		if _lobby_create_elapsed >= LOBBY_CREATE_TIMEOUT_SECONDS:
+			_creating_lobby = false
+			lobby_create_failed.emit("Steam lobby creation timed out")
+
 	Steam.run_callbacks()
 
 
@@ -91,9 +95,13 @@ func _finish_init(result: Dictionary) -> void:
 		print("[SteamService] init failed: ", init_error, " raw=", result)
 		steam_unavailable.emit(init_error)
 		return
+	if Steam.has_method("initRelayNetworkAccess"):
+		Steam.initRelayNetworkAccess()
 	Steam.lobby_created.connect(_on_lobby_created)
 	Steam.lobby_joined.connect(_on_lobby_joined)
 	Steam.join_requested.connect(_on_join_requested)
+	if Steam.has_signal("lobby_chat_update"):
+		Steam.lobby_chat_update.connect(_on_lobby_chat_update)
 	print("[SteamService] ready as ", Steam.getPersonaName())
 	steam_ready.emit()
 
@@ -106,24 +114,57 @@ func local_persona_name() -> String:
 	return Steam.getPersonaName() if initialized else ""
 
 
-## Creates a friends-only Steam lobby. Result arrives on lobby_created/lobby_create_failed.
+func local_steam_id() -> int:
+	return int(Steam.getSteamID()) if initialized else 0
+
+
 func create_lobby(max_players: int) -> void:
+	_creating_lobby = true
+	_lobby_create_elapsed = 0.0
 	Steam.createLobby(Steam.LOBBY_TYPE_FRIENDS_ONLY, max_players)
 
 
-## Joins an existing lobby by id. Result arrives on lobby_joined/lobby_join_failed.
 func join_lobby(lobby_id: int) -> void:
 	Steam.joinLobby(lobby_id)
 
 
-## Opens the Steam overlay's "invite friends" dialog for a lobby the local user owns/is in.
 func invite_friends(lobby_id: int) -> void:
 	if initialized and lobby_id != 0:
 		Steam.activateGameOverlayInviteDialog(lobby_id)
 
 
+func lobby_member_count(lobby_id: int) -> int:
+	if not initialized or lobby_id == 0:
+		return 0
+	return int(Steam.getNumLobbyMembers(lobby_id))
+
+
+func lobby_member_names(lobby_id: int) -> Array[String]:
+	var names: Array[String] = []
+	if not initialized or lobby_id == 0:
+		return names
+	var count := lobby_member_count(lobby_id)
+	for member_index in count:
+		var member_id := int(Steam.getLobbyMemberByIndex(lobby_id, member_index))
+		var persona := str(Steam.getFriendPersonaName(member_id))
+		if persona.is_empty():
+			persona = "Steam player"
+		names.append(persona)
+	return names
+
+
+func lobby_owner_name(lobby_id: int) -> String:
+	if not initialized or lobby_id == 0:
+		return ""
+	var owner_id := int(Steam.getLobbyOwner(lobby_id))
+	var persona := str(Steam.getFriendPersonaName(owner_id))
+	return persona if not persona.is_empty() else "Host"
+
+
 func _on_lobby_created(connect_result: int, lobby_id: int) -> void:
+	_creating_lobby = false
 	if connect_result == Steam.RESULT_OK:
+		print("[SteamService] lobby created: ", lobby_id)
 		lobby_created.emit(lobby_id)
 	else:
 		lobby_create_failed.emit("Steam lobby creation failed (result %d)" % connect_result)
@@ -138,3 +179,7 @@ func _on_lobby_joined(lobby_id: int, _permissions: int, _locked: bool, response:
 
 func _on_join_requested(lobby_id: int, _friend_steam_id: int) -> void:
 	join_requested.emit(lobby_id)
+
+
+func _on_lobby_chat_update(lobby_id: int, _changed_id: int, _making_change: int, _chat_state: int) -> void:
+	lobby_members_changed.emit(lobby_id)

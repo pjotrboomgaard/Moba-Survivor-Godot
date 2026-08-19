@@ -61,6 +61,40 @@ theme_override_font_sizes/font_size = 16
 text = "Players in lobby:"
 autowrap_mode = 3
 
+[node name="LobbyTitleLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "Co-op Lobby"
+horizontal_alignment = 1
+
+[node name="PlayerSlots" type="VBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LobbyActionRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="InviteButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow"]
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+text = "INVITE FRIENDS"
+
+[node name="LeaveLobbyButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow"]
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+text = "LEAVE LOBBY"
+
+[node name="CancelCreateButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow"]
+visible = false
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+text = "CANCEL"
+
 [node name="StartGameButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 visible = false
 custom_minimum_size = Vector2(0, 52)

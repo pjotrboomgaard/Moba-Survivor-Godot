@@ -1,8 +1,9 @@
 class_name AbilityVfx
 extends Node2D
 
-const FRAME_DURATION := 0.07
-const BASE_PIXEL_ZOOM := 5.0
+const FRAME_DURATION := 0.06
+const BASE_PIXEL_ZOOM := 6.0
+const VFX_FRAME_COUNT := 6
 
 var _frames: Array[Texture2D] = []
 var _frame_index := 0
@@ -12,7 +13,7 @@ var _ring_radius := 0.0
 
 
 func configure(ability_id: String, effect_style: int, points: PackedVector2Array) -> void:
-	for frame_index in 4:
+	for frame_index in VFX_FRAME_COUNT:
 		var texture := SpriteLibrary.texture_for("%s_fx%d" % [ability_id, frame_index])
 		if texture != null:
 			_frames.append(texture)
@@ -21,7 +22,7 @@ func configure(ability_id: String, effect_style: int, points: PackedVector2Array
 	global_position = points[0]
 	if points.size() >= 2:
 		_ring_radius = points[1].x
-		_pixel_zoom = BASE_PIXEL_ZOOM * clampf(_ring_radius / 140.0, 1.35, 3.6)
+		_pixel_zoom = BASE_PIXEL_ZOOM * clampf(_ring_radius / 120.0, 1.5, 4.2)
 	if effect_style == PlayerClass.EffectStyle.BOLT and points.size() >= 2:
 		rotation = points[0].angle_to_point(points[1])
 	z_index = 20
@@ -46,8 +47,8 @@ func _draw() -> void:
 		return
 	if _ring_radius > 0.0:
 		var pulse := 0.35 + float(_frame_index + 1) / float(_frames.size()) * 0.45
-		draw_circle(Vector2.ZERO, _ring_radius * pulse, Color(1.0, 1.0, 1.0, 0.08))
-		draw_arc(Vector2.ZERO, _ring_radius * pulse, 0.0, TAU, 64, Color(1.0, 1.0, 1.0, 0.18), 4.0, true)
+		draw_circle(Vector2.ZERO, _ring_radius * pulse, Color(1.0, 1.0, 1.0, 0.12))
+		draw_arc(Vector2.ZERO, _ring_radius * pulse, 0.0, TAU, 72, Color(1.0, 1.0, 1.0, 0.24), 5.0, true)
 	var texture := _frames[_frame_index]
 	var size := Vector2(texture.get_width(), texture.get_height()) * _pixel_zoom
 	draw_texture_rect(texture, Rect2(-size * 0.5, size), false)

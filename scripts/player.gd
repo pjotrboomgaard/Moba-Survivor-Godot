@@ -375,7 +375,15 @@ func _cast_known_ability(slot: int) -> void:
 			_cast_ability_push_pull_burst(data, values)
 
 
-func _emit_ability_cast(style: int, points: PackedVector2Array) -> void:
+func _emit_ability_cast(points: PackedVector2Array) -> void:
+	var style := PlayerClass.EffectStyle.BURST
+	var data := PlayerClass.ability_info(_casting_ability_id)
+	if not data.is_empty():
+		match int(data.archetype):
+			PlayerClass.Archetype.NUKE_BOLT, PlayerClass.Archetype.CHAIN_NUKE:
+				style = PlayerClass.EffectStyle.BOLT
+			PlayerClass.Archetype.AOE_HEAL, PlayerClass.Archetype.BUFF_SELF:
+				style = PlayerClass.EffectStyle.WAVE
 	ability_cast.emit(_casting_ability_id, style, points)
 
 
@@ -427,7 +435,7 @@ func _cast_ability_nuke_bolt(data: Dictionary, values: Dictionary) -> void:
 	var center := _ability_aim_center(values.range)
 	for target in _enemies_in_radius(center, values.radius):
 		_apply_ability_hit(target, data, values)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(values.radius, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([center, Vector2(values.radius, 0.0)]))
 
 
 func _ability_aim_center(max_range: float) -> Vector2:
@@ -447,7 +455,7 @@ func _cast_ability_cone_burst(data: Dictionary, values: Dictionary) -> void:
 		if to_target.length_squared() > 0.0 and absf(facing_direction.angle_to(to_target)) > half_angle:
 			continue
 		_apply_ability_hit(target, data, values)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
 
 
 func _cast_ability_radius_burst(data: Dictionary, values: Dictionary) -> void:
@@ -457,7 +465,7 @@ func _cast_ability_radius_burst(data: Dictionary, values: Dictionary) -> void:
 		center = global_position + global_position.direction_to(aim_world_position) * travel
 	for target in _enemies_in_radius(center, values.radius):
 		_apply_ability_hit(target, data, values)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(values.radius, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([center, Vector2(values.radius, 0.0)]))
 
 
 func _cast_ability_chain_nuke(data: Dictionary, values: Dictionary) -> void:
@@ -483,7 +491,7 @@ func _cast_ability_chain_nuke(data: Dictionary, values: Dictionary) -> void:
 			struck.append(target)
 			_apply_ability_hit(target, data, values)
 	var vfx_center := centers[0] if not centers.is_empty() else global_position
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([vfx_center, Vector2(values.radius, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([vfx_center, Vector2(values.radius, 0.0)]))
 
 
 ## Approximates "everything the dash passes through" as a capsule around the midpoint of the
@@ -499,7 +507,7 @@ func _cast_ability_dash_strike(data: Dictionary, values: Dictionary) -> void:
 	for target in _enemies_in_radius(midpoint, hit_radius):
 		_apply_ability_hit(target, data, values)
 	global_position = destination
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([origin, Vector2(values.dash_distance, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([origin, Vector2(values.dash_distance, 0.0)]))
 
 
 func _cast_ability_blink(_data: Dictionary, values: Dictionary) -> void:
@@ -509,14 +517,14 @@ func _cast_ability_blink(_data: Dictionary, values: Dictionary) -> void:
 	global_position += direction * values.dash_distance
 	for target in _enemies_in_radius(global_position, values.radius):
 		_apply_ability_hit(target, _data, values)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
 
 
 func _cast_ability_self_heal(data: Dictionary, values: Dictionary) -> void:
 	health.heal(values.power)
 	for target in _enemies_in_radius(global_position, values.radius):
 		_apply_ability_hit(target, data, values)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
 
 
 func _cast_ability_aoe_heal(_data: Dictionary, values: Dictionary) -> void:
@@ -530,7 +538,7 @@ func _cast_ability_aoe_heal(_data: Dictionary, values: Dictionary) -> void:
 		if global_position.distance_squared_to(ally.global_position) > radius_sq:
 			continue
 		ally.health.heal(values.power)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
 
 
 func _cast_ability_shield_burst(data: Dictionary, values: Dictionary) -> void:
@@ -548,7 +556,7 @@ func _cast_ability_shield_burst(data: Dictionary, values: Dictionary) -> void:
 			if global_position.distance_squared_to(ally.global_position) > radius_sq:
 				continue
 			ally.health.add_shield(values.power, values.duration)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius if scope != "self" else values.radius, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(values.radius if scope != "self" else values.radius, 0.0)]))
 
 
 func _cast_ability_buff_self(data: Dictionary, values: Dictionary) -> void:
@@ -570,7 +578,7 @@ func _cast_ability_buff_self(data: Dictionary, values: Dictionary) -> void:
 			if global_position.distance_squared_to(ally.global_position) > radius_sq:
 				continue
 			ally._apply_ability_buff(stats, values.duration)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
 
 
 ## power > 0 pulls enemies toward the caster, power < 0 knocks them away.
@@ -585,7 +593,7 @@ func _cast_ability_push_pull_burst(_data: Dictionary, values: Dictionary) -> voi
 			away_direction = Vector2.RIGHT
 		var impulse_direction := away_direction if strength < 0.0 else -away_direction
 		target.apply_knockback(impulse_direction * absf(strength))
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(values.radius, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([center, Vector2(values.radius, 0.0)]))
 
 
 func _apply_ability_buff(stats: Dictionary, duration: float) -> void:
