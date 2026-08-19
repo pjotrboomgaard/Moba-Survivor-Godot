@@ -165,6 +165,8 @@ func _on_lobby_created(connect_result: int, lobby_id: int) -> void:
 	_creating_lobby = false
 	if connect_result == Steam.RESULT_OK:
 		print("[SteamService] lobby created: ", lobby_id)
+		if Steam.has_method("setLobbyData"):
+			Steam.setLobbyData(lobby_id, "name", "Rift Survivors")
 		lobby_created.emit(lobby_id)
 	else:
 		lobby_create_failed.emit("Steam lobby creation failed (result %d)" % connect_result)

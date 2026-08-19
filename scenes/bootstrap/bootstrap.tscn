@@ -36,13 +36,13 @@ theme_override_constants/separation = 14
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 31
-text = "CO-OP SURVIVOR"
+text = "RIFT SURVIVORS"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)
-text = "PHASE 1 NETWORK PLAYTEST"
+text = "CO-OP ARENA SURVIVAL · 4 HEROES · WAVES · BOSSES"
 horizontal_alignment = 1
 
 [node name="SteamStatusLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
@@ -66,7 +66,7 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "Co-op Lobby"
+text = "Rift Survivors Lobby"
 horizontal_alignment = 1
 
 [node name="PlayerSlots" type="VBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]

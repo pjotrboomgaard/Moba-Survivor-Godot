@@ -1,4 +1,4 @@
-# Co-op MOBA Survivor
+# Rift Survivors
 
 Production-oriented Godot project for a one-to-four-player cooperative action survivor. The playable slice is deliberately small, but it now uses the same authoritative multiplayer direction intended for Windows, macOS, future mobile clients and Linux dedicated servers.
 

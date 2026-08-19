@@ -360,7 +360,7 @@ func _show_network_lobby() -> void:
 	join_button.visible = false
 	steam_status_label.visible = false
 	lobby_title_label.visible = true
-	lobby_title_label.text = "Co-op Lobby"
+	lobby_title_label.text = "Rift Survivors Lobby"
 	player_slots.visible = true
 	lobby_action_row.visible = true
 	invite_button.visible = _is_lobby_host and NetworkService.current_steam_lobby_id != 0
