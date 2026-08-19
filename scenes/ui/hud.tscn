@@ -1,6 +1,25 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_health_background"]
+bg_color = Color(0.08, 0.11, 0.16, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.28, 0.36, 0.45, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_health_fill"]
+bg_color = Color(0.24, 0.82, 0.48, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [node name="HUD" type="CanvasLayer"]
 process_mode = 3
@@ -25,9 +44,11 @@ theme_override_font_sizes/font_size = 22
 text = "VANGUARD // MOVEMENT PLAYGROUND"
 
 [node name="HealthBar" type="ProgressBar" parent="MarginContainer/Layout"]
-custom_minimum_size = Vector2(320, 26)
+custom_minimum_size = Vector2(320, 30)
 layout_mode = 2
 size_flags_horizontal = 0
+theme_override_styles/background = SubResource("StyleBox_health_background")
+theme_override_styles/fill = SubResource("StyleBox_health_fill")
 value = 100.0
 show_percentage = false
 
@@ -76,6 +97,35 @@ theme_override_colors/font_color = Color(0.55, 0.72, 0.86, 1)
 text = "OFFLINE"
 horizontal_alignment = 2
 
+[node name="TimerLabel" type="Label" parent="."]
+offset_left = 582.0
+offset_top = 70.0
+offset_right = 698.0
+offset_bottom = 98.0
+theme_override_colors/font_color = Color(0.76, 0.84, 0.94, 1)
+theme_override_font_sizes/font_size = 20
+text = "00:00"
+horizontal_alignment = 1
+
+[node name="StatsPanel" type="PanelContainer" parent="."]
+offset_left = 1010.0
+offset_top = 76.0
+offset_right = 1256.0
+offset_bottom = 394.0
+
+[node name="Margin" type="MarginContainer" parent="StatsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="StatsLabel" type="Label" parent="StatsPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.88, 0.98, 1)
+theme_override_font_sizes/font_size = 14
+text = "ARC STAFF\n\nDAMAGE        18\nCASTS / SEC   1.43\nMOVE SPEED    300\nCRIT          5%\nCRIT DAMAGE   200%\nMAIN BOLTS    1\nCHAINS        1\nCHAIN RANGE   190\nREGEN         0.0 /s\nLIFESTEAL     0%\nXP PICKUP     105"
+
 [node name="UpgradePanel" type="PanelContainer" parent="."]
 visible = false
 offset_left = 190.0
@@ -101,3 +151,97 @@ text = "UPGRADE 2"
 custom_minimum_size = Vector2(280, 220)
 layout_mode = 2
 text = "UPGRADE 3"
+
+[node name="DevPanel" type="PanelContainer" parent="."]
+visible = false
+offset_left = 22.0
+offset_top = 410.0
+offset_right = 248.0
+offset_bottom = 690.0
+
+[node name="Margin" type="MarginContainer" parent="DevPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Layout" type="VBoxContainer" parent="DevPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="DevPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
+text = "DEV TOOLS · F1"
+
+[node name="AddXP" type="Button" parent="DevPanel/Margin/Layout"]
+custom_minimum_size = Vector2(190, 38)
+layout_mode = 2
+text = "+100 XP"
+
+[node name="AddLevels" type="Button" parent="DevPanel/Margin/Layout"]
+custom_minimum_size = Vector2(190, 38)
+layout_mode = 2
+text = "+5 LEVELS (NO PICKERS)"
+
+[node name="SpawnElite" type="Button" parent="DevPanel/Margin/Layout"]
+custom_minimum_size = Vector2(190, 38)
+layout_mode = 2
+text = "SPAWN ELITE"
+
+[node name="Invulnerable" type="Button" parent="DevPanel/Margin/Layout"]
+custom_minimum_size = Vector2(190, 38)
+layout_mode = 2
+text = "TOGGLE INVULNERABLE"
+
+[node name="Hint" type="Label" parent="DevPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.69, 0.78, 1)
+text = "Server-authoritative online"
+
+[node name="MenuPanel" type="PanelContainer" parent="."]
+visible = false
+offset_left = 430.0
+offset_top = 188.0
+offset_right = 850.0
+offset_bottom = 532.0
+
+[node name="Margin" type="MarginContainer" parent="MenuPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_bottom = 28
+
+[node name="Layout" type="VBoxContainer" parent="MenuPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="MenuPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "RUN MENU"
+horizontal_alignment = 1
+
+[node name="Resume" type="Button" parent="MenuPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "RESUME"
+
+[node name="Restart" type="Button" parent="MenuPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "RESTART SOLO RUN"
+
+[node name="Leave" type="Button" parent="MenuPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "LEAVE TO LOBBY"
+
+[node name="Hint" type="Label" parent="MenuPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.69, 0.78, 1)
+text = "ESC to close"
+horizontal_alignment = 1

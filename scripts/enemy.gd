@@ -13,6 +13,8 @@ signal defeated(enemy: Enemy)
 
 var network_id := 0
 var server_authoritative := true
+var enemy_kind := "grunt"
+var visual_radius := 17.0
 var target: Node2D
 var attack_cooldown := 0.0
 var network_target_position := Vector2.ZERO
@@ -25,10 +27,42 @@ func _ready() -> void:
 	queue_redraw()
 
 
-func configure(next_network_id: int, authoritative: bool) -> void:
+func configure(next_network_id: int, authoritative: bool, kind: String = "grunt", difficulty: float = 1.0) -> void:
 	network_id = next_network_id
 	server_authoritative = authoritative
+	enemy_kind = kind
+	_apply_profile(kind, difficulty)
 	network_target_position = global_position
+	queue_redraw()
+
+
+func _apply_profile(kind: String, difficulty: float) -> void:
+	var profile := {
+		"speed": 105.0,
+		"damage": 10.0,
+		"health": 30.0,
+		"xp": 10,
+		"radius": 17.0,
+	}
+	match kind:
+		"swift":
+			profile = {"speed": 172.0, "damage": 7.0, "health": 21.0, "xp": 12, "radius": 13.0}
+		"brute":
+			profile = {"speed": 67.0, "damage": 17.0, "health": 96.0, "xp": 30, "radius": 26.0}
+		"elite":
+			profile = {"speed": 92.0, "damage": 19.0, "health": 156.0, "xp": 50, "radius": 31.0}
+	movement_speed = float(profile.speed) * minf(1.35, 1.0 + (difficulty - 1.0) * 0.12)
+	contact_damage = float(profile.damage) * difficulty
+	xp_value = roundi(float(profile.xp) * minf(1.75, difficulty))
+	visual_radius = float(profile.radius)
+	var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision != null and collision.shape is CircleShape2D:
+		var circle := collision.shape.duplicate() as CircleShape2D
+		circle.radius = visual_radius
+		collision.shape = circle
+	health.max_health = float(profile.health) * difficulty
+	health.current_health = health.max_health
+	health.is_dead = false
 
 
 func _physics_process(delta: float) -> void:
@@ -52,6 +86,11 @@ func _physics_process(delta: float) -> void:
 
 
 func apply_network_state(state: Dictionary) -> void:
+	var next_kind := str(state.get("kind", enemy_kind))
+	if next_kind != enemy_kind:
+		enemy_kind = next_kind
+		_apply_profile(enemy_kind, 1.0)
+		queue_redraw()
 	network_target_position = state.get("position", global_position)
 	health.set_network_state(
 		state.get("health", health.current_health),
@@ -65,6 +104,7 @@ func snapshot() -> Dictionary:
 		"position": global_position,
 		"health": health.current_health,
 		"max_health": health.max_health,
+		"kind": enemy_kind,
 	}
 
 
@@ -99,7 +139,8 @@ func _on_damaged(_amount: float) -> void:
 		return
 	var tween := create_tween()
 	tween.tween_property(self, "modulate", Color.WHITE, 0.04)
-	tween.tween_property(self, "modulate", Color("ff5d5d"), 0.1)
+	tween.tween_property(self, "modulate", Color("ff8a8a"), 0.04)
+	tween.tween_property(self, "modulate", Color.WHITE, 0.1)
 
 
 func _on_died() -> void:
@@ -116,5 +157,24 @@ func _on_died() -> void:
 
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, 17.0, Color("ff5d5d"))
-	draw_circle(Vector2.ZERO, 17.0, Color("ffb0a9"), false, 3.0)
+	match enemy_kind:
+		"swift":
+			var diamond := PackedVector2Array([
+				Vector2(0.0, -visual_radius), Vector2(visual_radius, 0.0),
+				Vector2(0.0, visual_radius), Vector2(-visual_radius, 0.0),
+			])
+			draw_colored_polygon(diamond, Color("ff9d4d"))
+			draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color("ffd49a"), 3.0)
+		"brute":
+			draw_rect(Rect2(Vector2.ONE * -visual_radius, Vector2.ONE * visual_radius * 2.0), Color("9d4edd"), true)
+			draw_rect(Rect2(Vector2.ONE * -visual_radius, Vector2.ONE * visual_radius * 2.0), Color("dfb6ff"), false, 4.0)
+		"elite":
+			var hexagon := PackedVector2Array()
+			for index in range(6):
+				hexagon.append(Vector2.RIGHT.rotated(TAU * float(index) / 6.0) * visual_radius)
+			draw_colored_polygon(hexagon, Color("ff3f77"))
+			draw_polyline(PackedVector2Array([hexagon[0], hexagon[1], hexagon[2], hexagon[3], hexagon[4], hexagon[5], hexagon[0]]), Color("ffd0dc"), 4.0)
+			draw_circle(Vector2.ZERO, visual_radius * 0.42, Color("ffe66d"))
+		_:
+			draw_circle(Vector2.ZERO, visual_radius, Color("ff5d5d"))
+			draw_circle(Vector2.ZERO, visual_radius, Color("ffb0a9"), false, 3.0)
