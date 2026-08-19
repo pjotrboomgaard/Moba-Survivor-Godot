@@ -100,6 +100,9 @@ func _physics_process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if game_over and event.is_action_pressed("restart") and GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 		get_parent().call_deferred("restart_game")
+	if event.is_action_pressed("interact_shop") and _near_shop_stand and not game_over:
+		if not hud.upgrade_panel.visible and not hud.escape_menu.visible and not hud.dev_panel.visible and not hud.codex_panel.visible:
+			hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 
 
 func _register_with_server() -> void:
@@ -283,10 +286,11 @@ func _on_local_shop_closed() -> void:
 		wave_director.skip_intermission()
 
 
-## Lets a player pop the shop open by walking up to the arena's shop stand at any point in a
-## wave, not just during the forced breather every 10 waves. Purely a local UI toggle — the
-## stand's position is a shared constant, so every peer resolves this identically without
-## any networking, and purchases already go through the existing buy RPC either way.
+## Tracks whether the local player is close enough to the arena's shop stand to interact
+## (see _unhandled_input's "interact_shop" handling) at any point in a wave, not just during
+## the forced breather every 10 waves. Purely local — the stand's position is a shared
+## constant, so every peer resolves range identically without any networking, and purchases
+## already go through the existing buy RPC either way. Walking away still auto-closes it.
 func _update_shop_stand_proximity() -> void:
 	var local_player := _local_player()
 	if local_player == null or not local_player.active or game_over:
@@ -294,12 +298,9 @@ func _update_shop_stand_proximity() -> void:
 			_near_shop_stand = false
 			hud.close_shop()
 		return
-	if hud.upgrade_panel.visible or hud.escape_menu.visible or hud.dev_panel.visible or hud.codex_panel.visible:
-		return
 	var in_range := local_player.global_position.distance_to(Arena.SHOP_STAND_POSITION) <= SHOP_STAND_INTERACT_RADIUS
 	if in_range and not _near_shop_stand:
 		_near_shop_stand = true
-		hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 	elif not in_range and _near_shop_stand:
 		_near_shop_stand = false
 		hud.close_shop()

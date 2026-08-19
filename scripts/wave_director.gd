@@ -20,6 +20,9 @@ enum Modifier {
 	ENRAGED,
 	ARMORED,
 	FRAGILE_HORDE,
+	## A much bigger budget than the wave would normally get — the "af en toe in het nauw
+	## gedreven" spike on top of the otherwise gradual climb, not a permanent difficulty bump.
+	SURGE,
 }
 
 const MODIFIER_NAMES := {
@@ -27,6 +30,7 @@ const MODIFIER_NAMES := {
 	Modifier.ENRAGED: "Enraged",
 	Modifier.ARMORED: "Armoured",
 	Modifier.FRAGILE_HORDE: "Fragile Horde",
+	Modifier.SURGE: "Surge",
 }
 
 ## Waves 1-20 are hand-written so every enemy gets a calm introduction of its
@@ -38,7 +42,7 @@ const SCRIPTED_WAVES: Array[Dictionary] = [
 	{"name": "Acid Rain", "archetype": Archetype.STANDARD, "debut": "spitter"},
 	{"name": "Crossfire", "archetype": Archetype.SNIPERS},
 	{"name": "Wings", "archetype": Archetype.STANDARD, "debut": "drifter"},
-	{"name": "Air Assault", "archetype": Archetype.AIR_ASSAULT},
+	{"name": "Air Assault", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
 	{"name": "The Wall", "archetype": Archetype.STANDARD, "debut": "brute"},
 	{"name": "Shadows", "archetype": Archetype.STANDARD, "debut": "stalker", "modifier": Modifier.ENRAGED},
 	{"name": "The Ravager", "archetype": Archetype.BOSS},
@@ -269,6 +273,10 @@ func _improvised_archetype(target_wave: int) -> Archetype:
 func _improvised_modifier(target_wave: int) -> Modifier:
 	if target_wave % BOSS_WAVE_INTERVAL == 0:
 		return Modifier.NONE
+	# Roughly every 7th wave (staggered off the 5-wave elite cadence) throws a much bigger
+	# crowd than the gradual curve alone would, for an occasional "cornered" spike.
+	if target_wave % 7 == 0 and target_wave % ELITE_WAVE_INTERVAL != 0:
+		return Modifier.SURGE
 	match target_wave % 4:
 		0: return Modifier.ARMORED
 		2: return Modifier.ENRAGED
@@ -289,6 +297,9 @@ func plan_wave(target_wave: int, wave_archetype: Archetype, wave_modifier: Modif
 		Modifier.FRAGILE_HORDE:
 			multiplier *= 0.7
 			budget *= 1.5
+		Modifier.SURGE:
+			speed_multiplier = 1.1
+			budget *= 1.9
 
 	var available := EnemyType.spawnable_for_wave(target_wave)
 	if available.is_empty():

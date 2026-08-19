@@ -512,9 +512,12 @@ func _test_wave_loop(director: WaveDirector) -> void:
 	_check(started_waves == [1], "Starting the director must open wave 1")
 	_check(spawned_groups.size() == 1, "Wave 1 should release its first group immediately")
 
-	# Pretend the players clear everything instantly, then let the clock run.
+	# Pretend the players clear everything instantly, then let the clock run. Step count is
+	# generous on purpose: waves now queue noticeably more groups than they used to (higher
+	# budget_for_wave, shorter GROUP_INTERVAL_SECONDS), so releasing a whole wave's groups
+	# before the next intermission can start takes longer in simulated time than it did.
 	director.report_enemy_count(0)
-	for step in 400:
+	for step in 900:
 		director._process(0.1)
 		director.report_enemy_count(0)
 
