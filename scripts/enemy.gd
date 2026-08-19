@@ -8,6 +8,7 @@ signal exploded(origin: Vector2, radius: float, damage: float)
 
 const SEPARATION_RANGE := 62.0
 const SEPARATION_STRENGTH := 130.0
+const CombatTextScene: PackedScene = preload("res://scenes/effects/combat_text.tscn")
 
 @export var movement_speed := 100.0
 @export var contact_damage := 6.0
@@ -413,11 +414,15 @@ func _attack_target() -> void:
 		attack_cooldown = attack_interval
 
 
-func _on_damaged(_amount: float) -> void:
+func _on_damaged(amount: float) -> void:
 	AudioService.play("hit")
 	var tween := create_tween()
 	tween.tween_property(self, "modulate", Color(1.7, 1.7, 1.7, 1.0), 0.04)
 	tween.tween_property(self, "modulate", Color.WHITE, 0.1)
+	var text := CombatTextScene.instantiate() as CombatText
+	text.global_position = global_position + Vector2(randf_range(-9.0, 9.0), -body_radius - 6.0)
+	get_parent().add_child(text)
+	text.setup(amount)
 
 
 func _on_died() -> void:

@@ -39,6 +39,8 @@ func _ready() -> void:
 	hud.upgrade_chosen.connect(_on_local_upgrade_chosen)
 	hud.shop_item_chosen.connect(_on_local_shop_item_chosen)
 	hud.shop_closed.connect(_on_local_shop_closed)
+	hud.restart_requested.connect(_on_restart_requested)
+	hud.leave_requested.connect(_on_leave_requested)
 	hud.set_connection_text(GameRuntime.mode_name())
 	wave_director.wave_started.connect(_on_wave_started)
 	wave_director.group_ready.connect(_on_wave_group_ready)
@@ -525,6 +527,17 @@ func _apply_upgrade_choice(peer_id: int, upgrade_id: String) -> void:
 		return
 	player.apply_upgrade(upgrade_id)
 	pending_upgrades.erase(peer_id)
+
+
+func _on_restart_requested() -> void:
+	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
+		get_tree().paused = false
+		get_parent().call_deferred("restart_game")
+
+
+func _on_leave_requested() -> void:
+	get_tree().paused = false
+	get_parent().call_deferred("leave_game")
 
 
 func _build_snapshot() -> Dictionary:

@@ -210,3 +210,35 @@ text = "UPGRADE 2"
 custom_minimum_size = Vector2(280, 220)
 layout_mode = 2
 text = "UPGRADE 3"
+
+[node name="EscapeMenu" type="PanelContainer" parent="."]
+visible = false
+offset_left = 490.0
+offset_top = 260.0
+offset_right = 790.0
+offset_bottom = 460.0
+
+[node name="EscapeLayout" type="VBoxContainer" parent="EscapeMenu"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="EscapeTitle" type="Label" parent="EscapeMenu/EscapeLayout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="EscapeMenu/EscapeLayout"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "RESUME"
+
+[node name="RestartButton" type="Button" parent="EscapeMenu/EscapeLayout"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "RESTART SOLO RUN"
+
+[node name="LeaveButton" type="Button" parent="EscapeMenu/EscapeLayout"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "LEAVE TO LOBBY"

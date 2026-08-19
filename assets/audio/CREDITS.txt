@@ -1,9 +1,12 @@
-Sound effects sourced from Kenney.nl (https://kenney.nl), released under CC0 (public domain,
-no attribution required):
+Sound effects sourced from Mixkit (https://mixkit.co/free-sound-effects/), released under the
+Mixkit License (https://mixkit.co/license/#sfxFree): free for commercial and non-commercial use,
+no attribution required.
 
-- Impact Sounds  (https://kenney.nl/assets/impact-sounds)
-- Interface Sounds (https://kenney.nl/assets/interface-sounds)
-- Sci-fi Sounds (https://kenney.nl/assets/sci-fi-sounds)
-- RPG Audio (https://kenney.nl/assets/rpg-audio)
+Picked for a punchier, more "mouth sound"-style feel (vocal exclamations, pops, splats, laser
+zaps) with multiple takes per event where it's heard often, so hits/clicks/deaths don't all
+sound identical. See autoload/audio_service.gd for which take(s) back which in-game sound id.
 
-See autoload/audio_service.gd for which file backs which in-game sound id.
+Arena background music (assets/audio/music/arena_theme.ogg) started from Mixkit's "Bold and
+Brash" (https://mixkit.co/free-stock-music/, Mixkit License, same terms as above), run through
+a lowpass + bitcrush + vinyl-noise pass so the pixel-art chiptune reads as lo-fi rather than a
+bright straight chiptune loop.

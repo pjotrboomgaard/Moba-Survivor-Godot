@@ -594,7 +594,9 @@ func _test_wave_themes_and_debuts() -> void:
 			extra_drifters += 1
 	_check(extra_drifters == 0, "A debut wave must not bury the new enemy in more of the same")
 
-	_check(director.budget_for_wave(5) < 15.0, "The early game must stay calm, got %.1f" % director.budget_for_wave(5))
+	# Wave 1 was front-loaded to be a real fight instead of easing players in (was 5.5,
+	# barely one group of grunts); the early game still has to stay bounded, just less calm.
+	_check(director.budget_for_wave(5) < 17.0, "The early game must stay bounded, got %.1f" % director.budget_for_wave(5))
 	director.free()
 
 

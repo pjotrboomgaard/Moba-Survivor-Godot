@@ -4,6 +4,10 @@ extends CanvasLayer
 signal upgrade_chosen(upgrade_id: String)
 signal shop_item_chosen(item_id: String)
 signal shop_closed
+signal restart_requested
+signal leave_requested
+
+const UPGRADE_ICON_MAX_WIDTH := 72
 
 @onready var class_label: Label = $MarginContainer/Layout/Title
 @onready var instructions_label: Label = $MarginContainer/Layout/Instructions
@@ -31,6 +35,10 @@ signal shop_closed
 	$UpgradePanel/Choices/Choice2,
 	$UpgradePanel/Choices/Choice3,
 ]
+@onready var escape_menu: PanelContainer = $EscapeMenu
+@onready var resume_button: Button = $EscapeMenu/EscapeLayout/ResumeButton
+@onready var restart_button: Button = $EscapeMenu/EscapeLayout/RestartButton
+@onready var leave_button: Button = $EscapeMenu/EscapeLayout/LeaveButton
 
 var bound_player: Player
 var offered_upgrade_ids: Array[String] = []
@@ -39,13 +47,63 @@ var shop_pauses_game := false
 var shown_class_id := ""
 var shop_buttons: Dictionary = {}
 var _last_gold := -1
+var _escape_paused := false
 
 
 func _ready() -> void:
 	for index in choice_buttons.size():
-		choice_buttons[index].pressed.connect(_on_upgrade_selected.bind(index))
+		var choice_button := choice_buttons[index]
+		choice_button.pressed.connect(_on_upgrade_selected.bind(index))
+		choice_button.expand_icon = true
+		choice_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		choice_button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		choice_button.add_theme_constant_override("icon_max_width", UPGRADE_ICON_MAX_WIDTH)
 	shop_continue.pressed.connect(_on_shop_continue_pressed)
+	resume_button.pressed.connect(_on_resume_pressed)
+	restart_button.pressed.connect(_on_restart_pressed)
+	leave_button.pressed.connect(_on_leave_pressed)
 	_build_shop()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("pause_menu"):
+		return
+	if escape_menu.visible:
+		_close_escape_menu()
+	elif not shop_panel.visible and not upgrade_panel.visible and not game_over_label.visible:
+		_open_escape_menu()
+
+
+func _open_escape_menu() -> void:
+	restart_button.visible = GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE
+	escape_menu.visible = true
+	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
+		_escape_paused = true
+		get_tree().paused = true
+
+
+func _close_escape_menu() -> void:
+	escape_menu.visible = false
+	if _escape_paused:
+		_escape_paused = false
+		get_tree().paused = false
+
+
+func _on_resume_pressed() -> void:
+	AudioService.play("ui_click")
+	_close_escape_menu()
+
+
+func _on_restart_pressed() -> void:
+	AudioService.play("ui_click")
+	_close_escape_menu()
+	restart_requested.emit()
+
+
+func _on_leave_pressed() -> void:
+	AudioService.play("ui_click")
+	_close_escape_menu()
+	leave_requested.emit()
 
 
 func _process(_delta: float) -> void:

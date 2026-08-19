@@ -34,6 +34,7 @@ func _ready() -> void:
 	SteamService.steam_unavailable.connect(_on_steam_unavailable)
 	SteamService.join_requested.connect(_on_steam_join_requested)
 	_refresh_steam_status()
+	AudioService.play_music()
 	call_deferred("_start_runtime")
 
 
@@ -251,6 +252,18 @@ func restart_game() -> void:
 		game.free()
 	game_loaded = false
 	_open_game()
+
+
+## Escape-menu "leave to lobby": drops the connection (if any) and returns to the lobby screen
+## without restarting into a fresh solo run.
+func leave_game() -> void:
+	var game := get_node_or_null("Main")
+	if game != null:
+		game.free()
+	NetworkService.stop()
+	game_loaded = false
+	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
+	_show_lobby("Choose solo, host, or join")
 
 
 func _on_connection_failed() -> void:

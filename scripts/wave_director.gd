@@ -73,7 +73,7 @@ const AMBUSH_GROUP_INTERVAL := 0.2
 const WAVE_TIMEOUT_SECONDS := 120.0
 const ELITE_WAVE_INTERVAL := 5
 const BOSS_WAVE_INTERVAL := 10
-const HEALTH_GROWTH_PER_WAVE := 0.05
+const HEALTH_GROWTH_PER_WAVE := 0.065
 const CLASSIC_SPAWN_INTERVAL := 1.4
 const DEBUT_COUNT := 2
 
@@ -214,7 +214,9 @@ func health_multiplier_for_wave(target_wave: int) -> float:
 
 
 func budget_for_wave(target_wave: int) -> float:
-	var solo_budget := 4.0 + 1.5 * float(target_wave)
+	# Front-loaded so wave 1 is already a real fight (was 5.5, barely one group of
+	# grunts) instead of easing players in; growth per wave stays close to before.
+	var solo_budget := 7.5 + 1.6 * float(target_wave)
 	return solo_budget * (1.0 + 0.45 * float(player_count - 1))
 
 
