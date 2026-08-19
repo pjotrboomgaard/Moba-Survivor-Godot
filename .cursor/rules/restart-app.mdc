@@ -1,0 +1,14 @@
+---
+description: Always restart the Godot game after making changes
+alwaysApply: true
+---
+
+# Always restart the app
+
+After any gameplay, UI, asset, or script change that should be visible in-game:
+
+1. Run `powershell -ExecutionPolicy Bypass -File tools/restart_app.ps1` from the project root before ending your turn.
+2. Do this even when tests already passed — the user verifies changes in the running game.
+3. Skip restart only for docs-only or question-only replies with zero code/asset edits.
+
+Default launch is the normal bootstrap scene. Use `-Pjotr` or `-Classic` only when the change is mode-specific.
