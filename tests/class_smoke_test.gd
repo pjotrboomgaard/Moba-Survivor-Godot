@@ -41,6 +41,7 @@ func _ready() -> void:
 	_test_ability_learn_and_upgrade()
 	_test_ability_offer_alternation()
 	_test_ability_archetypes_smoke()
+	_test_ability_aoe_and_cooldown()
 
 	if failures.is_empty():
 		print("Class smoke test passed.")
@@ -978,6 +979,24 @@ func _test_ability_archetypes_smoke() -> void:
 	marker._cast_known_ability(0)
 	_check(marked_enemy.vulnerability_bonus > 0.0, "Track did not mark its target as vulnerable")
 	_cleanup([marker, marked_enemy])
+
+
+func _test_ability_aoe_and_cooldown() -> void:
+	var small_aoe := PlayerClass.ability_values("arclight_static_bolt", 1)
+	var big_aoe := PlayerClass.ability_values("bulwark_ground_slam", 1)
+	_check(small_aoe.footprint < big_aoe.footprint, "Static Bolt should have a smaller AoE footprint than Ground Slam")
+	_check(small_aoe.cooldown < big_aoe.cooldown, "Smaller AoE spells should recycle faster than huge novas")
+
+	var nuker := _make_player("arclight")
+	var first := _make_enemy(Vector2(120.0, 0.0))
+	var second := _make_enemy(Vector2(150.0, 40.0))
+	nuker.learn_ability("arclight_static_bolt")
+	var first_before := first.health.current_health
+	var second_before := second.health.current_health
+	nuker._cast_known_ability(0)
+	_check(first.health.current_health < first_before, "Static Bolt did not damage the first enemy in its blast")
+	_check(second.health.current_health < second_before, "Static Bolt did not damage the second enemy in its blast")
+	_cleanup([nuker, first, second])
 
 
 func _cleanup(nodes: Array) -> void:

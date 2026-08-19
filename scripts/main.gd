@@ -698,7 +698,7 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 	flash.style = effect_style
 	flash.main_color = Color(class_data.effect_color)
 	flash.chain_color = Color(class_data.effect_secondary)
-	flash.lifetime = 0.1
+	flash.lifetime = clampf(0.14 + (points[1].x if points.size() >= 2 else 80.0) / 900.0, 0.14, 0.42)
 	flash.points = points
 	add_child(flash)
 	var vfx := ability_vfx_scene.instantiate() as AbilityVfx

@@ -424,14 +424,20 @@ func _find_ability_chain_target(origin: Node2D, excluded: Array[Node2D], range_l
 
 
 func _cast_ability_nuke_bolt(data: Dictionary, values: Dictionary) -> void:
-	var target := _nearest_enemy_in_range(values.range)
-	var points := PackedVector2Array([global_position])
-	if target == null:
-		points.append(global_position + facing_direction * minf(values.range, 180.0))
-	else:
-		points.append(target.global_position)
+	var center := _ability_aim_center(values.range)
+	for target in _enemies_in_radius(center, values.radius):
 		_apply_ability_hit(target, data, values)
-	_emit_ability_cast(PlayerClass.EffectStyle.BOLT, points)
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(values.radius, 0.0)]))
+
+
+func _ability_aim_center(max_range: float) -> Vector2:
+	var target := _nearest_enemy_in_range(max_range)
+	if target != null:
+		return target.global_position
+	var direction := global_position.direction_to(aim_world_position)
+	if direction.length_squared() <= 0.0:
+		direction = facing_direction
+	return global_position + direction * minf(max_range, 220.0)
 
 
 func _cast_ability_cone_burst(data: Dictionary, values: Dictionary) -> void:
@@ -456,25 +462,28 @@ func _cast_ability_radius_burst(data: Dictionary, values: Dictionary) -> void:
 
 func _cast_ability_chain_nuke(data: Dictionary, values: Dictionary) -> void:
 	var primary := _nearest_enemy_in_range(values.range)
-	var points := PackedVector2Array([global_position])
+	var centers: Array[Vector2] = []
 	if primary == null:
-		points.append(global_position + facing_direction * minf(values.range, 180.0))
-		_emit_ability_cast(PlayerClass.EffectStyle.BOLT, points)
-		return
-	var struck: Array[Node2D] = [primary]
-	points.append(primary.global_position)
-	_apply_ability_hit(primary, data, values)
-	var previous := primary
+		centers.append(_ability_aim_center(values.range))
+	else:
+		centers.append(primary.global_position)
+	var struck: Array[Node2D] = []
+	var chain_origin: Node2D = primary if primary != null else self
 	var chain_range := float(data.get("chain_range", 200.0))
 	for _chain_index in int(values.chain_count):
-		var next_target := _find_ability_chain_target(previous, struck, chain_range)
+		var next_target := _find_ability_chain_target(chain_origin, struck, chain_range)
 		if next_target == null:
 			break
-		struck.append(next_target)
-		points.append(next_target.global_position)
-		_apply_ability_hit(next_target, data, values)
-		previous = next_target
-	_emit_ability_cast(PlayerClass.EffectStyle.BOLT, points)
+		centers.append(next_target.global_position)
+		chain_origin = next_target
+	for center in centers:
+		for target in _enemies_in_radius(center, values.radius):
+			if target in struck:
+				continue
+			struck.append(target)
+			_apply_ability_hit(target, data, values)
+	var vfx_center := centers[0] if not centers.is_empty() else global_position
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([vfx_center, Vector2(values.radius, 0.0)]))
 
 
 ## Approximates "everything the dash passes through" as a capsule around the midpoint of the
@@ -498,12 +507,16 @@ func _cast_ability_blink(_data: Dictionary, values: Dictionary) -> void:
 	if direction.length_squared() <= 0.0:
 		direction = facing_direction
 	global_position += direction * values.dash_distance
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(40.0, 0.0)]))
+	for target in _enemies_in_radius(global_position, values.radius):
+		_apply_ability_hit(target, _data, values)
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
 
 
-func _cast_ability_self_heal(_data: Dictionary, values: Dictionary) -> void:
+func _cast_ability_self_heal(data: Dictionary, values: Dictionary) -> void:
 	health.heal(values.power)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(40.0, 0.0)]))
+	for target in _enemies_in_radius(global_position, values.radius):
+		_apply_ability_hit(target, data, values)
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
 
 
 func _cast_ability_aoe_heal(_data: Dictionary, values: Dictionary) -> void:
@@ -535,7 +548,7 @@ func _cast_ability_shield_burst(data: Dictionary, values: Dictionary) -> void:
 			if global_position.distance_squared_to(ally.global_position) > radius_sq:
 				continue
 			ally.health.add_shield(values.power, values.duration)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius if scope != "self" else 40.0, 0.0)]))
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius if scope != "self" else values.radius, 0.0)]))
 
 
 func _cast_ability_buff_self(data: Dictionary, values: Dictionary) -> void:
@@ -543,6 +556,9 @@ func _cast_ability_buff_self(data: Dictionary, values: Dictionary) -> void:
 	var scope := str(data.get("target_scope", "self"))
 	if scope == "self":
 		_apply_ability_buff(stats, values.duration)
+		for target in _enemies_in_radius(global_position, values.radius):
+			if target.has_method("apply_slow"):
+				target.apply_slow(0.75, 1.0)
 	else:
 		var radius_sq := float(values.radius) * float(values.radius)
 		for candidate in get_tree().get_nodes_in_group("players"):
@@ -554,7 +570,7 @@ func _cast_ability_buff_self(data: Dictionary, values: Dictionary) -> void:
 			if global_position.distance_squared_to(ally.global_position) > radius_sq:
 				continue
 			ally._apply_ability_buff(stats, values.duration)
-	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(40.0, 0.0)]))
+	_emit_ability_cast(PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
 
 
 ## power > 0 pulls enemies toward the caster, power < 0 knocks them away.

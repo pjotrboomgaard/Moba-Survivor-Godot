@@ -46,9 +46,11 @@ func _draw() -> void:
 func _draw_burst(center: Vector2, radius: float, effect_alpha: float) -> void:
 	var expansion := 1.0 - effect_alpha
 	var outer := radius * (0.55 + 0.45 * expansion)
-	draw_circle(center, outer, Color(main_color, 0.18 * effect_alpha))
-	draw_arc(center, outer, 0.0, TAU, 48, Color(main_color, effect_alpha), 5.0, true)
-	draw_arc(center, outer * 0.72, 0.0, TAU, 40, Color(chain_color, effect_alpha * 0.85), 3.0, true)
+	var line_width := clampf(radius / 55.0, 5.0, 14.0)
+	draw_circle(center, outer, Color(main_color, 0.24 * effect_alpha))
+	draw_arc(center, outer, 0.0, TAU, 64, Color(main_color, effect_alpha), line_width, true)
+	draw_arc(center, outer * 0.72, 0.0, TAU, 48, Color(chain_color, effect_alpha * 0.85), line_width * 0.65, true)
+	draw_circle(center, outer * 0.18, Color(1.0, 1.0, 1.0, effect_alpha * 0.35))
 
 
 ## Smooth sine curve tapering to zero at both ends, unlike _draw_bolt's jagged noise — reads

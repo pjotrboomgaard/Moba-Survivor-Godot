@@ -6,7 +6,7 @@ extends RefCounted
 ## icons look identical even when they share an archetype shape.
 
 const ICON_SIZE := 16
-const VFX_SIZE := 24
+const VFX_SIZE := 32
 const VFX_FRAMES := 4
 
 static var _cache: Dictionary = {}
@@ -115,15 +115,17 @@ static func _vfx_frame(archetype: int, frame_index: int, ability_id: String) -> 
 	var hash := _hash(ability_id)
 	var center := Vector2(VFX_SIZE * 0.5, VFX_SIZE * 0.5)
 	var progress := float(frame_index + 1) / float(VFX_FRAMES)
+	var scale := 1.35
 	match archetype:
 		PlayerClass.Archetype.NUKE_BOLT:
-			_draw_streak(rows, center, progress, hash)
+			_draw_ring(rows, center, (5.0 + progress * 12.0) * scale, hash)
 		PlayerClass.Archetype.CONE_BURST:
-			_draw_cone(rows, center, progress, hash)
+			_draw_cone(rows, center, progress * scale, hash)
 		PlayerClass.Archetype.RADIUS_BURST:
-			_draw_ring(rows, center, 4.0 + progress * 9.0, hash)
+			_draw_ring(rows, center, (6.0 + progress * 14.0) * scale, hash)
 		PlayerClass.Archetype.CHAIN_NUKE:
-			_draw_chain(rows, center, progress, hash)
+			_draw_ring(rows, center, (5.0 + progress * 11.0) * scale, hash)
+			_draw_chain(rows, center, progress * scale, hash)
 		PlayerClass.Archetype.DASH_STRIKE:
 			_draw_streak(rows, center, progress, hash, true)
 		PlayerClass.Archetype.BLINK:

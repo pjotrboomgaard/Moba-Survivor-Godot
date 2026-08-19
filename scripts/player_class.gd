@@ -193,6 +193,13 @@ const ABILITY_RADIUS_GROWTH_PER_RANK := 0.15
 const ABILITY_RANGE_GROWTH_PER_RANK := 0.08
 const ABILITY_DASH_GROWTH_PER_RANK := 0.06
 const ABILITY_CHAIN_RANKS_PER_BONUS := 2
+## Every authored radius is stretched again so abilities feel like screen-wide spells.
+const AOE_RADIUS_MULTIPLIER := 1.65
+## Smaller blasts recycle faster; huge novas take longer. Footprint is the effective radius in units.
+const AOE_COOLDOWN_FOOTPRINT_MIN := 90.0
+const AOE_COOLDOWN_FOOTPRINT_MAX := 360.0
+const AOE_COOLDOWN_SCALE_MIN := 0.52
+const AOE_COOLDOWN_SCALE_MAX := 1.28
 
 ## Very long runs eventually run out of things to offer (4 abilities, all maxed); rather than
 ## stall the level-up screen, this flat, choice-free bump keeps the run moving.
@@ -235,7 +242,7 @@ const ABILITIES: Dictionary = {
 	# --- Arclight -----------------------------------------------------------------------
 	"arclight_static_bolt": {
 		"name": "Static Bolt", "archetype": Archetype.NUKE_BOLT,
-		"description": "Hurl a bolt of raw current at the nearest enemy.",
+		"description": "Hurl a bolt that detonates in a wide arc of raw current.",
 		"cooldown_base": 3.4, "cooldown_per_rank": -0.4, "cooldown_min": 1.8,
 		"power_base": 46.0, "power_per_rank": 12.0, "range": 620.0,
 	},
@@ -260,7 +267,7 @@ const ABILITIES: Dictionary = {
 	},
 	"arclight_thunder_step": {
 		"name": "Thunder Step", "archetype": Archetype.BLINK,
-		"description": "Teleport a short distance toward your cursor.",
+		"description": "Teleport forward and detonate lightning on landing.",
 		"cooldown_base": 9.0, "cooldown_per_rank": -1.0, "cooldown_min": 5.0,
 		"power_base": 0.0, "power_per_rank": 0.0, "dash_distance": 300.0,
 	},
@@ -274,7 +281,7 @@ const ABILITIES: Dictionary = {
 	},
 	"arclight_paralyzing_bolt": {
 		"name": "Paralyzing Bolt", "archetype": Archetype.NUKE_BOLT,
-		"description": "A slow bolt that locks its target in place.",
+		"description": "A slow bolt that paralyzes every foe caught in the blast.",
 		"cooldown_base": 8.5, "cooldown_per_rank": -0.8, "cooldown_min": 5.0,
 		"power_base": 22.0, "power_per_rank": 6.0, "range": 560.0,
 		"stun_on_hit": {"duration": 1.1},
@@ -287,13 +294,13 @@ const ABILITIES: Dictionary = {
 	},
 	"arclight_volt_siphon": {
 		"name": "Volt Siphon", "archetype": Archetype.NUKE_BOLT,
-		"description": "Drain current from a target back into yourself.",
+		"description": "Drain current from every enemy in the blast back into yourself.",
 		"cooldown_base": 6.0, "cooldown_per_rank": -0.6, "cooldown_min": 3.4,
 		"power_base": 30.0, "power_per_rank": 8.0, "range": 560.0, "lifesteal_pct": 0.5,
 	},
 	"arclight_track": {
 		"name": "Track", "archetype": Archetype.NUKE_BOLT,
-		"description": "Mark a target, exposing it to extra damage from all sources.",
+		"description": "Mark every enemy in the blast, exposing them to extra damage.",
 		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.0,
 		"power_base": 16.0, "power_per_rank": 4.0, "range": 640.0,
 		"mark_on_hit": {"bonus_pct": 0.25, "duration": 4.0},
@@ -358,7 +365,7 @@ const ABILITIES: Dictionary = {
 	},
 	"bulwark_aftershock": {
 		"name": "Aftershock", "archetype": Archetype.NUKE_BOLT,
-		"description": "A follow-up quake that leaves its target reeling.",
+		"description": "A follow-up quake that staggers every foe caught inside.",
 		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.0,
 		"power_base": 24.0, "power_per_rank": 6.0, "range": 200.0,
 		"stun_on_hit": {"duration": 1.0},
@@ -385,7 +392,7 @@ const ABILITIES: Dictionary = {
 	},
 	"bulwark_sunder": {
 		"name": "Sunder", "archetype": Archetype.NUKE_BOLT,
-		"description": "Crack a target's defences wide open.",
+		"description": "Crack every defence in a wide area wide open.",
 		"cooldown_base": 9.5, "cooldown_per_rank": -0.9, "cooldown_min": 5.5,
 		"power_base": 18.0, "power_per_rank": 5.0, "range": 230.0,
 		"mark_on_hit": {"bonus_pct": 0.3, "duration": 4.5},
@@ -393,7 +400,7 @@ const ABILITIES: Dictionary = {
 	# --- Warden -----------------------------------------------------------------------------
 	"warden_vine_lash": {
 		"name": "Vine Lash", "archetype": Archetype.NUKE_BOLT,
-		"description": "Whip a barbed vine at the nearest enemy.",
+		"description": "Whip barbed vines through every enemy in range.",
 		"cooldown_base": 4.2, "cooldown_per_rank": -0.4, "cooldown_min": 2.4,
 		"power_base": 26.0, "power_per_rank": 7.0, "range": 520.0,
 	},
@@ -412,7 +419,7 @@ const ABILITIES: Dictionary = {
 	},
 	"warden_entangle": {
 		"name": "Entangle", "archetype": Archetype.NUKE_BOLT,
-		"description": "Roots burst from the ground to hold a target fast.",
+		"description": "Roots burst from the ground to hold every foe in the area fast.",
 		"cooldown_base": 8.5, "cooldown_per_rank": -0.8, "cooldown_min": 5.0,
 		"power_base": 14.0, "power_per_rank": 4.0, "range": 480.0,
 		"stun_on_hit": {"duration": 1.2},
@@ -447,7 +454,7 @@ const ABILITIES: Dictionary = {
 	},
 	"warden_natures_wrath": {
 		"name": "Nature's Wrath", "archetype": Archetype.NUKE_BOLT,
-		"description": "Curse a target, leaving it exposed to harm.",
+		"description": "Curse every enemy in the blast, leaving them exposed to harm.",
 		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.0,
 		"power_base": 16.0, "power_per_rank": 4.0, "range": 500.0,
 		"mark_on_hit": {"bonus_pct": 0.25, "duration": 4.0},
@@ -460,7 +467,7 @@ const ABILITIES: Dictionary = {
 	},
 	"warden_vital_drain": {
 		"name": "Vital Drain", "archetype": Archetype.NUKE_BOLT,
-		"description": "Siphon a target's vitality back into your own.",
+		"description": "Siphon vitality from every foe in the blast back into your own.",
 		"cooldown_base": 6.5, "cooldown_per_rank": -0.6, "cooldown_min": 3.8,
 		"power_base": 20.0, "power_per_rank": 5.0, "range": 480.0, "lifesteal_pct": 0.6,
 	},
@@ -493,7 +500,7 @@ const ABILITIES: Dictionary = {
 	},
 	"frostbinder_deep_freeze": {
 		"name": "Glacial Lock", "archetype": Archetype.NUKE_BOLT,
-		"description": "Encase a target in solid ice.",
+		"description": "Encase every enemy in the blast in solid ice.",
 		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.2,
 		"power_base": 20.0, "power_per_rank": 5.0, "range": 460.0,
 		"stun_on_hit": {"duration": 1.3},
@@ -540,7 +547,7 @@ const ABILITIES: Dictionary = {
 	},
 	"frostbinder_frostbite_mark": {
 		"name": "Frostbite Mark", "archetype": Archetype.NUKE_BOLT,
-		"description": "Bitter cold clings to a target, deepening any wound.",
+		"description": "Bitter cold clings to every foe in the blast, deepening any wound.",
 		"cooldown_base": 9.5, "cooldown_per_rank": -0.9, "cooldown_min": 5.5,
 		"power_base": 16.0, "power_per_rank": 4.0, "range": 480.0,
 		"mark_on_hit": {"bonus_pct": 0.3, "duration": 4.5},
@@ -647,12 +654,17 @@ static func ability_values(ability_id: String, rank: int) -> Dictionary:
 	)
 	var power := float(data.get("power_base", 0.0)) + float(data.get("power_per_rank", 0.0)) * steps
 	var duration := float(data.get("duration_base", 0.0)) + float(data.get("duration_per_rank", 0.0)) * steps
-	var radius := float(data.get("radius", 0.0)) * (1.0 + ABILITY_RADIUS_GROWTH_PER_RANK * steps)
+	var radius := float(data.get("radius", 0.0))
+	if radius <= 0.0:
+		radius = _default_radius_for(int(data.archetype), data)
+	radius *= AOE_RADIUS_MULTIPLIER * (1.0 + ABILITY_RADIUS_GROWTH_PER_RANK * steps)
 	var range_value := float(data.get("range", 0.0)) * (1.0 + ABILITY_RANGE_GROWTH_PER_RANK * steps)
 	var dash_distance := float(data.get("dash_distance", 0.0)) * (1.0 + ABILITY_DASH_GROWTH_PER_RANK * steps)
 	var chain_count := int(data.get("chain_count", 0))
 	if chain_count > 0:
 		chain_count += int(steps / ABILITY_CHAIN_RANKS_PER_BONUS)
+	var footprint := aoe_footprint(data, radius, dash_distance, chain_count, float(data.get("chain_range", 0.0)))
+	cooldown *= cooldown_scale_for_footprint(footprint)
 	return {
 		"cooldown": cooldown,
 		"power": power,
@@ -661,7 +673,52 @@ static func ability_values(ability_id: String, rank: int) -> Dictionary:
 		"radius": radius,
 		"dash_distance": dash_distance,
 		"chain_count": chain_count,
+		"footprint": footprint,
 	}
+
+
+static func _default_radius_for(archetype: int, data: Dictionary) -> float:
+	match archetype:
+		Archetype.NUKE_BOLT:
+			return 165.0
+		Archetype.CHAIN_NUKE:
+			return 155.0
+		Archetype.BLINK:
+			return 140.0
+		Archetype.SELF_HEAL:
+			return 185.0
+		Archetype.BUFF_SELF:
+			return 220.0 if str(data.get("target_scope", "self")) == "allies" else 170.0
+		Archetype.SHIELD_BURST:
+			return 190.0 if str(data.get("target_scope", "self")) == "self" else 250.0
+		_:
+			return 0.0
+
+
+## One number that approximates how much ground an ability covers, for cooldown tuning.
+static func aoe_footprint(data: Dictionary, radius: float, dash_distance: float, chain_count: int, chain_range: float) -> float:
+	match int(data.archetype):
+		Archetype.CONE_BURST, Archetype.RADIUS_BURST, Archetype.NUKE_BOLT, Archetype.PUSH_PULL_BURST, Archetype.AOE_HEAL:
+			return radius
+		Archetype.CHAIN_NUKE:
+			return radius + chain_range * maxf(1.0, float(chain_count)) * 0.22
+		Archetype.DASH_STRIKE:
+			return dash_distance * 0.55 + radius
+		Archetype.BLINK:
+			return maxf(radius, dash_distance * 0.35)
+		Archetype.SELF_HEAL, Archetype.BUFF_SELF, Archetype.SHIELD_BURST:
+			return radius
+		_:
+			return radius
+
+
+static func cooldown_scale_for_footprint(footprint: float) -> float:
+	var t := clampf(
+		(footprint - AOE_COOLDOWN_FOOTPRINT_MIN) / maxf(1.0, AOE_COOLDOWN_FOOTPRINT_MAX - AOE_COOLDOWN_FOOTPRINT_MIN),
+		0.0,
+		1.0
+	)
+	return lerpf(AOE_COOLDOWN_SCALE_MIN, AOE_COOLDOWN_SCALE_MAX, t)
 
 
 static func _modifier_description(data: Dictionary) -> String:
@@ -687,17 +744,17 @@ static func ability_description(ability_id: String, rank: int) -> String:
 	var effect := ""
 	match int(data.archetype):
 		Archetype.NUKE_BOLT:
-			effect = "Deals %d damage. Cooldown %.1fs." % [int(values.power), values.cooldown]
+			effect = "Deals %d damage in a %d radius blast. Cooldown %.1fs." % [int(values.power), int(values.radius), values.cooldown]
 		Archetype.CONE_BURST, Archetype.RADIUS_BURST:
-			effect = "Deals %d damage in the area. Cooldown %.1fs." % [int(values.power), values.cooldown]
+			effect = "Deals %d damage in a %d radius area. Cooldown %.1fs." % [int(values.power), int(values.radius), values.cooldown]
 		Archetype.CHAIN_NUKE:
-			effect = "Deals %d damage, bouncing to %d enemies. Cooldown %.1fs." % [int(values.power), int(values.chain_count), values.cooldown]
+			effect = "Deals %d damage in %d chained blasts (radius %d). Cooldown %.1fs." % [int(values.power), int(values.chain_count), int(values.radius), values.cooldown]
 		Archetype.DASH_STRIKE:
-			effect = "Dash %d units, dealing %d damage along the way. Cooldown %.1fs." % [int(values.dash_distance), int(values.power), values.cooldown]
+			effect = "Dash %d units through a %d radius corridor. Cooldown %.1fs." % [int(values.dash_distance), int(values.radius), values.cooldown]
 		Archetype.BLINK:
-			effect = "Blink %d units. Cooldown %.1fs." % [int(values.dash_distance), values.cooldown]
+			effect = "Blink %d units, detonating a %d radius on landing. Cooldown %.1fs." % [int(values.dash_distance), int(values.radius), values.cooldown]
 		Archetype.SELF_HEAL:
-			effect = "Heals you for %d. Cooldown %.1fs." % [int(values.power), values.cooldown]
+			effect = "Heals you for %d and purges enemies within %d. Cooldown %.1fs." % [int(values.power), int(values.radius), values.cooldown]
 		Archetype.AOE_HEAL:
 			effect = "Heals you and nearby allies for %d. Cooldown %.1fs." % [int(values.power), values.cooldown]
 		Archetype.SHIELD_BURST:
