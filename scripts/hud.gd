@@ -306,7 +306,7 @@ func show_upgrade_ids(player: Player, upgrade_ids: Array[String], pause_game: bo
 		var upgrade := PlayerClass.upgrade_info(offered_upgrade_ids[index])
 		choice_buttons[index].visible = true
 		choice_buttons[index].text = "%s\n%s" % [upgrade.name, upgrade.description]
-		choice_buttons[index].icon = SpriteLibrary.texture_for(offered_upgrade_ids[index])
+		choice_buttons[index].icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(offered_upgrade_ids[index])
 	upgrade_panel.visible = true
 	AudioService.play("level_up")
 	if pauses_game:

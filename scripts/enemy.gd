@@ -127,8 +127,10 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	queue_redraw()
 
 
+## Classic mode stays on the plain vector look (see arena.gd's grid background), so it never
+## picks up pixel art here either.
 func _apply_sprite() -> void:
-	if sprite == null:
+	if sprite == null or GameRuntime.is_classic():
 		return
 	sprite.texture = SpriteLibrary.texture_for(type_id)
 	sprite.scale = SpriteLibrary.scale_for_radius(sprite.texture, body_radius * 1.25)

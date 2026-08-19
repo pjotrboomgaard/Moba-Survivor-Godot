@@ -15,8 +15,9 @@ var network_target_position := Vector2.ZERO
 
 func _ready() -> void:
 	network_target_position = global_position
-	sprite.texture = SpriteLibrary.texture_for("xp_orb")
-	sprite.scale = SpriteLibrary.scale_for_radius(sprite.texture, 9.0)
+	if not GameRuntime.is_classic():
+		sprite.texture = SpriteLibrary.texture_for("xp_orb")
+		sprite.scale = SpriteLibrary.scale_for_radius(sprite.texture, 9.0)
 	queue_redraw()
 	tree_exiting.connect(func() -> void: AudioService.play("xp"))
 
