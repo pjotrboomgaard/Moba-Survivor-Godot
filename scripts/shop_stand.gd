@@ -1,18 +1,36 @@
 extends Node2D
 
-## Purely decorative + a landmark for main.gd's proximity check (Arena.SHOP_STAND_POSITION) —
-## the actual shop UI is the existing HUD panel, opened/closed by main.gd when a player walks
-## within range. Kept as plain vector art rather than pixel art so it doesn't need a
-## sprite_forge pass, and reads fine in Classic mode too if it's ever enabled there.
+## Landmark for main.gd's proximity check (Arena.SHOP_STAND_POSITION) — the actual shop UI is
+## the existing HUD panel, opened/closed by main.gd's "interact_shop" (B) handling. Pixel art
+## in Pjotr mode (see tools/sprite_art.gd's "shop_stand"), falls back to the original vector
+## drawing in Classic mode or on a checkout that hasn't forged art yet.
 
+const PIXEL_ZOOM := 4.0
+const LIFT_PIXELS := 24.0
 const WIDTH := 96.0
 const HEIGHT := 64.0
 const ROOF_COLOR := Color("ffcb3d")
 const ROOF_OUTLINE := Color("ffe9a8")
 const POST_COLOR := Color("6b4a1a")
 
+@onready var sprite: Sprite2D = $Sprite
+
+
+func _ready() -> void:
+	if not GameRuntime.is_classic():
+		sprite.texture = SpriteLibrary.texture_for("shop_stand")
+		sprite.scale = Vector2(PIXEL_ZOOM, PIXEL_ZOOM)
+		sprite.offset = Vector2(0.0, -LIFT_PIXELS)
+	queue_redraw()
+
+
+func has_sprite() -> bool:
+	return sprite != null and sprite.texture != null
+
 
 func _draw() -> void:
+	if has_sprite():
+		return
 	var half := WIDTH * 0.5
 	# Posts.
 	draw_line(Vector2(-half + 8.0, 0.0), Vector2(-half + 8.0, HEIGHT), POST_COLOR, 6.0)
