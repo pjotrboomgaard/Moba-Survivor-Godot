@@ -248,6 +248,7 @@ func _process_charger(delta: float) -> void:
 		charge_state_timer = charge_windup
 		velocity = Vector2.ZERO
 		queue_redraw()
+		AudioService.play("charge")
 		return
 
 	_process_melee()
@@ -364,6 +365,8 @@ func apply_network_state(state: Dictionary) -> void:
 	if next_winding != winding_up:
 		winding_up = next_winding
 		queue_redraw()
+		if next_winding:
+			AudioService.play("charge")
 	health.set_network_state(
 		state.get("health", health.current_health),
 		state.get("max_health", health.max_health)
@@ -411,8 +414,7 @@ func _attack_target() -> void:
 
 
 func _on_damaged(_amount: float) -> void:
-	if not server_authoritative:
-		return
+	AudioService.play("hit")
 	var tween := create_tween()
 	tween.tween_property(self, "modulate", Color(1.7, 1.7, 1.7, 1.0), 0.04)
 	tween.tween_property(self, "modulate", Color.WHITE, 0.1)

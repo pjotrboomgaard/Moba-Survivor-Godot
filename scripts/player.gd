@@ -217,6 +217,7 @@ func _update_sprint(delta: float, ability_held: bool) -> void:
 	if ability_held and has_active_item() and sprint_timer <= 0.0 and sprint_cooldown <= 0.0:
 		sprint_timer = SPRINT_DURATION
 		sprint_cooldown = SPRINT_COOLDOWN + SPRINT_DURATION
+		AudioService.play("dash")
 
 
 func _update_items(delta: float) -> void:
@@ -518,6 +519,7 @@ func snapshot() -> Dictionary:
 
 
 func _on_damaged(amount: float) -> void:
+	AudioService.play("hit")
 	var tween := create_tween()
 	tween.tween_property(self, "modulate", Color("ff7777"), 0.05)
 	tween.tween_property(self, "modulate", Color.WHITE, 0.12)

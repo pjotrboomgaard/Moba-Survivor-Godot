@@ -704,7 +704,7 @@ func _test_arena_field() -> void:
 	var rock: Obstacle = arena.obstacles[0]
 	_check(arena.is_blocked(rock.global_position, 4.0), "is_blocked missed a rock it sits inside")
 	_check(not arena.is_blocked(Vector2.ZERO, 4.0), "The spawn point must stay walkable")
-	var freed := arena.free_position_near(rock.global_position, 22.0)
+	var freed: Vector2 = arena.free_position_near(rock.global_position, 22.0)
 	_check(not arena.is_blocked(freed, 22.0), "free_position_near handed back a blocked spot")
 	_check(rock.collision.shape is CircleShape2D, "Rocks need a collision shape to walk around")
 	_check(rock.collision.shape != arena.obstacles[1].collision.shape, "Rocks must not share one collision shape")

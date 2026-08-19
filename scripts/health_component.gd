@@ -44,7 +44,11 @@ func heal(amount: float) -> void:
 
 
 func set_network_state(next_health: float, next_max_health: float) -> void:
-	max_health = maxf(1.0, next_max_health)
-	current_health = clampf(next_health, 0.0, max_health)
+	var new_max_health := maxf(1.0, next_max_health)
+	var new_current_health := clampf(next_health, 0.0, new_max_health)
+	if new_current_health < current_health:
+		damaged.emit(current_health - new_current_health)
+	max_health = new_max_health
+	current_health = new_current_health
 	is_dead = current_health <= 0.0
 	health_changed.emit(current_health, max_health)

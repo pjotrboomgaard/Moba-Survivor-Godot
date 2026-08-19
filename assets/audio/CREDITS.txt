@@ -1,0 +1,9 @@
+Sound effects sourced from Kenney.nl (https://kenney.nl), released under CC0 (public domain,
+no attribution required):
+
+- Impact Sounds  (https://kenney.nl/assets/impact-sounds)
+- Interface Sounds (https://kenney.nl/assets/interface-sounds)
+- Sci-fi Sounds (https://kenney.nl/assets/sci-fi-sounds)
+- RPG Audio (https://kenney.nl/assets/rpg-audio)
+
+See autoload/audio_service.gd for which file backs which in-game sound id.

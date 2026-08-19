@@ -38,6 +38,7 @@ var pauses_game := false
 var shop_pauses_game := false
 var shown_class_id := ""
 var shop_buttons: Dictionary = {}
+var _last_gold := -1
 
 
 func _ready() -> void:
@@ -129,11 +130,13 @@ func announce_wave(wave: int, theme_display_name: String, debut_type_id: String)
 		return
 	theme_banner.text = "WAVE %d — %s" % [maxi(1, wave), theme_display_name.to_upper()]
 	_flash(theme_banner, 2.6)
+	AudioService.play("wave_start")
 	if debut_type_id.is_empty():
 		debut_banner.visible = false
 		return
 	debut_banner.text = "NEW ENEMY: %s" % str(EnemyType.by_id(debut_type_id).name).to_upper()
 	_flash(debut_banner, 3.2)
+	AudioService.play("boss_alert")
 
 
 func _flash(label: Label, seconds: float) -> void:
@@ -152,6 +155,7 @@ func open_shop(pause_game: bool) -> void:
 	shop_pauses_game = pause_game
 	shop_panel.visible = true
 	_refresh_shop()
+	AudioService.play("shop_open")
 	if shop_pauses_game:
 		get_tree().paused = true
 
@@ -160,6 +164,7 @@ func close_shop() -> void:
 	if not shop_panel.visible:
 		return
 	shop_panel.visible = false
+	AudioService.play("shop_close")
 	if shop_pauses_game:
 		get_tree().paused = false
 	shop_pauses_game = false
@@ -170,6 +175,7 @@ func _build_shop() -> void:
 		var button := Button.new()
 		button.custom_minimum_size = Vector2(300.0, 112.0)
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.icon = SpriteLibrary.texture_for(str(item.id))
 		button.pressed.connect(_on_shop_item_pressed.bind(str(item.id)))
 		shop_grid.add_child(button)
 		shop_buttons[str(item.id)] = button
@@ -193,17 +199,22 @@ func _refresh_shop() -> void:
 
 
 func _on_shop_item_pressed(item_id: String) -> void:
+	AudioService.play("ui_click")
 	shop_item_chosen.emit(item_id)
 
 
 func _on_shop_continue_pressed() -> void:
+	AudioService.play("ui_click")
 	close_shop()
 	shop_closed.emit()
 
 
 func show_game_over() -> void:
+	if game_over_label.visible:
+		return
 	close_shop()
 	game_over_label.visible = true
+	AudioService.play("game_over")
 
 
 func _on_health_changed(current_health: float, max_health: float) -> void:
@@ -215,6 +226,9 @@ func _on_health_changed(current_health: float, max_health: float) -> void:
 func _on_gold_changed(gold: int) -> void:
 	gold_label.visible = not GameRuntime.is_classic()
 	gold_label.text = "%d GOLD" % gold
+	if _last_gold >= 0 and gold > _last_gold:
+		AudioService.play("gold")
+	_last_gold = gold
 
 
 func _on_xp_changed(current_xp: int, required_xp: int, next_level: int) -> void:
@@ -234,7 +248,9 @@ func show_upgrade_ids(player: Player, upgrade_ids: Array[String], pause_game: bo
 		var upgrade := PlayerClass.upgrade_info(offered_upgrade_ids[index])
 		choice_buttons[index].visible = true
 		choice_buttons[index].text = "%s\n%s" % [upgrade.name, upgrade.description]
+		choice_buttons[index].icon = SpriteLibrary.texture_for(offered_upgrade_ids[index])
 	upgrade_panel.visible = true
+	AudioService.play("level_up")
 	if pauses_game:
 		get_tree().paused = true
 
@@ -242,6 +258,7 @@ func show_upgrade_ids(player: Player, upgrade_ids: Array[String], pause_game: bo
 func _on_upgrade_selected(index: int) -> void:
 	if index >= offered_upgrade_ids.size():
 		return
+	AudioService.play("ui_click")
 	var upgrade_id := offered_upgrade_ids[index]
 	upgrade_panel.visible = false
 	offered_upgrade_ids.clear()

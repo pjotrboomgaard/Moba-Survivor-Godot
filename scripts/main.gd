@@ -153,6 +153,11 @@ func client_play_explosion(origin: Vector2, radius: float) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
+func client_play_sound(sound_id: String) -> void:
+	_play_sound(sound_id)
+
+
+@rpc("authority", "call_remote", "reliable")
 func client_offer_upgrades(upgrade_ids: Array[String]) -> void:
 	var local_player := _local_player()
 	if local_player != null:
@@ -195,6 +200,7 @@ func _apply_shop_purchase(peer_id: int, item_id: String) -> void:
 
 
 func _on_local_shop_item_chosen(item_id: String) -> void:
+	AudioService.play("purchase")
 	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
 		server_buy_shop_item.rpc_id(1, item_id)
 		return
@@ -391,6 +397,13 @@ func _play_explosion_effect(origin: Vector2, radius: float) -> void:
 	effect.chain_color = Color("ff7a29")
 	effect.points = PackedVector2Array([origin, Vector2(radius, 0.0)])
 	add_child(effect)
+	AudioService.play("explosion")
+
+
+func _play_sound(sound_id: String) -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	AudioService.play(sound_id)
 
 
 func _find_boss() -> Enemy:
@@ -414,6 +427,8 @@ func _spawn_enemy_projectile(origin: Vector2, direction: Vector2, damage: float,
 	projectile.global_position = origin
 	actors.add_child(projectile)
 	projectile.configure(direction, damage, speed, true, cosmetic, sprite_name)
+	if not GameRuntime.is_dedicated_server():
+		AudioService.play("enemy_shoot")
 
 
 func _spawn_xp_orb(position: Vector2, value: int) -> XPOrb:
@@ -433,6 +448,10 @@ func _on_enemy_defeated(enemy: Enemy) -> void:
 	enemies.erase(enemy.network_id)
 	_spawn_xp_orb(enemy.global_position, enemy.xp_value)
 	_award_gold(enemy.gold_value)
+	_play_sound("enemy_death")
+	if GameRuntime.is_server():
+		for peer_id in registered_remote_peers.keys():
+			client_play_sound.rpc_id(peer_id, "enemy_death")
 
 
 ## Gold is shared, so nobody has to race their team mates to the corpse.
@@ -465,6 +484,7 @@ func _play_staff_effect(effect_kind: String, points: PackedVector2Array) -> void
 	effect.chain_color = Color(class_data.effect_secondary)
 	effect.points = points
 	add_child(effect)
+	AudioService.play("cast_%s" % effect_kind)
 
 
 func _on_player_died(_peer_id: int) -> void:
