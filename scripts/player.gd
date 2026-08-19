@@ -479,6 +479,22 @@ func add_xp(amount: int) -> void:
 	xp_changed.emit(current_xp, xp_required, level)
 
 
+## Dev menu only: same per-level bookkeeping as add_xp, without spending XP, so it queues
+## one upgrade choice per level like a normal level-up chain would.
+func dev_add_levels(count: int) -> void:
+	if simulation_mode == SimulationMode.PROXY or count <= 0:
+		return
+	for _index in count:
+		level += 1
+		xp_required = roundi(xp_required * 1.35)
+		xp_changed.emit(current_xp, xp_required, level)
+		level_reached.emit(level)
+
+
+func set_invulnerable(value: bool) -> void:
+	health.invulnerable = value
+
+
 func apply_upgrade(upgrade_id: String) -> void:
 	if simulation_mode == SimulationMode.PROXY:
 		return

@@ -22,6 +22,9 @@ var enemies: Dictionary = {}
 var xp_orbs: Dictionary = {}
 var pending_inputs: Dictionary = {}
 var pending_upgrades: Dictionary = {}
+## How many more upgrade choices a peer is owed, for when several levels land in one frame
+## (a big XP orb, or the dev menu's "+5 levels") so no choice gets silently skipped.
+var queued_upgrade_choices: Dictionary = {}
 var registered_remote_peers: Dictionary = {}
 var next_entity_id := 1
 var snapshot_accumulator := 0.0
@@ -41,6 +44,7 @@ func _ready() -> void:
 	hud.shop_closed.connect(_on_local_shop_closed)
 	hud.restart_requested.connect(_on_restart_requested)
 	hud.leave_requested.connect(_on_leave_requested)
+	hud.dev_command.connect(_on_local_dev_command)
 	hud.set_connection_text(GameRuntime.mode_name())
 	wave_director.wave_started.connect(_on_wave_started)
 	wave_director.group_ready.connect(_on_wave_group_ready)
@@ -172,6 +176,18 @@ func server_choose_upgrade(upgrade_id: String) -> void:
 		return
 	var peer_id := multiplayer.get_remote_sender_id()
 	_apply_upgrade_choice(peer_id, upgrade_id)
+
+
+## Dev-menu commands only ever apply to the sender's own player, and only in debug builds,
+## so there is no way to use this to affect anyone else's run.
+@rpc("any_peer", "call_remote", "reliable")
+func server_dev_command(command: String) -> void:
+	if not GameRuntime.is_server() or not OS.is_debug_build():
+		return
+	var peer_id := multiplayer.get_remote_sender_id()
+	if not registered_remote_peers.has(peer_id):
+		return
+	_apply_dev_command(peer_id, command)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -500,6 +516,13 @@ func _on_player_died(_peer_id: int) -> void:
 func _on_player_level_reached(_level: int, peer_id: int) -> void:
 	if not GameRuntime.is_server() and GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
 		return
+	queued_upgrade_choices[peer_id] = int(queued_upgrade_choices.get(peer_id, 0)) + 1
+	_offer_next_upgrade(peer_id)
+
+
+func _offer_next_upgrade(peer_id: int) -> void:
+	if pending_upgrades.has(peer_id) or int(queued_upgrade_choices.get(peer_id, 0)) <= 0:
+		return
 	var leveled_player := players.get(peer_id) as Player
 	if leveled_player == null:
 		return
@@ -527,6 +550,8 @@ func _apply_upgrade_choice(peer_id: int, upgrade_id: String) -> void:
 		return
 	player.apply_upgrade(upgrade_id)
 	pending_upgrades.erase(peer_id)
+	queued_upgrade_choices[peer_id] = maxi(0, int(queued_upgrade_choices.get(peer_id, 0)) - 1)
+	_offer_next_upgrade(peer_id)
 
 
 func _on_restart_requested() -> void:
@@ -538,6 +563,42 @@ func _on_restart_requested() -> void:
 func _on_leave_requested() -> void:
 	get_tree().paused = false
 	get_parent().call_deferred("leave_game")
+
+
+func _on_local_dev_command(command: String) -> void:
+	if not OS.is_debug_build():
+		return
+	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
+		server_dev_command.rpc_id(1, command)
+	else:
+		var local_player := _local_player()
+		if local_player != null:
+			_apply_dev_command(local_player.owner_peer_id, command)
+
+
+func _apply_dev_command(peer_id: int, command: String) -> void:
+	var player := players.get(peer_id) as Player
+	if player == null:
+		return
+	match command:
+		"add_xp":
+			player.add_xp(100)
+		"add_5_levels":
+			player.dev_add_levels(5)
+		"spawn_elite":
+			_dev_spawn_elite()
+		"toggle_invulnerable":
+			player.set_invulnerable(not player.health.invulnerable)
+
+
+## Uses the wave system's own health scaling and spawn plumbing, so it works the same in
+## Classic mode too even though Classic's own spawner never picks anything but grunts.
+func _dev_spawn_elite() -> void:
+	if game_over:
+		return
+	var offset := Vector2.RIGHT.rotated(randf_range(0.0, TAU)) * 260.0
+	var multiplier := wave_director.health_multiplier_for_wave(maxi(1, current_wave))
+	_spawn_enemy(offset, "brute", multiplier)
 
 
 func _build_snapshot() -> Dictionary:
@@ -634,6 +695,7 @@ func _remove_missing_entities(collection: Dictionary, seen: Dictionary) -> void:
 func _on_peer_left(peer_id: int) -> void:
 	pending_inputs.erase(peer_id)
 	pending_upgrades.erase(peer_id)
+	queued_upgrade_choices.erase(peer_id)
 	registered_remote_peers.erase(peer_id)
 	var player := players.get(peer_id) as Player
 	players.erase(peer_id)

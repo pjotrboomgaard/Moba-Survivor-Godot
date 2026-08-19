@@ -11,6 +11,8 @@ var current_health: float
 var is_dead: bool = false
 ## Whoever landed the most recent hit, so reflect effects know where to aim.
 var last_damage_source: Node = null
+## Dev-menu only (see main.gd's "toggle_invulnerable" command).
+var invulnerable := false
 
 
 func _ready() -> void:
@@ -19,7 +21,7 @@ func _ready() -> void:
 
 
 func take_damage(amount: float, source: Node = null) -> void:
-	if is_dead or amount <= 0.0:
+	if is_dead or invulnerable or amount <= 0.0:
 		return
 	last_damage_source = source
 	var mitigated := amount * damage_taken_multiplier

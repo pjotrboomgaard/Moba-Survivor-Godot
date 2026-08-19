@@ -6,6 +6,7 @@ signal shop_item_chosen(item_id: String)
 signal shop_closed
 signal restart_requested
 signal leave_requested
+signal dev_command(command: String)
 
 const UPGRADE_ICON_MAX_WIDTH := 72
 
@@ -39,6 +40,11 @@ const UPGRADE_ICON_MAX_WIDTH := 72
 @onready var resume_button: Button = $EscapeMenu/EscapeLayout/ResumeButton
 @onready var restart_button: Button = $EscapeMenu/EscapeLayout/RestartButton
 @onready var leave_button: Button = $EscapeMenu/EscapeLayout/LeaveButton
+@onready var dev_panel: PanelContainer = $DevPanel
+@onready var dev_add_xp_button: Button = $DevPanel/DevLayout/DevButtons/AddXPButton
+@onready var dev_add_levels_button: Button = $DevPanel/DevLayout/DevButtons/AddLevelsButton
+@onready var dev_spawn_elite_button: Button = $DevPanel/DevLayout/DevButtons/SpawnEliteButton
+@onready var dev_invulnerable_button: Button = $DevPanel/DevLayout/DevButtons/InvulnerableButton
 
 var bound_player: Player
 var offered_upgrade_ids: Array[String] = []
@@ -62,10 +68,17 @@ func _ready() -> void:
 	resume_button.pressed.connect(_on_resume_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
 	leave_button.pressed.connect(_on_leave_pressed)
+	dev_add_xp_button.pressed.connect(_on_dev_button_pressed.bind("add_xp"))
+	dev_add_levels_button.pressed.connect(_on_dev_button_pressed.bind("add_5_levels"))
+	dev_spawn_elite_button.pressed.connect(_on_dev_button_pressed.bind("spawn_elite"))
+	dev_invulnerable_button.pressed.connect(_on_dev_button_pressed.bind("toggle_invulnerable"))
 	_build_shop()
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if OS.is_debug_build() and event.is_action_pressed("dev_toggle"):
+		dev_panel.visible = not dev_panel.visible
+		return
 	if not event.is_action_pressed("pause_menu"):
 		return
 	if escape_menu.visible:
@@ -106,10 +119,23 @@ func _on_leave_pressed() -> void:
 	leave_requested.emit()
 
 
+func _on_dev_button_pressed(command: String) -> void:
+	AudioService.play("ui_click")
+	dev_command.emit(command)
+
+
 func _process(_delta: float) -> void:
 	if shop_panel.visible:
 		_refresh_shop()
+	if dev_panel.visible:
+		_refresh_dev_panel()
 	_refresh_ability()
+
+
+func _refresh_dev_panel() -> void:
+	if bound_player == null:
+		return
+	dev_invulnerable_button.text = "INVULNERABLE: %s" % ("ON" if bound_player.health.invulnerable else "OFF")
 
 
 func _refresh_ability() -> void:

@@ -242,3 +242,49 @@ text = "RESTART SOLO RUN"
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "LEAVE TO LOBBY"
+
+[node name="DevPanel" type="PanelContainer" parent="."]
+visible = false
+offset_left = 340.0
+offset_top = 590.0
+offset_right = 940.0
+offset_bottom = 700.0
+
+[node name="DevLayout" type="VBoxContainer" parent="DevPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DevTitle" type="Label" parent="DevPanel/DevLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.87, 0.62, 1)
+theme_override_font_sizes/font_size = 16
+text = "DEV TOOLS (F1)"
+horizontal_alignment = 1
+
+[node name="DevButtons" type="HBoxContainer" parent="DevPanel/DevLayout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AddXPButton" type="Button" parent="DevPanel/DevLayout/DevButtons"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "+100 XP"
+
+[node name="AddLevelsButton" type="Button" parent="DevPanel/DevLayout/DevButtons"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "+5 LEVELS"
+
+[node name="SpawnEliteButton" type="Button" parent="DevPanel/DevLayout/DevButtons"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "SPAWN ELITE"
+
+[node name="InvulnerableButton" type="Button" parent="DevPanel/DevLayout/DevButtons"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "INVULNERABLE: OFF"
