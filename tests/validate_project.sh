@@ -207,8 +207,8 @@ if ! rg -q 'SHOP_WAVE_INTERVAL' scripts/wave_director.gd || ! rg -q 'shop_opens_
   exit 1
 fi
 
-	if ! rg -q 'GOLD_AWARD_DIVISOR' autoload/game_runtime.gd; then
-  echo "Gold income must be scaled down for the shop economy" >&2
+	if ! rg -q 'SHOP_PRICE_MULTIPLIER' scripts/shop_catalog.gd; then
+  echo "Shop prices must be scaled up for the economy" >&2
   exit 1
 fi
 

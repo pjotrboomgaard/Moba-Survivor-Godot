@@ -649,12 +649,9 @@ func _on_enemy_defeated(enemy: Enemy) -> void:
 func _award_gold(amount: int) -> void:
 	if GameRuntime.is_classic() or amount <= 0:
 		return
-	var scaled := maxi(0, amount / GameRuntime.GOLD_AWARD_DIVISOR)
-	if scaled <= 0:
-		return
 	for player in players.values():
 		if is_instance_valid(player) and (player as Player).active:
-			(player as Player).add_gold(scaled)
+			(player as Player).add_gold(amount)
 
 
 func _on_xp_orb_exited(entity_id: int) -> void:

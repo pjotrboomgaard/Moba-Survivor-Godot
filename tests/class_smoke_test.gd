@@ -663,7 +663,7 @@ func _test_gold_rewards() -> void:
 	player.gold = 0
 	player.add_gold(100)
 	_check(player.gold == 200, "The gold multiplier is not applied to income")
-	_check(GameRuntime.GOLD_AWARD_DIVISOR == 10, "Gold drops should be divided before they reach the player")
+	_check(ShopCatalog.SHOP_PRICE_MULTIPLIER == 10, "Shop prices should be scaled up to match full gold income")
 	_cleanup([player])
 
 

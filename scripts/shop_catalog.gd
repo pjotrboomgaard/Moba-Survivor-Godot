@@ -6,6 +6,8 @@ extends RefCounted
 ## does not otherwise have. Prices climb with every copy owned.
 
 const ACTIVE_ITEM_ID := "phase_boots"
+## Shop prices are scaled up so full gold income still keeps purchases scarce.
+const SHOP_PRICE_MULTIPLIER := 10
 
 const ITEMS: Array[Dictionary] = [
 	{
@@ -113,7 +115,7 @@ static func price_for(item_id: String, owned_stacks: int) -> int:
 	var item := by_id(item_id)
 	if item.is_empty():
 		return 0
-	return int(item.base_price) + int(item.price_step) * maxi(0, owned_stacks)
+	return (int(item.base_price) + int(item.price_step) * maxi(0, owned_stacks)) * SHOP_PRICE_MULTIPLIER
 
 
 static func is_sold_out(item_id: String, owned_stacks: int) -> bool:

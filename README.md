@@ -94,7 +94,7 @@ The director spends a budget of `4 + wave × 1.5`, scaled up by 45% per extra pl
 
 ## Gold and the shop
 
-Every kill pays the whole party, so nobody races their team mates to the corpse. Raw `gold_value` on each enemy type is divided by ten before it lands in your purse, so income stays scarce until the shop opens. The shop only opens once every ten waves, in the long breather right after a boss, so gold piles up into a real spending spree instead of trickling away every wave. The wave counter warns you with `SHOP NEXT` during the wave before it. Prices climb with each copy you own.
+Every kill pays the whole party, so nobody races their team mates to the corpse. Shop prices are ten times the base numbers, so purchases stay scarce even with full kill rewards. The shop only opens once every ten waves, in the long breather right after a boss, so gold piles up into a real spending spree instead of trickling away every wave. The wave counter warns you with `SHOP NEXT` during the wave before it. Prices climb with each copy you own.
 
 Each of the forty-eight hero abilities has its own 16×16 pixel icon and a four-frame cast animation in Pjotr mode (Classic keeps the original vector effects only).
 

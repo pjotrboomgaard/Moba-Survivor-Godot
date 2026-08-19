@@ -18,8 +18,6 @@ enum GameMode {
 
 const DEFAULT_PORT := 27015
 const DEFAULT_MAX_PLAYERS := 4
-## Every kill's gold_value is divided by this before it reaches the party purse.
-const GOLD_AWARD_DIVISOR := 10
 
 var mode: RuntimeMode = RuntimeMode.OFFLINE
 var game_mode: GameMode = GameMode.PJOTR
