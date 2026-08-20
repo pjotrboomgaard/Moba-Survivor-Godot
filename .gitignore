@@ -9,4 +9,5 @@ exports/
 .env.*
 !.env.example
 .cursor/hooks/.restart_pending
+.claude/hooks/.restart_pending
 .commit_msg.txt
