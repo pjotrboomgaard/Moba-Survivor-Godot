@@ -655,12 +655,21 @@ static func ability_offer_ids(class_id: String, known: Array[Dictionary], is_mil
 	return result
 
 
+## Whatever ability ends up in the ultimate slot (see ULTIMATE_SLOT) hits noticeably harder
+## than it would in a regular slot, at the cost of a noticeably longer cooldown — it should
+## read as the "big button," not just another pick that happened to unlock later.
+const ULTIMATE_POWER_MULTIPLIER := 2.0
+const ULTIMATE_RADIUS_MULTIPLIER := 1.3
+const ULTIMATE_DURATION_MULTIPLIER := 1.3
+const ULTIMATE_COOLDOWN_MULTIPLIER := 1.8
+
 ## Scales an ability's numbers for the given rank (1-based). Every field grows with rank —
 ## cooldown/power/duration linearly from their per-ability authored rates, radius/range/dash
 ## distance by a flat percentage per rank, and chain count by +1 every couple of ranks — so a
 ## rank-5 ability is a visibly bigger, more dangerous version of its rank-1 self, not just a
-## faster-cycling one.
-static func ability_values(ability_id: String, rank: int) -> Dictionary:
+## faster-cycling one. `is_ultimate` applies the flat multipliers above on top of all that —
+## pass true whenever this ability currently occupies ULTIMATE_SLOT.
+static func ability_values(ability_id: String, rank: int, is_ultimate: bool = false) -> Dictionary:
 	var data := ability_info(ability_id)
 	var steps := maxi(0, rank - 1)
 	var cooldown := maxf(
@@ -681,6 +690,11 @@ static func ability_values(ability_id: String, rank: int) -> Dictionary:
 		chain_count += int(steps / ABILITY_CHAIN_RANKS_PER_BONUS)
 	var footprint := aoe_footprint(data, radius, dash_distance, chain_count, float(data.get("chain_range", 0.0)))
 	cooldown *= cooldown_scale_for_footprint(footprint)
+	if is_ultimate:
+		power *= ULTIMATE_POWER_MULTIPLIER
+		radius *= ULTIMATE_RADIUS_MULTIPLIER
+		duration *= ULTIMATE_DURATION_MULTIPLIER
+		cooldown *= ULTIMATE_COOLDOWN_MULTIPLIER
 	return {
 		"cooldown": cooldown,
 		"power": power,

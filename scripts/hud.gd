@@ -87,6 +87,10 @@ var _next_wave_countdown := 0.0
 ## actual on-screen visibility, which also depends on the shop panel being closed (see
 ## _update_next_wave_visibility) so the two never overlap on screen.
 var _next_wave_available := false
+## Set by show_ability_offer for the duration of the current offer — _on_offer_hover can't
+## re-derive this from the offered ids the way _on_ability_slot_hover derives it from a slot
+## index, since a fresh ultimate pick isn't in known_abilities yet to look a slot up from.
+var _offer_is_ultimate := false
 
 
 func _ready() -> void:
@@ -591,6 +595,7 @@ func show_ability_offer(player: Player, ability_ids: Array[String], pause_game: 
 	offered_upgrade_ids = ability_ids.duplicate()
 	offer_kind = "ability"
 	pauses_game = pause_game
+	_offer_is_ultimate = is_ultimate_offer
 	offer_title_label.text = "CHOOSE YOUR ULTIMATE" if is_ultimate_offer else "LEARN OR UPGRADE AN ABILITY"
 	offer_title_label.visible = true
 	for index in offer_buttons.size():
@@ -686,7 +691,7 @@ func _on_ability_slot_hover(slot: int) -> void:
 			locked = "[b]R — Ultimate[/b]\n[color=%s]Locked until level %d[/color]" % [COLOR_FLAVOR, PlayerClass.ULTIMATE_LEVEL_INTERVAL]
 		_show_tooltip(locked, ability_slot_buttons[slot])
 		return
-	_show_tooltip(_ability_tooltip_bbcode(str(entry.id), int(entry.rank)), ability_slot_buttons[slot])
+	_show_tooltip(_ability_tooltip_bbcode(str(entry.id), int(entry.rank), 0, slot == PlayerClass.ULTIMATE_SLOT), ability_slot_buttons[slot])
 
 
 func _on_offer_hover(index: int) -> void:
@@ -696,7 +701,7 @@ func _on_offer_hover(index: int) -> void:
 	var bbcode: String
 	if offer_kind == "ability":
 		var current_rank := _known_rank(bound_player, chosen_id) if bound_player != null else 0
-		bbcode = _ability_tooltip_bbcode(chosen_id, current_rank + 1 if current_rank > 0 else 1, current_rank)
+		bbcode = _ability_tooltip_bbcode(chosen_id, current_rank + 1 if current_rank > 0 else 1, current_rank, _offer_is_ultimate)
 	else:
 		var upgrade := PlayerClass.upgrade_info(chosen_id)
 		bbcode = _stat_tooltip_bbcode(str(upgrade.name), str(upgrade.description))
@@ -707,17 +712,21 @@ func _on_offer_hover(index: int) -> void:
 ## text, so the colour coding is always accurate instead of guessed from a description string.
 ## `previous_rank` (0 = not previously known) prints every changed number as "old → new" instead
 ## of just the new value, so a rank-up's actual payoff is visible at a glance instead of having
-## to remember what the ability did before.
-func _ability_tooltip_bbcode(ability_id: String, rank: int, previous_rank: int = 0) -> String:
+## to remember what the ability did before. `is_ultimate` applies PlayerClass's ultimate
+## multipliers to both values so the tooltip matches what actually casts from that slot.
+func _ability_tooltip_bbcode(ability_id: String, rank: int, previous_rank: int = 0, is_ultimate: bool = false) -> String:
 	var data := PlayerClass.ability_info(ability_id)
 	if data.is_empty():
 		return ""
-	var values := PlayerClass.ability_values(ability_id, rank)
-	var previous_values := PlayerClass.ability_values(ability_id, previous_rank) if previous_rank > 0 and previous_rank != rank else {}
+	var values := PlayerClass.ability_values(ability_id, rank, is_ultimate)
+	var previous_values := PlayerClass.ability_values(ability_id, previous_rank, is_ultimate) if previous_rank > 0 and previous_rank != rank else {}
 	var archetype := int(data.archetype)
 	var lines: Array[String] = []
 	var rank_text := "Rank %d → %d" % [previous_rank, rank] if not previous_values.is_empty() else "Rank %d" % rank
-	lines.append("[b]%s[/b]  [color=%s]%s[/color]" % [str(data.name), COLOR_FLAVOR, rank_text])
+	var name_line := "[b]%s[/b]  [color=%s]%s[/color]" % [str(data.name), COLOR_FLAVOR, rank_text]
+	if is_ultimate:
+		name_line = "[color=%s]★ ULTIMATE[/color]  %s" % [COLOR_BUFF, name_line]
+	lines.append(name_line)
 	lines.append("[color=%s]%s[/color]" % [COLOR_FLAVOR, str(data.description)])
 
 	var is_heal := archetype == PlayerClass.Archetype.SELF_HEAL or archetype == PlayerClass.Archetype.AOE_HEAL

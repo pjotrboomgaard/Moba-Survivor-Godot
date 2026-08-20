@@ -958,6 +958,13 @@ func _test_ultimate_ability_gating() -> void:
 	var three_known_milestone_offer := PlayerClass.ability_offer_ids("bulwark", player.known_abilities, true)
 	for ability_id in three_known_milestone_offer:
 		_check(ability_id not in ["bulwark_shockwave_strike", "bulwark_ground_slam", "bulwark_cleave"], "On a milestone level with 3 known, every option should be a fresh ultimate pick, got %s" % ability_id)
+
+	# Same ability, same rank — cast from the ultimate slot it should hit harder and cost more
+	# cooldown, not just "whatever happened to be picked last."
+	var regular_values := PlayerClass.ability_values("bulwark_shockwave_strike", 1, false)
+	var ultimate_values := PlayerClass.ability_values("bulwark_shockwave_strike", 1, true)
+	_check(float(ultimate_values.power) > float(regular_values.power), "An ultimate should hit harder than the same ability in a regular slot")
+	_check(float(ultimate_values.cooldown) > float(regular_values.cooldown), "An ultimate should cost a longer cooldown than the same ability in a regular slot")
 	_cleanup([player])
 
 

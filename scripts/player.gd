@@ -347,7 +347,7 @@ func _cast_known_ability(slot: int) -> void:
 	var data := PlayerClass.ability_info(ability_id)
 	if data.is_empty():
 		return
-	var values := PlayerClass.ability_values(ability_id, int(entry.rank))
+	var values := PlayerClass.ability_values(ability_id, int(entry.rank), slot == PlayerClass.ULTIMATE_SLOT)
 	_casting_ability_id = ability_id
 	ability_cooldowns[slot] = values.cooldown
 	match int(data.archetype):
