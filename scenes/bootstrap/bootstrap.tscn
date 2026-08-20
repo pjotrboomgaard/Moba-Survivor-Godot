@@ -53,14 +53,6 @@ text = "Checking Steam..."
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="RosterLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
-visible = false
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.92, 1, 1)
-theme_override_font_sizes/font_size = 16
-text = "Players in lobby:"
-autowrap_mode = 3
-
 [node name="LobbyTitleLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 visible = false
 layout_mode = 2

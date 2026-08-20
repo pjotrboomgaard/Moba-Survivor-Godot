@@ -19,6 +19,11 @@ signal lobby_members_changed(lobby_id: int)
 
 const INIT_TIMEOUT_SECONDS := 8.0
 const LOBBY_CREATE_TIMEOUT_SECONDS := 20.0
+const LOBBY_JOIN_TIMEOUT_SECONDS := 20.0
+## bootstrap.gd's own Steam-operation timeout should stay a little longer than either of the
+## two above, so this module's timeout always fires first with a specific reason instead of
+## bootstrap's generic one firing while a real Steam callback is still in flight.
+const BOOTSTRAP_TIMEOUT_MARGIN_SECONDS := 2.0
 
 var initialized := false
 var init_error := ""
@@ -32,6 +37,8 @@ var _waiting_for_init := false
 
 var _creating_lobby := false
 var _lobby_create_elapsed := 0.0
+var _joining_lobby := false
+var _lobby_join_elapsed := 0.0
 
 
 func _ready() -> void:
@@ -84,6 +91,12 @@ func _process(delta: float) -> void:
 			_creating_lobby = false
 			lobby_create_failed.emit("Steam lobby creation timed out")
 
+	if _joining_lobby:
+		_lobby_join_elapsed += delta
+		if _lobby_join_elapsed >= LOBBY_JOIN_TIMEOUT_SECONDS:
+			_joining_lobby = false
+			lobby_join_failed.emit("Steam lobby join timed out")
+
 	Steam.run_callbacks()
 
 
@@ -125,7 +138,18 @@ func create_lobby(max_players: int) -> void:
 
 
 func join_lobby(lobby_id: int) -> void:
+	_joining_lobby = true
+	_lobby_join_elapsed = 0.0
 	Steam.joinLobby(lobby_id)
+
+
+## Tells Steam we're no longer part of this lobby — cancelling a create/join, leaving the
+## waiting room, or ending a run all count. Without this, Steam-side membership lingers until
+## Steam itself notices the network drop, which can leave friends' clients showing us as still
+## in a lobby that's actually gone.
+func leave_lobby(lobby_id: int) -> void:
+	if initialized and lobby_id != 0:
+		Steam.leaveLobby(lobby_id)
 
 
 func invite_friends(lobby_id: int) -> void:
@@ -173,6 +197,7 @@ func _on_lobby_created(connect_result: int, lobby_id: int) -> void:
 
 
 func _on_lobby_joined(lobby_id: int, _permissions: int, _locked: bool, response: int) -> void:
+	_joining_lobby = false
 	if response == Steam.CHAT_ROOM_ENTER_RESPONSE_SUCCESS:
 		lobby_joined.emit(lobby_id)
 	else:

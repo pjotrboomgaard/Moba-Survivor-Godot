@@ -17,7 +17,6 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var steam_status_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/SteamStatusLabel
 @onready var join_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/JoinLabel
 @onready var mode_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow
-@onready var roster_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/RosterLabel
 @onready var lobby_title_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/LobbyTitleLabel
 @onready var player_slots: VBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/PlayerSlots
 @onready var lobby_action_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow
@@ -46,7 +45,10 @@ var _steam_operation_elapsed := 0.0
 var _steam_lobby_members: Array[String] = []
 var _lobby_refresh_timer := 0.0
 
-const STEAM_OPERATION_TIMEOUT := 22.0
+## Backstop for a stuck Steam create/join op — set in _ready() from SteamService's own
+## timeouts instead of a second, independently-hardcoded number, so there's one source of
+## truth for "how long is too long" instead of three uncoordinated constants across two files.
+var _steam_operation_timeout := 0.0
 
 
 func _ready() -> void:
@@ -67,6 +69,14 @@ func _ready() -> void:
 	SteamService.join_requested.connect(_on_steam_join_requested)
 	SteamService.lobby_members_changed.connect(_on_steam_lobby_members_changed)
 	NetworkService.peer_joined.connect(_on_lobby_peer_joined)
+	## Autoloads run their own _ready() before the main scene's, so when Steam is unavailable
+	## for an immediate reason (extension missing, Steam client not running — both checked
+	## synchronously in SteamService._ready()), that signal already fired before the connect
+	## above could catch it. Without this, Steam status would show "Checking Steam..." forever
+	## and Host would stay disabled with no way to proceed.
+	if not SteamService.initialized and not SteamService.init_error.is_empty():
+		_on_steam_unavailable(SteamService.init_error)
+	_steam_operation_timeout = maxf(SteamService.LOBBY_CREATE_TIMEOUT_SECONDS, SteamService.LOBBY_JOIN_TIMEOUT_SECONDS) + SteamService.BOOTSTRAP_TIMEOUT_MARGIN_SECONDS
 	_refresh_steam_status()
 	AudioService.play_music()
 	call_deferred("_start_runtime")
@@ -96,6 +106,12 @@ func _on_steam_ready() -> void:
 func _on_steam_unavailable(_reason: String) -> void:
 	_steam_status_known = true
 	_refresh_steam_status()
+	## Steam never came up, so _check_pending_steam_invite()'s is_available() guard will never
+	## pass — without this, a friend's invite (via +connect_lobby on a cold launch) would just
+	## sit in GameRuntime.pending_steam_lobby_id forever with no indication anything was pending.
+	if GameRuntime.pending_steam_lobby_id != 0:
+		GameRuntime.pending_steam_lobby_id = 0
+		status_label.text = "Couldn't reach Steam to join your friend's game. Try LAN / direct IP instead."
 
 
 func _sync_steam_display_name() -> void:
@@ -112,7 +128,7 @@ func _sync_steam_display_name() -> void:
 func _process(delta: float) -> void:
 	if _waiting_steam_operation:
 		_steam_operation_elapsed += delta
-		if _steam_operation_elapsed >= STEAM_OPERATION_TIMEOUT:
+		if _steam_operation_elapsed >= _steam_operation_timeout:
 			_cancel_steam_operation("Steam lobby timed out. Check Steam is online, then try again.")
 		return
 	if _in_network_lobby and NetworkService.current_steam_lobby_id != 0:
@@ -231,7 +247,10 @@ func _on_host_pressed() -> void:
 	if SteamService.is_available():
 		_start_steam_host()
 	else:
-		_start_host()
+		## steam_status_label already says this persistently, but it's easy to not notice
+		## before clicking Host — repeat it as the active status right as hosting begins,
+		## instead of only as a label elsewhere the player may have stopped reading.
+		_start_host("Steam isn't running — hosting on LAN only, no invite link. ")
 
 
 func _on_join_pressed() -> void:
@@ -248,9 +267,9 @@ func _on_address_submitted(_value: String) -> void:
 	_on_join_pressed()
 
 
-func _start_host() -> void:
+func _start_host(notice: String = "") -> void:
 	_set_lobby_enabled(false)
-	status_label.text = "Starting host on UDP %d..." % GameRuntime.server_port
+	status_label.text = "%sStarting host on UDP %d..." % [notice, GameRuntime.server_port]
 	if NetworkService.start_server(GameRuntime.server_port, GameRuntime.max_players) == OK:
 		_enter_network_lobby(true)
 	else:
@@ -274,11 +293,12 @@ func _on_steam_host_started(_port: int) -> void:
 	SteamService.invite_friends(NetworkService.current_steam_lobby_id)
 
 
-func _on_steam_host_failed(_error: Error) -> void:
+func _on_steam_host_failed(_error: Error, reason: String) -> void:
 	_clear_host_callbacks()
 	_end_steam_operation()
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
-	_show_lobby("Could not create Steam lobby. Try LAN / direct IP instead.")
+	var suffix := (" (%s)" % reason) if not reason.is_empty() else ""
+	_show_lobby("Could not create Steam lobby%s. Try LAN / direct IP instead." % suffix)
 
 
 func _clear_host_callbacks() -> void:
@@ -365,7 +385,6 @@ func _show_network_lobby() -> void:
 	lobby_action_row.visible = true
 	invite_button.visible = _is_lobby_host and NetworkService.current_steam_lobby_id != 0
 	leave_lobby_button.visible = true
-	roster_label.visible = false
 	start_game_button.visible = _is_lobby_host
 	waiting_label.visible = not _is_lobby_host
 	_refresh_steam_lobby_members()
@@ -413,16 +432,15 @@ func _refresh_player_slots() -> void:
 				"status": "Connected",
 				"host": int(peer_id) == 1,
 			})
-		for member_name in _steam_lobby_members:
-			var already_listed := false
-			for slot_data in slot_entries:
-				if str(slot_data.name) == member_name:
-					already_listed = true
-					break
-			if already_listed:
-				continue
+		## Reconciled by count, not by matching names — matching Steam persona names against
+		## the networked roster string-for-string mis-slots people who happen to share a
+		## display name. Anyone in the Steam lobby who hasn't shown up in the networked roster
+		## yet is "still connecting," full stop; we don't try to guess which Steam name belongs
+		## to which pending connection, since there's no reliable way to tell from here.
+		var still_connecting := maxi(0, _steam_lobby_members.size() - slot_entries.size())
+		for _index in still_connecting:
 			slot_entries.append({
-				"name": member_name,
+				"name": "Connecting...",
 				"class_id": "",
 				"status": "In Steam lobby",
 				"host": false,
@@ -555,12 +573,13 @@ func leave_game() -> void:
 	_show_lobby("Choose solo, host, or join")
 
 
-func _on_connection_failed() -> void:
+func _on_connection_failed(reason: String) -> void:
 	_clear_connection_callbacks()
 	_end_steam_operation()
 	NetworkService.stop()
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
-	_show_lobby("Connection failed. Check the address and host.")
+	var message := reason if not reason.is_empty() else "Connection failed. Check the address and host."
+	_show_lobby(message)
 
 
 func _on_connection_succeeded() -> void:
@@ -578,7 +597,7 @@ func _clear_connection_callbacks() -> void:
 		NetworkService.connection_failed.disconnect(_on_connection_failed)
 
 
-func _on_connection_lost() -> void:
+func _on_connection_lost(reason: String) -> void:
 	if NetworkService.connection_failed.is_connected(_on_connection_lost):
 		NetworkService.connection_failed.disconnect(_on_connection_lost)
 	var game := get_node_or_null("Main")
@@ -586,7 +605,7 @@ func _on_connection_lost() -> void:
 		game.queue_free()
 	game_loaded = false
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
-	_show_lobby("Disconnected from server")
+	_show_lobby(reason if not reason.is_empty() else "Disconnected from server")
 
 
 func _show_lobby(message: String) -> void:
@@ -612,7 +631,6 @@ func _show_lobby(message: String) -> void:
 	invite_button.visible = false
 	leave_lobby_button.visible = false
 	cancel_create_button.visible = false
-	roster_label.visible = false
 	start_game_button.visible = false
 	waiting_label.visible = false
 
