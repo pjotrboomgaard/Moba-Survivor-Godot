@@ -6,7 +6,7 @@ Production-oriented Godot project for a one-to-four-player cooperative action su
 
 - WASD movement in a bounded arena.
 - Two game modes: the original Classic run and Pjotr mode.
-- Fourteen enemy types, including fliers, exploders and two bosses.
+- Fifteen enemy types, including fliers, exploders and two bosses.
 - Four playable roles, each strong and weak against different enemies.
 - Hand-authored pixel art for every hero, enemy, projectile and pickup.
 - XP drops, levels and three upgrade choices.
@@ -50,7 +50,7 @@ A Bulwark cannot meaningfully hit anything airborne, and an Arclight alone will 
 
 ## Enemies and waves
 
-Thirteen enemy types unlock as the run goes on, so pressure grows in variety as well as in numbers.
+Fifteen enemy types unlock as the run goes on, so pressure grows in variety as well as in numbers.
 
 | Enemy | Behaviour | HP | Speed | Damage | Gold | Debuts in |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -63,6 +63,7 @@ Thirteen enemy types unlock as the run goes on, so pressure grows in variety as 
 | Bomber | Flies in and detonates | 16 | 150 | 22 in a 105 blast | 5 | 11 |
 | Hexer | Heals nearby enemies | 60 | 95 | none | 10 | 12 |
 | Sentinel | Armoured wall | 100 | 70 | 12 | 10 | 13 |
+| Lurker | Camouflaged, charges from stealth | 32 | 55 | 14 | 6 | 14 |
 | Splitter | Breaks into 3 Swarmlings | 45 | 95 | 8 | 7 | 15 |
 | Charger | Telegraphs, then dashes | 55 | 85 → 430 | 16 | 8 | 17 |
 | Summoner | Hangs back and spawns swarms | 70 | 80 | none | 12 | 19 |
@@ -111,6 +112,7 @@ The shop deliberately never sells the plain stat lines the level-up screen alrea
 | Ember Aura | Burns everything within 140 units for 6 damage per second |
 | Frostbite Charm | Your hits slow enemies by 20% for a second |
 | Lodestone | Pulls XP orbs in from 60% further away |
+| War Maul | Every hit knocks enemies back |
 
 Phase Boots is the only active: hold Space and the HUD shows the cooldown next to your gold. Aegis Sigil recharges at the start of every wave. In a solo run the game pauses while the shop is open and resumes when you start the next wave; online the thirty second shopping break keeps running. The server validates every purchase.
 

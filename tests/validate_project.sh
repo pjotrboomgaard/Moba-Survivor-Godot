@@ -94,9 +94,16 @@ if ! rg -q '^class_name EnemyType$' scripts/enemy_type.gd; then
   exit 1
 fi
 
-for enemy_id in grunt swarmling spitter drifter brute stalker bomber hexer sentinel splitter charger summoner ravager stormcaller; do
-  if ! rg -q "\"id\": \"${enemy_id}\"" scripts/enemy_type.gd; then
-    echo "Missing enemy type: ${enemy_id}" >&2
+# Derived from the actual catalog rather than hand-typed, so a new enemy can't silently miss
+# its own sprite check the way Lurker once did.
+enemy_ids=$(rg -o '"id": "[a-z_]+"' scripts/enemy_type.gd | sed -E 's/.*"([a-z_]+)"$/\1/' | sort -u)
+if [[ -z "$enemy_ids" ]]; then
+  echo "Could not read any enemy ids from scripts/enemy_type.gd" >&2
+  exit 1
+fi
+for enemy_id in $enemy_ids; do
+  if [[ ! -f "assets/sprites/${enemy_id}.png" ]]; then
+    echo "Missing pixel art for enemy type: assets/sprites/${enemy_id}.png (run tools/sprite_forge.tscn)" >&2
     exit 1
   fi
 done
@@ -183,8 +190,15 @@ if ! rg -q '"gold_value"' scripts/enemy_type.gd; then
   exit 1
 fi
 
-for item in carapace phase_boots bloodfang pendant prism aegis ember frostbite lodestone; do
-  if ! rg -q "\"${item}\"" scripts/shop_catalog.gd || ! rg -q "\"${item}\"" scripts/player.gd; then
+# Derived from the actual catalog rather than hand-typed, so a new item can't silently skip
+# this check the way War Maul once did.
+shop_item_ids=$(rg -o '"id": "[a-z_]+"' scripts/shop_catalog.gd | sed -E 's/.*"([a-z_]+)"$/\1/' | sort -u)
+if [[ -z "$shop_item_ids" ]]; then
+  echo "Could not read any shop item ids from scripts/shop_catalog.gd" >&2
+  exit 1
+fi
+for item in $shop_item_ids; do
+  if ! rg -q "\"${item}\"" scripts/player.gd; then
     echo "Shop item '${item}' is not wired up end to end" >&2
     exit 1
   fi
@@ -227,7 +241,8 @@ if ! rg -q 'func try_cheat_death' scripts/player.gd; then
   exit 1
 fi
 
-for sprite in arclight bulwark warden frostbinder grunt swarmling spitter drifter brute stalker bomber hexer sentinel splitter charger summoner ravager stormcaller spit bolt spark xp_orb coin; do
+# Enemy sprites are already checked above, derived from the enemy catalog itself.
+for sprite in arclight bulwark warden frostbinder spit bolt spark xp_orb coin; do
   if [[ ! -f "assets/sprites/${sprite}.png" ]]; then
     echo "Missing pixel art: assets/sprites/${sprite}.png (run tools/sprite_forge.tscn)" >&2
     exit 1
