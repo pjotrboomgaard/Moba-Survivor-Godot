@@ -38,7 +38,7 @@ while IFS= read -r resource_path; do
     echo "Broken resource reference: $resource_path" >&2
     exit 1
   fi
-done < <(rg --no-filename -o 'res://[^" ]+' --glob '*.tscn' --glob '*.gd' | sort -u)
+done < <(rg --no-filename -o 'res://[^" ]+' --glob '*.tscn' --glob '*.gd' --glob '!addons/**' | sort -u)
 
 if ! rg -q 'run/main_scene="res://scenes/bootstrap/bootstrap.tscn"' project.godot; then
   echo "Bootstrap is not configured as the main scene" >&2
