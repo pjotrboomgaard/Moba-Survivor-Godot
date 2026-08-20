@@ -6,7 +6,7 @@ extends Node2D
 @export var snapshot_rate := 20.0
 @export var input_send_rate := 30.0
 
-@onready var arena: Node2D = $Arena
+@onready var arena: Arena = $Arena
 @onready var actors: Node2D = $Actors
 @onready var wave_director: WaveDirector = $WaveDirector
 @onready var hud: GameHUD = $HUD
@@ -46,7 +46,6 @@ var ready_for_next_wave: Dictionary = {}
 ## peer_id of the downed player -> seconds a stationary teammate has stood next to them.
 var revive_progress: Dictionary = {}
 
-const SHOP_STAND_INTERACT_RADIUS := 70.0
 const REVIVE_RADIUS := 60.0
 const REVIVE_DURATION := 5.0
 
@@ -57,7 +56,6 @@ func _ready() -> void:
 	hud.upgrade_chosen.connect(_on_local_upgrade_chosen)
 	hud.ability_chosen.connect(_on_local_ability_chosen)
 	hud.shop_item_chosen.connect(_on_local_shop_item_chosen)
-	hud.shop_closed.connect(_on_local_shop_closed)
 	hud.next_wave_requested.connect(_on_local_next_wave_requested)
 	hud.restart_requested.connect(_on_restart_requested)
 	hud.leave_requested.connect(_on_leave_requested)
@@ -107,8 +105,10 @@ func _physics_process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if game_over and event.is_action_pressed("restart") and GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 		get_parent().call_deferred("restart_game")
-	if event.is_action_pressed("interact_shop") and _near_shop_stand and not game_over:
-		if not hud.upgrade_panel.visible and not hud.escape_menu.visible and not hud.dev_panel.visible and not hud.codex_panel.visible:
+	if event.is_action_pressed("interact_shop") and not game_over:
+		if hud.shop_panel.visible:
+			hud.close_shop()
+		elif _near_shop_stand and not hud.ability_offer_bar.visible and not hud.escape_menu.visible and not hud.dev_panel.visible and not hud.codex_panel.visible:
 			hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 
 
@@ -204,10 +204,10 @@ func server_choose_upgrade(upgrade_id: String) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func client_offer_ability_choices(ability_ids: Array[String]) -> void:
+func client_offer_ability_choices(ability_ids: Array[String], is_ultimate_offer: bool = false) -> void:
 	var local_player := _local_player()
 	if local_player != null:
-		hud.show_ability_offer(local_player, ability_ids, false)
+		hud.show_ability_offer(local_player, ability_ids, false, is_ultimate_offer)
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -308,12 +308,6 @@ func _on_local_shop_item_chosen(item_id: String) -> void:
 		_apply_shop_purchase(local_player.owner_peer_id, item_id)
 
 
-## Only the solo run may cut its own breather short.
-func _on_local_shop_closed() -> void:
-	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
-		wave_director.skip_intermission()
-
-
 ## Tracks whether the local player is close enough to the arena's shop stand to interact
 ## (see _unhandled_input's "interact_shop" handling) at any point in a wave, not just during
 ## the forced breather every 10 waves. Purely local — the stand's position is a shared
@@ -325,13 +319,19 @@ func _update_shop_stand_proximity() -> void:
 		if _near_shop_stand:
 			_near_shop_stand = false
 			hud.close_shop()
+			if arena.shop_stand != null:
+				arena.shop_stand.set_in_range(false)
 		return
-	var in_range := local_player.global_position.distance_to(Arena.SHOP_STAND_POSITION) <= SHOP_STAND_INTERACT_RADIUS
+	var in_range := local_player.global_position.distance_to(Arena.SHOP_STAND_POSITION) <= Arena.SHOP_STAND_INTERACT_RADIUS
 	if in_range and not _near_shop_stand:
 		_near_shop_stand = true
+		if arena.shop_stand != null:
+			arena.shop_stand.set_in_range(true)
 	elif not in_range and _near_shop_stand:
 		_near_shop_stand = false
 		hud.close_shop()
+		if arena.shop_stand != null:
+			arena.shop_stand.set_in_range(false)
 
 
 ## Solo has nobody to revive it (the loop below only ever finds the downed player itself),
@@ -491,9 +491,9 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 			client_announce_wave.rpc_id(peer_id, wave, theme_name, debut_type_id)
 
 
-## Shop waves keep their own "START NEXT WAVE" button in the shop panel; the standalone
-## Next Wave button only shows for the plain breathers between waves, so it doesn't sit
-## underneath the shop panel doing the same thing twice.
+## A shop breather also gets the same NEXT WAVE skip as a plain breather — the shop panel has
+## no wave-progression control of its own any more (see hud.gd's _update_next_wave_visibility),
+## it just stays hidden behind the shop panel while that's open so the two never stack.
 func _on_intermission_started(next_wave: int, seconds: float) -> void:
 	if WaveDirector.shop_opens_before(next_wave):
 		if not GameRuntime.is_dedicated_server():
@@ -501,7 +501,6 @@ func _on_intermission_started(next_wave: int, seconds: float) -> void:
 		if GameRuntime.is_server():
 			for peer_id in registered_remote_peers.keys():
 				client_open_shop.rpc_id(peer_id)
-		return
 	if not GameRuntime.is_dedicated_server():
 		hud.show_next_wave_button(true, seconds)
 	if GameRuntime.is_server():
@@ -746,7 +745,8 @@ func _offer_stat_turn(peer_id: int, leveled_player: Player) -> void:
 
 
 func _offer_ability_turn(peer_id: int, leveled_player: Player) -> void:
-	var ability_ids := PlayerClass.ability_offer_ids(leveled_player.class_id, leveled_player.known_abilities)
+	var is_milestone_level := leveled_player.level % PlayerClass.ULTIMATE_LEVEL_INTERVAL == 0
+	var ability_ids := PlayerClass.ability_offer_ids(leveled_player.class_id, leveled_player.known_abilities, is_milestone_level)
 	if ability_ids.is_empty():
 		# All 4 abilities known and maxed — nothing left to offer, so this turn resolves itself.
 		leveled_player.apply_fallback_bonus()
@@ -754,9 +754,9 @@ func _offer_ability_turn(peer_id: int, leveled_player: Player) -> void:
 		return
 	pending_ability_offers[peer_id] = ability_ids
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
-		hud.show_ability_offer(players[peer_id], ability_ids, GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
+		hud.show_ability_offer(players[peer_id], ability_ids, GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE, is_milestone_level)
 	else:
-		client_offer_ability_choices.rpc_id(peer_id, ability_ids)
+		client_offer_ability_choices.rpc_id(peer_id, ability_ids, is_milestone_level)
 
 
 func _on_local_upgrade_chosen(upgrade_id: String) -> void:

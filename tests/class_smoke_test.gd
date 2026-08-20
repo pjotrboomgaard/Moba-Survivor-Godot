@@ -40,6 +40,7 @@ func _ready() -> void:
 	_test_ability_rank_scaling()
 	_test_ability_learn_and_upgrade()
 	_test_ability_offer_alternation()
+	_test_ultimate_ability_gating()
 	_test_ability_archetypes_smoke()
 	_test_ability_aoe_and_cooldown()
 
@@ -918,16 +919,45 @@ func _test_ability_offer_alternation() -> void:
 
 	for ability_id in ["arclight_overcharge", "arclight_ion_storm", "arclight_arc_flash"]:
 		player.learn_ability(ability_id)
+	# The 4th ability learned (arc_flash here) always lands in the reserved ultimate slot —
+	# see PlayerClass.ULTIMATE_SLOT — so it must sit out any offer that isn't a milestone level.
 	var full_offer := PlayerClass.ability_offer_ids("arclight", player.known_abilities)
-	_check(full_offer.size() == 4, "With 4 known abilities the offer should still be 4, got %d" % full_offer.size())
-	for ability_id in ["arclight_static_bolt", "arclight_overcharge", "arclight_ion_storm", "arclight_arc_flash"]:
-		_check(ability_id in full_offer, "Once 4 abilities are known, every one of them must always be offered for upgrade, missing %s" % ability_id)
+	_check(full_offer.size() == 3, "Off a milestone level, only the first 3 abilities should offer, got %d" % full_offer.size())
+	for ability_id in ["arclight_static_bolt", "arclight_overcharge", "arclight_ion_storm"]:
+		_check(ability_id in full_offer, "The first 3 known abilities must always be offered for upgrade, missing %s" % ability_id)
+	_check("arclight_arc_flash" not in full_offer, "The ultimate slot must not offer for upgrade off a milestone level")
+
+	var milestone_offer := PlayerClass.ability_offer_ids("arclight", player.known_abilities, true)
+	_check(milestone_offer == ["arclight_arc_flash"], "On a milestone level, the only offer should be the ultimate's own upgrade, got %s" % str(milestone_offer))
 
 	for entry in player.known_abilities:
 		for _step in PlayerClass.MAX_ABILITY_RANK:
 			player.upgrade_ability(str(entry.id))
 	var exhausted_offer := PlayerClass.ability_offer_ids("arclight", player.known_abilities)
-	_check(exhausted_offer.is_empty(), "A fully maxed 4-ability loadout must have nothing left to offer")
+	_check(exhausted_offer.is_empty(), "A fully maxed non-ultimate loadout must have nothing left to offer off a milestone level")
+	var exhausted_milestone_offer := PlayerClass.ability_offer_ids("arclight", player.known_abilities, true)
+	_check(exhausted_milestone_offer.is_empty(), "A fully maxed ultimate must have nothing left to offer even on a milestone level")
+	_cleanup([player])
+
+
+## The ultimate (4th slot, bound to R) can never be learned early by getting lucky with the
+## regular offer roll — it must stay completely absent until a fresh hero is exactly 3 known
+## abilities deep, and even then only actually offers on a milestone level.
+func _test_ultimate_ability_gating() -> void:
+	var player := _make_player("bulwark")
+	for ability_id in ["bulwark_shockwave_strike", "bulwark_ground_slam"]:
+		player.learn_ability(ability_id)
+	var two_known_offer := PlayerClass.ability_offer_ids("bulwark", player.known_abilities)
+	_check(two_known_offer.size() == 4, "With 2 of the first 3 slots known, the offer should still total 4, got %d" % two_known_offer.size())
+
+	player.learn_ability("bulwark_cleave")
+	var three_known_offer := PlayerClass.ability_offer_ids("bulwark", player.known_abilities)
+	for ability_id in three_known_offer:
+		_check(ability_id in ["bulwark_shockwave_strike", "bulwark_ground_slam", "bulwark_cleave"], "Off a milestone level, the 4th (ultimate) ability must never appear as a learn option, got %s" % ability_id)
+
+	var three_known_milestone_offer := PlayerClass.ability_offer_ids("bulwark", player.known_abilities, true)
+	for ability_id in three_known_milestone_offer:
+		_check(ability_id not in ["bulwark_shockwave_strike", "bulwark_ground_slam", "bulwark_cleave"], "On a milestone level with 3 known, every option should be a fresh ultimate pick, got %s" % ability_id)
 	_cleanup([player])
 
 

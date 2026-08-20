@@ -9,6 +9,15 @@ const ACTIVE_ITEM_ID := "phase_boots"
 ## Shop prices are scaled up so full gold income still keeps purchases scarce.
 const SHOP_PRICE_MULTIPLIER := 10
 
+## Display order for the shop's category sections (see hud.gd's _build_shop).
+const CATEGORIES: Array[String] = ["offensive", "defensive", "utility", "special"]
+const CATEGORY_LABELS := {
+	"offensive": "Offensive",
+	"defensive": "Defensive",
+	"utility": "Utility",
+	"special": "Special",
+}
+
 const ITEMS: Array[Dictionary] = [
 	{
 		"id": "carapace",
@@ -17,6 +26,7 @@ const ITEMS: Array[Dictionary] = [
 		"base_price": 40,
 		"price_step": 30,
 		"max_stacks": 4,
+		"category": "defensive",
 	},
 	{
 		"id": "phase_boots",
@@ -25,6 +35,7 @@ const ITEMS: Array[Dictionary] = [
 		"base_price": 45,
 		"price_step": 40,
 		"max_stacks": 4,
+		"category": "utility",
 	},
 	{
 		"id": "bloodfang",
@@ -33,6 +44,7 @@ const ITEMS: Array[Dictionary] = [
 		"base_price": 45,
 		"price_step": 35,
 		"max_stacks": 5,
+		"category": "offensive",
 	},
 	{
 		"id": "pendant",
@@ -41,6 +53,7 @@ const ITEMS: Array[Dictionary] = [
 		"base_price": 35,
 		"price_step": 25,
 		"max_stacks": 6,
+		"category": "defensive",
 	},
 	{
 		"id": "prism",
@@ -49,6 +62,7 @@ const ITEMS: Array[Dictionary] = [
 		"base_price": 50,
 		"price_step": 40,
 		"max_stacks": 4,
+		"category": "offensive",
 	},
 	{
 		"id": "aegis",
@@ -57,6 +71,7 @@ const ITEMS: Array[Dictionary] = [
 		"base_price": 70,
 		"price_step": 60,
 		"max_stacks": 2,
+		"category": "special",
 	},
 	{
 		"id": "ember",
@@ -65,6 +80,7 @@ const ITEMS: Array[Dictionary] = [
 		"base_price": 55,
 		"price_step": 40,
 		"max_stacks": 5,
+		"category": "offensive",
 	},
 	{
 		"id": "frostbite",
@@ -73,6 +89,7 @@ const ITEMS: Array[Dictionary] = [
 		"base_price": 45,
 		"price_step": 35,
 		"max_stacks": 3,
+		"category": "utility",
 	},
 	{
 		"id": "lodestone",
@@ -81,6 +98,7 @@ const ITEMS: Array[Dictionary] = [
 		"base_price": 30,
 		"price_step": 20,
 		"max_stacks": 4,
+		"category": "utility",
 	},
 	{
 		"id": "bash",
@@ -89,6 +107,7 @@ const ITEMS: Array[Dictionary] = [
 		"base_price": 50,
 		"price_step": 35,
 		"max_stacks": 3,
+		"category": "utility",
 	},
 ]
 
@@ -98,6 +117,14 @@ static func ids() -> Array[String]:
 	for item in ITEMS:
 		item_ids.append(str(item.id))
 	return item_ids
+
+
+static func for_category(category: String) -> Array[Dictionary]:
+	var matches: Array[Dictionary] = []
+	for item in ITEMS:
+		if str(item.category) == category:
+			matches.append(item)
+	return matches
 
 
 static func by_id(item_id: String) -> Dictionary:

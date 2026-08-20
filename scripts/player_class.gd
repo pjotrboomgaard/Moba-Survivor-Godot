@@ -180,6 +180,12 @@ const UPGRADES: Dictionary = {
 const MAX_KNOWN_ABILITIES := 4
 const MAX_ABILITY_RANK := 5
 
+## The 4th ability learned is always the last slot (Q/E/F fill first, in that order — see
+## Player.known_abilities), bound to R and treated as the hero's ultimate: it can only be
+## learned or ranked up on a level that's a multiple of this, never on any other ability turn.
+const ULTIMATE_SLOT := MAX_KNOWN_ABILITIES - 1
+const ULTIMATE_LEVEL_INTERVAL := 6
+
 ## Cooldowns are authored short in the ABILITIES table below and then stretched here, so
 ## every ability starts out slow at rank 1 (long cooldown to earn) and comes down hard as it
 ## ranks up, instead of hand-tripling every one of the 48 entries individually.
@@ -617,17 +623,27 @@ static func ability_info(ability_id: String) -> Dictionary:
 ## with all 4 known (the cap) it's always all 4 up for a rank. Whether a given id in the
 ## result is a "learn" or an "upgrade" is resolved at pick time by checking membership in the
 ## player's known_abilities — the caller doesn't need a separate tag per candidate.
-static func ability_offer_ids(class_id: String, known: Array[Dictionary], amount: int = 4) -> Array[String]:
+##
+## A milestone turn (`is_milestone_level`, pass leveled_player.level % ULTIMATE_LEVEL_INTERVAL
+## == 0) is exclusively about the ultimate (ULTIMATE_SLOT): every other ability turn is
+## exclusively about the first three slots instead. The two never mix in a single offer.
+static func ability_offer_ids(class_id: String, known: Array[Dictionary], is_milestone_level: bool = false, amount: int = 4) -> Array[String]:
 	var known_ids: Array[String] = []
 	var upgrade_candidates: Array[String] = []
-	for entry in known:
+	for index in known.size():
+		var entry := known[index]
 		var ability_id := str(entry.id)
 		known_ids.append(ability_id)
+		var is_ultimate := index == ULTIMATE_SLOT
+		if is_ultimate != is_milestone_level:
+			continue
 		if int(entry.get("rank", 1)) < MAX_ABILITY_RANK:
 			upgrade_candidates.append(ability_id)
 
+	var next_slot_is_ultimate := known.size() == ULTIMATE_SLOT
+	var can_learn_new := known.size() < MAX_KNOWN_ABILITIES and next_slot_is_ultimate == is_milestone_level
 	var new_pool: Array[String] = []
-	if known.size() < MAX_KNOWN_ABILITIES:
+	if can_learn_new:
 		for ability_id in ability_pool_for(class_id):
 			if ability_id not in known_ids:
 				new_pool.append(ability_id)

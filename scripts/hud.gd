@@ -4,7 +4,6 @@ extends CanvasLayer
 signal upgrade_chosen(upgrade_id: String)
 signal ability_chosen(ability_id: String)
 signal shop_item_chosen(item_id: String)
-signal shop_closed
 signal restart_requested
 signal leave_requested
 signal dev_command(command: String)
@@ -12,37 +11,54 @@ signal next_wave_requested
 
 const UPGRADE_ICON_MAX_WIDTH := 40
 
-@onready var class_label: Label = $MarginContainer/Layout/Title
-@onready var instructions_label: Label = $MarginContainer/Layout/Instructions
-@onready var health_bar: ProgressBar = $MarginContainer/Layout/HealthBar
-@onready var health_label: Label = $MarginContainer/Layout/HealthLabel
-@onready var game_over_label: Label = $MarginContainer/Layout/GameOver
-@onready var xp_bar: ProgressBar = $XPBar
-@onready var level_label: Label = $LevelLabel
-@onready var connection_label: Label = $ConnectionLabel
-@onready var wave_label: Label = $WaveLabel
+## Scannable colour coding for tooltip stat lines — kept separate from any hero/team colour.
+const COLOR_DAMAGE := "ff6b5c"
+const COLOR_HEAL := "7cd6a0"
+const COLOR_CONTROL := "8ab4e8"
+const COLOR_BUFF := "e0b667"
+const COLOR_SHIELD := "b99cf0"
+const COLOR_NEUTRAL := "9aa0ad"
+const COLOR_FLAVOR := "6c7280"
+
+@onready var class_label: Label = $TopBar/TopLayout/Title
+@onready var controls_hint: Label = $TopBar/TopLayout/ControlsHint
+@onready var health_bar: ProgressBar = $VitalsCluster/HealthRow/HealthBar
+@onready var health_label: Label = $VitalsCluster/HealthRow/HealthLabel
+@onready var game_over_label: Label = $GameOver
+@onready var xp_bar: ProgressBar = $VitalsCluster/XPRow/XPBar
+@onready var level_label: Label = $VitalsCluster/LevelLabel
+@onready var connection_label: Label = $StatusCluster/ConnectionLabel
+@onready var wave_label: Label = $StatusCluster/WaveLabel
 @onready var next_wave_button: Button = $NextWaveButton
 @onready var next_wave_timer_label: Label = $NextWaveTimer
 @onready var boss_panel: VBoxContainer = $BossPanel
 @onready var boss_name_label: Label = $BossPanel/BossName
 @onready var boss_bar: ProgressBar = $BossPanel/BossBar
-@onready var gold_label: Label = $GoldLabel
-@onready var ability_label: Label = $AbilityLabel
-@onready var ability_bar_label: Label = $AbilityBar
+@onready var gold_label: Label = $StatusCluster/GoldLabel
+@onready var ability_status_label: Label = $AbilityStatusLabel
 @onready var theme_banner: Label = $ThemeBanner
 @onready var debut_banner: Label = $DebutBanner
 @onready var shop_panel: PanelContainer = $ShopPanel
 @onready var shop_gold_label: Label = $ShopPanel/ShopLayout/ShopGold
-@onready var shop_grid: GridContainer = $ShopPanel/ShopLayout/ShopGrid
-@onready var shop_continue: Button = $ShopPanel/ShopLayout/ShopContinue
-@onready var upgrade_panel: PanelContainer = $UpgradePanel
-@onready var offer_title_label: Label = $UpgradePanel/Layout/OfferTitle
-@onready var choice_buttons: Array[Button] = [
-	$UpgradePanel/Layout/Choices/Choice1,
-	$UpgradePanel/Layout/Choices/Choice2,
-	$UpgradePanel/Layout/Choices/Choice3,
-	$UpgradePanel/Layout/Choices/Choice4,
+@onready var shop_categories: VBoxContainer = $ShopPanel/ShopLayout/ShopCategories
+@onready var shop_close_button: Button = $ShopPanel/ShopLayout/ShopHeader/ShopCloseButton
+@onready var offer_title_label: Label = $OfferTitle
+@onready var ability_offer_bar: HBoxContainer = $AbilityOfferBar
+@onready var offer_buttons: Array[Button] = [
+	$AbilityOfferBar/OfferChoice1,
+	$AbilityOfferBar/OfferChoice2,
+	$AbilityOfferBar/OfferChoice3,
+	$AbilityOfferBar/OfferChoice4,
 ]
+@onready var ability_bar: HBoxContainer = $AbilityBar
+@onready var ability_slot_buttons: Array[Button] = [
+	$AbilityBar/AbilitySlot0,
+	$AbilityBar/AbilitySlot1,
+	$AbilityBar/AbilitySlot2,
+	$AbilityBar/AbilitySlot3,
+]
+@onready var tooltip: PanelContainer = $Tooltip
+@onready var tooltip_text: RichTextLabel = $Tooltip/TooltipMargin/TooltipText
 @onready var escape_menu: PanelContainer = $EscapeMenu
 @onready var resume_button: Button = $EscapeMenu/EscapeLayout/ResumeButton
 @onready var restart_button: Button = $EscapeMenu/EscapeLayout/RestartButton
@@ -67,22 +83,33 @@ var shop_buttons: Dictionary = {}
 var _last_gold := -1
 var _escape_paused := false
 var _next_wave_countdown := 0.0
+## Whether a NEXT WAVE skip is available at all this breather — separate from the button's
+## actual on-screen visibility, which also depends on the shop panel being closed (see
+## _update_next_wave_visibility) so the two never overlap on screen.
+var _next_wave_available := false
 
 
 func _ready() -> void:
-	for index in choice_buttons.size():
-		var choice_button := choice_buttons[index]
+	for index in offer_buttons.size():
+		var choice_button := offer_buttons[index]
 		choice_button.pressed.connect(_on_upgrade_selected.bind(index))
+		choice_button.mouse_entered.connect(_on_offer_hover.bind(index))
+		choice_button.mouse_exited.connect(_hide_tooltip)
 		choice_button.expand_icon = true
 		choice_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		choice_button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 		choice_button.add_theme_constant_override("icon_max_width", UPGRADE_ICON_MAX_WIDTH)
-		## Ability cards run up to 4 lines (name, flavor, effect, modifier) — without wrapping
-		## and a smaller size, that text just overflows the button instead of fitting it.
-		choice_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		choice_button.add_theme_font_size_override("font_size", 15)
-		choice_button.clip_text = false
-	shop_continue.pressed.connect(_on_shop_continue_pressed)
+	for index in ability_slot_buttons.size():
+		var slot_button := ability_slot_buttons[index]
+		slot_button.focus_mode = Control.FOCUS_NONE
+		slot_button.expand_icon = true
+		slot_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		slot_button.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+		slot_button.mouse_entered.connect(_on_ability_slot_hover.bind(index))
+		slot_button.mouse_exited.connect(_hide_tooltip)
+	controls_hint.mouse_entered.connect(_on_controls_hint_hover)
+	controls_hint.mouse_exited.connect(_hide_tooltip)
+	shop_close_button.pressed.connect(_on_shop_close_pressed)
 	resume_button.pressed.connect(_on_resume_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
 	leave_button.pressed.connect(_on_leave_pressed)
@@ -117,7 +144,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if escape_menu.visible:
 		_close_escape_menu()
-	elif not shop_panel.visible and not upgrade_panel.visible and not game_over_label.visible:
+	elif not shop_panel.visible and not ability_offer_bar.visible and not game_over_label.visible:
 		_open_escape_menu()
 
 
@@ -165,10 +192,14 @@ func _process(delta: float) -> void:
 		_refresh_dev_panel()
 	if stats_panel.visible:
 		stats_text.text = _build_stats_text()
-	if next_wave_timer_label.visible:
+	if _next_wave_available:
+		## Ticks on real elapsed time regardless of on-screen visibility — the button can be
+		## hidden behind the shop panel for a while and reappear, and the countdown it shows
+		## must match the breather's actual remaining time at that point, not restart from
+		## wherever it was when it went out of view.
 		_next_wave_countdown = maxf(0.0, _next_wave_countdown - delta)
 		next_wave_timer_label.text = "auto in %ds" % ceili(_next_wave_countdown)
-	_refresh_ability()
+	_refresh_ability_status()
 	_refresh_ability_bar()
 
 
@@ -205,39 +236,51 @@ func _refresh_dev_panel() -> void:
 	dev_invulnerable_button.text = "INVULNERABLE: %s" % ("ON" if bound_player.health.invulnerable else "OFF")
 
 
-func _refresh_ability() -> void:
+func _refresh_ability_status() -> void:
 	if bound_player == null or not bound_player.has_active_item():
-		ability_label.visible = false
+		ability_status_label.visible = false
 		return
-	ability_label.visible = true
+	ability_status_label.visible = true
 	if bound_player.is_sprinting():
-		ability_label.text = "SPACE  DASHING"
-		ability_label.add_theme_color_override("font_color", Color("ffe08c"))
+		ability_status_label.text = "SPACE  DASHING"
+		ability_status_label.add_theme_color_override("font_color", Color("ffe08c"))
 	elif bound_player.sprint_cooldown > 0.0:
-		ability_label.text = "SPACE  %.1fs" % bound_player.sprint_cooldown
-		ability_label.add_theme_color_override("font_color", Color("7b8496"))
+		ability_status_label.text = "SPACE  %.1fs" % bound_player.sprint_cooldown
+		ability_status_label.add_theme_color_override("font_color", Color("7b8496"))
 	else:
-		ability_label.text = "SPACE  DASH READY"
-		ability_label.add_theme_color_override("font_color", Color("94ddff"))
+		ability_status_label.text = "SPACE  DASH READY"
+		ability_status_label.add_theme_color_override("font_color", Color("94ddff"))
 
 
-const ABILITY_SLOT_KEYS := ["1", "2", "3", "4"]
+const ABILITY_SLOT_KEYS := ["Q", "E", "F", "R"]
 
 
+## Compact icon + key-letter + live cooldown for each of the four ability slots — the R slot
+## (PlayerClass.ULTIMATE_SLOT) is drawn slightly larger since it's the hero's ultimate. Full
+## detail (name, rank, description, colour-coded numbers) only shows up on hover, see
+## _on_ability_slot_hover.
 func _refresh_ability_bar() -> void:
-	if bound_player == null or bound_player.known_abilities.is_empty():
-		ability_bar_label.text = ""
+	if bound_player == null:
 		return
-	var lines: Array[String] = []
-	for slot in bound_player.known_abilities.size():
-		var entry := bound_player.known_abilities[slot]
+	for slot in ability_slot_buttons.size():
+		var button := ability_slot_buttons[slot]
+		var entry: Dictionary = bound_player.known_abilities[slot] if slot < bound_player.known_abilities.size() else {}
+		if entry.is_empty():
+			button.text = ABILITY_SLOT_KEYS[slot]
+			button.icon = null
+			button.disabled = true
+			button.modulate = Color(1.0, 1.0, 1.0, 0.35)
+			continue
+		button.disabled = false
+		button.modulate = Color.WHITE
 		var ability_id := str(entry.id)
-		var ability_data := PlayerClass.ability_info(ability_id)
-		var ability_name := str(ability_data.get("name", ability_id))
+		button.icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(ability_id)
 		var cooldown_left := bound_player.ability_cooldowns[slot] if slot < bound_player.ability_cooldowns.size() else 0.0
-		var status := "READY" if cooldown_left <= 0.0 else "%.1fs" % cooldown_left
-		lines.append("%s  %s (Rk %d)  %s" % [ABILITY_SLOT_KEYS[slot], ability_name, int(entry.rank), status])
-	ability_bar_label.text = "\n".join(lines)
+		if cooldown_left > 0.0:
+			button.text = "%.1f" % cooldown_left
+			button.modulate = Color(1.0, 1.0, 1.0, 0.55)
+		else:
+			button.text = ABILITY_SLOT_KEYS[slot]
 
 
 func bind_player(player: Player) -> void:
@@ -261,7 +304,6 @@ func show_player_class(class_id: String) -> void:
 	var class_data := PlayerClass.by_id(class_id)
 	class_label.text = "%s // %s" % [str(class_data.name).to_upper(), str(class_data.role).to_upper()]
 	class_label.add_theme_color_override("font_color", Color(class_data.accent_color))
-	instructions_label.text = "WASD  Move     Hold left mouse  Aim and use %s     1-4  Abilities     R  Restart solo run" % class_data.weapon_name
 
 
 func set_connection_text(mode: String) -> void:
@@ -313,12 +355,20 @@ func announce_wave(wave: int, theme_display_name: String, debut_type_id: String)
 ## the wait short instead of always sitting out the full intermission timer. `seconds` is the
 ## full breather length, counted down locally in _process for the "auto in Ns" label.
 func show_next_wave_button(value: bool, seconds: float = 0.0) -> void:
-	var show := value and not GameRuntime.is_classic()
-	next_wave_button.visible = show
-	next_wave_timer_label.visible = show
+	_next_wave_available = value and not GameRuntime.is_classic()
 	next_wave_button.disabled = false
 	next_wave_button.text = "NEXT WAVE ▶"
 	_next_wave_countdown = seconds
+	_update_next_wave_visibility()
+
+
+## Every shop breather is also a wave breather, so the skip option is available the whole time
+## — it just stays hidden behind the shop panel while that's open, to avoid stacking two
+## controls that do a similar job on top of each other on screen.
+func _update_next_wave_visibility() -> void:
+	var show := _next_wave_available and not shop_panel.visible
+	next_wave_button.visible = show
+	next_wave_timer_label.visible = show
 
 
 ## Solo skips the moment it's pressed; co-op needs everyone in, so the label tracks how many
@@ -351,6 +401,7 @@ func open_shop(pause_game: bool) -> void:
 	shop_pauses_game = pause_game
 	shop_panel.visible = true
 	_refresh_shop()
+	_update_next_wave_visibility()
 	AudioService.play("shop_open")
 	if shop_pauses_game:
 		get_tree().paused = true
@@ -360,6 +411,7 @@ func close_shop() -> void:
 	if not shop_panel.visible:
 		return
 	shop_panel.visible = false
+	_update_next_wave_visibility()
 	AudioService.play("shop_close")
 	if shop_pauses_game:
 		get_tree().paused = false
@@ -397,7 +449,7 @@ func _build_codex_text() -> String:
 			lines.append("  [b]%s[/b] — %s" % [str(upgrade.name), str(upgrade.description)])
 
 	lines.append("")
-	lines.append("[b][color=c8a4ff]ABILITIES[/color][/b]  (every odd level-up — learn a new one or rank up a known one, up to 4 known)")
+	lines.append("[b][color=c8a4ff]ABILITIES[/color][/b]  Q/E/F learn and rank up on every odd level-up. R is the ultimate — it only appears on level %d, %d, %d... — up to 4 known." % [PlayerClass.ULTIMATE_LEVEL_INTERVAL, PlayerClass.ULTIMATE_LEVEL_INTERVAL * 2, PlayerClass.ULTIMATE_LEVEL_INTERVAL * 3])
 	for class_data in PlayerClass.CLASSES:
 		lines.append("[i]%s[/i]" % str(class_data.name).to_upper())
 		for ability_id in class_data.ability_pool:
@@ -407,19 +459,42 @@ func _build_codex_text() -> String:
 	return "\n".join(lines)
 
 
-const SHOP_ICON_MAX_WIDTH := 48
+const SHOP_ICON_MAX_WIDTH := 30
+const SHOP_CATEGORY_COLUMNS := 3
 
+## One header + grid per ShopCatalog.CATEGORIES entry, built from the category list itself
+## rather than one node per category in the scene — a 5th category needs no scene changes.
 func _build_shop() -> void:
-	for item in ShopCatalog.ITEMS:
-		var button := Button.new()
-		button.custom_minimum_size = Vector2(300.0, 112.0)
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.icon = SpriteLibrary.texture_for(str(item.id))
-		button.expand_icon = true
-		button.add_theme_constant_override("icon_max_width", SHOP_ICON_MAX_WIDTH)
-		button.pressed.connect(_on_shop_item_pressed.bind(str(item.id)))
-		shop_grid.add_child(button)
-		shop_buttons[str(item.id)] = button
+	for category in ShopCatalog.CATEGORIES:
+		var items := ShopCatalog.for_category(category)
+		if items.is_empty():
+			continue
+		var header := Label.new()
+		header.text = str(ShopCatalog.CATEGORY_LABELS.get(category, category)).to_upper()
+		header.add_theme_font_size_override("font_size", 12)
+		header.add_theme_color_override("font_color", Color("9aa0ad"))
+		shop_categories.add_child(header)
+
+		var grid := GridContainer.new()
+		grid.columns = SHOP_CATEGORY_COLUMNS
+		grid.add_theme_constant_override("h_separation", 8)
+		grid.add_theme_constant_override("v_separation", 8)
+		shop_categories.add_child(grid)
+
+		for item in items:
+			var button := Button.new()
+			var item_id := str(item.id)
+			button.custom_minimum_size = Vector2(150.0, 52.0)
+			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			button.add_theme_font_size_override("font_size", 12)
+			button.icon = SpriteLibrary.texture_for(item_id)
+			button.expand_icon = true
+			button.add_theme_constant_override("icon_max_width", SHOP_ICON_MAX_WIDTH)
+			button.pressed.connect(_on_shop_item_pressed.bind(item_id))
+			button.mouse_entered.connect(_on_shop_item_hover.bind(item_id))
+			button.mouse_exited.connect(_hide_tooltip)
+			grid.add_child(button)
+			shop_buttons[item_id] = button
 
 
 func _refresh_shop() -> void:
@@ -435,8 +510,12 @@ func _refresh_shop() -> void:
 			continue
 		var price := ShopCatalog.price_for(item_id, stacks)
 		var owned := "" if stacks == 0 else "  (owned %d)" % stacks
-		button.text = "%s\n%s\n%d gold%s" % [item.name, item.description, price, owned]
+		button.text = "%s\n%d gold%s" % [item.name, price, owned]
 		button.disabled = gold < price
+
+
+func _on_shop_item_hover(item_id: String) -> void:
+	_show_tooltip(_item_tooltip_bbcode(item_id), shop_buttons[item_id])
 
 
 func _on_shop_item_pressed(item_id: String) -> void:
@@ -444,10 +523,13 @@ func _on_shop_item_pressed(item_id: String) -> void:
 	shop_item_chosen.emit(item_id)
 
 
-func _on_shop_continue_pressed() -> void:
+## Closing the shop never skips the breather — the shop panel has no wave-progression control
+## of its own any more, that's what the shared NEXT WAVE button (see show_next_wave_button) is
+## for, and it's already available underneath: opening the shop just hides it, closing reveals
+## it again, see _update_next_wave_visibility.
+func _on_shop_close_pressed() -> void:
 	AudioService.play("ui_click")
 	close_shop()
-	shop_closed.emit()
 
 
 func show_game_over() -> void:
@@ -461,7 +543,7 @@ func show_game_over() -> void:
 func _on_health_changed(current_health: float, max_health: float) -> void:
 	health_bar.max_value = max_health
 	health_bar.value = current_health
-	health_label.text = "HP %d / %d" % [ceili(current_health), ceili(max_health)]
+	health_label.text = "%d / %d" % [ceili(current_health), ceili(max_health)]
 
 
 func _on_gold_changed(gold: int) -> void:
@@ -484,15 +566,16 @@ func show_upgrade_ids(player: Player, upgrade_ids: Array[String], pause_game: bo
 	offer_kind = "stat"
 	pauses_game = pause_game
 	offer_title_label.text = "UPGRADE A STAT"
-	for index in choice_buttons.size():
+	offer_title_label.visible = true
+	for index in offer_buttons.size():
 		if index >= offered_upgrade_ids.size():
-			choice_buttons[index].visible = false
+			offer_buttons[index].visible = false
 			continue
 		var upgrade := PlayerClass.upgrade_info(offered_upgrade_ids[index])
-		choice_buttons[index].visible = true
-		choice_buttons[index].text = "%s\n%s" % [upgrade.name, upgrade.description]
-		choice_buttons[index].icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(offered_upgrade_ids[index])
-	upgrade_panel.visible = true
+		offer_buttons[index].visible = true
+		offer_buttons[index].text = str(upgrade.name)
+		offer_buttons[index].icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(offered_upgrade_ids[index])
+	ability_offer_bar.visible = true
 	AudioService.play("level_up")
 	if pauses_game:
 		get_tree().paused = true
@@ -500,31 +583,37 @@ func show_upgrade_ids(player: Player, upgrade_ids: Array[String], pause_game: bo
 
 ## Odd level-ups: a mix of not-yet-known abilities (learn) and already-known ones that still
 ## have rank to give (upgrade) — see PlayerClass.ability_offer_ids for how the mix is built.
-func show_ability_offer(player: Player, ability_ids: Array[String], pause_game: bool) -> void:
+## `is_ultimate_offer` comes straight from main.gd's own milestone-level check at the moment the
+## offer was generated — it can't be re-derived from the ability ids here, since a fresh
+## ultimate pick is (by definition) not yet in the player's known_abilities to look up a slot for.
+func show_ability_offer(player: Player, ability_ids: Array[String], pause_game: bool, is_ultimate_offer: bool = false) -> void:
 	bound_player = player
 	offered_upgrade_ids = ability_ids.duplicate()
 	offer_kind = "ability"
 	pauses_game = pause_game
-	offer_title_label.text = "LEARN OR UPGRADE AN ABILITY"
-	for index in choice_buttons.size():
+	offer_title_label.text = "CHOOSE YOUR ULTIMATE" if is_ultimate_offer else "LEARN OR UPGRADE AN ABILITY"
+	offer_title_label.visible = true
+	for index in offer_buttons.size():
 		if index >= offered_upgrade_ids.size():
-			choice_buttons[index].visible = false
+			offer_buttons[index].visible = false
 			continue
 		var ability_id := offered_upgrade_ids[index]
-		var current_rank := 0
-		for entry in player.known_abilities:
-			if entry.id == ability_id:
-				current_rank = int(entry.rank)
-				break
+		var current_rank := _known_rank(player, ability_id)
 		var target_rank := current_rank + 1 if current_rank > 0 else 1
-		var prefix := "UPGRADE (Rank %d)" % target_rank if current_rank > 0 else "LEARN"
-		choice_buttons[index].visible = true
-		choice_buttons[index].text = "[%s]\n%s" % [prefix, PlayerClass.ability_description(ability_id, target_rank)]
-		choice_buttons[index].icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(ability_id)
-	upgrade_panel.visible = true
+		offer_buttons[index].visible = true
+		offer_buttons[index].text = "%s\n%s" % [str(PlayerClass.ability_info(ability_id).name), ("Rk %d" % target_rank) if current_rank > 0 else "NEW"]
+		offer_buttons[index].icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(ability_id)
+	ability_offer_bar.visible = true
 	AudioService.play("level_up")
 	if pauses_game:
 		get_tree().paused = true
+
+
+func _known_rank(player: Player, ability_id: String) -> int:
+	for entry in player.known_abilities:
+		if not entry.is_empty() and entry.id == ability_id:
+			return int(entry.rank)
+	return 0
 
 
 func _on_upgrade_selected(index: int) -> void:
@@ -533,8 +622,10 @@ func _on_upgrade_selected(index: int) -> void:
 	AudioService.play("ui_click")
 	var chosen_id := offered_upgrade_ids[index]
 	var chosen_kind := offer_kind
-	upgrade_panel.visible = false
+	ability_offer_bar.visible = false
+	offer_title_label.visible = false
 	offered_upgrade_ids.clear()
+	_hide_tooltip()
 	if pauses_game:
 		get_tree().paused = false
 	pauses_game = false
@@ -542,3 +633,154 @@ func _on_upgrade_selected(index: int) -> void:
 		ability_chosen.emit(chosen_id)
 	else:
 		upgrade_chosen.emit(chosen_id)
+
+
+## --- Hover tooltips -------------------------------------------------------------------------
+## One shared panel, repositioned above whatever is currently hovered. Colour coding lets the
+## numbers get scanned at a glance instead of read word by word: red is damage, green is
+## healing/lifesteal, blue is control (slow/stun), gold is a timed buff, purple is a shield.
+
+func _show_tooltip(bbcode: String, anchor: Control) -> void:
+	tooltip_text.text = bbcode
+	tooltip.visible = true
+	await get_tree().process_frame
+	var anchor_top_left := anchor.get_global_rect().position
+	var target := anchor_top_left + Vector2(anchor.size.x * 0.5 - tooltip.size.x * 0.5, -tooltip.size.y - 10.0)
+	target.x = clampf(target.x, 12.0, 1280.0 - tooltip.size.x - 12.0)
+	target.y = maxf(12.0, target.y)
+	tooltip.position = target
+
+
+func _hide_tooltip() -> void:
+	tooltip.visible = false
+
+
+func _on_controls_hint_hover() -> void:
+	var class_data := PlayerClass.by_id(shown_class_id) if not shown_class_id.is_empty() else {}
+	var weapon_name := str(class_data.get("weapon_name", "your weapon"))
+	var lines := [
+		"[b]Controls[/b]",
+		"[color=%s]WASD[/color]  Move" % COLOR_NEUTRAL,
+		"[color=%s]Mouse[/color]  Aim, hold left button to use %s" % [COLOR_NEUTRAL, weapon_name],
+		"[color=%s]Q E F[/color]  Abilities" % COLOR_NEUTRAL,
+		"[color=%s]R[/color]  Ultimate — unlocks level %d" % [COLOR_BUFF, PlayerClass.ULTIMATE_LEVEL_INTERVAL],
+		"[color=%s]Space[/color]  Dash (once you own an active item)" % COLOR_NEUTRAL,
+		"[color=%s]Shift[/color]  Hold to see full stats" % COLOR_NEUTRAL,
+		"[color=%s]B[/color]  Shop, near the stand" % COLOR_NEUTRAL,
+		"[color=%s]Tab[/color]  Codex" % COLOR_NEUTRAL,
+	]
+	_show_tooltip("\n".join(lines), controls_hint)
+
+
+func _on_ability_slot_hover(slot: int) -> void:
+	if bound_player == null or slot >= PlayerClass.MAX_KNOWN_ABILITIES:
+		return
+	## known_abilities only grows as abilities are learned, so an unfilled slot (including the
+	## still-locked ultimate) may not have an entry at this index at all yet — not just an empty
+	## one — and must still resolve to the "locked/empty" tooltip below, not a silent no-op that
+	## leaves whatever tooltip was showing before this hover on screen.
+	var entry: Dictionary = bound_player.known_abilities[slot] if slot < bound_player.known_abilities.size() else {}
+	if entry.is_empty():
+		var locked := "[b]%s[/b]\n[color=%s]Empty — pick one on your next ability level-up[/color]" % [ABILITY_SLOT_KEYS[slot], COLOR_FLAVOR]
+		if slot == PlayerClass.ULTIMATE_SLOT:
+			locked = "[b]R — Ultimate[/b]\n[color=%s]Locked until level %d[/color]" % [COLOR_FLAVOR, PlayerClass.ULTIMATE_LEVEL_INTERVAL]
+		_show_tooltip(locked, ability_slot_buttons[slot])
+		return
+	_show_tooltip(_ability_tooltip_bbcode(str(entry.id), int(entry.rank)), ability_slot_buttons[slot])
+
+
+func _on_offer_hover(index: int) -> void:
+	if index >= offered_upgrade_ids.size():
+		return
+	var chosen_id := offered_upgrade_ids[index]
+	var bbcode: String
+	if offer_kind == "ability":
+		var current_rank := _known_rank(bound_player, chosen_id) if bound_player != null else 0
+		bbcode = _ability_tooltip_bbcode(chosen_id, current_rank + 1 if current_rank > 0 else 1, current_rank)
+	else:
+		var upgrade := PlayerClass.upgrade_info(chosen_id)
+		bbcode = _stat_tooltip_bbcode(str(upgrade.name), str(upgrade.description))
+	_show_tooltip(bbcode, offer_buttons[index])
+
+
+## Ability tooltips are built from structured data (PlayerClass.ability_values), not the flavor
+## text, so the colour coding is always accurate instead of guessed from a description string.
+## `previous_rank` (0 = not previously known) prints every changed number as "old → new" instead
+## of just the new value, so a rank-up's actual payoff is visible at a glance instead of having
+## to remember what the ability did before.
+func _ability_tooltip_bbcode(ability_id: String, rank: int, previous_rank: int = 0) -> String:
+	var data := PlayerClass.ability_info(ability_id)
+	if data.is_empty():
+		return ""
+	var values := PlayerClass.ability_values(ability_id, rank)
+	var previous_values := PlayerClass.ability_values(ability_id, previous_rank) if previous_rank > 0 and previous_rank != rank else {}
+	var archetype := int(data.archetype)
+	var lines: Array[String] = []
+	var rank_text := "Rank %d → %d" % [previous_rank, rank] if not previous_values.is_empty() else "Rank %d" % rank
+	lines.append("[b]%s[/b]  [color=%s]%s[/color]" % [str(data.name), COLOR_FLAVOR, rank_text])
+	lines.append("[color=%s]%s[/color]" % [COLOR_FLAVOR, str(data.description)])
+
+	var is_heal := archetype == PlayerClass.Archetype.SELF_HEAL or archetype == PlayerClass.Archetype.AOE_HEAL
+	var stat_bits: Array[String] = []
+	if is_heal and float(values.power) > 0.0:
+		stat_bits.append("[color=%s]%s heal[/color]" % [COLOR_HEAL, _num_delta(previous_values, values, "power", 0)])
+	elif archetype == PlayerClass.Archetype.SHIELD_BURST and float(values.power) > 0.0:
+		stat_bits.append("[color=%s]%s shield[/color]" % [COLOR_SHIELD, _num_delta(previous_values, values, "power", 0)])
+	elif archetype == PlayerClass.Archetype.PUSH_PULL_BURST:
+		stat_bits.append("[color=%s]%s[/color]" % [COLOR_CONTROL, "pull" if float(values.power) > 0.0 else "knockback"])
+	elif float(values.power) != 0.0:
+		stat_bits.append("[color=%s]%s damage[/color]" % [COLOR_DAMAGE, _num_delta(previous_values, values, "power", 0)])
+	if data.has("lifesteal_pct"):
+		stat_bits.append("[color=%s]%d%% lifesteal[/color]" % [COLOR_HEAL, roundi(float(data.lifesteal_pct) * 100.0)])
+	if data.has("slow_on_hit"):
+		stat_bits.append("[color=%s]slows[/color]" % COLOR_CONTROL)
+	if data.has("stun_on_hit"):
+		stat_bits.append("[color=%s]stuns[/color]" % COLOR_CONTROL)
+	if data.has("mark_on_hit"):
+		stat_bits.append("[color=%s]+%d%% vuln[/color]" % [COLOR_DAMAGE, roundi(float(data.mark_on_hit.bonus_pct) * 100.0)])
+	if archetype == PlayerClass.Archetype.BUFF_SELF and float(values.duration) > 0.0:
+		stat_bits.append("[color=%s]%ss buff[/color]" % [COLOR_BUFF, _num_delta(previous_values, values, "duration", 1)])
+	if int(values.chain_count) > 0:
+		stat_bits.append("[color=%s]chains %s[/color]" % [COLOR_NEUTRAL, _num_delta(previous_values, values, "chain_count", 0)])
+	stat_bits.append("[color=%s]⟳ %ss[/color]" % [COLOR_NEUTRAL, _num_delta(previous_values, values, "cooldown", 1)])
+	lines.append("  ·  ".join(stat_bits))
+	return "\n".join(lines)
+
+
+## "12 → 18" when `previous` has the field and it actually changed, otherwise just "18" — used
+## for every rank-comparable number in the ability tooltip above.
+func _num_delta(previous: Dictionary, current: Dictionary, field: String, decimals: int) -> String:
+	var new_value := float(current.get(field, 0.0))
+	if previous.is_empty():
+		return "%.*f" % [decimals, new_value]
+	var old_value := float(previous.get(field, 0.0))
+	if is_equal_approx(old_value, new_value):
+		return "%.*f" % [decimals, new_value]
+	return "%.*f→%.*f" % [decimals, old_value, decimals, new_value]
+
+
+## Shop items and stat upgrades only have free-text descriptions, so this scans for a handful
+## of known keywords and colours the whole line by whichever category matches first — coarser
+## than the structured ability tooltip above, but still lets the eye sort "heal" from "hurt"
+## from "control" at a glance instead of reading every word.
+func _stat_tooltip_bbcode(item_name: String, description: String) -> String:
+	var lower := description.to_lower()
+	var color := COLOR_NEUTRAL
+	if lower.contains("heal") or lower.contains("regenerat") or lower.contains("lifesteal") or lower.contains("mend"):
+		color = COLOR_HEAL
+	elif lower.contains("slow") or lower.contains("stun") or lower.contains("freeze") or lower.contains("knock"):
+		color = COLOR_CONTROL
+	elif lower.contains("shield") or lower.contains("absorb") or lower.contains("survive") or lower.contains("reduc") or lower.contains("resist") or lower.contains("mitigat"):
+		color = COLOR_SHIELD
+	elif lower.contains("speed") or lower.contains("cooldown") or lower.contains("faster") or lower.contains("sprint") or lower.contains("dash"):
+		color = COLOR_BUFF
+	elif lower.contains("damage") or lower.contains("reflect") or lower.contains("burn") or lower.contains("pierce"):
+		color = COLOR_DAMAGE
+	return "[b]%s[/b]\n[color=%s]%s[/color]" % [item_name, color, description]
+
+
+func _item_tooltip_bbcode(item_id: String) -> String:
+	var item := ShopCatalog.by_id(item_id)
+	if item.is_empty():
+		return ""
+	return _stat_tooltip_bbcode(str(item.name), str(item.description))

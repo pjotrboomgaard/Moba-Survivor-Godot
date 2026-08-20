@@ -14,7 +14,17 @@ offset_left = -50.0
 offset_top = -56.0
 offset_right = 50.0
 offset_bottom = -30.0
-theme_override_colors/font_color = Color(1, 0.86, 0.6, 1)
-theme_override_font_sizes/font_size = 16
-text = "SHOP (B)"
+theme_override_colors/font_color = Color(1, 0.86, 0.6, 0.75)
+theme_override_font_sizes/font_size = 15
+text = "SHOP"
+horizontal_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="."]
+offset_left = -70.0
+offset_top = -84.0
+offset_right = 70.0
+offset_bottom = -58.0
+theme_override_colors/font_color = Color(1, 0.93, 0.75, 1)
+theme_override_font_sizes/font_size = 17
+text = "Press B to shop"
 horizontal_alignment = 1

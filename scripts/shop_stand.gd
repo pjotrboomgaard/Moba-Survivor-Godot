@@ -12,8 +12,13 @@ const HEIGHT := 64.0
 const ROOF_COLOR := Color("ffcb3d")
 const ROOF_OUTLINE := Color("ffe9a8")
 const POST_COLOR := Color("6b4a1a")
+const RING_COLOR := Color("ffe08c")
 
 @onready var sprite: Sprite2D = $Sprite
+@onready var prompt_label: Label = $PromptLabel
+
+var _in_range := false
+var _ring_pulse := 0.0
 
 
 func _ready() -> void:
@@ -21,6 +26,25 @@ func _ready() -> void:
 		sprite.texture = SpriteLibrary.texture_for("shop_stand")
 		sprite.scale = Vector2(PIXEL_ZOOM, PIXEL_ZOOM)
 		sprite.offset = Vector2(0.0, -LIFT_PIXELS)
+	prompt_label.modulate.a = 0.0
+	queue_redraw()
+
+
+func _process(delta: float) -> void:
+	if not _in_range:
+		return
+	_ring_pulse += delta
+	queue_redraw()
+
+
+## Called from main.gd whenever the local player's proximity to the stand changes — drives the
+## fading "Press B to shop" prompt and the pulsing range ring, both purely cosmetic/local.
+func set_in_range(value: bool) -> void:
+	if _in_range == value:
+		return
+	_in_range = value
+	var fade := create_tween()
+	fade.tween_property(prompt_label, "modulate:a", 1.0 if value else 0.0, 0.25)
 	queue_redraw()
 
 
@@ -29,6 +53,12 @@ func has_sprite() -> bool:
 
 
 func _draw() -> void:
+	if _in_range:
+		# Centered on the local origin, not the sprite's visual midpoint — this has to match
+		# Arena.SHOP_STAND_POSITION exactly, since that's what main.gd's distance check actually
+		# uses to decide whether B works, and the ring is supposed to be that boundary made visible.
+		var pulse := 0.5 + 0.5 * sin(_ring_pulse * 3.0)
+		draw_arc(Vector2.ZERO, Arena.SHOP_STAND_INTERACT_RADIUS, 0.0, TAU, 48, Color(RING_COLOR, 0.35 + 0.25 * pulse), 3.0, true)
 	if has_sprite():
 		return
 	var half := WIDTH * 0.5

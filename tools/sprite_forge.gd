@@ -35,7 +35,9 @@ func _ready() -> void:
 
 ## A scaled-up sheet of everything, purely so the art can be eyeballed at once.
 func _write_contact_sheet(sprites: Dictionary) -> void:
-	const CELL := 32
+	## Must stay >= the largest sprite grid (ability VFX frames run up to 48x48) — a smaller
+	## CELL makes inset below go negative and set_pixel starts writing outside the sheet.
+	const CELL := 48
 	const ZOOM := 4
 	const COLUMNS := 6
 	var rows := ceili(float(sprites.size()) / float(COLUMNS))
@@ -50,7 +52,7 @@ func _write_contact_sheet(sprites: Dictionary) -> void:
 		var size: int = art.size()
 		var cell_x := (index % COLUMNS) * CELL * ZOOM
 		var cell_y := (index / COLUMNS) * CELL * ZOOM
-		var inset := (CELL - size) * ZOOM / 2
+		var inset := maxi(0, (CELL - size) * ZOOM / 2)
 		for y in size:
 			var row: String = art[y]
 			for x in size:

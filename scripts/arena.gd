@@ -10,6 +10,7 @@ const SHOP_STAND_SCENE: PackedScene = preload("res://scenes/arena/shop_stand.tsc
 ## proximity check. Placed off-center so it doesn't sit in the middle of the fight.
 const SHOP_STAND_POSITION := Vector2(560.0, -260.0)
 const SHOP_STAND_CLEARANCE := 140.0
+const SHOP_STAND_INTERACT_RADIUS := 70.0
 
 ## One art pixel becomes this many world pixels, for ground, decals and rocks
 ## alike, so everything shares the same chunky grid.
@@ -33,6 +34,7 @@ const SPAWN_CLEARANCE := 320.0
 const OBSTACLE_SPACING := 165.0
 
 var obstacles: Array[Obstacle] = []
+var shop_stand: Node2D
 
 
 func _ready() -> void:
@@ -90,7 +92,7 @@ func _build_field() -> void:
 			continue
 		_add_obstacle(candidate, OBSTACLE_TYPES[rng.randi() % OBSTACLE_TYPES.size()])
 
-	var shop_stand := SHOP_STAND_SCENE.instantiate() as Node2D
+	shop_stand = SHOP_STAND_SCENE.instantiate() as Node2D
 	shop_stand.global_position = SHOP_STAND_POSITION
 	add_child(shop_stand)
 
