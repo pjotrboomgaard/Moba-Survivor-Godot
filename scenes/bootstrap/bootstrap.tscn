@@ -61,6 +61,22 @@ theme_override_font_sizes/font_size = 22
 text = "Rift Survivors Lobby"
 horizontal_alignment = 1
 
+[node name="LobbyCodeLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
+theme_override_font_sizes/font_size = 13
+text = "Lobby code — friends can paste this into the join field:"
+horizontal_alignment = 1
+
+[node name="LobbyCodeInput" type="LineEdit" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+editable = false
+selecting_enabled = true
+alignment = 1
+
 [node name="PlayerSlots" type="VBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 visible = false
 layout_mode = 2
@@ -75,6 +91,12 @@ theme_override_constants/separation = 10
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
 text = "INVITE FRIENDS"
+
+[node name="CopyCodeButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow"]
+visible = false
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+text = "COPY LOBBY CODE"
 
 [node name="LeaveLobbyButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow"]
 custom_minimum_size = Vector2(180, 44)

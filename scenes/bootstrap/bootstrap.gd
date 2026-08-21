@@ -21,6 +21,9 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var player_slots: VBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/PlayerSlots
 @onready var lobby_action_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow
 @onready var invite_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow/InviteButton
+@onready var copy_code_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow/CopyCodeButton
+@onready var lobby_code_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/LobbyCodeLabel
+@onready var lobby_code_input: LineEdit = $StatusLayer/LobbyPanel/Margin/Layout/LobbyCodeInput
 @onready var leave_lobby_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow/LeaveLobbyButton
 @onready var cancel_create_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow/CancelCreateButton
 @onready var start_game_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/StartGameButton
@@ -62,6 +65,7 @@ func _ready() -> void:
 	address_input.text_submitted.connect(_on_address_submitted)
 	start_game_button.pressed.connect(_on_start_game_pressed)
 	invite_button.pressed.connect(_on_invite_pressed)
+	copy_code_button.pressed.connect(_on_copy_code_pressed)
 	leave_lobby_button.pressed.connect(_on_leave_lobby_pressed)
 	cancel_create_button.pressed.connect(_on_cancel_create_pressed)
 	SteamService.steam_ready.connect(_on_steam_ready)
@@ -165,7 +169,8 @@ func _refresh_steam_status() -> void:
 		join_label.text = "Server address"
 	elif SteamService.is_available():
 		steam_status_label.text = "Steam: signed in as %s — Host opens an invite" % SteamService.local_persona_name()
-		join_label.text = "LAN / direct IP (advanced)"
+		join_label.text = "Lobby code, or LAN / direct IP"
+		address_input.placeholder_text = "lobby code or 127.0.0.1:27015"
 	else:
 		steam_status_label.text = "Steam not detected — host/join by LAN address only"
 		join_label.text = "Server address"
@@ -254,13 +259,29 @@ func _on_host_pressed() -> void:
 
 
 func _on_join_pressed() -> void:
-	var endpoint := _parse_endpoint(address_input.text)
+	## A pasted Steam lobby code goes over Steam's P2P relay instead of ENet — same field, since
+	## a lobby id (a long run of digits, no dots or colons) can't be confused with an address.
+	var typed := address_input.text.strip_edges()
+	if _looks_like_lobby_code(typed):
+		if not SteamService.is_available():
+			status_label.text = "That's a Steam lobby code, but Steam isn't available. Use a LAN address instead."
+			return
+		_join_via_steam(typed.to_int())
+		return
+	var endpoint := _parse_endpoint(typed)
 	GameRuntime.set_runtime_mode(
 		GameRuntime.RuntimeMode.CLIENT,
 		endpoint.address,
 		endpoint.port
 	)
 	_start_client(endpoint.address, endpoint.port)
+
+
+## Steam lobby ids are 64-bit values that render as ~17-20 digits (e.g. 109775242802331940).
+## Nothing valid in the address field looks like that — IPv4 has dots, IPv6 has colons, and
+## hostnames have letters — so an all-digit run this long is unambiguously a lobby code.
+func _looks_like_lobby_code(value: String) -> bool:
+	return value.length() >= 15 and value.is_valid_int()
 
 
 func _on_address_submitted(_value: String) -> void:
@@ -383,7 +404,16 @@ func _show_network_lobby() -> void:
 	lobby_title_label.text = "Rift Survivors Lobby"
 	player_slots.visible = true
 	lobby_action_row.visible = true
-	invite_button.visible = _is_lobby_host and NetworkService.current_steam_lobby_id != 0
+	var has_steam_lobby := _is_lobby_host and NetworkService.current_steam_lobby_id != 0
+	invite_button.visible = has_steam_lobby
+	## The lobby code is the fallback path when the Steam overlay isn't available to send a
+	## real invite — the overlay only injects into Steam-launched processes, so during
+	## development (and for players who switch the overlay off) it never opens at all.
+	copy_code_button.visible = has_steam_lobby
+	lobby_code_label.visible = has_steam_lobby
+	lobby_code_input.visible = has_steam_lobby
+	if has_steam_lobby:
+		lobby_code_input.text = str(NetworkService.current_steam_lobby_id)
 	leave_lobby_button.visible = true
 	start_game_button.visible = _is_lobby_host
 	waiting_label.visible = not _is_lobby_host
@@ -469,9 +499,23 @@ func _refresh_player_slots() -> void:
 		player_slots.add_child(label)
 
 
+## The Steam overlay only injects into processes Steam itself launched, and players can switch
+## it off entirely in Steam's settings — in both cases activateGameOverlayInviteDialog() is a
+## silent no-op, so check first and point at the lobby code instead of appearing to do nothing.
 func _on_invite_pressed() -> void:
-	if NetworkService.current_steam_lobby_id != 0:
-		SteamService.invite_friends(NetworkService.current_steam_lobby_id)
+	if NetworkService.current_steam_lobby_id == 0:
+		return
+	if not SteamService.overlay_available():
+		status_label.text = "Steam overlay unavailable — send the lobby code below instead."
+		return
+	SteamService.invite_friends(NetworkService.current_steam_lobby_id)
+
+
+func _on_copy_code_pressed() -> void:
+	if NetworkService.current_steam_lobby_id == 0:
+		return
+	DisplayServer.clipboard_set(str(NetworkService.current_steam_lobby_id))
+	status_label.text = "Lobby code copied — send it to a friend to paste into their join field."
 
 
 func _on_leave_lobby_pressed() -> void:
@@ -629,6 +673,9 @@ func _show_lobby(message: String) -> void:
 	player_slots.visible = false
 	lobby_action_row.visible = false
 	invite_button.visible = false
+	copy_code_button.visible = false
+	lobby_code_label.visible = false
+	lobby_code_input.visible = false
 	leave_lobby_button.visible = false
 	cancel_create_button.visible = false
 	start_game_button.visible = false

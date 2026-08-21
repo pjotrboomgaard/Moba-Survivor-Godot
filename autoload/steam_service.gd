@@ -152,6 +152,16 @@ func leave_lobby(lobby_id: int) -> void:
 		Steam.leaveLobby(lobby_id)
 
 
+## False whenever the Steam overlay can't actually open — it only injects into processes Steam
+## itself launched (so never during development, where the binary is run directly), and players
+## can disable it outright in Steam's settings. invite_friends() below is a silent no-op in
+## that state, so callers should check this first and offer the lobby code instead.
+func overlay_available() -> bool:
+	if not initialized or not Steam.has_method("isOverlayEnabled"):
+		return false
+	return bool(Steam.isOverlayEnabled())
+
+
 func invite_friends(lobby_id: int) -> void:
 	if initialized and lobby_id != 0:
 		Steam.activateGameOverlayInviteDialog(lobby_id)
