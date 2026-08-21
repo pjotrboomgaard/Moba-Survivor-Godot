@@ -44,6 +44,29 @@ theme_override_font_sizes/font_size = 38
 text = "YOU FELL\nPress R to restart"
 horizontal_alignment = 1
 
+[node name="CoopPausedLabel" type="Label" parent="."]
+visible = false
+offset_left = 340.0
+offset_top = 150.0
+offset_right = 940.0
+offset_bottom = 200.0
+theme_override_colors/font_color = Color(0.88, 0.93, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="DownedLabel" type="Label" parent="."]
+visible = false
+offset_left = 340.0
+offset_top = 250.0
+offset_right = 940.0
+offset_bottom = 310.0
+theme_override_colors/font_color = Color(1, 0.55, 0.5, 1)
+theme_override_font_sizes/font_size = 26
+text = "YOU ARE DOWN
+A teammate can revive you — hold still next to them"
+horizontal_alignment = 1
+
 [node name="BossPanel" type="VBoxContainer" parent="."]
 visible = false
 offset_left = 340.0

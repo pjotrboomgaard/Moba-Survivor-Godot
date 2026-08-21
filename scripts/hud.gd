@@ -8,6 +8,9 @@ signal restart_requested
 signal leave_requested
 signal dev_command(command: String)
 signal next_wave_requested
+## Asks main.gd to pause/resume — in co-op that's a request to the server, which owns the
+## actual pause for everyone, so the HUD never touches get_tree().paused itself for this.
+signal pause_requested(value: bool)
 
 const UPGRADE_ICON_MAX_WIDTH := 40
 
@@ -25,6 +28,8 @@ const COLOR_FLAVOR := "6c7280"
 @onready var health_bar: ProgressBar = $VitalsCluster/HealthRow/HealthBar
 @onready var health_label: Label = $VitalsCluster/HealthRow/HealthLabel
 @onready var game_over_label: Label = $GameOver
+@onready var downed_label: Label = $DownedLabel
+@onready var coop_paused_label: Label = $CoopPausedLabel
 @onready var xp_bar: ProgressBar = $VitalsCluster/XPRow/XPBar
 @onready var level_label: Label = $VitalsCluster/LevelLabel
 @onready var connection_label: Label = $StatusCluster/ConnectionLabel
@@ -153,18 +158,24 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _open_escape_menu() -> void:
-	restart_button.visible = GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE
+	## Restarting is host-authoritative (see main.gd's _request_restart) — a client restarting
+	## on its own would be playing a fresh run against a server still in the old one, so it
+	## doesn't get the button at all.
+	var can_restart := GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or GameRuntime.is_server()
+	restart_button.visible = can_restart
+	restart_button.text = "RESTART SOLO RUN" if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE else "RESTART RUN (ALL PLAYERS)"
 	escape_menu.visible = true
-	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
-		_escape_paused = true
-		get_tree().paused = true
+	## Opening the pause menu pauses the run for everyone in co-op too, not just solo — the
+	## request goes to the server, which owns the actual pause (see main.gd's request_pause).
+	_escape_paused = true
+	pause_requested.emit(true)
 
 
 func _close_escape_menu() -> void:
 	escape_menu.visible = false
 	if _escape_paused:
 		_escape_paused = false
-		get_tree().paused = false
+		pause_requested.emit(false)
 
 
 func _on_resume_pressed() -> void:
@@ -536,12 +547,50 @@ func _on_shop_close_pressed() -> void:
 	close_shop()
 
 
+## The run is over for everyone. Solo can restart in place; in co-op only the host can, so the
+## prompt has to match what the key actually does instead of always promising R.
 func show_game_over() -> void:
 	if game_over_label.visible:
 		return
 	close_shop()
+	downed_label.visible = false
+	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
+		game_over_label.text = "YOU FELL\nPress R to restart"
+	elif GameRuntime.is_server():
+		game_over_label.text = "THE PARTY FELL\nPress R to restart the run"
+	else:
+		game_over_label.text = "THE PARTY FELL\nWaiting for the host to restart..."
 	game_over_label.visible = true
 	AudioService.play("game_over")
+
+
+func hide_game_over() -> void:
+	game_over_label.visible = false
+
+
+## Someone paused the run for the whole party. Solo pauses silently (the menu itself is the
+## indication); in co-op the banner names who, so the other players know why the world stopped
+## rather than assuming they've lagged out.
+func set_coop_paused(value: bool, holder_names: String) -> void:
+	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
+		coop_paused_label.visible = false
+		return
+	coop_paused_label.visible = value
+	if not value:
+		return
+	if holder_names.is_empty():
+		coop_paused_label.text = "PAUSED"
+	else:
+		coop_paused_label.text = "PAUSED BY %s" % holder_names.to_upper()
+
+
+## Downed but revivable — distinct from show_game_over above, which is the whole run ending.
+## A teammate holding position next to you fills the ring drawn on your body (Player._draw).
+func set_downed(value: bool) -> void:
+	if game_over_label.visible:
+		downed_label.visible = false
+		return
+	downed_label.visible = value
 
 
 func _on_health_changed(current_health: float, max_health: float) -> void:

@@ -50,6 +50,10 @@ var owner_peer_id := 1
 var simulation_mode := SimulationMode.OFFLINE
 var is_local_player := true
 var active := true
+## 0..1 while this player is downed and a teammate is holding position next to them — owned by
+## main.gd's _update_revives on the server and replicated, so every client can draw the same
+## filling ring (see _draw) instead of only the server knowing a revive is under way.
+var revive_ratio := 0.0
 var facing_direction := Vector2.RIGHT
 var aim_world_position := Vector2.RIGHT * 100.0
 var current_xp := 0
@@ -177,6 +181,7 @@ func apply_network_state(state: Dictionary) -> void:
 	active = state.get("active", active)
 	if active != was_active:
 		modulate = Color.WHITE if active else Color(0.35, 0.35, 0.4, 1.0)
+	revive_ratio = float(state.get("revive_ratio", 0.0))
 	current_xp = state.get("xp", current_xp)
 	xp_required = state.get("xp_required", xp_required)
 	level = state.get("level", level)
@@ -203,6 +208,9 @@ func _physics_process(delta: float) -> void:
 
 	if not active:
 		velocity = Vector2.ZERO
+		## Still redraw while downed — this is the one state where the body isn't moving but
+		## its overlay is changing every frame, as the revive ring fills.
+		queue_redraw()
 		return
 
 	var move_input := command_move
@@ -888,6 +896,7 @@ func snapshot() -> Dictionary:
 		"facing": facing_direction,
 		"aim": aim_world_position,
 		"active": active,
+		"revive_ratio": revive_ratio,
 		"buffed": buff_timer > 0.0,
 		"health": health.current_health,
 		"max_health": health.max_health,
@@ -924,6 +933,7 @@ func _reflect_damage(amount: float) -> void:
 
 func _on_died() -> void:
 	active = false
+	revive_ratio = 0.0
 	modulate = Color(0.35, 0.35, 0.4, 1.0)
 	player_died.emit(owner_peer_id)
 
@@ -934,17 +944,44 @@ func revive() -> void:
 	if simulation_mode == SimulationMode.PROXY:
 		return
 	active = true
+	revive_ratio = 0.0
 	modulate = Color.WHITE
 	health.is_dead = false
 	health.current_health = health.max_health * 0.5
 	health.health_changed.emit(health.current_health, health.max_health)
+	queue_redraw()
+
+
+const REVIVE_RING_RADIUS := 30.0
+const REVIVE_RING_COLOR := Color("7cd6a0")
 
 
 func _draw() -> void:
 	if buff_timer > 0.0:
 		draw_circle(Vector2.ZERO, 26.0, Color(0.47, 0.83, 0.51, 0.28))
+	if not active:
+		_draw_revive_ring()
 	if not has_sprite():
 		draw_circle(Vector2.ZERO, BODY_RADIUS, body_color)
 		draw_circle(Vector2.ZERO, BODY_RADIUS, accent_color, false, 3.0)
 	draw_line(facing_direction * 20.0, facing_direction * 30.0, accent_color, 4.0)
 	draw_circle(facing_direction * 32.0, 4.5, accent_color)
+
+
+## A ring that fills clockwise from the top as a teammate holds position — reaching full is the
+## exact moment revive() fires, so the visual is the timer rather than a separate countdown.
+func _draw_revive_ring() -> void:
+	draw_arc(Vector2.ZERO, REVIVE_RING_RADIUS, 0.0, TAU, 40, Color(REVIVE_RING_COLOR, 0.18), 4.0, true)
+	if revive_ratio <= 0.0:
+		return
+	var start_angle := -PI * 0.5
+	draw_arc(
+		Vector2.ZERO,
+		REVIVE_RING_RADIUS,
+		start_angle,
+		start_angle + TAU * clampf(revive_ratio, 0.0, 1.0),
+		40,
+		REVIVE_RING_COLOR,
+		4.0,
+		true
+	)

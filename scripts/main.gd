@@ -45,6 +45,10 @@ var _near_shop_stand := false
 var ready_for_next_wave: Dictionary = {}
 ## peer_id of the downed player -> seconds a stationary teammate has stood next to them.
 var revive_progress: Dictionary = {}
+## Peers currently holding the game paused (anyone with their pause menu open). Server-owned
+## and kept as a set rather than a bool so two players pausing at once don't cancel each other
+## out when the first one closes their menu — the run resumes when the last of them does.
+var pause_holders: Dictionary = {}
 
 const REVIVE_RADIUS := 60.0
 const REVIVE_DURATION := 5.0
@@ -58,6 +62,7 @@ func _ready() -> void:
 	hud.shop_item_chosen.connect(_on_local_shop_item_chosen)
 	hud.next_wave_requested.connect(_on_local_next_wave_requested)
 	hud.restart_requested.connect(_on_restart_requested)
+	hud.pause_requested.connect(request_pause)
 	hud.leave_requested.connect(_on_leave_requested)
 	hud.dev_command.connect(_on_local_dev_command)
 	hud.set_connection_text(GameRuntime.mode_name())
@@ -80,6 +85,11 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	## This node is process_mode ALWAYS so networking survives a pause (see main.tscn) — which
+	## means it also has to opt out of driving the simulation itself while everything under it
+	## is frozen, or input and revive timers would keep advancing against motionless actors.
+	if get_tree().paused:
+		return
 	if GameRuntime.is_server():
 		_update_host_input()
 		wave_director.report_enemy_count(enemies.size())
@@ -100,11 +110,16 @@ func _physics_process(delta: float) -> void:
 		_update_shop_stand_proximity()
 	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT:
 		_update_revives(delta)
+		## Clients get this from the snapshot (see _apply_player_snapshot); host and solo own
+		## their local player directly, so they read it straight off it here.
+		if not GameRuntime.is_dedicated_server() and not game_over:
+			var local_player := _local_player()
+			hud.set_downed(local_player != null and not local_player.active)
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if game_over and event.is_action_pressed("restart") and GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
-		get_parent().call_deferred("restart_game")
+	if game_over and event.is_action_pressed("restart"):
+		_request_restart()
 	if event.is_action_pressed("interact_shop") and not game_over:
 		if hud.shop_panel.visible:
 			hud.close_shop()
@@ -165,6 +180,11 @@ func client_receive_snapshot(snapshot: Dictionary) -> void:
 		current_wave = snapshot_wave
 		current_wave_name = str(snapshot.get("wave_name", ""))
 		hud.set_wave(current_wave, current_wave_name)
+	## The run ending is authoritative — a client only shows the death screen when the server
+	## says every player is down, never off its own downed state.
+	if bool(snapshot.get("game_over", false)):
+		game_over = true
+		hud.show_game_over()
 	hud.update_boss(_find_boss())
 
 
@@ -348,13 +368,21 @@ func _update_revives(delta: float) -> void:
 			var fading: float = revive_progress.get(peer_id, 0.0)
 			if fading > 0.0:
 				revive_progress[peer_id] = maxf(0.0, fading - delta * 2.0)
+			_publish_revive_ratio(downed, float(revive_progress.get(peer_id, 0.0)))
 			continue
 		var progress: float = float(revive_progress.get(peer_id, 0.0)) + delta
 		if progress < REVIVE_DURATION:
 			revive_progress[peer_id] = progress
+			_publish_revive_ratio(downed, progress)
 			continue
 		revive_progress.erase(peer_id)
 		downed.revive()
+
+
+## Mirrors the server's revive timer onto the Player itself so it rides along in the normal
+## snapshot and every client can draw the same filling ring (see Player._draw_revive_ring).
+func _publish_revive_ratio(downed: Player, progress: float) -> void:
+	downed.revive_ratio = clampf(progress / REVIVE_DURATION, 0.0, 1.0)
 
 
 func _find_stationary_reviver(downed: Player) -> Player:
@@ -812,9 +840,82 @@ func _advance_offer(peer_id: int) -> void:
 
 
 func _on_restart_requested() -> void:
+	_request_restart()
+
+
+## Restarting is host-authoritative in co-op: a client can't restart just its own scene or it
+## would be playing a fresh run against a server still in the old one. Only the host actually
+## triggers it, and every client restarts with it.
+func _request_restart() -> void:
+	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
+		return
+	if GameRuntime.is_server():
+		for peer_id in registered_remote_peers.keys():
+			client_restart_game.rpc_id(peer_id)
+	get_tree().paused = false
+	get_parent().call_deferred("restart_game")
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_restart_game() -> void:
+	get_tree().paused = false
+	get_parent().call_deferred("restart_game")
+
+
+## --- Co-op pause ---------------------------------------------------------------------------
+## Pausing has to be server-owned: the tree pause has to happen on the machine actually running
+## the simulation, or one player would freeze their own view while enemies kept coming. The
+## Main node itself is process_mode ALWAYS (see main.tscn), so snapshots and RPCs keep flowing
+## while everything under it — Actors, WaveDirector — is frozen.
+
+func request_pause(value: bool) -> void:
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
-		get_tree().paused = false
-		get_parent().call_deferred("restart_game")
+		get_tree().paused = value
+		return
+	if GameRuntime.is_server():
+		_set_pause_holder(1, value)
+	else:
+		server_set_pause.rpc_id(1, value)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func server_set_pause(value: bool) -> void:
+	if not GameRuntime.is_server():
+		return
+	_set_pause_holder(multiplayer.get_remote_sender_id(), value)
+
+
+func _set_pause_holder(peer_id: int, value: bool) -> void:
+	if value:
+		pause_holders[peer_id] = true
+	else:
+		pause_holders.erase(peer_id)
+	_apply_coop_pause()
+
+
+func _apply_coop_pause() -> void:
+	var paused := not pause_holders.is_empty()
+	get_tree().paused = paused
+	var names := _pause_holder_names()
+	if not GameRuntime.is_dedicated_server():
+		hud.set_coop_paused(paused, names)
+	for peer_id in registered_remote_peers.keys():
+		client_set_paused.rpc_id(peer_id, paused, names)
+
+
+func _pause_holder_names() -> String:
+	var names: Array[String] = []
+	for peer_id in pause_holders.keys():
+		var holder := players.get(peer_id) as Player
+		if holder != null and is_instance_valid(holder):
+			names.append(PlayerClass.by_id(holder.class_id).name)
+	return ", ".join(names)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_set_paused(value: bool, names: String) -> void:
+	get_tree().paused = value
+	hud.set_coop_paused(value, names)
 
 
 func _on_leave_requested() -> void:
@@ -879,6 +980,9 @@ func _build_snapshot() -> Dictionary:
 		"xp_orbs": orb_states,
 		"wave": current_wave,
 		"wave_name": current_wave_name,
+		## The run being over is a world fact, not something a client can infer from its own
+		## player being down — in co-op that just means "downed and revivable".
+		"game_over": game_over,
 	}
 
 
@@ -900,8 +1004,11 @@ func _apply_player_snapshot(states: Array) -> void:
 		snapshot_player.apply_network_state(state)
 		if snapshot_player.is_local_player:
 			hud.show_player_class(snapshot_player.class_id)
-			if not snapshot_player.active:
-				hud.show_game_over()
+			## Being downed is NOT game over in co-op — a teammate can still revive you, and
+			## the run only actually ends when the server says every player is down (see the
+			## snapshot's "game_over"). Showing the death screen here meant a downed client got
+			## "YOU FELL" mid-run, and it never cleared once revived.
+			hud.set_downed(not snapshot_player.active)
 	_remove_missing_entities(players, seen)
 
 
@@ -967,6 +1074,10 @@ func _on_peer_left(peer_id: int) -> void:
 	if not ready_for_next_wave.is_empty() and ready_for_next_wave.size() >= players.size():
 		ready_for_next_wave.clear()
 		wave_director.skip_intermission()
+	## Someone who drops while holding the pause would otherwise freeze the run permanently for
+	## everyone still connected, with no way to release it.
+	if pause_holders.has(peer_id):
+		_set_pause_holder(peer_id, false)
 
 
 func _local_player() -> Player:

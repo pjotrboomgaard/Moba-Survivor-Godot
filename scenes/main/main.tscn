@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="4_hud"]
 
 [node name="Main" type="Node2D"]
+process_mode = 3
 script = ExtResource("1_main")
 
 [node name="Arena" parent="." instance=ExtResource("2_arena")]

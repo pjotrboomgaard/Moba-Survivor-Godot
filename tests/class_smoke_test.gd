@@ -36,6 +36,7 @@ func _ready() -> void:
 	_test_shop_schedule()
 	_test_shop_items_are_not_level_up_stats()
 	_test_item_effects()
+	_test_downed_and_revive()
 	_test_ability_data_integrity()
 	_test_ability_rank_scaling()
 	_test_ability_learn_and_upgrade()
@@ -791,6 +792,38 @@ func _test_shop_items_are_not_level_up_stats() -> void:
 	_check(player.pickup_radius_bonus > 0.0, "Lodestone widens no pickup radius")
 	_check(player.has_active_item(), "Phase Boots did not register as the active item")
 	_cleanup([player])
+
+
+## Being downed is a revivable state, not the end of the run — and the revive ring that shows
+## it has to be replicated, or only the server would know a revive is under way.
+func _test_downed_and_revive() -> void:
+	var player := _make_player("arclight")
+	_check(player.active, "a fresh player should be active")
+	_check(is_equal_approx(player.revive_ratio, 0.0), "a fresh player should have no revive progress")
+
+	player.health.take_damage(player.health.max_health * 2.0)
+	_check(not player.active, "a player at zero health should go down")
+	_check(is_equal_approx(player.revive_ratio, 0.0), "going down should reset revive progress")
+
+	# The ring rides along in the normal snapshot so every client draws the same fill.
+	player.revive_ratio = 0.5
+	var downed_state := player.snapshot()
+	_check(downed_state.has("revive_ratio"), "the snapshot must replicate revive progress")
+	_check(is_equal_approx(float(downed_state.revive_ratio), 0.5), "snapshot should carry the current revive ratio")
+	_check(not bool(downed_state.active), "a downed player must replicate as inactive")
+
+	var proxy := _make_player("arclight")
+	proxy.simulation_mode = Player.SimulationMode.PROXY
+	proxy.apply_network_state(downed_state)
+	_check(is_equal_approx(proxy.revive_ratio, 0.5), "a client should adopt the replicated revive ratio")
+	_check(not proxy.active, "a client should see the downed player as inactive")
+
+	player.revive()
+	_check(player.active, "reviving should bring the player back")
+	_check(is_equal_approx(player.revive_ratio, 0.0), "reviving should clear revive progress")
+	_check(player.health.current_health > 0.0, "a revived player should have health")
+	_check(not player.health.is_dead, "a revived player must not still read as dead")
+	_cleanup([player, proxy])
 
 
 func _test_item_effects() -> void:
