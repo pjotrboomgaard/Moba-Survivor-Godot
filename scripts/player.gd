@@ -101,6 +101,10 @@ var ability_cooldowns: Array[float] = [0.0, 0.0, 0.0, 0.0]
 var ability_buff_timer := 0.0
 var ability_buff_stats: Dictionary = {}
 var _ability_damage_taken_factor := 1.0
+## The permanent mitigation: the class's own value plus any Layered Plating taken. Kept apart
+## from health.damage_taken_multiplier, which is this times whatever buff is currently up —
+## see _refresh_damage_taken_multiplier.
+var base_damage_taken_multiplier := 1.0
 
 
 var _normal_collision_mask := 0
@@ -140,7 +144,8 @@ func apply_class(next_class_id: String) -> void:
 	chain_count = class_data.chain_count
 	chain_range = class_data.chain_range
 	taunt_weight = class_data.taunt_weight
-	health.damage_taken_multiplier = class_data.damage_taken_multiplier
+	base_damage_taken_multiplier = class_data.damage_taken_multiplier
+	_refresh_damage_taken_multiplier()
 	health.max_health = class_data.max_health
 	health.current_health = class_data.max_health
 	health.is_dead = false
@@ -610,15 +615,24 @@ func _apply_ability_buff(stats: Dictionary, duration: float) -> void:
 	ability_buff_timer = duration
 	if stats.has("damage_taken_mult"):
 		_ability_damage_taken_factor = float(stats.damage_taken_mult)
-		health.damage_taken_multiplier *= _ability_damage_taken_factor
+	_refresh_damage_taken_multiplier()
 
 
 func _clear_ability_buff() -> void:
-	if _ability_damage_taken_factor != 1.0:
-		health.damage_taken_multiplier /= _ability_damage_taken_factor
-		_ability_damage_taken_factor = 1.0
+	_ability_damage_taken_factor = 1.0
 	ability_buff_stats = {}
 	ability_buff_timer = 0.0
+	_refresh_damage_taken_multiplier()
+
+
+## Always recomputed from the permanent value times the current buff, never adjusted in place.
+## The old code multiplied the shared health.damage_taken_multiplier on buff start and divided
+## it back on expiry, which silently corrupted the stat whenever anything else wrote to it in
+## between: taking Layered Plating (which subtracts from that same value, with a floor) while a
+## damage-reduction buff was up left the player permanently tankier than they earned, and it
+## compounded on every repeat — driving mitigation far past the floor the upgrade caps at.
+func _refresh_damage_taken_multiplier() -> void:
+	health.damage_taken_multiplier = base_damage_taken_multiplier * _ability_damage_taken_factor
 
 
 func _update_ability_buff(delta: float) -> void:
@@ -874,7 +888,11 @@ func apply_upgrade(upgrade_id: String) -> void:
 		"heavy": weapon_damage += 8.0
 		"chain": chain_count += 1
 		"boots": movement_speed += 35.0
-		"plating": health.damage_taken_multiplier = maxf(0.35, health.damage_taken_multiplier - 0.08)
+		"plating":
+			## Applied to the permanent value, so the floor actually caps it — subtracting from
+			## the buffed value instead let repeated picks during a buff blow past 0.35.
+			base_damage_taken_multiplier = maxf(0.35, base_damage_taken_multiplier - 0.08)
+			_refresh_damage_taken_multiplier()
 		"reach": attack_range += 35.0
 		"flow": support_heal_per_second += 1.5
 		"choir": support_damage_bonus += 0.06

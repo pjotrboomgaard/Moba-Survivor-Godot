@@ -1071,6 +1071,12 @@ func _on_peer_left(peer_id: int) -> void:
 	players.erase(peer_id)
 	if player != null:
 		player.queue_free()
+	## Wave budget and boss health scale up per extra player (WaveDirector.budget_for_wave) —
+	## without this, a party that shrinks mid-run keeps fighting at the headcount it started
+	## with, forever. Only set_player_count on join, never on leave, meant the last player in a
+	## party of 4 that dropped to 1 faced a budget nearly 3.5x what solo difficulty should be.
+	if GameRuntime.is_server():
+		wave_director.set_player_count(players.size())
 	if not ready_for_next_wave.is_empty() and ready_for_next_wave.size() >= players.size():
 		ready_for_next_wave.clear()
 		wave_director.skip_intermission()

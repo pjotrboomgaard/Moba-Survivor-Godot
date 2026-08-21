@@ -3,6 +3,7 @@ extends Node
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player/player.tscn")
 const ENEMY_SCENE: PackedScene = preload("res://scenes/enemy/enemy.tscn")
 const ARENA_SCENE: PackedScene = preload("res://scenes/arena/arena.tscn")
+const MAIN_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 
 var failures: Array[String] = []
 var next_entity_id := 1
@@ -37,6 +38,7 @@ func _ready() -> void:
 	_test_shop_items_are_not_level_up_stats()
 	_test_item_effects()
 	_test_downed_and_revive()
+	_test_mitigation_stacking()
 	_test_ability_data_integrity()
 	_test_ability_rank_scaling()
 	_test_ability_learn_and_upgrade()
@@ -44,6 +46,7 @@ func _ready() -> void:
 	_test_ultimate_ability_gating()
 	_test_ability_archetypes_smoke()
 	_test_ability_aoe_and_cooldown()
+	_test_wave_scales_down_when_players_leave()
 
 	if failures.is_empty():
 		print("Class smoke test passed.")
@@ -794,6 +797,43 @@ func _test_shop_items_are_not_level_up_stats() -> void:
 	_cleanup([player])
 
 
+## A temporary damage-reduction buff must never permanently change mitigation. Taking Layered
+## Plating while one was active used to corrupt the stat and compound on every repeat, driving
+## damage taken far below the floor the upgrade is supposed to cap at.
+func _test_mitigation_stacking() -> void:
+	var player := _make_player("arclight")
+	var base := player.health.damage_taken_multiplier
+
+	player.learn_ability("bulwark_last_stand")
+	player._cast_known_ability(0)
+	_check(player.health.damage_taken_multiplier < base, "a damage-reduction buff should reduce damage taken")
+
+	player.apply_upgrade("plating")
+	player._clear_ability_buff()
+	_check(
+		is_equal_approx(player.health.damage_taken_multiplier, base - 0.08),
+		"after the buff expires, mitigation should be exactly the permanent value, got %f" % player.health.damage_taken_multiplier
+	)
+
+	# Repeating the buff/upgrade cycle must converge on the floor, never blow past it.
+	for _cycle in 12:
+		player._cast_known_ability(0)
+		player.apply_upgrade("plating")
+		player._clear_ability_buff()
+	_check(
+		player.health.damage_taken_multiplier >= 0.35 - 0.0001,
+		"stacked plating must never go below its 0.35 floor, got %f" % player.health.damage_taken_multiplier
+	)
+
+	# And a buff on top of maxed plating should still apply, just not stick.
+	var floored := player.health.damage_taken_multiplier
+	player._cast_known_ability(0)
+	_check(player.health.damage_taken_multiplier < floored, "a buff should still stack on top of a floored permanent value")
+	player._clear_ability_buff()
+	_check(is_equal_approx(player.health.damage_taken_multiplier, floored), "and should restore to the floored value exactly")
+	_cleanup([player])
+
+
 ## Being downed is a revivable state, not the end of the run — and the revive ring that shows
 ## it has to be replicated, or only the server would know a revive is under way.
 func _test_downed_and_revive() -> void:
@@ -1074,3 +1114,34 @@ func _cleanup(nodes: Array) -> void:
 		if is_instance_valid(node):
 			remove_child(node)
 			node.free()
+
+
+## WaveDirector.set_player_count was only ever called from main.gd's _create_player (on join),
+## never from _on_peer_left. A party that shrank mid-run kept fighting at its peak headcount's
+## wave budget and boss health forever. This drives the real Main scene through host mode with
+## players joining and leaving and checks the wave budget tracks the party size both ways.
+func _test_wave_scales_down_when_players_leave() -> void:
+	var previous_mode := GameRuntime.mode
+	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.HOST)
+	var main := MAIN_SCENE.instantiate()
+	add_child(main)
+	# _ready() already created the host's own player 1, so player_count should start at 1.
+	_check(main.wave_director.player_count == 1, "Host player should count as 1 player on scene ready")
+
+	main._create_player(2, Player.SimulationMode.PROXY, false)
+	main._create_player(3, Player.SimulationMode.PROXY, false)
+	_check(main.wave_director.player_count == 3, "Wave budget should scale up as peers join")
+
+	main._on_peer_left(3)
+	_check(main.players.size() == 2, "Leaving peer should be removed from the players dict")
+	_check(main.wave_director.player_count == 2, "Wave budget should scale down immediately when a peer leaves")
+
+	main._on_peer_left(2)
+	_check(main.wave_director.player_count == 1, "Wave budget should keep scaling down as more peers leave")
+	var solo_director := WaveDirector.new()
+	_check(main.wave_director.budget_for_wave(10) == solo_director.budget_for_wave(10), "Solo budget after everyone else left should match a fresh 1-player director")
+	solo_director.free()
+
+	remove_child(main)
+	main.free()
+	GameRuntime.set_runtime_mode(previous_mode)

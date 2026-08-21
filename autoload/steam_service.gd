@@ -68,6 +68,20 @@ func _run_steam_init() -> void:
 	_init_mutex.unlock()
 
 
+## Quitting while Steam's init thread is still running used to hard-crash the game (SIGSEGV):
+## Thread's destructor runs while the thread is unjoined. Steam init can take seconds, so this
+## was reachable just by launching and immediately quitting. Joining here blocks until
+## steamInitEx() returns, which is exactly what makes the teardown safe.
+func _exit_tree() -> void:
+	_join_init_thread()
+
+
+func _join_init_thread() -> void:
+	if _init_thread != null and _init_thread.is_started():
+		_init_thread.wait_to_finish()
+	_init_thread = null
+
+
 func _process(delta: float) -> void:
 	if _waiting_for_init:
 		_init_elapsed += delta
@@ -76,12 +90,15 @@ func _process(delta: float) -> void:
 		_init_mutex.unlock()
 		if done:
 			_waiting_for_init = false
-			_init_thread.wait_to_finish()
+			_join_init_thread()
 			_finish_init(_init_result)
 		elif _init_elapsed >= INIT_TIMEOUT_SECONDS:
 			_waiting_for_init = false
 			set_process(false)
 			init_error = "Steam did not respond in time"
+			## Deliberately NOT joined here — the whole point of the timeout is that the call
+			## is wedged, so joining would block the main thread for exactly as long as we just
+			## refused to wait. _exit_tree joins it at shutdown instead.
 			steam_unavailable.emit(init_error)
 		return
 
