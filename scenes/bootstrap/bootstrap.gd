@@ -7,7 +7,10 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var address_input: LineEdit = $StatusLayer/LobbyPanel/Margin/Layout/AddressInput
 @onready var solo_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/SoloButton
 @onready var host_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/HostButton
-@onready var join_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/JoinButton
+@onready var join_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/JoinRow/JoinButton
+@onready var open_join_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/OpenJoinButton
+@onready var join_back_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/JoinRow/JoinBackButton
+@onready var join_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/JoinRow
 @onready var status_label: Label = $StatusLayer/StatusLabel
 @onready var class_grid: GridContainer = $StatusLayer/LobbyPanel/Margin/Layout/ClassGrid
 @onready var class_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/ClassLabel
@@ -62,6 +65,8 @@ func _ready() -> void:
 	solo_button.pressed.connect(_on_solo_pressed)
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
+	open_join_button.pressed.connect(_on_open_join_pressed)
+	join_back_button.pressed.connect(_on_join_back_pressed)
 	address_input.text_submitted.connect(_on_address_submitted)
 	start_game_button.pressed.connect(_on_start_game_pressed)
 	invite_button.pressed.connect(_on_invite_pressed)
@@ -258,6 +263,45 @@ func _on_host_pressed() -> void:
 		_start_host("Steam isn't running — hosting on LAN only, no invite link. ")
 
 
+## The join entry stays collapsed behind one button until it's wanted, so the first screen shows
+## three plain choices (solo / host / join) instead of leading with an address field most
+## players never need now that lobby codes exist.
+func _on_open_join_pressed() -> void:
+	_set_join_entry_visible(true)
+	## Pre-fill from the clipboard when a friend just sent a lobby code, so the common case is
+	## one click and Join rather than a manual paste.
+	var clipboard := _clipboard_text().strip_edges()
+	if _looks_like_lobby_code(clipboard):
+		address_input.text = clipboard
+		status_label.text = "Found a lobby code on your clipboard — press JOIN to connect."
+	elif address_input.text.strip_edges().is_empty():
+		status_label.text = "Paste a lobby code from a friend, or type a LAN address."
+	address_input.grab_focus()
+	address_input.caret_column = address_input.text.length()
+
+
+func _on_join_back_pressed() -> void:
+	_set_join_entry_visible(false)
+	status_label.text = "Choose solo, host, or join"
+
+
+## Not every display server has a clipboard (headless errors outright), and the copy/paste
+## conveniences here are strictly optional — degrade to typing rather than erroring.
+func _clipboard_has_support() -> bool:
+	return DisplayServer.has_feature(DisplayServer.FEATURE_CLIPBOARD)
+
+
+func _clipboard_text() -> String:
+	return DisplayServer.clipboard_get() if _clipboard_has_support() else ""
+
+
+func _set_join_entry_visible(value: bool) -> void:
+	open_join_button.visible = not value
+	join_label.visible = value
+	address_input.visible = value
+	join_row.visible = value
+
+
 func _on_join_pressed() -> void:
 	## A pasted Steam lobby code goes over Steam's P2P relay instead of ENet — same field, since
 	## a lobby id (a long run of digits, no dots or colons) can't be confused with an address.
@@ -396,9 +440,10 @@ func _show_network_lobby() -> void:
 	class_description.visible = false
 	solo_button.visible = false
 	host_button.visible = false
+	open_join_button.visible = false
 	join_label.visible = false
 	address_input.visible = false
-	join_button.visible = false
+	join_row.visible = false
 	steam_status_label.visible = false
 	lobby_title_label.visible = true
 	lobby_title_label.text = "Rift Survivors Lobby"
@@ -513,6 +558,9 @@ func _on_invite_pressed() -> void:
 
 func _on_copy_code_pressed() -> void:
 	if NetworkService.current_steam_lobby_id == 0:
+		return
+	if not _clipboard_has_support():
+		status_label.text = "Copy isn't available here — select the code above and copy it manually."
 		return
 	DisplayServer.clipboard_set(str(NetworkService.current_steam_lobby_id))
 	status_label.text = "Lobby code copied — send it to a friend to paste into their join field."
@@ -665,9 +713,9 @@ func _show_lobby(message: String) -> void:
 	class_description.visible = true
 	solo_button.visible = true
 	host_button.visible = true
-	join_label.visible = true
-	address_input.visible = true
-	join_button.visible = true
+	## Returning to the menu always collapses the join entry again, so an abandoned join
+	## attempt doesn't leave a stray address field open on the next visit.
+	_set_join_entry_visible(false)
 	steam_status_label.visible = true
 	lobby_title_label.visible = false
 	player_slots.visible = false
@@ -687,6 +735,8 @@ func _set_lobby_enabled(enabled: bool) -> void:
 	solo_button.disabled = not enabled
 	host_button.disabled = not enabled or not _steam_status_known
 	join_button.disabled = not enabled
+	open_join_button.disabled = not enabled
+	join_back_button.disabled = not enabled
 	address_input.editable = enabled
 	classic_button.disabled = not enabled
 	pjotr_button.disabled = not enabled

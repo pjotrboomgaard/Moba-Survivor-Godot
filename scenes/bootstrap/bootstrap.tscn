@@ -195,20 +195,37 @@ custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "HOST CO-OP GAME"
 
+[node name="OpenJoinButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "JOIN CO-OP GAME"
+
 [node name="JoinLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 text = "Server address"
 
 [node name="AddressInput" type="LineEdit" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-text = "127.0.0.1:27015"
 placeholder_text = "127.0.0.1:27015"
 
-[node name="JoinButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+[node name="JoinRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="JoinBackButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/JoinRow"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+text = "BACK"
+
+[node name="JoinButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/JoinRow"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "JOIN GAME"
+size_flags_horizontal = 3
+text = "JOIN"
 
 [node name="StatusLabel" type="Label" parent="StatusLayer"]
 offset_left = 330.0
