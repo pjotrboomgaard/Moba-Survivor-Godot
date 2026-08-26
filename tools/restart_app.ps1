@@ -3,7 +3,8 @@ param(
 	[string]$ProjectPath = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
 	[string]$GodotExe = "C:\Users\pjotr\Tools\Godot-4.7.2\Godot_v4.7.2-stable_win64.exe",
 	[switch]$Pjotr,
-	[switch]$Classic
+	[switch]$Classic,
+	[switch]$ToborWorld
 )
 
 if (-not (Test-Path $GodotExe)) {
@@ -28,6 +29,9 @@ if ($Pjotr) {
 } elseif ($Classic) {
 	$args += "--"
 	$args += "--classic"
+} elseif ($ToborWorld) {
+	$args += "--"
+	$args += "--pjotr"
 }
 
 Start-Process -FilePath $GodotExe -ArgumentList $args | Out-Null

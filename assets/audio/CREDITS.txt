@@ -1,12 +1,20 @@
-Sound effects sourced from Mixkit (https://mixkit.co/free-sound-effects/), released under the
-Mixkit License (https://mixkit.co/license/#sfxFree): free for commercial and non-commercial use,
-no attribution required.
+Robot / sci-fi sound bed is Kenney CC0 (https://creativecommons.org/publicdomain/zero/1.0/).
+Attribution is not required; "Kenney.nl" is appreciated.
 
-Picked for a punchier, more "mouth sound"-style feel (vocal exclamations, pops, splats, laser
-zaps) with multiple takes per event where it's heard often, so hits/clicks/deaths don't all
-sound identical. See autoload/audio_service.gd for which take(s) back which in-game sound id.
+Packs used:
+- Sci-Fi Sounds — lasers, metal impacts, force fields, explosions, thrusters, engines
+  https://kenney.nl/assets/sci-fi-sounds
+  https://opengameart.org/content/sci-fi-sounds
+- Interface Sounds — clicks, confirms, errors, glass, drops
+  https://kenney.nl/assets/interface-sounds
+- Digital Audio — zaps, phasers, power-ups, space-trash debris
+  https://kenney.nl/assets/digital-audio
+  https://opengameart.org/content/63-digital-sound-effects-lasers-phasers-space-etc
+- RPG Audio — coin handles (gold pickup)
+  https://kenney.nl/assets/rpg-audio
 
-Arena background music (assets/audio/music/arena_theme.ogg) started from Mixkit's "Bold and
-Brash" (https://mixkit.co/free-stock-music/, Mixkit License, same terms as above), run through
-a lowpass + bitcrush + vinyl-noise pass so the pixel-art chiptune reads as lo-fi rather than a
-bright straight chiptune loop.
+Takes were trimmed and faded so combat one-shots stay short. Arena music is a lowpassed
+loop of Kenney space-engine rumbles, not a chiptune melody.
+
+See autoload/audio_service.gd for which take(s) back which in-game sound id.
+Turn SFX or music off from the lobby row or the pause menu.

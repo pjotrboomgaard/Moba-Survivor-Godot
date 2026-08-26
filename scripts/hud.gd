@@ -32,6 +32,7 @@ const UPGRADE_ICON_MAX_WIDTH := 40
 @onready var theme_banner: Label = $ThemeBanner
 @onready var debut_banner: Label = $DebutBanner
 @onready var shop_panel: PanelContainer = $ShopPanel
+@onready var shop_title: Label = $ShopPanel/ShopLayout/ShopTitle
 @onready var shop_gold_label: Label = $ShopPanel/ShopLayout/ShopGold
 @onready var shop_grid: GridContainer = $ShopPanel/ShopLayout/ShopGrid
 @onready var shop_continue: Button = $ShopPanel/ShopLayout/ShopContinue
@@ -47,11 +48,14 @@ const UPGRADE_ICON_MAX_WIDTH := 40
 @onready var resume_button: Button = $EscapeMenu/EscapeLayout/ResumeButton
 @onready var restart_button: Button = $EscapeMenu/EscapeLayout/RestartButton
 @onready var leave_button: Button = $EscapeMenu/EscapeLayout/LeaveButton
+@onready var sfx_toggle: CheckButton = $EscapeMenu/EscapeLayout/SfxToggle
+@onready var music_toggle: CheckButton = $EscapeMenu/EscapeLayout/MusicToggle
 @onready var dev_panel: PanelContainer = $DevPanel
 @onready var dev_add_xp_button: Button = $DevPanel/DevLayout/DevButtons/AddXPButton
 @onready var dev_add_levels_button: Button = $DevPanel/DevLayout/DevButtons/AddLevelsButton
 @onready var dev_spawn_elite_button: Button = $DevPanel/DevLayout/DevButtons/SpawnEliteButton
 @onready var dev_invulnerable_button: Button = $DevPanel/DevLayout/DevButtons/InvulnerableButton
+@onready var dev_add_gold_button: Button = $DevPanel/DevLayout/DevButtons/AddGoldButton
 @onready var codex_panel: PanelContainer = $CodexPanel
 @onready var codex_text: RichTextLabel = $CodexPanel/CodexLayout/CodexScroll/CodexText
 @onready var stats_panel: PanelContainer = $StatsPanel
@@ -66,7 +70,17 @@ var shown_class_id := ""
 var shop_buttons: Dictionary = {}
 var _last_gold := -1
 var _escape_paused := false
+var _updating_audio_ui := false
 var _next_wave_countdown := 0.0
+var chant_panel: PanelContainer
+var chant_words_label: RichTextLabel
+var chant_timer_label: Label
+var chant_hint_label: Label
+var _biome_buttons: Array[Button] = []
+var _biome_caption: Label
+var _biome_row: HBoxContainer
+var warning_veil: ColorRect
+var boss_phase_label: Label
 
 
 func _ready() -> void:
@@ -86,13 +100,24 @@ func _ready() -> void:
 	resume_button.pressed.connect(_on_resume_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
 	leave_button.pressed.connect(_on_leave_pressed)
+	sfx_toggle.toggled.connect(_on_sfx_toggled)
+	music_toggle.toggled.connect(_on_music_toggled)
+	_sync_audio_toggles()
 	dev_add_xp_button.pressed.connect(_on_dev_button_pressed.bind("add_xp"))
 	dev_add_levels_button.pressed.connect(_on_dev_button_pressed.bind("add_5_levels"))
 	dev_spawn_elite_button.pressed.connect(_on_dev_button_pressed.bind("spawn_elite"))
 	dev_invulnerable_button.pressed.connect(_on_dev_button_pressed.bind("toggle_invulnerable"))
+	if dev_add_gold_button != null:
+		dev_add_gold_button.pressed.connect(_on_dev_button_pressed.bind("add_gold"))
 	next_wave_button.pressed.connect(_on_next_wave_pressed)
 	codex_text.text = _build_codex_text()
+	shop_title.text = "SUPERMERCATOR"
+	leave_button.visible = true
+	leave_button.text = "LEAVE TO MENU"
 	_build_shop()
+	_build_chant_overlay()
+	_build_dev_biome_row()
+	_build_boss_overlay()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -123,6 +148,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _open_escape_menu() -> void:
 	restart_button.visible = GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE
+	_sync_audio_toggles()
 	escape_menu.visible = true
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 		_escape_paused = true
@@ -151,6 +177,28 @@ func _on_leave_pressed() -> void:
 	AudioService.play("ui_click")
 	_close_escape_menu()
 	leave_requested.emit()
+
+
+func _sync_audio_toggles() -> void:
+	_updating_audio_ui = true
+	sfx_toggle.button_pressed = AudioService.sfx_enabled
+	music_toggle.button_pressed = AudioService.music_enabled
+	_updating_audio_ui = false
+
+
+func _on_sfx_toggled(pressed: bool) -> void:
+	if _updating_audio_ui:
+		return
+	AudioService.set_sfx_enabled(pressed)
+	if pressed:
+		AudioService.play("ui_click")
+
+
+func _on_music_toggled(pressed: bool) -> void:
+	if _updating_audio_ui:
+		return
+	AudioService.set_music_enabled(pressed)
+	AudioService.play("ui_click")
 
 
 func _on_dev_button_pressed(command: String) -> void:
@@ -185,24 +233,85 @@ func _build_stats_text() -> String:
 	lines.append("Move speed: %d" % int(bound_player.movement_speed))
 	if bound_player.chain_count > 0:
 		lines.append("Chains: %d" % bound_player.chain_count)
+	if bound_player.weapon_kind == PlayerClass.Weapon.ENERGY_BLAST:
+		lines.append("Blast: %d" % int(bound_player.blast_radius))
+	if bound_player.weapon_kind == PlayerClass.Weapon.CONE_SLAM:
+		lines.append("Arc: %d°" % int(bound_player.cone_half_angle_degrees * 2.0))
 	if bound_player.health.damage_taken_multiplier < 1.0:
 		lines.append("Damage taken: x%.2f" % bound_player.health.damage_taken_multiplier)
 	if bound_player.lifesteal_ratio > 0.0:
 		lines.append("Lifesteal: %d%%" % roundi(bound_player.lifesteal_ratio * 100.0))
 	if bound_player.thorns_ratio > 0.0:
 		lines.append("Thorns: %d%%" % roundi(bound_player.thorns_ratio * 100.0))
+	if bound_player.health_regen_per_second > 0.0:
+		lines.append("Regen: %.1f HP/s" % bound_player.health_regen_per_second)
+	if bound_player.ember_damage_per_second > 0.0:
+		lines.append("Burn aura: %.0f/s" % bound_player.ember_damage_per_second)
+	if bound_player.jetpack_slam > 0.0:
+		lines.append("Jetpack slam: %.0f" % bound_player.jetpack_slam)
+	if bound_player.skate_speed_bonus > 0.0:
+		lines.append("Skate: +%d%% speed" % roundi(bound_player.skate_speed_bonus * 100.0))
+	if bound_player.grab_radius > 0.0:
+		lines.append("Grab: %.0f" % bound_player.grab_radius)
 	if bound_player.knockback_strength > 0.0:
 		lines.append("Knockback: yes")
 	if bound_player.hit_slow_factor < 1.0:
 		lines.append("Hit slow: %d%%" % roundi((1.0 - bound_player.hit_slow_factor) * 100.0))
+	if bound_player.pickup_radius_bonus > 0.0:
+		lines.append("XP pull: +%d%%" % roundi(bound_player.pickup_radius_bonus * 100.0))
+	if bound_player.resistance_pierce > 0.0:
+		lines.append("Pierce: %d%%" % roundi(bound_player.resistance_pierce * 100.0))
 	lines.append("Gold: %d" % bound_player.gold)
 	return "\n".join(lines)
 
 
 func _refresh_dev_panel() -> void:
-	if bound_player == null:
+	if bound_player != null:
+		dev_invulnerable_button.text = "INVULNERABLE: %s" % ("ON" if bound_player.health.invulnerable else "OFF")
+	var show_worlds := GameRuntime.uses_biomes()
+	if _biome_caption != null:
+		_biome_caption.visible = show_worlds
+	if _biome_row != null:
+		_biome_row.visible = show_worlds
+	if not show_worlds or _biome_buttons.size() < 6:
 		return
-	dev_invulnerable_button.text = "INVULNERABLE: %s" % ("ON" if bound_player.health.invulnerable else "OFF")
+	var locked := GameRuntime.biome_locked
+	var current := GameRuntime.biome_id
+	for index in _biome_buttons.size():
+		var selected := (index == 0 and not locked) or (index > 0 and locked and current == index - 1)
+		_biome_buttons[index].modulate = Color("d4ff9a") if selected else Color.WHITE
+
+
+func _build_dev_biome_row() -> void:
+	var layout := $DevPanel/DevLayout as VBoxContainer
+	var caption := Label.new()
+	caption.text = "WORLD  (locks until AUTO)"
+	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption.add_theme_font_size_override("font_size", 13)
+	caption.add_theme_color_override("font_color", Color(0.75, 0.82, 0.7, 1))
+	layout.add_child(caption)
+	_biome_caption = caption
+	var row := HBoxContainer.new()
+	row.name = "BiomeButtons"
+	row.add_theme_constant_override("separation", 6)
+	layout.add_child(row)
+	_biome_row = row
+	var specs: Array[Array] = [
+		["AUTO", "biome_auto"],
+		["GRAS", "biome_0"],
+		["VULKAAN", "biome_1"],
+		["IJS", "biome_2"],
+		["FABRIEK", "biome_3"],
+		["DOCKS", "biome_4"],
+	]
+	for spec in specs:
+		var button := Button.new()
+		button.custom_minimum_size = Vector2(0, 32)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.text = str(spec[0])
+		button.pressed.connect(_on_dev_button_pressed.bind(str(spec[1])))
+		row.add_child(button)
+		_biome_buttons.append(button)
 
 
 func _refresh_ability() -> void:
@@ -211,14 +320,20 @@ func _refresh_ability() -> void:
 		return
 	ability_label.visible = true
 	if bound_player.is_sprinting():
-		ability_label.text = "SPACE  DASHING"
+		ability_label.text = "SPACE  %s" % _dash_item_name()
 		ability_label.add_theme_color_override("font_color", Color("ffe08c"))
 	elif bound_player.sprint_cooldown > 0.0:
 		ability_label.text = "SPACE  %.1fs" % bound_player.sprint_cooldown
 		ability_label.add_theme_color_override("font_color", Color("7b8496"))
 	else:
-		ability_label.text = "SPACE  DASH READY"
+		ability_label.text = "SPACE  %s READY" % _dash_item_name()
 		ability_label.add_theme_color_override("font_color", Color("94ddff"))
+
+
+func _dash_item_name() -> String:
+	if bound_player == null:
+		return "SIREN"
+	return ShopCatalog.display_name("sirene", bound_player.class_id).to_upper()
 
 
 const ABILITY_SLOT_KEYS := ["1", "2", "3", "4"]
@@ -252,6 +367,7 @@ func bind_player(player: Player) -> void:
 	_on_xp_changed(player.current_xp, player.xp_required, player.level)
 	_on_gold_changed(player.gold)
 	show_player_class(player.class_id)
+	_build_shop()
 
 
 func show_player_class(class_id: String) -> void:
@@ -261,7 +377,11 @@ func show_player_class(class_id: String) -> void:
 	var class_data := PlayerClass.by_id(class_id)
 	class_label.text = "%s // %s" % [str(class_data.name).to_upper(), str(class_data.role).to_upper()]
 	class_label.add_theme_color_override("font_color", Color(class_data.accent_color))
-	instructions_label.text = "WASD  Move     Hold left mouse  Aim and use %s     1-4  Abilities     R  Restart solo run" % class_data.weapon_name
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color(str(class_data.get("health_bar_color", class_data.accent_color)))
+	fill.set_corner_radius_all(3)
+	health_bar.add_theme_stylebox_override("fill", fill)
+	instructions_label.text = "WASD  Move     LMB  Aim     B  Shop     SPACE  Dash     R  Restart"
 
 
 func set_connection_text(mode: String) -> void:
@@ -279,7 +399,7 @@ func set_wave(wave: int, archetype_name: String = "") -> void:
 	else:
 		wave_label.text = "WAVE %d — %s" % [wave_number, archetype_name.to_upper()]
 	if WaveDirector.shop_opens_before(wave_number + 1):
-		wave_label.text += "   SHOP NEXT"
+		wave_label.text += "   SUPERMERCATOR NEXT"
 	var pulse := create_tween()
 	pulse.tween_property(wave_label, "scale", Vector2(1.18, 1.18), 0.12)
 	pulse.tween_property(wave_label, "scale", Vector2.ONE, 0.18)
@@ -293,11 +413,25 @@ func update_boss(boss: Enemy) -> void:
 	boss_name_label.text = str(EnemyType.by_id(boss.type_id).name).to_upper()
 	boss_bar.max_value = boss.health.max_health
 	boss_bar.value = boss.health.current_health
+	if boss_phase_label != null:
+		boss_phase_label.text = "PHASE %d / 3" % clampi(boss.boss_phase, 1, 3)
 
 
 func announce_wave(wave: int, theme_display_name: String, debut_type_id: String) -> void:
 	if GameRuntime.is_classic():
 		return
+	var is_boss_wave := wave > 0 and wave % WaveDirector.BOSS_WAVE_INTERVAL == 0
+	if is_boss_wave:
+		theme_banner.text = "BOSS  ·  WAVE %d  ·  %s" % [maxi(1, wave), theme_display_name.to_upper()]
+		theme_banner.add_theme_font_size_override("font_size", 42)
+		theme_banner.add_theme_color_override("font_color", Color("ff4a4a"))
+		_flash(theme_banner, 3.4)
+		AudioService.play("boss_alert")
+		pulse_danger(2.2)
+		debut_banner.visible = false
+		return
+	theme_banner.add_theme_font_size_override("font_size", 30)
+	theme_banner.add_theme_color_override("font_color", Color(1, 0.86, 0.6, 1))
 	theme_banner.text = "WAVE %d — %s" % [maxi(1, wave), theme_display_name.to_upper()]
 	_flash(theme_banner, 2.6)
 	AudioService.play("wave_start")
@@ -306,7 +440,30 @@ func announce_wave(wave: int, theme_display_name: String, debut_type_id: String)
 		return
 	debut_banner.text = "NEW ENEMY: %s" % str(EnemyType.by_id(debut_type_id).name).to_upper()
 	_flash(debut_banner, 3.2)
+	AudioService.play("scan")
+
+
+func announce_boss_phase(phase: int, boss_name: String) -> void:
+	if GameRuntime.is_classic():
+		return
+	var titles := {
+		2: "THE ARENA BREAKS",
+		3: "ENRAGE",
+	}
+	debut_banner.text = "%s  ·  PHASE %d  ·  %s" % [boss_name.to_upper(), phase, str(titles.get(phase, "PHASE UP"))]
+	_flash(debut_banner, 2.8)
 	AudioService.play("boss_alert")
+	pulse_danger(1.6)
+
+
+func pulse_danger(seconds: float) -> void:
+	if warning_veil == null:
+		return
+	warning_veil.color = Color(0.62, 0.02, 0.08, 0.0)
+	var fade := create_tween()
+	fade.tween_property(warning_veil, "color:a", 0.26, 0.12)
+	fade.tween_interval(maxf(0.2, seconds))
+	fade.tween_property(warning_veil, "color:a", 0.0, 0.35)
 
 
 ## Shown for the whole breather between waves (not just shop breathers), so anyone can cut
@@ -333,6 +490,92 @@ func _on_next_wave_pressed() -> void:
 	AudioService.play("ui_click")
 	next_wave_button.disabled = true
 	next_wave_requested.emit()
+
+
+func _build_boss_overlay() -> void:
+	warning_veil = ColorRect.new()
+	warning_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	warning_veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	warning_veil.color = Color(0.62, 0.02, 0.08, 0.0)
+	add_child(warning_veil)
+	move_child(warning_veil, 0)
+	boss_phase_label = Label.new()
+	boss_phase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	boss_phase_label.add_theme_font_size_override("font_size", 15)
+	boss_phase_label.add_theme_color_override("font_color", Color("ffd166"))
+	boss_panel.add_child(boss_phase_label)
+	boss_bar.custom_minimum_size = Vector2(720.0, 26.0)
+	boss_panel.offset_left = 280.0
+	boss_panel.offset_right = 1000.0
+
+
+func _build_chant_overlay() -> void:
+	var overlay := Control.new()
+	overlay.name = "ChantOverlay"
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(overlay)
+
+	chant_panel = PanelContainer.new()
+	chant_panel.visible = false
+	chant_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chant_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	chant_panel.anchor_left = 0.5
+	chant_panel.anchor_right = 0.5
+	chant_panel.offset_left = -460.0
+	chant_panel.offset_right = 460.0
+	chant_panel.offset_top = 72.0
+	chant_panel.offset_bottom = 268.0
+	overlay.add_child(chant_panel)
+
+	var layout := VBoxContainer.new()
+	layout.alignment = BoxContainer.ALIGNMENT_CENTER
+	layout.add_theme_constant_override("separation", 10)
+	chant_panel.add_child(layout)
+
+	chant_timer_label = Label.new()
+	chant_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	chant_timer_label.add_theme_font_size_override("font_size", 22)
+	chant_timer_label.add_theme_color_override("font_color", Color("ff8a3d"))
+	layout.add_child(chant_timer_label)
+
+	chant_words_label = RichTextLabel.new()
+	chant_words_label.bbcode_enabled = true
+	chant_words_label.fit_content = true
+	chant_words_label.scroll_active = false
+	chant_words_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	chant_words_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	chant_words_label.custom_minimum_size = Vector2(880.0, 96.0)
+	chant_words_label.add_theme_font_size_override("normal_font_size", 42)
+	layout.add_child(chant_words_label)
+
+	chant_hint_label = Label.new()
+	chant_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	chant_hint_label.add_theme_font_size_override("font_size", 16)
+	chant_hint_label.add_theme_color_override("font_color", Color("9aa8b3"))
+	layout.add_child(chant_hint_label)
+
+
+func show_chant(mantra: String, matched: int, seconds_left: float, use_mic: bool) -> void:
+	if chant_panel == null:
+		return
+	chant_panel.visible = true
+	var words := mantra.split(" ", false)
+	var parts: PackedStringArray = []
+	for index in words.size():
+		var color := "ffd36b" if index < matched else "e8eef5"
+		parts.append("[color=#%s][b]%s[/b][/color]" % [color, str(words[index]).to_upper()])
+	chant_words_label.text = " ".join(parts)
+	chant_timer_label.text = "%.1fs" % maxf(0.0, seconds_left)
+	if use_mic:
+		chant_hint_label.text = "Say the chant word by word. ENTER also confirms a word."
+	else:
+		chant_hint_label.text = "No microphone. ENTER confirms the next word."
+
+
+func hide_chant() -> void:
+	if chant_panel != null:
+		chant_panel.visible = false
 
 
 func _flash(label: Label, seconds: float) -> void:
@@ -375,7 +618,7 @@ func _build_codex_text() -> String:
 		var tag := " [color=ffd166](boss)[/color]" if bool(type_data.get("is_boss", false)) else ""
 		lines.append(
 			"[b]%s[/b]%s — %d HP, %d speed, wave %d+" % [
-				str(type_data.name),
+				EnemyType.display_name(type_data),
 				tag,
 				int(type_data.max_health),
 				int(type_data.movement_speed),
@@ -384,58 +627,70 @@ func _build_codex_text() -> String:
 		)
 
 	lines.append("")
-	lines.append("[b][color=ffd166]SHOP ITEMS[/color][/b]")
-	for item in ShopCatalog.ITEMS:
-		lines.append("[b]%s[/b] (%dg+) — %s" % [str(item.name), int(item.base_price), str(item.description)])
+	lines.append("[b][color=ffd166]SUPERMERCATOR[/color][/b]")
+	for class_id in PlayerClass.playable_ids():
+		lines.append("[b]%s[/b]" % PlayerClass.by_id(class_id).name)
+		for item in ShopCatalog.items_for(class_id):
+			var item_id := str(item.id)
+			lines.append(
+				"  [b]%s[/b] (%dg) — %s" % [
+					ShopCatalog.display_name(item_id, class_id),
+					ShopCatalog.price_for(item_id, 0),
+					ShopCatalog.display_description(item_id, class_id),
+				]
+			)
 
 	lines.append("")
-	lines.append("[b][color=6fd6ff]STAT UPGRADES[/color][/b]  (every even level-up)")
+	lines.append("[b][color=6fd6ff]STAT UPGRADES[/color][/b]  (elke level-up)")
 	for class_data in PlayerClass.CLASSES:
-		lines.append("[i]%s[/i]" % str(class_data.name).to_upper())
+		if str(class_data.id) != PlayerClass.DEFAULT_CLASS_ID:
+			continue
 		for upgrade_id in class_data.upgrades:
 			var upgrade := PlayerClass.upgrade_info(str(upgrade_id))
 			lines.append("  [b]%s[/b] — %s" % [str(upgrade.name), str(upgrade.description)])
 
-	lines.append("")
-	lines.append("[b][color=c8a4ff]ABILITIES[/color][/b]  (every odd level-up — learn a new one or rank up a known one, up to 4 known)")
-	for class_data in PlayerClass.CLASSES:
-		lines.append("[i]%s[/i]" % str(class_data.name).to_upper())
-		for ability_id in class_data.ability_pool:
-			var ability := PlayerClass.ability_info(str(ability_id))
-			lines.append("  [b]%s[/b] — %s" % [str(ability.name), str(ability.description)])
-
 	return "\n".join(lines)
 
 
-const SHOP_ICON_MAX_WIDTH := 48
+const SHOP_ICON_MAX_WIDTH := 72
 
 func _build_shop() -> void:
-	for item in ShopCatalog.ITEMS:
+	for child in shop_grid.get_children():
+		shop_grid.remove_child(child)
+		child.free()
+	shop_buttons.clear()
+	var class_id := bound_player.class_id if bound_player != null else PlayerClass.DEFAULT_CLASS_ID
+	for item in ShopCatalog.items_for(class_id):
+		var item_id := str(item.id)
 		var button := Button.new()
-		button.custom_minimum_size = Vector2(300.0, 112.0)
+		button.custom_minimum_size = Vector2(300.0, 128.0)
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.icon = SpriteLibrary.texture_for(str(item.id))
+		button.icon = SpriteLibrary.item_icon(item_id)
 		button.expand_icon = true
 		button.add_theme_constant_override("icon_max_width", SHOP_ICON_MAX_WIDTH)
-		button.pressed.connect(_on_shop_item_pressed.bind(str(item.id)))
+		button.pressed.connect(_on_shop_item_pressed.bind(item_id))
 		shop_grid.add_child(button)
-		shop_buttons[str(item.id)] = button
+		shop_buttons[item_id] = button
 
 
 func _refresh_shop() -> void:
 	var gold := bound_player.gold if bound_player != null else 0
+	var class_id := bound_player.class_id if bound_player != null else PlayerClass.DEFAULT_CLASS_ID
 	shop_gold_label.text = "%d GOLD" % gold
-	for item in ShopCatalog.ITEMS:
+	for item in ShopCatalog.items_for(class_id):
 		var item_id := str(item.id)
+		if not shop_buttons.has(item_id):
+			continue
 		var button := shop_buttons[item_id] as Button
 		var stacks := bound_player.stacks_of(item_id) if bound_player != null else 0
+		var item_name := ShopCatalog.display_name(item_id, class_id)
+		var item_description := ShopCatalog.display_description(item_id, class_id)
 		if ShopCatalog.is_sold_out(item_id, stacks):
-			button.text = "%s\nSOLD OUT" % item.name
+			button.text = "%s\nSOLD OUT\n%s" % [item_name, item_description]
 			button.disabled = true
 			continue
 		var price := ShopCatalog.price_for(item_id, stacks)
-		var owned := "" if stacks == 0 else "  (owned %d)" % stacks
-		button.text = "%s\n%s\n%d gold%s" % [item.name, item.description, price, owned]
+		button.text = "%s\n%s\n%d gold" % [item_name, item_description, price]
 		button.disabled = gold < price
 
 

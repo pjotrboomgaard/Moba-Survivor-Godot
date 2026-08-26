@@ -10,6 +10,7 @@ const PLAYER_RADIUS := 4.0
 const BOSS_RADIUS := 4.5
 const PLAYER_COLOR := Color("6fd6ff")
 const LOCAL_PLAYER_COLOR := Color("ffe066")
+const SHOP_COLOR := Color("ffc93c")
 const ENEMY_COLOR := Color("ff5d5d")
 const BOSS_COLOR := Color("ff2a2a")
 const BACKGROUND_COLOR := Color(0.06, 0.09, 0.14, 0.78)
@@ -24,6 +25,10 @@ func _process(_delta: float) -> void:
 func _draw() -> void:
 	var rect := Rect2(Vector2.ZERO, size)
 	draw_rect(rect, BACKGROUND_COLOR, true)
+	if GameRuntime.uses_biomes():
+		var shop := _to_local(Arena.shop_stand_position())
+		draw_circle(shop, 3.5, SHOP_COLOR)
+		draw_circle(shop, 3.5, Color(0.2, 0.12, 0.0, 1.0), false, 1.0)
 	for enemy_node in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(enemy_node):
 			continue
@@ -47,7 +52,7 @@ func _draw() -> void:
 
 
 func _to_local(world_position: Vector2) -> Vector2:
-	var normalized := (world_position + Arena.ARENA_SIZE * 0.5) / Arena.ARENA_SIZE
+	var normalized := (world_position + Arena.playfield_size() * 0.5) / Arena.playfield_size()
 	return Vector2(
 		clampf(normalized.x * size.x, 0.0, size.x),
 		clampf(normalized.y * size.y, 0.0, size.y)

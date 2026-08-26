@@ -6,6 +6,7 @@ enum Weapon {
 	CONE_SLAM,
 	MENDING_BOLT,
 	FROST_SHARD,
+	ENERGY_BLAST,
 }
 
 enum EffectStyle {
@@ -14,6 +15,10 @@ enum EffectStyle {
 	## Smooth vine-like curve instead of a jagged bolt — Warden's Mending Bolt used to render
 	## as a green-tinted copy of Arclight's lightning, which read as the same weapon.
 	WAVE,
+	## Expanding explosion at the impact, with a short cannon cone from the caster — Tobor's blast.
+	BLAST,
+	## Directional wedge in the facing direction, not a full ring around the caster — Bulwark slam.
+	ARC,
 }
 
 enum DamageType {
@@ -23,23 +28,57 @@ enum DamageType {
 	FROST,
 }
 
-const DEFAULT_CLASS_ID := "arclight"
+const DEFAULT_CLASS_ID := "tobor"
 
 const CLASSES: Array[Dictionary] = [
 	{
+		"id": "tobor",
+		"name": "Tobor",
+		"role": "Glass Cannon",
+		"menu_bg": "res://assets/ui/tobor_menu_bg.png",
+		"weapon_name": "Blast Cannon",
+		"description": "Glass cannon on wheels. Blast Cannon hits hard; buy parts in the shop.",
+		"counters": "Strong vs swarms  ·  Weak vs anything that hits back",
+		"damage_type": DamageType.LIGHTNING,
+		"weapon": Weapon.ENERGY_BLAST,
+		"effect_style": EffectStyle.BLAST,
+		"body_color": "9aa8b3",
+		"accent_color": "ff8a3d",
+		"effect_color": "ffd36b",
+		"effect_secondary": "ff8a3d",
+		"health_bar_color": "ff9a3c",
+		"max_health": 58.0,
+		"movement_speed": 355.0,
+		"attack_interval": 0.65,
+		"weapon_damage": 18.0,
+		"attack_range": 520.0,
+		"aim_assist_radius": 88.0,
+		"chain_count": 0,
+		"chain_range": 0.0,
+		"blast_radius": 70.0,
+		"damage_taken_multiplier": 1.4,
+		"taunt_weight": 1.0,
+		"secondary": "repulse",
+		"secondary_cooldown": 9.0,
+		"upgrades": ["rapid", "heavy", "blast", "aftershock", "vitality"],
+		"ability_pool": [],
+	},
+	{
 		"id": "arclight",
-		"name": "Arclight",
+		"name": "Diord",
 		"role": "Damage",
-		"weapon_name": "Arc Staff",
-		"description": "Glass cannon. Chains lightning between packed enemies, but armour shrugs it off.",
+		"menu_bg": "res://assets/ui/arclight_menu_bg.png",
+		"weapon_name": "Volt Staff",
+		"description": "Staff droid. Chains lightning through packed enemies.",
 		"counters": "Strong vs swarms and fliers  ·  Weak vs armour",
 		"damage_type": DamageType.LIGHTNING,
 		"weapon": Weapon.CHAIN_BOLT,
 		"effect_style": EffectStyle.BOLT,
-		"body_color": "45a3ff",
-		"accent_color": "bce2ff",
-		"effect_color": "8eeeff",
-		"effect_secondary": "b990ff",
+		"body_color": "e8e8e8",
+		"accent_color": "e05a28",
+		"effect_color": "ffe14a",
+		"effect_secondary": "7af0ff",
+		"health_bar_color": "3ec8ff",
 		"max_health": 100.0,
 		"movement_speed": 300.0,
 		"attack_interval": 0.7,
@@ -50,7 +89,9 @@ const CLASSES: Array[Dictionary] = [
 		"chain_range": 190.0,
 		"damage_taken_multiplier": 1.0,
 		"taunt_weight": 1.0,
-		"upgrades": ["rapid", "heavy", "chain", "boots", "vitality"],
+		"secondary": "volt_mend",
+		"secondary_cooldown": 10.0,
+		"upgrades": ["rapid", "heavy", "chain", "volt", "vitality"],
 		"ability_pool": [
 			"arclight_static_bolt", "arclight_overcharge", "arclight_ion_storm", "arclight_arc_flash",
 			"arclight_thunder_step", "arclight_overclock", "arclight_paralyzing_bolt", "arclight_ball_lightning",
@@ -59,29 +100,33 @@ const CLASSES: Array[Dictionary] = [
 	},
 	{
 		"id": "bulwark",
-		"name": "Bulwark",
+		"name": "Romra",
 		"role": "Tank",
-		"weapon_name": "Aegis Hammer",
-		"description": "Frontline anchor. Draws enemies in and slams everything in front, but cannot reach the sky.",
+		"menu_bg": "res://assets/ui/bulwark_menu_bg.png",
+		"weapon_name": "Shield Hammer",
+		"description": "Ground tank. Slams a cone and pulls aggro.",
 		"counters": "Strong vs armour and brutes  ·  Weak vs fliers",
 		"damage_type": DamageType.IMPACT,
 		"weapon": Weapon.CONE_SLAM,
-		"effect_style": EffectStyle.BURST,
-		"body_color": "e0a44b",
-		"accent_color": "ffe3a8",
+		"effect_style": EffectStyle.ARC,
+		"body_color": "e05a28",
+		"accent_color": "e8e8e8",
 		"effect_color": "ffc46b",
 		"effect_secondary": "ff8a3d",
+		"health_bar_color": "e44545",
 		"max_health": 220.0,
 		"movement_speed": 230.0,
-		"attack_interval": 0.95,
-		"weapon_damage": 30.0,
-		"attack_range": 150.0,
-		"aim_assist_radius": 150.0,
+		"attack_interval": 1.05,
+		"weapon_damage": 18.0,
+		"attack_range": 115.0,
+		"aim_assist_radius": 115.0,
 		"chain_count": 0,
 		"chain_range": 0.0,
 		"damage_taken_multiplier": 0.7,
 		"taunt_weight": 0.4,
-		"upgrades": ["plating", "reach", "heavy", "boots", "vitality"],
+		"secondary": "wall",
+		"secondary_cooldown": 12.0,
+		"upgrades": ["plating", "reach", "sweep", "heavy", "vitality"],
 		"ability_pool": [
 			"bulwark_shockwave_strike", "bulwark_ground_slam", "bulwark_cleave", "bulwark_iron_charge",
 			"bulwark_fortify", "bulwark_provoke", "bulwark_last_stand", "bulwark_aftershock",
@@ -90,20 +135,22 @@ const CLASSES: Array[Dictionary] = [
 	},
 	{
 		"id": "warden",
-		"name": "Warden",
+		"name": "Enord",
 		"role": "Support",
-		"weapon_name": "Verdant Censer",
-		"description": "Force multiplier. Heals nearby allies, raises their damage and purges enemy support.",
+		"menu_bg": "res://assets/ui/warden_menu_bg.png",
+		"weapon_name": "Plus Beam",
+		"description": "Hover drone. Heals allies and pokes foes with a green beam.",
 		"counters": "Strong vs hexers and summoners",
 		"damage_type": DamageType.NATURE,
 		"weapon": Weapon.MENDING_BOLT,
 		"effect_style": EffectStyle.WAVE,
-		"body_color": "45d483",
-		"accent_color": "c8ffdf",
+		"body_color": "e8e8e8",
+		"accent_color": "8cff4a",
 		"effect_color": "7dffb4",
 		"effect_secondary": "d9ff8a",
+		"health_bar_color": "45d483",
 		"max_health": 140.0,
-		"movement_speed": 285.0,
+		"movement_speed": 310.0,
 		"attack_interval": 0.55,
 		"weapon_damage": 11.0,
 		"attack_range": 520.0,
@@ -112,7 +159,10 @@ const CLASSES: Array[Dictionary] = [
 		"chain_range": 0.0,
 		"damage_taken_multiplier": 1.0,
 		"taunt_weight": 1.25,
-		"upgrades": ["flow", "choir", "rapid", "boots", "vitality"],
+		"hovering": true,
+		"secondary": "freeze",
+		"secondary_cooldown": 10.0,
+		"upgrades": ["flow", "choir", "lash", "rapid", "vitality"],
 		"ability_pool": [
 			"warden_vine_lash", "warden_mending_wave", "warden_thorn_volley", "warden_entangle",
 			"warden_natures_grasp", "warden_verdant_ward", "warden_rising_choir", "warden_vine_step",
@@ -133,6 +183,7 @@ const CLASSES: Array[Dictionary] = [
 		"accent_color": "dbe9ff",
 		"effect_color": "a8dcff",
 		"effect_secondary": "6f8dff",
+		"health_bar_color": "7ba9ff",
 		"max_health": 130.0,
 		"movement_speed": 270.0,
 		"attack_interval": 0.8,
@@ -143,7 +194,9 @@ const CLASSES: Array[Dictionary] = [
 		"chain_range": 0.0,
 		"damage_taken_multiplier": 1.0,
 		"taunt_weight": 1.15,
-		"upgrades": ["depth", "shatter", "heavy", "boots", "vitality"],
+		"secondary": "rime_ward",
+		"secondary_cooldown": 10.0,
+		"upgrades": ["depth", "shatter", "rime", "heavy", "vitality"],
 		"ability_pool": [
 			"frostbinder_ice_spike", "frostbinder_frost_nova", "frostbinder_glacial_cone", "frostbinder_deep_freeze",
 			"frostbinder_shatter_chain", "frostbinder_frost_step", "frostbinder_permafrost", "frostbinder_vortex",
@@ -159,20 +212,37 @@ const BULWARK_TAUNT_RADIUS := 260.0
 const FROST_BURST_RADIUS := 150.0
 const FROST_SLOW_FACTOR := 0.55
 const FROST_SLOW_DURATION := 2.5
-const CONE_HALF_ANGLE_DEGREES := 62.0
+const CONE_HALF_ANGLE_DEGREES := 36.0
+const ABILITY_CONE_HALF_ANGLE_DEGREES := 62.0
+const BLAST_RADIUS := 70.0
+const BLAST_AFTERSHOCK_DAMAGE := 0.55
+const SWEEP_DEGREES := 12.0
+const SECONDARY_COOLDOWN := 10.0
+const SECONDARY_RADIUS := 170.0
+const SECONDARY_HEAL := 28.0
+const SECONDARY_DAMAGE := 16.0
+const WALL_DURATION := 6.0
+const WALL_MAX_LENGTH := 280.0
+const WALL_THICKNESS := 28.0
 
 const UPGRADES: Dictionary = {
 	"rapid": {"name": "Rapid Casting", "description": "Attack 18% faster"},
 	"heavy": {"name": "Charged Weapon", "description": "+8 weapon damage"},
 	"chain": {"name": "Forked Current", "description": "+1 Arc Staff chain"},
+	"volt": {"name": "Long Arc", "description": "+40 lightning chain range"},
+	"blast": {"name": "Wider Blast", "description": "+40 blast radius"},
+	"aftershock": {"name": "Aftershock", "description": "A second blast pulse at the impact"},
 	"boots": {"name": "Windstep Boots", "description": "+35 movement speed"},
 	"vitality": {"name": "Second Wind", "description": "+25 max HP and heal"},
 	"plating": {"name": "Layered Plating", "description": "-8% damage taken"},
 	"reach": {"name": "Long Haft", "description": "+35 slam radius"},
+	"sweep": {"name": "Wide Sweep", "description": "+14 degrees slam arc"},
 	"flow": {"name": "Steady Flow", "description": "+1.5 aura healing per second"},
 	"choir": {"name": "Rising Choir", "description": "+6% team damage aura"},
+	"lash": {"name": "Long Lash", "description": "+60 mending range"},
 	"depth": {"name": "Deep Freeze", "description": "Stronger and longer slow"},
 	"shatter": {"name": "Shatter Front", "description": "+35 frost burst radius"},
+	"rime": {"name": "Rime Tempo", "description": "Cast frost 18% faster"},
 }
 
 
@@ -572,6 +642,19 @@ static func ids() -> Array[String]:
 	for class_data in CLASSES:
 		class_ids.append(class_data.id)
 	return class_ids
+
+
+static func playable_ids() -> Array[String]:
+	return ["tobor", "arclight", "bulwark", "warden"]
+
+
+static func cpu_ally_ids(human_class_id: String) -> Array[String]:
+	var taken := sanitize_id(human_class_id)
+	var allies: Array[String] = []
+	for class_id in playable_ids():
+		if class_id != taken:
+			allies.append(class_id)
+	return allies
 
 
 static func by_id(class_id: String) -> Dictionary:

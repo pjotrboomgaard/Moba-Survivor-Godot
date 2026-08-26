@@ -29,8 +29,27 @@ func _ready() -> void:
 			return
 
 	_write_contact_sheet(sprites)
+	_write_tobor_pawns()
 	print("Forged %d sprites into %s" % [written, SpriteArt.OUTPUT_DIRECTORY])
 	get_tree().quit(0)
+
+
+func _write_tobor_pawns() -> void:
+	var names := {
+		"front": "tobor",
+		"back": "tobor_back",
+		"left": "tobor_left",
+		"right": "tobor_right",
+	}
+	for facing in names:
+		var texture := ToborBody.compose({}, 0, str(facing))
+		if texture == null:
+			printerr("Could not compose Tobor %s" % facing)
+			continue
+		var image := texture.get_image()
+		if image == null:
+			continue
+		image.save_png("%s/%s.png" % [SpriteArt.OUTPUT_DIRECTORY, names[facing]])
 
 
 ## A scaled-up sheet of everything, purely so the art can be eyeballed at once.
@@ -50,6 +69,9 @@ func _write_contact_sheet(sprites: Dictionary) -> void:
 		var size: int = art.size()
 		var cell_x := (index % COLUMNS) * CELL * ZOOM
 		var cell_y := (index / COLUMNS) * CELL * ZOOM
+		if size * ZOOM > CELL * ZOOM:
+			index += 1
+			continue
 		var inset := (CELL - size) * ZOOM / 2
 		for y in size:
 			var row: String = art[y]

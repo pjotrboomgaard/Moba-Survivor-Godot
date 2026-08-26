@@ -5,6 +5,8 @@ signal defeated(enemy: Enemy)
 signal projectile_fired(origin: Vector2, direction: Vector2, damage: float, speed: float, sprite_name: String)
 signal spawn_requested(type_id: String, origin: Vector2, count: int)
 signal exploded(origin: Vector2, radius: float, damage: float)
+signal arena_hazard_requested(spec: Dictionary)
+signal boss_phase_changed(phase: int)
 
 const SEPARATION_RANGE := 62.0
 const SEPARATION_STRENGTH := 130.0
@@ -61,6 +63,8 @@ var slow_factor := 1.0
 var slow_timer := 0.0
 var aura_pulse := 0.0
 var summon_timer := 0.0
+var speed_ramp := 0.0
+var speed_cap := 0.0
 var charge_state_timer := 0.0
 var charging := false
 var winding_up := false
@@ -72,6 +76,11 @@ var knockback_velocity := Vector2.ZERO
 ## source while it lasts, on top of the normal per-damage-type resistance.
 var vulnerability_bonus := 0.0
 var vulnerability_timer := 0.0
+var boss_phase := 1
+var pattern_cooldown := 1.1
+var slam_shots_left := 0
+var slam_shot_gap := 0.0
+var _base_projectile_count := 1
 
 
 func _ready() -> void:
@@ -95,6 +104,7 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	fill_color = Color(str(EnemyType.field(type_id, "fill_color")))
 	outline_color = Color(str(EnemyType.field(type_id, "outline_color")))
 	movement_speed = float(EnemyType.field(type_id, "movement_speed")) * maxf(0.1, speed_multiplier)
+	speed_cap = movement_speed * 4.0
 	gold_value = int(EnemyType.field(type_id, "gold_value"))
 	contact_damage = float(EnemyType.field(type_id, "contact_damage"))
 	attack_interval = float(EnemyType.field(type_id, "attack_interval"))
@@ -107,6 +117,7 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	projectile_damage = float(EnemyType.field(type_id, "projectile_damage"))
 	projectile_speed = float(EnemyType.field(type_id, "projectile_speed"))
 	projectile_count = int(EnemyType.field(type_id, "projectile_count"))
+	_base_projectile_count = projectile_count
 	projectile_sprite = str(EnemyType.field(type_id, "projectile_sprite"))
 	aura_radius = float(EnemyType.field(type_id, "aura_radius"))
 	aura_heal_per_second = float(EnemyType.field(type_id, "aura_heal_per_second"))
@@ -129,13 +140,14 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	var shape := CircleShape2D.new()
 	shape.radius = body_radius
 	collision_shape.shape = shape
-	# Fliers pass over the arena and everything walking in it.
-	collision_mask = 0 if flying else 7
+	# Fliers pass over rocks and walkers. Grounded units still bounce off walls, players and rocks.
+	collision_mask = 0 if flying else (1 | 2 | 4 | 16)
 
 	health.max_health = float(EnemyType.field(type_id, "max_health")) * maxf(1.0, health_multiplier)
 	health.current_health = health.max_health
 	health.is_dead = false
 	health.health_changed.emit(health.current_health, health.max_health)
+	_apply_biome_combat()
 	_apply_sprite()
 	queue_redraw()
 
@@ -146,7 +158,33 @@ func _apply_sprite() -> void:
 	if sprite == null or GameRuntime.is_classic():
 		return
 	sprite.texture = SpriteLibrary.texture_for(type_id)
-	sprite.scale = SpriteLibrary.scale_for_radius(sprite.texture, body_radius * 1.25)
+	var visual_radius := body_radius * (1.55 if is_boss else 1.25)
+	sprite.scale = SpriteLibrary.scale_for_radius(sprite.texture, visual_radius)
+
+
+func refresh_biome_look() -> void:
+	_apply_sprite()
+	queue_redraw()
+
+
+func _apply_biome_combat() -> void:
+	var mods := EnemyType.biome_multipliers()
+	if mods.is_empty():
+		return
+	movement_speed *= float(mods.get("speed", 1.0))
+	if flying:
+		movement_speed *= float(mods.get("flying_speed", 1.0))
+	contact_damage *= float(mods.get("contact", 1.0))
+	attack_interval *= float(mods.get("attack_interval", 1.0))
+	attack_distance *= float(mods.get("attack_distance", 1.0))
+	preferred_distance *= float(mods.get("preferred_distance", 1.0))
+	projectile_speed *= float(mods.get("projectile_speed", 1.0))
+	projectile_damage *= float(mods.get("projectile_damage", 1.0))
+	explode_radius *= float(mods.get("explode_radius", 1.0))
+	gold_value += int(mods.get("gold", 0))
+	health.max_health *= float(mods.get("health", 1.0))
+	health.current_health = health.max_health
+	health.health_changed.emit(health.current_health, health.max_health)
 
 
 func has_sprite() -> bool:
@@ -162,7 +200,7 @@ func _physics_process(delta: float) -> void:
 		modulate.a = 1.0 if winding_up else stealth_alpha
 	if not server_authoritative:
 		global_position = global_position.lerp(network_target_position, clampf(delta * 12.0, 0.0, 1.0))
-		if aura_radius > 0.0 or winding_up:
+		if aura_radius > 0.0 or winding_up or is_boss:
 			aura_pulse += delta
 			queue_redraw()
 		return
@@ -173,16 +211,22 @@ func _physics_process(delta: float) -> void:
 
 	_update_slow(delta)
 	_update_vulnerability(delta)
+	if speed_ramp > 0.0:
+		movement_speed = minf(speed_cap, movement_speed + speed_ramp * delta)
 	attack_cooldown = maxf(0.0, attack_cooldown - delta)
 	target = _find_nearest_player()
 	if target == null:
 		velocity = Vector2.ZERO
 		return
 
-	if aura_heal_per_second > 0.0:
+	if aura_heal_per_second > 0.0 and not is_boss:
 		_apply_healing_aura(delta)
 	if summon_count > 0 and summon_interval > 0.0:
 		_update_summoning(delta)
+
+	if is_boss:
+		_process_boss_fight(delta)
+		return
 
 	if dash_interval > 0.0 and _process_boss_dash(delta):
 		return
@@ -281,6 +325,173 @@ func _process_boss_dash(delta: float) -> bool:
 	return false
 
 
+func _process_boss_fight(delta: float) -> void:
+	_update_boss_phase()
+	aura_pulse += delta
+	queue_redraw()
+	if boss_phase >= 2:
+		_apply_boss_storm_field(delta)
+	if target == null:
+		velocity = Vector2.ZERO
+		return
+	if charging or winding_up:
+		_process_boss_dash(delta)
+		return
+	if slam_shots_left > 0:
+		slam_shot_gap -= delta
+		_boss_idle_move()
+		if slam_shot_gap <= 0.0:
+			_emit_player_slam()
+			slam_shots_left -= 1
+			slam_shot_gap = 0.32 if boss_phase < 3 else 0.22
+		return
+	pattern_cooldown = maxf(0.0, pattern_cooldown - delta)
+	_boss_idle_move()
+	if behaviour == EnemyType.Behaviour.RANGED and global_position.distance_to(target.global_position) <= attack_distance:
+		_fire_projectile()
+	elif behaviour != EnemyType.Behaviour.RANGED and global_position.distance_to(target.global_position) <= attack_distance:
+		_attack_target()
+	if pattern_cooldown <= 0.0:
+		_begin_boss_pattern()
+
+
+func _update_boss_phase() -> void:
+	if health.max_health <= 0.0:
+		return
+	var pct := health.current_health / health.max_health
+	var next := 1
+	if pct <= 0.33:
+		next = 3
+	elif pct <= 0.66:
+		next = 2
+	if next == boss_phase:
+		return
+	boss_phase = next
+	pattern_cooldown = 0.4
+	winding_up = false
+	charging = false
+	boss_phase_changed.emit(boss_phase)
+	AudioService.play("boss_alert")
+
+
+func _boss_idle_move() -> void:
+	if behaviour == EnemyType.Behaviour.RANGED:
+		_hold_preferred_distance()
+	else:
+		_move(global_position.direction_to(target.global_position) * movement_speed * slow_factor)
+
+
+func _begin_boss_pattern() -> void:
+	var pattern := _pick_boss_pattern()
+	var strike_damage := contact_damage if contact_damage > 0.0 else projectile_damage * 1.6
+	strike_damage *= 0.85 + 0.2 * float(boss_phase)
+	match pattern:
+		"dash":
+			winding_up = true
+			charge_state_timer = charge_windup * (0.75 if boss_phase >= 3 else 1.0)
+			pattern_cooldown = maxf(2.2, dash_interval / float(boss_phase))
+			AudioService.play("charge")
+		"slam":
+			slam_shots_left = boss_phase
+			slam_shot_gap = 0.0
+			pattern_cooldown = 2.6 - 0.35 * float(boss_phase - 1)
+		"shockwave":
+			_emit_hazard({
+				"kind": "ring",
+				"origin": global_position,
+				"max_radius": 1500.0,
+				"width": 86.0 + 10.0 * float(boss_phase),
+				"telegraph": 1.05,
+				"active": 1.15,
+				"damage": strike_damage,
+				"color": str(outline_color.to_html(false)),
+			})
+			pattern_cooldown = 3.1 - 0.35 * float(boss_phase - 1)
+		"cross":
+			_emit_cross_lines(strike_damage)
+			pattern_cooldown = 2.9 - 0.3 * float(boss_phase - 1)
+		"storm":
+			slam_shots_left = 3 + boss_phase * 2
+			slam_shot_gap = 0.0
+			_emit_cross_lines(strike_damage)
+			pattern_cooldown = 2.4
+		"volley":
+			projectile_count = _base_projectile_count + boss_phase * 3
+			_fire_projectile()
+			projectile_count = _base_projectile_count
+			pattern_cooldown = 1.7
+
+
+func _pick_boss_pattern() -> String:
+	var pool: Array[String] = ["slam", "dash"]
+	if type_id == "stormcaller":
+		pool = ["slam", "volley"]
+	if boss_phase >= 2:
+		pool.append("shockwave")
+		pool.append("cross")
+	if boss_phase >= 3:
+		pool.append("storm")
+		pool.append("cross")
+	return pool[randi() % pool.size()]
+
+
+func _emit_player_slam() -> void:
+	if target == null:
+		return
+	var strike_damage := contact_damage if contact_damage > 0.0 else projectile_damage * 1.6
+	var aim := target.global_position
+	if boss_phase >= 3:
+		aim += Vector2(randf_range(-90.0, 90.0), randf_range(-90.0, 90.0))
+	_emit_hazard({
+		"kind": "circle",
+		"origin": aim,
+		"radius": 92.0 + 12.0 * float(boss_phase),
+		"telegraph": 0.8 if boss_phase < 3 else 0.62,
+		"active": 0.28,
+		"damage": strike_damage,
+		"color": str(fill_color.to_html(false)),
+	})
+
+
+func _emit_cross_lines(strike_damage: float) -> void:
+	var toward := 0.0 if target == null else global_position.direction_to(target.global_position).angle()
+	var angles: Array[float] = [toward, toward + PI * 0.5]
+	if boss_phase >= 3:
+		angles.append(toward + PI * 0.25)
+		angles.append(toward - PI * 0.25)
+	for angle in angles:
+		_emit_hazard({
+			"kind": "line",
+			"origin": global_position,
+			"angle": angle,
+			"length": 3600.0,
+			"width": 74.0 + 8.0 * float(boss_phase),
+			"telegraph": 0.95,
+			"active": 0.32,
+			"damage": strike_damage,
+			"color": str(outline_color.to_html(false)),
+		})
+
+
+func _emit_hazard(spec: Dictionary) -> void:
+	arena_hazard_requested.emit(spec)
+
+
+func _apply_boss_storm_field(delta: float) -> void:
+	if aura_radius <= 0.0 or aura_heal_per_second <= 0.0:
+		return
+	var radius_sq := aura_radius * aura_radius
+	var tick := aura_heal_per_second * (0.65 + 0.35 * float(boss_phase)) * delta
+	for candidate in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(candidate) or not candidate is Player:
+			continue
+		var player := candidate as Player
+		if not player.active or player.health.is_dead:
+			continue
+		if global_position.distance_squared_to(player.global_position) <= radius_sq:
+			player.health.take_damage(tick, self)
+
+
 func _process_charger(delta: float) -> void:
 	if charging:
 		charge_state_timer -= delta
@@ -357,6 +568,8 @@ func _update_summoning(delta: float) -> void:
 		return
 	summon_timer = summon_interval
 	spawn_requested.emit(summon_id, global_position, summon_count)
+	if is_boss:
+		summon_interval = maxf(0.65, summon_interval * 0.94)
 
 
 func _explode() -> void:
@@ -457,6 +670,7 @@ func apply_network_state(state: Dictionary) -> void:
 		state.get("health", health.current_health),
 		state.get("max_health", health.max_health)
 	)
+	boss_phase = int(state.get("boss_phase", boss_phase))
 
 
 func snapshot() -> Dictionary:
@@ -468,6 +682,7 @@ func snapshot() -> Dictionary:
 		"max_health": health.max_health,
 		"slowed": slow_timer > 0.0,
 		"winding": winding_up,
+		"boss_phase": boss_phase,
 	}
 
 
@@ -540,7 +755,12 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, body_radius * 1.6, Color(outline_color, 0.3))
 
 	if is_boss:
-		draw_arc(Vector2.ZERO, body_radius * 1.2, 0.0, TAU, 48, Color(outline, 0.7), 3.0, true)
+		var glow := 0.55 + 0.45 * sin(aura_pulse * 4.5)
+		draw_arc(Vector2.ZERO, body_radius * 1.35, 0.0, TAU, 56, Color(outline, 0.75 + 0.2 * glow), 5.0, true)
+		if boss_phase >= 2:
+			draw_arc(Vector2.ZERO, body_radius * 2.15, 0.0, TAU, 56, Color(fill, 0.28 + 0.16 * glow), 8.0, true)
+		if boss_phase >= 3:
+			draw_circle(Vector2.ZERO, body_radius * 3.1, Color(fill, 0.09 + 0.05 * glow))
 
 	if has_sprite():
 		if slow_timer > 0.0:

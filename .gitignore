@@ -3,6 +3,8 @@ build/
 exports/
 *.log
 .DS_Store
+__pycache__/
+*.pyc
 
 # Local editor settings and credentials must never be committed.
 .env

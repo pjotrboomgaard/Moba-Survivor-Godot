@@ -16,33 +16,33 @@ grow_vertical = 2
 color = Color(0.025, 0.035, 0.055, 1)
 
 [node name="LobbyPanel" type="PanelContainer" parent="StatusLayer"]
-offset_left = 330.0
-offset_top = 20.0
-offset_right = 950.0
-offset_bottom = 700.0
+offset_left = 700.0
+offset_top = 24.0
+offset_right = 1260.0
+offset_bottom = 696.0
 
 [node name="Margin" type="MarginContainer" parent="StatusLayer/LobbyPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 28
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 28
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 20
 
 [node name="Layout" type="VBoxContainer" parent="StatusLayer/LobbyPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
-theme_override_font_sizes/font_size = 31
-text = "RIFT SURVIVORS"
+theme_override_colors/font_color = Color(1, 0.48, 0.18, 1)
+theme_override_font_sizes/font_size = 40
+text = "TOBOR"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)
-text = "CO-OP ARENA SURVIVAL · 4 HEROES · WAVES · BOSSES"
+theme_override_colors/font_color = Color(0.96, 0.77, 0.26, 1)
+text = "GLASS CANNON"
 horizontal_alignment = 1
 
 [node name="SteamStatusLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
@@ -66,7 +66,7 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "Rift Survivors Lobby"
+text = "Lobby"
 horizontal_alignment = 1
 
 [node name="PlayerSlots" type="VBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
@@ -115,24 +115,31 @@ layout_mode = 2
 
 [node name="ModeRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="ClassicButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
-custom_minimum_size = Vector2(266, 54)
+custom_minimum_size = Vector2(168, 40)
 layout_mode = 2
 toggle_mode = true
-text = "CLASSIC\nArc Staff only"
+text = "CLASSIC"
 
 [node name="PjotrButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
-custom_minimum_size = Vector2(266, 54)
+custom_minimum_size = Vector2(168, 40)
 layout_mode = 2
 toggle_mode = true
-text = "PJOTR MODE\n4 heroes · waves · bosses"
+text = "ARENA"
+
+[node name="ToborWorldButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
+custom_minimum_size = Vector2(168, 58)
+layout_mode = 2
+toggle_mode = true
+text = "TOBOR WORLD
+Cone-bot arena"
 
 [node name="DifficultyLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)
-text = "Difficulty (enemy health)"
+text = "Difficulty"
 
 [node name="DifficultyRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
@@ -163,60 +170,77 @@ toggle_mode = true
 text = "BRUTAL"
 
 [node name="ClassLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)
-text = "Choose your role"
+text = "Hero"
 
 [node name="ClassGrid" type="GridContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 2
 
 [node name="ClassButton0" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
-custom_minimum_size = Vector2(266, 72)
+custom_minimum_size = Vector2(266, 48)
 layout_mode = 2
 toggle_mode = true
 text = "CLASS 1"
 
 [node name="ClassButton1" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
-custom_minimum_size = Vector2(266, 72)
+custom_minimum_size = Vector2(266, 48)
 layout_mode = 2
 toggle_mode = true
 text = "CLASS 2"
 
 [node name="ClassButton2" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
-custom_minimum_size = Vector2(266, 72)
+custom_minimum_size = Vector2(266, 48)
 layout_mode = 2
 toggle_mode = true
 text = "CLASS 3"
 
 [node name="ClassButton3" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
-custom_minimum_size = Vector2(266, 72)
+custom_minimum_size = Vector2(266, 48)
 layout_mode = 2
 toggle_mode = true
 text = "CLASS 4"
 
 [node name="ClassDescription" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
-custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.82, 0.95, 1)
-text = "Role summary"
+text = "Hero summary"
 autowrap_mode = 3
+
+[node name="AudioRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SfxToggle" type="CheckButton" parent="StatusLayer/LobbyPanel/Margin/Layout/AudioRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "SFX"
+button_pressed = true
+
+[node name="MusicToggle" type="CheckButton" parent="StatusLayer/LobbyPanel/Margin/Layout/AudioRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "MUSIC"
+button_pressed = true
 
 [node name="SoloButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "SOLO TEST"
+text = "PLAY"
 
 [node name="HostButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "HOST CO-OP GAME"
+text = "HOST"
 
 [node name="JoinLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
-text = "Server address"
+text = "Join address"
 
 [node name="AddressInput" type="LineEdit" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 custom_minimum_size = Vector2(0, 42)
@@ -227,15 +251,15 @@ placeholder_text = "127.0.0.1:27015"
 [node name="JoinButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "JOIN GAME"
+text = "JOIN"
 
 [node name="StatusLabel" type="Label" parent="StatusLayer"]
-offset_left = 330.0
-offset_top = 596.0
-offset_right = 950.0
-offset_bottom = 636.0
+offset_left = 700.0
+offset_top = 640.0
+offset_right = 1260.0
+offset_bottom = 680.0
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 18
-text = "Choose a mode"
+text = "Pick a hero"
 horizontal_alignment = 1
 vertical_alignment = 1

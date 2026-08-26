@@ -102,17 +102,15 @@ The shop deliberately never sells the plain stat lines the level-up screen alrea
 
 | Item | Effect |
 | --- | --- |
-| Spiked Carapace | Reflects 25% of melee damage back at the attacker |
-| Phase Boots | **Active (Space)**: sprint at +90% speed for 1.5s, 9s cooldown |
-| Bloodfang | Heals you for 8% of the damage you deal |
-| Regrowth Pendant | Regenerates 1.5 health per second |
-| Rending Prism | Ignores 20% of enemy resistance against your damage type |
-| Aegis Sigil | Once per wave, a lethal hit leaves you at 35% health instead |
-| Ember Aura | Burns everything within 140 units for 6 damage per second |
-| Frostbite Charm | Your hits slow enemies by 20% for a second |
-| Lodestone | Pulls XP orbs in from 60% further away |
+| Sirene | **Active (Space)**: sprint through enemies at +90% speed for 1.5s, 9s cooldown |
+| Mech-armen | Reflects 25% of melee damage back at the attacker |
+| Vleugels | Regenerates 1.5 health per second |
+| Jetpack | Burns everything within 140 units for 6 damage per second |
+| Kanonnen | Hits knock enemies away |
+| Tentakels | Heals you for 8% of the damage you deal |
+| Skateboard | Pulls XP orbs in from 60% further away |
 
-Phase Boots is the only active: hold Space and the HUD shows the cooldown next to your gold. Aegis Sigil recharges at the start of every wave. In a solo run the game pauses while the shop is open and resumes when you start the next wave; online the thirty second shopping break keeps running. The server validates every purchase.
+Sirene is the only active: hold Space and the HUD shows the cooldown next to your gold. In a solo run the game pauses while the shop is open and resumes when you start the next wave; online the thirty second shopping break keeps running. The server validates every purchase.
 
 ## Pixel art
 

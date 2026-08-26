@@ -10,6 +10,7 @@ extends Node2D
 @onready var actors: Node2D = $Actors
 @onready var wave_director: WaveDirector = $WaveDirector
 @onready var hud: GameHUD = $HUD
+@onready var world_flash: Node2D = get_node_or_null("WorldFlash")
 
 var player_scene: PackedScene = preload("res://scenes/player/player.tscn")
 var enemy_scene: PackedScene = preload("res://scenes/enemy/enemy.tscn")
@@ -46,9 +47,22 @@ var ready_for_next_wave: Dictionary = {}
 ## peer_id of the downed player -> seconds a stationary teammate has stood next to them.
 var revive_progress: Dictionary = {}
 
-const SHOP_STAND_INTERACT_RADIUS := 70.0
 const REVIVE_RADIUS := 60.0
 const REVIVE_DURATION := 5.0
+const BOSS_MAX_ENEMIES := 160
+const CHANT_POLL_SECONDS := 0.85
+const CHANT_SUCCESS_COOLDOWN := 2.4
+const RAVAGER_MINION_START_SPEED := 0.28
+const RAVAGER_MINION_RAMP := 18.0
+const RAVAGER_MINION_CAP := 2.2
+
+var _chant_active := false
+var _chant_mantra := ""
+var _chant_time_left := 0.0
+var _chant_matched := 0
+var _chant_poll := 0.0
+var _chant_cooldown := 0.0
+var _chant_polling := false
 
 
 func _ready() -> void:
@@ -69,6 +83,7 @@ func _ready() -> void:
 
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 		_create_player(1, Player.SimulationMode.OFFLINE, true, GameRuntime.active_class_id())
+		_spawn_cpu_allies()
 		_spawn_initial_wave()
 	elif GameRuntime.is_server():
 		if GameRuntime.mode == GameRuntime.RuntimeMode.HOST:
@@ -102,6 +117,8 @@ func _physics_process(delta: float) -> void:
 		_update_shop_stand_proximity()
 	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT:
 		_update_revives(delta)
+	if not GameRuntime.is_dedicated_server():
+		_update_chant(delta)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -110,6 +127,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact_shop") and _near_shop_stand and not game_over:
 		if not hud.upgrade_panel.visible and not hud.escape_menu.visible and not hud.dev_panel.visible and not hud.codex_panel.visible:
 			hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
+			_cpu_auto_shop()
 
 
 func _register_with_server() -> void:
@@ -137,7 +155,7 @@ func server_register_client(profile: Dictionary) -> void:
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
-func server_submit_input(move_input: Vector2, aim_position: Vector2, attack_held: bool, ability_held: bool = false, ability_slots_held: Array = [false, false, false, false]) -> void:
+func server_submit_input(move_input: Vector2, aim_position: Vector2, attack_held: bool, ability_held: bool = false, ability_slots_held: Array = [false, false, false, false], secondary_held: bool = false) -> void:
 	if not GameRuntime.is_server():
 		return
 	var peer_id := multiplayer.get_remote_sender_id()
@@ -149,6 +167,7 @@ func server_submit_input(move_input: Vector2, aim_position: Vector2, attack_held
 		"attack": attack_held,
 		"ability": ability_held,
 		"ability_slots": ability_slots_held,
+		"secondary": secondary_held,
 	}
 	_apply_pending_input(peer_id)
 
@@ -160,6 +179,9 @@ func client_receive_snapshot(snapshot: Dictionary) -> void:
 	_apply_player_snapshot(snapshot.get("players", []))
 	_apply_enemy_snapshot(snapshot.get("enemies", []))
 	_apply_xp_snapshot(snapshot.get("xp_orbs", []))
+	var snapshot_biome := int(snapshot.get("biome_id", GameRuntime.biome_id))
+	if snapshot_biome != GameRuntime.biome_id:
+		_transition_to_biome(snapshot_biome)
 	var snapshot_wave := int(snapshot.get("wave", current_wave))
 	if snapshot_wave != current_wave:
 		current_wave = snapshot_wave
@@ -169,8 +191,31 @@ func client_receive_snapshot(snapshot: Dictionary) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
+func client_spawn_arena_hazard(spec: Dictionary) -> void:
+	spec["cosmetic"] = true
+	_spawn_arena_hazard(spec)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_announce_boss_phase(phase: int, boss_name: String) -> void:
+	hud.announce_boss_phase(phase, boss_name)
+	_shake_cameras(18.0, 0.7)
+	_play_world_flash()
+
+
+@rpc("authority", "call_remote", "reliable")
 func client_play_staff_effect(effect_kind: String, points: PackedVector2Array) -> void:
 	_play_staff_effect(effect_kind, points)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_play_secondary_fx(class_id: String, effect_style: int, points: PackedVector2Array) -> void:
+	_play_secondary_fx(class_id, effect_style, points)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_spawn_support_wall(points: PackedVector2Array, duration: float, color: Color) -> void:
+	_spawn_support_wall(points, duration, color)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -241,6 +286,9 @@ func client_announce_wave(wave: int, theme_name: String, debut_type_id: String) 
 	hud.set_wave(wave, theme_name)
 	hud.announce_wave(wave, theme_name, debut_type_id)
 	hud.show_next_wave_button(false)
+	if wave > 0 and wave % WaveDirector.BOSS_WAVE_INTERVAL == 0:
+		_shake_cameras(16.0, 0.6)
+		_play_world_flash()
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -316,22 +364,22 @@ func _on_local_shop_closed() -> void:
 
 ## Tracks whether the local player is close enough to the arena's shop stand to interact
 ## (see _unhandled_input's "interact_shop" handling) at any point in a wave, not just during
-## the forced breather every 10 waves. Purely local — the stand's position is a shared
-## constant, so every peer resolves range identically without any networking, and purchases
-## already go through the existing buy RPC either way. Walking away still auto-closes it.
+## the forced breather every 10 waves. Walking away still auto-closes it.
 func _update_shop_stand_proximity() -> void:
 	var local_player := _local_player()
 	if local_player == null or not local_player.active or game_over:
 		if _near_shop_stand:
 			_near_shop_stand = false
 			hud.close_shop()
+		if local_player != null:
+			local_player.set_shop_hint_visible(false)
 		return
-	var in_range := local_player.global_position.distance_to(Arena.SHOP_STAND_POSITION) <= SHOP_STAND_INTERACT_RADIUS
-	if in_range and not _near_shop_stand:
-		_near_shop_stand = true
-	elif not in_range and _near_shop_stand:
-		_near_shop_stand = false
-		hud.close_shop()
+	var in_range := local_player.global_position.distance_to(Arena.shop_stand_position()) <= Arena.SHOP_STAND_INTERACT_RADIUS
+	if in_range != _near_shop_stand:
+		_near_shop_stand = in_range
+		local_player.set_shop_hint_visible(in_range)
+		if not in_range:
+			hud.close_shop()
 
 
 ## Solo has nobody to revive it (the loop below only ever finds the downed player itself),
@@ -385,6 +433,29 @@ func _on_local_next_wave_requested() -> void:
 		_mark_ready_for_next_wave(local_player.owner_peer_id)
 
 
+const CPU_PEER_BASE := 101
+
+
+func _spawn_cpu_allies() -> void:
+	if not GameRuntime.fill_cpu_allies:
+		return
+	if GameRuntime.is_classic() or GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
+		return
+	var cpu_peer := CPU_PEER_BASE
+	for class_id in PlayerClass.cpu_ally_ids(GameRuntime.active_class_id()):
+		_create_player(cpu_peer, Player.SimulationMode.CPU, false, class_id)
+		cpu_peer += 1
+
+
+func _cpu_auto_shop() -> void:
+	for player_node in players.values():
+		var player := player_node as Player
+		if player == null or not player.is_cpu() or not player.active:
+			continue
+		for item in ShopCatalog.items_for(player.class_id):
+			player.buy(str(item.id))
+
+
 func _create_player(peer_id: int, mode: int, local_player: bool, class_id: String = PlayerClass.DEFAULT_CLASS_ID) -> Player:
 	if players.has(peer_id):
 		return players[peer_id] as Player
@@ -393,8 +464,12 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 	player.global_position = _spawn_position_for_peer(peer_id)
 	actors.add_child(player)
 	player.configure(peer_id, mode, local_player, class_id)
+	if arena is Arena:
+		player.apply_camera_limits((arena as Arena).half_extents())
 	player.staff_cast.connect(_on_staff_cast)
 	player.ability_cast.connect(_on_ability_cast)
+	player.secondary_fx.connect(_on_secondary_fx)
+	player.support_wall_spawned.connect(_on_support_wall_spawned)
 	player.player_died.connect(_on_player_died)
 	player.level_reached.connect(_on_player_level_reached.bind(peer_id))
 	players[peer_id] = player
@@ -405,8 +480,7 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 	}
 	if local_player and not GameRuntime.is_dedicated_server():
 		hud.bind_player(player)
-	if GameRuntime.is_server():
-		wave_director.set_player_count(players.size())
+	wave_director.set_player_count(players.size())
 	return player
 
 
@@ -432,7 +506,8 @@ func _update_host_input() -> void:
 		InputService.aim_world_position(host_player),
 		InputService.primary_attack_held(),
 		InputService.ability_held(),
-		_local_ability_slots_held()
+		_local_ability_slots_held(),
+		InputService.secondary_attack_held()
 	)
 
 
@@ -446,7 +521,8 @@ func _send_local_input() -> void:
 		InputService.aim_world_position(local_player),
 		InputService.primary_attack_held(),
 		InputService.ability_held(),
-		_local_ability_slots_held()
+		_local_ability_slots_held(),
+		InputService.secondary_attack_held()
 	)
 
 
@@ -460,7 +536,8 @@ func _apply_pending_input(peer_id: int) -> void:
 		input_state.get("aim", player.global_position + Vector2.RIGHT),
 		input_state.get("attack", false),
 		input_state.get("ability", false),
-		input_state.get("ability_slots", [false, false, false, false])
+		input_state.get("ability_slots", [false, false, false, false]),
+		input_state.get("secondary", false)
 	)
 
 
@@ -486,6 +563,9 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 		hud.set_wave(wave, theme_name)
 		hud.announce_wave(wave, theme_name, debut_type_id)
 		hud.show_next_wave_button(false)
+		if wave > 0 and wave % WaveDirector.BOSS_WAVE_INTERVAL == 0:
+			_shake_cameras(16.0, 0.6)
+			_play_world_flash()
 	if GameRuntime.is_server():
 		for peer_id in registered_remote_peers.keys():
 			client_announce_wave.rpc_id(peer_id, wave, theme_name, debut_type_id)
@@ -495,9 +575,17 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 ## Next Wave button only shows for the plain breathers between waves, so it doesn't sit
 ## underneath the shop panel doing the same thing twice.
 func _on_intermission_started(next_wave: int, seconds: float) -> void:
+	if not GameRuntime.is_dedicated_server():
+		AudioService.play("wave_clear")
+	if GameRuntime.uses_biomes():
+		var previous_biome := GameRuntime.biome_id
+		GameRuntime.set_biome_for_wave(next_wave)
+		if GameRuntime.biome_id != previous_biome:
+			_play_world_flash()
 	if WaveDirector.shop_opens_before(next_wave):
 		if not GameRuntime.is_dedicated_server():
 			hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
+			_cpu_auto_shop()
 		if GameRuntime.is_server():
 			for peer_id in registered_remote_peers.keys():
 				client_open_shop.rpc_id(peer_id)
@@ -519,7 +607,7 @@ func _spawn_formation(type_id: String, formation: int, count: int, health_multip
 	var base_angle := randf_range(0.0, TAU)
 	var pack_center := Vector2.RIGHT.rotated(base_angle) * randf_range(spawn_distance_min, spawn_distance_max)
 	for index in count:
-		if enemies.size() >= max_enemies:
+		if enemies.size() >= _enemy_cap():
 			return
 		var offset := Vector2.ZERO
 		match formation:
@@ -545,8 +633,13 @@ func _spawn_enemy(offset: Vector2, type_id: String, health_multiplier: float, sp
 	var entity_id := next_entity_id
 	next_entity_id += 1
 	var candidate_position := focus.global_position + offset
-	candidate_position.x = clampf(candidate_position.x, -1160.0, 1160.0)
-	candidate_position.y = clampf(candidate_position.y, -760.0, 760.0)
+	if arena is Arena:
+		var half := (arena as Arena).half_extents() - Vector2(40.0, 40.0)
+		candidate_position.x = clampf(candidate_position.x, -half.x, half.x)
+		candidate_position.y = clampf(candidate_position.y, -half.y, half.y)
+	else:
+		candidate_position.x = clampf(candidate_position.x, -1160.0, 1160.0)
+		candidate_position.y = clampf(candidate_position.y, -760.0, 760.0)
 	enemy.global_position = arena.free_position_near(candidate_position, 22.0)
 	actors.add_child(enemy)
 	enemy.configure(entity_id, true, type_id, health_multiplier, speed_multiplier)
@@ -554,6 +647,9 @@ func _spawn_enemy(offset: Vector2, type_id: String, health_multiplier: float, sp
 	enemy.projectile_fired.connect(_on_enemy_projectile_fired)
 	enemy.spawn_requested.connect(_on_enemy_spawn_requested)
 	enemy.exploded.connect(_on_enemy_exploded)
+	if enemy.is_boss:
+		enemy.arena_hazard_requested.connect(_on_arena_hazard_requested)
+		enemy.boss_phase_changed.connect(_on_boss_phase_changed)
 	enemies[entity_id] = enemy
 	return enemy
 
@@ -565,11 +661,18 @@ func _on_enemy_spawn_requested(type_id: String, origin: Vector2, count: int) -> 
 	if focus == null:
 		return
 	var multiplier := wave_director.health_multiplier_for_wave(current_wave)
+	var ravager_flood := _ravager_alive()
 	for index in count:
-		if enemies.size() >= max_enemies:
+		if enemies.size() >= _enemy_cap():
 			return
 		var jitter := Vector2(randf_range(-70.0, 70.0), randf_range(-70.0, 70.0))
-		_spawn_enemy(origin + jitter - focus.global_position, type_id, multiplier)
+		var spawned := _spawn_enemy(origin + jitter - focus.global_position, type_id, multiplier)
+		if spawned == null or not ravager_flood or type_id != "swarmling":
+			continue
+		var base_speed := float(EnemyType.field("swarmling", "movement_speed"))
+		spawned.movement_speed = base_speed * RAVAGER_MINION_START_SPEED
+		spawned.speed_ramp = RAVAGER_MINION_RAMP
+		spawned.speed_cap = base_speed * RAVAGER_MINION_CAP
 
 
 func _on_enemy_exploded(origin: Vector2, radius: float, _damage: float) -> void:
@@ -597,11 +700,167 @@ func _play_sound(sound_id: String) -> void:
 	AudioService.play(sound_id)
 
 
+func _on_arena_hazard_requested(spec: Dictionary) -> void:
+	_spawn_arena_hazard(spec)
+	var kind := str(spec.get("kind", ""))
+	if not GameRuntime.is_dedicated_server():
+		hud.pulse_danger(float(spec.get("telegraph", 0.9)))
+	if kind == "ring" or kind == "line":
+		_shake_cameras(12.0, 0.4)
+	else:
+		_shake_cameras(7.0, 0.22)
+	if GameRuntime.is_server():
+		var remote_spec := spec.duplicate()
+		remote_spec["cosmetic"] = true
+		for peer_id in registered_remote_peers.keys():
+			client_spawn_arena_hazard.rpc_id(peer_id, remote_spec)
+
+
+func _spawn_arena_hazard(spec: Dictionary) -> void:
+	if GameRuntime.is_dedicated_server() and bool(spec.get("cosmetic", false)):
+		return
+	if not GameRuntime.is_dedicated_server():
+		AudioService.play("charge")
+	var hazard := ArenaHazard.new()
+	actors.add_child(hazard)
+	hazard.configure(spec)
+
+
+func _on_boss_phase_changed(phase: int) -> void:
+	var boss := _find_boss()
+	var boss_name := "BOSS"
+	if boss != null:
+		boss_name = str(EnemyType.by_id(boss.type_id).name)
+	if not GameRuntime.is_dedicated_server():
+		hud.announce_boss_phase(phase, boss_name)
+		_shake_cameras(20.0, 0.75)
+		_play_world_flash()
+	if GameRuntime.is_server():
+		for peer_id in registered_remote_peers.keys():
+			client_announce_boss_phase.rpc_id(peer_id, phase, boss_name)
+
+
+func _shake_cameras(amplitude: float, duration: float) -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	for player in players.values():
+		if is_instance_valid(player):
+			(player as Player).shake_camera(amplitude, duration)
+
+
 func _find_boss() -> Enemy:
 	for enemy in enemies.values():
 		if is_instance_valid(enemy) and (enemy as Enemy).is_boss and not (enemy as Enemy).health.is_dead:
 			return enemy as Enemy
 	return null
+
+
+func _ravager_alive() -> bool:
+	var boss := _find_boss()
+	return boss != null and boss.type_id == "ravager"
+
+
+func _enemy_cap() -> int:
+	return BOSS_MAX_ENEMIES if _ravager_alive() else max_enemies
+
+
+func _update_chant(delta: float) -> void:
+	if game_over or not _ravager_alive() or enemies.size() <= 1:
+		if _chant_active:
+			_stop_chant()
+		return
+	VoiceService.ensure_capture()
+	if _chant_cooldown > 0.0:
+		_chant_cooldown = maxf(0.0, _chant_cooldown - delta)
+		hud.hide_chant()
+		return
+	if not _chant_active:
+		_start_chant()
+	_chant_time_left -= delta
+	if Input.is_action_just_pressed("ui_accept"):
+		var word_count := VoiceService.mantra_words(_chant_mantra).size()
+		_chant_matched = mini(_chant_matched + 1, word_count)
+		if _chant_matched >= word_count:
+			_succeed_chant()
+			return
+	_chant_poll += delta
+	if VoiceService.voice_ready() and _chant_poll >= CHANT_POLL_SECONDS and not _chant_polling:
+		_chant_poll = 0.0
+		_poll_chant()
+	if _chant_active:
+		hud.show_chant(_chant_mantra, _chant_matched, _chant_time_left, VoiceService.voice_ready())
+	if _chant_active and _chant_time_left <= 0.0:
+		_fail_chant()
+
+
+func _start_chant() -> void:
+	_chant_active = true
+	_chant_mantra = VoiceService.next_mantra()
+	_chant_time_left = VoiceService.CHANT_SECONDS
+	_chant_matched = 0
+	_chant_poll = 0.0
+	VoiceService.start_recording()
+
+
+func _stop_chant() -> void:
+	_chant_active = false
+	_chant_polling = false
+	VoiceService.stop_recording()
+	hud.hide_chant()
+
+
+func _fail_chant() -> void:
+	_stop_chant()
+	_chant_cooldown = 0.35
+
+
+func _succeed_chant() -> void:
+	_stop_chant()
+	_chant_cooldown = CHANT_SUCCESS_COOLDOWN
+	_pulse_clear_minions()
+
+
+func _poll_chant() -> void:
+	_chant_polling = true
+	var heard := await VoiceService.transcribe_current(_chant_mantra)
+	_chant_polling = false
+	if not _chant_active:
+		return
+	_chant_matched = VoiceService.matched_count(_chant_mantra, heard)
+	if VoiceService.is_complete(_chant_mantra, heard):
+		_succeed_chant()
+
+
+func _pulse_clear_minions() -> void:
+	var origin := Vector2.ZERO
+	var local := _local_player()
+	if local != null:
+		origin = local.global_position
+	_play_chant_pulse(origin)
+	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
+		return
+	var doomed: Array = []
+	for enemy in enemies.values():
+		if not is_instance_valid(enemy):
+			continue
+		var minion := enemy as Enemy
+		if minion.is_boss or minion.health.is_dead:
+			continue
+		doomed.append(minion)
+	for minion in doomed:
+		minion.health.take_damage(minion.health.max_health + 80.0)
+
+
+func _play_chant_pulse(origin: Vector2) -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	var effect := lightning_scene.instantiate() as LightningEffect
+	effect.style = PlayerClass.EffectStyle.BURST
+	effect.main_color = Color("ffe08c")
+	effect.chain_color = Color("4f8fe0")
+	effect.points = PackedVector2Array([origin, Vector2(420.0, 0.0)])
+	add_child(effect)
+	AudioService.play("explosion")
 
 
 func _on_enemy_projectile_fired(origin: Vector2, direction: Vector2, damage: float, speed: float, sprite_name: String) -> void:
@@ -665,6 +924,43 @@ func _on_staff_cast(effect_kind: String, points: PackedVector2Array) -> void:
 			client_play_staff_effect.rpc_id(peer_id, effect_kind, points)
 
 
+func _on_secondary_fx(class_id: String, style: int, points: PackedVector2Array) -> void:
+	_play_secondary_fx(class_id, style, points)
+	if GameRuntime.is_server():
+		for peer_id in registered_remote_peers.keys():
+			client_play_secondary_fx.rpc_id(peer_id, class_id, style, points)
+
+
+func _on_support_wall_spawned(points: PackedVector2Array, duration: float, color: Color) -> void:
+	if GameRuntime.is_server():
+		for peer_id in registered_remote_peers.keys():
+			client_spawn_support_wall.rpc_id(peer_id, points, duration, color)
+
+
+func _play_secondary_fx(class_id: String, style: int, points: PackedVector2Array) -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	var class_data := PlayerClass.by_id(class_id)
+	var effect := lightning_scene.instantiate() as LightningEffect
+	effect.style = style
+	effect.main_color = Color(class_data.effect_color)
+	effect.chain_color = Color(class_data.effect_secondary)
+	if style == PlayerClass.EffectStyle.BLAST or style == PlayerClass.EffectStyle.BURST:
+		effect.lifetime = 0.48
+	effect.points = points
+	add_child(effect)
+	AudioService.play("cast_%s" % class_id)
+
+
+func _spawn_support_wall(points: PackedVector2Array, duration: float, color: Color) -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	var wall := SupportWall.new()
+	actors.add_child(wall)
+	wall.configure(points, duration, null, color)
+	AudioService.play("sfx_force")
+
+
 func _play_staff_effect(effect_kind: String, points: PackedVector2Array) -> void:
 	if GameRuntime.is_dedicated_server():
 		return
@@ -701,7 +997,7 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 	var vfx := ability_vfx_scene.instantiate() as AbilityVfx
 	vfx.configure(ability_id, effect_style, points)
 	add_child(vfx)
-	AudioService.play("cast_%s" % class_prefix)
+	AudioService.play_ability(ability_id)
 
 
 func _on_player_died(_peer_id: int) -> void:
@@ -719,8 +1015,7 @@ func _on_player_level_reached(_level: int, peer_id: int) -> void:
 	_offer_next_upgrade(peer_id)
 
 
-## Level-ups alternate ability choices (learn a new one or rank up a known one) with the
-## classic flat stat-upgrade choices, tracked per peer by offer_turn_index's parity.
+## Level-ups grant small incremental stat upgrades (no hero abilities).
 func _offer_next_upgrade(peer_id: int) -> void:
 	if pending_upgrades.has(peer_id) or pending_ability_offers.has(peer_id):
 		return
@@ -729,16 +1024,18 @@ func _offer_next_upgrade(peer_id: int) -> void:
 	var leveled_player := players.get(peer_id) as Player
 	if leveled_player == null:
 		return
-	var turn_index := int(offer_turn_index.get(peer_id, 0))
-	if turn_index % 2 == 0:
-		_offer_ability_turn(peer_id, leveled_player)
-	else:
-		_offer_stat_turn(peer_id, leveled_player)
+	_offer_stat_turn(peer_id, leveled_player)
 
 
 func _offer_stat_turn(peer_id: int, leveled_player: Player) -> void:
 	var upgrade_ids := PlayerClass.random_upgrade_ids(leveled_player.class_id)
+	if upgrade_ids.is_empty():
+		_advance_offer(peer_id)
+		return
 	pending_upgrades[peer_id] = upgrade_ids
+	if leveled_player.is_cpu():
+		_apply_upgrade_choice(peer_id, str(upgrade_ids[0]))
+		return
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
 		hud.show_upgrade_ids(players[peer_id], upgrade_ids, GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 	else:
@@ -753,6 +1050,9 @@ func _offer_ability_turn(peer_id: int, leveled_player: Player) -> void:
 		_advance_offer(peer_id)
 		return
 	pending_ability_offers[peer_id] = ability_ids
+	if leveled_player.is_cpu():
+		_apply_ability_choice(peer_id, str(ability_ids[0]))
+		return
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
 		hud.show_ability_offer(players[peer_id], ability_ids, GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 	else:
@@ -848,6 +1148,63 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 			_dev_spawn_elite()
 		"toggle_invulnerable":
 			player.set_invulnerable(not player.health.invulnerable)
+		"biome_auto":
+			if GameRuntime.uses_biomes():
+				GameRuntime.unlock_biome_for_wave(maxi(1, current_wave))
+				_play_world_flash()
+		"add_gold":
+			player.add_gold(500)
+		_:
+			if command.begins_with("biome_") and GameRuntime.uses_biomes():
+				GameRuntime.set_biome(int(command.trim_prefix("biome_")))
+				_play_world_flash()
+
+
+func _rebuild_arena() -> void:
+	if arena is Arena:
+		(arena as Arena).rebuild()
+	_sync_playfield()
+	for enemy in enemies.values():
+		if enemy is Enemy and is_instance_valid(enemy):
+			(enemy as Enemy).refresh_biome_look()
+
+
+func _play_world_flash() -> void:
+	if GameRuntime.is_dedicated_server() or world_flash == null:
+		_rebuild_arena()
+		return
+	world_flash.visible = true
+	world_flash.modulate.a = 0.0
+	var tween := create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tween.tween_property(world_flash, "modulate:a", 1.0, 0.12)
+	tween.tween_callback(_rebuild_arena)
+	tween.tween_interval(0.08)
+	tween.tween_property(world_flash, "modulate:a", 0.0, 0.4)
+	tween.tween_callback(func() -> void:
+		if world_flash != null:
+			world_flash.visible = false
+	)
+
+
+func _transition_to_biome(next_id: int) -> void:
+	if next_id == GameRuntime.biome_id:
+		return
+	GameRuntime.biome_id = next_id
+	_play_world_flash()
+
+
+func _sync_playfield() -> void:
+	if not arena is Arena:
+		return
+	var half := (arena as Arena).half_extents()
+	for player in players.values():
+		if not is_instance_valid(player):
+			continue
+		var body := player as Player
+		body.apply_camera_limits(half)
+		if (arena as Arena).is_blocked(body.global_position, 18.0):
+			body.global_position = Vector2.ZERO
 
 
 ## Uses the wave system's own health scaling and spawn plumbing, so it works the same in
@@ -879,6 +1236,7 @@ func _build_snapshot() -> Dictionary:
 		"xp_orbs": orb_states,
 		"wave": current_wave,
 		"wave_name": current_wave_name,
+		"biome_id": GameRuntime.biome_id,
 	}
 
 

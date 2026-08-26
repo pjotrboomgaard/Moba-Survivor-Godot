@@ -14,6 +14,13 @@ config/name="Rift Survivors"
 run/main_scene="res://scenes/bootstrap/bootstrap.tscn"
 config/features=PackedStringArray("4.7")
 
+[audio]
+
+; Off: WASAPI crashes or log-floods on 4-channel laptop mic arrays.
+; Mic/webcam capture goes through tools/av_capture.py instead.
+driver/enable_input=false
+buses/default_bus_layout="res://default_bus_layout.tres"
+
 [autoload]
 
 GameRuntime="*res://autoload/game_runtime.gd"
@@ -22,6 +29,7 @@ NetworkService="*res://autoload/network_service.gd"
 PlayerProfile="*res://autoload/player_profile.gd"
 InputService="*res://autoload/input_service.gd"
 AudioService="*res://autoload/audio_service.gd"
+VoiceService="*res://autoload/voice_service.gd"
 
 [display]
 
@@ -30,6 +38,10 @@ window/size/viewport_height=720
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
+
+[gui]
+
+theme/custom_font="res://assets/fonts/Barlow-Regular.ttf"
 
 [input]
 
@@ -61,6 +73,11 @@ restart={
 primary_attack={
 "deadzone": 0.2,
 "events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":32,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":1,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+secondary_attack={
+"deadzone": 0.2,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":32,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":2,"canceled":false,"pressed":false,"double_click":false,"script":null)
 ]
 }
 ability={
@@ -119,19 +136,16 @@ interact_shop={
 ]
 }
 
-[gui]
-
-theme/custom_font="res://assets/fonts/CourierPrime-Regular.ttf"
-
 [layer_names]
 
 2d_physics/layer_1="World"
 2d_physics/layer_2="Players"
 2d_physics/layer_3="Enemies"
 2d_physics/layer_4="Projectiles"
+2d_physics/layer_5="Obstacles"
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/canvas_textures/default_texture_filter=0

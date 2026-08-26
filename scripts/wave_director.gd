@@ -40,22 +40,52 @@ const SCRIPTED_WAVES: Array[Dictionary] = [
 	{"name": "Growing Numbers", "archetype": Archetype.STANDARD, "debut": "swarmling"},
 	{"name": "The Swarm", "archetype": Archetype.SWARM},
 	{"name": "Acid Rain", "archetype": Archetype.STANDARD, "debut": "spitter"},
-	{"name": "Crossfire", "archetype": Archetype.SNIPERS},
+	{"name": "The Ravager", "archetype": Archetype.BOSS},
 	{"name": "Wings", "archetype": Archetype.STANDARD, "debut": "drifter"},
 	{"name": "Air Assault", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
 	{"name": "The Wall", "archetype": Archetype.STANDARD, "debut": "brute"},
 	{"name": "Shadows", "archetype": Archetype.STANDARD, "debut": "stalker", "modifier": Modifier.ENRAGED},
-	{"name": "The Ravager", "archetype": Archetype.BOSS},
-	{"name": "Bombardment", "archetype": Archetype.STANDARD, "debut": "bomber"},
-	{"name": "Unholy Choir", "archetype": Archetype.STANDARD, "debut": "hexer"},
-	{"name": "Iron Line", "archetype": Archetype.STANDARD, "debut": "sentinel"},
-	{"name": "Ambush", "archetype": Archetype.AMBUSH, "debut": "lurker"},
-	{"name": "Division", "archetype": Archetype.STANDARD, "debut": "splitter"},
-	{"name": "Skyfall", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.ENRAGED},
-	{"name": "Stampede", "archetype": Archetype.STANDARD, "debut": "charger"},
-	{"name": "Night Terrors", "archetype": Archetype.SWARM, "modifier": Modifier.FRAGILE_HORDE},
-	{"name": "Dark Ritual", "archetype": Archetype.STANDARD, "debut": "summoner"},
 	{"name": "The Stormcaller", "archetype": Archetype.BOSS},
+	{"name": "Bombardment", "archetype": Archetype.STANDARD, "debut": "bomber"},
+	{"name": "Magma Choir", "archetype": Archetype.STANDARD, "debut": "hexer"},
+	{"name": "Cinder Line", "archetype": Archetype.STANDARD, "debut": "sentinel"},
+	{"name": "Lava Ambush", "archetype": Archetype.AMBUSH, "debut": "lurker"},
+	{"name": "The Reckoning", "archetype": Archetype.BOSS},
+	{"name": "Ashfall", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.ENRAGED, "debut": "splitter"},
+	{"name": "Stampede", "archetype": Archetype.STANDARD, "debut": "charger"},
+	{"name": "Ember Tide", "archetype": Archetype.SWARM, "modifier": Modifier.FRAGILE_HORDE},
+	{"name": "Dark Ritual", "archetype": Archetype.STANDARD, "debut": "summoner"},
+	{"name": "The Vanguard", "archetype": Archetype.BOSS},
+	{"name": "Pack Ice", "archetype": Archetype.STANDARD},
+	{"name": "Whiteout", "archetype": Archetype.SNIPERS, "modifier": Modifier.ENRAGED},
+	{"name": "Floes", "archetype": Archetype.AIR_ASSAULT},
+	{"name": "Crevasse", "archetype": Archetype.AMBUSH},
+	{"name": "Apex", "archetype": Archetype.BOSS},
+	{"name": "Drift", "archetype": Archetype.SWARM, "modifier": Modifier.FRAGILE_HORDE},
+	{"name": "Permafrost", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+	{"name": "Blizzard", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
+	{"name": "Icebreakers", "archetype": Archetype.STANDARD},
+	{"name": "The Stormcaller", "archetype": Archetype.BOSS},
+	{"name": "Assembly", "archetype": Archetype.STANDARD},
+	{"name": "Iron Line", "archetype": Archetype.ELITE},
+	{"name": "Kill Floor", "archetype": Archetype.SNIPERS},
+	{"name": "Shift Change", "archetype": Archetype.AMBUSH},
+	{"name": "The Ravager", "archetype": Archetype.BOSS},
+	{"name": "Overhead Crane", "archetype": Archetype.AIR_ASSAULT},
+	{"name": "Press Gang", "archetype": Archetype.SWARM},
+	{"name": "Lockdown", "archetype": Archetype.STANDARD, "modifier": Modifier.ENRAGED},
+	{"name": "Scrap Tide", "archetype": Archetype.SWARM, "modifier": Modifier.SURGE},
+	{"name": "The Stormcaller", "archetype": Archetype.BOSS},
+	{"name": "Boardwalk", "archetype": Archetype.STANDARD},
+	{"name": "High Tide", "archetype": Archetype.AIR_ASSAULT},
+	{"name": "Piers", "archetype": Archetype.AMBUSH},
+	{"name": "Gulls", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.ENRAGED},
+	{"name": "The Vanguard", "archetype": Archetype.BOSS},
+	{"name": "Rip Current", "archetype": Archetype.SWARM},
+	{"name": "Longshore", "archetype": Archetype.SNIPERS},
+	{"name": "Storm Wall", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
+	{"name": "Last Call", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+	{"name": "Apex", "archetype": Archetype.BOSS},
 ]
 
 const IMPROVISED_NAMES := {
@@ -70,13 +100,13 @@ const IMPROVISED_NAMES := {
 
 const INTERMISSION_SECONDS := 14.0
 const SHOP_INTERMISSION_SECONDS := 30.0
-## The shop only opens after every tenth wave, right on the heels of a boss.
+## The shop opens after every other boss (waves 10, 20, 30, ...).
 const SHOP_WAVE_INTERVAL := 10
 const GROUP_INTERVAL_SECONDS := 1.7
 const AMBUSH_GROUP_INTERVAL := 0.2
 const WAVE_TIMEOUT_SECONDS := 120.0
-const ELITE_WAVE_INTERVAL := 5
-const BOSS_WAVE_INTERVAL := 10
+const ELITE_WAVE_INTERVAL := 8
+const BOSS_WAVE_INTERVAL := 5
 ## Enemies start noticeably tankier now (2x the old wave-1 health) and keep climbing faster
 ## than before, so the run keeps escalating rather than plateauing once players out-level it.
 const BASE_HEALTH_MULTIPLIER := 2.0
@@ -161,7 +191,8 @@ func _process(delta: float) -> void:
 			_release_next_group()
 		return
 
-	if live_enemy_count <= 0 or wave_elapsed >= WAVE_TIMEOUT_SECONDS:
+	var timed_out := wave_elapsed >= WAVE_TIMEOUT_SECONDS and archetype != Archetype.BOSS
+	if live_enemy_count <= 0 or timed_out:
 		_begin_intermission()
 
 
@@ -265,10 +296,8 @@ func _improvised_archetype(target_wave: int) -> Archetype:
 		return Archetype.BOSS
 	if target_wave % ELITE_WAVE_INTERVAL == 0:
 		return Archetype.ELITE
-	# STANDARD gets an extra slot so fast/swarm-heavy archetypes (SWARM, AIR_ASSAULT with its
-	# drifter/bomber pair) don't dominate the late-game mix on their own.
+	var biome := GameRuntime.biome_for_wave(target_wave)
 	var pool: Array[Archetype] = [
-		Archetype.STANDARD,
 		Archetype.STANDARD,
 		Archetype.STANDARD,
 		Archetype.SWARM,
@@ -276,6 +305,15 @@ func _improvised_archetype(target_wave: int) -> Archetype:
 		Archetype.SNIPERS,
 		Archetype.AMBUSH,
 	]
+	match biome:
+		1:
+			pool = [Archetype.STANDARD, Archetype.AIR_ASSAULT, Archetype.SWARM, Archetype.STANDARD]
+		2:
+			pool = [Archetype.SNIPERS, Archetype.AIR_ASSAULT, Archetype.AMBUSH, Archetype.STANDARD]
+		3:
+			pool = [Archetype.STANDARD, Archetype.SNIPERS, Archetype.AMBUSH, Archetype.STANDARD]
+		4:
+			pool = [Archetype.AIR_ASSAULT, Archetype.AIR_ASSAULT, Archetype.AMBUSH, Archetype.STANDARD]
 	return pool[randi() % pool.size()]
 
 
@@ -398,12 +436,10 @@ func _plan_elite(target_wave: int, budget: float, multiplier: float, speed_multi
 	return groups
 
 
-func _plan_boss(target_wave: int, budget: float, multiplier: float, speed_multiplier: float, available: Array[Dictionary]) -> Array[Dictionary]:
+func _plan_boss(target_wave: int, _budget: float, multiplier: float, _speed_multiplier: float, _available: Array[Dictionary]) -> Array[Dictionary]:
 	var boss := EnemyType.by_id(EnemyType.boss_for_wave(target_wave))
-	var boss_multiplier := multiplier * (1.0 + 0.25 * float(player_count - 1))
-	var groups: Array[Dictionary] = [_make_group(boss, EnemyType.Formation.LONE, 1, boss_multiplier, 1.0)]
-	groups.append_array(_plan_standard(budget * 0.5, multiplier, speed_multiplier, available))
-	return groups
+	var boss_multiplier := multiplier * (1.0 + 0.35 * float(player_count - 1))
+	return [_make_group(boss, EnemyType.Formation.LONE, 1, boss_multiplier, 1.0)]
 
 
 func _plan_ambush(budget: float, multiplier: float, speed_multiplier: float, available: Array[Dictionary]) -> Array[Dictionary]:

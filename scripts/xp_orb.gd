@@ -19,7 +19,6 @@ func _ready() -> void:
 		sprite.texture = SpriteLibrary.texture_for("xp_orb")
 		sprite.scale = SpriteLibrary.scale_for_radius(sprite.texture, 9.0)
 	queue_redraw()
-	tree_exiting.connect(func() -> void: AudioService.play("xp"))
 
 
 func has_sprite() -> bool:
@@ -44,6 +43,7 @@ func _physics_process(delta: float) -> void:
 	var pull_radius := attraction_radius * (1.0 + target.pickup_radius_bonus)
 	if distance <= pickup_distance:
 		target.add_xp(xp_value)
+		AudioService.play("xp")
 		queue_free()
 	elif distance <= pull_radius:
 		global_position = global_position.move_toward(target.global_position, attraction_speed * delta)

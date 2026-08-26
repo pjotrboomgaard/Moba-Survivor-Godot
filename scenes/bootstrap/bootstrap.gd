@@ -4,6 +4,8 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 
 @onready var backdrop: ColorRect = $StatusLayer/Backdrop
 @onready var lobby_panel: PanelContainer = $StatusLayer/LobbyPanel
+@onready var title_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/Title
+@onready var subtitle_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/Subtitle
 @onready var address_input: LineEdit = $StatusLayer/LobbyPanel/Margin/Layout/AddressInput
 @onready var solo_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/SoloButton
 @onready var host_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/HostButton
@@ -14,6 +16,7 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var class_description: Label = $StatusLayer/LobbyPanel/Margin/Layout/ClassDescription
 @onready var classic_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow/ClassicButton
 @onready var pjotr_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow/PjotrButton
+@onready var tobor_world_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/ModeRow/ToborWorldButton
 @onready var difficulty_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/DifficultyLabel
 @onready var difficulty_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow
 @onready var easy_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow/EasyButton
@@ -32,6 +35,8 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var cancel_create_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow/CancelCreateButton
 @onready var start_game_button: Button = $StatusLayer/LobbyPanel/Margin/Layout/StartGameButton
 @onready var waiting_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/WaitingLabel
+@onready var sfx_toggle: CheckButton = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow/SfxToggle
+@onready var music_toggle: CheckButton = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow/MusicToggle
 
 var game_loaded := false
 var class_buttons: Array[Button] = []
@@ -51,6 +56,9 @@ var _waiting_steam_operation := false
 var _steam_operation_elapsed := 0.0
 var _steam_lobby_members: Array[String] = []
 var _lobby_refresh_timer := 0.0
+var _updating_class_ui := false
+var _updating_audio_ui := false
+var cpu_coop_button: Button
 
 const STEAM_OPERATION_TIMEOUT := 22.0
 
@@ -58,12 +66,15 @@ const STEAM_OPERATION_TIMEOUT := 22.0
 func _ready() -> void:
 	classic_button.pressed.connect(_on_game_mode_pressed.bind(GameRuntime.GameMode.CLASSIC))
 	pjotr_button.pressed.connect(_on_game_mode_pressed.bind(GameRuntime.GameMode.PJOTR))
+	tobor_world_button.visible = false
 	easy_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.EASY))
 	normal_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.NORMAL))
 	hard_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.HARD))
 	brutal_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.BRUTAL))
 	_refresh_difficulty()
 	_build_class_selection()
+	_apply_tobor_theme()
+	_install_cpu_coop_button()
 	_refresh_game_mode()
 	solo_button.pressed.connect(_on_solo_pressed)
 	host_button.pressed.connect(_on_host_pressed)
@@ -73,6 +84,9 @@ func _ready() -> void:
 	invite_button.pressed.connect(_on_invite_pressed)
 	leave_lobby_button.pressed.connect(_on_leave_lobby_pressed)
 	cancel_create_button.pressed.connect(_on_cancel_create_pressed)
+	sfx_toggle.toggled.connect(_on_sfx_toggled)
+	music_toggle.toggled.connect(_on_music_toggled)
+	_sync_audio_toggles()
 	SteamService.steam_ready.connect(_on_steam_ready)
 	SteamService.steam_unavailable.connect(_on_steam_unavailable)
 	SteamService.join_requested.connect(_on_steam_join_requested)
@@ -87,8 +101,11 @@ func _ready() -> void:
 func _start_runtime() -> void:
 	match GameRuntime.mode:
 		GameRuntime.RuntimeMode.OFFLINE:
-			_show_lobby("Choose solo, host, or join")
-			_check_pending_steam_invite()
+			if GameRuntime.pending_steam_lobby_id != 0:
+				_show_lobby("Joining Steam lobby...")
+				_check_pending_steam_invite()
+			else:
+				_show_lobby("Pick a hero")
 		GameRuntime.RuntimeMode.HOST:
 			_start_host()
 		GameRuntime.RuntimeMode.CLIENT:
@@ -157,13 +174,13 @@ func _refresh_steam_status() -> void:
 		return
 	if not _steam_status_known:
 		steam_status_label.text = "Checking Steam..."
-		join_label.text = "Server address"
+		join_label.text = "Join address"
 	elif SteamService.is_available():
-		steam_status_label.text = "Steam: signed in as %s — Host opens an invite" % SteamService.local_persona_name()
-		join_label.text = "LAN / direct IP (advanced)"
+		steam_status_label.text = "Steam  ·  %s" % SteamService.local_persona_name()
+		join_label.text = "LAN address"
 	else:
-		steam_status_label.text = "Steam not detected — host/join by LAN address only"
-		join_label.text = "Server address"
+		steam_status_label.text = "Steam offline  ·  LAN only"
+		join_label.text = "Join address"
 	host_button.disabled = not _lobby_enabled or not _steam_status_known
 
 
@@ -182,40 +199,90 @@ func _on_steam_join_requested(lobby_id: int) -> void:
 	_join_via_steam(lobby_id)
 
 
+func _apply_tobor_theme() -> void:
+	backdrop.color = Color("0c0a08")
+	title_label.text = "TOBOR"
+	title_label.add_theme_font_override("font", preload("res://assets/fonts/Barlow-SemiBold.ttf"))
+	title_label.add_theme_font_size_override("font_size", 40)
+	title_label.add_theme_color_override("font_color", Color("ff7a2e"))
+	subtitle_label.add_theme_color_override("font_color", Color("f5c542"))
+	mode_row.visible = true
+	class_label.text = "Hero"
+	lobby_title_label.text = "Lobby"
+	_apply_hero_backdrop()
+
+
+func _hero_backdrop() -> TextureRect:
+	var layer := $StatusLayer as CanvasLayer
+	var art := layer.get_node_or_null("ToborAction") as TextureRect
+	if art != null:
+		return art
+	art = TextureRect.new()
+	art.name = "ToborAction"
+	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(art)
+	layer.move_child(art, backdrop.get_index() + 1)
+	return art
+
+
+func _apply_hero_backdrop() -> void:
+	var art := _hero_backdrop()
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	## Fit the whole painting in the window. COVERED cropped Tobor's 1024 square.
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.texture = SpriteLibrary.menu_backdrop_for(PlayerProfile.selected_class_id)
+	art.visible = true
+
+
 func _build_class_selection() -> void:
-	for index in PlayerClass.CLASSES.size():
+	var group := ButtonGroup.new()
+	group.allow_unpress = false
+	for index in mini(class_grid.get_child_count(), PlayerClass.CLASSES.size()):
 		var class_data := PlayerClass.CLASSES[index]
 		var button := class_grid.get_child(index) as Button
 		if button == null:
 			continue
-		button.text = "%s\n%s · %s" % [class_data.name, class_data.role, class_data.weapon_name]
+		button.text = str(class_data.name)
 		button.add_theme_color_override("font_color", Color(class_data.accent_color))
-		button.pressed.connect(_on_class_pressed.bind(str(class_data.id)))
+		button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		button.icon = SpriteLibrary.texture_for(str(class_data.id))
+		button.expand_icon = false
+		button.add_theme_constant_override("icon_max_width", 48)
+		button.toggle_mode = true
+		button.button_group = group
+		button.toggled.connect(_on_class_toggled.bind(str(class_data.id)))
 		class_buttons.append(button)
 	_refresh_class_selection()
 
 
 func _on_game_mode_pressed(next_game_mode: GameRuntime.GameMode) -> void:
+	AudioService.play("ui_click")
 	GameRuntime.set_game_mode(next_game_mode)
 	_refresh_game_mode()
 
 
 func _refresh_game_mode() -> void:
-	var classic := GameRuntime.is_classic()
-	classic_button.button_pressed = classic
-	pjotr_button.button_pressed = not classic
-	class_label.visible = not classic
-	class_grid.visible = not classic
-	difficulty_label.visible = not classic
-	difficulty_row.visible = not classic
-	if classic:
-		var arclight := PlayerClass.by_id(PlayerClass.DEFAULT_CLASS_ID)
-		class_description.text = "Classic run — %s only, endless grunts, no waves or bosses." % arclight.name
+	classic_button.button_pressed = GameRuntime.game_mode == GameRuntime.GameMode.CLASSIC
+	pjotr_button.button_pressed = not GameRuntime.is_classic()
+	tobor_world_button.visible = false
+	mode_row.visible = true
+	var show_classes := not GameRuntime.is_classic()
+	class_label.visible = show_classes
+	class_grid.visible = show_classes
+	difficulty_label.visible = not GameRuntime.is_classic()
+	difficulty_row.visible = not GameRuntime.is_classic()
+	if cpu_coop_button != null:
+		cpu_coop_button.visible = not GameRuntime.is_classic()
+	if GameRuntime.is_classic():
+		class_description.text = "Original grid arena. Arc Staff, no shop."
 	else:
 		_refresh_class_selection()
 
 
 func _on_difficulty_pressed(next_difficulty: GameRuntime.Difficulty) -> void:
+	AudioService.play("ui_click")
 	GameRuntime.set_difficulty(next_difficulty)
 	_refresh_difficulty()
 
@@ -231,31 +298,76 @@ func _refresh_difficulty() -> void:
 		buttons[difficulty_option].button_pressed = difficulty_option == GameRuntime.difficulty
 
 
-func _on_class_pressed(class_id: String) -> void:
+func _on_class_toggled(is_pressed: bool, class_id: String) -> void:
+	if _updating_class_ui or not is_pressed:
+		return
 	PlayerProfile.select_class(class_id)
+	AudioService.play("ui_click")
 	_refresh_class_selection()
 
 
+func _sync_audio_toggles() -> void:
+	_updating_audio_ui = true
+	sfx_toggle.button_pressed = AudioService.sfx_enabled
+	music_toggle.button_pressed = AudioService.music_enabled
+	_updating_audio_ui = false
+
+
+func _on_sfx_toggled(pressed: bool) -> void:
+	if _updating_audio_ui:
+		return
+	AudioService.set_sfx_enabled(pressed)
+	if pressed:
+		AudioService.play("ui_click")
+
+
+func _on_music_toggled(pressed: bool) -> void:
+	if _updating_audio_ui:
+		return
+	AudioService.set_music_enabled(pressed)
+	AudioService.play("ui_click")
+
+
 func _refresh_class_selection() -> void:
+	_updating_class_ui = true
 	for index in class_buttons.size():
 		var class_data := PlayerClass.CLASSES[index]
 		class_buttons[index].button_pressed = class_data.id == PlayerProfile.selected_class_id
+	_updating_class_ui = false
 	var selected := PlayerClass.by_id(PlayerProfile.selected_class_id)
-	class_description.text = "%s — %d HP · %d speed · %d damage\n%s" % [
-		selected.name,
-		int(selected.max_health),
-		int(selected.movement_speed),
-		int(selected.weapon_damage),
-		selected.counters,
-	]
+	class_description.text = str(selected.description)
+	subtitle_label.text = str(selected.role).to_upper()
+	_apply_hero_backdrop()
 
 
 func _on_solo_pressed() -> void:
+	AudioService.play("ui_click")
+	GameRuntime.fill_cpu_allies = false
+	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
+	_open_game()
+
+
+func _install_cpu_coop_button() -> void:
+	cpu_coop_button = Button.new()
+	cpu_coop_button.name = "CpuCoopButton"
+	cpu_coop_button.custom_minimum_size = Vector2(0, 48)
+	cpu_coop_button.text = "CO-OP"
+	var layout := solo_button.get_parent()
+	layout.add_child(cpu_coop_button)
+	layout.move_child(cpu_coop_button, solo_button.get_index() + 1)
+	cpu_coop_button.pressed.connect(_on_cpu_coop_pressed)
+
+
+func _on_cpu_coop_pressed() -> void:
+	AudioService.play("ui_click")
+	GameRuntime.fill_cpu_allies = true
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
 	_open_game()
 
 
 func _on_host_pressed() -> void:
+	AudioService.play("ui_click")
+	GameRuntime.fill_cpu_allies = false
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.HOST)
 	if SteamService.is_available():
 		_start_steam_host()
@@ -264,6 +376,8 @@ func _on_host_pressed() -> void:
 
 
 func _on_join_pressed() -> void:
+	AudioService.play("ui_click")
+	GameRuntime.fill_cpu_allies = false
 	var endpoint := _parse_endpoint(address_input.text)
 	GameRuntime.set_runtime_mode(
 		GameRuntime.RuntimeMode.CLIENT,
@@ -385,13 +499,15 @@ func _show_network_lobby() -> void:
 	class_grid.visible = false
 	class_description.visible = false
 	solo_button.visible = false
+	if cpu_coop_button != null:
+		cpu_coop_button.visible = false
 	host_button.visible = false
 	join_label.visible = false
 	address_input.visible = false
 	join_button.visible = false
 	steam_status_label.visible = false
 	lobby_title_label.visible = true
-	lobby_title_label.text = "Rift Survivors Lobby"
+	lobby_title_label.text = "Lobby"
 	player_slots.visible = true
 	lobby_action_row.visible = true
 	invite_button.visible = _is_lobby_host and NetworkService.current_steam_lobby_id != 0
@@ -536,6 +652,7 @@ func client_receive_roster(roster: Dictionary) -> void:
 func _on_start_game_pressed() -> void:
 	if not _is_lobby_host:
 		return
+	AudioService.play("ui_click")
 	for peer_id in multiplayer.get_peers():
 		client_start_game.rpc_id(peer_id)
 	_open_game()
@@ -559,11 +676,15 @@ func _open_game() -> void:
 		return
 	_leave_network_lobby()
 	game_loaded = true
+	GameRuntime.reset_biome_for_new_run()
 	var game := GAME_SCENE.instantiate()
 	add_child(game)
 	lobby_panel.visible = false
 	backdrop.visible = false
 	status_label.visible = false
+	var action := $StatusLayer.get_node_or_null("ToborAction") as CanvasItem
+	if action != null:
+		action.visible = false
 
 
 func restart_game() -> void:
@@ -583,7 +704,7 @@ func leave_game() -> void:
 	NetworkService.stop()
 	game_loaded = false
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
-	_show_lobby("Choose solo, host, or join")
+	_show_lobby("Play as Tobor")
 
 
 func _on_connection_failed() -> void:
@@ -626,14 +747,16 @@ func _show_lobby(message: String) -> void:
 	lobby_panel.visible = true
 	status_label.visible = true
 	status_label.text = message
+	var action := $StatusLayer.get_node_or_null("ToborAction") as CanvasItem
+	if action != null:
+		action.visible = true
 	_set_lobby_enabled(true)
 	mode_row.visible = true
-	difficulty_label.visible = not GameRuntime.is_classic()
-	difficulty_row.visible = not GameRuntime.is_classic()
-	class_label.visible = not GameRuntime.is_classic()
-	class_grid.visible = not GameRuntime.is_classic()
 	class_description.visible = true
+	_refresh_game_mode()
 	solo_button.visible = true
+	if cpu_coop_button != null:
+		cpu_coop_button.visible = not GameRuntime.is_classic()
 	host_button.visible = true
 	join_label.visible = true
 	address_input.visible = true
@@ -653,6 +776,8 @@ func _show_lobby(message: String) -> void:
 func _set_lobby_enabled(enabled: bool) -> void:
 	_lobby_enabled = enabled
 	solo_button.disabled = not enabled
+	if cpu_coop_button != null:
+		cpu_coop_button.disabled = not enabled
 	host_button.disabled = not enabled or not _steam_status_known
 	join_button.disabled = not enabled
 	address_input.editable = enabled

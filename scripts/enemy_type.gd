@@ -75,12 +75,12 @@ const TYPES: Array[Dictionary] = [
 	{
 		"id": "swarmling",
 		"name": "Swarmling",
-		"fill_color": "ff9d4d",
-		"outline_color": "ffd9a8",
-		"radius": 11.0,
-		"max_health": 12.0,
-		"movement_speed": 165.0,
-		"contact_damage": 4.0,
+		"fill_color": "ff7a18",
+		"outline_color": "ffe08c",
+		"radius": 13.0,
+		"max_health": 14.0,
+		"movement_speed": 175.0,
+		"contact_damage": 5.0,
 		"attack_interval": 0.7,
 		"attack_distance": 32.0,
 		"xp_value": 4,
@@ -395,24 +395,24 @@ const TYPES: Array[Dictionary] = [
 		"name": "Ravager",
 		"fill_color": "7a0f2b",
 		"outline_color": "ff6b6b",
-		"radius": 52.0,
-		"max_health": 1400.0,
-		"movement_speed": 72.0,
-		"contact_damage": 30.0,
-		"attack_interval": 1.4,
-		"attack_distance": 82.0,
-		"xp_value": 300,
-		"gold_value": 120,
+		"radius": 68.0,
+		"max_health": 4200.0,
+		"movement_speed": 78.0,
+		"contact_damage": 38.0,
+		"attack_interval": 1.2,
+		"attack_distance": 92.0,
+		"xp_value": 420,
+		"gold_value": 180,
 		"is_boss": true,
 		"separation_weight": 2.0,
-		"summon_id": "swarmling",
-		"summon_count": 4,
-		"summon_interval": 7.0,
-		"charge_speed": 420.0,
-		"charge_windup": 0.55,
-		"charge_duration": 0.6,
-		"dash_interval": 6.5,
-		"unlock_wave": 10,
+		"summon_id": "",
+		"summon_count": 0,
+		"summon_interval": 0.0,
+		"charge_speed": 520.0,
+		"charge_windup": 0.7,
+		"charge_duration": 0.7,
+		"dash_interval": 5.4,
+		"unlock_wave": 5,
 		"cost": 12.0,
 		"weight": 0.0,
 		"formation": Formation.LONE,
@@ -429,28 +429,28 @@ const TYPES: Array[Dictionary] = [
 		"behaviour": Behaviour.RANGED,
 		"fill_color": "2f6bff",
 		"outline_color": "b8d4ff",
-		"radius": 44.0,
-		"max_health": 1100.0,
-		"movement_speed": 115.0,
-		"attack_interval": 1.5,
-		"attack_distance": 620.0,
-		"preferred_distance": 420.0,
-		"projectile_damage": 12.0,
-		"projectile_speed": 460.0,
-		"projectile_count": 5,
+		"radius": 58.0,
+		"max_health": 3000.0,
+		"movement_speed": 120.0,
+		"attack_interval": 1.25,
+		"attack_distance": 720.0,
+		"preferred_distance": 380.0,
+		"projectile_damage": 16.0,
+		"projectile_speed": 500.0,
+		"projectile_count": 7,
 		"projectile_sprite": "bolt",
-		"xp_value": 320,
-		"gold_value": 140,
+		"xp_value": 460,
+		"gold_value": 200,
 		"is_boss": true,
 		"flying": true,
 		"separation_weight": 2.0,
-		"aura_radius": 300.0,
-		"aura_heal_per_second": 6.0,
-		"charge_speed": 480.0,
-		"charge_windup": 0.6,
-		"charge_duration": 0.5,
-		"dash_interval": 8.0,
-		"unlock_wave": 20,
+		"aura_radius": 340.0,
+		"aura_heal_per_second": 10.0,
+		"charge_speed": 540.0,
+		"charge_windup": 0.55,
+		"charge_duration": 0.55,
+		"dash_interval": 7.0,
+		"unlock_wave": 10,
 		"cost": 12.0,
 		"weight": 0.0,
 		"formation": Formation.LONE,
@@ -488,6 +488,51 @@ static func field(type_id: String, key: String) -> Variant:
 	return BASE_DEFAULTS.get(key, null)
 
 
+## Per-world combat twist on top of the shared roster. Grass stays the baseline.
+static func biome_multipliers() -> Dictionary:
+	if not GameRuntime.uses_biomes():
+		return {}
+	match GameRuntime.biome_id:
+		1:
+			# Magma: faster, harder hits, bigger bomber blasts, a bit glassier.
+			return {
+				"speed": 1.18,
+				"contact": 1.22,
+				"health": 0.92,
+				"explode_radius": 1.4,
+				"flying_speed": 1.12,
+			}
+		2:
+			# Ice: slow tanks that kite from farther out.
+			return {
+				"speed": 0.82,
+				"health": 1.28,
+				"contact": 0.9,
+				"projectile_speed": 0.75,
+				"projectile_damage": 1.2,
+				"attack_distance": 1.22,
+				"preferred_distance": 1.18,
+			}
+		3:
+			# Factory: armoured, punchier shots, heavier footsteps.
+			return {
+				"speed": 0.88,
+				"health": 1.35,
+				"attack_interval": 0.82,
+				"contact": 1.12,
+			}
+		4:
+			# Docks: swift, extra loot, fliers zoom the piers.
+			return {
+				"speed": 1.16,
+				"health": 0.95,
+				"gold": 1,
+				"flying_speed": 1.28,
+			}
+		_:
+			return {}
+
+
 static func is_valid_id(type_id: String) -> bool:
 	for type_data in TYPES:
 		if type_data.id == type_id:
@@ -497,6 +542,29 @@ static func is_valid_id(type_id: String) -> bool:
 
 static func sanitize_id(type_id: String) -> String:
 	return type_id if is_valid_id(type_id) else DEFAULT_TYPE_ID
+
+
+static func display_name(type_data: Dictionary) -> String:
+	return str(type_data.name)
+
+
+const TOBOR_NAMES := {
+	"grunt": "Winkelwagen",
+	"swarmling": "Schroef",
+	"spitter": "Scanner",
+	"drifter": "Drone",
+	"brute": "Heftruck",
+	"stalker": "Racekar",
+	"bomber": "Aanbieding",
+	"hexer": "Kassa",
+	"sentinel": "Camera",
+	"splitter": "Kopieerbot",
+	"charger": "Skatebot",
+	"summoner": "Omroeper",
+	"lurker": "Doos",
+	"ravager": "Magazijnbaas",
+	"stormcaller": "Bewakingsblimp",
+}
 
 
 static func is_boss(type_id: String) -> bool:
@@ -520,7 +588,7 @@ static func boss_for_wave(wave: int) -> String:
 			unlocked.append(boss_id)
 	if unlocked.is_empty():
 		return BOSS_ROTATION[0]
-	return unlocked[(wave / 10 - 1) % unlocked.size()]
+	return unlocked[(int(wave) / 5 - 1) % unlocked.size()]
 
 
 static func damage_multiplier(type_id: String, damage_type: int) -> float:

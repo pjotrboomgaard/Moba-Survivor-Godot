@@ -21,6 +21,10 @@ func primary_attack_pressed() -> bool:
 	return Input.is_action_just_pressed("primary_attack")
 
 
+func secondary_attack_held() -> bool:
+	return Input.is_action_pressed("secondary_attack")
+
+
 func ability_held() -> bool:
 	return Input.is_action_pressed("ability")
 

@@ -39,7 +39,7 @@ text = "HP 100 / 100"
 [node name="Instructions" type="Label" parent="MarginContainer/Layout"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
-text = "WASD  Move     Hold left mouse  Aim and cast Arc Staff     R  Restart solo run"
+text = "WASD  Move     LMB  Aim     B  Shop     SPACE  Dash     R  Restart"
 
 [node name="Spacer" type="Control" parent="MarginContainer/Layout"]
 layout_mode = 2
@@ -148,7 +148,7 @@ offset_right = 1252.0
 offset_bottom = 132.0
 theme_override_colors/font_color = Color(0.58, 0.87, 1, 1)
 theme_override_font_sizes/font_size = 20
-text = "SPACE  DASH"
+text = "SPACE  SIREN"
 horizontal_alignment = 2
 
 [node name="AbilityBar" type="Label" parent="."]
@@ -253,7 +253,7 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.79, 0.24, 1)
 theme_override_font_sizes/font_size = 24
-text = "SHOP"
+text = "SUPERMERCATOR"
 horizontal_alignment = 1
 
 [node name="ShopGold" type="Label" parent="ShopPanel/ShopLayout"]
@@ -316,9 +316,9 @@ text = "UPGRADE 4"
 [node name="EscapeMenu" type="PanelContainer" parent="."]
 visible = false
 offset_left = 490.0
-offset_top = 260.0
+offset_top = 200.0
 offset_right = 790.0
-offset_bottom = 460.0
+offset_bottom = 560.0
 
 [node name="EscapeLayout" type="VBoxContainer" parent="EscapeMenu"]
 layout_mode = 2
@@ -329,6 +329,16 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "PAUSED"
 horizontal_alignment = 1
+
+[node name="SfxToggle" type="CheckButton" parent="EscapeMenu/EscapeLayout"]
+layout_mode = 2
+text = "SOUND EFFECTS"
+button_pressed = true
+
+[node name="MusicToggle" type="CheckButton" parent="EscapeMenu/EscapeLayout"]
+layout_mode = 2
+text = "MUSIC"
+button_pressed = true
 
 [node name="ResumeButton" type="Button" parent="EscapeMenu/EscapeLayout"]
 custom_minimum_size = Vector2(0, 40)
@@ -347,10 +357,10 @@ text = "LEAVE TO LOBBY"
 
 [node name="DevPanel" type="PanelContainer" parent="."]
 visible = false
-offset_left = 340.0
-offset_top = 590.0
-offset_right = 940.0
-offset_bottom = 700.0
+offset_left = 280.0
+offset_top = 560.0
+offset_right = 1000.0
+offset_bottom = 760.0
 
 [node name="DevLayout" type="VBoxContainer" parent="DevPanel"]
 layout_mode = 2
@@ -390,3 +400,9 @@ custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "INVULNERABLE: OFF"
+
+[node name="AddGoldButton" type="Button" parent="DevPanel/DevLayout/DevButtons"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "+500 GOLD"

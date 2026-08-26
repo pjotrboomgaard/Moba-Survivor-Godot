@@ -10,10 +10,11 @@ enum RuntimeMode {
 }
 
 ## Classic preserves the original single-hero Arc Staff run.
-## Pjotr mode unlocks the four heroes, the full enemy roster, waves and bosses.
+## Pjotr mode unlocks the four heroes, the full enemy roster, waves, bosses and biomes.
 enum GameMode {
 	CLASSIC,
 	PJOTR,
+	TOBORWORLD,
 }
 
 ## How hard enemy waves hit in Pjotr mode — see WaveDirector.DIFFICULTY_HEALTH_MULTIPLIERS
@@ -39,6 +40,79 @@ var max_players := DEFAULT_MAX_PLAYERS
 ## Set when Steam launches the game to accept a friend's invite while it wasn't already
 ## running (Steam appends "+connect_lobby <id>" to the command line in that case).
 var pending_steam_lobby_id := 0
+## Which biome the current wave is in (Pjotr mode).
+## 0 grass meadow, 1 volcano, 2 ice, 3 factory, 4 docks — see biome_key().
+var biome_id := 0
+## When true, wave progression and new runs keep the chosen biome (F1 / --biome=).
+var biome_locked := false
+var biome_from_cli := false
+## Offline co-op stand-ins: spawn the other three playable heroes as CPU allies.
+var fill_cpu_allies := false
+
+const BIOME_KEYS := ["", "volcano", "ice", "factory", "docks"]
+const BIOME_NAMES := ["Gras", "Vulkaan", "IJs", "Fabriek", "Docks"]
+const BIOME_ALIASES := {
+	"parking": 0,
+	"parkeer": 0,
+	"grass": 0,
+	"gras": 0,
+	"0": 0,
+	"volcano": 1,
+	"vulkaan": 1,
+	"1": 1,
+	"ice": 2,
+	"ijs": 2,
+	"2": 2,
+	"factory": 3,
+	"fabriek": 3,
+	"3": 3,
+	"docks": 4,
+	"4": 4,
+}
+
+
+func biome_for_wave(wave: int) -> int:
+	return posmod(int((maxi(1, wave) - 1) / 10.0), BIOME_KEYS.size())
+
+
+func parse_biome(token: String) -> int:
+	var key := token.strip_edges().to_lower()
+	if BIOME_ALIASES.has(key):
+		return int(BIOME_ALIASES[key])
+	return -1
+
+
+func biome_name() -> String:
+	var index := clampi(biome_id, 0, BIOME_NAMES.size() - 1)
+	return str(BIOME_NAMES[index])
+
+
+func set_biome(id: int, lock: bool = true) -> void:
+	biome_id = posmod(id, BIOME_KEYS.size())
+	biome_locked = lock
+
+
+func unlock_biome_for_wave(wave: int) -> void:
+	biome_locked = false
+	set_biome_for_wave(wave)
+
+
+func set_biome_for_wave(wave: int) -> void:
+	if biome_locked:
+		return
+	biome_id = biome_for_wave(wave)
+
+
+func reset_biome_for_new_run() -> void:
+	if biome_from_cli:
+		return
+	biome_locked = false
+	set_biome_for_wave(start_wave)
+
+
+func biome_key() -> String:
+	var index := clampi(biome_id, 0, BIOME_KEYS.size() - 1)
+	return str(BIOME_KEYS[index])
 
 
 func _ready() -> void:
@@ -66,9 +140,19 @@ func configure_from_arguments(arguments: PackedStringArray) -> void:
 			next_address = argument.trim_prefix("--join=")
 		elif argument.begins_with("--start-wave="):
 			start_wave = maxi(1, int(argument.split("=")[1]))
+			if not biome_locked:
+				biome_id = biome_for_wave(start_wave)
+		elif argument.begins_with("--biome="):
+			var parsed := parse_biome(argument.trim_prefix("--biome="))
+			if parsed >= 0:
+				biome_id = parsed
+				biome_locked = true
+				biome_from_cli = true
 		elif argument == "--classic":
 			game_mode = GameMode.CLASSIC
 		elif argument == "--pjotr":
+			game_mode = GameMode.PJOTR
+		elif argument == "--toborworld":
 			game_mode = GameMode.PJOTR
 		elif argument.begins_with("--difficulty="):
 			var requested_difficulty := argument.trim_prefix("--difficulty=").to_upper()
@@ -86,7 +170,7 @@ func configure_from_arguments(arguments: PackedStringArray) -> void:
 
 
 func set_game_mode(next_game_mode: GameMode) -> void:
-	game_mode = next_game_mode
+	game_mode = GameMode.PJOTR if next_game_mode == GameMode.TOBORWORLD else next_game_mode
 
 
 func set_difficulty(next_difficulty: Difficulty) -> void:
@@ -101,14 +185,30 @@ func is_classic() -> bool:
 	return game_mode == GameMode.CLASSIC
 
 
+func is_tobor_world() -> bool:
+	return false
+
+
+func uses_biomes() -> bool:
+	return not is_classic()
+
+
+func uses_pixel_art() -> bool:
+	return not is_classic()
+
+
 func active_class_id() -> String:
 	if is_classic():
-		return PlayerClass.DEFAULT_CLASS_ID
+		return "arclight"
 	return PlayerProfile.selected_class_id
 
 
 func game_mode_name() -> String:
-	return "classic" if is_classic() else "pjotr"
+	match game_mode:
+		GameMode.CLASSIC:
+			return "classic"
+		_:
+			return "pjotr"
 
 
 func is_server() -> bool:

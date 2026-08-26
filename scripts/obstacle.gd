@@ -28,6 +28,9 @@ func has_sprite() -> bool:
 
 func _draw() -> void:
 	# A soft contact shadow so the rock does not float on the grass.
-	draw_circle(Vector2(0.0, body_radius * 0.16), body_radius * 0.95, Color(0.03, 0.06, 0.03, 0.35))
+	var shadow := Color(0.03, 0.06, 0.03, 0.35)
+	if GameRuntime.uses_biomes() and GameRuntime.biome_id != 0:
+		shadow = Color(0.06, 0.03, 0.02, 0.45)
+	draw_circle(Vector2(0.0, body_radius * 0.16), body_radius * 0.95, shadow)
 	if not has_sprite():
 		draw_circle(Vector2.ZERO, body_radius, Color("5b6675"))

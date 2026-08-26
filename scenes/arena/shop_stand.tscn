@@ -3,18 +3,46 @@
 [ext_resource type="Script" path="res://scripts/shop_stand.gd" id="1_shop_stand"]
 
 [node name="ShopStand" type="Node2D"]
-z_index = 5
+z_index = 6
 script = ExtResource("1_shop_stand")
 
 [node name="Sprite" type="Sprite2D" parent="."]
 texture_filter = 1
 
-[node name="Label" type="Label" parent="."]
-offset_left = -50.0
-offset_top = -56.0
-offset_right = 50.0
-offset_bottom = -30.0
-theme_override_colors/font_color = Color(1, 0.86, 0.6, 1)
+[node name="Title" type="Label" parent="."]
+offset_left = -90.0
+offset_top = -78.0
+offset_right = 90.0
+offset_bottom = -54.0
+theme_override_colors/font_color = Color(1, 0.9, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.05, 0.02, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 18
+text = "SUPERMERCATOR"
+horizontal_alignment = 1
+
+[node name="Prompt" type="Label" parent="."]
+visible = false
+offset_left = -80.0
+offset_top = -102.0
+offset_right = 80.0
+offset_bottom = -78.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.05, 0.02, 1)
+theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 16
-text = "SHOP (B)"
+text = "PRESS B"
+horizontal_alignment = 1
+
+[node name="Arrow" type="Label" parent="."]
+visible = false
+offset_left = -24.0
+offset_top = -118.0
+offset_right = 24.0
+offset_bottom = -82.0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.05, 0.02, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 32
+text = "▼"
 horizontal_alignment = 1

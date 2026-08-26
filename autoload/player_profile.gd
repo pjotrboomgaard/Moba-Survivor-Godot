@@ -6,6 +6,8 @@ var player_id := ""
 var display_name := "Player"
 var selected_class_id := PlayerClass.DEFAULT_CLASS_ID
 var linked_platforms: Dictionary = {}
+var sfx_enabled := true
+var music_enabled := true
 
 
 func _ready() -> void:
@@ -22,6 +24,8 @@ func _load_or_create_profile() -> void:
 				display_name = str(parsed.get("display_name", "Player"))
 				selected_class_id = PlayerClass.sanitize_id(str(parsed.get("selected_class_id", PlayerClass.DEFAULT_CLASS_ID)))
 				linked_platforms = parsed.get("linked_platforms", {})
+				sfx_enabled = bool(parsed.get("sfx_enabled", true))
+				music_enabled = bool(parsed.get("music_enabled", true))
 
 	if player_id.is_empty():
 		player_id = _generate_local_player_id()
@@ -37,6 +41,10 @@ func select_class(class_id: String) -> void:
 
 
 func save_display_name() -> void:
+	_save_profile()
+
+
+func save_audio_prefs() -> void:
 	_save_profile()
 
 
@@ -59,4 +67,6 @@ func _save_profile() -> void:
 		"display_name": display_name,
 		"selected_class_id": selected_class_id,
 		"linked_platforms": linked_platforms,
+		"sfx_enabled": sfx_enabled,
+		"music_enabled": music_enabled,
 	}, "\t"))
