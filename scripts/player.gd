@@ -27,7 +27,9 @@ enum SimulationMode {
 @export_range(0.1, 1.0, 0.05) var chain_damage_multiplier := 0.65
 
 const BODY_RADIUS := 18.0
-const FACING_CLASS_IDS := ["arclight", "bulwark", "warden"]
+const FACING_CLASS_IDS := ["arclight", "bulwark", "warden", "cinder", "pyra", "slag", "ember", "thorn", "willow", "stump", "sage", "volt", "nebula", "astral", "rime"]
+## Global in-game hero-sprite scale boost (Part 1: heroes felt ~25% small). HUD/menu untouched.
+const HERO_SCALE_BOOST := 1.25
 const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
 const OBSTACLE_LAYER := 16
@@ -66,8 +68,11 @@ var damage_dealt_multiplier := 1.0
 var buff_timer := 0.0
 
 var owner_peer_id := 1
+## Rift Clash team of this hero; empty in co-op. Synced via snapshot.
+var team_id := ""
 var simulation_mode := SimulationMode.OFFLINE
 var is_local_player := true
+var _arena: Arena = null
 var active := true
 var facing_direction := Vector2.RIGHT
 var aim_world_position := Vector2.RIGHT * 100.0
@@ -79,8 +84,12 @@ var gold_multiplier := 1.0
 var shop_stacks: Dictionary = {}
 var _tobor_walk_phase := 0.0
 var _tobor_facing := "front"
+## Walk-cycle frame (0 = stand, 1..3 = stepping) shared by every hero sprite.
+var _walk_cycle_phase := 0
 var _hover_phase := 0.0
 var hovering := false
+## True while an ability is armed and waiting for a confirm press/click — see TARGETED_ABILITIES.
+var aim_indicator_visible := false
 var _shake_time := 0.0
 var _shake_amp := 0.0
 
@@ -117,6 +126,9 @@ var command_attack := false
 var command_ability_slots: Array = [false, false, false, false]
 var _casting_ability_id := ""
 var network_target_position := Vector2.ZERO
+## Self-test driver latch: once it injects a slot press, OFFLINE input stops overriding the
+## externally-set command slots so scripted casts land. Cleared by `clear_external_command()`.
+var _external_command_latched := false
 
 ## Hero abilities (see PlayerClass.ABILITIES). Each entry is {"id": String, "rank": int};
 ## the index into known_abilities is also the ability's slot (ability_1..ability_4, and the
@@ -206,8 +218,25 @@ func apply_class(next_class_id: String) -> void:
 	health.current_health = class_data.max_health
 	health.is_dead = false
 	health.health_changed.emit(health.current_health, health.max_health)
+	_apply_kit_abilities()
 	_apply_sprite()
 	queue_redraw()
+
+
+## Start every hero with the loadout the player pre-picked in the menu: 3 regular slots from
+## PlayerProfile.loadout_for, and the ultimate only once that hero's first-run wave milestone
+## banked it (maybe_unlock_ult). Slot 4 stays empty until then; the run's mid-draft can fill it.
+func _apply_kit_abilities() -> void:
+	known_abilities.clear()
+	var cooldowns: Array[float] = []
+	var loadout := PlayerProfile.loadout_for(class_id)
+	for slot_index in mini(loadout.size(), PlayerClass.MAX_KNOWN_ABILITIES):
+		var ability_id := String(loadout[slot_index])
+		if ability_id.is_empty() or not PlayerClass.ABILITIES.has(ability_id):
+			continue
+		known_abilities.append({"id": ability_id, "rank": 1})
+		cooldowns.append(0.0)
+	ability_cooldowns = cooldowns
 
 
 ## Classic mode stays on the plain vector look (see arena.gd's grid background), so it never
@@ -230,10 +259,17 @@ func _apply_sprite() -> void:
 
 
 func _facing_texture() -> Texture2D:
-	if not FACING_CLASS_IDS.has(class_id) or _tobor_facing == "front":
+	if not FACING_CLASS_IDS.has(class_id):
 		return SpriteLibrary.texture_for(class_id)
-	var named := "%s_%s" % [class_id, _tobor_facing]
-	var texture := SpriteLibrary.texture_for(named)
+	var base_name := class_id if _tobor_facing == "front" else "%s_%s" % [class_id, _tobor_facing]
+	# Walk frames are authored as "<facing>_w1..3"; frame 0 is the standing base sprite.
+	if _walk_cycle_phase > 0:
+		var walk_texture := SpriteLibrary.texture_for("%s_w%d" % [base_name, _walk_cycle_phase])
+		if walk_texture != null:
+			return walk_texture
+	if _tobor_facing == "front":
+		return SpriteLibrary.texture_for(class_id)
+	var texture := SpriteLibrary.texture_for(base_name)
 	return texture if texture != null else SpriteLibrary.texture_for(class_id)
 
 
@@ -265,6 +301,12 @@ func _update_tobor_visual(delta: float, move_input: Vector2) -> void:
 		return
 	if not FACING_CLASS_IDS.has(class_id):
 		return
+	# 4-frame walk cycle shared by every hero: phase steps 0→1→2→3→0 while moving, frozen at 0 standing.
+	if moving:
+		_tobor_walk_phase += delta * 7.0
+	else:
+		_tobor_walk_phase = 0.0
+	_walk_cycle_phase = int(_tobor_walk_phase) % 4 if moving else 0
 	_paint_hero_facing()
 	_update_gait(delta, moving)
 
@@ -273,10 +315,10 @@ func _hero_sprite_scale() -> Vector2:
 	if sprite == null or sprite.texture == null:
 		return Vector2.ONE
 	if FACING_CLASS_IDS.has(class_id):
-		return SpriteLibrary.scale_for_radius(sprite.texture, BODY_RADIUS * 2.2)
+		return SpriteLibrary.scale_for_radius(sprite.texture, BODY_RADIUS * 2.2 * HERO_SCALE_BOOST)
 	if sprite.texture.get_width() >= 32:
-		return SpriteLibrary.tobor_scale(BODY_RADIUS * 1.45)
-	return SpriteLibrary.scale_for_radius(sprite.texture, BODY_RADIUS * 1.45)
+		return SpriteLibrary.tobor_scale(BODY_RADIUS * 1.45 * HERO_SCALE_BOOST)
+	return SpriteLibrary.scale_for_radius(sprite.texture, BODY_RADIUS * 1.45 * HERO_SCALE_BOOST)
 
 
 func _paint_hero_facing() -> void:
@@ -344,7 +386,7 @@ func _paint_tobor_sprite() -> void:
 	sprite.texture = SpriteLibrary.compose_tobor(shop_stacks, walk_frame, _tobor_facing)
 	sprite.centered = true
 	sprite.offset = Vector2(0.0, hop)
-	sprite.scale = SpriteLibrary.tobor_scale(BODY_RADIUS * 1.45)
+	sprite.scale = SpriteLibrary.tobor_scale(BODY_RADIUS * 1.45 * HERO_SCALE_BOOST)
 	_place_health_bar(hop)
 
 
@@ -363,6 +405,19 @@ func set_authority_command(move_input: Vector2, aim_position: Vector2, attack_he
 	command_ability = ability_held
 	command_ability_slots = ability_slots_held
 	command_secondary = secondary_held
+	# Any explicit ability-slot press came from the self-test driver (or a net peer); latch so
+	# OFFLINE input polling below doesn't overwrite the scripted command each physics tick.
+	if ability_slots_held is Array:
+		for slot_held in ability_slots_held:
+			if bool(slot_held):
+				_external_command_latched = true
+				break
+
+
+## Re-arm input polling for real keyboard/mouse again (self-test driver calls this when it
+## wants the player back under human control, e.g. after a scripted sequence ends).
+func clear_external_command() -> void:
+	_external_command_latched = false
 
 
 func apply_camera_limits(half: Vector2) -> void:
@@ -385,6 +440,9 @@ func apply_network_state(state: Dictionary) -> void:
 	var state_class_id := str(state.get("class_id", class_id))
 	if state_class_id != class_id:
 		apply_class(state_class_id)
+	var state_team := str(state.get("team_id", team_id))
+	if state_team != team_id:
+		team_id = state_team
 	network_target_position = state.get("position", global_position)
 	facing_direction = state.get("facing", facing_direction)
 	aim_world_position = state.get("aim", aim_world_position)
@@ -441,7 +499,7 @@ func _physics_process(delta: float) -> void:
 		ability_held = bool(cpu.ability)
 		ability_slots_held = cpu.ability_slots
 		secondary_held = bool(cpu.get("secondary", false))
-	elif simulation_mode == SimulationMode.OFFLINE:
+	elif simulation_mode == SimulationMode.OFFLINE and not _external_command_latched:
 		move_input = InputService.movement_vector()
 		command_aim = InputService.aim_world_position(self)
 		attack_held = InputService.primary_attack_held()
@@ -463,6 +521,7 @@ func _physics_process(delta: float) -> void:
 	_update_ability_slots(delta, ability_slots_held)
 	_update_secondary(delta, secondary_held)
 	_refresh_secondary_bar()
+	_update_hazard(delta)
 	var speed := movement_speed * float(ability_buff_stats.get("movement_speed_mult", 1.0))
 	if sprint_timer > 0.0:
 		speed *= 1.0 + SPRINT_SPEED_BONUS
@@ -593,11 +652,20 @@ func _apply_support_aura(delta: float) -> void:
 		var ally := candidate as Player
 		if not ally.active or ally.health.is_dead:
 			continue
+		if not _is_support_target(ally):
+			continue
 		if global_position.distance_squared_to(ally.global_position) > radius_sq:
 			continue
 		var heal_rate := support_heal_per_second if ally != self else support_heal_per_second * 0.5
 		ally.health.heal(heal_rate * delta)
 		ally.receive_support_buff(support_damage_bonus)
+
+
+## Warden heals and shield bursts must never prop up an enemy team in Rift Clash.
+func _is_support_target(other: Player) -> bool:
+	if not GameRuntime.is_rift_clash() or team_id == "":
+		return true
+	return other.team_id == team_id
 
 
 ## --- Hero abilities -------------------------------------------------------------------
@@ -609,7 +677,9 @@ func learn_ability(ability_id: String) -> void:
 		if entry.id == ability_id:
 			return
 	known_abilities.append({"id": ability_id, "rank": 1})
-	ability_cooldowns[known_abilities.size() - 1] = 0.0
+	# Grow the typed cooldown array alongside known_abilities (kit-less heroes start empty).
+	while ability_cooldowns.size() < known_abilities.size():
+		ability_cooldowns.append(0.0)
 
 
 func upgrade_ability(ability_id: String) -> void:
@@ -631,14 +701,138 @@ func apply_fallback_bonus() -> void:
 	health.health_changed.emit(health.current_health, health.max_health)
 
 
+## Heroes whose kit uses two-stage targeting: tap ability key once to "arm" with an aim
+## indicator, tap again (or click) to confirm the cast at the aim point/vector/area.
+## HoN-style skilled casts — Keg lobbed to a point, Energy Field thrown to a point, etc.
+## Anything NOT in this list is instant-cast on press (the old behavior).
+const TARGETED_ABILITIES := {
+	# --- Robot (Iron Foundry) -------------------------------------------------------------
+	"tobor_the_keg": "point",
+	"tobor_steam_turret": "vector",
+	"tobor_spider_mines": "point",
+	"tobor_energy_field": "point",
+	"arclight_blast_of_lightning": "unit",
+	"arclight_chain_lightning": "unit",
+	"arclight_electric_field": "point",
+	"arclight_thundergods_wrath": "instant",
+	"bulwark_fissure": "point",
+	"bulwark_heavyweight": "instant",
+	"bulwark_enrage": "instant",
+	"bulwark_echo_slam": "instant",
+	"warden_tongue_tied": "unit",
+	"warden_voodoo_wards": "point",
+	"warden_cursed_ground": "point",
+	"warden_life_drain": "unit",
+	# --- Caldera ------------------------------------------------------------------------------
+	"cinder_whirling_flame": "vector",
+	"cinder_fiery_assault": "instant",
+	"cinder_blazing_strike": "point",
+	"cinder_blazing_pillar": "point",
+	"pyra_sticky_bomb": "point",
+	"pyra_boom_dust": "instant",
+	"pyra_bombardment": "point",
+	"pyra_air_strike": "point",
+	"slag_steam_bath": "instant",
+	"slag_volcanic_touch": "instant",
+	"slag_lava_surge": "vector",
+	"slag_eruption": "instant",
+	"ember_entangle": "unit",
+	"ember_healing_wave": "instant",
+	"ember_storm_cloud": "point",
+	"ember_unbreakable": "instant",
+	# --- Wilds ---------------------------------------------------------------------------------
+	"thorn_poison_spray": "vector",
+	"thorn_toxin_ward": "point",
+	"thorn_toxicity": "instant",
+	"thorn_poison_burst": "instant",
+	"willow_swift_strike": "instant",
+	"willow_forsaken_shot": "vector",
+	"willow_volley": "vector",
+	"willow_strangling_vines": "point",
+	"stump_rally": "instant",
+	"stump_camouflage": "instant",
+	"stump_natures_veil": "point",
+	"stump_overgrowth": "point",
+	"sage_grace_of_the_nymph": "instant",
+	"sage_volatile_pod": "point",
+	"sage_nymphoras_kiss": "unit",
+	"sage_charm": "unit",
+	# --- Storm Court ---------------------------------------------------------------------------
+	"volt_gust": "vector",
+	"volt_wind_shield": "instant",
+	"volt_wind_control": "unit",
+	"volt_typhoon": "instant",
+	"nebula_time_shift": "instant",
+	"nebula_curse_of_ages": "unit",
+	"nebula_rewind": "instant",
+	"nebula_chronosphere": "instant",
+	"astral_essence_link": "point",
+	"astral_guardian_angel": "instant",
+	"astral_spirit_bond": "unit",
+	"astral_as_one": "instant",
+	"rime_ice_imprisonment": "unit",
+	"rime_chilling_touch": "instant",
+	"rime_glacier_blast": "instant",
+	"rime_absolute_zero": "instant",
+}
+
+var _pending_ability_slot := -1
+var _pending_ability_id := ""
+
+
+func _arm_or_confirm_ability(slot: int) -> void:
+	if slot < 0 or slot >= known_abilities.size():
+		return
+	var entry := known_abilities[slot]
+	var ability_id := str(entry.id)
+	if ability_cooldowns[slot] > 0.0:
+		return
+	if not TARGETED_ABILITIES.has(ability_id):
+		_cast_known_ability(slot)
+		return
+	var mode := str(TARGETED_ABILITIES[ability_id])
+	if mode == "instant":
+		_cast_known_ability(slot)
+		return
+	if _pending_ability_slot == slot:
+		# Tap-twice confirms: cast at the current aim.
+		if mode == "unit" and _nearest_enemy_in_range(_unit_target_range_for(ability_id)) == null:
+			# Stay armed; need an actual target.
+			return
+		_cast_known_ability(slot)
+		_pending_ability_slot = -1
+		_pending_ability_id = ""
+	else:
+		# Arm the ability: lock it in, chill other inputs' cooldown spam, draw an indicator.
+		_pending_ability_slot = slot
+		_pending_ability_id = ability_id
+		aim_indicator_visible = true
+		queue_redraw()
+
+
+func _unit_target_range_for(_ability_id: String) -> float:
+	var data := PlayerClass.ability_info(_ability_id)
+	var values := PlayerClass.ability_values(_ability_id, 1)
+	return float(values.get("range", 540.0)) if not data.is_empty() else 540.0
+
+
+var _slots_held_prev: Array[bool] = [false, false, false, false]
+
+
 func _update_ability_slots(delta: float, slots_held: Array) -> void:
 	if known_abilities.is_empty():
 		return
 	for slot in known_abilities.size():
 		ability_cooldowns[slot] = maxf(0.0, ability_cooldowns[slot] - delta)
 	for slot in known_abilities.size():
-		if slot < slots_held.size() and bool(slots_held[slot]) and ability_cooldowns[slot] <= 0.0:
-			_cast_known_ability(slot)
+		if slot >= slots_held.size():
+			continue
+		var held := bool(slots_held[slot])
+		var was_held := slot < _slots_held_prev.size() and _slots_held_prev[slot]
+		if held and not was_held and ability_cooldowns[slot] <= 0.0:
+			_arm_or_confirm_ability(slot)
+		if slot < _slots_held_prev.size():
+			_slots_held_prev[slot] = held
 
 
 func _cast_known_ability(slot: int) -> void:
@@ -650,6 +844,10 @@ func _cast_known_ability(slot: int) -> void:
 	var values := PlayerClass.ability_values(ability_id, int(entry.rank))
 	_casting_ability_id = ability_id
 	ability_cooldowns[slot] = values.cooldown
+	# Clear any armed two-stage state — cast is now committed.
+	_pending_ability_slot = -1
+	_pending_ability_id = ""
+	aim_indicator_visible = false
 	match int(data.archetype):
 		PlayerClass.Archetype.NUKE_BOLT:
 			_cast_ability_nuke_bolt(data, values)
@@ -673,6 +871,162 @@ func _cast_known_ability(slot: int) -> void:
 			_cast_ability_buff_self(data, values)
 		PlayerClass.Archetype.PUSH_PULL_BURST:
 			_cast_ability_push_pull_burst(data, values)
+		PlayerClass.Archetype.STORM_PULL:
+			_cast_ability_storm_pull(data, values)
+		PlayerClass.Archetype.ZONE_CHANNEL:
+			_cast_ability_zone_channel(data, values)
+		PlayerClass.Archetype.SUMMON_SPIRIT:
+			_cast_ability_summon_spirit(data, values)
+		PlayerClass.Archetype.SLAM_TAUNT:
+			_cast_ability_slam_taunt(data, values)
+		PlayerClass.Archetype.BLINK_STRIKE:
+			_cast_ability_blink_strike(data, values)
+		PlayerClass.Archetype.PIT_SLOW:
+			_cast_ability_pit_slow(data, values)
+		PlayerClass.Archetype.ATTACK_FURY:
+			_cast_ability_attack_fury(data, values)
+
+
+## Helpers ------------------------------------------------------------------------
+
+## (Every damageable enemy in a radius is already helper'd below — used by all new "ground zone" casts.)
+func _cast_ability_storm_pull(data: Dictionary, values: Dictionary) -> void:
+	var reach := float(values.get("range", 420.0))
+	# Pollywog-style Tongue Tied grabs the unit closest to the aim point; the default pull
+	# (Gale Cyclone, Entangle) still reaches for the farthest enemy in range.
+	var want_closest := bool(data.get("pull_closest", false))
+	var best: Node2D = null
+	var best_dist := -1.0
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy) or not enemy is Node2D:
+			continue
+		var n := enemy as Node2D
+		var dist := global_position.distance_to(n.global_position)
+		if dist > reach:
+			continue
+		if want_closest:
+			if best == null or dist < best_dist:
+				best = n
+				best_dist = dist
+		elif dist > best_dist:
+			best = n
+			best_dist = dist
+	if best == null:
+		return
+	best.knockback_velocity = (global_position - best.global_position).normalized() * 1400.0
+	_apply_ability_hit(best, data, values)
+
+
+## Invoker-style zone: brief self-lock then a big ground patch detonates at your feet.
+func _cast_ability_zone_channel(data: Dictionary, values: Dictionary) -> void:
+	sprint_cooldown = maxf(sprint_cooldown, 0.45)
+	var center := global_position + facing_direction * 80.0
+	for hurt in _enemies_in_radius(center, float(values.get("radius", 240.0))):
+		_apply_ability_hit(hurt, data, values)
+	_emit_ability_cast(PackedVector2Array([center, Vector2(values.get("radius", 240.0), 0.0)]))
+
+
+## Engineer-style summon: anchors a real turret/ward/wisp on the field that shoots
+## enemies for the duration. Caps at MAX_ACTIVE_SUMMONS; oldest expiry.
+const SummonEntityScene: PackedScene = preload("res://scenes/effects/summon_entity.tscn")
+## Voodoo Wards drops a 4-ward ring, so the cap has to leave room for the full circle plus
+## one spare turret; oldest expiry still trims single-turret spam.
+const MAX_ACTIVE_SUMMONS := 6
+var active_summons: Array[SummonEntity] = []
+
+
+func _cast_ability_summon_spirit(data: Dictionary, values: Dictionary) -> void:
+	# Place at aim point (clamped to a sane throw distance) — the player picks where the turret
+	# actually roots itself. Falls back to a small forward hop if aim is unreliable.
+	var forward := global_position + facing_direction * 36.0
+	var target := aim_world_position
+	if target.distance_to(global_position) > 340.0:
+		target = global_position + (target - global_position).normalized() * 340.0
+	if target.distance_squared_to(global_position) < 200.0:
+		target = forward
+	# Pollywog Priest's Voodoo Wards plant a ring of totems around the focus; single-turret
+	# summons (Steam Turret, Toxin Ward, Essence Link) drop just the one anchor at `target`.
+	var count := maxi(1, int(data.get("summon_count", 1)))
+	var ring_radius := 46.0
+	for index in count:
+		var offset := Vector2.ZERO
+		if count > 1:
+			var angle := TAU * float(index) / float(count) - PI * 0.5
+			offset = Vector2(cos(angle), sin(angle)) * ring_radius
+		_spawn_summon(data, values, target + offset)
+	# No _emit_ability_cast here — the turret itself is the visible marker. Anything else
+	# reads as "something else popped on top of the placement".
+
+
+func _spawn_summon(data: Dictionary, values: Dictionary, position: Vector2) -> void:
+	var sum := SummonEntityScene.instantiate() as SummonEntity
+	var hero := PlayerClass.by_id(class_id)
+	sum.setup(
+		_casting_ability_id,
+		multiplayer.get_unique_id() if has_node("/root/NetworkService") else 0,
+		float(values.get("power", 8.0)),
+		float(values.get("duration", 4.0)),
+		0.32,
+		Color(str(hero.get("effect_color", "#ffffff")))
+	)
+	sum.owner_damage_type = int(damage_type)
+	sum.position = position
+	sum.expired.connect(_on_summon_expired)
+	get_tree().current_scene.add_child(sum)
+	active_summons.append(sum)
+	# Enforce the cap: expire the oldest one if the caster already has a full set out.
+	while active_summons.size() > MAX_ACTIVE_SUMMONS:
+		var oldest: SummonEntity = active_summons.pop_front()
+		if is_instance_valid(oldest):
+			oldest.queue_free()
+
+
+func _on_summon_expired(entity: SummonEntity) -> void:
+	active_summons.erase(entity)
+
+
+## Riki-style Teleport Strike: pop behind the nearest enemy and hit them hard.
+func _cast_ability_blink_strike(data: Dictionary, values: Dictionary) -> void:
+	var reach := float(values.get("range", 360.0))
+	var nearest := _nearest_enemy_in_range(reach)
+	if nearest == null:
+		return
+	global_position = nearest.global_position + (global_position - nearest.global_position).normalized() * 18.0
+	_apply_ability_hit(nearest, data, values)
+	_emit_ability_cast(PackedVector2Array([global_position + Vector2(0.0, -18.0), nearest.global_position]))
+
+
+## Winter Wyvern's cold curse — self-centered ring that hits everything inside once and
+## leaves its slow/stun riding on the same power payload the rest of the kit uses.
+func _cast_ability_pit_slow(data: Dictionary, values: Dictionary) -> void:
+	var radius := float(values.get("radius", 240.0))
+	for enemy in _enemies_in_radius(global_position, radius):
+		_apply_ability_hit(enemy, data, values)
+	_emit_ability_cast(PackedVector2Array([global_position - Vector2(0.0, 10.0), Vector2(radius, 0.0)]))
+
+
+## Naga carry fantasy: briefly overclock the attack loop so auto-hits pop off.
+func _cast_ability_attack_fury(data: Dictionary, values: Dictionary) -> void:
+	ability_buff_timer = maxf(ability_buff_timer, float(values.get("duration", 5.0)))
+	ability_buff_stats = data.get("buff_stats", {
+		"attack_interval_mult": 0.55,
+		"damage_dealt_mult": 1.25,
+		"movement_speed_mult": 1.1,
+	})
+
+
+## Axe-style Berserker's Call: leap-slam, then force every enemy in radius onto you.
+func _cast_ability_slam_taunt(data: Dictionary, values: Dictionary) -> void:
+	var hop := float(values.get("dash_distance", 220.0))
+	global_position += facing_direction * hop
+	# Vector from each enemy back to the landing point, scaled up — pulls them onto the caster.
+	var drag := absf(float(values.get("power", 220.0)))
+	var radius := float(values.get("radius", 260.0))
+	for enemy in _enemies_in_radius(global_position, radius):
+		enemy.knockback_velocity = (global_position - enemy.global_position).normalized() * drag
+		if enemy.has_method("apply_slow"):
+			enemy.apply_slow(0.1, 1.0)
+	_emit_ability_cast(PackedVector2Array([global_position - Vector2(0.0, 12.0), global_position]))
 
 
 func _emit_ability_cast(points: PackedVector2Array) -> void:
@@ -733,21 +1087,85 @@ func _find_ability_chain_target(origin: Node2D, excluded: Array[Node2D], range_l
 	return nearest
 
 
+const ProjectileSpriteScene: PackedScene = preload("res://scenes/effects/projectile_sprite.tscn")
+const ZonePulseScene: PackedScene = preload("res://scenes/effects/zone_pulse.tscn")
+
 func _cast_ability_nuke_bolt(data: Dictionary, values: Dictionary) -> void:
 	var center := _ability_aim_center(values.range)
+	# Keg-style nukes lob a visible projectile that explodes on impact. The damage still
+	# happens immediately (so reactions feel snappy in tests), but the on-screen read is
+	# "I threw a thing and it exploded", not "random blast appeared somewhere".
+	if _ability_id_has_projectile(_casting_ability_id):
+		_spawn_ability_projectile(_casting_ability_id, global_position, center)
 	for target in _enemies_in_radius(center, values.radius):
 		_apply_ability_hit(target, data, values)
+	# Keg-flavoured displacement: fling every enemy inside the blast away from the centre.
+	if data.has("knockback_on_hit"):
+		var kick := float(data.get("knockback_on_hit", 0.0))
+		for target in _enemies_in_radius(center, values.radius):
+			if not is_instance_valid(target):
+				continue
+			var push_dir := center.direction_to(target.global_position)
+			if push_dir.length_squared() <= 0.0:
+				push_dir = Vector2.RIGHT
+			if target.has_method("apply_knockback"):
+				target.apply_knockback(push_dir * kick)
+			else:
+				target.knockback_velocity = push_dir * kick
 	_emit_ability_cast(PackedVector2Array([center, Vector2(values.radius, 0.0)]))
 
 
+## Projectile-worthy nukes: anything tagged with `projectile_lob` in its ability data.
+static func _ability_id_has_projectile(ability_id: String) -> bool:
+	var info := PlayerClass.ability_info(ability_id)
+	return bool(info.get("projectile_lob", false))
+
+
+## Spawn a friendly lobbed projectile. Purely visual; doesn't deal damage itself.
+func _spawn_ability_projectile(ability_id: String, from_position: Vector2, to_position: Vector2) -> void:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+	var projectile := ProjectileSpriteScene.instantiate() as ProjectileSprite
+	scene_root.add_child(projectile)
+	projectile.setup(ability_id, from_position, to_position, 0.32, 42.0)
+
+
+## Persistent pulsing zone for ultimates that carry a slow/stun on-hit. The fx burst is
+## ~0.4s; this keeps the ring visible for the slow duration so you can actually read it.
+func _spawn_ability_zone_pulse(position: Vector2, radius: float, duration: float) -> void:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+	var zone := ZonePulseScene.instantiate() as ZonePulse
+	scene_root.add_child(zone)
+	var hero := PlayerClass.by_id(class_id)
+	zone.setup(
+		position,
+		radius,
+		maxf(duration, 0.9),
+		Color(str(hero.get("effect_color", "#ffffff"))),
+		Color(str(hero.get("effect_secondary", "#ffffff")))
+	)
+
+
 func _ability_aim_center(max_range: float) -> Vector2:
+	# If a specific ability is armed for two-stage targeting, ALWAYS use aim_world_position
+	# clamped to range — the player explicitly picked a spot. Otherwise auto-pick nearest
+	# enemy in range; fall back to the aim point clamped by range so "I aimed here" works.
+	if not _pending_ability_id.is_empty():
+		var clamp_dir := global_position.direction_to(aim_world_position)
+		if clamp_dir.length_squared() <= 0.0:
+			clamp_dir = facing_direction
+		var dist := global_position.distance_to(aim_world_position)
+		return global_position + clamp_dir * minf(dist, max_range)
 	var target := _nearest_enemy_in_range(max_range)
 	if target != null:
 		return target.global_position
 	var direction := global_position.direction_to(aim_world_position)
 	if direction.length_squared() <= 0.0:
 		direction = facing_direction
-	return global_position + direction * minf(max_range, 220.0)
+	return global_position + direction * minf(max_range, global_position.distance_to(aim_world_position))
 
 
 func _cast_ability_cone_burst(data: Dictionary, values: Dictionary) -> void:
@@ -765,13 +1183,58 @@ func _cast_ability_cone_burst(data: Dictionary, values: Dictionary) -> void:
 
 
 func _cast_ability_radius_burst(data: Dictionary, values: Dictionary) -> void:
+	# Global ults (Thundergod's Wrath) strike EVERY live enemy in the arena — a bolt per
+	# target instead of a self-centred ring. Covers the whole arena regardless of proximity.
+	if bool(data.get("global", false)):
+		var struck := 0
+		for enemy in get_tree().get_nodes_in_group("enemies"):
+			if not is_instance_valid(enemy) or not enemy is Node2D:
+				continue
+			if enemy.has_method("is_damageable") and not enemy.is_damageable():
+				continue
+			_apply_ability_hit(enemy as Node2D, data, values)
+			_emit_ability_cast(PackedVector2Array([(enemy as Node2D).global_position, Vector2(values.radius, 0.0)]))
+			struck += 1
+		if struck == 0:
+			_emit_ability_cast(PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
+		return
 	var center := global_position
 	if values.range > 0.0:
 		var travel := minf(values.range, global_position.distance_to(aim_world_position))
 		center = global_position + global_position.direction_to(aim_world_position) * travel
+	# Artillery-style sky strike: paint the mark, ordnance screams down after a short fuse,
+	# then the whole zone detonates at once. Non-sky strikes land instantly as before.
+	if bool(data.get("sky_strike", false)):
+		_spawn_sky_strike(data, values, center, float(data.get("sky_delay", 0.6)))
+		return
 	for target in _enemies_in_radius(center, values.radius):
 		_apply_ability_hit(target, data, values)
 	_emit_ability_cast(PackedVector2Array([center, Vector2(values.radius, 0.0)]))
+
+
+## Artillery Barrage: paint the target ring instantly, then the shell drops from above and
+## the ring detonates. The telegraph stays on the ground for the full fuse so everyone can
+## see exactly where the shell is about to land.
+func _spawn_sky_strike(data: Dictionary, values: Dictionary, center: Vector2, fuse: float) -> void:
+	_spawn_ability_zone_pulse(center, values.radius, fuse + 0.4)
+	var captured := values.duplicate()
+	captured["_sky_center"] = center
+	var delay := maxf(0.05, fuse)
+	get_tree().create_timer(delay).timeout.connect(func() -> void:
+		_on_sky_strike_land(data, captured)
+	)
+
+
+func _on_sky_strike_land(data: Dictionary, values: Dictionary) -> void:
+	if not is_inside_tree():
+		return
+	var center: Vector2 = values.get("_sky_center", global_position)
+	# The shell itself: a fast-falling lob visual from above the arena so the blast clearly
+	# originates "from the sky" rather than from the caster.
+	_spawn_ability_projectile(_casting_ability_id, center + Vector2(0.0, -values.radius * 1.6), center)
+	for target in _enemies_in_radius(center, float(values.radius)):
+		_apply_ability_hit(target, data, values)
+	_emit_ability_cast(PackedVector2Array([center, Vector2(float(values.radius), 0.0)]))
 
 
 func _cast_ability_chain_nuke(data: Dictionary, values: Dictionary) -> void:
@@ -814,6 +1277,40 @@ func _cast_ability_dash_strike(data: Dictionary, values: Dictionary) -> void:
 		_apply_ability_hit(target, data, values)
 	global_position = destination
 	_emit_ability_cast(PackedVector2Array([origin, Vector2(values.dash_distance, 0.0)]))
+	# Dragon Fire: the dash scorches a lingering trail of flame along the whole path.
+	if bool(data.get("fire_trail", false)):
+		_spawn_fire_trail(origin, destination, float(values.power) * 0.35)
+
+
+## Cinder's Dragon Fire leaves a burning strip along the dash line. The trail ticks damage
+## onto anything still standing in it a moment later, reading as "the path keeps burning".
+func _spawn_fire_trail(origin: Vector2, destination: Vector2, tick_power: float) -> void:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+	var length := origin.distance_to(destination)
+	if length <= 1.0:
+		return
+	var trail := Line2D.new()
+	trail.default_color = Color(1.0, 0.55, 0.15, 0.0)
+	trail.width = 14.0
+	trail.add_point(origin)
+	trail.add_point(destination)
+	trail.z_index = 24
+	scene_root.add_child(trail)
+	var tween := trail.create_tween()
+	tween.tween_property(trail, "default_color:a", 0.8, 0.08)
+	tween.tween_interval(0.5)
+	tween.tween_property(trail, "default_color:a", 0.0, 0.5)
+	tween.tween_callback(trail.queue_free)
+	# Lingering burn tick along the strip once the flash settles.
+	get_tree().create_timer(0.45).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		var mid := origin.lerp(destination, 0.5)
+		var hit_radius := origin.distance_to(destination) * 0.5 + 26.0
+		for target in _enemies_in_radius(mid, hit_radius):
+			_damage_enemy(target, tick_power))
 
 
 func _cast_ability_blink(_data: Dictionary, values: Dictionary) -> void:
@@ -841,6 +1338,8 @@ func _cast_ability_aoe_heal(_data: Dictionary, values: Dictionary) -> void:
 		var ally := candidate as Player
 		if not ally.active or ally.health.is_dead:
 			continue
+		if not _is_support_target(ally):
+			continue
 		if global_position.distance_squared_to(ally.global_position) > radius_sq:
 			continue
 		ally.health.heal(values.power)
@@ -858,6 +1357,8 @@ func _cast_ability_shield_burst(data: Dictionary, values: Dictionary) -> void:
 				continue
 			var ally := candidate as Player
 			if not ally.active or ally.health.is_dead:
+				continue
+			if not _is_support_target(ally):
 				continue
 			if global_position.distance_squared_to(ally.global_position) > radius_sq:
 				continue
@@ -888,7 +1389,7 @@ func _cast_ability_buff_self(data: Dictionary, values: Dictionary) -> void:
 
 
 ## power > 0 pulls enemies toward the caster, power < 0 knocks them away.
-func _cast_ability_push_pull_burst(_data: Dictionary, values: Dictionary) -> void:
+func _cast_ability_push_pull_burst(data: Dictionary, values: Dictionary) -> void:
 	var center := global_position
 	var strength := float(values.power)
 	for target in _enemies_in_radius(center, values.radius):
@@ -899,7 +1400,47 @@ func _cast_ability_push_pull_burst(_data: Dictionary, values: Dictionary) -> voi
 			away_direction = Vector2.RIGHT
 		var impulse_direction := away_direction if strength < 0.0 else -away_direction
 		target.apply_knockback(impulse_direction * absf(strength))
+		_arm_hazard_escape(target)
+	# Apply slow/stun from the data so big zone-ults (Energy Field, Shatter Nova, etc.)
+	# actually lock people in place while the field is up.
+	for target in _enemies_in_radius(center, values.radius):
+		if data.has("slow_on_hit") and target.has_method("apply_slow"):
+			target.apply_slow(float(data.slow_on_hit.factor), float(data.slow_on_hit.duration))
+		if data.has("stun_on_hit") and target.has_method("apply_slow"):
+			target.apply_slow(0.1, float(data.stun_on_hit.duration))
+		_damage_enemy(target, values.power)
 	_emit_ability_cast(PackedVector2Array([center, Vector2(values.radius, 0.0)]))
+	# Leave a visible zone: the fx burst is ~0.4s, but the field itself persists for the
+	# slow's full duration — Energy Field 8s, Arena Chill 3s, etc.
+	if data.has("slow_on_hit") or data.has("stun_on_hit"):
+		var zone_duration := 0.0
+		if data.has("slow_on_hit"):
+			zone_duration = maxf(zone_duration, float(data.slow_on_hit.duration))
+		if data.has("stun_on_hit"):
+			zone_duration = maxf(zone_duration + 0.8, float(data.stun_on_hit.duration))
+		_spawn_ability_zone_pulse(center, values.radius, clampf(zone_duration, 1.5, 12.0))
+
+
+## Shoving an enemy near the arena's hazard gives it a couple of chances to crawl back out —
+## the dunk burst still lands first, so a well-aimed shove is lethal but not an instant delete.
+func _arm_hazard_escape(target: Node2D) -> void:
+	if target is Enemy and not target.flying:
+		target.hazard_escapes_left = mini(target.hazard_escapes_left + 1, 2)
+
+
+## Hover heroes skim over the lava / freezing water / acid on purpose, but the heat still
+## licks at them — light thematic DoT while over the void, no burst, flying enemies exempt.
+func _update_hazard(delta: float) -> void:
+	if simulation_mode == SimulationMode.PROXY:
+		return
+	if _arena == null:
+		_arena = Arena.arena_root(self)
+		if _arena == null:
+			return
+	var hazard := _arena.hazard_at(global_position)
+	if hazard.is_empty():
+		return
+	health.take_damage(float(hazard.get("player_dot", 8.0)) * delta, self)
 
 
 func _apply_ability_buff(stats: Dictionary, duration: float) -> void:
@@ -1079,6 +1620,8 @@ func _allies_in_radius(center: Vector2, radius: float) -> Array[Player]:
 		var ally := candidate as Player
 		if not ally.active or ally.health.is_dead:
 			continue
+		if not _is_support_target(ally):
+			continue
 		if center.distance_squared_to(ally.global_position) <= radius_sq:
 			found.append(ally)
 	return found
@@ -1117,7 +1660,7 @@ func _perform_attack() -> void:
 
 
 func _cast_chain_bolt() -> void:
-	var primary := _find_primary_target()
+	var primary := _find_primary_pvp_target()
 	var points := PackedVector2Array([global_position])
 	if primary == null:
 		points.append(global_position + facing_direction * minf(attack_range, 180.0))
@@ -1130,7 +1673,7 @@ func _cast_chain_bolt() -> void:
 	var previous := primary
 
 	for chain_index in chain_count:
-		var next_target := _find_chain_target(previous, struck)
+		var next_target := _find_chain_pvp_target(previous, struck)
 		if next_target == null:
 			break
 		struck.append(next_target)
@@ -1144,7 +1687,7 @@ func _cast_chain_bolt() -> void:
 
 func _cast_cone_slam() -> void:
 	var half_angle := deg_to_rad(cone_half_angle_degrees)
-	for target in _enemies_in_radius(global_position, attack_range):
+	for target in _pvp_hosts_in_radius(global_position, attack_range):
 		var to_target := global_position.direction_to(target.global_position)
 		if to_target.length_squared() > 0.0 and absf(facing_direction.angle_to(to_target)) > half_angle:
 			continue
@@ -1161,7 +1704,7 @@ func _cast_energy_blast() -> void:
 	var impact := primary.global_position if primary != null else global_position + facing_direction * minf(attack_range, 280.0)
 	for pulse_index in maxi(1, blast_pulses):
 		var pulse_damage := weapon_damage if pulse_index == 0 else weapon_damage * PlayerClass.BLAST_AFTERSHOCK_DAMAGE
-		for target in _enemies_in_radius(impact, blast_radius):
+		for target in _pvp_hosts_in_radius(impact, blast_radius):
 			_damage_enemy(target, pulse_damage)
 	staff_cast.emit(class_id, PackedVector2Array([
 		global_position,
@@ -1182,9 +1725,9 @@ func _cast_mending_bolt() -> void:
 
 
 func _cast_frost_shard() -> void:
-	var primary := _find_primary_target()
+	var primary := _find_primary_pvp_target()
 	var burst_center := primary.global_position if primary != null else global_position + facing_direction * minf(attack_range, 260.0)
-	for target in _enemies_in_radius(burst_center, frost_burst_radius):
+	for target in _pvp_hosts_in_radius(burst_center, frost_burst_radius):
 		_damage_enemy(target, weapon_damage)
 		if target.has_method("apply_slow"):
 			target.apply_slow(frost_slow_factor, frost_slow_duration)
@@ -1202,6 +1745,55 @@ func _enemies_in_radius(center: Vector2, radius: float) -> Array[Node2D]:
 		if center.distance_squared_to((candidate as Node2D).global_position) <= radius_sq:
 			found.append(candidate as Node2D)
 	return found
+
+
+## Rift Clash: everything worth hitting. Enemies and rival-team players share "hostile"
+## picks for beams/blasts; co-op keeps the old behaviour (only the "enemies" group).
+func _pvp_hosts_in_radius(center: Vector2, radius: float) -> Array[Node2D]:
+	var found := _enemies_in_radius(center, radius)
+	if not GameRuntime.is_rift_clash() or team_id == "":
+		return found
+	var radius_sq := radius * radius
+	for candidate in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(candidate) or not candidate is Player:
+			continue
+		var rival := candidate as Player
+		if rival.team_id == "" or rival.team_id == team_id:
+			continue
+		if not rival.active or rival.health.is_dead:
+			continue
+		if center.distance_squared_to(rival.global_position) <= radius_sq:
+			found.append(rival)
+	return found
+
+
+func _find_primary_pvp_target() -> Node2D:
+	var segment_end := global_position + facing_direction * attack_range
+	var best_target: Node2D = _find_primary_target()
+	var best_score := INF
+	if best_target != null:
+		var projected := Geometry2D.get_closest_point_to_segment(best_target.global_position, global_position, segment_end)
+		best_score = best_target.global_position.distance_to(projected) * 4.0 + global_position.distance_to(projected) * 0.05
+	if GameRuntime.is_rift_clash() and team_id != "":
+		var projected := Geometry2D.get_closest_point_to_segment(Vector2.ZERO, Vector2.ZERO, segment_end)
+		for candidate in get_tree().get_nodes_in_group("players"):
+			var rival := candidate as Player
+			if not is_instance_valid(rival) or rival.team_id == "" or rival.team_id == team_id:
+				continue
+			if not rival.active or rival.health.is_dead:
+				continue
+			if not rival is Node2D:
+				continue
+			projected = Geometry2D.get_closest_point_to_segment(rival.global_position, global_position, segment_end)
+			var distance_to_beam := rival.global_position.distance_to(projected)
+			var forward_distance := global_position.distance_to(projected)
+			if distance_to_beam > aim_assist_radius or forward_distance > attack_range:
+				continue
+			var score := distance_to_beam * 4.0 + forward_distance * 0.05
+			if score < best_score:
+				best_score = score
+				best_target = rival
+	return best_target
 
 
 func _find_primary_target() -> Node2D:
@@ -1238,6 +1830,25 @@ func _find_chain_target(origin: Node2D, excluded: Array[Node2D]) -> Node2D:
 		if distance_sq < nearest_distance_sq:
 			nearest = candidate
 			nearest_distance_sq = distance_sq
+	return nearest
+
+
+func _find_chain_pvp_target(origin: Node2D, excluded: Array[Node2D]) -> Node2D:
+	var nearest: Node2D = _find_chain_target(origin, excluded)
+	var nearest_distance_sq := chain_range * chain_range
+	if nearest != null:
+		nearest_distance_sq = origin.global_position.distance_squared_to(nearest.global_position)
+	if GameRuntime.is_rift_clash() and team_id != "":
+		for candidate in get_tree().get_nodes_in_group("players"):
+			var rival := candidate as Player
+			if not is_instance_valid(rival) or rival.team_id == "" or rival.team_id == team_id:
+				continue
+			if not rival.active or rival.health.is_dead or rival in excluded:
+				continue
+			var distance_sq: float = origin.global_position.distance_squared_to(rival.global_position)
+			if distance_sq < nearest_distance_sq:
+				nearest_distance_sq = distance_sq
+				nearest = rival
 	return nearest
 
 
@@ -1396,6 +2007,7 @@ func snapshot() -> Dictionary:
 	return {
 		"peer_id": owner_peer_id,
 		"class_id": class_id,
+		"team_id": team_id,
 		"position": global_position,
 		"facing": facing_direction,
 		"aim": aim_world_position,
@@ -1472,3 +2084,50 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, BODY_RADIUS, accent_color, false, 3.0)
 		draw_line(facing_direction * 20.0, facing_direction * 30.0, accent_color, 4.0)
 		draw_circle(facing_direction * 32.0, 4.5, accent_color)
+	if aim_indicator_visible and not _pending_ability_id.is_empty():
+		_draw_aim_indicator()
+
+
+## Aim-helper overlay while an ability is armed: a thin circle at the actual cast area and
+## a hair-line from the hero to it so you can see where it'll land. Mode-dependent: "vector"
+## adds a directional arrow inside the circle since Steam Turret's cone blows that way.
+func _draw_aim_indicator() -> void:
+	var mode := str(TARGETED_ABILITIES.get(_pending_ability_id, "point"))
+	var data := PlayerClass.ability_info(_pending_ability_id)
+	if data.is_empty():
+		return
+	var values := PlayerClass.ability_values(_pending_ability_id, 1)
+	# Range clamp: how far the aim point can be from the hero.
+	var max_range := float(values.get("range", 540.0))
+	var target := aim_world_position
+	var offset := target - global_position
+	if offset.length() > max_range:
+		target = global_position + offset.normalized() * max_range
+	# Ability's impact radius — read from values.radius when present.
+	var radius := float(values.get("radius", 200.0))
+	var local_center := to_local(target)
+	var local_start := Vector2.ZERO
+	# Thin connecting line so you can see the range.
+	draw_line(local_start, local_center, Color(1.0, 1.0, 1.0, 0.4), 1.4, true)
+	# Impact circle. Pulsing a bit so it reads "armed".
+	var pulse := 0.75 + 0.25 * sin(Time.get_ticks_msec() * 0.008)
+	draw_arc(local_center, radius, 0.0, TAU, 64, Color(1.0, 1.0, 1.0, 0.7 * pulse), 2.2, true)
+	draw_arc(local_center, radius * 0.6, 0.0, TAU, 48, Color(accent_color.r, accent_color.g, accent_color.b, 0.5 * pulse), 1.4, true)
+	# Hot center dot.
+	draw_circle(local_center, 3.0, Color(1.0, 1.0, 1.0, 0.95))
+	if mode == "vector":
+		# Direction the cast will face: from the cast point toward the second aim point.
+		# For now use current facing_direction — the cast handler reads it at confirm time.
+		var arrow_end := local_center + facing_direction * radius * 0.7
+		draw_line(local_center, arrow_end, Color(1.0, 1.0, 0.9, 0.9), 2.4, true)
+		var arrow_left := arrow_end - facing_direction * 10.0 + facing_direction.orthogonal() * 5.5
+		var arrow_right := arrow_end - facing_direction * 10.0 - facing_direction.orthogonal() * 5.5
+		draw_line(arrow_end, arrow_left, Color(1.0, 1.0, 0.9, 0.9), 2.4, true)
+		draw_line(arrow_end, arrow_right, Color(1.0, 1.0, 0.9, 0.9), 2.4, true)
+	elif mode == "unit":
+		# Highlight the unit that would be hit.
+		var candidate := _nearest_enemy_in_range(_unit_target_range_for(_pending_ability_id))
+		if candidate != null:
+			var local_target := to_local(candidate.global_position)
+			draw_arc(local_target, 18.0, 0.0, TAU, 24, Color(1.0, 0.85, 0.4, 0.9 * pulse), 2.4, true)
+			draw_line(local_center, local_target, Color(1.0, 0.85, 0.4, 0.6), 1.6, true)

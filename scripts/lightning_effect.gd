@@ -17,7 +17,6 @@ func _ready() -> void:
 		lifetime = maxf(lifetime, 0.42)
 	queue_redraw()
 
-
 func _process(delta: float) -> void:
 	elapsed += delta
 	if elapsed >= lifetime:
@@ -53,105 +52,51 @@ func _draw() -> void:
 					_draw_bolt(points[segment_index], points[segment_index + 1], color, width, segment_index, effect_alpha)
 
 
-func _draw_burst(center: Vector2, radius: float, effect_alpha: float) -> void:
-	var expansion := 1.0 - effect_alpha
-	var outer := radius * (0.55 + 0.45 * expansion)
-	var line_width := clampf(radius / 55.0, 5.0, 14.0)
-	draw_circle(center, outer, Color(main_color, 0.24 * effect_alpha))
-	draw_arc(center, outer, 0.0, TAU, 64, Color(main_color, effect_alpha), line_width, true)
-	draw_arc(center, outer * 0.72, 0.0, TAU, 48, Color(chain_color, effect_alpha * 0.85), line_width * 0.65, true)
-	draw_circle(center, outer * 0.18, Color(1.0, 1.0, 1.0, effect_alpha * 0.35))
+func _draw_burst(center: Vector2, radius: float, alpha: float) -> void:
+	var color := main_color
+	color.a *= alpha
+	draw_circle(center, radius, color)
 
 
-func _draw_blast(origin: Vector2, impact: Vector2, radius: float, effect_alpha: float) -> void:
-	var expansion := 1.0 - effect_alpha
-	var outer := radius * (0.45 + 0.55 * expansion)
-	var direction := origin.direction_to(impact)
-	if direction.length_squared() <= 0.0:
-		direction = Vector2.RIGHT
-	var perp := direction.orthogonal()
-	var muzzle := lerpf(8.0, 18.0, expansion)
-	var flare := lerpf(22.0, outer * 0.62, expansion)
-	var cone := PackedVector2Array([
-		origin + perp * muzzle * 0.35,
-		origin - perp * muzzle * 0.35,
-		impact - perp * flare,
-		impact + perp * flare,
-	])
-	draw_colored_polygon(cone, Color(main_color, 0.32 * effect_alpha))
-	draw_line(origin, impact, Color(main_color, 0.75 * effect_alpha), 7.0, true)
-	draw_line(origin, impact, Color(1.0, 0.96, 0.72, effect_alpha * 0.85), 3.0, true)
-	draw_circle(impact, outer, Color(main_color, 0.42 * effect_alpha))
-	draw_circle(impact, outer * 0.7, Color(chain_color, 0.32 * effect_alpha))
-	var line_width := clampf(radius / 42.0, 6.0, 16.0)
-	draw_arc(impact, outer, 0.0, TAU, 56, Color(main_color, effect_alpha), line_width, true)
-	draw_arc(impact, outer * 0.58, 0.0, TAU, 40, Color(chain_color, effect_alpha * 0.95), line_width * 0.6, true)
-	draw_circle(impact, outer * 0.2, Color(1.0, 1.0, 1.0, effect_alpha * 0.7))
-	var spike_count := 12
-	for spike_index in spike_count:
-		var angle := TAU * float(spike_index) / float(spike_count) + float(flicker_seed % 11) * 0.05
-		var tip := impact + Vector2.from_angle(angle) * outer * 1.28
-		draw_line(impact, tip, Color(main_color, effect_alpha * 0.9), 3.2, true)
-		if spike_index % 2 == 0:
-			var jag := impact + Vector2.from_angle(angle + 0.18) * outer * 0.72
-			draw_line(impact, jag, Color(1.0, 1.0, 1.0, effect_alpha * 0.55), 1.6, true)
+func _draw_blast(from: Vector2, impact: Vector2, radius: float, alpha: float) -> void:
+	var line_color := main_color
+	line_color.a *= alpha
+	draw_line(from, impact, line_color, 4.0)
+	var impact_color := chain_color
+	impact_color.a *= alpha
+	draw_circle(impact, radius, impact_color)
 
 
-func _draw_arc_wedge(center: Vector2, radius: float, facing: Vector2, half_angle: float, effect_alpha: float) -> void:
-	var expansion := 1.0 - effect_alpha
-	var outer := radius * (0.55 + 0.45 * expansion)
-	var mid := facing.angle() if facing.length_squared() > 0.0 else 0.0
-	var start := mid - half_angle
-	var finish := mid + half_angle
-	var wedge := PackedVector2Array([center])
-	var steps := 22
-	for step_index in range(steps + 1):
-		var angle := lerpf(start, finish, float(step_index) / float(steps))
-		wedge.append(center + Vector2.from_angle(angle) * outer)
-	draw_colored_polygon(wedge, Color(main_color, 0.28 * effect_alpha))
-	var line_width := clampf(radius / 55.0, 5.0, 14.0)
-	draw_arc(center, outer, start, finish, 32, Color(main_color, effect_alpha), line_width, true)
-	draw_arc(center, outer * 0.68, start, finish, 24, Color(chain_color, effect_alpha * 0.85), line_width * 0.6, true)
-	var rim := center + Vector2.from_angle(mid) * outer
-	draw_line(center, rim, Color(1.0, 1.0, 1.0, effect_alpha * 0.45), 3.0, true)
-	draw_circle(center, 8.0, Color(1.0, 1.0, 1.0, effect_alpha * 0.3))
+func _draw_arc_wedge(center: Vector2, radius: float, facing: Vector2, half_angle: float, alpha: float) -> void:
+	var color := main_color
+	color.a *= alpha * 0.5
+	var base_angle := facing.angle()
+	var arc_points := PackedVector2Array()
+	arc_points.append(center)
+	var steps := 20
+	for i in range(steps + 1):
+		var angle := base_angle - half_angle + (half_angle * 2.0 * float(i) / float(steps))
+		arc_points.append(center + Vector2.from_angle(angle) * radius)
+	draw_colored_polygon(arc_points, color)
 
 
-## Smooth sine curve tapering to zero at both ends, unlike _draw_bolt's jagged noise — reads
-## as a growing vine/tendril rather than a lightning strike.
-func _draw_wave(start: Vector2, finish: Vector2, color: Color, width: float, segment_index: int, effect_alpha: float) -> void:
-	var wave := PackedVector2Array([start])
-	var distance := start.distance_to(finish)
-	var steps := maxi(6, ceili(distance / 18.0))
-	var normal := start.direction_to(finish).orthogonal()
-	var amplitude := 9.0
-	var phase := float(flicker_seed % 100 + segment_index * 17)
-	for index in range(1, steps):
-		var progress := float(index) / float(steps)
-		var center := start.lerp(finish, progress)
-		var offset := sin(progress * TAU * 1.5 + phase) * amplitude * sin(progress * PI)
-		wave.append(center + normal * offset)
-	wave.append(finish)
-	draw_polyline(wave, Color(color, color.a * 0.25), width + 6.0, true)
-	draw_polyline(wave, color, width, true)
-	for index in range(2, steps, 3):
-		var progress := float(index) / float(steps)
-		var offset := sin(progress * TAU * 1.5 + phase) * amplitude * sin(progress * PI)
-		var bud := start.lerp(finish, progress) + normal * offset
-		draw_circle(bud, width * 0.6, Color(1.0, 1.0, 1.0, effect_alpha * 0.6))
+func _draw_wave(from: Vector2, to: Vector2, color: Color, width: float, segment_index: int, progress: float) -> void:
+	var segments := 16
+	var previous := from
+	for i in range(1, segments + 1):
+		var t := float(i) / float(segments)
+		var node: Vector2 = from.lerp(to, t)
+		node += Vector2.from_angle((to - from).angle() + PI / 2.0) * sin(t * TAU + progress * TAU + float(segment_index)) * 6.0
+		draw_line(previous, node, color, width * (1.0 - t * 0.5))
+		previous = node
 
 
-func _draw_bolt(start: Vector2, finish: Vector2, color: Color, width: float, segment_index: int, effect_alpha: float) -> void:
-	var bolt := PackedVector2Array([start])
-	var distance := start.distance_to(finish)
-	var steps := maxi(3, ceili(distance / 32.0))
-	var normal := start.direction_to(finish).orthogonal()
-	for index in range(1, steps):
-		var progress := float(index) / float(steps)
-		var center := start.lerp(finish, progress)
-		var noise := sin(float(flicker_seed + segment_index * 31 + index * 17)) * 8.0
-		bolt.append(center + normal * noise)
-	bolt.append(finish)
-	draw_polyline(bolt, Color(color, color.a * 0.22), width + 7.0, true)
-	draw_polyline(bolt, color, width, true)
-	draw_polyline(bolt, Color(0.92, 0.99, 1.0, effect_alpha), maxf(1.0, width * 0.35), true)
+func _draw_bolt(from: Vector2, to: Vector2, color: Color, width: float, segment_index: int, progress: float) -> void:
+	var midpoints := 4
+	var previous := from
+	for i in range(1, midpoints + 1):
+		var t := float(i) / float(midpoints)
+		var offset := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * 4.0 * sin(progress * 20.0 + float(segment_index))
+		var node: Vector2 = from.lerp(to, t) + offset
+		draw_line(previous, node, color, width * (1.0 - t * 0.3))
+		previous = node
