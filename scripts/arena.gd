@@ -38,12 +38,33 @@ const WORLD_TO_BIOME: Array[int] = [3, 1, 4, 2]
 
 const WORLD_NAMES: Array[String] = ["Iron Foundry", "Ashen Caldera", "Verdant Wilds", "Storm Court"]
 
-## Signature landmark per world: [sprite_id, effect_id, radius, stand_seconds, effect_arg, hint].
+## Landmarks per world. Each entry:
+##   [sprite_id, effect_id, radius, stand_seconds, effect_arg, hint, angle_deg, dist_frac]
+## angle_deg / dist_frac place the landmark around spawn (see _landmark_spot), so multiple
+## landmarks spread across the field instead of stacking. Every world pairs one rift /
+## attack landmark (pulse_wipe / freeze_time) with one resource / utility (heal_all),
+## mirroring the canonical kit (Rift Portal + Steam Vent, Frozen Crystal + Mana Spring).
 const WORLD_LANDMARKS: Array[Array] = [
-	["tw_factory_landmark_pylon", "pulse_wipe", 700.0, 2.5, 6.0, "Foundry Pylon"],
-	["tw_volcano_landmark_shrine", "heal_all", 480.0, 3.0, 40.0, "Ember Shrine"],
-	["tw_docks_landmark_pool", "heal_all", 480.0, 2.5, 30.0, "Tide Pool"],
-	["tw_ice_landmark_glade", "freeze_time", 500.0, 2.5, 6.0, "Frozen Glade"],
+	# Iron Foundry — Foundry Pylon wipes, Steam Vent restores.
+	[
+		["tw_factory_landmark_pylon", "pulse_wipe", 700.0, 2.5, 6.0, "Foundry Pylon", 35.0, 0.55],
+		["tw_factory_landmark_vat", "heal_all", 460.0, 2.5, 32.0, "Steam Vent", 210.0, 0.50],
+	],
+	# Ashen Caldera — Rift Portal wipes, Ember Shrine restores.
+	[
+		["tw_volcano_landmark_arch", "pulse_wipe", 640.0, 2.8, 6.0, "Rift Portal", 90.0, 0.55],
+		["tw_volcano_landmark_shrine", "heal_all", 480.0, 3.0, 40.0, "Ember Shrine", 270.0, 0.50],
+	],
+	# Verdant Wilds — Mana Spring restores, Verdant Bell wipes.
+	[
+		["tw_docks_landmark_pool", "heal_all", 480.0, 2.5, 34.0, "Mana Spring", 150.0, 0.52],
+		["tw_docks_landmark_bell", "pulse_wipe", 620.0, 2.6, 6.0, "Verdant Bell", 330.0, 0.52],
+	],
+	# Storm Court — Frozen Crystal freezes, Storm Lighthouse wipes.
+	[
+		["tw_ice_landmark_glade", "freeze_time", 500.0, 2.5, 6.0, "Frozen Crystal", 20.0, 0.52],
+		["tw_docks_landmark_lighthouse", "pulse_wipe", 660.0, 2.7, 6.0, "Storm Lighthouse", 200.0, 0.55],
+	],
 ]
 
 ## Live landmark instances the current world spawned. Emptied and rebuilt on set_world.
@@ -73,16 +94,20 @@ func set_world(world_id: int) -> void:
 
 
 const BASE_SIZE := Vector2(2400.0, 1600.0)
-## Original, pre-biome open-field layout: uniform BASE_SIZE no matter the biome.
-## Biome switching (set_world) still swaps the floor tile palette, but no longer
-## balloons the playfield, carves it into island pads, or floods it with lava voids.
-## Kept as a constant so the classic size is easy to bump without touching geometry code.
+## Per-biome playfield footprints (indexed by GameRuntime.biome_id):
+##   0 grass meadow — the baseline open field, smallest of the set.
+##   1 volcano      — the caldera bowl; its island pads sit in a modest frame so the
+##                    lava between outcrops stays a close, threatening dunk hazard.
+##   2 ice          — wide floe field: long sightlines between scattered ice floes.
+##   3 factory      — boxy and moderately larger to fit the orthogonal hall layout.
+##   4 docks        — widest: the storm court / boardwalk reads big and open.
+## Classic pins itself to BASE_SIZE via playfield_size(); biome fields grow from there.
 const SIZE_BY_BIOME: Array[Vector2] = [
 	Vector2(2400.0, 1600.0),
-	Vector2(2400.0, 1600.0),
-	Vector2(2400.0, 1600.0),
-	Vector2(2400.0, 1600.0),
-	Vector2(2400.0, 1600.0),
+	Vector2(2600.0, 1900.0),
+	Vector2(3200.0, 2000.0),
+	Vector2(2800.0, 2100.0),
+	Vector2(3400.0, 2200.0),
 ]
 
 
@@ -101,8 +126,15 @@ const SHOP_STAND_POSITION := Vector2(560.0, -260.0)
 const SHOP_STAND_CLEARANCE := 140.0
 const SHOP_STAND_INTERACT_RADIUS := 200.0
 
+## Resolved shop spot for the currently built field. Defaults to the scaled base spot;
+## _snap_shop_stand_to_pad() rewrites it when a biome's pads would leave the stand in a
+## void. Static because both instances and the smoke test read it via shop_stand_position().
+static var _shop_position := Vector2.ZERO
+
 
 static func shop_stand_position() -> Vector2:
+	if _shop_position != Vector2.ZERO:
+		return _shop_position
 	return SHOP_STAND_POSITION * (playfield_size() / BASE_SIZE)
 
 ## One art pixel becomes this many world pixels, for ground, decals and rocks
@@ -161,6 +193,7 @@ func _ready() -> void:
 		# Hazards first so obstacles respect them (rocks shouldn't sit inside lava pools).
 		_build_hazards()
 		_build_field()
+		_spawn_landmarks()
 	queue_redraw()
 
 
@@ -227,42 +260,47 @@ func hazard_at(world_position: Vector2) -> Dictionary:
 	return {}
 
 
-## Place the current world's signature landmark at a fixed, walkable, seeded-relative spot.
-## One landmark per world keeps the field readable; more can be layered later by
-## appending to WORLD_LANDMARKS.
+## Spawn every landmark in the current world's kit, each at its own walkable,
+## seeded-relative spot. Non-grass worlds carry >= 2 (one rift / attack, one resource).
 func _spawn_landmarks() -> void:
 	if not GameRuntime.uses_biomes():
 		return
 	if _world_id < 0 or _world_id >= WORLD_LANDMARKS.size():
 		return
-	var spec: Array = WORLD_LANDMARKS[_world_id]
-	if spec.size() < 6:
-		return
-	var landmark := ArenaLandmark.new()
-	landmark.position = _landmark_spot()
-	add_child(landmark)
-	landmark.configure(
-		str(spec[0]),
-		StringName(spec[1]),
-		float(spec[2]),
-		float(spec[3]),
-		float(spec[4]),
-		str(spec[5])
-	)
-	landmarks.append(landmark)
+	var kit: Array = WORLD_LANDMARKS[_world_id]
+	for spec in kit:
+		if spec.size() < 6:
+			continue
+		var angle_deg := float(spec[6]) if spec.size() > 6 else 0.0
+		var dist_frac := float(spec[7]) if spec.size() > 7 else 0.55
+		var landmark := ArenaLandmark.new()
+		landmark.position = _landmark_spot(angle_deg, dist_frac)
+		add_child(landmark)
+		landmark.configure(
+			str(spec[0]),
+			StringName(spec[1]),
+			float(spec[2]),
+			float(spec[3]),
+			float(spec[4]),
+			str(spec[5])
+		)
+		landmarks.append(landmark)
 
 
-## A seeded, walkable position for the world's signature landmark — offset from spawn and
-## from the shop stand, and nudged onto a walk pad if the biome carves the field up.
-func _landmark_spot() -> Vector2:
+## A seeded, walkable position for one landmark — placed at the given polar offset from
+## spawn, kept clear of the shop stand, and nudged onto a walk pad if the biome carves
+## the field up. angle_deg / dist_frac come from the world's landmark kit so multiple
+## landmarks fan out across the field instead of stacking.
+func _landmark_spot(angle_deg: float, dist_frac: float = 0.55) -> Vector2:
 	var half := playfield_size() * 0.5
-	# Per-world angular offset keeps the four world's landmarks from stacking on the
-	# same quadrant when a party hops worlds across runs.
-	var angle := TAU * float(_world_id) / maxf(1.0, float(WORLD_NAMES.size()))
-	var distance := minf(half.x, half.y) * 0.55
-	var candidate := Vector2.RIGHT.rotated(angle) * distance
+	var distance := minf(half.x, half.y) * dist_frac
+	var candidate := Vector2.RIGHT.rotated(deg_to_rad(angle_deg)) * distance
 	if candidate.length() < SPAWN_CLEARANCE:
 		candidate = candidate.normalized() * (SPAWN_CLEARANCE + 80.0)
+	# Keep the stand clear of the shop so the shop's interact radius and the landmark's
+	# stand ring never overlap into one ambiguous hotspot.
+	if candidate.distance_to(shop_stand_position()) < SHOP_STAND_CLEARANCE + ArenaLandmark.STAND_RADIUS:
+		candidate = candidate.rotated(deg_to_rad(40.0))
 	return free_position_near(candidate, 40.0)
 
 
@@ -324,13 +362,40 @@ func half_extents() -> Vector2:
 
 
 func _build_field() -> void:
-	# Classic open field: no biome pad carving, no void bodies. The biome only reskins
-	# the ground tile art (see _ground_tile_id); everything stays walkable like the
-	# pre-biome grass meadow the player asked us to restore. Landmark still spawns.
+	# Non-grass biomes carve the field into their signature pad layouts (volcano islands,
+	# ice floes, factory halls, dock piers). Grass/classic keeps the open walkable field.
+	walk_pads.clear()
+	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0:
+		walk_pads = _pads_for_biome(GameRuntime.biome_id)
+		_snap_shop_stand_to_pad()
 	_scatter_obstacles()
 	var shop_stand := SHOP_STAND_SCENE.instantiate() as Node2D
 	shop_stand.global_position = shop_stand_position()
 	add_child(shop_stand)
+	# Solid void for the water / lava / pit between pads so bodies can't leave the pads.
+	_build_void_bodies()
+
+
+## When a biome carves the field into islands, pull the shop stand onto the big pad
+## nearest its default scaled spot so its marker and interact radius sit on walkable
+## ground. Grass/classic leaves the static default untouched.
+func _snap_shop_stand_to_pad() -> void:
+	_shop_position = SHOP_STAND_POSITION * (playfield_size() / BASE_SIZE)
+	var best := _shop_position
+	var best_distance := INF
+	for pad in walk_pads:
+		if mini(int(pad.size.x), int(pad.size.y)) < 220.0:
+			continue
+		var inner := pad.grow(-SHOP_STAND_CLEARANCE)
+		var candidate := Vector2(
+			clampf(_shop_position.x, inner.position.x, inner.end.x),
+			clampf(_shop_position.y, inner.position.y, inner.end.y)
+		)
+		var distance := candidate.distance_to(_shop_position)
+		if distance < best_distance:
+			best_distance = distance
+			best = candidate
+	_shop_position = best
 
 
 func _layout_seed() -> int:

@@ -66,6 +66,8 @@ func _write_contact_sheet(sprites: Dictionary) -> void:
 		var sprite: Dictionary = sprites[sprite_name]
 		var art: Array = sprite.rows
 		var palette: Dictionary = sprite.palette
+		if CLASSIC_TERRAIN.has(str(sprite_name)):
+			palette = ToborWorldArt.tone_terrain_palette(palette)
 		var size: int = art.size()
 		var cell_x := (index % COLUMNS) * CELL * ZOOM
 		var cell_y := (index / COLUMNS) * CELL * ZOOM
@@ -88,9 +90,20 @@ func _write_contact_sheet(sprites: Dictionary) -> void:
 	sheet.save_png("%s/_contact_sheet.png" % SpriteArt.OUTPUT_DIRECTORY)
 
 
+## Classic (non-biome) terrain baked by SpriteArt bypasses ToborWorldArt's biome
+## toning, so the default grass world rendered saturated. Tone exactly those here;
+## the tw_ biome variants are already toned inside ToborWorldArt.all_sprites().
+const CLASSIC_TERRAIN := [
+	"grass_tile", "grass_tuft", "grass_flower", "grass_bloom",
+	"rock_small", "rock_large", "boulder", "spire", "shop_stand", "void_tile",
+]
+
+
 func _write_sprite(sprite_name: String, sprite: Dictionary) -> bool:
 	var rows: Array = sprite.rows
 	var palette: Dictionary = sprite.palette
+	if CLASSIC_TERRAIN.has(sprite_name):
+		palette = ToborWorldArt.tone_terrain_palette(palette)
 	var size := rows.size()
 	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
 	image.fill(Color(0.0, 0.0, 0.0, 0.0))

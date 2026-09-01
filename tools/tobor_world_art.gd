@@ -965,7 +965,8 @@ static func all_sprites() -> Dictionary:
 
 ## Desaturate + lighten a biome terrain palette toward the old grass-meadow tone.
 ## Pure palette transform — no sprite/rows touched. TERRAIN_SAT_ADJUST is the knob.
-static func _tone_terrain(palette: Dictionary) -> Dictionary:
+## Public so the forge can route the untoned classic terrain through the same path.
+static func tone_terrain_palette(palette: Dictionary) -> Dictionary:
 	var tweaked: Dictionary = {}
 	for key in palette:
 		var color := Color(str(palette[key]))
@@ -974,6 +975,10 @@ static func _tone_terrain(palette: Dictionary) -> Dictionary:
 		color.v = clampf(lerpf(color.v, gray, TERRAIN_LIGHT_ADJUST), 0.0, 1.0)
 		tweaked[key] = color.to_html(false)
 	return tweaked
+
+
+static func _tone_terrain(palette: Dictionary) -> Dictionary:
+	return tone_terrain_palette(palette)
 
 
 static func _collect(sprites: Dictionary, rows_by_name: Dictionary, palettes: Dictionary) -> void:
