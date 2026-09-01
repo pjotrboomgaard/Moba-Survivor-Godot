@@ -864,6 +864,144 @@ func _cast_known_ability(slot: int) -> void:
 		"tobor_energy_field":
 			_cast_ability_wrench_field(data, values, int(entry.rank))
 			return
+		# --- Q kits (HoN-inspired bespoke routes) ------------------------------------------
+		"arclight_blast_of_lightning":
+			_cast_ability_arclight_blast(data, values, int(entry.rank))
+			return
+		"bulwark_fissure":
+			_cast_ability_bulwark_fissure(data, values, int(entry.rank))
+			return
+		"warden_tongue_tied":
+			_cast_ability_warden_tongue_tied(data, values, int(entry.rank))
+			return
+		"cinder_dragon_fire":
+			_cast_ability_cinder_dragon_fire(data, values, int(entry.rank))
+			return
+		"pyra_sticky_bomb":
+			_cast_ability_pyra_sticky_bomb(data, values, int(entry.rank))
+			return
+		"slag_steam_bath":
+			_cast_ability_slag_steam_bath(data, values, int(entry.rank))
+			return
+		"ember_entangle":
+			_cast_ability_ember_entangle(data, values, int(entry.rank))
+			return
+		"thorn_poison_spray":
+			_cast_ability_thorn_poison_spray(data, values, int(entry.rank))
+			return
+		"willow_swift_strike":
+			_cast_ability_willow_swift_strike(data, values, int(entry.rank))
+			return
+		"stump_natures_rally":
+			_cast_ability_stump_natures_rally(data, values, int(entry.rank))
+			return
+		"sage_grace":
+			_cast_ability_sage_grace(data, values, int(entry.rank))
+			return
+		"volt_gust":
+			_cast_ability_volt_gust(data, values, int(entry.rank))
+			return
+		"nebula_time_shift":
+			_cast_ability_nebula_time_shift(data, values, int(entry.rank))
+			return
+		"astral_essence_link":
+			_cast_ability_astral_essence_link(data, values, int(entry.rank))
+			return
+		"rime_ice_imprisonment":
+			_cast_ability_rime_ice_imprisonment(data, values, int(entry.rank))
+			return
+		# --- E kits -------------------------------------------------------------------------
+		"arclight_chain_lightning":
+			_cast_ability_arclight_chain_lightning(data, values, int(entry.rank))
+			return
+		"bulwark_heavyweight":
+			_cast_ability_bulwark_heavyweight(data, values, int(entry.rank))
+			return
+		"warden_voodoo_wards":
+			_cast_ability_warden_voodoo_wards(data, values, int(entry.rank))
+			return
+		"cinder_fiery_assault":
+			_cast_ability_cinder_fiery_assault(data, values, int(entry.rank))
+			return
+		"pyra_boom_dust":
+			_cast_ability_pyra_boom_dust(data, values, int(entry.rank))
+			return
+		"slag_volcanic_touch":
+			_cast_ability_slag_volcanic_touch(data, values, int(entry.rank))
+			return
+		"ember_healing_wave":
+			_cast_ability_ember_healing_wave(data, values, int(entry.rank))
+			return
+		"thorn_toxin_ward":
+			_cast_ability_thorn_toxin_ward(data, values, int(entry.rank))
+			return
+		"willow_forsaken_shot":
+			_cast_ability_willow_forsaken_shot(data, values, int(entry.rank))
+			return
+		"stump_camouflage":
+			_cast_ability_stump_camouflage(data, values, int(entry.rank))
+			return
+		"sage_volatile_pod":
+			_cast_ability_sage_volatile_pod(data, values, int(entry.rank))
+			return
+		"volt_wind_shield":
+			_cast_ability_volt_wind_shield(data, values, int(entry.rank))
+			return
+		"nebula_curse_of_ages":
+			_cast_ability_nebula_curse_of_ages(data, values, int(entry.rank))
+			return
+		"astral_guardian_angel":
+			_cast_ability_astral_guardian_angel(data, values, int(entry.rank))
+			return
+		"rime_chilling_touch":
+			_cast_ability_rime_chilling_touch(data, values, int(entry.rank))
+			return
+		# --- R kits (ultimates) -------------------------------------------------------------
+		"arclight_thundergods_wrath":
+			_cast_ability_arclight_thundergods_wrath(data, values, int(entry.rank))
+			return
+		"bulwark_echo_slam":
+			_cast_ability_bulwark_echo_slam(data, values, int(entry.rank))
+			return
+		"warden_life_drain":
+			_cast_ability_warden_life_drain(data, values, int(entry.rank))
+			return
+		"cinder_pillar_of_flame":
+			_cast_ability_cinder_pillar_of_flame(data, values, int(entry.rank))
+			return
+		"pyra_air_strike":
+			_cast_ability_pyra_air_strike(data, values, int(entry.rank))
+			return
+		"slag_eruption":
+			_cast_ability_slag_eruption(data, values, int(entry.rank))
+			return
+		"ember_unbreakable":
+			_cast_ability_ember_unbreakable(data, values, int(entry.rank))
+			return
+		"thorn_poison_burst":
+			_cast_ability_thorn_poison_burst(data, values, int(entry.rank))
+			return
+		"willow_strangling_vines":
+			_cast_ability_willow_strangling_vines(data, values, int(entry.rank))
+			return
+		"stump_overgrowth":
+			_cast_ability_stump_overgrowth(data, values, int(entry.rank))
+			return
+		"sage_charm":
+			_cast_ability_sage_charm(data, values, int(entry.rank))
+			return
+		"volt_typhoon":
+			_cast_ability_volt_typhoon(data, values, int(entry.rank))
+			return
+		"nebula_chronofield":
+			_cast_ability_nebula_chronofield(data, values, int(entry.rank))
+			return
+		"astral_as_one":
+			_cast_ability_astral_as_one(data, values, int(entry.rank))
+			return
+		"rime_freezing_field":
+			_cast_ability_rime_freezing_field(data, values, int(entry.rank))
+			return
 	match int(data.archetype):
 		PlayerClass.Archetype.NUKE_BOLT:
 			_cast_ability_nuke_bolt(data, values)
@@ -1553,13 +1691,64 @@ func _arm_hazard_escape(target: Node2D) -> void:
 		target.hazard_escapes_left = mini(target.hazard_escapes_left + 1, 2)
 
 
-## Hover heroes skim over the lava / freezing water / acid on purpose, but the heat still
-## licks at them — light thematic DoT while over the void, no burst, flying enemies exempt.
-func _update_hazard(_delta: float) -> void:
-	# Terrain hazard / lava-dot hook: Arena doesn't expose arena_root()/hazard_at() yet.
-	# Stay a no-op until the lava-push feature lands; values here came from the wave agent
-	# edit that referenced helper methods that were never written.
-	return
+## Hover heroes skim over the lava on purpose, but the heat still licks at them —
+## half-rate DoT while hovering, full DoT while grounded. 0.5s grace after exit so a
+## jitter-heavy crossing doesn't double-ping the first tick on re-entry.
+const HAZARD_GRACE_SECONDS := 0.5
+var _hazard_grace_timer := 0.0
+var _hazard_inside := false
+
+func _update_hazard(delta: float) -> void:
+	if simulation_mode == SimulationMode.PROXY:
+		return
+	if _arena == null:
+		_arena = Arena.arena_root(self)
+		if _arena == null:
+			return
+	var hazard := _arena.hazard_at(global_position)
+	if hazard.is_empty():
+		if _hazard_inside:
+			_hazard_inside = false
+			_hazard_grace_timer = HAZARD_GRACE_SECONDS
+			_hazard_visual_off()
+		else:
+			_hazard_grace_timer = maxf(0.0, _hazard_grace_timer - delta)
+		return
+
+	# Inside an active hazard this frame.
+	if _hazard_inside:
+		# Already inside — keep ticking on every physics frame after grace.
+		if _hazard_grace_timer > 0.0:
+			_hazard_grace_timer = maxf(0.0, _hazard_grace_timer - delta)
+			return
+		_apply_hazard_tick(hazard, delta)
+	else:
+		if _hazard_grace_timer > 0.0:
+			# Re-entered during grace — skip this frame, keep countdown.
+			_hazard_grace_timer = maxf(0.0, _hazard_grace_timer - delta)
+			return
+		_hazard_inside = true
+		_hazard_visual_on(str(hazard.get("type", "lava")))
+		_apply_hazard_tick(hazard, delta)
+
+
+func _apply_hazard_tick(hazard: Dictionary, delta: float) -> void:
+	var dps := float(hazard.get("player_dot", 14.0))
+	if hovering:
+		dps *= Arena.HAZARD_HOVER_REDUCTION
+	if dps <= 0.0:
+		return
+	health.take_damage(dps * delta, self)
+
+
+func _hazard_visual_on(_hazard_type: String) -> void:
+	if sprite != null:
+		sprite.modulate = Color(1.45, 0.85, 0.65, 1.0)
+
+
+func _hazard_visual_off() -> void:
+	if sprite != null:
+		sprite.modulate = Color.WHITE
 
 
 func _apply_ability_buff(stats: Dictionary, duration: float) -> void:
@@ -2170,6 +2359,9 @@ func _reflect_damage(amount: float) -> void:
 
 func _on_died() -> void:
 	active = false
+	_hazard_inside = false
+	_hazard_grace_timer = 0.0
+	_hazard_visual_off()
 	modulate = Color(0.35, 0.35, 0.4, 1.0)
 	AudioService.play("player_down")
 	player_died.emit(owner_peer_id)

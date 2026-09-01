@@ -1,0 +1,44 @@
+{
+	"hero": "tobor",
+	"comment": "Lava dunk: Tobor (Iron Foundry slag pools) — spawn a grunt near the pool at (-560,-420), lob a keg that detonates EAST of the grunt so the knockback shoves him INTO the pool. Then walk Tobor into a pool to verify the player DoT + tint.",
+	"events": [
+		{"t": 0.4, "kind": "effect_log", "text": "Lava dunk selftest — keg knockback into factory-slag pool at (-560,-420)."},
+
+		{"t": 0.5, "kind": "spawn", "at": [-450, -380], "type": "grunt", "hp_mult": 30.0},
+		{"t": 0.6, "kind": "snap", "label": "arena_pools_pre"},
+
+		{"t": 0.9, "kind": "aim", "at": [-460, -390]},
+		{"t": 1.0, "kind": "cast", "slot": 0},
+		{"t": 1.05, "kind": "probe", "label": "after_keg_armed"},
+
+		{"t": 1.3, "kind": "aim", "at": [-460, -390]},
+		{"t": 1.4, "kind": "cast", "slot": 0},
+		{"t": 1.45, "kind": "probe", "label": "after_keg_confirm"},
+		{"t": 1.6, "kind": "snap", "label": "keg_in_air"},
+
+		{"t": 2.2, "kind": "snap", "label": "keg_impact"},
+		{"t": 2.3, "kind": "probe", "label": "keg_impact"},
+
+		{"t": 2.8, "kind": "snap", "label": "grunt_dunked_into_lava"},
+		{"t": 3.0, "kind": "probe", "label": "grunt_dunked"},
+
+		{"t": 3.6, "kind": "teleport", "to": [-560, -420]},
+		{"t": 3.65, "kind": "effect_log", "text": "Tobor stands in slag pool — expect player_dot dps + red sprite tint."},
+		{"t": 3.7, "kind": "snap", "label": "player_in_lava"},
+		{"t": 3.8, "kind": "probe", "label": "player_in_lava"},
+
+		{"t": 5.2, "kind": "snap", "label": "player_in_lava_tick2"},
+		{"t": 5.3, "kind": "probe", "label": "hp_after_1_5s"},
+
+		{"t": 5.6, "kind": "teleport", "to": [-180, 620]},
+		{"t": 5.65, "kind": "effect_log", "text": "Second pool re-entry after grace window — should tick again on next frame."},
+		{"t": 5.7, "kind": "snap", "label": "player_second_pool"},
+		{"t": 5.8, "kind": "probe", "label": "player_second_pool"},
+
+		{"t": 7.0, "kind": "teleport", "to": [0, 0]},
+		{"t": 7.1, "kind": "snap", "label": "player_off_lava"},
+		{"t": 7.2, "kind": "probe", "label": "player_recovered"},
+
+		{"t": 7.8, "kind": "report"}
+	]
+}

@@ -8,6 +8,19 @@ var crater_unlocked: bool = false
 func set_crater_unlocked(unlocked: bool) -> void:
 	crater_unlocked = unlocked
 
+## Single active arena lives under main. Players / enemies resolve it through this so
+## nobody needs to hard-wire the path (and so the offline smoke harness can find it).
+static func arena_root(node: Node) -> Arena:
+	if node == null:
+		return null
+	var tree := node.get_tree()
+	if tree == null:
+		return null
+	for candidate in tree.get_nodes_in_group("arena"):
+		if candidate is Arena:
+			return candidate as Arena
+	return null
+
 
 ## Worlds (PlayerClass.World) the arena can dress itself as. set_world(world_id) swaps
 ## the biome palette, pads, obstacles, decals and landmark layout to match.
@@ -118,13 +131,35 @@ var obstacles: Array[Obstacle] = []
 ## Walkable pads for Pjotr biomes. Empty means the whole playfield is walkable
 ## (Pjotr grass meadow). Classic keeps the clean grid.
 var walk_pads: Array[Rect2] = []
+## Terrain hazards (lava pools, etc.) carved from the playfield independent of pads.
+## Each entry: {"rect": Rect2, "type": String, "biome_kind": String, "player_dot": float, "enemy_dot": float, "dunk_burst": float, "scramble_seconds": float}.
+var hazard_zones: Array[Dictionary] = []
+## Worlds that get lava hazards (PlayerClass.World: 0=IRON_FOUNDRY, 1=ASHEN_CALDERA).
+## Foundry pools read as molten-slag basins; Caldera pools are straight lava.
+const HAZARD_WORLDS: Array[int] = [0, 1]
+## Fixed lava pool layout (base-size normalized); scaled like obstacles so everyone agrees.
+## Kept small + off-center so the open field remains the headline, hazards are tactical.
+const HAZARD_POOLS: Array[Dictionary] = [
+	{"center": Vector2(-560.0, -420.0), "size": Vector2(280.0, 200.0)},
+	{"center": Vector2(720.0, 320.0), "size": Vector2(240.0, 180.0)},
+	{"center": Vector2(-180.0, 620.0), "size": Vector2(200.0, 160.0)},
+]
+## Tune the lava dunk numbers (player tick vs enemy tick vs burst on knockback-land).
+const HAZARD_PLAYER_DOT := 14.0
+const HAZARD_ENEMY_DOT := 8.0
+const HAZARD_DUNK_BURST := 60.0
+const HAZARD_DUNK_SCRAMBLE := 2.5
+const HAZARD_HOVER_REDUCTION := 0.5
 
 
 func _ready() -> void:
+	add_to_group("arena")
 	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_fit_walls()
 	if not GameRuntime.is_classic():
+		# Hazards first so obstacles respect them (rocks shouldn't sit inside lava pools).
+		_build_hazards()
 		_build_field()
 	queue_redraw()
 
@@ -137,11 +172,59 @@ func rebuild() -> void:
 	obstacles.clear()
 	walk_pads.clear()
 	landmarks.clear()
+	hazard_zones.clear()
 	_fit_walls()
 	if not GameRuntime.is_classic():
+		# Hazards first so _scatter_obstacles skips pool interiors.
+		_build_hazards()
 		_build_field()
 		_spawn_landmarks()
 	queue_redraw()
+
+
+## Scatter the fixed lava pool layout for worlds that opt in (ASHEN_CALDERA + IRON_FOUNDRY).
+## Pools are positioned inside the walkable field so enemies can actually be shoved in.
+func _build_hazards() -> void:
+	hazard_zones.clear()
+	if not GameRuntime.uses_biomes():
+		return
+	if not HAZARD_WORLDS.has(_world_id):
+		return
+	var biome_kind := _hazard_biome_kind()
+	var scale_factor := playfield_size() / BASE_SIZE
+	for pool in HAZARD_POOLS:
+		var center: Vector2 = pool["center"] * scale_factor
+		var size: Vector2 = pool["size"] * scale_factor
+		var rect := Rect2(center - size * 0.5, size)
+		hazard_zones.append({
+			"rect": rect,
+			"type": "lava",
+			"biome_kind": biome_kind,
+			"player_dot": HAZARD_PLAYER_DOT,
+			"enemy_dot": HAZARD_ENEMY_DOT,
+			"dunk_burst": HAZARD_DUNK_BURST,
+			"scramble_seconds": HAZARD_DUNK_SCRAMBLE,
+		})
+
+
+func _hazard_biome_kind() -> String:
+	match _world_id:
+		0:
+			return "factory_slag"
+		1:
+			return "volcano_lava"
+		_:
+			return "lava"
+
+
+## Resolve the hazard under a world position. Returns {} when safe. Pools are small
+## enough that first-hit wins; if two overlapped the first in the list takes precedence.
+func hazard_at(world_position: Vector2) -> Dictionary:
+	for zone in hazard_zones:
+		var rect: Rect2 = zone.get("rect", Rect2())
+		if rect.has_point(world_position):
+			return zone
+	return {}
 
 
 ## Place the current world's signature landmark at a fixed, walkable, seeded-relative spot.
@@ -188,8 +271,20 @@ func _landmark_spot() -> Vector2:
 func is_blocked(world_position: Vector2, radius: float = 20.0) -> bool:
 	if not _is_walkable(world_position, radius):
 		return true
+	if is_in_hazard(world_position, radius):
+		return true
 	for obstacle in obstacles:
 		if world_position.distance_to(obstacle.global_position) < obstacle.body_radius + radius:
+			return true
+	return false
+
+
+## Pools count as "blocked" for placement, but NOT for movement (heroes + enemies are
+## allowed to stand in lava if pushed / willing — that's the point of the dunk system).
+func is_in_hazard(world_position: Vector2, radius: float = 0.0) -> bool:
+	for zone in hazard_zones:
+		var rect: Rect2 = zone.get("rect", Rect2())
+		if rect.grow(radius).has_point(world_position):
 			return true
 	return false
 
@@ -269,6 +364,9 @@ func _scatter_obstacles() -> void:
 
 
 func _fits_obstacle(candidate: Vector2) -> bool:
+	# Rocks don't sit mid-pool — a boulder in lava looks wrong and would block dunk shots.
+	if is_in_hazard(candidate, 48.0):
+		return false
 	if walk_pads.is_empty():
 		return true
 	for pad in walk_pads:
@@ -447,6 +545,7 @@ func _draw() -> void:
 
 	_draw_ground_rect(rect)
 	_draw_decals()
+	_draw_hazards()
 	if GameRuntime.uses_biomes():
 		# Biome accent rims match the desaturated tiles in tobor_world_art.gd (roughly
 		# 30% gray mixed in) so the arena frame no longer pops against a muted floor.
@@ -544,6 +643,34 @@ func _draw_decals() -> void:
 			continue
 		var size := Vector2(texture.get_width(), texture.get_height()) * PIXEL_ZOOM
 		draw_texture_rect(texture, Rect2(spot - size * 0.5, size), false)
+
+
+## Lava pools paint on top of the ground but under rocks/heroes: a tiled lava texture
+## with a hot rim so the danger zones read from any camera angle.
+func _draw_hazards() -> void:
+	if hazard_zones.is_empty():
+		return
+	var lava := SpriteLibrary.texture_for("tw_volcano_void_tile")
+	var rim := Color("ff7a29")
+	var inner := Color("c43018")
+	if GameRuntime.is_classic():
+		lava = null
+	for zone in hazard_zones:
+		var rect: Rect2 = zone.get("rect", Rect2())
+		if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+			continue
+		if lava != null:
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2(PIXEL_ZOOM, PIXEL_ZOOM))
+			draw_texture_rect(
+				lava,
+				Rect2(rect.position / PIXEL_ZOOM, rect.size / PIXEL_ZOOM),
+				true
+			)
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		else:
+			draw_rect(rect, inner, true)
+		# Glowing rim so the lip stands out against the biome floor.
+		draw_rect(rect, rim, false, 6.0)
 
 
 func _draw_classic_grid(rect: Rect2) -> void:

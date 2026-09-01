@@ -82,6 +82,22 @@ var slam_shots_left := 0
 var slam_shot_gap := 0.0
 var _base_projectile_count := 1
 
+## Terrain-hazard / lava-dunk state. Flying enemies skim over pools; grounded ones take
+## the full dunk when a knockback arc drops them inside lava. Scramble slows the crawl
+## back out, and `_lava_dunked_this_flight` keeps one knockback from multi-dunking on
+## frame boundaries (a shove still re-dunks once they land again).
+var hazard_escapes_left := 0
+var scrambling_out := 0.0
+var _lava_burn_tick := 0.0
+var _lava_burn_seconds := 0.0
+var _was_knocked := false
+var _lava_dunked_this_flight := false
+var _arena: Arena = null
+const LAVA_DUNK_BURN_DPS := 22.0
+const LAVA_DUNK_BURN_DURATION := 4.0
+const LAVA_SCRAMBLE_SPEED_MULT := 0.45
+const KNOCKBACK_FLIGHT_THRESHOLD := 60.0
+
 
 func _ready() -> void:
 	health.died.connect(_on_died)
@@ -208,6 +224,18 @@ func _physics_process(delta: float) -> void:
 	if knockback_velocity.length_squared() > 1.0:
 		global_position += knockback_velocity * delta
 		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_DECAY * delta)
+		if knockback_velocity.length() > KNOCKBACK_FLIGHT_THRESHOLD:
+			_was_knocked = true
+	elif _was_knocked:
+		# Just landed from a knockback arc — check if we ended up in lava.
+		_was_knocked = false
+		_on_knockback_landed()
+
+	_update_lava_burn(delta)
+	if scrambling_out > 0.0:
+		scrambling_out = maxf(0.0, scrambling_out - delta)
+		if scrambling_out <= 0.0:
+			queue_redraw()
 
 	_update_slow(delta)
 	_update_vulnerability(delta)
@@ -243,7 +271,10 @@ func _physics_process(delta: float) -> void:
 
 
 func _move(direction_velocity: Vector2) -> void:
-	velocity = direction_velocity + _separation_offset()
+	var dir := direction_velocity
+	if scrambling_out > 0.0:
+		dir *= LAVA_SCRAMBLE_SPEED_MULT
+	velocity = dir + _separation_offset()
 	if flying:
 		global_position += velocity * get_physics_process_delta_time()
 	else:
@@ -617,6 +648,52 @@ func apply_knockback(impulse: Vector2) -> void:
 	if not server_authoritative:
 		return
 	knockback_velocity += impulse
+	# Once we're flying fast, the landing check will fire when velocity decays below the
+	# threshold — that carries the "dunked" flag back to false so a fresh flight can
+	# re-trigger the burst after the scramble's done.
+	if knockback_velocity.length() > KNOCKBACK_FLIGHT_THRESHOLD:
+		_lava_dunked_this_flight = false
+
+
+## Knockback arc ended. If the drop point sits inside a lava pool, the enemy takes a big
+## burst + burn DoT, gets tagged scrambling_out (slowed crawl) for a few seconds, and
+## remains dunk-eligible the next time a shove lands them in a pool.
+func _on_knockback_landed() -> void:
+	if _arena == null:
+		_arena = Arena.arena_root(self)
+		if _arena == null:
+			return
+	if flying:
+		return  # Fliers skim over lava; they never dunk.
+	var hazard := _arena.hazard_at(global_position)
+	if hazard.is_empty():
+		return
+	if str(hazard.get("type", "")) != "lava":
+		return
+	if _lava_dunked_this_flight:
+		return
+	_lava_dunked_this_flight = true
+	var burst := float(hazard.get("dunk_burst", 60.0))
+	if burst > 0.0:
+		health.take_damage(burst, self)
+	# Burn DoT ticks regardless of whether the burst killed; kill signal will clean up.
+	_lava_burn_seconds = maxf(_lava_burn_seconds, LAVA_DUNK_BURN_DURATION)
+	_lava_burn_tick = 0.0
+	scrambling_out = maxf(scrambling_out, float(hazard.get("scramble_seconds", 2.5)))
+	AudioService.play("hit")
+	queue_redraw()  # Scramble tint in _draw picks this up next frame.
+
+
+## While the burn DoT ticks, chip at health continuously (server-authoritative only).
+func _update_lava_burn(delta: float) -> void:
+	if _lava_burn_seconds <= 0.0:
+		return
+	_lava_burn_seconds = maxf(0.0, _lava_burn_seconds - delta)
+	_lava_burn_tick += delta
+	# Tick every 0.25s so number pops read nicely instead of a constant blur.
+	if _lava_burn_tick >= 0.25:
+		health.take_damage(LAVA_DUNK_BURN_DPS * _lava_burn_tick, self)
+		_lava_burn_tick = 0.0
 
 
 func apply_mark(bonus_pct: float, duration: float) -> void:
@@ -725,6 +802,8 @@ func _on_damaged(amount: float) -> void:
 func _on_died() -> void:
 	if not server_authoritative:
 		return
+	_lava_burn_seconds = 0.0
+	scrambling_out = 0.0
 	remove_from_group("enemies")
 	set_physics_process(false)
 	if not death_spawn_id.is_empty() and death_spawn_count > 0:
@@ -743,6 +822,9 @@ func _draw() -> void:
 	if slow_timer > 0.0:
 		fill = fill.lerp(Color("6fb7ff"), 0.45)
 		outline = outline.lerp(Color("d3ecff"), 0.6)
+	elif scrambling_out > 0.0:
+		fill = fill.lerp(Color("ff7a29"), 0.45)
+		outline = outline.lerp(Color("ffd36b"), 0.5)
 
 	if aura_radius > 0.0:
 		var pulse := 0.5 + 0.5 * sin(aura_pulse * 3.0)
@@ -763,7 +845,10 @@ func _draw() -> void:
 			draw_circle(Vector2.ZERO, body_radius * 3.1, Color(fill, 0.09 + 0.05 * glow))
 
 	if has_sprite():
-		if slow_timer > 0.0:
+		if scrambling_out > 0.0:
+			# Fresh out of the lava — scorched smoking tint until the crawl-out finishes.
+			sprite.modulate = Color("ff9a55")
+		elif slow_timer > 0.0:
 			sprite.modulate = Color("9fd8ff")
 		else:
 			sprite.modulate = Color.WHITE
