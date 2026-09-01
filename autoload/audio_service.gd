@@ -57,25 +57,79 @@ const SOUND_LIBRARY: Dictionary = {
 	"charge": [preload("res://assets/audio/sfx/charge.ogg")],
 	"player_down": [preload("res://assets/audio/sfx/player_down.ogg")],
 	"revive": [preload("res://assets/audio/sfx/revive.ogg")],
+	# Hero cast banks: 2-3 distinctive takes each, so a cast reads as *that* hero before
+	# you even see the VFX. Pure-procedural wavs (tools/synth_themes.py, MIT-safe) cover
+	# every hero; a few also have Kenney .ogg legacy takes mixed in for extra grit.
+	"cast_tobor": [
+		preload("res://assets/audio/themes/tobor.wav"),
+		preload("res://assets/audio/themes/tobor_2.wav"),
+		preload("res://assets/audio/sfx/cast_tobor.ogg"),
+	],
 	"cast_arclight": [
+		preload("res://assets/audio/themes/arclight.wav"),
+		preload("res://assets/audio/themes/arclight_2.wav"),
 		preload("res://assets/audio/sfx/cast_arclight.ogg"),
-		preload("res://assets/audio/sfx/cast_arclight_2.ogg"),
 	],
 	"cast_bulwark": [
+		preload("res://assets/audio/themes/bulwark.wav"),
+		preload("res://assets/audio/themes/bulwark_2.wav"),
 		preload("res://assets/audio/sfx/cast_bulwark.ogg"),
-		preload("res://assets/audio/sfx/cast_bulwark_2.ogg"),
 	],
 	"cast_warden": [
+		preload("res://assets/audio/themes/warden.wav"),
+		preload("res://assets/audio/themes/warden_2.wav"),
 		preload("res://assets/audio/sfx/cast_warden.ogg"),
-		preload("res://assets/audio/sfx/cast_warden_2.ogg"),
 	],
-	"cast_frostbinder": [
+	"cast_cinder": [
+		preload("res://assets/audio/themes/cinder.wav"),
+		preload("res://assets/audio/themes/cinder_2.wav"),
+		preload("res://assets/audio/themes/cinder_3.wav"),
+	],
+	"cast_pyra": [
+		preload("res://assets/audio/themes/pyra.wav"),
+		preload("res://assets/audio/themes/pyra_2.wav"),
+		preload("res://assets/audio/themes/pyra_3.wav"),
+	],
+	"cast_slag": [
+		preload("res://assets/audio/themes/slag.wav"),
+		preload("res://assets/audio/themes/slag_2.wav"),
+	],
+	"cast_ember": [
+		preload("res://assets/audio/themes/ember.wav"),
+		preload("res://assets/audio/themes/ember_2.wav"),
+	],
+	"cast_thorn": [
+		preload("res://assets/audio/themes/thorn.wav"),
+		preload("res://assets/audio/themes/thorn_2.wav"),
+	],
+	"cast_willow": [
+		preload("res://assets/audio/themes/willow.wav"),
+		preload("res://assets/audio/themes/willow_2.wav"),
+	],
+	"cast_stump": [
+		preload("res://assets/audio/themes/stump.wav"),
+		preload("res://assets/audio/themes/stump_2.wav"),
+	],
+	"cast_sage": [
+		preload("res://assets/audio/themes/sage.wav"),
+		preload("res://assets/audio/themes/sage_2.wav"),
+	],
+	"cast_volt": [
+		preload("res://assets/audio/themes/volt.wav"),
+		preload("res://assets/audio/themes/volt_2.wav"),
+	],
+	"cast_nebula": [
+		preload("res://assets/audio/themes/nebula.wav"),
+		preload("res://assets/audio/themes/nebula_2.wav"),
+	],
+	"cast_astral": [
+		preload("res://assets/audio/themes/astral.wav"),
+		preload("res://assets/audio/themes/astral_2.wav"),
+	],
+	"cast_rime": [
+		preload("res://assets/audio/themes/rime.wav"),
+		preload("res://assets/audio/themes/rime_2.wav"),
 		preload("res://assets/audio/sfx/cast_frostbinder.ogg"),
-		preload("res://assets/audio/sfx/cast_frostbinder_2.ogg"),
-	],
-	"cast_tobor": [
-		preload("res://assets/audio/sfx/cast_tobor.ogg"),
-		preload("res://assets/audio/sfx/cast_tobor_2.ogg"),
 	],
 	"sfx_projectile": [preload("res://assets/audio/sfx/sfx_projectile.ogg")],
 	"sfx_cone": [preload("res://assets/audio/sfx/sfx_cone.ogg")],
@@ -126,8 +180,19 @@ const VOLUME_DB := {
 	"cast_arclight": -8.0,
 	"cast_bulwark": -7.0,
 	"cast_warden": -8.0,
-	"cast_frostbinder": -8.0,
+	"cast_rime": -8.0,
 	"cast_tobor": -6.0,
+	"cast_cinder": -7.0,
+	"cast_pyra": -7.0,
+	"cast_slag": -6.0,
+	"cast_ember": -7.0,
+	"cast_thorn": -8.0,
+	"cast_willow": -8.0,
+	"cast_stump": -7.0,
+	"cast_sage": -8.0,
+	"cast_volt": -7.0,
+	"cast_nebula": -8.0,
+	"cast_astral": -8.0,
 	"sfx_projectile": -9.0,
 	"sfx_cone": -8.0,
 	"sfx_radius": -7.0,
@@ -151,8 +216,19 @@ const PITCH_SPREAD := {
 	"cast_arclight": 0.05,
 	"cast_bulwark": 0.04,
 	"cast_warden": 0.04,
-	"cast_frostbinder": 0.05,
+	"cast_rime": 0.05,
 	"cast_tobor": 0.04,
+	"cast_cinder": 0.05,
+	"cast_pyra": 0.05,
+	"cast_slag": 0.04,
+	"cast_ember": 0.06,
+	"cast_thorn": 0.05,
+	"cast_willow": 0.05,
+	"cast_stump": 0.04,
+	"cast_sage": 0.05,
+	"cast_volt": 0.06,
+	"cast_nebula": 0.04,
+	"cast_astral": 0.04,
 	"sfx_projectile": 0.05,
 	"sfx_cone": 0.04,
 	"sfx_radius": 0.04,
@@ -200,6 +276,13 @@ const DEFAULT_MAX_VOICES := 5
 var sfx_enabled := true
 var music_enabled := true
 
+## Self-test/probe hooks: last_play_ability mirrors the ability_id passed to the latest
+## play_ability call that actually fired a player; last_play records the sound id, the
+## exact stream take, and the AudioStreamPlayer of the most recent play() so probes can
+## assert non-null and inspect which bank file was picked.
+var last_play_ability: String = ""
+var last_play: Dictionary = {}
+
 var _music_player: AudioStreamPlayer
 var _sfx_pool: Array[AudioStreamPlayer] = []
 var _active_by_id: Dictionary = {}
@@ -220,33 +303,51 @@ func _ready() -> void:
 	_apply_mute_state()
 
 
-func play(sound_id: String) -> void:
+func play(sound_id: String) -> AudioStreamPlayer:
 	if not sfx_enabled or GameRuntime.is_dedicated_server():
-		return
+		return null
 	var takes: Array = SOUND_LIBRARY.get(sound_id, [])
 	if takes.is_empty():
-		return
+		push_warning("[AudioService] no sound bank for id '%s'" % sound_id)
+		return null
 	var player := _acquire_player(sound_id)
 	if player == null:
-		return
+		return null
 	player.stream = takes[randi() % takes.size()]
 	player.bus = "UI" if UI_SOUND_IDS.has(sound_id) else "SFX"
 	player.volume_db = float(VOLUME_DB.get(sound_id, -8.0))
 	var spread := float(PITCH_SPREAD.get(sound_id, 0.0))
 	player.pitch_scale = 1.0 + randf_range(-spread, spread) if spread > 0.0 else 1.0
 	player.play()
+	last_play = {"sound_id": sound_id, "stream": player.stream, "player": player}
 	if STINGER_IDS.has(sound_id):
 		_duck_music()
+	return player
 
 
-func play_ability(ability_id: String) -> void:
+func has_sound(sound_id: String) -> bool:
+	return SOUND_LIBRARY.has(sound_id)
+
+
+## Every cast plays its hero's own bank first — `cast_<hero>` from the ability id's hero
+## prefix — so casts are hero-distinctive. Heroes without a bank of their own fall back to
+## the shared archetype family takes (projectile/cone/heal/...) so the layer never goes
+## silent; a total miss warns instead of crashing. last_play_ability records what fired
+## for probes/debugging.
+func play_ability(ability_id: String) -> AudioStreamPlayer:
+	var bank := "cast_%s" % ability_id.split("_")[0]
+	if SOUND_LIBRARY.has(bank):
+		var player := play(bank)
+		if player != null:
+			last_play_ability = ability_id
+		return player
 	var info := PlayerClass.ability_info(ability_id)
 	if not info.is_empty():
 		var family := str(FAMILY_FOR_ARCHETYPE.get(int(info.get("archetype", -1)), ""))
 		if family != "" and SOUND_LIBRARY.has(family):
-			play(family)
-			return
-	play("cast_%s" % ability_id.split("_")[0])
+			return play(family)
+	push_warning("[AudioService] no cast bank or family take for ability '%s'" % ability_id)
+	return null
 
 
 func play_music() -> void:

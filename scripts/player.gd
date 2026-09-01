@@ -1034,6 +1034,7 @@ func _cast_ability_wrench_keg(data: Dictionary, values: Dictionary, _rank: int) 
 ## Fast attack cadence chips nearby enemies; long-lived but disposable.
 func _cast_ability_wrench_turret(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	_spawn_summon(data, values, global_position + facing_direction * 18.0)
+	AudioService.play_ability("tobor_steam_turret")
 
 
 ## Spider Mines: scatter a small clutch of proximity mines around the cursor. Each anchors
@@ -1073,6 +1074,7 @@ func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2)
 	sum.explosion_radius = float(data.get("explosion_radius", 92.0))
 	sum.expired.connect(_on_summon_expired)
 	get_tree().current_scene.add_child(sum)
+	AudioService.play_ability("tobor_spider_mines")
 	active_summons.append(sum)
 	while active_summons.size() > MAX_ACTIVE_SUMMONS:
 		var oldest: SummonEntity = active_summons.pop_front()
