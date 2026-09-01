@@ -1,6 +1,14 @@
 class_name Arena
 extends Node2D
 
+## Terrain reward: some bosses leave a crater that unlocks fire-themed ability modifiers.
+## Stubbed here so main.gd's unlock hook runs even before boss rewards are wired up.
+var crater_unlocked: bool = false
+
+func set_crater_unlocked(unlocked: bool) -> void:
+	crater_unlocked = unlocked
+
+
 const BASE_SIZE := Vector2(2400.0, 1600.0)
 ## Each later biome is a bigger field: grass < volcano < ice < factory < docks.
 const SIZE_BY_BIOME: Array[Vector2] = [

@@ -181,6 +181,12 @@ func difficulty_name() -> String:
 	return Difficulty.keys()[difficulty].capitalize()
 
 
+func is_rift_clash() -> bool:
+	# Team-mode wiring is stubbed (RiftClashManager returns defaults); treat all runs as
+	# the default 4-player co-op mode until the rift mode is actually loaded.
+	return false
+
+
 func is_classic() -> bool:
 	return game_mode == GameMode.CLASSIC
 

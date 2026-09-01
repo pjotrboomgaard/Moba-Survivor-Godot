@@ -73,7 +73,7 @@ var team_wave_directors: Dictionary = {}  # team_id -> WaveDirector
 func _ready() -> void:
 	randomize()
 	NetworkService.peer_left.connect(_on_peer_left)
-	if arena is Arena:
+	if arena is Arena and arena.get("landmarks") != null:
 		for landmark in (arena as Arena).landmarks:
 			if is_instance_valid(landmark):
 				landmark.triggered.connect(_on_landmark_triggered)
@@ -899,7 +899,8 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 		candidate_position.x = clampf(candidate_position.x, -1160.0, 1160.0)
 		candidate_position.y = clampf(candidate_position.y, -760.0, 760.0)
 	enemy.global_position = arena.free_position_near(candidate_position, 22.0)
-	enemy.team_id = _last_spawn_team
+	# enemy.team_id assignment skipped — Player carries team ids, Enemy does not.
+	# If Rift Clash ever needs per-team enemies, extend Enemy with team_id here.
 	actors.add_child(enemy)
 	enemy.configure(entity_id, true, type_id, health_multiplier, speed_multiplier)
 	enemy.defeated.connect(_on_enemy_defeated)
