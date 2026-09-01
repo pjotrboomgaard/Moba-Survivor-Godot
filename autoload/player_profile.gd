@@ -48,6 +48,40 @@ func save_audio_prefs() -> void:
 	_save_profile()
 
 
+## Ults are unlocked from the start.
+func is_ult_unlocked(_hero_id: String) -> bool:
+	return true
+
+
+func bank_wave_progress(_hero_id: String, _wave_beaten: int) -> Dictionary:
+	return {"newly_unlocked": [], "banked": 0}
+
+
+func sparks_for_wave(wave_index: int) -> float:
+	if wave_index <= 0:
+		return 0.0
+	var step := int(floor(wave_index / 5.0))
+	return float(5 * step + maxi(0, step - 4))
+
+
+## Default 4-ability loadout: Q, E, first non-kit from pool, R.
+func loadout_for(hero_id: String) -> Array[String]:
+	var out: Array[String] = []
+	var kit := PlayerClass.kit_ability_ids(hero_id)
+	var pool := PlayerClass.ability_pool_for(hero_id)
+	var alt := ""
+	for ability_id in pool:
+		if ability_id not in kit:
+			alt = ability_id
+			break
+	for i in [0, 1]:
+		out.append(kit[i] if kit.size() > i else "")
+	out.append(alt)
+	if kit.size() > 2:
+		out.append(kit[2])
+	return out
+
+
 func _generate_local_player_id() -> String:
 	var source := "%s:%s:%s" % [
 		Time.get_unix_time_from_system(),

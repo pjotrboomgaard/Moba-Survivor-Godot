@@ -2145,6 +2145,24 @@ static func ability_pool_for(class_id: String) -> Array[String]:
 	return pool
 
 
+## Fixed 4-ability kit — agent-based tests lean on this for two-stage targeting + sim casts.
+## Order: Q, E, R. Callers build the 4th slot from the pool.
+static func kit_ability_ids(class_id: String) -> Array[String]:
+	var class_data := by_id(class_id)
+	var out: Array[String] = []
+	for slot in ["kit_q", "kit_e", "kit_r"]:
+		var id := str(class_data.get(slot, ""))
+		if not id.is_empty():
+			out.append(id)
+	return out
+
+
+## "Kit" = Q, E, R locked; the alternate (slot index 2 in PlayerProfile.loadout_for) comes
+## from the ability_pool (first non-kit entry).
+static func kit_for(class_id: String) -> Array[String]:
+	return kit_ability_ids(class_id)
+
+
 static func ability_info(ability_id: String) -> Dictionary:
 	return ABILITIES.get(ability_id, {})
 
@@ -2353,15 +2371,3 @@ static func kit_e(class_id: String) -> String:
 
 static func kit_r(class_id: String) -> String:
 	return str(by_id(class_id).get("kit_r", ""))
-
-
-static func kit_ability_ids(class_id: String) -> Array[String]:
-	var out: Array[String] = []
-	for slot_id in [kit_q(class_id), kit_e(class_id), kit_r(class_id)]:
-		if not slot_id.is_empty():
-			out.append(slot_id)
-	return out
-
-
-static func kit_for(class_id: String) -> Array[String]:
-	return kit_ability_ids(class_id)
