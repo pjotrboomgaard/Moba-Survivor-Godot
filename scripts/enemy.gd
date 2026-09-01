@@ -61,6 +61,8 @@ var attack_cooldown := 0.0
 var network_target_position := Vector2.ZERO
 var slow_factor := 1.0
 var slow_timer := 0.0
+## HoN-style hard root: while > 0 movement stops (attacks/abilities still allowed).
+var movement_lock_timer := 0.0
 var aura_pulse := 0.0
 var summon_timer := 0.0
 var speed_ramp := 0.0
@@ -644,6 +646,21 @@ func apply_slow(next_slow_factor: float, duration: float) -> void:
 	queue_redraw()
 
 
+## HoN Treant Entangle-style root: movement is fully stopped for `duration` seconds.
+## Uses the slow machinery with a zero-factor floor so it plays nicely with existing
+## slow HUD/redraw code and multi-source stacking (longest duration wins).
+func apply_movement_lock(duration: float) -> void:
+	if not server_authoritative:
+		return
+	movement_lock_timer = maxf(movement_lock_timer, duration)
+	# Mirror into the slow system at the absolute floor so existing `_move` code paths
+	# that multiply by `slow_factor` stop dead. Unlike `apply_slow` this is not clamped
+	# to 0.1 — a true HoN root is movement = 0.
+	slow_factor = 0.0
+	slow_timer = maxf(slow_timer, duration)
+	queue_redraw()
+
+
 func apply_knockback(impulse: Vector2) -> void:
 	if not server_authoritative:
 		return
@@ -708,6 +725,8 @@ func vulnerability_multiplier() -> float:
 
 
 func _update_slow(delta: float) -> void:
+	if movement_lock_timer > 0.0:
+		movement_lock_timer = maxf(0.0, movement_lock_timer - delta)
 	if slow_timer <= 0.0:
 		return
 	slow_timer = maxf(0.0, slow_timer - delta)

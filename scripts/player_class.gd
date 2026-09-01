@@ -782,6 +782,8 @@ enum Archetype {
 	BLINK_STRIKE,
 	PIT_SLOW,
 	ATTACK_FURY,
+	## HoN Earthshaker Fissure-style: linear impassable wall that also stuns along its line.
+	SPAWN_WALL,
 }
 
 ## The four worlds the roster is drawn from — Iron Foundry is the original robot crew,
@@ -812,6 +814,7 @@ const ARCHETYPE_NAMES := {
 	Archetype.BLINK_STRIKE: "blink_strike",
 	Archetype.PIT_SLOW: "pit_slow",
 	Archetype.ATTACK_FURY: "attack_fury",
+	Archetype.SPAWN_WALL: "spawn_wall",
 }
 
 ## id -> data. Every hero picks 12 of these (see CLASSES[i].ability_pool). Numeric fields scale
@@ -1001,11 +1004,12 @@ const ABILITIES: Dictionary = {
 	},
 	# --- Bulwark (Tremor / Behemoth) ------------------------------------------------------
 	"bulwark_fissure": {
-		"name": "Fissure", "archetype": Archetype.DASH_STRIKE,
-		"description": "Cracks the earth open in a {dash_distance}-unit line, dealing {power} Magic damage and stunning everything standing on it for {stun_duration}s.",
+		"name": "Fissure", "archetype": Archetype.SPAWN_WALL,
+		"description": "Cracks the earth open in a {wall_length}-unit line, raising an impassable ridge for {wall_duration}s that deals {power} Magic damage and stuns everything standing on it for {stun_duration}s.",
 		"cooldown_base": 8.5, "cooldown_per_rank": -0.8, "cooldown_min": 4.8,
-		"power_base": 55.0, "power_per_rank": 14.0, "dash_distance": 340.0, "radius": 60.0,
-		"stun_on_hit": {"duration": 1.2},
+		"power_base": 55.0, "power_per_rank": 14.0, "wall_length": 340.0, "radius": 60.0,
+		"stun_on_hit": {"duration": 1.5},
+		"wall_duration": 5.0, "wall_segments": 5,
 	},
 	"bulwark_heavyweight": {
 		"name": "Heavyweight", "archetype": Archetype.ATTACK_FURY,
@@ -1363,9 +1367,10 @@ const ABILITIES: Dictionary = {
 	# --- Pyra -------------------------------------------------------------------------------
 	"pyra_sticky_bomb": {
 		"name": "Sticky Bomb", "archetype": Archetype.NUKE_BOLT,
-		"description": "Lobs an adhesive bomb up to {range} range that clings to its target and bursts for {power} Magic damage.",
+		"description": "Lobs an adhesive bomb up to {range} range that clings to the ground and detonates when an enemy comes within {trigger_radius} units, dealing {power} Magic damage in a {explosion_radius}-unit blast.",
 		"cooldown_base": 7.0, "cooldown_per_rank": -0.7, "cooldown_min": 3.8,
 		"power_base": 75.0, "power_per_rank": 19.0, "range": 540.0,
+		"trigger_radius": 60.0, "explosion_radius": 100.0, "summon_lifetime": 10.0,
 	},
 	"pyra_boom_dust": {
 		"name": "Boom Dust", "archetype": Archetype.RADIUS_BURST,
@@ -1524,10 +1529,10 @@ const ABILITIES: Dictionary = {
 	# --- Ember ------------------------------------------------------------------------------
 	"ember_entangle": {
 		"name": "Entangle", "archetype": Archetype.NUKE_BOLT,
-		"description": "Roots and cinders burst up at the target point within {range} range, dealing {power} Magic damage and slowing every foe in the area by {slow_factor} for {slow_duration}s.",
+		"description": "Roots and cinders burst up at the target point within {range} range, dealing {power} Magic damage and holding every foe in place for {root_duration}s.",
 		"cooldown_base": 11.0, "cooldown_per_rank": -1.0, "cooldown_min": 6.5,
-		"power_base": 65.0, "power_per_rank": 17.0, "range": 560.0,
-		"slow_on_hit": {"factor": 0.5, "duration": 2.5},
+		"power_base": 25.0, "power_per_rank": 9.0, "range": 560.0,
+		"root_on_hit": {"duration": 2.5},
 	},
 	"ember_healing_wave": {
 		"name": "Healing Wave", "archetype": Archetype.AOE_HEAL,

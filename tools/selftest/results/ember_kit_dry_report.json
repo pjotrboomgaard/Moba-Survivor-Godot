@@ -5,59 +5,61 @@
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 2.15727424242424
+      "t": 2.1564179090909
     },
     {
       "cd_left": 190.036666666667,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 6.15390081818191
+      "t": 6.15450890909101
     }
   ],
-  "elapsed": 9.00632800000014,
-  "enemies_spawned": 4,
-  "hero_position": "(72.02579, 13.73336)",
+  "elapsed": 9.00141366666681,
+  "enemies_spawned": 6,
+  "hero_position": "(72.0, 0.0)",
   "player_class": "ember",
   "results": {
     "casts": [
       {
+        "ability_id": "ember_entangle",
+        "t": 0.176486333333333
+      },
+      {
         "ability_id": "ember_healing_wave",
-        "t": 2.06560757575757
+        "t": 2.06475124242424
       },
       {
         "ability_id": "ember_storm_cloud",
-        "t": 4.164892
+        "t": 4.160126
       },
       {
         "ability_id": "ember_unbreakable",
-        "t": 6.06223415151524
+        "t": 6.06284224242433
       }
     ],
-    "errors": [
-      "expected cast never fired: ember_entangle"
-    ]
+    "errors": []
   },
   "shots": [
     {
       "label": "t1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2148/t1_1.005_2148.png",
-      "t": 1.00454064454064
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2152/t1_1.001_2151.png",
+      "t": 1.00139733333333
     },
     {
       "label": "t3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4155/t3_3.007_4155.png",
-      "t": 3.00727424242423
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4159/t3_3.006_4159.png",
+      "t": 3.0064179090909
     },
     {
       "label": "t5",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6146/t5_5.000_6146.png",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6150/t5_5.000_6150.png",
       "t": 5.00000000000004
     },
     {
       "label": "t8",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9148/t8_8.004_9148.png",
-      "t": 8.00390081818201
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9158/t8_8.005_9158.png",
+      "t": 8.0045089090911
     }
   ]
 }

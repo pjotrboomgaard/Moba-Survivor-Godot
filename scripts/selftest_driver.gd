@@ -153,8 +153,19 @@ func _screenshot(label: String) -> Vector2:
 	return Vector2.ZERO
 
 
+var _debug_last_tick := 0.0
+var _debug_last_phys := 0.0
+
+func _physics_process(_delta: float) -> void:
+	if _elapsed - _debug_last_phys >= 0.5:
+		print("[std] phys t=%.2f" % _elapsed)
+		_debug_last_phys = _elapsed
+
 func _process(delta: float) -> void:
 	_elapsed += delta
+	if _elapsed - _debug_last_tick >= 0.5:
+		print("[std] tick t=%.2f events=%d" % [_elapsed, _events.size()])
+		_debug_last_tick = _elapsed
 	_tick_walk()
 	while not _events.is_empty() and float(_events[0].get("t", 0.0)) <= _elapsed:
 		var event: Dictionary = _events.pop_front()

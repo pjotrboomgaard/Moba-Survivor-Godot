@@ -736,7 +736,7 @@ const TARGETED_ABILITIES := {
 	"slag_volcanic_touch": "instant",
 	"slag_lava_surge": "vector",
 	"slag_eruption": "instant",
-	"ember_entangle": "unit",
+	"ember_entangle": "point",
 	"ember_healing_wave": "instant",
 	"ember_storm_cloud": "point",
 	"ember_unbreakable": "instant",
@@ -1151,16 +1151,33 @@ func _on_summon_expired(entity: SummonEntity) -> void:
 
 ## --- Wrench (HoN Engineer-inspired) kit ----------------------------------------------
 
-## Steam Keg: lobbed satchel of volatile steam. Two-stage point cast — the player arms it,
-## picks a landing spot, then the keg sails over as a real projectile-and-impact read. The
-## throw range leans on a generous "keg_range" data field (HoN ~1000 range) so long lobs
-## don't get clipped by the tighter damage `range`; falls back to a lob over the blast zone.
+## Steam Keg: HoN-favoured delayed detonation. The keg rolls/lobs to the impact point,
+## flashes a warning ring during a short fuse, THEN detonates — popping enemies away and
+## leaving a lingering superheated cloud that keeps burning anyone who walks through it.
+## This matches HoN Bombardier/Rally's two-stage Q feel instead of our older instant nuke.
 func _cast_ability_wrench_keg(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	var throw_range := float(data.get("keg_range", maxf(float(values.range), 460.0)))
 	var center := _ability_aim_center(throw_range)
-	_spawn_ability_projectile(_casting_ability_id, global_position, center)
 	var radius := float(values.radius)
-	# Impact read: HoN's keg pops enemies away from the blast centre on top of its damage.
+	_spawn_ability_projectile(_casting_ability_id, global_position, center)
+	# Fuse window: paint the danger zone during the delay so the read is "incoming!", not
+	# "suddenly blown up". Blast + cloud land after a HoN-esque delay.
+	var fuse := maxf(float(data.get("fuse_delay", 0.55)), 0.15)
+	_spawn_keg_warning_ring(center, radius, fuse)
+	get_tree().create_timer(fuse).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		_detonate_wrench_keg(data, values, center, radius)
+		_spawn_steam_cloud(center, radius, 2.5)
+		_emit_ability_cast(PackedVector2Array([center, Vector2(radius, fuse)]))
+	)
+	# Telegraph the impact point immediately so ability-cast coverage sees the cast now.
+	_emit_ability_cast(PackedVector2Array([global_position, center, Vector2(radius, fuse)]))
+
+
+## The keg's pressure-wave: pops every enemy inside away from the centre (HoN Steam Keg's
+## signature shove), then applies the payload (damage + stun) via the shared hit route.
+func _detonate_wrench_keg(data: Dictionary, values: Dictionary, center: Vector2, radius: float) -> void:
 	var kick := absf(float(data.get("knockback_on_hit", 380.0)))
 	for enemy in _enemies_in_radius(center, radius):
 		var away_dir := center.direction_to(enemy.global_position)
@@ -1171,7 +1188,55 @@ func _cast_ability_wrench_keg(data: Dictionary, values: Dictionary, _rank: int) 
 		else:
 			enemy.knockback_velocity = away_dir * kick
 		_apply_ability_hit(enemy, data, values)
-	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
+
+
+## Brief ring flash ahead of the blast so the fuse reads as HoN's "get out of the circle"
+## timing window.
+func _spawn_keg_warning_ring(center: Vector2, radius: float, duration: float) -> void:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+	var ring := Line2D.new()
+	ring.default_color = Color(1.0, 0.72, 0.3, 0.9)
+	ring.width = 4.0
+	ring.z_index = 23
+	# Close the loop: perimeter + back to the first point.
+	var points := PackedVector2Array()
+	for k in 32:
+		var a := TAU * float(k) / 32.0
+		points.append(center + Vector2(cos(a), sin(a)) * radius)
+	points.append(points[0])
+	ring.points = points
+	scene_root.add_child(ring)
+	var tw := ring.create_tween()
+	tw.tween_property(ring, "modulate:a", 0.0, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_callback(ring.queue_free)
+
+
+## Aftermath: a superheated cloud hangs over the detonation circle, pulsing small magic
+## damage ticks onto anyone who hangs around — HoN's signature residual burn instead of
+## the old one-and-done impact.
+func _spawn_steam_cloud(center: Vector2, radius: float, duration: float) -> void:
+	# Visual ground-pulse so the cloud is easy to spot.
+	_spawn_ability_zone_pulse(center, radius, duration)
+	var tick_interval := 0.5
+	var tick_power := 15.0
+	var tick_count := int(floor(duration / tick_interval))
+	get_tree().create_timer(tick_interval).timeout.connect(
+		_steam_cloud_tick.bind(center, radius, tick_power, tick_interval, tick_count)
+	)
+
+
+func _steam_cloud_tick(center: Vector2, radius: float, tick_power: float, tick_interval: float, ticks_left: int) -> void:
+	if not is_inside_tree() or ticks_left <= 0:
+		return
+	for enemy in _enemies_in_radius(center, radius):
+		_damage_enemy(enemy, tick_power)
+	var remaining := ticks_left - 1
+	if remaining > 0:
+		get_tree().create_timer(tick_interval).timeout.connect(
+			_steam_cloud_tick.bind(center, radius, tick_power, tick_interval, remaining)
+		)
 
 
 ## Steam Turret: one targetless cast plants an auto-firing steam turret at Wrench's feet.
@@ -1274,18 +1339,96 @@ func _cast_ability_arclight_blast(data: Dictionary, values: Dictionary, _rank: i
 	_emit_ability_cast(PackedVector2Array([center, Vector2(vsingle.radius, 0.0)]))
 
 
-## Bulwark's Fissure: line of earth that erupts in front. HoN Behemoth-style — narrow path
-## hitbox that stuns and slows. Reuses DASH_STRIKE for its swept capsule logic, but forces the
-## payload to stun and slow instead of just raw damage.
+## Bulwark's Fissure: Earthshaker-style linear wall. HoN's Fissure raises a jagged ridge of
+## earth along a straight line that blocks pathing for ~8 s, damaging + stunning everything
+## standing on the crack. We spawn a row of impassable segments (collision layer 16, matching
+## arena obstacles) backed by a fading ridge visual, then stun everything near the line.
+const FISSURE_WALL_SEGMENTS := 5
+const FISSURE_WALL_DURATION := 5.0
+const FISSURE_STUN_DURATION := 1.5
+const FISSURE_HIT_RADIUS := 60.0
+
 func _cast_ability_bulwark_fissure(data: Dictionary, values: Dictionary, _rank: int) -> void:
-	var fissure := values.duplicate()
-	fissure.dash_distance = maxf(float(values.get("dash_distance", 340.0)), 260.0)
-	fissure.radius = maxf(float(values.get("radius", 60.0)), 40.0)
-	var earth := data.duplicate()
-	if not earth.has("stun_on_hit"):
-		earth["stun_on_hit"] = {"duration": 0.9}
-	earth["slow_on_hit"] = {"factor": 0.45, "duration": 2.0}
-	_cast_ability_dash_strike(earth, fissure)
+	var origin := global_position
+	var direction := global_position.direction_to(aim_world_position)
+	if direction.length_squared() <= 0.0:
+		direction = facing_direction
+	var wall_length := maxf(float(data.get("wall_length", 340.0)), 220.0)
+	var wall_duration := maxf(float(data.get("wall_duration", FISSURE_WALL_DURATION)), 2.0)
+	var wall_segments := maxi(int(data.get("wall_segments", FISSURE_WALL_SEGMENTS)), 3)
+	var stun_duration := maxf(float(data.get("stun_on_hit", {}).get("duration", FISSURE_STUN_DURATION)), 0.6)
+	var hit_radius := maxf(float(values.get("radius", FISSURE_HIT_RADIUS)), 30.0)
+	var endpoint := origin + direction * wall_length
+
+	# Stun + damage everything along the wall line (capsule around the segment).
+	var midpoint := origin.lerp(endpoint, 0.5)
+	var capsule_radius := wall_length * 0.5 + hit_radius
+	for enemy in _enemies_in_radius(midpoint, capsule_radius):
+		# Narrow to enemies actually near the wall band, not the full capsule sweep.
+		var rel: Vector2 = (enemy as Node2D).global_position - origin
+		var along := rel.dot(direction)
+		if along < -hit_radius * 0.5 or along > wall_length + hit_radius * 0.5:
+			continue
+		var perpendicular: Vector2 = rel - direction * along
+		if perpendicular.length() > hit_radius:
+			continue
+		_apply_ability_hit(enemy, data, values)
+
+	_spawn_fissure_wall(origin, direction, wall_length, wall_segments, wall_duration)
+	_emit_ability_cast(PackedVector2Array([origin, endpoint, Vector2(hit_radius, wall_duration)]))
+
+
+## Raises a physical ridge: a row of short-lived StaticBody2D segments on collision layer 16
+## (matching arena obstacles) that enemies can't path through. Heroes are on a different
+## collision mask, so they walk through as HoN intends; the caster never moves. Fades out
+## near death so it visually crumbles instead of popping.
+func _spawn_fissure_wall(origin: Vector2, direction: Vector2, length: float, segments: int, duration: float) -> void:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+	var wall_root := Node2D.new()
+	wall_root.name = "FissureWall"
+	wall_root.z_index = 6
+	scene_root.add_child(wall_root)
+
+	# Visual ridge: jagged bright line with a hot core, so you can read where the earth split.
+	var ridge := Line2D.new()
+	ridge.default_color = Color(1.0, 0.82, 0.45, 0.9)
+	ridge.width = 10.0
+	ridge.z_index = 24
+	ridge.add_point(origin)
+	ridge.add_point(origin + direction * length)
+	wall_root.add_child(ridge)
+	var core := Line2D.new()
+	core.default_color = Color(1.0, 0.97, 0.88, 0.95)
+	core.width = 2.5
+	core.z_index = 25
+	core.add_point(origin)
+	core.add_point(origin + direction * length)
+	wall_root.add_child(core)
+
+	# Impassable segments: small StaticBody2D discs along the line, collision layer 16 —
+	# arenas already treat 16 as "blocks ground movement". No script needed; plain physics.
+	var segment_spacing := length / float(segments)
+	var segment_radius := maxf(segment_spacing * 0.72, 20.0)
+	for index in segments:
+		var segment := StaticBody2D.new()
+		segment.collision_layer = 16
+		segment.collision_mask = 0
+		var shape := CollisionShape2D.new()
+		var circle := CircleShape2D.new()
+		circle.radius = segment_radius
+		shape.shape = circle
+		segment.add_child(shape)
+		segment.global_position = origin + direction * (segment_spacing * (float(index) + 0.5))
+		wall_root.add_child(segment)
+
+	# TTL: fade the visual over the last 0.8 s, then free the whole wall after `duration`.
+	var fade := ridge.create_tween()
+	fade.tween_interval(maxf(duration - 0.8, 0.2))
+	fade.tween_property(ridge, "modulate:a", 0.0, 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	fade.parallel().tween_property(core, "modulate:a", 0.0, 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	get_tree().create_timer(duration).timeout.connect(wall_root.queue_free)
 
 
 ## Warden's Tongue Tied: Pollywog Priest's signature pull. Lashes out and yanks the CLOSeST
@@ -1321,9 +1464,11 @@ func _cast_ability_cinder_dragon_fire(data: Dictionary, values: Dictionary, _ran
 		)
 
 
-## Pyra's Sticky Bomb: lobs an adhesive bomb that sticks to terrain then detonates. Rides
-## the Wrench mine infrastructure — short-arm delay, then BLAM. Reads as a Bombardier shell
-## that sticks rather than a plain throw.
+## Pyra's Sticky Bomb: HoN Bombardier's signature trap. Lobs an adhesive bomb that clings
+## to the ground at the aim point, arms, then waits. When an enemy wanders inside
+## `trigger_radius` it detonates, dealing `power` across `explosion_radius` and popping
+## everything inside away from the blast. If nothing trips it within `summon_lifetime`
+## seconds it bursts on its own.
 func _cast_ability_pyra_sticky_bomb(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	var origin := global_position
 	var forward := origin + facing_direction * 40.0
@@ -1338,16 +1483,20 @@ func _cast_ability_pyra_sticky_bomb(data: Dictionary, values: Dictionary, _rank:
 		_casting_ability_id,
 		multiplayer.get_unique_id() if has_node("/root/NetworkService") else 0,
 		float(values.get("power", 75.0)),
-		# HoN's Sticky Bomb lives briefly; cap duration so it expires rather than lingering.
-		minf(float(values.get("duration", 12.0)), 12.0),
+		# HoN's Sticky Bomb lives ~10 s; pull the fuse from data so rank/kind tweaks can stretch it.
+		maxf(float(data.get("summon_lifetime", 10.0)), 4.0),
 		99.0,
 		Color(str(hero.get("effect_color", "#ffffff")))
 	)
 	sum.range = 0.0
 	sum.owner_damage_type = int(damage_type)
 	sum.position = target
-	sum.trigger_radius = float(data.get("trigger_radius", 38.0))
-	sum.explosion_radius = float(data.get("explosion_radius", 110.0))
+	# HoN Sticky Bomb trigger ring is generous — you step into it deliberately or not at all.
+	sum.trigger_radius = maxf(float(data.get("trigger_radius", 60.0)), 20.0)
+	# Blast is wider than the trigger ring so a single mine catches the pack chasing it.
+	sum.explosion_radius = maxf(float(data.get("explosion_radius", 100.0)), sum.trigger_radius)
+	# Pop everything inside the blast away from the centre so the trap reads like a shell burst.
+	sum.explosion_knockback = 260.0
 	sum.expired.connect(_on_summon_expired)
 	get_tree().current_scene.add_child(sum)
 	AudioService.play_ability("pyra_sticky_bomb")
@@ -1376,20 +1525,18 @@ func _cast_ability_slag_steam_bath(data: Dictionary, values: Dictionary, rank: i
 	)
 
 
-## Ember's Entangle: Demented Shaman's root. Roots EVERY enemy in a small targeted area —
-## just like HoN's Entangle, but expressed through our pit/zone controls. The stun persists
-## even if the target would otherwise be immune to the bulk of the kit.
+## Ember's Entangle: HoN Treant/Keeper root. Every enemy inside the aimed area is held in
+## place (movement = 0) for the full duration; damage is a token amount, not the point. The
+## root data is in `root_on_hit` on the ability entry, and `_apply_ability_hit` routes it
+## through `apply_movement_lock` on the enemy.
 func _cast_ability_ember_entangle(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	var reach := maxf(float(values.get("range", 560.0)), 380.0)
 	var center := _ability_aim_center(reach)
-	var capture := data.duplicate()
-	capture["stun_on_hit"] = {"duration": maxf(float(data.get("stun_on_hit", {}).get("duration", 0.0)), 1.1)}
-	capture["slow_on_hit"] = {"factor": 0.4, "duration": 2.5}
-	# Direct pit rather than the full pull — Entangle is a point-targeted root.
 	var radius := maxf(float(values.get("radius", 0.0)), 180.0)
+	var root_duration := maxf(float(data.get("root_on_hit", {}).get("duration", 2.5)), 1.5)
 	for enemy in _enemies_in_radius(center, radius):
-		_apply_ability_hit(enemy, capture, values)
-	_spawn_ability_zone_pulse(center, radius, maxf(float(capture.slow_on_hit.duration), 2.0))
+		_apply_ability_hit(enemy, data, values)
+	_spawn_ability_zone_pulse(center, radius, maxf(root_duration, 2.0))
 	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
 
 
@@ -1848,8 +1995,10 @@ func _cast_ability_willow_strangling_vines(data: Dictionary, values: Dictionary,
 
 ## Stump's Overgrowth: the forest reclaims the arena. Chokes and rebels every hostile inside.
 func _cast_ability_stump_overgrowth(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	print("[player] stump_overgrowth ENTER")
 	var origin := global_position
 	_cast_ability_zone_channel(data, values)
+	print("[player] stump_overgrowth post-channel")
 	# Overgrowth roots enemies inside while the forest eats them.
 	get_tree().create_timer(0.35).timeout.connect(func() -> void:
 		if not is_inside_tree():
@@ -1859,6 +2008,7 @@ func _cast_ability_stump_overgrowth(data: Dictionary, values: Dictionary, _rank:
 			if target.has_method("apply_slow"):
 				target.apply_slow(0.45, 2.5)
 	)
+	print("[player] stump_overgrowth EXIT")
 
 
 ## Sage's Charm: Nymphora's siren song. Enemies find themselves unwillingly drawn toward the
@@ -1998,6 +2148,13 @@ func _apply_ability_hit(target: Node2D, data: Dictionary, values: Dictionary) ->
 		target.apply_slow(0.1, float(data.stun_on_hit.duration))
 	if data.has("slow_on_hit") and target.has_method("apply_slow"):
 		target.apply_slow(float(data.slow_on_hit.factor), float(data.slow_on_hit.duration))
+	# HoN Treant Entangle-style true root: movement = 0 (distinct from a slow).
+	if data.has("root_on_hit"):
+		var root_duration := float(data.root_on_hit.get("duration", 1.5))
+		if target.has_method("apply_movement_lock"):
+			target.apply_movement_lock(root_duration)
+		elif target.has_method("apply_slow"):
+			target.apply_slow(0.1, root_duration)
 	if data.has("mark_on_hit") and target.has_method("apply_mark"):
 		target.apply_mark(float(data.mark_on_hit.bonus_pct), float(data.mark_on_hit.duration))
 	if data.has("lifesteal_pct"):

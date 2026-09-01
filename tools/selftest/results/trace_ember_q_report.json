@@ -1,0 +1,158 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "ember_entangle",
+          "rank": 1
+        },
+        {
+          "id": "ember_healing_wave",
+          "rank": 1
+        },
+        {
+          "id": "ember_storm_cloud",
+          "rank": 1
+        },
+        {
+          "id": "ember_unbreakable",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "hero": "ember",
+      "kind": "probe",
+      "label": "pre",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 0.149740666666667
+    },
+    {
+      "abilities": [
+        {
+          "id": "ember_entangle",
+          "rank": 1
+        },
+        {
+          "id": "ember_healing_wave",
+          "rank": 1
+        },
+        {
+          "id": "ember_storm_cloud",
+          "rank": 1
+        },
+        {
+          "id": "ember_unbreakable",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "hero": "ember",
+      "kind": "probe",
+      "label": "after_tap1",
+      "last_tapped": 0,
+      "pending_id": "ember_entangle",
+      "pending_slot": 0,
+      "summons": 0,
+      "t": 0.149740666666667
+    },
+    {
+      "abilities": [
+        {
+          "id": "ember_entangle",
+          "rank": 1
+        },
+        {
+          "id": "ember_healing_wave",
+          "rank": 1
+        },
+        {
+          "id": "ember_storm_cloud",
+          "rank": 1
+        },
+        {
+          "id": "ember_unbreakable",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "hero": "ember",
+      "kind": "probe",
+      "label": "after_tap2",
+      "last_tapped": 0,
+      "pending_id": "ember_entangle",
+      "pending_slot": 0,
+      "summons": 0,
+      "t": 0.177478666666667
+    },
+    {
+      "abilities": [
+        {
+          "id": "ember_entangle",
+          "rank": 1
+        },
+        {
+          "id": "ember_healing_wave",
+          "rank": 1
+        },
+        {
+          "id": "ember_storm_cloud",
+          "rank": 1
+        },
+        {
+          "id": "ember_unbreakable",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        33.7723333333334,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "hero": "ember",
+      "kind": "probe",
+      "label": "settle",
+      "last_tapped": 0,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 0.502462666666667
+    }
+  ],
+  "elapsed": 0.802447666666666,
+  "enemies_spawned": 1,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "ember",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "ember_entangle",
+        "t": 0.177478666666667
+      }
+    ],
+    "errors": []
+  },
+  "shots": []
+}

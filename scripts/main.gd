@@ -1375,7 +1375,7 @@ const VECTOR_ONLY_KIT_IDS := {
 ## Cast animation for Pjotr-mode abilities. Pixel-art layered on vector flash unless the
 ## ability is in VECTOR_ONLY_KIT_IDS (HoN-faithful robot heroes) — those go pure vector.
 func _play_ability_effect(ability_id: String, effect_style: int, points: PackedVector2Array) -> void:
-	print("[main] _play_ability_effect %s" % ability_id)
+	print("[main] _play_ability_effect %s ENTER" % ability_id)
 	if GameRuntime.is_dedicated_server() or GameRuntime.is_classic():
 		return
 	var class_prefix := ability_id.split("_")[0]
@@ -1389,18 +1389,24 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 	if not kit_style.is_empty():
 		primary_color = Color(str(kit_style.get("primary_color", class_data.effect_color)))
 		secondary_color = Color(str(kit_style.get("secondary_color", class_data.effect_secondary)))
+	print("[main] _play_ability_effect %s pre-flash" % ability_id)
 	var flash := lightning_scene.instantiate() as LightningEffect
 	flash.style = VECTOR_ONLY_KIT_IDS.get(ability_id, effect_style)
 	flash.main_color = primary_color
 	flash.chain_color = secondary_color
 	flash.lifetime = clampf(0.14 + (points[1].x if points.size() >= 2 else 80.0) / 900.0, 0.14, 0.42)
 	flash.points = points
+	print("[main] _play_ability_effect %s add flash" % ability_id)
 	add_child(flash)
 	if not vector_only:
 		var vfx := ability_vfx_scene.instantiate() as AbilityVfx
+		print("[main] _play_ability_effect %s configure vfx" % ability_id)
 		vfx.configure(ability_id, effect_style, points)
+		print("[main] _play_ability_effect %s add vfx" % ability_id)
 		add_child(vfx)
+	print("[main] _play_ability_effect %s audio" % ability_id)
 	AudioService.play_ability(ability_id)
+	print("[main] _play_ability_effect %s EXIT" % ability_id)
 
 
 func _on_player_died(_peer_id: int) -> void:

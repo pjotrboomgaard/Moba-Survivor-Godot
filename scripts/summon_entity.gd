@@ -25,6 +25,8 @@ var attack_timer: float = 0.0
 ## Explodes when an enemy steps inside `trigger_radius`; set for spider-mine style summons.
 var trigger_radius: float = 0.0
 var explosion_radius: float = 0.0
+## Launch-away impulse applied to every enemy caught by `_explode`; 0 means no displacement.
+var explosion_knockback: float = 0.0
 var _exploded := false
 
 @onready var _sprite: Sprite2D = $Sprite2D
@@ -110,6 +112,11 @@ func _explode() -> void:
 		var health := n.get_node_or_null("HealthComponent")
 		if health != null and health.has_method("take_damage"):
 			health.take_damage(power, self)
+		if explosion_knockback > 0.0 and n.has_method("apply_knockback"):
+			var push_dir := global_position.direction_to(n.global_position)
+			if push_dir.length_squared() <= 0.0:
+				push_dir = Vector2.RIGHT
+			n.apply_knockback(push_dir * explosion_knockback)
 	expired.emit(self)
 	queue_free()
 

@@ -1,65 +1,38 @@
 {
-  "effects": [
-    {
-      "cd_left": 18.6366666666667,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 2.15833333333333
-    },
-    {
-      "cd_left": 44.732,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 2,
-      "t": 4.15759833333333
-    }
-  ],
-  "elapsed": 9.00757900000022,
+  "effects": [],
+  "elapsed": 9.00163566666689,
   "enemies_spawned": 4,
-  "hero_position": "(72.21201, 0.001212)",
+  "hero_position": "(72.0, 0.696013)",
   "player_class": "tobor",
   "results": {
-    "casts": [
-      {
-        "ability_id": "tobor_steam_keg",
-        "t": 0.182669666666667
-      },
-      {
-        "ability_id": "tobor_steam_turret",
-        "t": 2.06666666666666
-      },
-      {
-        "ability_id": "tobor_energy_absorption",
-        "t": 4.06593166666666
-      },
-      {
-        "ability_id": "tobor_energy_field",
-        "t": 6.16612233333342
-      }
-    ],
-    "errors": []
+    "casts": [],
+    "errors": [
+      "expected cast never fired: tobor_steam_keg",
+      "expected cast never fired: tobor_steam_turret",
+      "expected cast never fired: tobor_energy_absorption",
+      "expected cast never fired: tobor_energy_field"
+    ]
   },
   "shots": [
     {
       "label": "t1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2157/t1_1.008_2157.png",
-      "t": 1.007642
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2163/t1_1.002_2163.png",
+      "t": 1.001589
     },
     {
       "label": "t3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4162/t3_3.008_4162.png",
-      "t": 3.00833333333332
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4170/t3_3.002_4170.png",
+      "t": 3.00209199999999
     },
     {
       "label": "t5",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6154/t5_5.008_6154.png",
-      "t": 5.00759833333337
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6174/t5_5.002_6174.png",
+      "t": 5.00198533333337
     },
     {
       "label": "t8",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9163/t8_8.008_9163.png",
-      "t": 8.00777566666684
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9173/t8_8.002_9173.png",
+      "t": 8.00189933333351
     }
   ]
 }

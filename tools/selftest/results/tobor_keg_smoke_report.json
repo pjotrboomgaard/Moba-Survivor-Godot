@@ -1,0 +1,45 @@
+{
+  "effects": [],
+  "elapsed": 6.00706000000008,
+  "enemies_spawned": 1,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 0.181925
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 0.740117
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 2.0663499090909
+      },
+      {
+        "ability_id": "tobor_energy_absorption",
+        "t": 4.06511133333333
+      }
+    ],
+    "errors": []
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2146/t1_1.007_2146.png",
+      "t": 1.00678366666667
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4154/t3_3.008_4154.png",
+      "t": 3.00801657575757
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6146/t5_5.007_6146.png",
+      "t": 5.00677800000004
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_absorption",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "hero": "tobor",
+      "kind": "probe",
+      "label": "pre",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 0.133333333333333
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_absorption",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "hero": "tobor",
+      "kind": "probe",
+      "label": "after_tap1",
+      "last_tapped": 0,
+      "pending_id": "tobor_steam_keg",
+      "pending_slot": 0,
+      "summons": 0,
+      "t": 0.150452
+    }
+  ],
+  "elapsed": 0.150452,
+  "enemies_spawned": 1,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "casts": [],
+    "errors": []
+  },
+  "shots": []
+}
