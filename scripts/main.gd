@@ -1696,7 +1696,7 @@ func _update_crater_lock(wave: int) -> void:
 		return
 	if not arena is Arena:
 		return
-	var already := (arena as Arena).crater_unlocked
+	var already: bool = (arena as Arena).crater_unlocked
 	(arena as Arena).set_crater_unlocked(true)
 	crater_unlocked = true
 	if already:
