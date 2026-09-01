@@ -3231,6 +3231,7 @@ const ICON_ROWS := {
 ## file already does for "boots"/"phase_boots" above; the level-up card's name and description
 ## carry the real distinction, the icon is a secondary cue.
 const HERO_ABILITY_TONES := {
+	"tobor": {"o": "1c1206", "f": "ffd24a", "l": "fff0b8"},
 	"arclight": {"o": "0b1b33", "f": "5aa6ff", "l": "d8ecff"},
 	"bulwark": {"o": "2a1405", "f": "ffb060", "l": "ffe3a8"},
 	"warden": {"o": "0d2b1a", "f": "5cd485", "l": "d9ffe0"},
@@ -3368,6 +3369,48 @@ const SHAPE_PUSH_PULL_BURST := [
 ## cards carry immediate hero identity instead of sharing the generic archetype glyphs.
 ## Letters match the palette in HERO_ABILITY_TONES plus the per-ability "a"/"e" accents
 ## injected by AbilityArt.
+
+## ----- TOBOR / Wrench (engineer, keg + turret + mine + zone) -----
+const SHAPE_KIT_TOBOR_Q := [  # Steam Keg — NUKE_BOLT: falling metal keg with rivets
+	"..ffff..",
+	".flfllf.",
+	"flaffafl",
+	"flaefafl",
+	"flaffafl",
+	".flfllf.",
+	"..ffff..",
+	"........",
+]
+const SHAPE_KIT_TOBOR_E := [  # Steam Turret — SUMMON: squat gun turret with muzzle
+	"........",
+	"..ffff..",
+	".flaalf.",
+	".faeaff.",
+	"flafflff",
+	"flflflfl",
+	"ffffffff",
+	"........",
+]
+const SHAPE_KIT_TOBOR_ALT := [  # Spider Mines — SUMMON_TRIG: three-legged mine with eye
+	"...ff...",
+	"..flf...",
+	".flaflf.",
+	"flaeaff.",
+	"flaaff..",
+	".fllf...",
+	"..ff....",
+	"........",
+]
+const SHAPE_KIT_TOBOR_R := [  # Energy Field — ZONE: hex force-field with corner posts
+	"..ffff..",
+	".flaalf.",
+	"fla..alf",
+	"fa....af",
+	"fa....af",
+	"fla..alf",
+	".flaalf.",
+	"..ffff..",
+]
 
 ## ----- CINDER (fire, dash + radius + zone) -----
 const SHAPE_KIT_CINDER_Q := [  # Whirling Flame — DASH_STRIKE: spiraling flame streak
@@ -3754,6 +3797,11 @@ const SHAPE_KIT_RIME_R := [  # Absolute Zero — ZONE: expanding nova of absolut
 ]
 
 const ABILITY_ICON_ROWS := {
+	# --- Tobor (Wrench) kit ---
+	"tobor_steam_keg": SHAPE_KIT_TOBOR_Q,
+	"tobor_steam_turret": SHAPE_KIT_TOBOR_E,
+	"tobor_energy_field": SHAPE_KIT_TOBOR_R,
+	"tobor_spider_mines": SHAPE_KIT_TOBOR_ALT,
 	"arclight_static_bolt": SHAPE_NUKE_BOLT,
 	"arclight_overcharge": SHAPE_CHAIN_NUKE,
 	"arclight_ion_storm": SHAPE_RADIUS_BURST,
@@ -3868,6 +3916,11 @@ const ABILITY_ICON_ROWS := {
 }
 
 const ABILITY_ICON_PALETTES := {
+	# --- Tobor kit ---
+	"tobor_steam_keg": HERO_ABILITY_TONES.tobor,
+	"tobor_steam_turret": HERO_ABILITY_TONES.tobor,
+	"tobor_energy_field": HERO_ABILITY_TONES.tobor,
+	"tobor_spider_mines": HERO_ABILITY_TONES.tobor,
 	"arclight_static_bolt": HERO_ABILITY_TONES.arclight,
 	"arclight_overcharge": HERO_ABILITY_TONES.arclight,
 	"arclight_ion_storm": HERO_ABILITY_TONES.arclight,

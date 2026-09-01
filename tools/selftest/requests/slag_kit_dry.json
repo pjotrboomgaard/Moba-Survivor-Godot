@@ -1,0 +1,151 @@
+{
+  "hero": "slag",
+  "comment": "Kit coverage dry-run: cast each of the 4 loadout slots (Q/E/pool-alt/R) at 0s,2s,4s,6s; snap at 1s,3s,5s,8s.",
+  "abilities": [
+    "slag_steam_bath",
+    "slag_volcanic_touch",
+    "slag_lava_surge",
+    "slag_eruption"
+  ],
+  "expected_casts": [
+    "slag_steam_bath",
+    "slag_volcanic_touch",
+    "slag_lava_surge",
+    "slag_eruption"
+  ],
+  "events": [
+    {
+      "t": 0.02,
+      "kind": "spawn",
+      "at": [
+        120,
+        0
+      ],
+      "type": "grunt"
+    },
+    {
+      "t": 0.02,
+      "kind": "spawn",
+      "at": [
+        -120,
+        0
+      ],
+      "type": "grunt"
+    },
+    {
+      "t": 0.02,
+      "kind": "spawn",
+      "at": [
+        0,
+        120
+      ],
+      "type": "grunt"
+    },
+    {
+      "t": 0.02,
+      "kind": "spawn",
+      "at": [
+        0,
+        -120
+      ],
+      "type": "brute",
+      "hp_mult": 12.0
+    },
+    {
+      "t": 0.02,
+      "kind": "aim",
+      "at": [
+        120,
+        0
+      ]
+    },
+    {
+      "t": 0.05,
+      "kind": "cast",
+      "slot": 0
+    },
+    {
+      "t": 0.15,
+      "kind": "cast",
+      "slot": 0
+    },
+    {
+      "t": 1.0,
+      "kind": "snap",
+      "label": "t1"
+    },
+    {
+      "t": 2.02,
+      "kind": "aim",
+      "at": [
+        120,
+        0
+      ]
+    },
+    {
+      "t": 2.05,
+      "kind": "cast",
+      "slot": 1
+    },
+    {
+      "t": 2.15,
+      "kind": "cast",
+      "slot": 1
+    },
+    {
+      "t": 3.0,
+      "kind": "snap",
+      "label": "t3"
+    },
+    {
+      "t": 4.02,
+      "kind": "aim",
+      "at": [
+        120,
+        0
+      ]
+    },
+    {
+      "t": 4.05,
+      "kind": "cast",
+      "slot": 2
+    },
+    {
+      "t": 4.15,
+      "kind": "cast",
+      "slot": 2
+    },
+    {
+      "t": 5.0,
+      "kind": "snap",
+      "label": "t5"
+    },
+    {
+      "t": 6.02,
+      "kind": "aim",
+      "at": [
+        120,
+        0
+      ]
+    },
+    {
+      "t": 6.05,
+      "kind": "cast",
+      "slot": 3
+    },
+    {
+      "t": 6.15,
+      "kind": "cast",
+      "slot": 3
+    },
+    {
+      "t": 8.0,
+      "kind": "snap",
+      "label": "t8"
+    },
+    {
+      "t": 9.0,
+      "kind": "report"
+    }
+  ]
+}

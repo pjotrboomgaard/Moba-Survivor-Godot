@@ -1248,6 +1248,676 @@ func _rand_range_float(low: float, high: float) -> float:
 	return low + randf() * (high - low)
 
 
+## --- Non-Wrench Q kits (HoN-inspired bespoke routes) ---------------------------------------
+
+## Arclight's Blast of Lightning: point-targeted high single-target strike. HoN Thunderbringer
+## style — one bolt from the heavens, no splash, no chain. Heavy impact reads as a NUKE_BOLT
+## on the target's position so the damage feel matches the visual focus.
+func _cast_ability_arclight_blast(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var reach := maxf(float(values.range), 480.0)
+	var target := _nearest_enemy_in_range(reach)
+	var center := target.global_position if target != null else _ability_aim_center(reach)
+	var strike := data.duplicate()
+	strike["_arclight_radius_override"] = true
+	var vsingle := values.duplicate()
+	vsingle.radius = 72.0
+	for enemy in _enemies_in_radius(center, vsingle.radius):
+		_apply_ability_hit(enemy, strike, vsingle)
+	_emit_ability_cast(PackedVector2Array([center, Vector2(vsingle.radius, 0.0)]))
+
+
+## Bulwark's Fissure: line of earth that erupts in front. HoN Behemoth-style — narrow path
+## hitbox that stuns and slows. Reuses DASH_STRIKE for its swept capsule logic, but forces the
+## payload to stun and slow instead of just raw damage.
+func _cast_ability_bulwark_fissure(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var fissure := values.duplicate()
+	fissure.dash_distance = maxf(float(values.get("dash_distance", 340.0)), 260.0)
+	fissure.radius = maxf(float(values.get("radius", 60.0)), 40.0)
+	var earth := data.duplicate()
+	if not earth.has("stun_on_hit"):
+		earth["stun_on_hit"] = {"duration": 0.9}
+	earth["slow_on_hit"] = {"factor": 0.45, "duration": 2.0}
+	_cast_ability_dash_strike(earth, fissure)
+
+
+## Warden's Tongue Tied: Pollywog Priest's signature pull. Lashes out and yanks the CLOSeST
+## enemy toward the caster. STORM_PULL with pull_closest routing. HoN's Tongue Tied always
+## grabbed the nearest hostile — never the farthest one.
+func _cast_ability_warden_tongue_tied(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var t := data.duplicate()
+	t["pull_closest"] = true
+	_cast_ability_storm_pull(t, values)
+
+
+## Cinder's Dragon Fire: burst of flame from the mouth in a cone. Ember's kit's dragon form.
+## CONE_BURST with a built-in burn tick after the flash, so targets keep smouldering after
+## the fire passes. Uses `burn_on_hit` if present in data.
+func _cast_ability_cinder_dragon_fire(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var origin := global_position
+	_cast_ability_cone_burst(data, values)
+	# Burn-on-hit data: if the ability carries burn_on_hit, apply an extra delayed tick so the
+	# scorched targets keep taking fire damage after the cone clears.
+	if data.has("burn_on_hit"):
+		var burn: Dictionary = data.burn_on_hit
+		var tick_power := float(burn.get("power", values.power * 0.35))
+		var duration := float(burn.get("duration", 3.0))
+		var half_angle := deg_to_rad(PlayerClass.ABILITY_CONE_HALF_ANGLE_DEGREES)
+		get_tree().create_timer(0.45).timeout.connect(func() -> void:
+			if not is_inside_tree():
+				return
+			for target in _enemies_in_radius(origin, float(values.radius) * 0.7):
+				var to_t := origin.direction_to(target.global_position)
+				if to_t.length_squared() > 0.0 and absf(facing_direction.angle_to(to_t)) > half_angle:
+					continue
+				_damage_enemy(target, tick_power * (duration / 3.0))
+		)
+
+
+## Pyra's Sticky Bomb: lobs an adhesive bomb that sticks to terrain then detonates. Rides
+## the Wrench mine infrastructure — short-arm delay, then BLAM. Reads as a Bombardier shell
+## that sticks rather than a plain throw.
+func _cast_ability_pyra_sticky_bomb(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var forward := global_position + facing_direction * 40.0
+	var target := aim_world_position
+	if target.distance_to(global_position) > 340.0:
+		target = global_position + (target - global_position).normalized() * 340.0
+	if target.distance_squared_to(global_position) < 200.0:
+		target = forward
+	var sum := SummonEntityScene.instantiate() as SummonEntity
+	var hero := PlayerClass.by_id(class_id)
+	sum.setup(
+		_casting_ability_id,
+		multiplayer.get_unique_id() if has_node("/root/NetworkService") else 0,
+		float(values.get("power", 75.0)),
+		# HoN's Sticky Bomb lives briefly; cap duration so it expires rather than lingering.
+		minf(float(values.get("duration", 12.0)), 12.0),
+		99.0,
+		Color(str(hero.get("effect_color", "#ffffff")))
+	)
+	sum.range = 0.0
+	sum.owner_damage_type = int(damage_type)
+	sum.position = target
+	sum.trigger_radius = float(data.get("trigger_radius", 38.0))
+	sum.explosion_radius = float(data.get("explosion_radius", 110.0))
+	sum.expired.connect(_on_summon_expired)
+	get_tree().current_scene.add_child(sum)
+	AudioService.play_ability("pyra_sticky_bomb")
+	active_summons.append(sum)
+	while active_summons.size() > MAX_ACTIVE_SUMMONS:
+		var oldest: SummonEntity = active_summons.pop_front()
+		if is_instance_valid(oldest):
+			oldest.queue_free()
+
+
+## Slag Steam Bath: Magmus's signature AoE slow-field. Vents a cloud of superheated steam
+## around the caster — everyone inside takes softening pulses and a moving-buff. Data's
+## buff_stats carry the actual tank boost; we add on a scorch DoT around the cast area.
+func _cast_ability_slag_steam_bath(data: Dictionary, values: Dictionary, rank: int) -> void:
+	_cast_ability_buff_self(data, values)
+	# Vent a ring of scalding steam that lingers — softens enemies who step inside.
+	var cloud_radius := maxf(float(values.get("radius", 0.0)), 200.0)
+	get_tree().create_timer(0.3).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(global_position, cloud_radius):
+			if target.has_method("apply_slow"):
+				target.apply_slow(0.55, 2.0 + rank * 0.2)
+			_damage_enemy(target, float(values.get("power", 25.0)) * 0.4)
+	)
+
+
+## Ember's Entangle: Demented Shaman's root. Roots EVERY enemy in a small targeted area —
+## just like HoN's Entangle, but expressed through our pit/zone controls. The stun persists
+## even if the target would otherwise be immune to the bulk of the kit.
+func _cast_ability_ember_entangle(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var reach := maxf(float(values.get("range", 560.0)), 380.0)
+	var center := _ability_aim_center(reach)
+	var capture := data.duplicate()
+	capture["stun_on_hit"] = {"duration": maxf(float(data.get("stun_on_hit", {}).get("duration", 0.0)), 1.1)}
+	capture["slow_on_hit"] = {"factor": 0.4, "duration": 2.5}
+	# Direct pit rather than the full pull — Entangle is a point-targeted root.
+	var radius := maxf(float(values.get("radius", 0.0)), 180.0)
+	for enemy in _enemies_in_radius(center, radius):
+		_apply_ability_hit(enemy, capture, values)
+	_spawn_ability_zone_pulse(center, radius, maxf(float(capture.slow_on_hit.duration), 2.0))
+	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
+
+
+## Thorn's Poison Spray: hosed cone of toxin in front of the caster. The spray spreads fast
+## and leaves every caught target with a lingering poison tick — Slither's Venom Spray.
+func _cast_ability_thorn_poison_spray(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var origin := global_position
+	var spray_radius := float(values.get("radius", 340.0))
+	_cast_ability_cone_burst(data, values)
+	# Venom Spray always has a DoT — even if the ability data forgot to include it, the HoN
+	# mechanic demands lingering poison.
+	var tick_power := float(values.get("power", 30.0)) * 0.4
+	var tick_duration := 3.5
+	if data.has("poison_on_hit"):
+		tick_power = float(data.poison_on_hit.get("power", tick_power))
+		tick_duration = float(data.poison_on_hit.get("duration", tick_duration))
+	var half_angle := deg_to_rad(PlayerClass.ABILITY_CONE_HALF_ANGLE_DEGREES)
+	get_tree().create_timer(0.5).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(origin, spray_radius * 0.75):
+			var to_t := origin.direction_to(target.global_position)
+			if to_t.length_squared() > 0.0 and absf(facing_direction.angle_to(to_t)) > half_angle:
+				continue
+			_damage_enemy(target, tick_power * (tick_duration / 3.5))
+			if target.has_method("apply_slow"):
+				target.apply_slow(0.7, 1.2)
+	)
+
+
+## Willow's Swift Strike: Forsaken Archer's blink-quick dash through the enemy line. The
+## dash is longer than most players expect (HoN's Swift Strike covers a huge arc), and every
+## enemy passed through takes the hit. Uses a forward-biased destination.
+func _cast_ability_willow_swift_strike(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var strike_range := maxf(float(values.get("dash_distance", 320.0)), 280.0)
+	var origin := global_position
+	var destination := origin + facing_direction * strike_range
+	var midpoint := origin.lerp(destination, 0.5)
+	var hit_radius := strike_range * 0.5 + maxf(float(values.get("radius", 60.0)), 40.0)
+	for enemy in _enemies_in_radius(midpoint, hit_radius):
+		_apply_ability_hit(enemy, data, values)
+	global_position = destination
+	_emit_ability_cast(PackedVector2Array([origin, Vector2(strike_range, 0.0)]))
+
+
+## Stump's Nature's Rally: Keeper's rallying call for the whole party. Applies the buff to
+## every ally in the radius — not just the caster — so the tank actually READS as a tank-
+## support hybrid that shares its bark-hard skin.
+func _cast_ability_stump_natures_rally(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var rally := data.duplicate()
+	rally["target_scope"] = "allies"
+	rally["radius"] = maxf(float(rally.get("radius", 0.0)), 300.0)
+	_cast_ability_buff_self(rally, values)
+
+
+## Sage's Grace: Nymphora's burst of speed for the whole party. Straight BUFF_SELF—
+## but with target_scope forced to allies, since Nymphora's grace always embraces the grove
+## as a whole. Speed is the defining stat; the cooldown is intentionally short.
+func _cast_ability_sage_grace(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var grace := data.duplicate()
+	grace["target_scope"] = "allies"
+	grace["buff_stats"] = {
+		"movement_speed_mult": float(data.get("buff_stats", {}).get("movement_speed_mult", 1.25)),
+		"damage_dealt_mult": float(data.get("buff_stats", {}).get("damage_dealt_mult", 1.1)),
+	}
+	_cast_ability_buff_self(grace, values)
+
+
+## Volt's Gust: Zephyr's signature push. A forward cone of hard wind that knocks enemies
+## flat — reuses PUSH_PULL_BURST (negative power = push) but wrapped in a vector so the
+## direction is aim-controlled instead of self-centred.
+func _cast_ability_volt_gust(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var direction := global_position.direction_to(aim_world_position)
+	if direction.length_squared() <= 0.0:
+		direction = facing_direction
+	# Gust pushes enemies away — negative power = outward push per PUSH_PULL_BURST semantics.
+	var gust := data.duplicate()
+	gust["power_base"] = -absf(float(data.get("power_base", 300.0)))
+	gust["power_per_rank"] = -absf(float(data.get("power_per_rank", 35.0)))
+	gust["slow_on_hit"] = {"factor": 0.6, "duration": 1.8}
+	var gust_radius := maxf(float(values.get("radius", 0.0)), 200.0)
+	var center := global_position + direction * 20.0
+	for target in _enemies_in_radius(center, gust_radius):
+		if not target.has_method("apply_knockback"):
+			continue
+		var away := center.direction_to(target.global_position)
+		if away.length_squared() <= 0.0:
+			away = direction
+		var strength := absf(float(values.get("power", 300.0)))
+		target.apply_knockback(away * strength)
+		_arm_hazard_escape(target)
+		if target.has_method("apply_slow"):
+			target.apply_slow(0.6, 1.8)
+		_damage_enemy(target, values.power)
+	_emit_ability_cast(PackedVector2Array([center, Vector2(gust_radius, 0.0)]))
+	_spawn_ability_zone_pulse(center, gust_radius, 1.2)
+
+
+## Nebula's Time Shift: Chronos's blink through the time stream. Blink forward, then sweep
+## a burst of pure chronal energy behind you. Chronos always favoured offence over defence.
+func _cast_ability_nebula_time_shift(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var direction := global_position.direction_to(aim_world_position)
+	if direction.length_squared() <= 0.0:
+		direction = facing_direction
+	var burst_radius := maxf(float(values.get("radius", 140.0)), 120.0)
+	global_position += direction * float(values.get("dash_distance", 420.0))
+	# Swap the hit for a time-blast instead of standard blink damage.
+	for target in _enemies_in_radius(global_position, burst_radius):
+		_damage_enemy(target, values.power)
+		if target.has_method("apply_slow"):
+			target.apply_slow(0.45, 2.5)
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(burst_radius, 0.0)]))
+
+
+## Astral's Essence Link: Empath's signature. Heals every ally in radius — and links them:
+## every healed ally takes a share of the highest-healed ally's missing health as a bonus.
+## This forces party-synergy rather than individual sustain.
+func _cast_ability_astral_essence_link(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var link_radius := float(values.get("radius", 300.0))
+	var allies := _allies_in_radius(global_position, link_radius)
+	# Find the most-missing-health ratio so the link carries weight.
+	var max_deficit_ratio := 0.0
+	for ally in allies:
+		var deficit := (ally.health.max_health - ally.health.current_health) / maxf(ally.health.max_health, 1.0)
+		max_deficit_ratio = maxf(max_deficit_ratio, deficit)
+	var bonus := float(values.power) * max_deficit_ratio * 0.4
+	for ally in allies:
+		ally.health.heal(float(values.power) + bonus)
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(link_radius, 0.0)]))
+
+
+## Rime's Ice Imprisonment: Glacius's signature. Picks one enemy and locks it inside a
+## block of ice — a clean unit-target root. Other enemies nearby feel the freeze splash.
+func _cast_ability_rime_ice_imprisonment(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var reach := maxf(float(values.get("range", 540.0)), 400.0)
+	var target := _nearest_enemy_in_range(reach)
+	if target == null:
+		return
+	# Ice Imprisonment: hard-freeze the target with a long lingering slow.
+	if target.has_method("apply_slow"):
+		target.apply_slow(0.25, 3.5)
+	# Splash chill to nearby enemies too — Glacius's ice always spreads.
+	for enemy in _enemies_in_radius(target.global_position, 140.0):
+		if enemy == target:
+			continue
+		if enemy.has_method("apply_slow"):
+			enemy.apply_slow(0.55, 1.5)
+		_damage_enemy(enemy, values.power * 0.5)
+	_damage_enemy(target, values.power)
+	_emit_ability_cast(PackedVector2Array([target.global_position, Vector2(60.0, 0.0)]))
+
+
+## --- Non-Wrench E kits (HoN-inspired bespoke routes) ----------------------------------------
+
+## Arclight's Chain Lightning: Thunderbringer's bouncing bolt. Long reach with huge chain
+## hops — Arc Lightning reimagined. The cast always leads with the PRIMARY target and lets
+## the chain find its own way from there, no random-leap-ahead weirdness.
+func _cast_ability_arclight_chain_lightning(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var chain := data.duplicate()
+	chain["chain_range"] = maxf(float(data.get("chain_range", 240.0)), 260.0)
+	chain["chain_count"] = maxi(int(data.get("chain_count", 5)), 4)
+	_cast_ability_chain_nuke(chain, values)
+
+
+## Bulwark's Heavyweight: Behemoth's heavyweight swing — attack frenzy with DRAMATICALLY
+## enhanced power. Forces the double-hit buff and stretches the window so the tank feels
+## like a tank actually hitting something.
+func _cast_ability_bulwark_heavyweight(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var fury := data.duplicate()
+	fury["buff_stats"] = {
+		"attack_interval_mult": 0.55,
+		"damage_dealt_mult": 1.35,
+		"movement_speed_mult": 1.15,
+	}
+	_cast_ability_attack_fury(fury, values)
+
+
+## Warden's Voodoo Wards: Pollywog Priest's signature. Drops a RING of venom-spitting
+## totems around the focus area. Four wards, each firing at the nearest enemy.
+func _cast_ability_warden_voodoo_wards(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var wards := data.duplicate()
+	wards["summon_count"] = 4
+	wards["duration"] = maxf(float(wards.get("duration", 18.0)), 16.0)
+	# Small ring radius so the wards fan out around the aim point like a real priest circle.
+	var v := values.duplicate()
+	v.radius = maxf(float(values.get("radius", 0.0)), 60.0)
+	_cast_ability_summon_spirit(wards, v)
+
+
+## Cinder's Fiery Assault: a ring of fire DETONATING around the caster. The ground keeps
+## burning after the flash — the classic Ember spirit detonation.
+func _cast_ability_cinder_fiery_assault(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var origin := global_position
+	_cast_ability_radius_burst(data, values)
+	var ring_radius := float(values.get("radius", 220.0))
+	get_tree().create_timer(0.5).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(origin, ring_radius * 0.65):
+			_damage_enemy(target, float(values.get("power", 32.0)) * 0.4)
+			if target.has_method("apply_slow"):
+				target.apply_slow(0.65, 1.5)
+	)
+
+
+## Pyra's Boom Dust: shake loose a cloud of explosive dust that coats every enemy in the
+## radius. The blast hits immediately, then a second micro-pulse detonates the settled dust.
+func _cast_ability_pyra_boom_dust(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var origin := global_position
+	_cast_ability_radius_burst(data, values)
+	var ring_radius := maxf(float(values.get("radius", 240.0)), 180.0)
+	get_tree().create_timer(0.55).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(origin, ring_radius):
+			_damage_enemy(target, float(values.get("power", 38.0)) * 0.35)
+			if target.has_method("apply_slow"):
+				target.apply_slow(0.7, 1.2)
+	)
+
+
+## Slag's Volcanic Touch: Magmus's AoE burn aura. Casts the push-pull instantly, but also
+## leaves a scalding ring where the caster stood for a moment.
+func _cast_ability_slag_volcanic_touch(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var origin := global_position
+	_cast_ability_push_pull_burst(data, values)
+	# Burn afterimage where the caster stood — volcanic touch lingers.
+	get_tree().create_timer(0.4).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(origin, 180.0):
+			_damage_enemy(target, float(values.get("power", 55.0)) * 0.3)
+			if target.has_method("apply_slow"):
+				target.apply_slow(0.6, 1.5)
+	)
+
+
+## Ember's Healing Wave: Demented Shaman's genuine party heal. Every ally touched by the
+## wave gets a direct mend — no splitting, no tricks. Just the warm wave of the grove.
+func _cast_ability_ember_healing_wave(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	_cast_ability_aoe_heal(data, values)
+
+
+## Thorn's Toxin Ward: plant a venom-spitting ward that shoots anything that wanders close.
+## Slither's signature — a single resilient turret with a long duration.
+func _cast_ability_thorn_toxin_ward(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var ward := data.duplicate()
+	ward["summon_count"] = 1
+	ward["duration"] = maxf(float(ward.get("duration", 18.0)), 20.0)
+	_cast_ability_summon_spirit(ward, values)
+
+
+## Willow's Forsaken Shot: a single perfect arrow that crosses the WHOLE field, piercing
+## everything in its path. Forsaken Archer's legendary one-shot — reads as a long nuke
+## with a wider effective radius and no chain.
+func _cast_ability_willow_forsaken_shot(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var v := values.duplicate()
+	v.radius = 60.0
+	var shot := data.duplicate()
+	shot["_forsaken_shot"] = true
+	var reach := maxf(float(values.get("range", 700.0)), 600.0)
+	var primary := _nearest_enemy_in_range(reach)
+	var center := primary.global_position if primary != null else _ability_aim_center(reach)
+	_spawn_ability_projectile(_casting_ability_id, global_position, center)
+	for target in _enemies_in_radius(center, v.radius):
+		_apply_ability_hit(target, shot, v)
+	_emit_ability_cast(PackedVector2Array([center, Vector2(v.radius, 0.0)]))
+
+
+## Stump's Camouflage: Keeper's ability to settle unnoticed. Makes the hero such poor news
+## that enemies actually stumble past — layered slow + damage-taken buff in one cast.
+func _cast_ability_stump_camouflage(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	_cast_ability_buff_self(data, values)
+	# Nearby enemies moving through the undergrowth get tripped up.
+	for enemy in _enemies_in_radius(global_position, 220.0):
+		if enemy.has_method("apply_slow"):
+			enemy.apply_slow(0.65, 2.0)
+
+
+## Sage's Volatile Pod: Nymphora's lobbed seed pod. Point-target throw, detonates on impact
+## with a hefty radial slap. A signature Nuke with a strong arc.
+func _cast_ability_sage_volatile_pod(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var reach := maxf(float(values.get("range", 600.0)), 420.0)
+	var center := _ability_aim_center(reach)
+	_spawn_ability_projectile(_casting_ability_id, global_position, center)
+	var radius := maxf(float(values.get("radius", 0.0)), 80.0)
+	for enemy in _enemies_in_radius(center, radius):
+		_apply_ability_hit(enemy, data, values)
+	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
+
+
+## Volt's Wind Shield: party-wide wall of rushing air thrown just ahead of the caster.
+## Shares its power across allies rather than the caster alone.
+func _cast_ability_volt_wind_shield(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	_cast_ability_shield_burst(data, values)
+
+
+## Nebula's Curse of Ages: Chronos's heavy curse — every enemy in the blast feels the full
+## weight of time pressing down. Wide area, slow, hefty damage, and a heavy slow that stacks
+## with the base data's slow.
+func _cast_ability_nebula_curse_of_ages(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var curse := data.duplicate()
+	# Curse must always slow — that's the mechanic's CORE. If data has no slow, add it.
+	if not curse.has("slow_on_hit"):
+		curse["slow_on_hit"] = {"factor": 0.45, "duration": 3.0}
+	# Add a secondary tick after the main blast: the aging effect keeps wearing them down.
+	var curse_power := float(values.power) * 0.35
+	var radius := float(values.get("radius", 280.0))
+	_cast_ability_radius_burst(curse, values)
+	get_tree().create_timer(0.6).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(global_position, radius * 0.65):
+			_damage_enemy(target, curse_power)
+			if target.has_method("apply_slow"):
+				target.apply_slow(0.6, 1.8)
+	)
+
+
+## Astral's Guardian Angel: Empath's signature. High shield share for the whole party and a
+## generous heal thrown in. Protects what matters most.
+func _cast_ability_astral_guardian_angel(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var radius := maxf(float(values.get("radius", 280.0)), 220.0)
+	for ally in _allies_in_radius(global_position, radius):
+		ally.health.add_shield(float(values.power), maxf(float(values.get("duration", 6.0)), 3.0))
+		ally.health.heal(float(values.power) * 0.35)
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(radius, 0.0)]))
+
+
+## Rime's Chilling Touch: Glacius's focus — a stone-cold buff that turns the caster's movement
+## and attacks into pure precision. A clean attack-speed buff with no side effects.
+func _cast_ability_rime_chilling_touch(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	_cast_ability_buff_self(data, values)
+
+
+## --- Non-Wrench R kits (ultimates, HoN-flavoured) ---------------------------------------------
+
+## Arclight's Thundergod's Wrath: the sky itself breaks open. Every enemy in the arena gets
+## a bolt dropped directly on it — no save, no hiding.
+func _cast_ability_arclight_thundergods_wrath(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var strike := data.duplicate()
+	strike["global"] = true
+	strike["stun_on_hit"] = {"duration": 0.5}
+	_cast_ability_radius_burst(strike, values)
+
+
+## Bulwark's Echo Slam: the arena RINGS for every enemy hit. Self-centred slam with a
+## reverb — the more enemies in the ring, the more the ground echoes.
+func _cast_ability_bulwark_echo_slam(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var hit_count := _enemies_in_radius(global_position, float(values.radius)).size()
+	_cast_ability_radius_burst(data, values)
+	# Echo Slam's echo: every enemy hit answers with another ring.
+	for index in range(mini(hit_count, 4)):
+		get_tree().create_timer(0.15 * index + 0.2).timeout.connect(func() -> void:
+			if not is_inside_tree():
+				return
+			for enemy in _enemies_in_radius(global_position, float(values.radius) * 0.6):
+				_damage_enemy(enemy, values.power * 0.2)
+		)
+
+
+## Warden's Life Drain: Pollywog Priest's ultimate rite. Siphons a single enemy dry --
+## pulling its health straight into the caster.
+func _cast_ability_warden_life_drain(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var reach := maxf(float(values.get("range", 560.0)), 400.0)
+	var target := _nearest_enemy_in_range(reach)
+	if target == null:
+		return
+	_damage_enemy(target, values.power)
+	health.heal(values.power)
+	if target.has_method("apply_slow"):
+		target.apply_slow(0.45, 2.5)
+	_emit_ability_cast(PackedVector2Array([target.global_position, Vector2(48.0, 0.0)]))
+
+
+## Cinder's Pillar of Flame: Ember Spirit's towering column that incinerates everything
+## inside. Long duration zone that keeps ticking while enemies stand in it.
+func _cast_ability_cinder_pillar_of_flame(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var reach := maxf(float(values.get("range", 0.0)), 400.0)
+	var center := _ability_aim_center(reach)
+	_cast_ability_zone_channel(data, values)
+	_spawn_ability_zone_pulse(center, float(values.get("radius", 240.0)), maxf(float(values.get("duration", 4.0)), 3.0))
+	get_tree().create_timer(0.4).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(center, float(values.radius) * 0.7):
+			_damage_enemy(target, float(values.get("power", 22.0)) * 0.5)
+			if target.has_method("apply_slow"):
+				target.apply_slow(0.65, 1.0)
+	)
+
+
+## Pyra's Air Strike: Bombardier's ordnance called from above (artillery). Paint the ring,
+## scream down, detonate. The sky_strike data path handles the shell already.
+func _cast_ability_pyra_air_strike(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	_cast_ability_radius_burst(data, values)
+
+
+## Slag's Eruption: Magmus's volcanic tantrum. Blows the ground apart around the caster with
+## a heavy knockback + lingering burn zone.
+func _cast_ability_slag_eruption(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var origin := global_position
+	_cast_ability_zone_channel(data, values)
+	# Eruption's signature knockback — everything inside gets flung away from the caster.
+	for enemy in _enemies_in_radius(origin, float(values.get("radius", 320.0))):
+		if enemy.has_method("apply_knockback"):
+			var away := origin.direction_to(enemy.global_position)
+			if away.length_squared() <= 0.0:
+				away = Vector2.RIGHT
+			enemy.apply_knockback(away * 400.0)
+	get_tree().create_timer(0.5).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(origin, float(values.radius) * 0.6):
+			_damage_enemy(target, float(values.get("power", 80.0)) * 0.35)
+	)
+
+
+## Ember's Unbreakable: Demented Shaman's ultimate. Nothing gets through — pure defensive
+## zenith: the caster turns into an old oak.
+func _cast_ability_ember_unbreakable(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var ultimate := data.duplicate()
+	ultimate["buff_stats"] = {
+		"damage_taken_mult": 0.4,
+		"movement_speed_mult": 0.85,
+	}
+	_cast_ability_buff_self(ultimate, values)
+
+
+## Thorn's Poison Burst: Slither's grand toxic bloom — every poison pocket in the area
+## detonates at once.
+func _cast_ability_thorn_poison_burst(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	_cast_ability_radius_burst(data, values)
+	# Lingering toxic bloom keeps ticking after the flash.
+	get_tree().create_timer(0.45).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(global_position, float(values.radius) * 0.6):
+			_damage_enemy(target, float(values.get("power", 70.0)) * 0.3)
+			if target.has_method("apply_slow"):
+				target.apply_slow(0.6, 1.5)
+	)
+
+
+## Willow's Strangling Vines: Forsaken Archer's choke zone — roots snap shut and whip every
+## enemy in the radius.
+func _cast_ability_willow_strangling_vines(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var reach := maxf(float(values.get("range", 480.0)), 340.0)
+	var center := _ability_aim_center(reach)
+	var radius := maxf(float(values.get("radius", 240.0)), 180.0)
+	for enemy in _enemies_in_radius(center, radius):
+		_apply_ability_hit(enemy, data, values)
+	_spawn_ability_zone_pulse(center, radius, 1.5)
+
+
+## Stump's Overgrowth: the forest reclaims the arena. Chokes and rebels every hostile inside.
+func _cast_ability_stump_overgrowth(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var origin := global_position
+	_cast_ability_zone_channel(data, values)
+	# Overgrowth roots enemies inside while the forest eats them.
+	get_tree().create_timer(0.35).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(origin, float(values.radius) * 0.7):
+			_damage_enemy(target, float(values.get("power", 30.0)) * 0.5)
+			if target.has_method("apply_slow"):
+				target.apply_slow(0.45, 2.5)
+	)
+
+
+## Sage's Charm: Nymphora's siren song. Enemies find themselves unwillingly drawn toward the
+## caster — their boots betray them.
+func _cast_ability_sage_charm(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var center := global_position
+	var radius := maxf(float(values.get("radius", 220.0)), 180.0)
+	for target in _enemies_in_radius(center, radius):
+		if not target.has_method("apply_knockback"):
+			continue
+		var inward := (center - target.global_position).normalized()
+		target.apply_knockback(inward * 200.0)
+		_arm_hazard_escape(target)
+		if target.has_method("apply_slow"):
+			target.apply_slow(0.65, 1.2)
+		_damage_enemy(target, values.power)
+	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
+	_spawn_ability_zone_pulse(center, radius, 1.5)
+
+
+## Volt's Typhoon: Zephyr's grand spiral. A slow-moving tornado that locks everything inside
+## while it spins.
+func _cast_ability_volt_typhoon(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var center := _ability_aim_center(maxf(float(values.get("range", 0.0)), 380.0))
+	_cast_ability_zone_channel(data, values)
+	# Typhoon drags caught enemies toward its eye.
+	for enemy in _enemies_in_radius(center, float(values.get("radius", 380.0))):
+		if enemy.has_method("apply_knockback"):
+			var inward := (center - enemy.global_position).normalized()
+			enemy.apply_knockback(inward * 120.0)
+	get_tree().create_timer(0.45).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(center, float(values.radius) * 0.6):
+			_damage_enemy(target, float(values.get("power", 60.0)) * 0.4)
+	)
+
+
+## Nebula's Chronofield: Chronos's time-stop. All enemies caught inside are frozen solid
+## while the field is up.
+func _cast_ability_nebula_chronofield(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var origin := global_position
+	_cast_ability_zone_channel(data, values)
+	# Chronofield roots caught enemies — time stands still.
+	for enemy in _enemies_in_radius(origin, float(values.get("radius", 380.0))):
+		if enemy.has_method("apply_slow"):
+			enemy.apply_slow(0.3, 2.5)
+
+
+## Astral's As One: Empath's ultimate — pour your courage into the party. Massive heal AND
+## shield for everyone in the radius.
+func _cast_ability_astral_as_one(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var radius := maxf(float(values.get("radius", 300.0)), 220.0)
+	for ally in _allies_in_radius(global_position, radius):
+		ally.health.heal(float(values.power) * 0.7)
+		ally.health.add_shield(float(values.power) * 0.5, maxf(float(values.get("duration", 6.0)), 4.0))
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(radius, 0.0)]))
+
+
+## Rime's Freezing Field: Glacius's absolute-zero zone. Blankets the arena in a killing cold
+## that freezes everything inside solid.
+func _cast_ability_rime_freezing_field(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	_cast_ability_zone_channel(data, values)
+	_spawn_ability_zone_pulse(global_position, float(values.get("radius", 400.0)), maxf(float(values.get("duration", 5.0)), 4.0))
+	# Absolute cold: lock enemies inside while the field is up.
+	for enemy in _enemies_in_radius(global_position, float(values.get("radius", 400.0))):
+		if enemy.has_method("apply_slow"):
+			enemy.apply_slow(0.35, 2.8)
+
+
 ## Riki-style Teleport Strike: pop behind the nearest enemy and hit them hard.
 func _cast_ability_blink_strike(data: Dictionary, values: Dictionary) -> void:
 	var reach := float(values.get("range", 360.0))

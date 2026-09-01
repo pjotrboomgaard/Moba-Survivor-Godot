@@ -19,6 +19,7 @@ if (-not (Test-Path $UserDataDir)) {
 }
 $ReqOut = Join-Path $UserDataDir "selftest_request.json"
 $ReportOut = Join-Path $UserDataDir "selftest_report.json"
+$ResultsDir = Join-Path $ProjectRoot "tools\selftest\results"
 
 Write-Host "Project: $ProjectRoot"
 Write-Host "Request: $RequestPathResolved"
@@ -51,6 +52,10 @@ if (-not $reportFound) {
 }
 
 if (Test-Path $ReportOut) {
+    if (-not (Test-Path $ResultsDir)) { New-Item -ItemType Directory -Path $ResultsDir -Force | Out-Null }
+    $ReportCopy = Join-Path $ResultsDir (([IO.Path]::GetFileNameWithoutExtension($RequestPath)) + "_report.json")
+    Copy-Item $ReportOut $ReportCopy -Force
+    Write-Host "Report copied: $ReportCopy"
     Write-Host "`n=== SELF-TEST REPORT ==="
     Get-Content $ReportOut
     exit 0
