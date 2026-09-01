@@ -1,0 +1,119 @@
+# 3-Day Feature Catalog — Aug 30 → Sep 1 2026
+# Read-only catalog pass over agent-transcripts. 18 top-level chat sessions, chronological.
+# Sources: per-session assistant transcripts + git log (d9d0509..c434ffe) + recovery audit (session c55f3593).
+# Legend: commits-only = reached a git commit | chat-only = claimed in chat but uncommitted/lost | partial = some parts landed, some lost/degraded | lost = wiped by later session.
+
+## Session 48049e2c (2026-08-30 22:33 → 22:33)
+- FEATURE: Cursor permissions Q&A | STATUS_HINT: chat-only | FILES: (none) | DETAIL: Answered how to stop Cursor change-permission prompts (Run Modes settings). Not a game feature; noise session.
+
+## Session e8f4b233 (2026-08-30 21:01 → 23:33)
+- FEATURE: Rift Clash — ranked team FFA mode | STATUS_HINT: partial | FILES: autoload/rift_clash_manager.gd, autoload/rank_service.gd, autoload/steam_service.gd, autoload/network_service.gd, scripts/main.gd, scripts/player.gd, scripts/projectile.gd, scenes/bootstrap/, scripts/hud.gd | DETAIL: 4-team corner FFA on shared map, per-team WaveDirectors, PvP projectiles, team elimination, win feed to RankService. Wave-stealing/team-pick partially deferred.
+- FEATURE: RankService (Bronze→Immortal) | STATUS_HINT: partial | FILES: autoload/rank_service.gd, project.godot | DETAIL: SP stat + leaderboard + placement deltas (+25/+8/-2/-15) with offline JSON fallback user://rift_clash_rank.json. Wired but rank flow unverified end-to-end.
+- FEATURE: Steam stats/leaderboard/RichPresence | STATUS_HINT: commits-only | FILES: autoload/steam_service.gd, steam_appid.txt | DETAIL: GodotSteam 4.21 stats SkillPoints/MatchesPlayed/Won, rift_clash_skill leaderboard, set_rift_clash_presence. Fixed steam_appid trailing newline.
+- FEATURE: ability_cooldowns out-of-bounds fix | STATUS_HINT: commits-only | FILES: scripts/player.gd | DETAIL: _update_ability_slots clamps to cooldown array size (pre-existing crash when hero knew >4 abilities).
+- FEATURE: restart_app two-instance RiftClash flags | STATUS_HINT: commits-only | FILES: tools/restart_app.ps1 | DETAIL: -RiftClashHost / -RiftClashJoin ip:port for LAN two-client test.
+
+## Session 28aa64f5 (2026-08-30 21:11 → 23:52)
+- FEATURE: 4x bigger grass meadow + crater | STATUS_HINT: commits-only | FILES: scripts/arena.gd | DETAIL: Biome 0 2400x1600 → 4800x3200 (scales obstacles/decals/camera/minimap). Cosmetic crater at center, seeded.
+- FEATURE: Sealed crater (wave-10 unlock) | STATUS_HINT: lost | FILES: scripts/arena.gd, scripts/main.gd | DETAIL: Bramble-seal collision blocking crater until wave 10 with banner + RPC sync. Later reverted — crater made open from wave 1.
+- FEATURE: Crater open from wave 1 + moved left + minimap icon | STATUS_HINT: commits-only | FILES: scripts/arena.gd, scripts/main.gd, scripts/minimap.gd | DETAIL: CRATER_CENTER (-1230,0), crater_unlocked default true, rock-formation minimap landmark.
+- FEATURE: Redesigned 4 biome maps (volcano/ice/factory/docks) | STATUS_HINT: commits-only | FILES: scripts/arena.gd, tools/tobor_world_art.gd | DETAIL: Movement identities — caldera spoke-and-lake, meridian glacier bowties, reactor floor ring-corridor, working harbor piers. Plus clamp_walk_pads_to_playfield.
+- FEATURE: Ambient biome animation | STATUS_HINT: commits-only | FILES: scripts/arena.gd | DETAIL: anim_clock + _draw_biome_animation: lava bubbles, frost gusts, factory sparks, dock foam — 4-beat pixel cadence on arena canvas.
+- FEATURE: Rock-formation crater art | STATUS_HINT: commits-only | FILES: scripts/arena.gd, tools/tobor_world_art.gd | DETAIL: Meteor-Crater style squarish rim, 30 stacked limestone boulders, ejecta spray, breccia bowl; new crater_stone/crater_shard sprites.
+
+## Session 2d0ed247 (2026-08-30 22:46 → 22:46)
+- FEATURE: Hero sprite compare/score tooling | STATUS_HINT: commits-only | FILES: tools/cut_turnarounds.py, tools/compare_hero_sprites.py, tools/score_hero_sprites.py | DETAIL: Per-view turnaround crops + ref-vs-current-vs-diff-heatmap contact sheets + 0..1 shape/color scorer.
+- FEATURE: Arclight/Bulwark/Warden sprite recreation | STATUS_HINT: partial | FILES: tools/sprite_art.gd, assets/sprites/ | DETAIL: Auto-trace turnaround crops to 40px, palette snapped, despeckled; warden .494/bulwark .478/arclight .33-.357 scores. Later churn (BOM, stale cache) left it partially degraded; superseded by robot-3 rollback request.
+
+## Session 0204f74b (2026-08-30 23:53 → 23:53)
+- FEATURE: Storm Court hero 4-facing sprites (volt/nebula/astral/rime) | STATUS_HINT: commits-only | FILES: tools/sprite_art.gd, assets/sprites/ | DETAIL: 16 HERO_PALETTES + 16 HERO_ROWS grids normalized to 40x40 via fixer; forge 587 sprites, UTF-8 re-encode fix.
+- FEATURE: 48 ability icons + 4 hero ability tones | STATUS_HINT: commits-only | FILES: tools/sprite_art.gd, assets/sprites/ | DETAIL: 48 ABILITY_ICON_ROWS + 48 palettes for volt/nebula/astral/rime x12 abilities + 4 HERO_ABILITY_TONES; SHAPE_* per-archetype mapping. Fixed "Hero nebula has no sprite" via full --import.
+
+## Session 3bcc1695 (2026-08-31 00:01 → 00:01)
+- FEATURE: (subagent recovery worker for BIG session — iron-foundry hero pools) | STATUS_HINT: commits-only | FILES: scripts/player_class.gd | DETAIL: Rebuilt Iron Foundry hero 12-ability pools + kit trio. Content folded into BIG session's roster work.
+
+## Session dbb4a454 (2026-08-31 00:31 → 00:31)
+- FEATURE: Boss danmaku onslaught sequencer | STATUS_HINT: commits-only | FILES: scripts/enemy.gd | DETAIL: _boss_strikes timeline schedules volleys (nova ring, aimed spiral, barrage fan, multi-target meteor slam, beam ring), phase-scaled density.
+- FEATURE: Per-biome boss selection + 3 new bosses | STATUS_HINT: commits-only | FILES: scripts/enemy_type.gd, scripts/enemy.gd, tools/sprite_art.gd, tools/tobor_world_art.gd, tools/tobor_biome_enemies.gd | DETAIL: pyrelord/frostreaver/warhos with own stats/elements/sprites; boss_for_wave keyed off biome (volcano→Pyrelord, ice→Frostreaver, factory→Stormcaller, docks→Warhos).
+- FEATURE: Boss solo waves + faster cadence + tracking dashes | STATUS_HINT: commits-only | FILES: scripts/enemy.gd | DETAIL: Boss waves emit exactly one boss 0 adds; per-phase cooldown cuts (~half in phase 3); dash direction lerps toward player ~6.5deg/frame; +55% move speed.
+
+## Session ae9131c2 (2026-08-31 12:22 → 12:22)
+- FEATURE: Codebase orientation (hero/sprite architecture) | STATUS_HINT: chat-only | FILES: (none — read-only) | DETAIL: Explored player_class.gd, sprite_library.gd, sprite forge, 17 hero redesign state. Pure exploration, no feature edits.
+
+## Session c151122f (2026-08-31 14:17 → 14:17)
+- FEATURE: Iron Foundry 5-hero 12-ability pools + kit_q/e/r | STATUS_HINT: commits-only | FILES: scripts/player_class.gd, tools/sprite_art.gd | DETAIL: tobor(arclight/bulwark/warden/frostbinder pools wired 12-ids each, kit subset, full archetype coverage (DASH/BLINK/NUKE/CONE/RADIUS/BUFF/SHIELD). In-place re-theme to avoid breaking smoke test.
+- FEATURE: Ability id renames (warden/frostbinder) | STATUS_HINT: commits-only | FILES: scripts/player_class.gd, tools/sprite_art.gd | DETAIL: warden_natures_grasp→thorn_ward, natures_wrath→reap_dash, second_bloom→blessing, frostbinder_vortex→cold_snap; icon maps synced, zero live orphan refs.
+
+## Session 75a15d35 (2026-08-31 21:07 → 21:07)
+- FEATURE: 5 archetype smoke-test functions (22 abilities) | STATUS_HINT: commits-only | FILES: tests/class_smoke_test.gd | DETAIL: _test_zone_channel/storm_pull/slam_taunt/push_pull_burst/pit_slow; asserts damage/knockback/slow per archetype.
+- FEATURE: slam_taunt inverted-sign bug fix | STATUS_HINT: commits-only | FILES: scripts/player.gd | DETAIL: _cast_ability_slam_taunt drag sign flipped -absf→+absf so enemies pulled onto caster (Axe call) not shoved away.
+- FEATURE: pit_slow silent no-op fix | STATUS_HINT: commits-only | FILES: scripts/player.gd | DETAIL: _cast_ability_pit_slow used phantom duration 0.0; replaced with _apply_ability_hit so ring deals damage + authored slow/stun.
+
+## Session 8303788f (2026-08-31 21:42 → 21:42)
+- FEATURE: Per-ability SFX lookup (user request stub) | STATUS_HINT: chat-only | FILES: (main jsonl only has user query) | DETAIL: "start looking up sound effects for all hero abilities, similar in style to current pack (minimal/robotic)". Actual work done in subagent; main session only logged the request.
+
+## Session 7e9c9de7 (2026-08-31 12:57 → 22:23)
+- FEATURE: Biome world desaturation (round 1+2) | STATUS_HINT: commits-only | FILES: tools/tobor_world_art.gd, tools/sprite_art.gd, scripts/arena.gd | DETAIL: Muted 4 biome terrain tiles + lava, lifted ground values, props contrast hue+value; grass sage #4c5c40. Two-cache-bug (stale .ctex + wrong grass palette) diagnosed and fixed.
+- FEATURE: De-clutter decals | STATUS_HINT: commits-only | FILES: scripts/arena.gd | DETAIL: DECAL_COUNT 320→132; obstacle counts left for gameplay.
+- FEATURE: Per-biome obstacle shapes x4 sizes | STATUS_HINT: commits-only | FILES: tools/tobor_world_art.gd | DETAIL: rock_small/rock_large/spire/boulder distinct per biome (cinder mound, crystal cluster, server tower, mast+crow's nest), bottom-anchored, palette-toned; ice-white + ember-red retune.
+- FEATURE: Removed mic/chant boss mechanic | STATUS_HINT: commits-only | FILES: autoload/voice_service.gd(deleted), tools/av_capture.py(deleted), scripts/main.gd, scripts/hud.gd, project.godot, tests/class_smoke_test.gd | DETAIL: Ravager "repeat-the-mantra" feature fully stripped; VoiceService autoload unregistered; test renamed _test_tobor_art_and_audio.
+- FEATURE: Landmark system (initial) | STATUS_HINT: partial | FILES: scripts/landmark_button.gd, scripts/arena.gd, scripts/main.gd, tools/tobor_world_art.gd, scripts/minimap.gd | DETAIL: LANDMARK_DEFS per biome (pulse_wipe/freeze_time/heal_all), stand-to-fill cast bar, cooldown, minimap pins. Later renamed/refactored; spawn fn dropped+rewired (see 430c03a8).
+- FEATURE: 4 new enemy types | STATUS_HINT: commits-only | FILES: scripts/enemy_type.gd, scripts/enemy.gd, tools/tobor_world_art.gd, tools/tobor_biome_enemies.gd | DETAIL: drone (cardinal lanes+bolts), boat (wave-crest burst), lava_spitter (fire-trail), ice_lurker (ambush); per-biome skins + debut waves.
+
+## Session 416eaddf (2026-09-01 17:11 → 17:11)
+- FEATURE: Landmark art overhaul (7→13 sprites) | STATUS_HINT: commits-only | FILES: tools/tobor_world_art.gd, scripts/sprite_library.gd, scripts/arena.gd | DETAIL: Per-effect per-biome landmark variants (Arch/Shrine/Well, Mirror/Hollow, Pylon/Vat/Bay, Lighthouse/Bell/Siren Pool) + thicker outlines/silhouettes.
+- FEATURE: Punchier landmark effects + clarity | STATUS_HINT: commits-only | FILES: scripts/main.gd, scripts/landmark_button.gd, scripts/enemy.gd | DETAIL: 3 stacked shockwaves (wipe), set_frozen_visual blue tint (freeze), per-player heal burst; radius-preview ring, cooldown sweep arc, 2-line effect hint.
+- FEATURE: SelfTestDriver walk/teleport/landmark events | STATUS_HINT: commits-only | FILES: scripts/selftest_driver.gd, tools/selftest/requests/landmark_hold.json | DETAIL: walk_to/walk_stop/teleport/landmark probes + _record_landmarks; verified fill 0→1→cooldown state machine in-game.
+
+## Session 8fda3643 (2026-09-01 17:11 → 17:11)
+- FEATURE: Audio off-by-default | STATUS_HINT: commits-only | FILES: autoload/player_profile.gd | DETAIL: sfx_enabled/music_enabled default false + sfx_explicit/music_explicit flags so saved prefs only stick after deliberate toggle; verified headless (buses muted, music off).
+- FEATURE: audio_service explicit-toggle setters | STATUS_HINT: commits-only | FILES: autoload/audio_service.gd | DETAIL: set_sfx_enabled/set_music_enabled persist explicit flags. (audio_service.gd still modified in working tree.)
+
+## Session bfd867a8 (2026-09-01 18:22 → 18:22)
+- FEATURE: sprite_art.gd 12-hero grid recovery (transcript replay) | STATUS_HINT: partial | FILES: tools/sprite_art.gd, assets/sprites/ | DETAIL: Replayed subagent edits (2be9532e 8 heroes + 0204f74b 4) from transcripts; normalized volt/nebula/astral/rime to 40x40; forge 1276 sprites valid. Repeatedly reverted by concurrent processes — unstable.
+- FEATURE: SelfTestDriver hook restore into main.gd | STATUS_HINT: commits-only | FILES: scripts/main.gd | DETAIL: Re-added _right_selftest_boot call + helper lost when main.gd reverted; driver boot works offline branch.
+
+## Session e20469a8 (2026-09-01 18:23 → 18:23)
+- FEATURE: SelfTestDriver Vector2 coercion fix | STATUS_HINT: commits-only | FILES: scripts/selftest_driver.gd | DETAIL: JSON [x,y] arrays → Vector2 for spawn/aim (type mismatch silently broke spawn+aim).
+- FEATURE: OFFLINE cast path via Input.action_press | STATUS_HINT: commits-only | FILES: scripts/selftest_driver.gd | DETAIL: OFFLINE player ignores set_authority_command, reads InputService; driver now presses actions so real frame-edge cast pipeline runs.
+- FEATURE: 16-hero two-stage target verification (aborted) | STATUS_HINT: partial | FILES: scripts/selftest_driver.gd, tools/selftest/requests/ | DETAIL: Generated 16 request files; verified tobor+arclight two-stage arm/confirm+cooldown. Aborted pending player_class fix; env-var isolation edits reverted, concurrent-process interference documented.
+
+## Session 430c03a8 (2026-09-01 20:15 → 20:15)
+- FEATURE: ArenaLandmark rename (Landmark→ArenaLandmark) | STATUS_HINT: commits-only | FILES: scripts/arena_landmark.gd(new), scripts/landmark.gd(deleted), scripts/landmark_button.gd, scripts/selftest_driver.gd | DETAIL: Resolved class collision when landmark.gd deleted mid-recovery; ArenaLandmark extends Node2D with signal triggered(position).
+- FEATURE: Arena.set_world/world API + per-world landmarks | STATUS_HINT: commits-only | FILES: scripts/arena.gd, scripts/main.gd | DETAIL: landmarks: Array[ArenaLandmark], set_world(world_id) rebuilds field+spawns world landmarks, world-aware ground tiles; main._ready hooks set_world(PlayerClass.world_of+class_id)). Reached commit e7ccb3a.
+- FEATURE: _spawn_landmarks rewired | STATUS_HINT: commits-only | FILES: scripts/arena.gd, scripts/main.gd | DETAIL: Landmark spawn function re-added after it was silently dropped; main connects landmark.triggered directly (no .get() guard).
+
+## Session ebac881b [BIG parent] (2026-08-30 21:01 → 2026-09-01 20:56)
+- FEATURE: 8 new heroes / 3 new worlds | STATUS_HINT: partial | FILES: scripts/player_class.gd | DETAIL: +cinder pyra slag ember thorn willow stump sage; worlds Ashen Caldera/Verdant Wilds/Storm Court; DamageType FIRE+STORM. Later clobbered to 5-hero stub, rebuilt to 17.
+- FEATURE: Q/E/R kit system | STATUS_HINT: commits-only | FILES: scripts/player_class.gd, scripts/player.gd, autoload/player_profile.gd | DETAIL: kit_q/kit_e/kit_r per hero ripped from draft pool; _apply_kit_abilities wires loadout into 4 slots; draft=pool−kit.
+- FEATURE: 4 Storm Court heroes | STATUS_HINT: commits-only | FILES: scripts/player_class.gd, tools/sprite_art.gd | DETAIL: volt(Clockwerk)/nebula(Invoker)/astral(Io)/rime(Axe) with 12-ability pools + 4 new archetypes.
+- FEATURE: New archetypes (SUMMON_TURRET/SPAWN_WALL/AREA_HAZARD/DASH_PULL/STORM_PULL/ZONE_CHANNEL/SUMMON_SPIRIT/SLAM_TAUNT/BLINK_STRIKE/PIT_SLOW/ATTACK_FURY) | STATUS_HINT: commits-only | FILES: scripts/player_class.gd, scripts/player.gd | DETAIL: Cast dispatches + handlers enabling true hero differentiation; 20-archetype dispatch reached.
+- FEATURE: Terrain hazard / lava dunk system | STATUS_HINT: partial | FILES: scripts/arena.gd, scripts/enemy.gd, scripts/player.gd | DETAIL: hazard_at DoT, knockback flight mask-drop over lava lip, dunk burst, scramble-out, hover-risk. Stubbed/no-op'd during recovery (separate feature).
+- FEATURE: Menu revamp — world tabs + hero cards | STATUS_HINT: partial | FILES: scenes/bootstrap/bootstrap.gd, bootstrap.tscn | DETAIL: 4 world tabs, deduped 2x3 hero grid, locked overlay. Lost (bootstrap.gd.bak only) then restored commit 9420f1a.
+- FEATURE: Solo unlock meta (shards) | STATUS_HINT: partial | FILES: autoload/player_profile.gd, autoload/progression_service.gd(new) | DETAIL: hero_shards persist to user://local_profile.json; menu gating; CPU allies/MP bypass. ProgressionService registered as autoload stub.
+- FEATURE: Sparks economy + wave draft | STATUS_HINT: partial | FILES: scripts/main.gd, autoload/player_profile.gd, scripts/hud.gd | DETAIL: 3-wave draft offer + spark awards at intermission, HUD spark readout. bank_wave_progress called but profile stub missing methods (degraded).
+- FEATURE: Mastery + loadout system | STATUS_HINT: partial | FILES: autoload/player_profile.gd, scenes/bootstrap/bootstrap.gd, scripts/player.gd, scripts/main.gd | DETAIL: Per-hero 4-slot loadout (3 regular+ult), wave-5 ult unlock, 1 ability banked/5 waves on game over, MP lobby loadout rows. Ult-from-start change later removed wave-5 gate.
+- FEATURE: Hero renames to HoN cast | STATUS_HINT: commits-only | FILES: scripts/player_class.gd, tests/class_smoke_test.gd | DETAIL: Tobor→Wrench, Diord→Joule(Volund), Romra→Tremor, Enord→Totem, Cinder→Blaze, +11 more (16 HoN names). Reached commit 366f4df.
+- FEATURE: 64 HoN-copied kit abilities | STATUS_HINT: commits-only | FILES: scripts/player_class.gd | DETAIL: 16 heroes x 4 kit abilities with canonical HoN ids (tobor_steam_keg, arclight_thundergods_wrath, bulwark_echo_slam, etc.); kit_r 45-60s ults. Reached commit 366f4df.
+- FEATURE: frostbinder removal (roster 17→16) | STATUS_HINT: commits-only | FILES: scripts/player_class.gd, tests/class_smoke_test.gd | DETAIL: Cut 5th Iron Foundry hero; World.STORM_COURT starter fixed gale→volt; zero frostbinder refs.
+- FEATURE: Kit uniqueness (globally unique Q/E/R archetype signatures) | STATUS_HINT: commits-only | FILES: scripts/player_class.gd | DETAIL: Rebalanced all 17 kits so no two heroes share a slot signature; deduped bulwark/slag/nebula/astral/frostbinder collisions. Pre-HoN phase.
+- FEATURE: SummonEntity (turret/ward/minions) | STATUS_HINT: commits-only | FILES: scripts/summon_entity.gd(new) | DETAIL: Self-anchored summon ticks damage, fades+expires, cap 3; Steam Turret/Voodoo Wards/Toxin Ward/Essence Link spawn for real. Nil-sprite + int-vs-Node damage bugs fixed by subagent.
+- FEATURE: Two-stage targeting (arm→aim→confirm) | STATUS_HINT: commits-only | FILES: scripts/player.gd | DETAIL: TARGETED_ABILITIES registry (point/unit/vector/instant), aim indicators (circle/chain-laser/arrow), _slots_held_prev edge-detect fix (single press no longer arm+confirm same frame).
+- FEATURE: Vector-only VFX (LightningEffect) | STATUS_HINT: partial | FILES: scripts/main.gd, scripts/lightning_effect.gd, scripts/kit_fx_library.gd(new) | DETAIL: VECTOR_ONLY_KIT_IDS skip pixel fx; BOLT/BLAST/ARC/BURST/WAVE per fantasy; later KitFxLibrary per-kit palette (commit 6404ad8).
+- FEATURE: ProjectileSprite + ZonePulse | STATUS_HINT: commits-only | FILES: scripts/projectile_sprite.gd(new), scripts/zone_pulse.gd(new) | DETAIL: Keg lobs as arcing projectile (projectile_lob:true); Energy Field = persistent hex containment zone (8s); ZonePulse cap raised 12s.
+- FEATURE: 64 SHAPE_KIT_* unique icon grids | STATUS_HINT: partial | FILES: tools/sprite_art.gd | DETAIL: Hand-drawn 8x8 themed icon per HoN-kit ability (keg=barrel, turret=base+barrel). 36 via subagent (commit f0d2ffe) + 12 hero tones; icons degraded after recovery re-keying.
+- FEATURE: 4-directional hero sprites (walk frames) | STATUS_HINT: partial | FILES: tools/sprite_art.gd | DETAIL: front/left/right/back facings for 17 heroes; bigger on screen (scale 1.25). Walk-frame wiring + robot-3 rollback requested but repeatedly lost in recovery.
+- FEATURE: SelfTestDriver harness + run_selftest.ps1 + keg_target.json | STATUS_HINT: commits-only | FILES: scripts/selftest_driver.gd(new), tools/selftest/run_selftest.ps1, tools/selftest/requests/keg_target.json, tools/selftest/PLANS.md | DETAIL: File-driven autonomous driver (user://selftest_request.json → input/spawn/screenshot/report/quit). Fixed user-data dir (Rift Survivors), hero override, hound→grunt spawn.
+- FEATURE: Hero-themed ability sounds | STATUS_HINT: partial | FILES: assets/audio/sfx/cast_*.ogg, autoload/audio_service.gd | DETAIL: 34 hero-themed wavs + AudioService.play_ability routing to cast_<prefix> banks. Wired; per-ability sfx degraded by later re-keys.
+- FEATURE: Recovery audit | STATUS_HINT: commits-only | FILES: tools/recovery_audit_2026-09-01.md | DETAIL: Catalogued 33 features → 12 present/9 degraded/4 lost; root-caused two catastrophic events (player_class clobber ~17:49 + menu overhaul lost). Reached commit b1bee1b.
+- FEATURE: Autoload stubs (RiftClashManager/ProgressionService/RankService) | STATUS_HINT: commits-only | FILES: autoload/rift_clash_manager.gd, autoload/progression_service.gd, autoload/rank_service.gd, project.godot | DETAIL: Re-created + registered after mass revert deleted them; GameRuntime.is_rift_clash stubbed false. Reached commit 06dddb8.
+- FEATURE: player_class.gd recovery (16 heroes, 2300 lines) | STATUS_HINT: partial | FILES: scripts/player_class.gd | DETAIL: Rebuilt by builder subagent from transcript after clobber; 17 heroes, World enum, kit APIs (world_of/kit_q/e/r/kit_ability_ids) appended; type-inference parse fixes. Reached commit 68bbd29.
+- FEATURE: strict-typing / autoload / type-coercion bug fixes | STATUS_HINT: commits-only | FILES: scripts/player.gd, scripts/main.gd, scripts/game_runtime.gd, scripts/arena.gd | DETAIL: loadout Array typing, Arena.arena_root/hazard stubs, show_game_over arg drop, enemy team_id int/string cast, RiftClashManager guards. Stabilized boot to 0 script errors (commit 37d4a10).
+- FEATURE: Big session commits | STATUS_HINT: commits-only | FILES: (many) | DETAIL: Checkpoint chain d9d0509(safety)→7644724(restore wave edits)→06dddb8(re-enable build)→68bbd29(player_class)→37d4a10(stabilize)→f0d2ffe(icons)→6404ad8(vfx lib)→366f4df(HoN kits)→e7ccb3a(Wrench+terrain+landmark)→b1bee1b(audit)→9420f1a(menu)→c434ffe(scrollcontainer).
+
+## Session c55f3593 (2026-09-01 20:26 → 20:26)
+- FEATURE: Recovery audit report authoring | STATUS_HINT: commits-only | FILES: tools/recovery_audit_2026-09-01.md | DETAIL: Ground-truthed current tree (import clean, smoke 56 FAILs, headless --check-only hangs/crashes); 33 features → 12 present/9 degraded/4 lost. (Same report as BIG session b1bee1b.)
+- FEATURE: Root-cause analysis | STATUS_HINT: chat-only | FILES: (none — analysis) | DETAIL: player_class clobber→re-keyed kit ids while runtime/VFX/icons still key old ids = root of 56 smoke failures; menu overhaul survives only in bootstrap.gd.bak_1788284305.
+
+## Session 03fd4634 (2026-09-01 20:55 → subagent of ebac881b)
+- FEATURE: Menu ScrollContainer fix (StartGameButton visible) | STATUS_HINT: commits-only | FILES: scenes/bootstrap/bootstrap.gd, bootstrap.tscn | DETAIL: Wrapped hero grid + loadout in ScrollContainer so StartGameButton stops being pushed offscreen by 17 hero cards + loadout panel. Reached commit c434ffe.
