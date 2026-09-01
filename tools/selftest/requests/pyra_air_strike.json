@@ -1,0 +1,17 @@
+{
+	"hero": "pyra",
+	"comment": "Air Strike (slot3): sky strike — telegraph pulse, 0.6s fuse, then detonation at aim point.",
+	"events": [
+		{"t": 0.3, "kind": "spawn", "at": [220, 40], "type": "grunt"},
+		{"t": 0.35, "kind": "spawn", "at": [180, -60], "type": "brute"},
+		{"t": 0.5, "kind": "aim", "at": [200, 0]},
+		{"t": 0.6, "kind": "cast", "slot": 3},
+		{"t": 0.7, "kind": "probe", "label": "strike_armed"},
+		{"t": 0.72, "kind": "cast", "slot": 3},
+		{"t": 0.85, "kind": "snap", "label": "telegraph"},
+		{"t": 1.25, "kind": "probe", "label": "mid_fuse"},
+		{"t": 1.45, "kind": "probe", "label": "after_boom"},
+		{"t": 1.5, "kind": "snap", "label": "after_boom"},
+		{"t": 1.9, "kind": "report"}
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"hero": "tobor",
+	"comment": "simple boot probe: snap at 0.5s, 1.5s, then report. No cast, no spawn — is the game actually in gameplay?",
+	"events": [
+		{"t": 0.5, "kind": "snap", "label": "boot_early"},
+		{"t": 1.0, "kind": "probe", "label": "boot_probe"},
+		{"t": 1.5, "kind": "snap", "label": "boot_late"},
+		{"t": 2.0, "kind": "report"}
+	]
+}

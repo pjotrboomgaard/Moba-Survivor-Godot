@@ -1,0 +1,2 @@
+Setting breakpad minidump AppID = 480
+SteamInternal_SetMinidumpSteamID:  Caching Steam ID:  76561198002015260 [API loaded no]

@@ -1,0 +1,8 @@
+SCRIPT ERROR: Invalid assignment of property or key '_events' with value of type 'Array' on a base object of type 'Node (SelfTestDriver)'.
+   at: from_request (res://scripts/selftest_driver.gd:32)
+   GDScript backtrace (most recent call first):
+       [0] from_request (res://scripts/selftest_driver.gd:32)
+       [1] _right_selftest_boot (res://scripts/main.gd:1862)
+       [2] _ready (res://scripts/main.gd:107)
+Setting breakpad minidump AppID = 480
+SteamInternal_SetMinidumpSteamID:  Caching Steam ID:  76561198002015260 [API loaded no]

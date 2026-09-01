@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bz1lbs67qg9x2"]
+
+[ext_resource type="Script" path="res://scripts/zone_pulse.gd" id="1_zp01"]
+
+[node name="ZonePulse" type="Node2D"]
+script = ExtResource("1_zp01")

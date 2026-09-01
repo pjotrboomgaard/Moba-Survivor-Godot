@@ -14,13 +14,6 @@ config/name="Rift Survivors"
 run/main_scene="res://scenes/bootstrap/bootstrap.tscn"
 config/features=PackedStringArray("4.7")
 
-[audio]
-
-; Off: WASAPI crashes or log-floods on 4-channel laptop mic arrays.
-; Mic/webcam capture goes through tools/av_capture.py instead.
-driver/enable_input=false
-buses/default_bus_layout="res://default_bus_layout.tres"
-
 [autoload]
 
 GameRuntime="*res://autoload/game_runtime.gd"

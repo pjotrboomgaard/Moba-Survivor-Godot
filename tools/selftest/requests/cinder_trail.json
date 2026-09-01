@@ -1,0 +1,14 @@
+{
+	"hero": "cinder",
+	"comment": "Whirling Flame (slot0): dash from start through grunt; snap at end to read fire trail behind the landing point.",
+	"events": [
+		{"t": 0.3, "kind": "spawn", "at": [300, 0], "type": "brute", "hp_mult": 4.0},
+		{"t": 0.5, "kind": "aim", "at": [360, 0]},
+		{"t": 0.6, "kind": "cast", "slot": 0},
+		{"t": 0.7, "kind": "probe", "label": "dash_armed"},
+		{"t": 0.72, "kind": "cast", "slot": 0},
+		{"t": 0.9, "kind": "snap", "label": "trail"},
+		{"t": 1.3, "kind": "probe", "label": "after_trail"},
+		{"t": 1.5, "kind": "report"}
+	]
+}

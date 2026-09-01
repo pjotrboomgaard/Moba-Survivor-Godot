@@ -85,6 +85,10 @@ func _ready() -> void:
 		_create_player(1, Player.SimulationMode.OFFLINE, true, GameRuntime.active_class_id())
 		_spawn_cpu_allies()
 		_spawn_initial_wave()
+		# Self-test harness: if a request file exists, the driver takes over the local player's
+		# input + spawns staged enemies + captures screenshots headlessly. Agents iterate with
+		# `tools/selftest/run_selftest.ps1 -Request <json>`, parsing `selftest_report.json`.
+		_right_selftest_boot()
 	elif GameRuntime.is_server():
 		if GameRuntime.mode == GameRuntime.RuntimeMode.HOST:
 			_create_player(1, Player.SimulationMode.AUTHORITY, true, GameRuntime.active_class_id())
@@ -1332,6 +1336,15 @@ func _local_player() -> Player:
 		if is_instance_valid(player) and (player as Player).is_local_player:
 			return player as Player
 	return null
+
+
+## Attach the SelfTestDriver child only when a request file exists. Skipping the call
+## entirely is the safety: no driver => no weirdness even if the request file lingers.
+func _right_selftest_boot() -> void:
+	var driver := SelfTestDriver.from_request()
+	if driver == null:
+		return
+	add_child(driver)
 
 
 func _first_active_player() -> Player:

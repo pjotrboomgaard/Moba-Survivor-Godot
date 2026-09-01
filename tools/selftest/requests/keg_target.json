@@ -1,0 +1,17 @@
+{
+	"hero": "tobor",
+	"comment": "Wrench keg two-stage: arm, aim 280px right, confirm, snap impact with real grunt",
+	"events": [
+		{"t": 0.4, "kind": "spawn", "at": [280, -40], "type": "grunt"},
+		{"t": 0.5, "kind": "aim", "at": [280, -40]},
+		{"t": 0.6, "kind": "cast", "slot": 0},
+		{"t": 0.65, "kind": "probe", "label": "after_arm"},
+		{"t": 0.85, "kind": "snap", "label": "armed"},
+		{"t": 0.9, "kind": "aim", "at": [280, -40]},
+		{"t": 0.95, "kind": "cast", "slot": 0},
+		{"t": 1.05, "kind": "probe", "label": "after_confirm"},
+		{"t": 1.35, "kind": "snap", "label": "impact"},
+		{"t": 1.4, "kind": "probe", "label": "after_impact"},
+		{"t": 1.8, "kind": "report"}
+	]
+}

@@ -1,0 +1,22 @@
+{
+	"hero": "warden",
+	"comment": "Voodoo Wards: plant ring of 4 (E=slot1). Tongue Tied: pull closest enemy (Q=slot0).",
+	"events": [
+		{"t": 0.3, "kind": "spawn", "at": [120, 30], "type": "grunt"},
+		{"t": 0.35, "kind": "spawn", "at": [-160, -20], "type": "swarmling"},
+		{"t": 0.4, "kind": "spawn", "at": [60, 120], "type": "grunt"},
+		{"t": 0.5, "kind": "aim", "at": [150, 60]},
+		{"t": 0.6, "kind": "cast", "slot": 1},
+		{"t": 0.7, "kind": "probe", "label": "wards_armed"},
+		{"t": 0.75, "kind": "cast", "slot": 1},
+		{"t": 1.0, "kind": "probe", "label": "wards_placed"},
+		{"t": 1.1, "kind": "snap", "label": "wards_ring"},
+		{"t": 1.6, "kind": "aim", "at": [120, 30]},
+		{"t": 1.7, "kind": "cast", "slot": 0},
+		{"t": 1.8, "kind": "probe", "label": "tongue_armed"},
+		{"t": 1.85, "kind": "cast", "slot": 0},
+		{"t": 2.1, "kind": "probe", "label": "tongue_pulled"},
+		{"t": 2.2, "kind": "snap", "label": "tongue_result"},
+		{"t": 2.6, "kind": "report"}
+	]
+}

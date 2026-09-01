@@ -1,0 +1,12 @@
+{
+	"hero": "nebula",
+	"events": [
+		{"kind": "wait", "duration": 0.5},
+		{"kind": "snap", "label": "nebula_idle_0"},
+		{"kind": "wait", "duration": 0.3},
+		{"kind": "snap", "label": "nebula_idle_1"},
+		{"kind": "wait", "duration": 0.3},
+		{"kind": "snap", "label": "nebula_idle_2"},
+		{"kind": "report"}
+	]
+}

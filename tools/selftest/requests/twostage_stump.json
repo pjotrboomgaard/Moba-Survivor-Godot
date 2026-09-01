@@ -1,0 +1,161 @@
+{
+  "hero": "stump",
+  "comment": "Two-stage press-flow for stump: tap=arm, tap=confirm; expected pending_id then cds>0 per slot.",
+  "abilities": [
+    [
+      0,
+      "stump_rally",
+      "instant"
+    ],
+    [
+      1,
+      "stump_camouflage",
+      "instant"
+    ],
+    [
+      2,
+      "stump_natures_veil",
+      "point"
+    ],
+    [
+      3,
+      "stump_overgrowth",
+      "point"
+    ]
+  ],
+  "events": [
+    {
+      "t": 0.3,
+      "kind": "spawn",
+      "at": [
+        110,
+        0
+      ],
+      "type": "grunt"
+    },
+    {
+      "t": 0.4,
+      "kind": "aim",
+      "at": [
+        110,
+        0
+      ]
+    },
+    {
+      "t": 0.6,
+      "kind": "aim",
+      "at": [
+        110,
+        0
+      ]
+    },
+    {
+      "t": 0.64,
+      "kind": "cast",
+      "slot": 0
+    },
+    {
+      "t": 0.71,
+      "kind": "probe",
+      "label": "s0_arm"
+    },
+    {
+      "t": 0.8,
+      "kind": "cast",
+      "slot": 0
+    },
+    {
+      "t": 0.88,
+      "kind": "probe",
+      "label": "s0_confirm"
+    },
+    {
+      "t": 1.1,
+      "kind": "aim",
+      "at": [
+        110,
+        0
+      ]
+    },
+    {
+      "t": 1.1400000000000001,
+      "kind": "cast",
+      "slot": 1
+    },
+    {
+      "t": 1.2100000000000002,
+      "kind": "probe",
+      "label": "s1_arm"
+    },
+    {
+      "t": 1.3,
+      "kind": "cast",
+      "slot": 1
+    },
+    {
+      "t": 1.3800000000000001,
+      "kind": "probe",
+      "label": "s1_confirm"
+    },
+    {
+      "t": 1.6,
+      "kind": "aim",
+      "at": [
+        110,
+        0
+      ]
+    },
+    {
+      "t": 1.6400000000000001,
+      "kind": "cast",
+      "slot": 2
+    },
+    {
+      "t": 1.7100000000000002,
+      "kind": "probe",
+      "label": "s2_arm"
+    },
+    {
+      "t": 1.8,
+      "kind": "cast",
+      "slot": 2
+    },
+    {
+      "t": 1.8800000000000001,
+      "kind": "probe",
+      "label": "s2_confirm"
+    },
+    {
+      "t": 2.1,
+      "kind": "aim",
+      "at": [
+        110,
+        0
+      ]
+    },
+    {
+      "t": 2.14,
+      "kind": "cast",
+      "slot": 3
+    },
+    {
+      "t": 2.21,
+      "kind": "probe",
+      "label": "s3_arm"
+    },
+    {
+      "t": 2.3000000000000003,
+      "kind": "cast",
+      "slot": 3
+    },
+    {
+      "t": 2.38,
+      "kind": "probe",
+      "label": "s3_confirm"
+    },
+    {
+      "t": 2.65,
+      "kind": "report"
+    }
+  ]
+}

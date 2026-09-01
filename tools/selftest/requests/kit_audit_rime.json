@@ -1,0 +1,32 @@
+{
+	"hero": "rime",
+	"comment": "Kit audit: 8 grunts + 1 brute at 200px, cast Q, E, R sequentially",
+	"events": [
+		{"t": 0.3, "kind": "spawn", "at": [140, 140], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [140, -140], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [-140, 140], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [-140, -140], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [200, 0], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [-200, 0], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [0, 200], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [0, -200], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [100, 100], "type": "brute"},
+		{"t": 0.5, "kind": "probe", "label": "pre_cast"},
+		{"t": 0.6, "kind": "aim", "at": [150, 150]},
+		{"t": 0.7, "kind": "cast", "slot": 0},
+		{"t": 0.8, "kind": "probe", "label": "after_q"},
+		{"t": 1.5, "kind": "snap", "label": "q_impact"},
+		{"t": 2.0, "kind": "probe", "label": "q_settled"},
+		{"t": 3.0, "kind": "aim", "at": [100, 100]},
+		{"t": 3.1, "kind": "cast", "slot": 1},
+		{"t": 3.2, "kind": "probe", "label": "after_e"},
+		{"t": 4.0, "kind": "snap", "label": "e_impact"},
+		{"t": 5.0, "kind": "probe", "label": "e_settled"},
+		{"t": 6.0, "kind": "aim", "at": [150, 150]},
+		{"t": 6.1, "kind": "cast", "slot": 2},
+		{"t": 6.2, "kind": "probe", "label": "after_r"},
+		{"t": 7.0, "kind": "snap", "label": "r_impact"},
+		{"t": 8.0, "kind": "probe", "label": "r_settled"},
+		{"t": 8.5, "kind": "report"}
+	]
+}

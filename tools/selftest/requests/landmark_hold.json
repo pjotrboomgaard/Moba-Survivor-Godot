@@ -1,0 +1,26 @@
+{
+	"hero": "tobor",
+	"comment": "Teleport onto the Storm Bell landmark, hold still so the fill ring completes, verify the landmark fires (cooldown > 0) and snap frames for visual check.",
+	"events": [
+		{"t": 0.5, "kind": "effect_log", "text": "boot — staged on grass biome, Storm Bell at world (1056, -768)"},
+		{"t": 0.5, "kind": "landmarks", "label": "at_boot"},
+
+		{"t": 0.6, "kind": "teleport", "to": [1056, -768]},
+		{"t": 0.8, "kind": "landmarks", "label": "after_teleport"},
+
+		{"t": 1.2, "kind": "snap", "label": "on_landmark_pre_fill"},
+		{"t": 1.5, "kind": "landmarks", "label": "fill_started"},
+
+		{"t": 2.5, "kind": "snap", "label": "on_landmark_fill_mid"},
+		{"t": 2.6, "kind": "landmarks", "label": "fill_mid"},
+
+		{"t": 3.6, "kind": "snap", "label": "on_landmark_fill_full"},
+		{"t": 3.7, "kind": "landmarks", "label": "fill_full"},
+
+		{"t": 4.0, "kind": "snap", "label": "on_landmark_fired"},
+		{"t": 4.2, "kind": "landmarks", "label": "post_fire"},
+
+		{"t": 5.5, "kind": "snap", "label": "cooldown_arc_visible"},
+		{"t": 6.5, "kind": "report"}
+	]
+}

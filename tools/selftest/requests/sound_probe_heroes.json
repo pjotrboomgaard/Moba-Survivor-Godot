@@ -1,0 +1,27 @@
+{
+	"hero": "tobor",
+	"comment": "Sound routing probes: cast each kit slot for heroes across worlds and assert the hero bank fired (AudioService.last_play_ability + stream from cast_<hero> bank).",
+	"events": [
+		{"t": 0.4, "kind": "aim", "at": [200, 0]},
+		{"t": 0.5, "kind": "cast", "slot": 0},
+		{"t": 0.7, "kind": "sound_probe", "ability_id": "tobor_the_keg", "label": "tobor_q"},
+
+		{"t": 1.2, "kind": "hero", "id": "cinder"},
+		{"t": 1.3, "kind": "aim", "at": [200, 0]},
+		{"t": 1.4, "kind": "cast", "slot": 0},
+		{"t": 1.6, "kind": "sound_probe", "ability_id": "cinder_whirling_flame", "label": "cinder_q"},
+
+		{"t": 2.0, "kind": "hero", "id": "volt"},
+		{"t": 2.1, "kind": "aim", "at": [200, 0]},
+		{"t": 2.2, "kind": "cast", "slot": 0},
+		{"t": 2.4, "kind": "sound_probe", "ability_id": "volt_gust", "label": "volt_q"},
+
+		{"t": 2.8, "kind": "hero", "id": "sage"},
+		{"t": 2.9, "kind": "aim", "at": [200, 0]},
+		{"t": 3.0, "kind": "cast", "slot": 0},
+		{"t": 3.2, "kind": "sound_probe", "ability_id": "sage_grace_of_the_nymph", "label": "sage_q"},
+
+		{"t": 3.6, "kind": "probe", "label": "end"},
+		{"t": 3.8, "kind": "report"}
+	]
+}

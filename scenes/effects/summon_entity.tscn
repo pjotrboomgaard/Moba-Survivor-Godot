@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://bv5r2vsum3t03"]
+
+[ext_resource type="Script" path="res://scripts/summon_entity.gd" id="1_a2b3c"]
+
+[node name="SummonEntity" type="Node2D"]
+script = ExtResource("1_a2b3c")
+
+[node name="Shadow" type="Polygon2D" parent="."]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.35)
+polygon = PackedVector2Array(-9, 0, 9, 0, 12, 3, -12, 3)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(2, 2)

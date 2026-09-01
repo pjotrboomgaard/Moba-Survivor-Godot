@@ -1,0 +1,7 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[SteamService] Steam extension loaded and client detected, starting init thread...
+Setting breakpad minidump AppID = 480
+SteamInternal_SetMinidumpSteamID:  Caching Steam ID:  76561198002015260 [API loaded no]
+Forged 1241 sprites into res://assets/sprites
+[SteamService] ready as Pjotska
