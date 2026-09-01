@@ -23,6 +23,9 @@ var _shots_taken: Array[Dictionary] = []
 var _active_effects: Array[Dictionary] = []
 var _last_slot_tapped: int = -1
 var _requested_hero: String = ""
+var _casts: Array[Dictionary] = []
+var _errors: Array[String] = []
+var _expected_casts: Array[String] = []
 
 
 static func from_request(path: String = "user://selftest_request.json") -> SelfTestDriver:
@@ -38,6 +41,10 @@ static func from_request(path: String = "user://selftest_request.json") -> SelfT
 		for entry in raw_events:
 			if entry is Dictionary:
 				driver._events.append(entry as Dictionary)
+	var expected: Variant = (parsed as Dictionary).get("expected_casts", [])
+	if expected is Array:
+		for id in expected:
+			driver._expected_casts.append(str(id))
 	# Sort ascending on t so we just pop from the front.
 	driver._events.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a.get("t", 0.0)) < float(b.get("t", 0.0)))
 	# Optional: override the hero the driver will swap to before firing (bypasses saved profile).
@@ -66,6 +73,12 @@ func _ready() -> void:
 	if _player != null and not _requested_hero.is_empty() and PlayerClass.is_valid_id(_requested_hero):
 		print("[SelfTestDriver] swapping hero → %s (was %s)" % [_requested_hero, _player.class_id])
 		_player.apply_class(_requested_hero)
+	if _player != null and not _player.ability_cast.is_connected(_on_player_ability_cast):
+		_player.ability_cast.connect(_on_player_ability_cast)
+
+
+func _on_player_ability_cast(ability_id: String, _effect_style: int, _points: PackedVector2Array) -> void:
+	_casts.append({"t": _elapsed, "ability_id": ability_id})
 
 
 ## Snapshot helper: resize report paths and create one directory per run.
@@ -302,6 +315,14 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 
 
 func _finish_and_quit() -> void:
+	for expected_id in _expected_casts:
+		var found := false
+		for cast in _casts:
+			if str(cast.get("ability_id", "")) == expected_id:
+				found = true
+				break
+		if not found:
+			_errors.append("expected cast never fired: %s" % expected_id)
 	var report := {
 		"elapsed": _elapsed,
 		"player_class": _player.class_id if _player != null else "",
@@ -309,6 +330,10 @@ func _finish_and_quit() -> void:
 		"effects": _active_effects,
 		"enemies_spawned": _enemies.size(),
 		"hero_position": (_player.global_position if _player != null else Vector2.ZERO),
+		"results": {
+			"casts": _casts,
+			"errors": _errors,
+		},
 	}
 	var file := FileAccess.open(report_out, FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "  "))
