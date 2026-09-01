@@ -20,6 +20,7 @@ offset_left = 700.0
 offset_top = 24.0
 offset_right = 1260.0
 offset_bottom = 696.0
+clip_contents = false
 
 [node name="Margin" type="MarginContainer" parent="StatusLayer/LobbyPanel"]
 layout_mode = 2

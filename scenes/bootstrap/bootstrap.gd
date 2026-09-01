@@ -177,19 +177,37 @@ func _build_overhaul_ui() -> void:
 	var layout := class_grid.get_parent() as VBoxContainer
 	if layout == null:
 		return
+	# Wrap WorldRow + ClassGrid + LoadoutPanel in a ScrollContainer so the growing
+	# hero content scrolls instead of pushing StartGameButton (a later Layout sibling)
+	# offscreen. The scroll container expands to fill leftover space, so the ModeRow
+	# and StartGameButton keep their fixed slots below it.
+	var hero_scroll := ScrollContainer.new()
+	hero_scroll.name = "HeroContentScroll"
+	hero_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	hero_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	layout.add_child(hero_scroll)
+	layout.move_child(hero_scroll, class_grid.get_index())
+	var hero_content := VBoxContainer.new()
+	hero_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hero_content.add_theme_constant_override("separation", 6)
+	hero_scroll.add_child(hero_content)
+	# Reparent the hero grid into the scroll content; the `class_grid` onready ref is
+	# unaffected because it points at the node, not its parent.
+	class_grid.reparent(hero_content)
 	# WorldRow sits directly above the hero grid.
 	world_row = HBoxContainer.new()
 	world_row.name = "WorldRow"
 	world_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	world_row.add_theme_constant_override("separation", 6)
-	layout.add_child(world_row)
-	layout.move_child(world_row, class_grid.get_index())
+	hero_content.add_child(world_row)
+	hero_content.move_child(world_row, class_grid.get_index())
 	# LoadoutPanel goes right under the hero grid.
 	loadout_panel = VBoxContainer.new()
 	loadout_panel.name = "LoadoutPanel"
 	loadout_panel.add_theme_constant_override("separation", 6)
-	layout.add_child(loadout_panel)
-	layout.move_child(loadout_panel, class_grid.get_index() + 1)
+	loadout_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hero_content.add_child(loadout_panel)
+	hero_content.move_child(loadout_panel, class_grid.get_index() + 1)
 	var loadout_header := Label.new()
 	loadout_header.text = "Loadout"
 	loadout_header.add_theme_color_override("font_color", Color("9fb3d1"))
