@@ -38,20 +38,8 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var sfx_toggle: CheckButton = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow/SfxToggle
 @onready var music_toggle: CheckButton = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow/MusicToggle
 
-# --- Overhaul UI (built programmatically in _ready, parented into the existing Layout) ---
-var world_row: HBoxContainer = null
-var loadout_panel: VBoxContainer = null
-var loadout_row: HBoxContainer = null
-var ability_pool: GridContainer = null
-var loadout_slots: Array[Button] = []
-
 var game_loaded := false
 var class_buttons: Array[Button] = []
-var world_buttons: Array[Button] = []
-var _hero_group: ButtonGroup = null
-var _rebuilding_cards := false
-var _world_by_id_runtime: Dictionary = {}
-var WORLD_ORDER: Array = []
 ## Steam init is async (see SteamService.INIT_TIMEOUT_SECONDS); Host must not be clickable
 ## until we know either way, or a click during that window silently falls back to a
 ## LAN-only host with no lobby or invite at all.
@@ -62,7 +50,7 @@ var _lobby_enabled := true
 ## started yet — everyone sits here seeing who's connected until the host presses Start.
 var _in_network_lobby := false
 var _is_lobby_host := false
-## peer_id -> {"name": String, "class_id": String, "loadout": Array}
+## peer_id -> {"name": String, "class_id": String}
 var lobby_roster: Dictionary = {}
 var _waiting_steam_operation := false
 var _steam_operation_elapsed := 0.0
@@ -74,64 +62,8 @@ var cpu_coop_button: Button
 
 const STEAM_OPERATION_TIMEOUT := 22.0
 
-const _WORLD_LABELS := {
-	0: "Iron Foundry",
-	1: "Ashen Caldera",
-	2: "Verdant Wilds",
-	3: "Storm Court",
-}
-
-
-## ---------------------------------------------------------------------------
-## Missing player_class helpers (rebuilt player_class.gd has world_of() but no
-## world_name / ids_in_world / WORLD_ORDER / is_hero_unlocked / default_hero_for_world).
-## Kept inline here so bootstrap doesn't depend on them being re-added to the data layer.
-## ---------------------------------------------------------------------------
-func _init_world_helpers() -> void:
-	_world_by_id_runtime.clear()
-	WORLD_ORDER = []
-	var seen: Dictionary = {}
-	for entry in PlayerClass.CLASSES:
-		var cid := str(entry.get("id", ""))
-		if cid.is_empty():
-			continue
-		var w := PlayerClass.world_of(cid)
-		_world_by_id_runtime[cid] = w
-		if not seen.has(w):
-			seen[w] = true
-			WORLD_ORDER.append(w)
-	WORLD_ORDER.sort()
-
-
-func world_name(world_index: int) -> String:
-	return str(_WORLD_LABELS.get(world_index, "World %d" % world_index))
-
-
-func ids_in_world(world_index: int) -> Array[String]:
-	var out: Array[String] = []
-	for cid in _world_by_id_runtime.keys():
-		if int(_world_by_id_runtime[cid]) == world_index:
-			out.append(String(cid))
-	return out
-
-
-func _is_hero_unlocked(_hero_id: String) -> bool:
-	if PlayerProfile.has_method("is_hero_unlocked"):
-		return bool(PlayerProfile.is_hero_unlocked(_hero_id))
-	return true
-
-
-func _default_hero_for_world(world_index: int) -> String:
-	var ids := ids_in_world(world_index)
-	for hid in ids:
-		if _is_hero_unlocked(hid):
-			return hid
-	return ids[0] if not ids.is_empty() else PlayerClass.DEFAULT_CLASS_ID
-
 
 func _ready() -> void:
-	_init_world_helpers()
-	_build_overhaul_ui()
 	classic_button.pressed.connect(_on_game_mode_pressed.bind(GameRuntime.GameMode.CLASSIC))
 	pjotr_button.pressed.connect(_on_game_mode_pressed.bind(GameRuntime.GameMode.PJOTR))
 	tobor_world_button.visible = false
@@ -140,12 +72,9 @@ func _ready() -> void:
 	hard_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.HARD))
 	brutal_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.BRUTAL))
 	_refresh_difficulty()
-	for slot_index in loadout_slots.size():
-		(loadout_slots[slot_index] as Button).disabled = true
-		_decorate_slot_button(loadout_slots[slot_index] as Button)
+	_build_class_selection()
 	_apply_tobor_theme()
 	_install_cpu_coop_button()
-	_build_class_selection()
 	_refresh_game_mode()
 	solo_button.pressed.connect(_on_solo_pressed)
 	host_button.pressed.connect(_on_host_pressed)
@@ -167,57 +96,6 @@ func _ready() -> void:
 	AudioService.play_music()
 	call_deferred("_start_runtime")
 	set_process(true)
-
-
-## Builds the WorldRow, LoadoutPanel (LoadoutRow + AbilityPool) and wires them into the
-## existing tscn Layout so the .tscn doesn't need to be rewritten. Parents them around
-## the ClassGrid so the reading order is: ModeRow → Difficulty → Hero label → WorldRow →
-## ClassGrid → LoadoutPanel → ClassDescription.
-func _build_overhaul_ui() -> void:
-	var layout := class_grid.get_parent() as VBoxContainer
-	if layout == null:
-		return
-	# WorldRow sits directly above the hero grid.
-	world_row = HBoxContainer.new()
-	world_row.name = "WorldRow"
-	world_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	world_row.add_theme_constant_override("separation", 6)
-	layout.add_child(world_row)
-	layout.move_child(world_row, class_grid.get_index())
-	# LoadoutPanel goes right under the hero grid.
-	loadout_panel = VBoxContainer.new()
-	loadout_panel.name = "LoadoutPanel"
-	loadout_panel.add_theme_constant_override("separation", 6)
-	layout.add_child(loadout_panel)
-	layout.move_child(loadout_panel, class_grid.get_index() + 1)
-	var loadout_header := Label.new()
-	loadout_header.text = "Loadout"
-	loadout_header.add_theme_color_override("font_color", Color("9fb3d1"))
-	loadout_panel.add_child(loadout_header)
-	loadout_row = HBoxContainer.new()
-	loadout_row.name = "LoadoutRow"
-	loadout_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	loadout_row.add_theme_constant_override("separation", 8)
-	loadout_panel.add_child(loadout_row)
-	loadout_slots = []
-	for slot_name in ["Slot1", "Slot2", "Slot3", "SlotUlt"]:
-		var b := Button.new()
-		b.name = slot_name
-		b.toggle_mode = false
-		b.custom_minimum_size = Vector2(72, 72)
-		b.disabled = true
-		loadout_row.add_child(b)
-		loadout_slots.append(b)
-	var pool_header := Label.new()
-	pool_header.text = "Pool"
-	pool_header.add_theme_color_override("font_color", Color("9fb3d1"))
-	loadout_panel.add_child(pool_header)
-	ability_pool = GridContainer.new()
-	ability_pool.name = "AbilityPool"
-	ability_pool.columns = 4
-	ability_pool.add_theme_constant_override("h_separation", 6)
-	ability_pool.add_theme_constant_override("v_separation", 6)
-	loadout_panel.add_child(ability_pool)
 
 
 func _start_runtime() -> void:
@@ -306,6 +184,8 @@ func _refresh_steam_status() -> void:
 	host_button.disabled = not _lobby_enabled or not _steam_status_known
 
 
+## A friend accepted a Steam invite or clicked "Join Game": connect straight away, from
+## the lobby menu or (via +connect_lobby on the command line) from a cold launch.
 func _check_pending_steam_invite() -> void:
 	if not game_loaded and GameRuntime.pending_steam_lobby_id != 0 and SteamService.is_available():
 		var lobby_id := GameRuntime.pending_steam_lobby_id
@@ -350,110 +230,31 @@ func _hero_backdrop() -> TextureRect:
 func _apply_hero_backdrop() -> void:
 	var art := _hero_backdrop()
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	## Fit the whole painting in the window. COVERED cropped Tobor's 1024 square.
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	art.texture = SpriteLibrary.menu_backdrop_for(PlayerProfile.selected_class_id)
 	art.visible = true
 
 
-var selected_world: int = 0
-
 func _build_class_selection() -> void:
-	_hero_group = ButtonGroup.new()
-	_hero_group.allow_unpress = false
-	_build_world_tabs()
-	selected_world = PlayerClass.world_of(PlayerProfile.selected_class_id)
-	_rebuild_hero_cards()
-
-
-func _build_world_tabs() -> void:
-	if world_row == null:
-		return
-	for child in world_row.get_children():
-		child.queue_free()
-	world_buttons.clear()
 	var group := ButtonGroup.new()
 	group.allow_unpress = false
-	for world in WORLD_ORDER:
-		var tab := Button.new()
-		tab.toggle_mode = true
-		tab.button_group = group
-		tab.custom_minimum_size = Vector2(120, 34)
-		tab.text = world_name(world).to_upper()
-		tab.add_theme_font_size_override("font_size", 12)
-		tab.toggled.connect(_on_world_tab_toggled.bind(world))
-		world_row.add_child(tab)
-		world_buttons.append(tab)
-
-
-func _rebuild_hero_cards() -> void:
-	if _rebuilding_cards:
-		return
-	_rebuilding_cards = true
-	for child in class_grid.get_children():
-		class_grid.remove_child(child)
-		child.free()
-	class_buttons.clear()
-	for world_index in world_buttons.size():
-		if world_index < WORLD_ORDER.size():
-			world_buttons[world_index].button_pressed = (WORLD_ORDER[world_index] == selected_world)
-	var hero_ids := ids_in_world(selected_world)
-	for hero_id in hero_ids:
-		var class_data := PlayerClass.by_id(hero_id)
-		var button := Button.new()
-		button.toggle_mode = true
-		button.button_group = _hero_group
-		button.custom_minimum_size = Vector2(252, 56)
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.add_theme_font_size_override("font_size", 13)
-		button.add_theme_constant_override("line_spacing", 0)
+	for index in mini(class_grid.get_child_count(), PlayerClass.CLASSES.size()):
+		var class_data := PlayerClass.CLASSES[index]
+		var button := class_grid.get_child(index) as Button
+		if button == null:
+			continue
+		button.text = str(class_data.name)
+		button.add_theme_color_override("font_color", Color(class_data.accent_color))
 		button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		button.icon = SpriteLibrary.texture_for(hero_id)
-		button.add_theme_constant_override("icon_max_width", 40)
-		button.text = "%s\n%s" % [str(class_data.name).to_upper(), str(class_data.role).to_upper()]
-		button.add_theme_color_override("font_color", Color(str(class_data.accent_color)))
-		button.toggled.connect(_on_class_toggled.bind(hero_id))
-		class_grid.add_child(button)
+		button.icon = SpriteLibrary.texture_for(str(class_data.id))
+		button.expand_icon = false
+		button.add_theme_constant_override("icon_max_width", 48)
+		button.toggle_mode = true
+		button.button_group = group
+		button.toggled.connect(_on_class_toggled.bind(str(class_data.id)))
 		class_buttons.append(button)
-		_style_hero_card(button, class_data)
-	while class_grid.get_child_count() < 6:
-		var pad := Control.new()
-		pad.custom_minimum_size = Vector2(252, 56)
-		pad.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		class_grid.add_child(pad)
-	_rebuilding_cards = false
 	_refresh_class_selection()
-
-
-func _style_hero_card(button: Button, class_data: Dictionary) -> void:
-	var hero_id := str(class_data.id)
-	var unlocked := _is_hero_unlocked(hero_id)
-	button.add_theme_color_override("font_color", Color(str(class_data.accent_color)))
-	if unlocked:
-		button.disabled = false
-		button.text = "%s\n%s" % [str(class_data.name).to_upper(), str(class_data.role).to_upper()]
-		button.modulate = Color.WHITE
-	else:
-		var shards := int(PlayerProfile.hero_shards.get(hero_id, 0)) if PlayerProfile.has_method("get") else 0
-		var needed := int(PlayerProfile.HERO_SHARDS_TO_UNLOCK) if PlayerProfile.has_method("get") else 0
-		button.disabled = true
-		button.text = "%s\nLOCKED %d/%d" % [str(class_data.name).to_upper(), shards, needed]
-		button.modulate = Color(0.55, 0.55, 0.6, 1.0)
-		button.tooltip_text = "Clear waves solo to unlock %s (%s)." % [str(class_data.name), world_name(int(class_data.get("world", 0)))]
-
-
-func _on_world_tab_toggled(is_pressed: bool, world: int) -> void:
-	if not is_pressed:
-		return
-	selected_world = world
-	AudioService.play("ui_click")
-	_rebuild_hero_cards()
-	_select_default_current_hero()
-
-
-func _select_default_current_hero() -> void:
-	if _is_hero_unlocked(PlayerProfile.selected_class_id):
-		return
-	PlayerProfile.select_class(_default_hero_for_world(selected_world))
 
 
 func _on_game_mode_pressed(next_game_mode: GameRuntime.GameMode) -> void:
@@ -468,12 +269,8 @@ func _refresh_game_mode() -> void:
 	tobor_world_button.visible = false
 	mode_row.visible = true
 	var show_classes := not GameRuntime.is_classic()
-	if world_row != null:
-		world_row.visible = show_classes
 	class_label.visible = show_classes
 	class_grid.visible = show_classes
-	if loadout_panel != null:
-		loadout_panel.visible = show_classes
 	difficulty_label.visible = not GameRuntime.is_classic()
 	difficulty_row.visible = not GameRuntime.is_classic()
 	if cpu_coop_button != null:
@@ -533,151 +330,21 @@ func _on_music_toggled(pressed: bool) -> void:
 
 func _refresh_class_selection() -> void:
 	_updating_class_ui = true
-	var hero_ids := ids_in_world(selected_world)
 	for index in class_buttons.size():
-		if index < hero_ids.size():
-			class_buttons[index].button_pressed = hero_ids[index] == PlayerProfile.selected_class_id
+		var class_data := PlayerClass.CLASSES[index]
+		class_buttons[index].button_pressed = class_data.id == PlayerProfile.selected_class_id
 	_updating_class_ui = false
-	_refresh_loadout_panel()
-	_apply_hero_backdrop()
-	_refresh_header_detail(PlayerProfile.selected_class_id)
-
-
-func _refresh_loadout_panel() -> void:
-	if loadout_panel == null:
-		return
-	var hero_id := PlayerProfile.selected_class_id
-	var loadout: Array = []
-	if PlayerProfile.has_method("loadout_for"):
-		loadout = PlayerProfile.loadout_for(hero_id)
-	else:
-		var kit := PlayerClass.kit_ability_ids(hero_id)
-		var pool := PlayerClass.ability_pool_for(hero_id)
-		var alt := ""
-		for aid in pool:
-			if aid not in kit:
-				alt = aid
-				break
-		loadout = [kit[0] if kit.size() > 0 else "", kit[1] if kit.size() > 1 else "", alt, kit[2] if kit.size() > 2 else ""]
-	var slot_names := ["1", "2", "3", "ULT"]
-	for slot_index in loadout_slots.size():
-		var button := loadout_slots[slot_index] as Button
-		var want: String = str(loadout[slot_index]) if slot_index < loadout.size() else ""
-		var label: String = slot_names[slot_index]
-		button.disabled = true
-		button.text = ""
-		if want.is_empty() or not PlayerClass.ABILITIES.has(want):
-			button.icon = null
-			(button.get_node_or_null("SlotTag") as Label).text = label
-			continue
-		button.icon = SpriteLibrary.texture_for(want)
-		button.expand_icon = false
-		button.add_theme_constant_override("icon_max_width", 52)
-		button.add_theme_constant_override("icon_max_height", 52)
-		(button.get_node_or_null("SlotTag") as Label).text = label
-		button.tooltip_text = _ability_tooltip(want)
-	_refresh_ability_pool(hero_id)
-
-
-func _ability_tooltip(ability_id: String) -> String:
-	var info: Dictionary = PlayerClass.ABILITIES.get(ability_id, {})
-	if info.is_empty():
-		return ability_id
-	var lines: Array[String] = []
-	var tag := "ULT" if float(info.get("cooldown_base", 0.0)) >= 14.0 else str(PlayerClass.ARCHETYPE_NAMES.get(int(info.get("archetype", 0)), "Ability"))
-	lines.append("%s  ·  %s" % [str(info.get("name", ability_id)).to_upper(), tag])
-	lines.append(str(info.get("description", "")))
-	var values := PlayerClass.ability_values(ability_id, 1)
-	var stats: Array[String] = []
-	if values.has("cooldown"):
-		stats.append("CD %.0fs" % float(values.cooldown))
-	if values.has("power") and float(values.power) > 0.0:
-		stats.append("PWR %d" % int(values.power))
-	if values.has("range") and float(values.range) > 0.0:
-		stats.append("RNG %d" % int(values.range))
-	if values.has("radius") and float(values.radius) > 0.0:
-		stats.append("AoE %d" % int(values.radius))
-	if values.has("dash_distance") and float(values.dash_distance) > 0.0:
-		stats.append("Dash %d" % int(values.dash_distance))
-	if values.has("duration") and float(values.duration) > 0.0:
-		stats.append("%.1fs up" % float(values.duration))
-	if not stats.is_empty():
-		lines.append(" | ".join(stats))
-	return "\n".join(lines)
-
-
-func _refresh_header_detail(hero_id: String) -> void:
-	var selected := PlayerClass.by_id(hero_id)
+	var selected := PlayerClass.by_id(PlayerProfile.selected_class_id)
+	class_description.text = str(selected.description)
 	subtitle_label.text = str(selected.role).to_upper()
-	class_description.text = "%s\n%s" % [str(selected.description), _stat_summary(selected)]
-
-
-func _stat_summary(cls: Dictionary) -> String:
-	var rng := "Melee" if int(cls.get("attack_range", 0)) <= 150 else "Ranged"
-	return "%s · HP %d · CD %ds" % [rng, int(cls.get("max_health", 0)), int(cls.get("attack_interval", 0))]
-
-
-func _refresh_ability_pool(hero_id: String) -> void:
-	if ability_pool == null:
-		return
-	for child in ability_pool.get_children():
-		ability_pool.remove_child(child)
-		child.free()
-	var kit: Array = PlayerClass.kit_ability_ids(hero_id)
-	var pool: Array[String] = PlayerClass.ability_pool_for(hero_id)
-	var shown: Array[String] = []
-	for aid in kit:
-		if not shown.has(aid):
-			shown.append(aid)
-	for aid in pool:
-		if shown.size() >= 12:
-			break
-		if aid not in shown:
-			shown.append(aid)
-	for ability_id in shown:
-		var info: Dictionary = PlayerClass.ABILITIES.get(ability_id, {})
-		if info.is_empty():
-			continue
-		var btn := TextureButton.new()
-		btn.custom_minimum_size = Vector2(48, 48)
-		btn.stretch_mode = TextureButton.STRETCH_SCALE
-		btn.texture_normal = SpriteLibrary.texture_for(ability_id)
-		btn.tooltip_text = _ability_tooltip(ability_id)
-		ability_pool.add_child(btn)
-
-
-func _decorate_slot_button(button: Button) -> void:
-	button.expand_icon = false
-	var tag := Label.new()
-	tag.name = "SlotTag"
-	tag.position = Vector2(2, 2)
-	tag.add_theme_font_size_override("font_size", 9)
-	tag.add_theme_color_override("font_color", Color("f5c542"))
-	tag.add_theme_color_override("font_shadow_color", Color.BLACK)
-	tag.add_theme_constant_override("shadow_size", 2)
-	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(tag)
+	_apply_hero_backdrop()
 
 
 func _on_solo_pressed() -> void:
 	AudioService.play("ui_click")
 	GameRuntime.fill_cpu_allies = false
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
-	_lock_biome_to_selected_hero()
 	_open_game()
-
-
-func _lock_biome_to_selected_hero() -> void:
-	var hero_world := PlayerClass.world_of(PlayerProfile.selected_class_id)
-	match hero_world:
-		PlayerClass.World.ASHEN_CALDERA:
-			GameRuntime.set_biome(1, true)
-		PlayerClass.World.VERDANT_WILDS:
-			GameRuntime.set_biome(4, true)
-		PlayerClass.World.STORM_COURT:
-			GameRuntime.set_biome(3, true)
-		_:
-			GameRuntime.set_biome(0, true)
 
 
 func _install_cpu_coop_button() -> void:
@@ -695,15 +362,12 @@ func _on_cpu_coop_pressed() -> void:
 	AudioService.play("ui_click")
 	GameRuntime.fill_cpu_allies = true
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
-	if ProgressionService.has_method("unlock_entire_roster"):
-		ProgressionService.unlock_entire_roster()
 	_open_game()
 
 
 func _on_host_pressed() -> void:
 	AudioService.play("ui_click")
 	GameRuntime.fill_cpu_allies = false
-	GameRuntime.set_team_mode(GameRuntime.TeamMode.NONE)
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.HOST)
 	if SteamService.is_available():
 		_start_steam_host()
@@ -767,6 +431,8 @@ func _clear_host_callbacks() -> void:
 		NetworkService.server_start_failed.disconnect(_on_steam_host_failed)
 
 
+## Joins a Steam lobby, whether from an in-session invite (Steam overlay "Join Game") or a
+## cold launch via +connect_lobby.
 func _join_via_steam(lobby_id: int) -> void:
 	_sync_steam_display_name()
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.CLIENT)
@@ -800,28 +466,14 @@ func _start_dedicated_server() -> void:
 	_open_game()
 
 
-func _get_loadout_for(hero_id: String) -> Array:
-	if PlayerProfile.has_method("loadout_for"):
-		return PlayerProfile.loadout_for(hero_id)
-	var kit := PlayerClass.kit_ability_ids(hero_id)
-	var pool := PlayerClass.ability_pool_for(hero_id)
-	var alt := ""
-	for aid in pool:
-		if aid not in kit:
-			alt = aid
-			break
-	return [kit[0] if kit.size() > 0 else "", kit[1] if kit.size() > 1 else "", alt, kit[2] if kit.size() > 2 else ""]
-
-
+## Waiting room between "connected" and "playing": everyone sees who's here, only the host
+## can press Start, and the match opens for every peer at the same moment (see
+## client_start_game below) instead of each peer falling straight into a game in progress.
 func _enter_network_lobby(is_host: bool) -> void:
 	_in_network_lobby = true
 	_is_lobby_host = is_host
 	if is_host:
-		lobby_roster = {1: {
-			"name": PlayerProfile.display_name,
-			"class_id": GameRuntime.active_class_id(),
-			"loadout": _get_loadout_for(GameRuntime.active_class_id()),
-		}}
+		lobby_roster = {1: {"name": PlayerProfile.display_name, "class_id": GameRuntime.active_class_id()}}
 		if not NetworkService.peer_left.is_connected(_on_lobby_peer_left):
 			NetworkService.peer_left.connect(_on_lobby_peer_left)
 	else:
@@ -829,7 +481,6 @@ func _enter_network_lobby(is_host: bool) -> void:
 		server_submit_lobby_profile.rpc_id(1, {
 			"display_name": PlayerProfile.display_name,
 			"class_id": GameRuntime.active_class_id(),
-			"loadout": _get_loadout_for(GameRuntime.active_class_id()),
 		})
 	_show_network_lobby()
 
@@ -847,10 +498,6 @@ func _show_network_lobby() -> void:
 	class_label.visible = false
 	class_grid.visible = false
 	class_description.visible = false
-	if world_row != null:
-		world_row.visible = false
-	if loadout_panel != null:
-		loadout_panel.visible = false
 	solo_button.visible = false
 	if cpu_coop_button != null:
 		cpu_coop_button.visible = false
@@ -880,7 +527,6 @@ func _on_lobby_peer_joined(peer_id: int) -> void:
 	lobby_roster[peer_id] = {
 		"name": "Connecting...",
 		"class_id": PlayerClass.DEFAULT_CLASS_ID,
-		"loadout": [],
 	}
 	_broadcast_roster()
 
@@ -911,7 +557,6 @@ func _refresh_player_slots() -> void:
 			slot_entries.append({
 				"name": str(entry.get("name", "Player")),
 				"class_id": str(entry.get("class_id", PlayerClass.DEFAULT_CLASS_ID)),
-				"loadout": entry.get("loadout", []),
 				"status": "Connected",
 				"host": int(peer_id) == 1,
 			})
@@ -926,7 +571,6 @@ func _refresh_player_slots() -> void:
 			slot_entries.append({
 				"name": member_name,
 				"class_id": "",
-				"loadout": [],
 				"status": "In Steam lobby",
 				"host": false,
 			})
@@ -934,50 +578,24 @@ func _refresh_player_slots() -> void:
 		slot_entries.append({
 			"name": PlayerProfile.display_name,
 			"class_id": GameRuntime.active_class_id(),
-			"loadout": _get_loadout_for(GameRuntime.active_class_id()),
 			"status": "Setting up...",
 			"host": true,
 		})
 	while slot_entries.size() < GameRuntime.max_players:
-		slot_entries.append({"name": "Empty slot", "class_id": "", "loadout": [], "status": "", "host": false})
+		slot_entries.append({"name": "Empty slot", "class_id": "", "status": "", "host": false})
 	for index in GameRuntime.max_players:
 		var slot_data: Dictionary = slot_entries[index]
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-		var hero_tex := TextureRect.new()
-		hero_tex.custom_minimum_size = Vector2(40, 40)
-		hero_tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		var hero_id := str(slot_data.class_id)
-		if not hero_id.is_empty() and PlayerClass.is_valid_id(hero_id):
-			hero_tex.texture = SpriteLibrary.texture_for(hero_id)
-		row.add_child(hero_tex)
-		var name_label := Label.new()
+		var label := Label.new()
+		var class_text := ""
+		if not str(slot_data.class_id).is_empty():
+			class_text = " — %s" % PlayerClass.by_id(str(slot_data.class_id)).name
 		var host_text := " [HOST]" if bool(slot_data.host) else ""
 		var status_text := ""
 		if not str(slot_data.status).is_empty():
 			status_text = " (%s)" % slot_data.status
-		name_label.text = "%s%s%s" % [str(slot_data.name), host_text, status_text]
-		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		row.add_child(name_label)
-		var spacer := Control.new()
-		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(spacer)
-		var picked: Array = slot_data.get("loadout", []) as Array
-		for i in 4:
-			var icon := TextureRect.new()
-			icon.custom_minimum_size = Vector2(28, 28)
-			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			if i < picked.size():
-				var aid := String(picked[i])
-				if not aid.is_empty() and PlayerClass.ABILITIES.has(aid):
-					icon.texture = SpriteLibrary.texture_for(aid)
-					icon.tooltip_text = str(PlayerClass.ABILITIES[aid].get("name", aid))
-				else:
-					icon.modulate = Color(0.25, 0.25, 0.3, 0.5)
-			else:
-				icon.modulate = Color(0.25, 0.25, 0.3, 0.5)
-			row.add_child(icon)
-		player_slots.add_child(row)
+		label.text = "%d. %s%s%s%s" % [index + 1, slot_data.name, class_text, host_text, status_text]
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		player_slots.add_child(label)
 
 
 func _on_invite_pressed() -> void:
@@ -1012,19 +630,9 @@ func server_submit_lobby_profile(profile: Dictionary) -> void:
 	if not GameRuntime.is_server():
 		return
 	var peer_id := multiplayer.get_remote_sender_id()
-	var hero_id := PlayerClass.sanitize_id(str(profile.get("class_id", PlayerClass.DEFAULT_CLASS_ID)))
-	var submitted_loadout: Array = profile.get("loadout", []) as Array
-	var loadout: Array[String] = []
-	for aid in _get_loadout_for(hero_id):
-		loadout.append(String(aid))
-	for i in mini(submitted_loadout.size(), 4):
-		var aid := String(submitted_loadout[i])
-		if not aid.is_empty() and PlayerClass.ABILITIES.has(aid):
-			loadout[i] = aid
 	lobby_roster[peer_id] = {
 		"name": str(profile.get("display_name", "Player")),
-		"class_id": hero_id,
-		"loadout": loadout,
+		"class_id": str(profile.get("class_id", PlayerClass.DEFAULT_CLASS_ID)),
 	}
 	_broadcast_roster()
 
@@ -1087,6 +695,8 @@ func restart_game() -> void:
 	_open_game()
 
 
+## Escape-menu "leave to lobby": drops the connection (if any) and returns to the lobby screen
+## without restarting into a fresh solo run.
 func leave_game() -> void:
 	var game := get_node_or_null("Main")
 	if game != null:
@@ -1151,8 +761,6 @@ func _show_lobby(message: String) -> void:
 	join_label.visible = true
 	address_input.visible = true
 	join_button.visible = true
-	difficulty_label.visible = not GameRuntime.is_classic()
-	difficulty_row.visible = not GameRuntime.is_classic()
 	steam_status_label.visible = true
 	lobby_title_label.visible = false
 	player_slots.visible = false
