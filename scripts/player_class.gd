@@ -33,7 +33,7 @@ const DEFAULT_CLASS_ID := "tobor"
 const CLASSES: Array[Dictionary] = [
 	{
 		"id": "tobor",
-		"name": "Tobor",
+		"name": "Wrench",
 		"role": "Glass Cannon",
 		"menu_bg": "res://assets/ui/tobor_menu_bg.png",
 		"weapon_name": "Blast Cannon",
@@ -61,11 +61,18 @@ const CLASSES: Array[Dictionary] = [
 		"secondary": "repulse",
 		"secondary_cooldown": 9.0,
 		"upgrades": ["rapid", "heavy", "blast", "aftershock", "vitality"],
-		"ability_pool": [],
+		"kit_q": "tobor_steam_keg",
+		"kit_e": "tobor_steam_turret",
+		"kit_r": "tobor_energy_field",
+		"ability_pool": [
+			"tobor_steam_keg", "tobor_steam_turret", "tobor_energy_field", "tobor_energy_absorption",
+			"tobor_keg_lob", "tobor_turret_overdrive", "tobor_scrap_shield", "tobor_boiler_burst",
+			"tobor_wrench_toss", "tobor_repair_pulse", "tobor_steam_vent", "tobor_ironclad_chassis",
+		],
 	},
 	{
 		"id": "arclight",
-		"name": "Diord",
+		"name": "Joule",
 		"role": "Damage",
 		"menu_bg": "res://assets/ui/arclight_menu_bg.png",
 		"weapon_name": "Volt Staff",
@@ -92,15 +99,19 @@ const CLASSES: Array[Dictionary] = [
 		"secondary": "volt_mend",
 		"secondary_cooldown": 10.0,
 		"upgrades": ["rapid", "heavy", "chain", "volt", "vitality"],
+		"kit_q": "arclight_blast_of_lightning",
+		"kit_e": "arclight_chain_lightning",
+		"kit_r": "arclight_thundergods_wrath",
 		"ability_pool": [
-			"arclight_static_bolt", "arclight_overcharge", "arclight_ion_storm", "arclight_arc_flash",
-			"arclight_thunder_step", "arclight_overclock", "arclight_paralyzing_bolt", "arclight_ball_lightning",
-			"arclight_volt_siphon", "arclight_track", "arclight_repulsor_field", "arclight_second_wind",
+			"arclight_blast_of_lightning", "arclight_chain_lightning", "arclight_thundergods_wrath",
+			"arclight_static_bolt", "arclight_overcharge", "arclight_ion_storm",
+			"arclight_arc_flash", "arclight_thunder_step", "arclight_paralyzing_bolt",
+			"arclight_ball_lightning", "arclight_repulsor_field", "arclight_second_wind",
 		],
 	},
 	{
 		"id": "bulwark",
-		"name": "Romra",
+		"name": "Tremor",
 		"role": "Tank",
 		"menu_bg": "res://assets/ui/bulwark_menu_bg.png",
 		"weapon_name": "Shield Hammer",
@@ -127,15 +138,19 @@ const CLASSES: Array[Dictionary] = [
 		"secondary": "wall",
 		"secondary_cooldown": 12.0,
 		"upgrades": ["plating", "reach", "sweep", "heavy", "vitality"],
+		"kit_q": "bulwark_fissure",
+		"kit_e": "bulwark_heavyweight",
+		"kit_r": "bulwark_echo_slam",
 		"ability_pool": [
-			"bulwark_shockwave_strike", "bulwark_ground_slam", "bulwark_cleave", "bulwark_iron_charge",
-			"bulwark_fortify", "bulwark_provoke", "bulwark_last_stand", "bulwark_aftershock",
-			"bulwark_second_wind", "bulwark_rallying_warcry", "bulwark_retribution", "bulwark_sunder",
+			"bulwark_fissure", "bulwark_heavyweight", "bulwark_echo_slam",
+			"bulwark_shockwave_strike", "bulwark_ground_slam", "bulwark_cleave",
+			"bulwark_iron_charge", "bulwark_fortify", "bulwark_provoke",
+			"bulwark_last_stand", "bulwark_aftershock", "bulwark_sunder",
 		],
 	},
 	{
 		"id": "warden",
-		"name": "Enord",
+		"name": "Totem",
 		"role": "Support",
 		"menu_bg": "res://assets/ui/warden_menu_bg.png",
 		"weapon_name": "Plus Beam",
@@ -163,10 +178,14 @@ const CLASSES: Array[Dictionary] = [
 		"secondary": "freeze",
 		"secondary_cooldown": 10.0,
 		"upgrades": ["flow", "choir", "lash", "rapid", "vitality"],
+		"kit_q": "warden_tongue_tied",
+		"kit_e": "warden_voodoo_wards",
+		"kit_r": "warden_life_drain",
 		"ability_pool": [
-			"warden_vine_lash", "warden_mending_wave", "warden_thorn_volley", "warden_entangle",
-			"warden_natures_grasp", "warden_verdant_ward", "warden_rising_choir", "warden_vine_step",
-			"warden_natures_wrath", "warden_second_bloom", "warden_vital_drain", "warden_bramble_wall",
+			"warden_tongue_tied", "warden_voodoo_wards", "warden_life_drain",
+			"warden_mending_wave", "warden_thorn_volley", "warden_entangle",
+			"warden_natures_grasp", "warden_verdant_ward", "warden_rising_choir",
+			"warden_vine_step", "warden_vital_drain", "warden_bramble_wall",
 		],
 	},
 	{
@@ -233,13 +252,14 @@ const CLASSES: Array[Dictionary] = [
 		"secondary": "repulse",
 		"secondary_cooldown": 9.0,
 		"upgrades": ["rapid", "heavy", "chain", "vitality"],
-		"kit_q": "cinder_whirling_flame",
+		"kit_q": "cinder_dragon_fire",
 		"kit_e": "cinder_fiery_assault",
-		"kit_r": "cinder_blazing_pillar",
+		"kit_r": "cinder_pillar_of_flame",
 		"ability_pool": [
-			"cinder_whirling_flame", "cinder_fiery_assault", "cinder_blazing_strike", "cinder_blazing_pillar",
-			"cinder_firebomb", "cinder_scorch", "cinder_ignite", "cinder_combustion",
-			"cinder_flame_dash", "cinder_magma_armor", "cinder_heat_surge", "cinder_pyroclasm",
+			"cinder_dragon_fire", "cinder_fiery_assault", "cinder_pillar_of_flame",
+			"cinder_whirling_flame", "cinder_firebomb", "cinder_scorch",
+			"cinder_ignite", "cinder_combustion_wave", "cinder_flame_dash",
+			"cinder_magma_armor", "cinder_heat_surge", "cinder_pyroclasm",
 		],
 	},
 	{
@@ -426,16 +446,16 @@ const CLASSES: Array[Dictionary] = [
 		"upgrades": ["rapid", "heavy", "boots", "vitality"],
 		"kit_q": "willow_swift_strike",
 		"kit_e": "willow_forsaken_shot",
-		"kit_r": "willow_strangling_vines",
+		"kit_r": "willow_wall_of_roots",
 		"ability_pool": [
-			"willow_swift_strike", "willow_forsaken_shot", "willow_volley", "willow_strangling_vines",
+			"willow_swift_strike", "willow_forsaken_shot", "willow_volley", "willow_wall_of_roots",
 			"willow_briar_jab", "willow_seed_bomb", "willow_thorn_snare", "willow_shadow_step",
 			"willow_spore_volley", "willow_vital_strike", "willow_briar_wall", "willow_final_bloom",
 		],
 	},
 	{
 		"id": "stump",
-		"name": "Shell",
+		"name": "Keeper",
 		"role": "Fort Support Tank",
 		"menu_bg": "",
 		"weapon_name": "Bark Bulwark",
@@ -462,11 +482,11 @@ const CLASSES: Array[Dictionary] = [
 		"secondary": "wall",
 		"secondary_cooldown": 12.0,
 		"upgrades": ["plating", "reach", "sweep", "flow", "vitality"],
-		"kit_q": "stump_rally",
+		"kit_q": "stump_natures_rally",
 		"kit_e": "stump_camouflage",
 		"kit_r": "stump_overgrowth",
 		"ability_pool": [
-			"stump_rally", "stump_camouflage", "stump_natures_veil", "stump_overgrowth",
+			"stump_natures_rally", "stump_camouflage", "stump_natures_veil", "stump_overgrowth",
 			"stump_trunk_slam", "stump_root_charge", "stump_barkskin", "stump_wall",
 			"stump_living_seed", "stump_heartwood", "stump_wildgrowth", "stump_fortress_grove",
 		],
@@ -501,11 +521,11 @@ const CLASSES: Array[Dictionary] = [
 		"secondary": "freeze",
 		"secondary_cooldown": 10.0,
 		"upgrades": ["flow", "lash", "boots", "vitality"],
-		"kit_q": "sage_grace_of_the_nymph",
+		"kit_q": "sage_grace",
 		"kit_e": "sage_volatile_pod",
 		"kit_r": "sage_charm",
 		"ability_pool": [
-			"sage_grace_of_the_nymph", "sage_volatile_pod", "sage_nymphoras_kiss", "sage_charm",
+			"sage_grace", "sage_volatile_pod", "sage_nymphoras_kiss", "sage_charm",
 			"sage_healing_wave", "sage_lifeward", "sage_rejuvenate", "sage_natures_step",
 			"sage_petal_dance", "sage_entangle", "sage_starfall", "sage_world_seed",
 		],
@@ -580,9 +600,9 @@ const CLASSES: Array[Dictionary] = [
 		"upgrades": ["rapid", "heavy", "boots", "vitality"],
 		"kit_q": "nebula_time_shift",
 		"kit_e": "nebula_curse_of_ages",
-		"kit_r": "nebula_chronosphere",
+		"kit_r": "nebula_chronofield",
 		"ability_pool": [
-			"nebula_time_shift", "nebula_curse_of_ages", "nebula_rewind", "nebula_chronosphere",
+			"nebula_time_shift", "nebula_curse_of_ages", "nebula_rewind", "nebula_chronofield",
 			"nebula_frost_blast", "nebula_arcane_bolt", "nebula_cold_snap", "nebula_blink",
 			"nebula_meteor_shower", "nebula_warp_field", "nebula_emp", "nebula_void_rift",
 		],
@@ -618,10 +638,10 @@ const CLASSES: Array[Dictionary] = [
 		"secondary_cooldown": 10.0,
 		"upgrades": ["flow", "lash", "choir", "vitality"],
 		"kit_q": "astral_essence_link",
-		"kit_e": "astral_guardian_angel",
+		"kit_e": "astral_ward_of_light",
 		"kit_r": "astral_as_one",
 		"ability_pool": [
-			"astral_essence_link", "astral_guardian_angel", "astral_spirit_bond", "astral_as_one",
+			"astral_essence_link", "astral_ward_of_light", "astral_spirit_bond", "astral_as_one",
 			"astral_ghost_light", "astral_moonfall", "astral_luminous_ward", "astral_ethereal_link",
 			"astral_bright_tether", "astral_ghastly_touch", "astral_wisp_nova", "astral_seance",
 		],
@@ -657,9 +677,9 @@ const CLASSES: Array[Dictionary] = [
 		"upgrades": ["depth", "rime", "heavy", "vitality"],
 		"kit_q": "rime_ice_imprisonment",
 		"kit_e": "rime_chilling_touch",
-		"kit_r": "rime_absolute_zero",
+		"kit_r": "rime_freezing_field",
 		"ability_pool": [
-			"rime_ice_imprisonment", "rime_chilling_touch", "rime_glacier_blast", "rime_absolute_zero",
+			"rime_ice_imprisonment", "rime_chilling_touch", "rime_glacier_blast", "rime_freezing_field",
 			"rime_hailstorm", "rime_cold_rush", "rime_frost_armor", "rime_whiteout",
 			"rime_winters_grasp", "rime_cleave", "rime_thaw", "rime_frozen_ward",
 		],
@@ -798,7 +818,110 @@ const ARCHETYPE_NAMES := {
 ## linearly with rank via ability_values(); everything else (radius, chain_count, dash_distance,
 ## on-hit modifiers, buff_stats) stays fixed across ranks to keep each entry small.
 const ABILITIES: Dictionary = {
-	# --- Arclight -----------------------------------------------------------------------
+	# --- Tobor (Wrench / Engineer) ---------------------------------------------------------
+	"tobor_steam_keg": {
+		"name": "Steam Keg", "archetype": Archetype.NUKE_BOLT,
+		"description": "Hurl a pressurized keg that bursts in scalding steam, knocking enemies back.",
+		"cooldown_base": 8.0, "cooldown_per_rank": -0.8, "cooldown_min": 4.5,
+		"power_base": 55.0, "power_per_rank": 14.0, "range": 560.0, "radius": 200.0,
+		"stun_on_hit": {"duration": 0.6},
+	},
+	"tobor_steam_turret": {
+		"name": "Steam Turret", "archetype": Archetype.SUMMON_SPIRIT,
+		"description": "Deploy an automated turret that peppers the nearest enemy with steam bolts.",
+		"cooldown_base": 12.0, "cooldown_per_rank": -1.1, "cooldown_min": 7.0,
+		"power_base": 12.0, "power_per_rank": 3.0, "range": 420.0,
+		"duration_base": 20.0, "duration_per_rank": 1.0, "summon_count": 1,
+	},
+	"tobor_energy_field": {
+		"name": "Energy Field", "archetype": Archetype.ZONE_CHANNEL,
+		"description": "Project a pulsing field that slows and sears everything inside.",
+		"cooldown_base": 50.0, "cooldown_per_rank": -4.2, "cooldown_min": 30.0,
+		"power_base": 40.0, "power_per_rank": 10.0, "range": 0.0, "radius": 320.0,
+		"duration_base": 5.0, "duration_per_rank": 0.5,
+		"slow_on_hit": {"factor": 0.5, "duration": 2.5},
+	},
+	"tobor_energy_absorption": {
+		"name": "Energy Absorption", "archetype": Archetype.SHIELD_BURST,
+		"description": "Convert incoming current into a crackling personal shield.",
+		"cooldown_base": 13.0, "cooldown_per_rank": -1.2, "cooldown_min": 8.0,
+		"power_base": 60.0, "power_per_rank": 15.0,
+		"duration_base": 5.0, "duration_per_rank": 0.6, "target_scope": "self",
+	},
+	"tobor_keg_lob": {
+		"name": "Keg Lob", "archetype": Archetype.NUKE_BOLT,
+		"description": "Lob an unpressurized keg. Less elegant than the Steam Keg, still loud.",
+		"cooldown_base": 4.5, "cooldown_per_rank": -0.4, "cooldown_min": 2.5,
+		"power_base": 45.0, "power_per_rank": 12.0, "range": 520.0, "radius": 180.0,
+	},
+	"tobor_turret_overdrive": {
+		"name": "Turret Overdrive", "archetype": Archetype.BUFF_SELF,
+		"description": "Overclock every gadget on your frame, casting far faster for a moment.",
+		"cooldown_base": 13.0, "cooldown_per_rank": -1.2, "cooldown_min": 8.0,
+		"power_base": 0.0, "power_per_rank": 0.0,
+		"duration_base": 4.5, "duration_per_rank": 0.5,
+		"buff_stats": {"attack_interval_mult": 0.65, "movement_speed_mult": 1.1}, "target_scope": "self",
+	},
+	"tobor_scrap_shield": {
+		"name": "Scrap Shield", "archetype": Archetype.SHIELD_BURST,
+		"description": "Weld a hasty barrier out of whatever scrap is nearby.",
+		"cooldown_base": 12.0, "cooldown_per_rank": -1.1, "cooldown_min": 7.0,
+		"power_base": 50.0, "power_per_rank": 13.0,
+		"duration_base": 4.5, "duration_per_rank": 0.5, "target_scope": "self",
+	},
+	"tobor_boiler_burst": {
+		"name": "Boiler Burst", "archetype": Archetype.RADIUS_BURST,
+		"description": "Vent the main boiler in a ring of scalding steam.",
+		"cooldown_base": 7.0, "cooldown_per_rank": -0.7, "cooldown_min": 4.0,
+		"power_base": 30.0, "power_per_rank": 8.0, "range": 0.0, "radius": 180.0,
+	},
+	"tobor_wrench_toss": {
+		"name": "Wrench Toss", "archetype": Archetype.NUKE_BOLT,
+		"description": "Fling the trusty wrench. It always comes back. Usually.",
+		"cooldown_base": 3.4, "cooldown_per_rank": -0.4, "cooldown_min": 1.8,
+		"power_base": 38.0, "power_per_rank": 10.0, "range": 540.0,
+	},
+	"tobor_repair_pulse": {
+		"name": "Repair Pulse", "archetype": Archetype.SELF_HEAL,
+		"description": "Run a quick self-diagnostic and weld the worst of the damage shut.",
+		"cooldown_base": 14.0, "cooldown_per_rank": -1.3, "cooldown_min": 8.0,
+		"power_base": 40.0, "power_per_rank": 11.0,
+	},
+	"tobor_steam_vent": {
+		"name": "Steam Vent", "archetype": Archetype.PUSH_PULL_BURST,
+		"description": "Blow a ring of steam outward, shoving everything away from you.",
+		"cooldown_base": 10.0, "cooldown_per_rank": -0.9, "cooldown_min": 6.0,
+		"power_base": -320.0, "power_per_rank": -32.0, "range": 0.0, "radius": 200.0,
+	},
+	"tobor_ironclad_chassis": {
+		"name": "Ironclad Chassis", "archetype": Archetype.BUFF_SELF,
+		"description": "Lock the frame down: incoming damage bounces off the plating.",
+		"cooldown_base": 15.0, "cooldown_per_rank": -1.4, "cooldown_min": 9.0,
+		"power_base": 0.0, "power_per_rank": 0.0,
+		"duration_base": 4.5, "duration_per_rank": 0.5,
+		"buff_stats": {"damage_taken_mult": 0.6}, "target_scope": "self",
+	},
+	# --- Arclight (Joule / Thunderbringer) -----------------------------------------------
+	"arclight_blast_of_lightning": {
+		"name": "Blast of Lightning", "archetype": Archetype.NUKE_BOLT,
+		"description": "Smite a single target with a bolt from the heavens.",
+		"cooldown_base": 7.0, "cooldown_per_rank": -0.7, "cooldown_min": 3.8,
+		"power_base": 110.0, "power_per_rank": 28.0, "range": 640.0,
+	},
+	"arclight_chain_lightning": {
+		"name": "Chain Lightning", "archetype": Archetype.CHAIN_NUKE,
+		"description": "Loose a bolt that leaps greedily from foe to foe.",
+		"cooldown_base": 10.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.5,
+		"power_base": 50.0, "power_per_rank": 13.0, "range": 620.0,
+		"chain_count": 5, "chain_range": 240.0,
+	},
+	"arclight_thundergods_wrath": {
+		"name": "Thundergod's Wrath", "archetype": Archetype.RADIUS_BURST,
+		"description": "Call down the wrath of the sky on every enemy in the arena.",
+		"cooldown_base": 50.0, "cooldown_per_rank": -4.2, "cooldown_min": 30.0,
+		"power_base": 180.0, "power_per_rank": 45.0, "range": 0.0, "radius": 999.0,
+		"stun_on_hit": {"duration": 0.5},
+	},
 	"arclight_static_bolt": {
 		"name": "Static Bolt", "archetype": Archetype.NUKE_BOLT,
 		"description": "Hurl a bolt that detonates in a wide arc of raw current.",
@@ -876,7 +999,28 @@ const ABILITIES: Dictionary = {
 		"cooldown_base": 14.0, "cooldown_per_rank": -1.4, "cooldown_min": 8.0,
 		"power_base": 30.0, "power_per_rank": 9.0,
 	},
-	# --- Bulwark --------------------------------------------------------------------------
+	# --- Bulwark (Tremor / Behemoth) ------------------------------------------------------
+	"bulwark_fissure": {
+		"name": "Fissure", "archetype": Archetype.DASH_STRIKE,
+		"description": "Crack the earth open in a line, stunning everything standing on it.",
+		"cooldown_base": 8.5, "cooldown_per_rank": -0.8, "cooldown_min": 4.8,
+		"power_base": 55.0, "power_per_rank": 14.0, "dash_distance": 340.0, "radius": 60.0,
+		"stun_on_hit": {"duration": 1.2},
+	},
+	"bulwark_heavyweight": {
+		"name": "Heavyweight", "archetype": Archetype.ATTACK_FURY,
+		"description": "Swing with both fists — every strike lands twice as hard for a while.",
+		"cooldown_base": 6.0, "cooldown_per_rank": -0.6, "cooldown_min": 3.4,
+		"power_base": 0.0, "power_per_rank": 0.0,
+		"duration_base": 8.0, "duration_per_rank": 0.6, "multi_attack": 2,
+	},
+	"bulwark_echo_slam": {
+		"name": "Echo Slam", "archetype": Archetype.RADIUS_BURST,
+		"description": "Slam the ground so hard the arena itself answers, louder for every enemy inside.",
+		"cooldown_base": 45.0, "cooldown_per_rank": -3.8, "cooldown_min": 27.0,
+		"power_base": 120.0, "power_per_rank": 30.0, "range": 0.0, "radius": 300.0,
+		"stun_on_hit": {"duration": 1.0},
+	},
 	"bulwark_shockwave_strike": {
 		"name": "Shockwave Strike", "archetype": Archetype.NUKE_BOLT,
 		"description": "Slam the ground in front of you with a short-range shockwave.",
@@ -956,7 +1100,26 @@ const ABILITIES: Dictionary = {
 		"power_base": 18.0, "power_per_rank": 5.0, "range": 230.0,
 		"mark_on_hit": {"bonus_pct": 0.3, "duration": 4.5},
 	},
-	# --- Warden -----------------------------------------------------------------------------
+	# --- Warden (Totem / Pollywog Priest) --------------------------------------------------
+	"warden_tongue_tied": {
+		"name": "Tongue Tied", "archetype": Archetype.PUSH_PULL_BURST,
+		"description": "Lash out with the priest's tongue and yank the closest enemy to hand.",
+		"cooldown_base": 8.0, "cooldown_per_rank": -0.8, "cooldown_min": 4.5,
+		"power_base": 380.0, "power_per_rank": 38.0, "range": 480.0, "radius": 160.0,
+	},
+	"warden_voodoo_wards": {
+		"name": "Voodoo Wards", "archetype": Archetype.SUMMON_SPIRIT,
+		"description": "Plant a clutch of voodoo wards that spit venom at anything hostile.",
+		"cooldown_base": 12.0, "cooldown_per_rank": -1.1, "cooldown_min": 7.0,
+		"power_base": 9.0, "power_per_rank": 2.5, "range": 400.0,
+		"duration_base": 18.0, "duration_per_rank": 1.0, "summon_count": 1,
+	},
+	"warden_life_drain": {
+		"name": "Life Drain", "archetype": Archetype.NUKE_BOLT,
+		"description": "Channel the old rite, siphoning the life from an enemy into yourself.",
+		"cooldown_base": 45.0, "cooldown_per_rank": -3.8, "cooldown_min": 27.0,
+		"power_base": 130.0, "power_per_rank": 33.0, "range": 560.0, "lifesteal_pct": 1.0,
+	},
 	"warden_vine_lash": {
 		"name": "Vine Lash", "archetype": Archetype.NUKE_BOLT,
 		"description": "Whip barbed vines through every enemy in range.",
@@ -1132,13 +1295,13 @@ const ABILITIES: Dictionary = {
 		"cooldown_base": 12.0, "cooldown_per_rank": -1.1, "cooldown_min": 6.5,
 		"power_base": 32.0, "power_per_rank": 9.0, "range": 0.0, "radius": 220.0,
 	},
-	"cinder_blazing_strike": {
+	"cinder_dragon_fire": {
 		"name": "Dragon Fire", "archetype": Archetype.NUKE_BOLT,
 		"description": "Hurl a searing bolt that bursts into dragon fire.",
 		"cooldown_base": 7.0, "cooldown_per_rank": -0.7, "cooldown_min": 3.8,
 		"power_base": 105.0, "power_per_rank": 26.0, "range": 620.0,
 	},
-	"cinder_blazing_pillar": {
+	"cinder_pillar_of_flame": {
 		"name": "Pillar of Flame", "archetype": Archetype.ZONE_CHANNEL,
 		"description": "Call up a towering pillar of flame that incinerates everything inside.",
 		"cooldown_base": 22.0, "cooldown_per_rank": -1.8, "cooldown_min": 12.0,
@@ -1163,8 +1326,8 @@ const ABILITIES: Dictionary = {
 		"cooldown_base": 6.5, "cooldown_per_rank": -0.6, "cooldown_min": 3.6,
 		"power_base": 42.0, "power_per_rank": 11.0, "range": 520.0,
 	},
-	"cinder_combustion": {
-		"name": "Combustion", "archetype": Archetype.NUKE_BOLT,
+	"cinder_combustion_wave": {
+		"name": "Combustion Wave", "archetype": Archetype.NUKE_BOLT,
 		"description": "Violently detonate the air around every enemy in the blast.",
 		"cooldown_base": 9.5, "cooldown_per_rank": -0.9, "cooldown_min": 5.5,
 		"power_base": 65.0, "power_per_rank": 17.0, "range": 540.0, "radius": 190.0,
@@ -1542,9 +1705,9 @@ const ABILITIES: Dictionary = {
 		"cooldown_base": 10.0, "cooldown_per_rank": -0.9, "cooldown_min": 6.0,
 		"power_base": 40.0, "power_per_rank": 10.0, "radius": 480.0,
 	},
-	"willow_strangling_vines": {
-		"name": "Strangling Vines", "archetype": Archetype.ZONE_CHANNEL,
-		"description": "Call up a thicket that crushes everything it catches.",
+	"willow_wall_of_roots": {
+		"name": "Wall of Roots", "archetype": Archetype.ZONE_CHANNEL,
+		"description": "Raise a wall of grasping roots that snares everything it catches.",
 		"cooldown_base": 50.0, "cooldown_per_rank": -4.2, "cooldown_min": 30.0,
 		"power_base": 35.0, "power_per_rank": 9.0, "range": 0.0, "radius": 280.0,
 		"duration_base": 4.0, "duration_per_rank": 0.4,
@@ -1601,8 +1764,8 @@ const ABILITIES: Dictionary = {
 		"power_base": 85.0, "power_per_rank": 21.0, "range": 620.0, "radius": 180.0,
 	},
 	# --- Stump ------------------------------------------------------------------------------
-	"stump_rally": {
-		"name": "Rally", "archetype": Archetype.BUFF_SELF,
+	"stump_natures_rally": {
+		"name": "Nature's Rally", "archetype": Archetype.BUFF_SELF,
 		"description": "Lend a surge of life to everyone standing near the old tree.",
 		"cooldown_base": 14.0, "cooldown_per_rank": -1.3, "cooldown_min": 8.5,
 		"power_base": 30.0, "power_per_rank": 8.0, "radius": 320.0,
@@ -1685,8 +1848,8 @@ const ABILITIES: Dictionary = {
 		"buff_stats": {"damage_taken_mult": 0.6}, "target_scope": "allies",
 	},
 	# --- Sage -------------------------------------------------------------------------------
-	"sage_grace_of_the_nymph": {
-		"name": "Grace of the Nymph", "archetype": Archetype.AOE_HEAL,
+	"sage_grace": {
+		"name": "Grace", "archetype": Archetype.AOE_HEAL,
 		"description": "Wash the whole party in a cool, clean wave of grace.",
 		"cooldown_base": 12.0, "cooldown_per_rank": -1.1, "cooldown_min": 7.0,
 		"power_base": 60.0, "power_per_rank": 15.0, "range": 0.0, "radius": 260.0,
@@ -1860,8 +2023,8 @@ const ABILITIES: Dictionary = {
 		"cooldown_base": 24.0, "cooldown_per_rank": -2.2, "cooldown_min": 14.0,
 		"power_base": 120.0, "power_per_rank": 30.0,
 	},
-	"nebula_chronosphere": {
-		"name": "Chronosphere", "archetype": Archetype.ZONE_CHANNEL,
+	"nebula_chronofield": {
+		"name": "Chronofield", "archetype": Archetype.ZONE_CHANNEL,
 		"description": "Stop time in a wide pocket of the arena.",
 		"cooldown_base": 60.0, "cooldown_per_rank": -5.0, "cooldown_min": 36.0,
 		"power_base": 90.0, "power_per_rank": 23.0, "range": 0.0, "radius": 380.0,
@@ -1927,9 +2090,9 @@ const ABILITIES: Dictionary = {
 		"cooldown_base": 15.0, "cooldown_per_rank": -1.4, "cooldown_min": 9.0,
 		"power_base": 55.0, "power_per_rank": 14.0, "range": 0.0, "radius": 300.0,
 	},
-	"astral_guardian_angel": {
-		"name": "Guardian Angel", "archetype": Archetype.SHIELD_BURST,
-		"description": "Set a halo over every ally in reach — it catches hard hits for them.",
+	"astral_ward_of_light": {
+		"name": "Ward of Light", "archetype": Archetype.SHIELD_BURST,
+		"description": "Set a halo of pure light over every ally in reach — it catches hard hits for them.",
 		"cooldown_base": 24.0, "cooldown_per_rank": -2.2, "cooldown_min": 14.0,
 		"power_base": 90.0, "power_per_rank": 23.0, "range": 0.0, "radius": 280.0,
 		"duration_base": 6.0, "duration_per_rank": 0.7, "target_scope": "allies",
@@ -2025,9 +2188,9 @@ const ABILITIES: Dictionary = {
 		"power_base": 75.0, "power_per_rank": 19.0, "range": 0.0, "radius": 280.0,
 		"slow_on_hit": {"factor": 0.5, "duration": 2.0},
 	},
-	"rime_absolute_zero": {
-		"name": "Absolute Zero", "archetype": Archetype.ZONE_CHANNEL,
-		"description": "Call down the end of all warmth.",
+	"rime_freezing_field": {
+		"name": "Freezing Field", "archetype": Archetype.ZONE_CHANNEL,
+		"description": "Blanket the arena in a killing field of absolute cold.",
 		"cooldown_base": 90.0, "cooldown_per_rank": -8.0, "cooldown_min": 50.0,
 		"power_base": 110.0, "power_per_rank": 28.0, "range": 0.0, "radius": 400.0,
 		"duration_base": 5.0, "duration_per_rank": 0.5,
