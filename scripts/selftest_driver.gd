@@ -158,7 +158,7 @@ var _debug_last_phys := 0.0
 
 func _physics_process(_delta: float) -> void:
 	if _elapsed - _debug_last_phys >= 0.5:
-		print("[std] phys t=%.2f" % _elapsed)
+		print("[std] phys t=%.2f mode=%s paused=%s" % [_elapsed, str(get_tree().root.process_mode), str(get_tree().paused)])
 		_debug_last_phys = _elapsed
 
 func _process(delta: float) -> void:

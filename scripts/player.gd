@@ -1999,14 +1999,21 @@ func _cast_ability_stump_overgrowth(data: Dictionary, values: Dictionary, _rank:
 	var origin := global_position
 	_cast_ability_zone_channel(data, values)
 	print("[player] stump_overgrowth post-channel")
+	var pf := Engine.get_process_frames()
+	print("[player] stump_overgrowth frame=%d" % pf)
 	# Overgrowth roots enemies inside while the forest eats them.
+	var captured_origin := origin
+	var captured_power := float(values.get("power", 30.0))
+	var captured_radius := float(values.radius)
 	get_tree().create_timer(0.35).timeout.connect(func() -> void:
+		print("[player] overgrowth timer fire frame=%d" % Engine.get_process_frames())
 		if not is_inside_tree():
 			return
-		for target in _enemies_in_radius(origin, float(values.radius) * 0.7):
-			_damage_enemy(target, float(values.get("power", 30.0)) * 0.5)
+		for target in _enemies_in_radius(captured_origin, captured_radius * 0.7):
+			_damage_enemy(target, captured_power * 0.5)
 			if target.has_method("apply_slow"):
 				target.apply_slow(0.45, 2.5)
+		print("[player] overgrowth timer done")
 	)
 	print("[player] stump_overgrowth EXIT")
 
