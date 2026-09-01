@@ -748,12 +748,12 @@ const TARGETED_ABILITIES := {
 	"willow_swift_strike": "instant",
 	"willow_forsaken_shot": "vector",
 	"willow_volley": "vector",
-	"willow_strangling_vines": "point",
-	"stump_rally": "instant",
+	"willow_wall_of_roots": "point",
+	"stump_natures_rally": "instant",
 	"stump_camouflage": "instant",
 	"stump_natures_veil": "point",
 	"stump_overgrowth": "point",
-	"sage_grace_of_the_nymph": "instant",
+	"sage_grace": "instant",
 	"sage_volatile_pod": "point",
 	"sage_nymphoras_kiss": "unit",
 	"sage_charm": "unit",
@@ -765,15 +765,15 @@ const TARGETED_ABILITIES := {
 	"nebula_time_shift": "instant",
 	"nebula_curse_of_ages": "unit",
 	"nebula_rewind": "instant",
-	"nebula_chronosphere": "instant",
+	"nebula_chronofield": "instant",
 	"astral_essence_link": "point",
-	"astral_guardian_angel": "instant",
+	"astral_ward_of_light": "instant",
 	"astral_spirit_bond": "unit",
 	"astral_as_one": "instant",
 	"rime_ice_imprisonment": "unit",
 	"rime_chilling_touch": "instant",
 	"rime_glacier_blast": "instant",
-	"rime_absolute_zero": "instant",
+	"rime_freezing_field": "instant",
 }
 
 var _pending_ability_slot := -1
@@ -950,7 +950,7 @@ func _cast_known_ability(slot: int) -> void:
 		"nebula_curse_of_ages":
 			_cast_ability_nebula_curse_of_ages(data, values, int(entry.rank))
 			return
-		"astral_guardian_angel":
+		"astral_ward_of_light":
 			_cast_ability_astral_guardian_angel(data, values, int(entry.rank))
 			return
 		"rime_chilling_touch":
@@ -981,7 +981,7 @@ func _cast_known_ability(slot: int) -> void:
 		"thorn_poison_burst":
 			_cast_ability_thorn_poison_burst(data, values, int(entry.rank))
 			return
-		"willow_strangling_vines":
+		"willow_wall_of_roots":
 			_cast_ability_willow_strangling_vines(data, values, int(entry.rank))
 			return
 		"stump_overgrowth":

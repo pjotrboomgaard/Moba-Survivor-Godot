@@ -209,7 +209,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "nature",
 	},
-	"willow_strangling_vines": {
+	"willow_wall_of_roots": {
 		"primary_color": "b8ff6b",
 		"secondary_color": "d9ff8a",
 		"pulse_count": 3,
@@ -340,7 +340,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 4,
 		"style": "arcane",
 	},
-	"astral_guardian_angel": {
+	"astral_ward_of_light": {
 		"primary_color": "fff4c4",
 		"secondary_color": "ffffff",
 		"pulse_count": 4,

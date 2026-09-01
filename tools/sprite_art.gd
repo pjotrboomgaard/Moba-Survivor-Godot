@@ -3882,7 +3882,7 @@ const ABILITY_ICON_ROWS := {
 	# --- Willow (Flick) kit ---
 	"willow_swift_strike": SHAPE_KIT_WILLOW_Q,
 	"willow_forsaken_shot": SHAPE_KIT_WILLOW_E,
-	"willow_strangling_vines": SHAPE_KIT_WILLOW_R,
+	"willow_wall_of_roots": SHAPE_KIT_WILLOW_R,
 
 	# --- Stump (Shell) kit ---
 	"stump_rally": SHAPE_KIT_STUMP_Q,
@@ -3906,7 +3906,7 @@ const ABILITY_ICON_ROWS := {
 
 	# --- Astral (Lumina) kit ---
 	"astral_essence_link": SHAPE_KIT_ASTRAL_Q,
-	"astral_guardian_angel": SHAPE_KIT_ASTRAL_E,
+	"astral_ward_of_light": SHAPE_KIT_ASTRAL_E,
 	"astral_as_one": SHAPE_KIT_ASTRAL_R,
 
 	# --- Rime (Glacier) kit ---
@@ -4001,7 +4001,7 @@ const ABILITY_ICON_PALETTES := {
 	# --- Willow kit ---
 	"willow_swift_strike": HERO_ABILITY_TONES.willow,
 	"willow_forsaken_shot": HERO_ABILITY_TONES.willow,
-	"willow_strangling_vines": HERO_ABILITY_TONES.willow,
+	"willow_wall_of_roots": HERO_ABILITY_TONES.willow,
 
 	# --- Stump kit ---
 	"stump_rally": HERO_ABILITY_TONES.stump,
@@ -4025,7 +4025,7 @@ const ABILITY_ICON_PALETTES := {
 
 	# --- Astral kit ---
 	"astral_essence_link": HERO_ABILITY_TONES.astral,
-	"astral_guardian_angel": HERO_ABILITY_TONES.astral,
+	"astral_ward_of_light": HERO_ABILITY_TONES.astral,
 	"astral_as_one": HERO_ABILITY_TONES.astral,
 
 	# --- Rime kit ---
