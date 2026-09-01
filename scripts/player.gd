@@ -229,7 +229,7 @@ func apply_class(next_class_id: String) -> void:
 func _apply_kit_abilities() -> void:
 	known_abilities.clear()
 	var cooldowns: Array[float] = []
-	var loadout := PlayerProfile.loadout_for(class_id)
+	var loadout: Array[String] = PlayerProfile.loadout_for(class_id)
 	for slot_index in mini(loadout.size(), PlayerClass.MAX_KNOWN_ABILITIES):
 		var ability_id := String(loadout[slot_index])
 		if ability_id.is_empty() or not PlayerClass.ABILITIES.has(ability_id):
@@ -1430,17 +1430,11 @@ func _arm_hazard_escape(target: Node2D) -> void:
 
 ## Hover heroes skim over the lava / freezing water / acid on purpose, but the heat still
 ## licks at them — light thematic DoT while over the void, no burst, flying enemies exempt.
-func _update_hazard(delta: float) -> void:
-	if simulation_mode == SimulationMode.PROXY:
-		return
-	if _arena == null:
-		_arena = Arena.arena_root(self)
-		if _arena == null:
-			return
-	var hazard := _arena.hazard_at(global_position)
-	if hazard.is_empty():
-		return
-	health.take_damage(float(hazard.get("player_dot", 8.0)) * delta, self)
+func _update_hazard(_delta: float) -> void:
+	# Terrain hazard / lava-dot hook: Arena doesn't expose arena_root()/hazard_at() yet.
+	# Stay a no-op until the lava-push feature lands; values here came from the wave agent
+	# edit that referenced helper methods that were never written.
+	return
 
 
 func _apply_ability_buff(stats: Dictionary, duration: float) -> void:

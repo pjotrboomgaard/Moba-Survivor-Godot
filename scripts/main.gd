@@ -551,7 +551,7 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 	if GameRuntime.is_rift_clash():
 		if GameRuntime.is_server():
 			RiftClashManager.assign_teams(players.keys(), _lobby_claims())
-		player.team_id = RiftClashManager.team_of(peer_id)
+		player.team_id = str(RiftClashManager.team_of(peer_id))
 		if GameRuntime.is_server():
 			_ensure_team_wave_director(player.team_id)
 	pending_inputs[peer_id] = {
@@ -648,7 +648,7 @@ func _ensure_team_wave_director(team_id: String) -> void:
 	director.intermission_started.connect(_on_team_intermission_started.bind(team_id))
 	var members := 0
 	for peer_id in players.keys():
-		if RiftClashManager.team_of(int(peer_id)) == team_id:
+		if RiftClashManager.team_of(int(peer_id)) == int(team_id):
 			members += 1
 	director.start(maxi(1, members), false)
 	team_wave_directors[team_id] = director
@@ -764,7 +764,7 @@ func _on_intermission_started(next_wave: int, seconds: float) -> void:
 		var beaten := next_wave - 1
 		# Solo meta: bank sparks for the local player when a milestone wave is cleared.
 		if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
-			var sparks := PlayerProfile.sparks_for_wave(next_wave)
+			var sparks: float = PlayerProfile.sparks_for_wave(next_wave)
 			var local_player := _local_player()
 			var hero_id := local_player.class_id if local_player != null else ""
 			if sparks > 0:
@@ -1385,7 +1385,7 @@ func _on_player_died(_peer_id: int) -> void:
 			var wave_beaten := maxi(wave_director.wave - 1, 0)
 			if local_player != null and GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 				var hero_id := local_player.class_id
-				var banked := PlayerProfile.bank_wave_progress(hero_id, wave_beaten)
+				var banked: Dictionary = PlayerProfile.bank_wave_progress(hero_id, wave_beaten)
 				ProgressionService.auto_unlock_affordable()
 				report = {
 					"hero": hero_id,
@@ -1393,7 +1393,7 @@ func _on_player_died(_peer_id: int) -> void:
 					"new_abilities": banked.get("newly_unlocked", []),
 					"ult_now": PlayerProfile.is_ult_unlocked(hero_id),
 				}
-			hud.show_game_over(report)
+			hud.show_game_over()
 
 
 ## Server-only: any team whose every member is dead is eliminated; their WaveDirector
