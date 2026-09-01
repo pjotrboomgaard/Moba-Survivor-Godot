@@ -73,7 +73,10 @@ var team_wave_directors: Dictionary = {}  # team_id -> WaveDirector
 func _ready() -> void:
 	randomize()
 	NetworkService.peer_left.connect(_on_peer_left)
-	if arena is Arena and arena.get("landmarks") != null:
+	if arena is Arena:
+		# local_player isn't spawned yet (OFFLINE/HOST branches below create it), so use
+		# the class the runtime resolved from the profile/CLI for the world's first paint.
+		(arena as Arena).set_world(PlayerClass.world_of(GameRuntime.active_class_id()))
 		for landmark in (arena as Arena).landmarks:
 			if is_instance_valid(landmark):
 				landmark.triggered.connect(_on_landmark_triggered)
@@ -540,6 +543,9 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 	actors.add_child(player)
 	player.configure(peer_id, mode, local_player, class_id)
 	if arena is Arena:
+		# First hero claims the arena's world; later joiners drop into the same one.
+		# Heroes from another world keep their kit but fight on the founding hero's turf.
+		(arena as Arena).set_world(PlayerClass.world_of(class_id))
 		player.apply_camera_limits((arena as Arena).half_extents())
 	player.staff_cast.connect(_on_staff_cast)
 	player.ability_cast.connect(_on_ability_cast)
@@ -1074,7 +1080,11 @@ func _on_enemy_defeated(enemy: Enemy) -> void:
 
 
 ## Landmark triggering lives server-side only; clients mirror through the HUD flash RPC.
-func _on_landmark_triggered(landmark: LandmarkButton) -> void:
+## Signal contract: Landmark.triggered(position) — look the landmark up by distance.
+func _on_landmark_triggered(trigger_position: Vector2) -> void:
+	var landmark := _landmark_at(trigger_position)
+	if landmark == null:
+		return
 	if not GameRuntime.is_server():
 		return
 	var now := Time.get_ticks_msec()
@@ -1095,7 +1105,23 @@ func _on_landmark_triggered(landmark: LandmarkButton) -> void:
 			client_landmark_pulse.rpc_id(peer_id, landmark.global_position, str(landmark.effect_id))
 
 
-func _landmark_pulse_wipe(landmark: LandmarkButton) -> void:
+## Find the landmark nearest a fired position; Arena keeps the canonical `landmarks` list.
+func _landmark_at(trigger_position: Vector2) -> Landmark:
+	if not (arena is Arena):
+		return null
+	var best: Landmark = null
+	var best_distance := INF
+	for landmark in (arena as Arena).landmarks:
+		if not is_instance_valid(landmark):
+			continue
+		var distance := landmark.global_position.distance_to(trigger_position)
+		if distance < best_distance:
+			best_distance = distance
+			best = landmark
+	return best
+
+
+func _landmark_pulse_wipe(landmark: Landmark) -> void:
 	var origin := landmark.global_position
 	var kill_radius := landmark.effect_radius
 	for entity_id in enemies.keys():
@@ -1114,7 +1140,7 @@ func _landmark_pulse_wipe(landmark: LandmarkButton) -> void:
 	hud.flash_combat_text("Storm pulse! Minions within %dm wiped." % int(kill_radius / 10.0), Color("ffd060"))
 
 
-func _landmark_freeze_time(landmark: LandmarkButton) -> void:
+func _landmark_freeze_time(landmark: Landmark) -> void:
 	var duration := landmark.effect_arg
 	for entity_id in enemies.keys():
 		var enemy := enemies[entity_id] as Enemy
@@ -1143,7 +1169,7 @@ func _landmark_freeze_time(landmark: LandmarkButton) -> void:
 	hud.flash_combat_text("Time resumes.", Color("cfe6ff"))
 
 
-func _landmark_heal_all(landmark: LandmarkButton) -> void:
+func _landmark_heal_all(landmark: Landmark) -> void:
 	var amount := landmark.effect_arg
 	for player in players.values():
 		if is_instance_valid(player) and (player as Player).active:

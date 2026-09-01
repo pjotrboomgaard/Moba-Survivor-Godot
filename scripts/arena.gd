@@ -9,6 +9,56 @@ func set_crater_unlocked(unlocked: bool) -> void:
 	crater_unlocked = unlocked
 
 
+## Worlds (PlayerClass.World) the arena can dress itself as. set_world(world_id) swaps
+## the biome palette, pads, obstacles, decals and landmark layout to match.
+enum World {
+	IRON_FOUNDRY,
+	ASHEN_CALDERA,
+	VERDANT_WILDS,
+	STORM_COURT,
+}
+
+## World -> existing biome id (see GameRuntime.BIOME_KEYS). Worlds reuse the four non-grass
+## biomes that already have pad layouts and tile art: Iron Foundry walks the factory
+## floors, Ashen Caldera the volcano, Verdant Wilds the docks, Storm Court the ice floes.
+const WORLD_TO_BIOME: Array[int] = [3, 1, 4, 2]
+
+const WORLD_NAMES: Array[String] = ["Iron Foundry", "Ashen Caldera", "Verdant Wilds", "Storm Court"]
+
+## Signature landmark per world: [sprite_id, effect_id, radius, stand_seconds, effect_arg, hint].
+const WORLD_LANDMARKS: Array[Array] = [
+	["tw_factory_landmark_pylon", "pulse_wipe", 700.0, 2.5, 6.0, "Foundry Pylon"],
+	["tw_volcano_landmark_shrine", "heal_all", 480.0, 3.0, 40.0, "Ember Shrine"],
+	["tw_docks_landmark_pool", "heal_all", 480.0, 2.5, 30.0, "Tide Pool"],
+	["tw_ice_landmark_glade", "freeze_time", 500.0, 2.5, 6.0, "Frozen Glade"],
+]
+
+## Live landmark instances the current world spawned. Emptied and rebuilt on set_world.
+var landmarks: Array[Landmark] = []
+
+var _world_id: int = World.IRON_FOUNDRY
+
+
+func world() -> int:
+	return _world_id
+
+
+## Dress the arena as the given PlayerClass.World. Locks GameRuntime to the matching biome
+## so pad layouts, void colors and tile art all agree, then rebuilds obstacles + landmarks.
+## Safe to call before the field is built (deferred via call_deferred when inside tree).
+func set_world(world_id: int) -> void:
+	var index := clampi(world_id, 0, WORLD_TO_BIOME.size() - 1)
+	if index == _world_id and not landmarks.is_empty():
+		return
+	_world_id = index
+	var target_biome: int = WORLD_TO_BIOME[index]
+	if GameRuntime.uses_biomes() and GameRuntime.biome_id != target_biome:
+		# Lock so wave progression doesn't slide the arena out from under the hero's world.
+		GameRuntime.set_biome(target_biome, true)
+	if is_inside_tree():
+		rebuild()
+
+
 const BASE_SIZE := Vector2(2400.0, 1600.0)
 ## Each later biome is a bigger field: grass < volcano < ice < factory < docks.
 const SIZE_BY_BIOME: Array[Vector2] = [
@@ -83,10 +133,51 @@ func rebuild() -> void:
 		child.free()
 	obstacles.clear()
 	walk_pads.clear()
+	landmarks.clear()
 	_fit_walls()
 	if not GameRuntime.is_classic():
 		_build_field()
+		_spawn_landmarks()
 	queue_redraw()
+
+
+## Place the current world's signature landmark at a fixed, walkable, seeded-relative spot.
+## One landmark per world keeps the field readable; more can be layered later by
+## appending to WORLD_LANDMARKS.
+func _spawn_landmarks() -> void:
+	if not GameRuntime.uses_biomes():
+		return
+	if _world_id < 0 or _world_id >= WORLD_LANDMARKS.size():
+		return
+	var spec: Array = WORLD_LANDMARKS[_world_id]
+	if spec.size() < 6:
+		return
+	var landmark := Landmark.new()
+	landmark.position = _landmark_spot()
+	add_child(landmark)
+	landmark.configure(
+		str(spec[0]),
+		StringName(spec[1]),
+		float(spec[2]),
+		float(spec[3]),
+		float(spec[4]),
+		str(spec[5])
+	)
+	landmarks.append(landmark)
+
+
+## A seeded, walkable position for the world's signature landmark — offset from spawn and
+## from the shop stand, and nudged onto a walk pad if the biome carves the field up.
+func _landmark_spot() -> Vector2:
+	var half := playfield_size() * 0.5
+	# Per-world angular offset keeps the four world's landmarks from stacking on the
+	# same quadrant when a party hops worlds across runs.
+	var angle := TAU * float(_world_id) / maxf(1.0, float(WORLD_NAMES.size()))
+	var distance := minf(half.x, half.y) * 0.55
+	var candidate := Vector2.RIGHT.rotated(angle) * distance
+	if candidate.length() < SPAWN_CLEARANCE:
+		candidate = candidate.normalized() * (SPAWN_CLEARANCE + 80.0)
+	return free_position_near(candidate, 40.0)
 
 
 ## True when a circle of the given radius would overlap a rock or unwalkable biome
@@ -410,7 +501,7 @@ func _draw_void_rect(world_rect: Rect2) -> void:
 
 
 func _draw_ground_rect(world_rect: Rect2) -> void:
-	var ground := SpriteLibrary.texture_for("grass_tile")
+	var ground := SpriteLibrary.texture_for(_ground_tile_id())
 	if ground == null:
 		var fill := Color("2f4f26")
 		if GameRuntime.uses_biomes() and GameRuntime.biome_id != 0:
@@ -424,6 +515,20 @@ func _draw_ground_rect(world_rect: Rect2) -> void:
 		true
 	)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Biome-aware ground tile. tobor_world_art generates tw_<biome>_grass_tile for each
+## non-grass world; fall back to the plain grass tile when a biome isn't customized.
+func _ground_tile_id() -> String:
+	if not GameRuntime.uses_biomes() or GameRuntime.biome_id <= 0:
+		return "grass_tile"
+	var biome := GameRuntime.biome_key()
+	if biome == "":
+		return "grass_tile"
+	var candidate := "tw_%s_grass_tile" % biome
+	if SpriteLibrary.texture_for(candidate) != null:
+		return candidate
+	return "grass_tile"
 
 
 func _draw_decals() -> void:

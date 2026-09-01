@@ -3235,6 +3235,21 @@ const HERO_ABILITY_TONES := {
 	"bulwark": {"o": "2a1405", "f": "ffb060", "l": "ffe3a8"},
 	"warden": {"o": "0d2b1a", "f": "5cd485", "l": "d9ffe0"},
 	"frostbinder": {"o": "0a2233", "f": "7fd4ff", "l": "eafcff"},
+	# Fire heroes — warm reds/oranges with golden accents
+	"cinder": {"o": "2a0a05", "f": "ffd36b", "l": "ffe8a8"},
+	"pyra": {"o": "2a1208", "f": "ffe14a", "l": "fff3c4"},
+	"slag": {"o": "1e0a05", "f": "ff8a3d", "l": "ffc46b"},
+	"ember": {"o": "2a1408", "f": "ffb46b", "l": "8cff4a"},
+	# Nature heroes — greens with floral/leaf accents
+	"thorn": {"o": "142a08", "f": "a8e05c", "l": "e8ff9a"},
+	"willow": {"o": "182008", "f": "b8ff6b", "l": "d4ff8f"},
+	"stump": {"o": "1e1408", "f": "c49a55", "l": "8cff4a"},
+	"sage": {"o": "2a1a14", "f": "ffd9e0", "l": "9fe6a0"},
+	# Storm/holy heroes — cyan/purple/white
+	"volt": {"o": "0a1e26", "f": "7af0ff", "l": "ffe14a"},
+	"nebula": {"o": "140a26", "f": "b48cff", "l": "cbb0ff"},
+	"astral": {"o": "1a1e2a", "f": "ffe9a0", "l": "fff4c4"},
+	"rime": {"o": "0a1426", "f": "7ba9ff", "l": "cfe8ff"},
 }
 
 const SHAPE_NUKE_BOLT := [
@@ -3348,6 +3363,396 @@ const SHAPE_PUSH_PULL_BURST := [
 	"........",
 ]
 
+## Kit-ability icons for the non-robot heroes. Each hero's three kit abilities get a
+## bespoke 8x8 silhouette keyed to their element (fire / nature / storm) so the level-up
+## cards carry immediate hero identity instead of sharing the generic archetype glyphs.
+## Letters match the palette in HERO_ABILITY_TONES plus the per-ability "a"/"e" accents
+## injected by AbilityArt.
+
+## ----- CINDER (fire, dash + radius + zone) -----
+const SHAPE_KIT_CINDER_Q := [  # Whirling Flame — DASH_STRIKE: spiraling flame streak
+	"........",
+	"..ff....",
+	".fllf...",
+	".flafl..",
+	"..flf...",
+	"...ff.f.",
+	"....f...",
+	"........",
+]
+const SHAPE_KIT_CINDER_E := [  # Fiery Assault — RADIUS_BURST: exploding fire ring
+	"...ff...",
+	"..fllf..",
+	".flaalf.",
+	"flaffafl",
+	"flaffafl",
+	".flaalf.",
+	"..fllf..",
+	"...ff...",
+]
+const SHAPE_KIT_CINDER_R := [  # Blazing Pillar — ZONE: tall flame pillar
+	"...ff...",
+	"..fllf..",
+	"..flaf..",
+	"..fllf..",
+	".fllllf.",
+	".ffllff.",
+	".ffffff.",
+	"........",
+]
+
+## ----- PYRA (fire artillery, nuke + radius + radius) -----
+const SHAPE_KIT_PYRA_Q := [  # Sticky Bomb — NUKE_BOLT: round bomb with spark
+	"...f....",
+	"..fff...",
+	".ffaff..",
+	".ffaff..",
+	".fffff..",
+	"..fff...",
+	"...f....",
+	"........",
+]
+const SHAPE_KIT_PYRA_E := [  # Boom Dust — RADIUS_BURST: dust cloud burst
+	"f..f..f.",
+	".f.ff.f.",
+	"..fllf..",
+	".ffalaf.",
+	"..fllf..",
+	".f.ff.f.",
+	"f..f..f.",
+	"........",
+]
+const SHAPE_KIT_PYRA_R := [  # Air Strike — RADIUS_BURST: descending shell with crosshair
+	"...f....",
+	"..fff...",
+	"..faf...",
+	"..fff...",
+	"...f....",
+	"..f.f...",
+	".f...f..",
+	".ffaff..",
+]
+
+## ----- SLAG (volcano, buff + push + zone) -----
+const SHAPE_KIT_SLAG_Q := [  # Steam Bath — BUFF_SELF: rising steam curls
+	"..f..f..",
+	".ff..ff.",
+	".f....f.",
+	"..f..f..",
+	"...ff...",
+	"..fllf..",
+	".ffllff.",
+	"........",
+]
+const SHAPE_KIT_SLAG_E := [  # Volcanic Touch — PUSH_PULL: shockwave with molten core
+	"f......f",
+	".f....f.",
+	"..f..f..",
+	"..faaf..",
+	"..fallf.",
+	".f.ll.f.",
+	"f..ll..f",
+	"........",
+]
+const SHAPE_KIT_SLAG_R := [  # Eruption — ZONE: erupting volcano cone
+	"........",
+	"...ff...",
+	"..faff..",
+	".ffllff.",
+	".fllllf.",
+	"ffllllff",
+	"fllllllf",
+	"ffffffff",
+]
+
+## ----- EMBER (witch-fire, root + heal + buff) -----
+const SHAPE_KIT_EMBER_Q := [  # Entangle — NUKE_BOLT: thorned root ball
+	"..f..f..",
+	".ff..ff.",
+	"..ffff..",
+	".ffaff..",
+	"..ffff..",
+	".f.ff.f.",
+	"..f..f..",
+	"........",
+]
+const SHAPE_KIT_EMBER_E := [  # Healing Wave — AOE_HEAL: warm wave bars
+	"........",
+	"f..ff..f",
+	".ff..ff.",
+	"..fllf..",
+	".ffllff.",
+	"f..ll..f",
+	"........",
+	"........",
+]
+const SHAPE_KIT_EMBER_R := [  # Unbreakable — BUFF_SELF: bark-iron shield
+	"..ffff..",
+	".ffllff.",
+	".flaalf.",
+	".flaalf.",
+	".flaalf.",
+	".ffllff.",
+	"..ffff..",
+	"........",
+]
+
+## ----- THORN (venom, cone + summon + radius) -----
+const SHAPE_KIT_THORN_Q := [  # Poison Spray — CONE: toxin jet
+	"ff......",
+	"lff.....",
+	"allff...",
+	"aallff..",
+	"allff...",
+	"lff.....",
+	"ff......",
+	"........",
+]
+const SHAPE_KIT_THORN_E := [  # Toxin Ward — SUMMON: ward totem with eye
+	"...ff...",
+	"..fllf..",
+	"..faaf..",
+	"..fllf..",
+	"..fllf..",
+	".ffllff.",
+	".ffffff.",
+	"........",
+]
+const SHAPE_KIT_THORN_R := [  # Poison Burst — RADIUS: virulent bloom
+	"..f..f..",
+	".ff..ff.",
+	"..fllf..",
+	"fffallaf",
+	"fffallaf",
+	"..fllf..",
+	".ff..ff.",
+	"..f..f..",
+]
+
+## ----- WILLOW (archer, dash + nuke + zone) -----
+const SHAPE_KIT_WILLOW_Q := [  # Swift Strike — DASH: piercing arrow streak
+	"........",
+	"f.......",
+	"fff.....",
+	".fffff..",
+	"..fffff.",
+	"....fff.",
+	"......f.",
+	"........",
+]
+const SHAPE_KIT_WILLOW_E := [  # Forsaken Shot — NUKE_BOLT: long-range arrow
+	"........",
+	".....af.",
+	"....fff.",
+	"..afff..",
+	"..fff...",
+	".ff.....",
+	"ff......",
+	"........",
+]
+const SHAPE_KIT_WILLOW_R := [  # Strangling Vines — ZONE: coiling constrictor vines
+	"..f..f..",
+	".ff..ff.",
+	".ff..ff.",
+	"..ffff..",
+	"..fllf..",
+	".ffllff.",
+	".ff..ff.",
+	"........",
+]
+
+## ----- STUMP (treant, buff + buff + zone) -----
+const SHAPE_KIT_STUMP_Q := [  # Rally — BUFF_SELF: raised banner with roots
+	"...ff...",
+	"..flff..",
+	"..flf...",
+	"..fff...",
+	"..f.f...",
+	".ff.ff..",
+	".f...f..",
+	"........",
+]
+const SHAPE_KIT_STUMP_E := [  # Camouflage — BUFF_SELF: leafy cloak
+	"..f..f..",
+	".ff..ff.",
+	"ffffffff",
+	"fffffff.",
+	".fffff..",
+	"..fff...",
+	"...f....",
+	"........",
+]
+const SHAPE_KIT_STUMP_R := [  # Overgrowth — ZONE: massive root sprawl
+	"f..ff..f",
+	"ff.ff.ff",
+	".ffffff.",
+	"..fllf..",
+	".fllllf.",
+	"ffffffff",
+	"ffffffff",
+	"........",
+]
+
+## ----- SAGE (nymph, heal + nuke + push) -----
+const SHAPE_KIT_SAGE_Q := [  # Grace of the Nymph — AOE_HEAL: descending blossom
+	"...ff...",
+	"..fallf.",
+	".falllaf",
+	".fllllf.",
+	"..fallf.",
+	"...ff...",
+	"....f...",
+	"........",
+]
+const SHAPE_KIT_SAGE_E := [  # Volatile Pod — NUKE_BOLT: seed pod with fuse
+	"...ff...",
+	"..f..f..",
+	"..fff...",
+	"..fff...",
+	".ffeff..",
+	".fffff..",
+	"..fff...",
+	"........",
+]
+const SHAPE_KIT_SAGE_R := [  # Charm — PUSH_PULL: heart-shaped lure
+	"........",
+	"..ff.ff.",
+	".fllfllf",
+	".flelef.",
+	"..fllf..",
+	"...ff...",
+	"....f...",
+	"........",
+]
+
+## ----- VOLT (storm, cone + shield + zone) -----
+const SHAPE_KIT_VOLT_Q := [  # Gust — CONE: crescent wind slash
+	"........",
+	".ff.....",
+	"..fff...",
+	"..ffff..",
+	"..ffff..",
+	"...fff..",
+	"....ff..",
+	"........",
+]
+const SHAPE_KIT_VOLT_E := [  # Wind Shield — SHIELD_BURST: swirling air ward
+	"..oooo..",
+	".offffo.",
+	"ofllllfo",
+	"oflaalfo",
+	"oflaalfo",
+	"ofllllfo",
+	".offffo.",
+	"..oooo..",
+]
+const SHAPE_KIT_VOLT_R := [  # Typhoon — ZONE: spiral vortex
+	"..fff...",
+	".ff.ff..",
+	"ff..f.f.",
+	"f..a..f.",
+	"f.f..ff.",
+	".ff..ff.",
+	"..fff...",
+	"........",
+]
+
+## ----- NEBULA (time, blink + radius + zone) -----
+const SHAPE_KIT_NEBULA_Q := [  # Time Shift — BLINK: doubling afterimage
+	"..ff..ff",
+	".fllf.f.",
+	"..ff....",
+	".faaf...",
+	"..ff....",
+	".f..f.f.",
+	"..ff....",
+	"........",
+]
+const SHAPE_KIT_NEBULA_E := [  # Curse of Ages — RADIUS: spiral hourglass
+	"..ffff..",
+	".flfflf.",
+	"..fllf..",
+	"...ff...",
+	"..fllf..",
+	".flfflf.",
+	"..ffff..",
+	"........",
+]
+const SHAPE_KIT_NEBULA_R := [  # Chronosphere — ZONE: circular time rift
+	"..ffff..",
+	".ffllff.",
+	"ffllaaff",
+	"flaeeafl",
+	"flaeeafl",
+	"ffllaaff",
+	".ffllff.",
+	"..ffff..",
+]
+
+## ----- ASTRAL (beacon, heal + shield + heal) -----
+const SHAPE_KIT_ASTRAL_Q := [  # Essence Link — AOE_HEAL: threaded strand connecting orbs
+	".ff..ff.",
+	"fllffllf",
+	"fl.ll.lf",
+	"f..ff..f",
+	"f..ff..f",
+	"fl.ll.lf",
+	"fllffllf",
+	".ff..ff.",
+]
+const SHAPE_KIT_ASTRAL_E := [  # Guardian Angel — SHIELD_BURST: halo ring over winged orb
+	"...ff...",
+	"..fllf..",
+	".ffllff.",
+	"ffllllff",
+	".ffllff.",
+	"..fllf..",
+	"..ffff..",
+	"........",
+]
+const SHAPE_KIT_ASTRAL_R := [  # As One — SELF_HEAL: radiant aegis
+	"...ff...",
+	"..fllf..",
+	".fllllf.",
+	".flaalf.",
+	"fllaallf",
+	"ffffffff",
+	"...ff...",
+	"........",
+]
+
+## ----- RIME (frost, nuke + buff + zone) -----
+const SHAPE_KIT_RIME_Q := [  # Ice Imprisonment — NUKE_BOLT: crystalline cage
+	"..ffff..",
+	".ffllff.",
+	".flaalf.",
+	".flaafl.",
+	".flaalf.",
+	".ffllff.",
+	"..ffff..",
+	"........",
+]
+const SHAPE_KIT_RIME_E := [  # Chilling Touch — BUFF_SELF: frosted claw
+	"..ff....",
+	".fllf...",
+	".flaf...",
+	"..fff...",
+	"..flf...",
+	"..fllf..",
+	".ff..ff.",
+	"........",
+]
+const SHAPE_KIT_RIME_R := [  # Absolute Zero — ZONE: expanding nova of absolute cold
+	"...ff...",
+	".ffffff.",
+	"fflaalff",
+	"flaeeafl",
+	"flaeeafl",
+	"fflaalff",
+	".ffffff.",
+	"...ff...",
+]
+
 const ABILITY_ICON_ROWS := {
 	"arclight_static_bolt": SHAPE_NUKE_BOLT,
 	"arclight_overcharge": SHAPE_CHAIN_NUKE,
@@ -3400,6 +3805,66 @@ const ABILITY_ICON_ROWS := {
 	"frostbinder_rime_barrage": SHAPE_DASH_STRIKE,
 	"frostbinder_frostbite_mark": SHAPE_NUKE_BOLT,
 	"frostbinder_absolute_zero": SHAPE_RADIUS_BURST,
+
+	# --- Cinder (Blaze) kit ---
+	"cinder_whirling_flame": SHAPE_KIT_CINDER_Q,
+	"cinder_fiery_assault": SHAPE_KIT_CINDER_E,
+	"cinder_blazing_pillar": SHAPE_KIT_CINDER_R,
+
+	# --- Pyra (Barrage) kit ---
+	"pyra_sticky_bomb": SHAPE_KIT_PYRA_Q,
+	"pyra_boom_dust": SHAPE_KIT_PYRA_E,
+	"pyra_air_strike": SHAPE_KIT_PYRA_R,
+
+	# --- Slag (Vulcan) kit ---
+	"slag_steam_bath": SHAPE_KIT_SLAG_Q,
+	"slag_volcanic_touch": SHAPE_KIT_SLAG_E,
+	"slag_eruption": SHAPE_KIT_SLAG_R,
+
+	# --- Ember (Witchfire) kit ---
+	"ember_entangle": SHAPE_KIT_EMBER_Q,
+	"ember_healing_wave": SHAPE_KIT_EMBER_E,
+	"ember_unbreakable": SHAPE_KIT_EMBER_R,
+
+	# --- Thorn (Venom) kit ---
+	"thorn_poison_spray": SHAPE_KIT_THORN_Q,
+	"thorn_toxin_ward": SHAPE_KIT_THORN_E,
+	"thorn_poison_burst": SHAPE_KIT_THORN_R,
+
+	# --- Willow (Flick) kit ---
+	"willow_swift_strike": SHAPE_KIT_WILLOW_Q,
+	"willow_forsaken_shot": SHAPE_KIT_WILLOW_E,
+	"willow_strangling_vines": SHAPE_KIT_WILLOW_R,
+
+	# --- Stump (Shell) kit ---
+	"stump_rally": SHAPE_KIT_STUMP_Q,
+	"stump_camouflage": SHAPE_KIT_STUMP_E,
+	"stump_overgrowth": SHAPE_KIT_STUMP_R,
+
+	# --- Sage (Nymphel) kit ---
+	"sage_grace_of_the_nymph": SHAPE_KIT_SAGE_Q,
+	"sage_volatile_pod": SHAPE_KIT_SAGE_E,
+	"sage_charm": SHAPE_KIT_SAGE_R,
+
+	# --- Volt (Gale) kit ---
+	"volt_gust": SHAPE_KIT_VOLT_Q,
+	"volt_wind_shield": SHAPE_KIT_VOLT_E,
+	"volt_typhoon": SHAPE_KIT_VOLT_R,
+
+	# --- Nebula (Aeon) kit ---
+	"nebula_time_shift": SHAPE_KIT_NEBULA_Q,
+	"nebula_curse_of_ages": SHAPE_KIT_NEBULA_E,
+	"nebula_chronosphere": SHAPE_KIT_NEBULA_R,
+
+	# --- Astral (Lumina) kit ---
+	"astral_essence_link": SHAPE_KIT_ASTRAL_Q,
+	"astral_guardian_angel": SHAPE_KIT_ASTRAL_E,
+	"astral_as_one": SHAPE_KIT_ASTRAL_R,
+
+	# --- Rime (Glacier) kit ---
+	"rime_ice_imprisonment": SHAPE_KIT_RIME_Q,
+	"rime_chilling_touch": SHAPE_KIT_RIME_E,
+	"rime_absolute_zero": SHAPE_KIT_RIME_R,
 }
 
 const ABILITY_ICON_PALETTES := {
@@ -3454,6 +3919,66 @@ const ABILITY_ICON_PALETTES := {
 	"frostbinder_rime_barrage": HERO_ABILITY_TONES.frostbinder,
 	"frostbinder_frostbite_mark": HERO_ABILITY_TONES.frostbinder,
 	"frostbinder_absolute_zero": HERO_ABILITY_TONES.frostbinder,
+
+	# --- Cinder kit ---
+	"cinder_whirling_flame": HERO_ABILITY_TONES.cinder,
+	"cinder_fiery_assault": HERO_ABILITY_TONES.cinder,
+	"cinder_blazing_pillar": HERO_ABILITY_TONES.cinder,
+
+	# --- Pyra kit ---
+	"pyra_sticky_bomb": HERO_ABILITY_TONES.pyra,
+	"pyra_boom_dust": HERO_ABILITY_TONES.pyra,
+	"pyra_air_strike": HERO_ABILITY_TONES.pyra,
+
+	# --- Slag kit ---
+	"slag_steam_bath": HERO_ABILITY_TONES.slag,
+	"slag_volcanic_touch": HERO_ABILITY_TONES.slag,
+	"slag_eruption": HERO_ABILITY_TONES.slag,
+
+	# --- Ember kit ---
+	"ember_entangle": HERO_ABILITY_TONES.ember,
+	"ember_healing_wave": HERO_ABILITY_TONES.ember,
+	"ember_unbreakable": HERO_ABILITY_TONES.ember,
+
+	# --- Thorn kit ---
+	"thorn_poison_spray": HERO_ABILITY_TONES.thorn,
+	"thorn_toxin_ward": HERO_ABILITY_TONES.thorn,
+	"thorn_poison_burst": HERO_ABILITY_TONES.thorn,
+
+	# --- Willow kit ---
+	"willow_swift_strike": HERO_ABILITY_TONES.willow,
+	"willow_forsaken_shot": HERO_ABILITY_TONES.willow,
+	"willow_strangling_vines": HERO_ABILITY_TONES.willow,
+
+	# --- Stump kit ---
+	"stump_rally": HERO_ABILITY_TONES.stump,
+	"stump_camouflage": HERO_ABILITY_TONES.stump,
+	"stump_overgrowth": HERO_ABILITY_TONES.stump,
+
+	# --- Sage kit ---
+	"sage_grace_of_the_nymph": HERO_ABILITY_TONES.sage,
+	"sage_volatile_pod": HERO_ABILITY_TONES.sage,
+	"sage_charm": HERO_ABILITY_TONES.sage,
+
+	# --- Volt kit ---
+	"volt_gust": HERO_ABILITY_TONES.volt,
+	"volt_wind_shield": HERO_ABILITY_TONES.volt,
+	"volt_typhoon": HERO_ABILITY_TONES.volt,
+
+	# --- Nebula kit ---
+	"nebula_time_shift": HERO_ABILITY_TONES.nebula,
+	"nebula_curse_of_ages": HERO_ABILITY_TONES.nebula,
+	"nebula_chronosphere": HERO_ABILITY_TONES.nebula,
+
+	# --- Astral kit ---
+	"astral_essence_link": HERO_ABILITY_TONES.astral,
+	"astral_guardian_angel": HERO_ABILITY_TONES.astral,
+	"astral_as_one": HERO_ABILITY_TONES.astral,
+
+	# --- Rime kit ---
+	"rime_ice_imprisonment": HERO_ABILITY_TONES.rime,
+	"rime_chilling_touch": HERO_ABILITY_TONES.rime,
+	"rime_absolute_zero": HERO_ABILITY_TONES.rime,
 }
 
 
