@@ -1,0 +1,70 @@
+{
+  "effects": [
+    {
+      "cd_left": 44.278,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.15442066666666
+    },
+    {
+      "cd_left": 69.0366666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 4.154276
+    },
+    {
+      "cd_left": 345.516666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.15434666666674
+    }
+  ],
+  "elapsed": 9.00432766666687,
+  "enemies_spawned": 4,
+  "hero_position": "(72.0, 15.47273)",
+  "player_class": "rime",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "rime_chilling_touch",
+        "t": 2.062754
+      },
+      {
+        "ability_id": "rime_glacier_blast",
+        "t": 4.06282399999999
+      },
+      {
+        "ability_id": "rime_freezing_field",
+        "t": 6.06272533333341
+      }
+    ],
+    "errors": [
+      "expected cast never fired: rime_ice_imprisonment"
+    ]
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2238/t1_1.004_2238.png",
+      "t": 1.00410266666667
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4246/t3_3.004_4246.png",
+      "t": 3.00442233333333
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6247/t5_5.004_6247.png",
+      "t": 5.00446233333337
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9246/t8_8.004_9246.png",
+      "t": 8.00438966666684
+    }
+  ]
+}

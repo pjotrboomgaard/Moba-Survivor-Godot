@@ -1,0 +1,72 @@
+{
+  "effects": [
+    {
+      "cd_left": 38.024,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 0.150519
+    },
+    {
+      "cd_left": 57.5166666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.15827357575757
+    },
+    {
+      "cd_left": 230.316666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.15236633333342
+    }
+  ],
+  "elapsed": 9.00174000000014,
+  "enemies_spawned": 4,
+  "hero_position": "(461.5563, -128.8032)",
+  "player_class": "slag",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "slag_steam_bath",
+        "t": 0.133333333333333
+      },
+      {
+        "ability_id": "slag_volcanic_touch",
+        "t": 2.0666069090909
+      },
+      {
+        "ability_id": "slag_lava_surge",
+        "t": 4.160326
+      },
+      {
+        "ability_id": "slag_eruption",
+        "t": 6.06069966666675
+      }
+    ],
+    "errors": []
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2162/t1_1.002_2162.png",
+      "t": 1.00177033333333
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4163/t3_3.008_4163.png",
+      "t": 3.00827357575757
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6164/t5_5.003_6164.png",
+      "t": 5.00275024242428
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9163/t8_8.002_9163.png",
+      "t": 8.00236633333351
+    }
+  ]
+}

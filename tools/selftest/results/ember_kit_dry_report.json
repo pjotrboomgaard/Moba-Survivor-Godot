@@ -1,0 +1,63 @@
+{
+  "effects": [
+    {
+      "cd_left": 61.3566666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.15727424242424
+    },
+    {
+      "cd_left": 190.036666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.15390081818191
+    }
+  ],
+  "elapsed": 9.00632800000014,
+  "enemies_spawned": 4,
+  "hero_position": "(72.02579, 13.73336)",
+  "player_class": "ember",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "ember_healing_wave",
+        "t": 2.06560757575757
+      },
+      {
+        "ability_id": "ember_storm_cloud",
+        "t": 4.164892
+      },
+      {
+        "ability_id": "ember_unbreakable",
+        "t": 6.06223415151524
+      }
+    ],
+    "errors": [
+      "expected cast never fired: ember_entangle"
+    ]
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2148/t1_1.005_2148.png",
+      "t": 1.00454064454064
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4155/t3_3.007_4155.png",
+      "t": 3.00727424242423
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6146/t5_5.000_6146.png",
+      "t": 5.00000000000004
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9148/t8_8.004_9148.png",
+      "t": 8.00390081818201
+    }
+  ]
+}

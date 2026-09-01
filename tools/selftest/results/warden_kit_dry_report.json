@@ -1,0 +1,53 @@
+{
+  "effects": [
+    {
+      "cd_left": 30.6366666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 4.15833333333333
+    }
+  ],
+  "elapsed": 9.00389533333346,
+  "enemies_spawned": 4,
+  "hero_position": "(123.1973, 7.126443)",
+  "player_class": "warden",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "warden_mending_wave",
+        "t": 4.06666666666666
+      },
+      {
+        "ability_id": "warden_life_drain",
+        "t": 6.16217600000009
+      }
+    ],
+    "errors": [
+      "expected cast never fired: warden_tongue_tied",
+      "expected cast never fired: warden_voodoo_wards"
+    ]
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2148/t1_1.004_2148.png",
+      "t": 1.003869
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4156/t3_3.005_4155.png",
+      "t": 3.00464657575757
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6150/t5_5.000_6150.png",
+      "t": 5.00000000000004
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9149/t8_8.004_9149.png",
+      "t": 8.00384166666684
+    }
+  ]
+}

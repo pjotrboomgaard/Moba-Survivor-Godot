@@ -1,0 +1,70 @@
+{
+  "effects": [
+    {
+      "cd_left": 9.27666666666666,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.15578899999999
+    },
+    {
+      "cd_left": 12.3126666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 4.15656657575757
+    },
+    {
+      "cd_left": 172.7,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.15075757575767
+    }
+  ],
+  "elapsed": 9.00544833333347,
+  "enemies_spawned": 4,
+  "hero_position": "(367.9559, -106.8385)",
+  "player_class": "bulwark",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "bulwark_fissure",
+        "t": 0.180564666666667
+      },
+      {
+        "ability_id": "bulwark_shockwave_strike",
+        "t": 4.06414233333333
+      },
+      {
+        "ability_id": "bulwark_echo_slam",
+        "t": 6.05000000000009
+      }
+    ],
+    "errors": [
+      "expected cast never fired: bulwark_heavyweight"
+    ]
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2135/t1_1.005_2135.png",
+      "t": 1.00544633333333
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4143/t3_3.006_4143.png",
+      "t": 3.00610766666666
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6142/t5_5.007_6142.png",
+      "t": 5.00656657575762
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9134/t8_8.001_9134.png",
+      "t": 8.00075757575776
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 {
   "effects": [],
-  "elapsed": 9.00733400000015,
-  "enemies_spawned": 0,
-  "hero_position": "(0.0, 0.0)",
-  "player_class": "",
+  "elapsed": 9.0044336666668,
+  "enemies_spawned": 4,
+  "hero_position": "(72.0, -0.155177)",
+  "player_class": "tobor",
   "results": {
     "casts": [],
     "errors": [
@@ -16,23 +16,23 @@
   "shots": [
     {
       "label": "t1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2130/t1_1.008_2130.png",
-      "t": 1.00754233333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2121/t1_1.004_2121.png",
+      "t": 1.00449633333333
     },
     {
       "label": "t3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4122/t3_3.007_4122.png",
-      "t": 3.00732466666666
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4130/t3_3.005_4130.png",
+      "t": 3.00488733333333
     },
     {
       "label": "t5",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6114/t5_5.001_6114.png",
-      "t": 5.00067733333337
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6129/t5_5.005_6129.png",
+      "t": 5.00480300000004
     },
     {
       "label": "t8",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9115/t8_8.000_9115.png",
-      "t": 8.00000000000018
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9129/t8_8.005_9129.png",
+      "t": 8.00483466666685
     }
   ]
 }

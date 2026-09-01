@@ -1,0 +1,129 @@
+{
+  "effects": [
+    {
+      "cd_left": 10.4532666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 4.15035233333333
+    },
+    {
+      "cd_left": 191.916666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.15606060606069
+    }
+  ],
+  "elapsed": 9.0064896666668,
+  "enemies_spawned": 4,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 0.181559666666667
+      },
+      {
+        "ability_id": "arclight_chain_lightning",
+        "t": 2.16666666666666
+      },
+      {
+        "ability_id": "arclight_static_bolt",
+        "t": 4.06666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 6.06271057575766
+      }
+    ],
+    "errors": []
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2141/t1_1.007_2141.png",
+      "t": 1.006516
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4140/t3_3.008_4140.png",
+      "t": 3.00833333333332
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6132/t5_5.000_6132.png",
+      "t": 5.00035233333337
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9142/t8_8.007_9142.png",
+      "t": 8.00657033333351
+    }
+  ]
+}

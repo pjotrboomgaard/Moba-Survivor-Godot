@@ -1,0 +1,63 @@
+{
+  "effects": [
+    {
+      "cd_left": 92.0766666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.15208457575757
+    },
+    {
+      "cd_left": 236.353333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.152746909091
+    }
+  ],
+  "elapsed": 9.00127733333347,
+  "enemies_spawned": 4,
+  "hero_position": "(74.09496, 5.230776)",
+  "player_class": "astral",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "astral_essence_link",
+        "t": 0.176499
+      },
+      {
+        "ability_id": "astral_ward_of_light",
+        "t": 2.0604179090909
+      },
+      {
+        "ability_id": "astral_as_one",
+        "t": 6.06108024242433
+      }
+    ],
+    "errors": [
+      "expected cast never fired: astral_spirit_bond"
+    ]
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2156/t1_1.001_2156.png",
+      "t": 1.001281
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4162/t3_3.002_4162.png",
+      "t": 3.00208457575757
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6163/t5_5.002_6163.png",
+      "t": 5.00235133333337
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9163/t8_8.003_9163.png",
+      "t": 8.00274690909109
+    }
+  ]
+}

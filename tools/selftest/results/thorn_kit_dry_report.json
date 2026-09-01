@@ -1,0 +1,60 @@
+{
+  "effects": [
+    {
+      "cd_left": 7.71666666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 4.15502733333333
+    },
+    {
+      "cd_left": 99.7566666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.15000000000008
+    }
+  ],
+  "elapsed": 9.00470066666679,
+  "enemies_spawned": 4,
+  "hero_position": "(89.25845, 3.264247)",
+  "player_class": "thorn",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "thorn_poison_spray",
+        "t": 0.179865666666667
+      },
+      {
+        "ability_id": "thorn_poison_burst",
+        "t": 6.06304300000008
+      }
+    ],
+    "errors": [
+      "expected cast never fired: thorn_toxin_ward",
+      "expected cast never fired: thorn_toxicity"
+    ]
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2139/t1_1.005_2139.png",
+      "t": 1.00473366666667
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4140/t3_3.003_4140.png",
+      "t": 3.00271024242423
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6149/t5_5.005_6149.png",
+      "t": 5.00507000000004
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9139/t8_8.000_9139.png",
+      "t": 8.00000000000017
+    }
+  ]
+}

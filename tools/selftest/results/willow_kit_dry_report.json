@@ -1,0 +1,56 @@
+{
+  "effects": [
+    {
+      "cd_left": 28.1,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 0.152505
+    }
+  ],
+  "elapsed": 9.00666100000014,
+  "enemies_spawned": 4,
+  "hero_position": "(362.3323, -88.76199)",
+  "player_class": "willow",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "willow_swift_strike",
+        "t": 0.133333333333333
+      },
+      {
+        "ability_id": "willow_forsaken_shot",
+        "t": 2.16498699999999
+      },
+      {
+        "ability_id": "willow_volley",
+        "t": 4.165466
+      }
+    ],
+    "errors": [
+      "expected cast never fired: willow_strangling_vines"
+    ]
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2171/t1_1.007_2171.png",
+      "t": 1.00707133333333
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4162/t3_3.007_4162.png",
+      "t": 3.00665033333333
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6164/t5_5.007_6164.png",
+      "t": 5.00714100000004
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9163/t8_8.007_9163.png",
+      "t": 8.00663633333351
+    }
+  ]
+}

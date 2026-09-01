@@ -1,0 +1,53 @@
+{
+  "effects": [
+    {
+      "cd_left": 53.6766666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.15722766666666
+    }
+  ],
+  "elapsed": 9.00722633333347,
+  "enemies_spawned": 4,
+  "hero_position": "(72.0, 0.329346)",
+  "player_class": "pyra",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "pyra_boom_dust",
+        "t": 2.065561
+      },
+      {
+        "ability_id": "pyra_bombardment",
+        "t": 4.165762
+      }
+    ],
+    "errors": [
+      "expected cast never fired: pyra_sticky_bomb",
+      "expected cast never fired: pyra_air_strike"
+    ]
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2168/t1_1.007_2168.png",
+      "t": 1.00742666666666
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4150/t3_3.007_4150.png",
+      "t": 3.00721233333333
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6162/t5_5.007_6162.png",
+      "t": 5.00742866666671
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9158/t8_8.007_9158.png",
+      "t": 8.00718400000018
+    }
+  ]
+}

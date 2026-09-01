@@ -1,0 +1,70 @@
+{
+  "effects": [
+    {
+      "cd_left": 30.2573333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 0.15
+    },
+    {
+      "cd_left": 80.9806666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 4.15447215151515
+    },
+    {
+      "cd_left": 230.333333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.15000000000008
+    }
+  ],
+  "elapsed": 9.00074366666679,
+  "enemies_spawned": 4,
+  "hero_position": "(477.7747, -110.0661)",
+  "player_class": "nebula",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "nebula_time_shift",
+        "t": 0.133333333333333
+      },
+      {
+        "ability_id": "nebula_rewind",
+        "t": 4.0620479090909
+      },
+      {
+        "ability_id": "nebula_chronofield",
+        "t": 6.05943733333342
+      }
+    ],
+    "errors": [
+      "expected cast never fired: nebula_curse_of_ages"
+    ]
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2157/t1_1.000_2157.png",
+      "t": 1.000368
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4150/t3_3.000_4150.png",
+      "t": 3.00036533333333
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6156/t5_5.004_6156.png",
+      "t": 5.00447215151519
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9157/t8_8.001_9157.png",
+      "t": 8.00057266666684
+    }
+  ]
+}

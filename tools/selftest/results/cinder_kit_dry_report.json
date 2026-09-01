@@ -1,0 +1,72 @@
+{
+  "effects": [
+    {
+      "cd_left": 21.693,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 0.150583666666667
+    },
+    {
+      "cd_left": 45.9966666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.15478733333333
+    },
+    {
+      "cd_left": 84.3966666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.1500000000001
+    }
+  ],
+  "elapsed": 9.00435800000023,
+  "enemies_spawned": 4,
+  "hero_position": "(370.2032, -111.0199)",
+  "player_class": "cinder",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "cinder_dragon_fire",
+        "t": 0.133333333333333
+      },
+      {
+        "ability_id": "cinder_fiery_assault",
+        "t": 2.06305266666666
+      },
+      {
+        "ability_id": "cinder_whirling_flame",
+        "t": 4.163023
+      },
+      {
+        "ability_id": "cinder_pillar_of_flame",
+        "t": 6.05000000000009
+      }
+    ],
+    "errors": []
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2133/t1_1.004_2133.png",
+      "t": 1.004392
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4134/t3_3.005_4134.png",
+      "t": 3.00478733333333
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6133/t5_5.005_6133.png",
+      "t": 5.00471166666671
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9127/t8_8.000_9127.png",
+      "t": 8.00000000000019
+    }
+  ]
+}
