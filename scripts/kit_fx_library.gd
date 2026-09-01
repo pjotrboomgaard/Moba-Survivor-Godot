@@ -2,18 +2,18 @@ class_name KitFxLibrary
 extends RefCounted
 
 ## Pure-data styling library for kit ability VFX.
-## Maps each kit_ability_id to vector styling traits consumed by _play_ability_effect
-## to tint LightningEffect / ZonePulse instances per ability.
+## Maps each canonical kit_ability_id (PlayerClass.kit_q / kit_e / kit_r) to
+## vector styling traits consumed by LightningEffect / AbilityVfx.
 ##
 ## Trait keys:
 ##   primary_color   — hex String, main bolt/ring tint (hero effect_color)
 ##   secondary_color — hex String, chain/impact tint (hero accent_color)
 ##   pulse_count     — int, number of expanding pulse rings / stacking bursts
 ##   ribbon_count    — int, number of trailing ribbons / chain strands
-##   style           — "fire" | "nature" | "storm" | "arcane"
+##   style           — "fire" | "nature" | "storm" | "arcane" | "steam" | "ice"
 
 const KIT_VISUALS: Dictionary = {
-	# ── Wrench (Iron Foundry / steam) ─────────────────────────────────────────────
+	# ── Tobor (Wrench / Engineer) ────────────────────────────────────────────
 	"tobor_steam_keg": {
 		"primary_color": "ffd36b",
 		"secondary_color": "ff8a3d",
@@ -28,13 +28,6 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 1,
 		"style": "steam",
 	},
-	"tobor_spider_mines": {
-		"primary_color": "ff9a3c",
-		"secondary_color": "ffe14a",
-		"pulse_count": 3,
-		"ribbon_count": 2,
-		"style": "steam",
-	},
 	"tobor_energy_field": {
 		"primary_color": "7af0ff",
 		"secondary_color": "ffd36b",
@@ -42,11 +35,77 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "arcane",
 	},
-	# ── Cinder (fire) ──────────────────────────────────────────────
-	"cinder_whirling_flame": {
+	# ── Arclight (Joule / Thunderbringer) ────────────────────────────────────
+	"arclight_blast_of_lightning": {
+		"primary_color": "fff8a8",
+		"secondary_color": "7af0ff",
+		"pulse_count": 1,
+		"ribbon_count": 3,
+		"style": "storm",
+	},
+	"arclight_chain_lightning": {
+		"primary_color": "b0e8ff",
+		"secondary_color": "fff8a8",
+		"pulse_count": 2,
+		"ribbon_count": 5,
+		"style": "storm",
+	},
+	"arclight_thundergods_wrath": {
+		"primary_color": "fff8a8",
+		"secondary_color": "b48cff",
+		"pulse_count": 4,
+		"ribbon_count": 6,
+		"style": "storm",
+	},
+	# ── Bulwark (Tremor / Behemoth) ──────────────────────────────────────────
+	"bulwark_fissure": {
+		"primary_color": "d4a06b",
+		"secondary_color": "8a5a2a",
+		"pulse_count": 1,
+		"ribbon_count": 2,
+		"style": "nature",
+	},
+	"bulwark_heavyweight": {
+		"primary_color": "c49a55",
+		"secondary_color": "ffe14a",
+		"pulse_count": 2,
+		"ribbon_count": 2,
+		"style": "nature",
+	},
+	"bulwark_echo_slam": {
+		"primary_color": "d4b06b",
+		"secondary_color": "ffe14a",
+		"pulse_count": 4,
+		"ribbon_count": 3,
+		"style": "nature",
+	},
+	# ── Warden (Totem / Pollywog) ────────────────────────────────────────────
+	"warden_tongue_tied": {
+		"primary_color": "8cff4a",
+		"secondary_color": "c49a55",
+		"pulse_count": 1,
+		"ribbon_count": 2,
+		"style": "nature",
+	},
+	"warden_voodoo_wards": {
+		"primary_color": "d4b06b",
+		"secondary_color": "8cff4a",
+		"pulse_count": 2,
+		"ribbon_count": 3,
+		"style": "nature",
+	},
+	"warden_life_drain": {
+		"primary_color": "ff5a5a",
+		"secondary_color": "8cff4a",
+		"pulse_count": 3,
+		"ribbon_count": 4,
+		"style": "fire",
+	},
+	# ── Cinder (Blaze / Pyro) ────────────────────────────────────────────────
+	"cinder_dragon_fire": {
 		"primary_color": "ffb347",
 		"secondary_color": "ffd36b",
-		"pulse_count": 3,
+		"pulse_count": 2,
 		"ribbon_count": 4,
 		"style": "fire",
 	},
@@ -57,21 +116,14 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "fire",
 	},
-	"cinder_blazing_strike": {
-		"primary_color": "ffc46b",
-		"secondary_color": "ffd36b",
-		"pulse_count": 1,
-		"ribbon_count": 2,
-		"style": "fire",
-	},
-	"cinder_blazing_pillar": {
+	"cinder_pillar_of_flame": {
 		"primary_color": "ff8a3d",
 		"secondary_color": "ffe14a",
 		"pulse_count": 4,
 		"ribbon_count": 6,
 		"style": "fire",
 	},
-	# ── Pyra (fire) ────────────────────────────────────────────────
+	# ── Pyra (Barrage / Bombardier) ──────────────────────────────────────────
 	"pyra_sticky_bomb": {
 		"primary_color": "ff8a5c",
 		"secondary_color": "ffe14a",
@@ -86,13 +138,6 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "fire",
 	},
-	"pyra_boomerang_knife": {
-		"primary_color": "ffe14a",
-		"secondary_color": "ff8a5c",
-		"pulse_count": 1,
-		"ribbon_count": 3,
-		"style": "fire",
-	},
 	"pyra_air_strike": {
 		"primary_color": "ff6b2a",
 		"secondary_color": "ffe14a",
@@ -100,7 +145,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "fire",
 	},
-	# ── Slag (fire) ────────────────────────────────────────────────
+	# ── Slag (Vulcan / Magmus) ───────────────────────────────────────────────
 	"slag_steam_bath": {
 		"primary_color": "ff6b2a",
 		"secondary_color": "ffc46b",
@@ -115,13 +160,6 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 2,
 		"style": "fire",
 	},
-	"slag_lava_slam": {
-		"primary_color": "ff5a1e",
-		"secondary_color": "ff8a3d",
-		"pulse_count": 3,
-		"ribbon_count": 4,
-		"style": "fire",
-	},
 	"slag_eruption": {
 		"primary_color": "ff6b2a",
 		"secondary_color": "ffe14a",
@@ -129,27 +167,20 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "fire",
 	},
-	# ── Ember (fire / druidic flame) ───────────────────────────────
+	# ── Ember (Witchfire / Demented) ─────────────────────────────────────────
 	"ember_entangle": {
 		"primary_color": "ffb46b",
 		"secondary_color": "8cff4a",
 		"pulse_count": 2,
 		"ribbon_count": 4,
-		"style": "fire",
+		"style": "nature",
 	},
 	"ember_healing_wave": {
 		"primary_color": "ffd36b",
 		"secondary_color": "8cff4a",
 		"pulse_count": 4,
 		"ribbon_count": 3,
-		"style": "fire",
-	},
-	"ember_thunder_dance": {
-		"primary_color": "ffb46b",
-		"secondary_color": "ffe14a",
-		"pulse_count": 3,
-		"ribbon_count": 5,
-		"style": "fire",
+		"style": "nature",
 	},
 	"ember_unbreakable": {
 		"primary_color": "ffc46b",
@@ -158,7 +189,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 2,
 		"style": "fire",
 	},
-	# ── Thorn (nature / poison) ────────────────────────────────────
+	# ── Thorn (Venom / Slither) ──────────────────────────────────────────────
 	"thorn_poison_spray": {
 		"primary_color": "a8e05c",
 		"secondary_color": "d9ff8a",
@@ -173,21 +204,14 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 2,
 		"style": "nature",
 	},
-	"thorn_toxin_outbreak": {
-		"primary_color": "8cff4a",
-		"secondary_color": "d9ff8a",
-		"pulse_count": 4,
-		"ribbon_count": 6,
-		"style": "nature",
-	},
 	"thorn_poison_burst": {
 		"primary_color": "8ce04a",
 		"secondary_color": "d9ff8a",
-		"pulse_count": 3,
-		"ribbon_count": 4,
+		"pulse_count": 4,
+		"ribbon_count": 5,
 		"style": "nature",
 	},
-	# ── Willow (nature / wind) ─────────────────────────────────────
+	# ── Willow (Flick / Forsaken Archer) ─────────────────────────────────────
 	"willow_swift_strike": {
 		"primary_color": "d4ff8f",
 		"secondary_color": "b8ff6b",
@@ -202,13 +226,6 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 4,
 		"style": "nature",
 	},
-	"willow_grasp_of_nature": {
-		"primary_color": "b8ff6b",
-		"secondary_color": "8cff4a",
-		"pulse_count": 2,
-		"ribbon_count": 5,
-		"style": "nature",
-	},
 	"willow_wall_of_roots": {
 		"primary_color": "b8ff6b",
 		"secondary_color": "d9ff8a",
@@ -216,8 +233,8 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "nature",
 	},
-	# ── Stump (nature / bark & beast) ──────────────────────────────
-	"stump_rally": {
+	# ── Stump (Keeper) ───────────────────────────────────────────────────────
+	"stump_natures_rally": {
 		"primary_color": "c49a55",
 		"secondary_color": "d4b06b",
 		"pulse_count": 3,
@@ -231,13 +248,6 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "nature",
 	},
-	"stump_call_of_the_wild": {
-		"primary_color": "d4b06b",
-		"secondary_color": "c49a55",
-		"pulse_count": 4,
-		"ribbon_count": 4,
-		"style": "nature",
-	},
 	"stump_overgrowth": {
 		"primary_color": "8ee04a",
 		"secondary_color": "d4b06b",
@@ -245,8 +255,8 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "nature",
 	},
-	# ── Sage (nature / fae) ────────────────────────────────────────
-	"sage_grace_of_the_nymph": {
+	# ── Sage (Nymphel / Nymphora) ────────────────────────────────────────────
+	"sage_grace": {
 		"primary_color": "ffe3ec",
 		"secondary_color": "ffd9e0",
 		"pulse_count": 3,
@@ -260,13 +270,6 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "nature",
 	},
-	"sage_natures_veil": {
-		"primary_color": "d4ff8f",
-		"secondary_color": "ffd9e0",
-		"pulse_count": 3,
-		"ribbon_count": 5,
-		"style": "nature",
-	},
 	"sage_charm": {
 		"primary_color": "ffd9e0",
 		"secondary_color": "ffe3ec",
@@ -274,7 +277,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "nature",
 	},
-	# ── Volt (storm) ───────────────────────────────────────────────
+	# ── Volt (Gale / Zephyr) ─────────────────────────────────────────────────
 	"volt_gust": {
 		"primary_color": "b0e8ff",
 		"secondary_color": "7af0ff",
@@ -289,13 +292,6 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "storm",
 	},
-	"volt_storm_cloud": {
-		"primary_color": "7af0ff",
-		"secondary_color": "b48cff",
-		"pulse_count": 4,
-		"ribbon_count": 5,
-		"style": "storm",
-	},
 	"volt_typhoon": {
 		"primary_color": "7af0ff",
 		"secondary_color": "b0e8ff",
@@ -303,7 +299,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "storm",
 	},
-	# ── Nebula (arcane / time) ─────────────────────────────────────
+	# ── Nebula (Aeon / Chronos) ──────────────────────────────────────────────
 	"nebula_time_shift": {
 		"primary_color": "cbb0ff",
 		"secondary_color": "b48cff",
@@ -318,21 +314,14 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "arcane",
 	},
-	"nebula_time_freeze": {
-		"primary_color": "b48cff",
-		"secondary_color": "dbe9ff",
-		"pulse_count": 3,
-		"ribbon_count": 4,
-		"style": "arcane",
-	},
-	"nebula_chronosphere": {
+	"nebula_chronofield": {
 		"primary_color": "b48cff",
 		"secondary_color": "cbb0ff",
 		"pulse_count": 5,
 		"ribbon_count": 6,
 		"style": "arcane",
 	},
-	# ── Astral (arcane / radiant) ──────────────────────────────────
+	# ── Astral (Lumina / Empath) ─────────────────────────────────────────────
 	"astral_essence_link": {
 		"primary_color": "fff4c4",
 		"secondary_color": "ffe9a0",
@@ -347,13 +336,6 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "arcane",
 	},
-	"astral_essence_projection": {
-		"primary_color": "ffe9a0",
-		"secondary_color": "fff4c4",
-		"pulse_count": 2,
-		"ribbon_count": 3,
-		"style": "arcane",
-	},
 	"astral_as_one": {
 		"primary_color": "fff4c4",
 		"secondary_color": "b48cff",
@@ -361,37 +343,50 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "arcane",
 	},
-	# ── Rime (arcane / ice) ────────────────────────────────────────
+	# ── Rime (Glacier / Glacius) ─────────────────────────────────────────────
 	"rime_ice_imprisonment": {
 		"primary_color": "cfe8ff",
 		"secondary_color": "3a5a8c",
 		"pulse_count": 3,
 		"ribbon_count": 4,
-		"style": "arcane",
+		"style": "ice",
 	},
 	"rime_chilling_touch": {
 		"primary_color": "cfe8ff",
 		"secondary_color": "a8dcff",
 		"pulse_count": 1,
 		"ribbon_count": 2,
-		"style": "arcane",
+		"style": "ice",
 	},
-	"rime_bitter_chill": {
-		"primary_color": "a8dcff",
-		"secondary_color": "dbe9ff",
-		"pulse_count": 2,
-		"ribbon_count": 3,
-		"style": "arcane",
-	},
-	"rime_absolute_zero": {
+	"rime_freezing_field": {
 		"primary_color": "dbe9ff",
 		"secondary_color": "cfe8ff",
 		"pulse_count": 5,
 		"ribbon_count": 7,
-		"style": "arcane",
+		"style": "ice",
 	},
 }
 
 
 static func kit_visual(ability_id: String) -> Dictionary:
 	return KIT_VISUALS.get(ability_id, {})
+
+
+## Applies KIT_VISUALS styling onto a LightningEffect. Call after setting
+## style/points so pulse/ribbon counts can influence the vector draw.
+static func apply_to_lightning(fx: LightningEffect, kit_id: String) -> void:
+	if fx == null:
+		return
+	var data := kit_visual(kit_id)
+	if data.is_empty():
+		return
+	var primary := str(data.get("primary_color", ""))
+	var secondary := str(data.get("secondary_color", ""))
+	if primary != "":
+		fx.main_color = Color(primary)
+	if secondary != "":
+		fx.chain_color = Color(secondary)
+	fx.pulse_count = int(data.get("pulse_count", 1))
+	fx.ribbon_count = int(data.get("ribbon_count", 1))
+	fx.style_tag = str(data.get("style", "storm"))
+	fx.queue_redraw()

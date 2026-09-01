@@ -5,6 +5,12 @@ extends Node2D
 @export var main_color := Color("8eeeff")
 @export var chain_color := Color("b990ff")
 
+## Kit VFX styling — populated by KitFxLibrary.apply_to_lightning.
+## All additive: existing casts work with defaults (1 / 1 / "storm").
+var pulse_count := 1
+var ribbon_count := 1
+var style_tag := "storm"
+
 var style: PlayerClass.EffectStyle = PlayerClass.EffectStyle.BOLT
 var points := PackedVector2Array()
 var elapsed := 0.0
@@ -50,18 +56,48 @@ func _draw() -> void:
 					_draw_wave(points[segment_index], points[segment_index + 1], color, width, segment_index, effect_alpha)
 				else:
 					_draw_bolt(points[segment_index], points[segment_index + 1], color, width, segment_index, effect_alpha)
+				# Extra parallel ribbons for multi-ribbon kits (chain lightning, etc).
+				if ribbon_count > 1:
+					var dir := (points[segment_index + 1] - points[segment_index])
+					var normal := Vector2(-dir.y, dir.x).normalized()
+					for ribbon_index in range(1, ribbon_count):
+						var offset := normal * float(ribbon_index) * 8.0
+						var ribbon_color := chain_color
+						ribbon_color.a *= effect_alpha * 0.5 / float(ribbon_index)
+						var from_pt: Vector2 = points[segment_index] + offset
+						var to_pt: Vector2 = points[segment_index + 1] + offset
+						if style == PlayerClass.EffectStyle.WAVE:
+							_draw_wave(from_pt, to_pt, ribbon_color, width * 0.6, segment_index + ribbon_index, effect_alpha)
+						else:
+							_draw_bolt(from_pt, to_pt, ribbon_color, width * 0.6, segment_index + ribbon_index, effect_alpha)
 
 
 func _draw_burst(center: Vector2, radius: float, alpha: float) -> void:
 	var color := main_color
 	color.a *= alpha
 	draw_circle(center, radius, color)
+	# Extra echo pulses for kit visual depth — HoN-faithful stacked rings.
+	if pulse_count > 1:
+		for i in range(1, pulse_count):
+			var f := float(i) / float(pulse_count)
+			var ring_color := chain_color
+			ring_color.a *= alpha * (1.0 - f * 0.6)
+			draw_arc(center, radius * (0.5 + f * 0.5), 0.0, TAU, 72, ring_color, 3.0, true)
 
 
 func _draw_blast(from: Vector2, impact: Vector2, radius: float, alpha: float) -> void:
 	var line_color := main_color
 	line_color.a *= alpha
 	draw_line(from, impact, line_color, 4.0)
+	# Ribbon trails fanning from the impact point — HoN-faithful shatter.
+	if ribbon_count > 1:
+		var base_angle := (impact - from).angle()
+		for i in range(ribbon_count):
+			var spread := (float(i) / maxf(float(ribbon_count - 1), 1.0) - 0.5) * PI * 0.6
+			var dir := Vector2.from_angle(base_angle + spread)
+			var trail_color := chain_color
+			trail_color.a *= alpha * 0.6
+			draw_line(from, impact + dir * radius * 0.6, trail_color, 2.0)
 	var impact_color := chain_color
 	impact_color.a *= alpha
 	draw_circle(impact, radius, impact_color)
@@ -78,6 +114,18 @@ func _draw_arc_wedge(center: Vector2, radius: float, facing: Vector2, half_angle
 		var angle := base_angle - half_angle + (half_angle * 2.0 * float(i) / float(steps))
 		arc_points.append(center + Vector2.from_angle(angle) * radius)
 	draw_colored_polygon(arc_points, color)
+	# Extra concentric wedges add depth for multi-pulse kits.
+	if pulse_count > 1:
+		for i in range(1, pulse_count):
+			var f := float(i) / float(pulse_count)
+			var wedge_color := chain_color
+			wedge_color.a *= alpha * 0.2 * (1.0 - f)
+			var inner := PackedVector2Array()
+			inner.append(center)
+			for step in range(steps + 1):
+				var angle := base_angle - half_angle + (half_angle * 2.0 * float(step) / float(steps))
+				inner.append(center + Vector2.from_angle(angle) * radius * (0.4 + f * 0.4))
+			draw_colored_polygon(inner, wedge_color)
 
 
 func _draw_wave(from: Vector2, to: Vector2, color: Color, width: float, segment_index: int, progress: float) -> void:

@@ -11,6 +11,11 @@ var _elapsed := 0.0
 var _pixel_zoom := BASE_PIXEL_ZOOM
 var _ring_radius := 0.0
 var _style := PlayerClass.EffectStyle.BURST
+var _kit_pulse_count := 1
+var _kit_ribbon_count := 1
+var _kit_style := "storm"
+var _kit_primary := Color.WHITE
+var _kit_secondary := Color.WHITE
 
 
 func configure(ability_id: String, effect_style: int, points: PackedVector2Array) -> void:
@@ -29,6 +34,25 @@ func configure(ability_id: String, effect_style: int, points: PackedVector2Array
 		rotation = points[0].angle_to_point(points[1])
 	elif effect_style == PlayerClass.EffectStyle.ARC and points.size() >= 3:
 		rotation = points[0].angle_to_point(points[2])
+	z_index = 20
+	queue_redraw()
+
+
+## Pull KIT_VISUALS styling for kit-driven draws. Call INSTEAD of configure()
+## when the effect should be driven purely by KitFxLibrary data — no sprite frames.
+func configure_for_kit(kit_id: String) -> void:
+	var kit := KitFxLibrary.kit_visual(kit_id)
+	if kit.is_empty():
+		return
+	var primary := str(kit.get("primary_color", ""))
+	var secondary := str(kit.get("secondary_color", ""))
+	if primary != "":
+		_kit_primary = Color(primary)
+	if secondary != "":
+		_kit_secondary = Color(secondary)
+	_kit_pulse_count = int(kit.get("pulse_count", 1))
+	_kit_ribbon_count = int(kit.get("ribbon_count", 1))
+	_kit_style = str(kit.get("style", "storm"))
 	z_index = 20
 	queue_redraw()
 
