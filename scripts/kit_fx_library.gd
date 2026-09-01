@@ -13,6 +13,35 @@ extends RefCounted
 ##   style           — "fire" | "nature" | "storm" | "arcane"
 
 const KIT_VISUALS: Dictionary = {
+	# ── Wrench (Iron Foundry / steam) ─────────────────────────────────────────────
+	"tobor_steam_keg": {
+		"primary_color": "ffd36b",
+		"secondary_color": "ff8a3d",
+		"pulse_count": 2,
+		"ribbon_count": 2,
+		"style": "steam",
+	},
+	"tobor_steam_turret": {
+		"primary_color": "ffd36b",
+		"secondary_color": "ff8a3d",
+		"pulse_count": 2,
+		"ribbon_count": 1,
+		"style": "steam",
+	},
+	"tobor_spider_mines": {
+		"primary_color": "ff9a3c",
+		"secondary_color": "ffe14a",
+		"pulse_count": 3,
+		"ribbon_count": 2,
+		"style": "steam",
+	},
+	"tobor_energy_field": {
+		"primary_color": "7af0ff",
+		"secondary_color": "ffd36b",
+		"pulse_count": 4,
+		"ribbon_count": 6,
+		"style": "arcane",
+	},
 	# ── Cinder (fire) ──────────────────────────────────────────────
 	"cinder_whirling_flame": {
 		"primary_color": "ffb347",

@@ -3,6 +3,15 @@ extends RefCounted
 
 ## SuperMercator robots and biome tiles. SpriteArt prefixes every id with tw_.
 
+## Global terrain tone knob. The biome tiles shipped saturated (electric oranges,
+## teal, pure blues); the player asked for the old, muted grass-meadow feel. TERRAIN_SAT_
+## ADJUST scales every tile/void/decal/rock palette's saturation toward gray before the
+## sprites are registered, so a single constant retunes the whole world without hand-
+## editing each palette. 1.0 = original, 0.0 = grayscale. 0.70 ≈ 30% desaturated.
+const TERRAIN_SAT_ADJUST := 0.70
+## Matching luminance lift so muting doesn't read as darkening the world. 0 = keep.
+const TERRAIN_LIGHT_ADJUST := 0.08
+
 const ENEMY_PALETTES := {
 	"grunt": {"o": "1a1210", "f": "8b95a1", "l": "dfe6f2", "e": "181410", "w": "3a4656", "g": "e85a2a"},
 	"swarmling": {"o": "1a1210", "f": "e85a2a", "l": "ffe08c", "e": "181410", "w": "dfe6f2"},
@@ -942,16 +951,29 @@ static func all_sprites() -> Dictionary:
 		"docks": _DOCKS_BARREL,
 	}
 	for biome in BIOME_TILE_PALETTES.keys():
-		sprites["%s_grass_tile" % biome] = {"rows": tiles[biome], "palette": BIOME_TILE_PALETTES[biome]}
-		sprites["%s_void_tile" % biome] = {"rows": voids[biome], "palette": BIOME_VOID_PALETTES[biome]}
-		sprites["%s_grass_tuft" % biome] = {"rows": tufts[biome], "palette": BIOME_DECAL_PALETTES[biome]}
-		sprites["%s_grass_flower" % biome] = {"rows": TERRAIN_ROWS.grass_flower, "palette": BIOME_DECAL_PALETTES[biome]}
-		sprites["%s_grass_bloom" % biome] = {"rows": TERRAIN_ROWS.grass_bloom, "palette": BIOME_DECAL_PALETTES[biome]}
-		sprites["%s_rock_small" % biome] = {"rows": rocks[biome], "palette": BIOME_ROCK_PALETTES[biome]}
-		sprites["%s_rock_large" % biome] = {"rows": TERRAIN_ROWS.rock_large, "palette": BIOME_ROCK_PALETTES[biome]}
-		sprites["%s_boulder" % biome] = {"rows": TERRAIN_ROWS.boulder, "palette": BIOME_ROCK_PALETTES[biome]}
-		sprites["%s_spire" % biome] = {"rows": TERRAIN_ROWS.spire, "palette": BIOME_ROCK_PALETTES[biome]}
+		sprites["%s_grass_tile" % biome] = {"rows": tiles[biome], "palette": _tone_terrain(BIOME_TILE_PALETTES[biome])}
+		sprites["%s_void_tile" % biome] = {"rows": voids[biome], "palette": _tone_terrain(BIOME_VOID_PALETTES[biome])}
+		sprites["%s_grass_tuft" % biome] = {"rows": tufts[biome], "palette": _tone_terrain(BIOME_DECAL_PALETTES[biome])}
+		sprites["%s_grass_flower" % biome] = {"rows": TERRAIN_ROWS.grass_flower, "palette": _tone_terrain(BIOME_DECAL_PALETTES[biome])}
+		sprites["%s_grass_bloom" % biome] = {"rows": TERRAIN_ROWS.grass_bloom, "palette": _tone_terrain(BIOME_DECAL_PALETTES[biome])}
+		sprites["%s_rock_small" % biome] = {"rows": rocks[biome], "palette": _tone_terrain(BIOME_ROCK_PALETTES[biome])}
+		sprites["%s_rock_large" % biome] = {"rows": TERRAIN_ROWS.rock_large, "palette": _tone_terrain(BIOME_ROCK_PALETTES[biome])}
+		sprites["%s_boulder" % biome] = {"rows": TERRAIN_ROWS.boulder, "palette": _tone_terrain(BIOME_ROCK_PALETTES[biome])}
+		sprites["%s_spire" % biome] = {"rows": TERRAIN_ROWS.spire, "palette": _tone_terrain(BIOME_ROCK_PALETTES[biome])}
 	return sprites
+
+
+## Desaturate + lighten a biome terrain palette toward the old grass-meadow tone.
+## Pure palette transform — no sprite/rows touched. TERRAIN_SAT_ADJUST is the knob.
+static func _tone_terrain(palette: Dictionary) -> Dictionary:
+	var tweaked: Dictionary = {}
+	for key in palette:
+		var color := Color(str(palette[key]))
+		var gray := color.get_luminance()
+		color.s = clampf(color.s * TERRAIN_SAT_ADJUST, 0.0, 1.0)
+		color.v = clampf(lerpf(color.v, gray, TERRAIN_LIGHT_ADJUST), 0.0, 1.0)
+		tweaked[key] = color.to_html(false)
+	return tweaked
 
 
 static func _collect(sprites: Dictionary, rows_by_name: Dictionary, palettes: Dictionary) -> void:

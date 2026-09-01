@@ -707,8 +707,8 @@ func apply_fallback_bonus() -> void:
 ## Anything NOT in this list is instant-cast on press (the old behavior).
 const TARGETED_ABILITIES := {
 	# --- Robot (Iron Foundry) -------------------------------------------------------------
-	"tobor_the_keg": "point",
-	"tobor_steam_turret": "vector",
+	"tobor_steam_keg": "point",
+	"tobor_steam_turret": "instant",
 	"tobor_spider_mines": "point",
 	"tobor_energy_field": "point",
 	"arclight_blast_of_lightning": "unit",
@@ -848,6 +848,22 @@ func _cast_known_ability(slot: int) -> void:
 	_pending_ability_slot = -1
 	_pending_ability_id = ""
 	aim_indicator_visible = false
+	# Wrench's HoN-inspired machinery is a bespoke kit — handle the four cast functions
+	# explicitly before the generic archetype table. These use richer plumbing (two-stage
+	# projectile throws, multi-mine scatter, zone control) than a bare archetype entry would.
+	match ability_id:
+		"tobor_steam_keg":
+			_cast_ability_wrench_keg(data, values, int(entry.rank))
+			return
+		"tobor_steam_turret":
+			_cast_ability_wrench_turret(data, values, int(entry.rank))
+			return
+		"tobor_spider_mines":
+			_cast_ability_wrench_mines(data, values, int(entry.rank))
+			return
+		"tobor_energy_field":
+			_cast_ability_wrench_field(data, values, int(entry.rank))
+			return
 	match int(data.archetype):
 		PlayerClass.Archetype.NUKE_BOLT:
 			_cast_ability_nuke_bolt(data, values)
@@ -934,6 +950,10 @@ const SummonEntityScene: PackedScene = preload("res://scenes/effects/summon_enti
 const MAX_ACTIVE_SUMMONS := 6
 var active_summons: Array[SummonEntity] = []
 
+## Wrench's Spider Mines — proximity satchel charges planted on the field that detonate when
+## an enemy steps inside their trigger radius. Long-lived field control; capped like summons.
+const WRENCH_MAX_MINES := 4
+
 
 func _cast_ability_summon_spirit(data: Dictionary, values: Dictionary) -> void:
 	# Place at aim point (clamped to a sane throw distance) — the player picks where the turret
@@ -983,6 +1003,109 @@ func _spawn_summon(data: Dictionary, values: Dictionary, position: Vector2) -> v
 
 func _on_summon_expired(entity: SummonEntity) -> void:
 	active_summons.erase(entity)
+
+
+## --- Wrench (HoN Engineer-inspired) kit ----------------------------------------------
+
+## Steam Keg: lobbed satchel of volatile steam. Two-stage point cast — the player arms it,
+## picks a landing spot, then the keg sails over as a real projectile-and-impact read. The
+## throw range leans on a generous "keg_range" data field (HoN ~1000 range) so long lobs
+## don't get clipped by the tighter damage `range`; falls back to a lob over the blast zone.
+func _cast_ability_wrench_keg(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var throw_range := float(data.get("keg_range", maxf(float(values.range), 460.0)))
+	var center := _ability_aim_center(throw_range)
+	_spawn_ability_projectile(_casting_ability_id, global_position, center)
+	var radius := float(values.radius)
+	# Impact read: HoN's keg pops enemies away from the blast centre on top of its damage.
+	var kick := absf(float(data.get("knockback_on_hit", 380.0)))
+	for enemy in _enemies_in_radius(center, radius):
+		var away_dir := center.direction_to(enemy.global_position)
+		if away_dir.length_squared() <= 0.0:
+			away_dir = Vector2.RIGHT
+		if enemy.has_method("apply_knockback"):
+			enemy.apply_knockback(away_dir * kick)
+		else:
+			enemy.knockback_velocity = away_dir * kick
+		_apply_ability_hit(enemy, data, values)
+	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
+
+
+## Steam Turret: one targetless cast plants an auto-firing steam turret at Wrench's feet.
+## Fast attack cadence chips nearby enemies; long-lived but disposable.
+func _cast_ability_wrench_turret(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	_spawn_summon(data, values, global_position + facing_direction * 18.0)
+
+
+## Spider Mines: scatter a small clutch of proximity mines around the cursor. Each anchors
+## where it lands and detonates on contact — field denial, not a direct nuke.
+func _cast_ability_wrench_mines(data: Dictionary, values: Dictionary, rank: int) -> void:
+	var mine_count := clampi(int(data.get("mine_count", 2)) + rank - 1, 1, WRENCH_MAX_MINES)
+	var scatter_radius := float(data.get("scatter_radius", 70.0))
+	var arm_range := maxf(float(values.range), 420.0)
+	var center := _ability_aim_center(arm_range)
+	for index in mine_count:
+		var point := center
+		if mine_count > 1:
+			var angle := TAU * float(index) / float(mine_count) + _rand_range_float(0.0, 0.6)
+			var dist := _rand_range_float(scatter_radius * 0.35, scatter_radius)
+			point = center + Vector2(cos(angle), sin(angle)) * dist
+		_spawn_wrench_mine(data, values, point)
+	_emit_ability_cast(PackedVector2Array([center, Vector2(scatter_radius, 0.0)]))
+
+
+func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2) -> void:
+	var sum := SummonEntityScene.instantiate() as SummonEntity
+	var hero := PlayerClass.by_id(class_id)
+	sum.setup(
+		_casting_ability_id,
+		multiplayer.get_unique_id() if has_node("/root/NetworkService") else 0,
+		float(values.get("power", 60.0)),
+		float(values.get("duration", 40.0)),
+		99.0,
+		Color(str(hero.get("effect_color", "#ffffff")))
+	)
+	sum.range = 0.0
+	sum.owner_damage_type = int(damage_type)
+	sum.position = position
+	# Proximity fuse: wake when anything hostile steps inside this ring…
+	sum.trigger_radius = float(data.get("trigger_radius", 34.0))
+	# …then clip a somewhat wider blast so the mine actually threatens a pack.
+	sum.explosion_radius = float(data.get("explosion_radius", 92.0))
+	sum.expired.connect(_on_summon_expired)
+	get_tree().current_scene.add_child(sum)
+	active_summons.append(sum)
+	while active_summons.size() > MAX_ACTIVE_SUMMONS:
+		var oldest: SummonEntity = active_summons.pop_front()
+		if is_instance_valid(oldest):
+			oldest.queue_free()
+
+
+## Energy Field: two-stage HoN ultimate. Throws a crackling containment field at the picked
+## point — enemies caught inside keep taking steam damage and move at a crawl while it's up.
+func _cast_ability_wrench_field(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var reach := maxf(float(values.range), 420.0)
+	var center := _ability_aim_center(reach)
+	# The slow is the field's defining debuff — lean on it hard, HoN-style.
+	var slow_factor := 0.45
+	var slow_duration := 4.0
+	if data.has("slow_on_hit"):
+		slow_factor = float(data.slow_on_hit.get("factor", slow_factor))
+		slow_duration = float(data.slow_on_hit.get("duration", slow_duration))
+	var radius := float(values.radius)
+	# Opening burst: everyone caught in the field when it lands takes the first tick + slow.
+	for enemy in _enemies_in_radius(center, radius):
+		if enemy.has_method("apply_slow"):
+			enemy.apply_slow(slow_factor, slow_duration)
+		_apply_ability_hit(enemy, data, values)
+	# Keep the zone painted for the slow's run so the field reads as a persistent hazard.
+	var zone_duration := maxf(float(values.get("duration", 0.0)), maxf(slow_duration, 1.0))
+	_spawn_ability_zone_pulse(center, radius, clampf(zone_duration, 1.5, 12.0))
+	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
+
+
+## Small jitter helper for mine scatter — slight spread so the clutch doesn't overlap.
+func _rand_range_float(low: float, high: float) -> float:
+	return low + randf() * (high - low)
 
 
 ## Riki-style Teleport Strike: pop behind the nearest enemy and hit them hard.

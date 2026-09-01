@@ -232,7 +232,7 @@ func _record_landmarks(label: String) -> void:
 		return
 	var list: Array = []
 	for landmark in (arena as Arena).landmarks:
-		if not (landmark is LandmarkButton) or not is_instance_valid(landmark):
+		if not (landmark is ArenaLandmark) or not is_instance_valid(landmark):
 			continue
 		list.append({
 			"effect_id": str(landmark.effect_id),

@@ -34,7 +34,7 @@ const WORLD_LANDMARKS: Array[Array] = [
 ]
 
 ## Live landmark instances the current world spawned. Emptied and rebuilt on set_world.
-var landmarks: Array[Landmark] = []
+var landmarks: Array[ArenaLandmark] = []
 
 var _world_id: int = World.IRON_FOUNDRY
 
@@ -60,13 +60,16 @@ func set_world(world_id: int) -> void:
 
 
 const BASE_SIZE := Vector2(2400.0, 1600.0)
-## Each later biome is a bigger field: grass < volcano < ice < factory < docks.
+## Original, pre-biome open-field layout: uniform BASE_SIZE no matter the biome.
+## Biome switching (set_world) still swaps the floor tile palette, but no longer
+## balloons the playfield, carves it into island pads, or floods it with lava voids.
+## Kept as a constant so the classic size is easy to bump without touching geometry code.
 const SIZE_BY_BIOME: Array[Vector2] = [
 	Vector2(2400.0, 1600.0),
-	Vector2(3360.0, 2240.0),
-	Vector2(4560.0, 3040.0),
-	Vector2(5760.0, 3840.0),
-	Vector2(7200.0, 4800.0),
+	Vector2(2400.0, 1600.0),
+	Vector2(2400.0, 1600.0),
+	Vector2(2400.0, 1600.0),
+	Vector2(2400.0, 1600.0),
 ]
 
 
@@ -152,7 +155,7 @@ func _spawn_landmarks() -> void:
 	var spec: Array = WORLD_LANDMARKS[_world_id]
 	if spec.size() < 6:
 		return
-	var landmark := Landmark.new()
+	var landmark := ArenaLandmark.new()
 	landmark.position = _landmark_spot()
 	add_child(landmark)
 	landmark.configure(
@@ -226,9 +229,9 @@ func half_extents() -> Vector2:
 
 
 func _build_field() -> void:
-	if GameRuntime.uses_biomes():
-		walk_pads = _pads_for_biome(GameRuntime.biome_id)
-		_build_void_bodies()
+	# Classic open field: no biome pad carving, no void bodies. The biome only reskins
+	# the ground tile art (see _ground_tile_id); everything stays walkable like the
+	# pre-biome grass meadow the player asked us to restore. Landmark still spawns.
 	_scatter_obstacles()
 	var shop_stand := SHOP_STAND_SCENE.instantiate() as Node2D
 	shop_stand.global_position = shop_stand_position()
@@ -442,34 +445,31 @@ func _draw() -> void:
 		_draw_classic_grid(rect)
 		return
 
-	if not walk_pads.is_empty():
-		_draw_void_rect(rect)
-		for pad in walk_pads:
-			_draw_ground_rect(pad)
-	else:
-		_draw_ground_rect(rect)
+	_draw_ground_rect(rect)
 	_draw_decals()
 	if GameRuntime.uses_biomes():
+		# Biome accent rims match the desaturated tiles in tobor_world_art.gd (roughly
+		# 30% gray mixed in) so the arena frame no longer pops against a muted floor.
 		var rim := Color("1a2a18")
-		var inner := Color(0.09, 0.16, 0.09, 0.55)
+		var inner := Color(0.09, 0.16, 0.09, 0.40)
 		match GameRuntime.biome_id:
 			1:
-				rim = Color("e85a2a")
-				inner = Color(0.28, 0.08, 0.05, 0.55)
+				rim = Color("a8664a")
+				inner = Color(0.22, 0.11, 0.08, 0.40)
 			2:
-				rim = Color("8ad7ff")
-				inner = Color(0.10, 0.18, 0.28, 0.55)
+				rim = Color("7a94a4")
+				inner = Color(0.11, 0.16, 0.22, 0.40)
 			3:
-				rim = Color("2bbfbe")
-				inner = Color(0.08, 0.10, 0.14, 0.55)
+				rim = Color("5a8280")
+				inner = Color(0.09, 0.11, 0.13, 0.40)
 			4:
-				rim = Color("4f8fe0")
-				inner = Color(0.10, 0.12, 0.18, 0.55)
+				rim = Color("66788c")
+				inner = Color(0.10, 0.12, 0.17, 0.40)
 		draw_rect(rect, rim, false, 16.0)
 		draw_rect(rect.grow(-16.0), inner, false, 4.0)
 	else:
 		draw_rect(rect, Color("1a2a18"), false, 16.0)
-		draw_rect(rect.grow(-16.0), Color(0.09, 0.16, 0.09, 0.55), false, 4.0)
+		draw_rect(rect.grow(-16.0), Color(0.09, 0.16, 0.09, 0.40), false, 4.0)
 
 
 func _void_color() -> Color:

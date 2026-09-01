@@ -1080,7 +1080,7 @@ func _on_enemy_defeated(enemy: Enemy) -> void:
 
 
 ## Landmark triggering lives server-side only; clients mirror through the HUD flash RPC.
-## Signal contract: Landmark.triggered(position) — look the landmark up by distance.
+## Signal contract: ArenaLandmark.triggered(position) — look the landmark up by distance.
 func _on_landmark_triggered(trigger_position: Vector2) -> void:
 	var landmark := _landmark_at(trigger_position)
 	if landmark == null:
@@ -1106,10 +1106,10 @@ func _on_landmark_triggered(trigger_position: Vector2) -> void:
 
 
 ## Find the landmark nearest a fired position; Arena keeps the canonical `landmarks` list.
-func _landmark_at(trigger_position: Vector2) -> Landmark:
+func _landmark_at(trigger_position: Vector2) -> ArenaLandmark:
 	if not (arena is Arena):
 		return null
-	var best: Landmark = null
+	var best: ArenaLandmark = null
 	var best_distance := INF
 	for landmark in (arena as Arena).landmarks:
 		if not is_instance_valid(landmark):
@@ -1121,7 +1121,7 @@ func _landmark_at(trigger_position: Vector2) -> Landmark:
 	return best
 
 
-func _landmark_pulse_wipe(landmark: Landmark) -> void:
+func _landmark_pulse_wipe(landmark: ArenaLandmark) -> void:
 	var origin := landmark.global_position
 	var kill_radius := landmark.effect_radius
 	for entity_id in enemies.keys():
@@ -1140,7 +1140,7 @@ func _landmark_pulse_wipe(landmark: Landmark) -> void:
 	hud.flash_combat_text("Storm pulse! Minions within %dm wiped." % int(kill_radius / 10.0), Color("ffd060"))
 
 
-func _landmark_freeze_time(landmark: Landmark) -> void:
+func _landmark_freeze_time(landmark: ArenaLandmark) -> void:
 	var duration := landmark.effect_arg
 	for entity_id in enemies.keys():
 		var enemy := enemies[entity_id] as Enemy
@@ -1169,7 +1169,7 @@ func _landmark_freeze_time(landmark: Landmark) -> void:
 	hud.flash_combat_text("Time resumes.", Color("cfe6ff"))
 
 
-func _landmark_heal_all(landmark: Landmark) -> void:
+func _landmark_heal_all(landmark: ArenaLandmark) -> void:
 	var amount := landmark.effect_arg
 	for player in players.values():
 		if is_instance_valid(player) and (player as Player).active:
@@ -1302,7 +1302,7 @@ func _on_ability_cast(ability_id: String, effect_style: int, points: PackedVecto
 ## BURST ring, turret gets a WINDUP bounce. Keep pixel-art for heroes we haven't redone.
 const VECTOR_ONLY_KIT_IDS := {
 	# Robot
-	"tobor_the_keg": PlayerClass.EffectStyle.BLAST,
+	"tobor_steam_keg": PlayerClass.EffectStyle.BLAST,
 	"tobor_steam_turret": PlayerClass.EffectStyle.BURST,
 	"tobor_spider_mines": PlayerClass.EffectStyle.BURST,
 	"tobor_energy_field": PlayerClass.EffectStyle.BURST,
@@ -1381,10 +1381,18 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 	var class_prefix := ability_id.split("_")[0]
 	var class_data := PlayerClass.by_id(class_prefix)
 	var vector_only := VECTOR_ONLY_KIT_IDS.has(ability_id)
+	# Kit-visual styling (HoN-faithful heroes / kit-first abilities) overrides hero defaults
+	# when an entry exists — falls back to class colors otherwise so everything still renders.
+	var kit_style := KitFxLibrary.kit_visual(ability_id)
+	var primary_color := Color(class_data.effect_color)
+	var secondary_color := Color(class_data.effect_secondary)
+	if not kit_style.is_empty():
+		primary_color = Color(str(kit_style.get("primary_color", class_data.effect_color)))
+		secondary_color = Color(str(kit_style.get("secondary_color", class_data.effect_secondary)))
 	var flash := lightning_scene.instantiate() as LightningEffect
 	flash.style = VECTOR_ONLY_KIT_IDS.get(ability_id, effect_style)
-	flash.main_color = Color(class_data.effect_color)
-	flash.chain_color = Color(class_data.effect_secondary)
+	flash.main_color = primary_color
+	flash.chain_color = secondary_color
 	flash.lifetime = clampf(0.14 + (points[1].x if points.size() >= 2 else 80.0) / 900.0, 0.14, 0.42)
 	flash.points = points
 	add_child(flash)

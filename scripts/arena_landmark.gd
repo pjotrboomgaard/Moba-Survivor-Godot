@@ -1,11 +1,11 @@
-class_name Landmark
+class_name ArenaLandmark
 extends Node2D
 
 ## A biome landmark: a stand-still pad that charges while a player holds inside it, then
 ## fires a signature effect. Effects dispatch back to main.gd via `triggered(position)`.
-## Visuals and behaviour mirror LandmarkButton (radial fill ring, hint label, cooldown
-## arc, pixel sprite); this class is the canonical, world-aware version that Arena owns
-## in its `landmarks: Array[Landmark]` collection.
+## Visuals and behaviour mirror the legacy LandmarkButton (radial fill ring, hint label,
+## cooldown arc, pixel sprite); this class is the canonical, world-aware version that
+## Arena owns in its `landmarks: Array[ArenaLandmark]` collection.
 
 signal triggered(position: Vector2)
 
@@ -28,26 +28,9 @@ var _cooldown := 0.0  # seconds left before this landmark can fire again
 var _hint := ""
 var _anim := 0.0
 
-var _sprite: Sprite2D = null
-var _hint_label: Label = null
-
 
 func _ready() -> void:
-	_sprite = Sprite2D.new()
-	_sprite.name = "Sprite"
-	_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	add_child(_sprite)
-	_hint_label = Label.new()
-	_hint_label.name = "Hint"
-	_hint_label.position = Vector2(-160.0, -118.0)
-	_hint_label.size = Vector2(320.0, 54.0)
-	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint_label.add_theme_font_size_override("font_size", 16)
-	_hint_label.add_theme_color_override("font_color", Color(1.0, 0.94, 0.62, 1.0))
-	_hint_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
-	_hint_label.add_theme_constant_override("outline_size", 4)
-	_hint_label.visible = false
-	add_child(_hint_label)
+	_ensure_children()
 	_apply_visuals()
 	set_process(true)
 	set_process_internal(true)
@@ -63,14 +46,37 @@ func configure(sprite_id: String, effect: StringName, radius: float, seconds: fl
 	_apply_visuals()
 
 
+## Build Sprite + Hint children when they're missing (programmatic spawn from Arena).
+func _ensure_children() -> void:
+	if get_node_or_null("Sprite") == null:
+		var sprite := Sprite2D.new()
+		sprite.name = "Sprite"
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		add_child(sprite)
+	if get_node_or_null("Hint") == null:
+		var hint := Label.new()
+		hint.name = "Hint"
+		hint.position = Vector2(-160.0, -118.0)
+		hint.size = Vector2(320.0, 54.0)
+		hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		hint.add_theme_font_size_override("font_size", 16)
+		hint.add_theme_color_override("font_color", Color(1.0, 0.94, 0.62, 1.0))
+		hint.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
+		hint.add_theme_constant_override("outline_size", 4)
+		hint.visible = false
+		add_child(hint)
+
+
 func _apply_visuals() -> void:
-	if _sprite != null:
-		_sprite.texture = SpriteLibrary.texture_for(sprite_name)
-		_sprite.scale = Vector2(PIXEL_ZOOM, PIXEL_ZOOM)
-		_sprite.offset = Vector2(0.0, -14.0)
-	if _hint_label != null:
-		_hint_label.text = _compose_hint()
-		_hint_label.visible = false
+	var sprite := get_node_or_null("Sprite") as Sprite2D
+	if sprite != null:
+		sprite.texture = SpriteLibrary.texture_for(sprite_name)
+		sprite.scale = Vector2(PIXEL_ZOOM, PIXEL_ZOOM)
+		sprite.offset = Vector2(0.0, -14.0)
+	var hint := get_node_or_null("Hint") as Label
+	if hint != null:
+		hint.text = _compose_hint()
+		hint.visible = false
 	queue_redraw()
 
 
@@ -79,8 +85,9 @@ func reset() -> void:
 	_ready_to_fire = true
 	_fill = 0.0
 	_cooldown = 0.0
-	if _hint_label != null:
-		_hint_label.visible = false
+	var hint := get_node_or_null("Hint") as Label
+	if hint != null:
+		hint.visible = false
 	queue_redraw()
 
 
@@ -127,7 +134,8 @@ func _process(delta: float) -> void:
 
 
 func _update_hint() -> void:
-	if _hint_label == null:
+	var hint := get_node_or_null("Hint") as Label
+	if hint == null:
 		return
 	var show := false
 	for candidate in get_tree().get_nodes_in_group("players"):
@@ -136,10 +144,10 @@ func _update_hint() -> void:
 				show = true
 				break
 	if _cooldown > 0.0:
-		_hint_label.text = "%s\n(recharging…)" % _compose_hint()
+		hint.text = "%s\n(recharging…)" % _compose_hint()
 	else:
-		_hint_label.text = _compose_hint()
-	_hint_label.visible = show
+		hint.text = _compose_hint()
+	hint.visible = show
 
 
 func _reset_after_cooldown() -> void:
@@ -166,11 +174,12 @@ func _draw() -> void:
 	elif _fill >= 1.0:
 		draw_arc(Vector2.ZERO, BODY_RADIUS + 18.0, 0.0, TAU, 48, Color("fff0a0"), 8.0, true)
 	# Fallback colored blob if the pixel sprite asset is missing.
-	if _sprite != null and _sprite.texture == null:
+	var sprite := get_node_or_null("Sprite") as Sprite2D
+	if sprite != null and sprite.texture == null:
 		draw_circle(Vector2.ZERO, BODY_RADIUS, accent)
 	# Dim the sprite on cooldown so the spent state reads at a distance.
-	if _sprite != null:
-		_sprite.modulate = Color(1.0, 1.0, 1.0, 0.45) if _cooldown > 0.0 else Color.WHITE
+	if sprite != null:
+		sprite.modulate = Color(1.0, 1.0, 1.0, 0.45) if _cooldown > 0.0 else Color.WHITE
 
 
 func _compose_hint() -> String:

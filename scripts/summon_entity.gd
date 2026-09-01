@@ -22,6 +22,10 @@ var owner_damage_type: int = 0
 var tint: Color = Color.WHITE
 var time_left: float = 0.0
 var attack_timer: float = 0.0
+## Explodes when an enemy steps inside `trigger_radius`; set for spider-mine style summons.
+var trigger_radius: float = 0.0
+var explosion_radius: float = 0.0
+var _exploded := false
 
 @onready var _sprite: Sprite2D = $Sprite2D
 @onready var _shadow: Polygon2D = $Shadow
@@ -69,11 +73,45 @@ func _process(delta: float) -> void:
 		if _deploy_timer <= 0.0:
 			sprite.scale = Vector2(3.0, 3.0)
 			sprite.modulate = tint
-	attack_timer -= delta
-	if attack_timer <= 0.0:
-		attack_timer = attack_interval
-		_strike_nearest()
+	if _is_mine():
+		_check_mine_trigger()
+	elif _deploy_timer <= 0.0:
+		attack_timer -= delta
+		if attack_timer <= 0.0:
+			attack_timer = attack_interval
+			_strike_nearest()
 	_update_muzzle_glow()
+
+
+func _is_mine() -> bool:
+	return trigger_radius > 0.0 and not _exploded
+
+
+func _check_mine_trigger() -> void:
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy) or not enemy is Node2D:
+			continue
+		if global_position.distance_to((enemy as Node2D).global_position) > trigger_radius:
+			continue
+		_explode()
+		return
+
+
+func _explode() -> void:
+	_exploded = true
+	_muzzle_t = 0.4
+	var blast := explosion_radius if explosion_radius > 0.0 else trigger_radius
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy) or not enemy is Node2D:
+			continue
+		var n := enemy as Node2D
+		if global_position.distance_to(n.global_position) > blast:
+			continue
+		var health := n.get_node_or_null("HealthComponent")
+		if health != null and health.has_method("take_damage"):
+			health.take_damage(power, self)
+	expired.emit(self)
+	queue_free()
 
 
 var _muzzle_t: float = 0.0
