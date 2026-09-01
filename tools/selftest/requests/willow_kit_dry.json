@@ -5,13 +5,13 @@
     "willow_swift_strike",
     "willow_forsaken_shot",
     "willow_volley",
-    "willow_strangling_vines"
+    "willow_wall_of_roots"
   ],
   "expected_casts": [
     "willow_swift_strike",
     "willow_forsaken_shot",
     "willow_volley",
-    "willow_strangling_vines"
+    "willow_wall_of_roots"
   ],
   "events": [
     {

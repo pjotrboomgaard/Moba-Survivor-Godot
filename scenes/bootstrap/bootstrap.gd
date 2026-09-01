@@ -45,6 +45,12 @@ var loadout_row: HBoxContainer = null
 var ability_pool: GridContainer = null
 var loadout_slots: Array[Button] = []
 
+# --- HoN-style ability description panel (lives in bootstrap.tscn) ---
+@onready var ability_panel: PanelContainer = $StatusLayer/AbilityPanel
+@onready var ability_hero_header: Label = $StatusLayer/AbilityPanel/Margin/Layout/HeroHeader
+@onready var ability_hero_blurb: Label = $StatusLayer/AbilityPanel/Margin/Layout/HeroBlurb
+@onready var ability_list: VBoxContainer = $StatusLayer/AbilityPanel/Margin/Layout/AbilityScroll/AbilityList
+
 var game_loaded := false
 var class_buttons: Array[Button] = []
 var world_buttons: Array[Button] = []
@@ -184,11 +190,13 @@ func _build_overhaul_ui() -> void:
 	var hero_scroll := ScrollContainer.new()
 	hero_scroll.name = "HeroContentScroll"
 	hero_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	hero_scroll.custom_minimum_size = Vector2(0, 240)
 	hero_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	layout.add_child(hero_scroll)
 	layout.move_child(hero_scroll, class_grid.get_index())
 	var hero_content := VBoxContainer.new()
 	hero_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hero_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	hero_content.add_theme_constant_override("separation", 6)
 	hero_scroll.add_child(hero_content)
 	# Reparent the hero grid into the scroll content; the `class_grid` onready ref is
@@ -430,6 +438,7 @@ func _rebuild_hero_cards() -> void:
 		button.text = "%s\n%s" % [str(class_data.name).to_upper(), str(class_data.role).to_upper()]
 		button.add_theme_color_override("font_color", Color(str(class_data.accent_color)))
 		button.toggled.connect(_on_class_toggled.bind(hero_id))
+		button.mouse_entered.connect(_on_hero_hovered.bind(hero_id))
 		class_grid.add_child(button)
 		class_buttons.append(button)
 		_style_hero_card(button, class_data)
@@ -492,6 +501,8 @@ func _refresh_game_mode() -> void:
 	class_grid.visible = show_classes
 	if loadout_panel != null:
 		loadout_panel.visible = show_classes
+	if ability_panel != null:
+		ability_panel.visible = show_classes and not _in_network_lobby
 	difficulty_label.visible = not GameRuntime.is_classic()
 	difficulty_row.visible = not GameRuntime.is_classic()
 	if cpu_coop_button != null:
@@ -527,6 +538,10 @@ func _on_class_toggled(is_pressed: bool, class_id: String) -> void:
 	_refresh_class_selection()
 
 
+func _on_hero_hovered(hero_id: String) -> void:
+	_populate_ability_panel(hero_id)
+
+
 func _sync_audio_toggles() -> void:
 	_updating_audio_ui = true
 	sfx_toggle.button_pressed = AudioService.sfx_enabled
@@ -559,6 +574,227 @@ func _refresh_class_selection() -> void:
 	_refresh_loadout_panel()
 	_apply_hero_backdrop()
 	_refresh_header_detail(PlayerProfile.selected_class_id)
+	_populate_ability_panel(PlayerProfile.selected_class_id)
+
+
+## ---------------------------------------------------------------------------
+## HoN-style ability description panel.
+##
+## Template convention used in PlayerClass.ABILITIES[*].description:
+##   {power}        -> "POWER_RANK1/POWER_RANK2/POWER_RANK3/POWER_RANK4" (slash list)
+##   {power_base}   -> just rank-1 number
+##   {cooldown}     -> "CD1/CD2/CD3/CD4 seconds"
+##   {radius}, {range}, {dash_distance}, {duration}, {chain_count}
+##                -> same slash-list treatment
+##   {RANGE_BASE}/{RADIUS_BASE}/etc (any-caps "_BASE") -> rank-1 number only
+##   {slow_factor} / {stun_duration} / {mark_pct} / {lifesteal_pct}
+##                -> pulled from the ability's on-hit modifier dicts
+##
+## ability_values() calls below hit ranks 1..MAX_ABILITY_RANK_REPORT so the
+## numbers are honest, not authored-flat.
+## ---------------------------------------------------------------------------
+
+const ABILITY_PANEL_RANKS_TO_SHOW := 4
+const ABILITY_PANEL_HOTKEYS := ["Q", "W", "E", "R"]
+
+func _populate_ability_panel(hero_id: String) -> void:
+	if ability_list == null or ability_hero_header == null or ability_panel == null:
+		return
+	if GameRuntime.is_classic():
+		ability_panel.visible = false
+		return
+	ability_panel.visible = true
+	var hero_data := PlayerClass.by_id(hero_id)
+	ability_hero_header.text = "%s  ·  %s" % [str(hero_data.get("name", hero_id)).to_upper(), str(hero_data.get("role", "")).to_upper()]
+	ability_hero_header.add_theme_color_override("font_color", Color(str(hero_data.get("accent_color", "ff8a3d"))))
+	ability_hero_blurb.text = str(hero_data.get("description", ""))
+	for child in ability_list.get_children():
+		child.queue_free()
+	var kit: Array = _get_loadout_for(hero_id)
+	for slot_index in mini(kit.size(), 4):
+		var ability_id := String(kit[slot_index])
+		if ability_id.is_empty() or not PlayerClass.ABILITIES.has(ability_id):
+			continue
+		ability_list.add_child(_build_ability_card(ability_id, ABILITY_PANEL_HOTKEYS[slot_index]))
+
+
+func _build_ability_card(ability_id: String, hotkey: String) -> Control:
+	var info: Dictionary = PlayerClass.ABILITIES.get(ability_id, {})
+	var card := PanelContainer.new()
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.07, 0.08, 0.11, 0.85)
+	style.border_color = Color(0.24, 0.28, 0.36, 1.0)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	style.content_margin_left = 12
+	style.content_margin_right = 12
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
+	card.add_theme_stylebox_override("panel", style)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+	card.add_child(vbox)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 8)
+	vbox.add_child(head)
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(36, 36)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = SpriteLibrary.texture_for(ability_id)
+	head.add_child(icon)
+	var title_label := Label.new()
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_label.text = str(info.get("name", ability_id))
+	title_label.add_theme_font_size_override("font_size", 16)
+	title_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.55, 1.0))
+	head.add_child(title_label)
+	var hotkey_label := Label.new()
+	hotkey_label.text = "[%s]" % hotkey
+	hotkey_label.add_theme_font_size_override("font_size", 14)
+	hotkey_label.add_theme_color_override("font_color", Color(0.6, 0.68, 0.8, 1.0))
+	head.add_child(hotkey_label)
+	var body := RichTextLabel.new()
+	body.bbcode_enabled = true
+	body.fit_content = true
+	body.scroll_active = false
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_color_override("default_color", Color(0.86, 0.90, 0.96, 1.0))
+	body.add_theme_font_size_override("normal_font_size", 13)
+	body.text = _format_ability_tooltip(ability_id)
+	vbox.add_child(body)
+	return card
+
+
+## Builds the BBCode body for one ability card. Substitutes any {placeholder} in
+## the stored description with rank-slashed numbers pulled from ability_values().
+func _format_ability_tooltip(ability_id: String) -> String:
+	var info: Dictionary = PlayerClass.ABILITIES.get(ability_id, {})
+	if info.is_empty():
+		return ability_id
+	var template := str(info.get("description", ""))
+	var substituted := _substitute_placeholders(template, ability_id, info)
+	var out: Array[String] = []
+	out.append(substituted)
+	var values_r1 := PlayerClass.ability_values(ability_id, 1)
+	var values_r4 := PlayerClass.ability_values(ability_id, ABILITY_PANEL_RANKS_TO_SHOW)
+	var stat_line: Array[String] = []
+	if float(values_r1.get("cooldown", 0.0)) > 0.0:
+		stat_line.append("[b]Cooldown:[/b] %s s" % _rank_slash_list(ability_id, "cooldown", 1))
+	if float(values_r1.get("radius", 0.0)) > 0.0:
+		stat_line.append("[b]Radius:[/b] %s" % _rank_slash_list(ability_id, "radius", 0))
+	if float(values_r1.get("range", 0.0)) > 0.0:
+		stat_line.append("[b]Range:[/b] %s" % _rank_slash_list(ability_id, "range", 0))
+	if float(values_r1.get("dash_distance", 0.0)) > 0.0:
+		stat_line.append("[b]Dash:[/b] %s" % _rank_slash_list(ability_id, "dash_distance", 0))
+	if int(values_r1.get("chain_count", 0)) > 0:
+		stat_line.append("[b]Chains:[/b] %s" % _rank_slash_list(ability_id, "chain_count", 0))
+	if float(values_r4.get("duration", 0.0)) > 0.0:
+		stat_line.append("[b]Duration:[/b] %s s" % _rank_slash_list(ability_id, "duration", 1))
+	if not stat_line.is_empty():
+		out.append("[color=9fb3d1]%s[/color]" % "  ·  ".join(stat_line))
+	return "\n".join(out)
+
+
+## Replaces {key} symbols in a template with numbers derived from ability_values().
+## For keys like "power", "cooldown", "radius", "range", "dash_distance", "duration",
+## "chain_count", we emit rank lists "R1/R2/R3/R4". Suffix "_base" returns rank-1 only.
+func _substitute_placeholders(template: String, ability_id: String, info: Dictionary) -> String:
+	if template.find("{") == -1:
+		return template
+	var result := template
+	# Build a value pool for this ability: rank1..rank4 values + raw field lookups.
+	var ranks: Array[Dictionary] = []
+	for r in range(1, ABILITY_PANEL_RANKS_TO_SHOW + 1):
+		ranks.append(PlayerClass.ability_values(ability_id, r))
+	var regex := RegEx.new()
+	regex.compile("\\{([a-zA-Z_]+)\\}")
+	var rebuilt := ""
+	var last_end := 0
+	for m in regex.search_all(template):
+		rebuilt += template.substr(last_end, m.get_start() - last_end)
+		var key := m.get_string(1)
+		rebuilt += _placeholder_value(key, ability_id, info, ranks)
+		last_end = m.get_end()
+	rebuilt += template.substr(last_end)
+	result = rebuilt
+	return result
+
+
+func _placeholder_value(key: String, _ability_id: String, info: Dictionary, ranks: Array[Dictionary]) -> String:
+	if key.is_empty():
+		return ""
+	var lower := key.to_lower()
+	# "<field>_base" -> rank-1 only.
+	if lower.ends_with("_base"):
+		var field := lower.substr(0, lower.length() - 5)
+		if ranks.size() > 0 and ranks[0].has(field):
+			return _format_number(float(ranks[0][field]), field)
+		# Fall back to raw info dict (e.g. "cooldown_base" was a raw field).
+		if info.has(key):
+			return _format_number(float(info[key]), field)
+		return ""
+	# Recognized rank-scaled fields -> "R1/R2/R3/R4".
+	if lower in ["power", "cooldown", "radius", "range", "dash_distance", "duration", "chain_count", "footprint"]:
+		return _rank_slash_list_from_values(ranks, lower)
+	# On-hit modifiers.
+	match lower:
+		"slow_factor":
+			if info.has("slow_on_hit"):
+				return "%d%%" % int((1.0 - float(info.slow_on_hit.factor)) * 100.0)
+		"slow_duration":
+			if info.has("slow_on_hit"):
+				return "%.1f" % float(info.slow_on_hit.duration)
+		"stun_duration":
+			if info.has("stun_on_hit"):
+				return "%.1f" % float(info.stun_on_hit.duration)
+		"mark_pct":
+			if info.has("mark_on_hit"):
+				return "%d%%" % int(float(info.mark_on_hit.bonus_pct) * 100.0)
+		"mark_duration":
+			if info.has("mark_on_hit"):
+				return "%.1f" % float(info.mark_on_hit.duration)
+		"lifesteal_pct":
+			if info.has("lifesteal_pct"):
+				return "%d%%" % int(float(info.lifesteal_pct) * 100.0)
+	# Raw lookup.
+	if info.has(key):
+		var v: Variant = info[key]
+		if v is float or v is int:
+			return _format_number(float(v), lower)
+		return str(v)
+	return "{%s}" % key
+
+
+func _rank_slash_list(ability_id: String, field: String, decimals: int) -> String:
+	var parts: Array[String] = []
+	for r in range(1, ABILITY_PANEL_RANKS_TO_SHOW + 1):
+		var v := PlayerClass.ability_values(ability_id, r)
+		if not v.has(field):
+			continue
+		parts.append(_format_number(float(v[field]), field, decimals))
+	return "/".join(parts)
+
+
+func _rank_slash_list_from_values(ranks: Array[Dictionary], field: String) -> String:
+	var parts: Array[String] = []
+	for v in ranks:
+		if not v.has(field):
+			continue
+		parts.append(_format_number(float(v[field]), field))
+	return "[b]%s[/b]" % "/".join(parts)
+
+
+func _format_number(value: float, field: String, decimals: int = -1) -> String:
+	if decimals >= 0:
+		return "%.*f" % [decimals, value]
+	match field:
+		"cooldown", "duration", "slow_duration", "stun_duration", "mark_duration":
+			return "%.1f" % value
+		_:
+			return "%d" % int(roundf(value))
 
 
 func _refresh_loadout_panel() -> void:
@@ -877,6 +1113,8 @@ func _show_network_lobby() -> void:
 	address_input.visible = false
 	join_button.visible = false
 	steam_status_label.visible = false
+	if ability_panel != null:
+		ability_panel.visible = false
 	lobby_title_label.visible = true
 	lobby_title_label.text = "Lobby"
 	player_slots.visible = true

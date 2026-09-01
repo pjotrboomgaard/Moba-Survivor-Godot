@@ -1066,9 +1066,13 @@ func _cast_ability_storm_pull(data: Dictionary, values: Dictionary) -> void:
 			best = n
 			best_dist = dist
 	if best == null:
+		# Emit even on whiffed pulls so coverage tools record the cast; aim-indicator
+		# feedback loop reads `ability_cast` to know a slot actually fired.
+		_emit_ability_cast(PackedVector2Array([global_position, global_position + facing_direction * reach]))
 		return
 	best.knockback_velocity = (global_position - best.global_position).normalized() * 1400.0
 	_apply_ability_hit(best, data, values)
+	_emit_ability_cast(PackedVector2Array([global_position, best.global_position]))
 
 
 ## Invoker-style zone: brief self-lock then a big ground patch detonates at your feet.
@@ -1112,8 +1116,10 @@ func _cast_ability_summon_spirit(data: Dictionary, values: Dictionary) -> void:
 			var angle := TAU * float(index) / float(count) - PI * 0.5
 			offset = Vector2(cos(angle), sin(angle)) * ring_radius
 		_spawn_summon(data, values, target + offset)
-	# No _emit_ability_cast here — the turret itself is the visible marker. Anything else
-	# reads as "something else popped on top of the placement".
+	# Coverage tooling listens on ability_cast — the placement marker still displays via
+	# the summon itself, but the slot needs to register as cast in the report. Emit a
+	# placement marker at the focus point so the signal reflects where the wards landed.
+	_emit_ability_cast(PackedVector2Array([global_position, target]))
 
 
 func _spawn_summon(data: Dictionary, values: Dictionary, position: Vector2) -> void:
@@ -1171,8 +1177,10 @@ func _cast_ability_wrench_keg(data: Dictionary, values: Dictionary, _rank: int) 
 ## Steam Turret: one targetless cast plants an auto-firing steam turret at Wrench's feet.
 ## Fast attack cadence chips nearby enemies; long-lived but disposable.
 func _cast_ability_wrench_turret(data: Dictionary, values: Dictionary, _rank: int) -> void:
-	_spawn_summon(data, values, global_position + facing_direction * 18.0)
+	var landing := global_position + facing_direction * 18.0
+	_spawn_summon(data, values, landing)
 	AudioService.play_ability("tobor_steam_turret")
+	_emit_ability_cast(PackedVector2Array([global_position, landing]))
 
 
 ## Spider Mines: scatter a small clutch of proximity mines around the cursor. Each anchors
@@ -1317,11 +1325,12 @@ func _cast_ability_cinder_dragon_fire(data: Dictionary, values: Dictionary, _ran
 ## the Wrench mine infrastructure — short-arm delay, then BLAM. Reads as a Bombardier shell
 ## that sticks rather than a plain throw.
 func _cast_ability_pyra_sticky_bomb(data: Dictionary, values: Dictionary, _rank: int) -> void:
-	var forward := global_position + facing_direction * 40.0
+	var origin := global_position
+	var forward := origin + facing_direction * 40.0
 	var target := aim_world_position
-	if target.distance_to(global_position) > 340.0:
-		target = global_position + (target - global_position).normalized() * 340.0
-	if target.distance_squared_to(global_position) < 200.0:
+	if target.distance_to(origin) > 340.0:
+		target = origin + (target - origin).normalized() * 340.0
+	if target.distance_squared_to(origin) < 200.0:
 		target = forward
 	var sum := SummonEntityScene.instantiate() as SummonEntity
 	var hero := PlayerClass.by_id(class_id)
@@ -1347,6 +1356,7 @@ func _cast_ability_pyra_sticky_bomb(data: Dictionary, values: Dictionary, _rank:
 		var oldest: SummonEntity = active_summons.pop_front()
 		if is_instance_valid(oldest):
 			oldest.queue_free()
+	_emit_ability_cast(PackedVector2Array([origin, target]))
 
 
 ## Slag Steam Bath: Magmus's signature AoE slow-field. Vents a cloud of superheated steam
@@ -1832,6 +1842,7 @@ func _cast_ability_willow_strangling_vines(data: Dictionary, values: Dictionary,
 	var radius := maxf(float(values.get("radius", 240.0)), 180.0)
 	for enemy in _enemies_in_radius(center, radius):
 		_apply_ability_hit(enemy, data, values)
+	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
 	_spawn_ability_zone_pulse(center, radius, 1.5)
 
 
@@ -1946,6 +1957,9 @@ func _cast_ability_attack_fury(data: Dictionary, values: Dictionary) -> void:
 		"damage_dealt_mult": 1.25,
 		"movement_speed_mult": 1.1,
 	})
+	# No FX helper for raw fury procs; pulse a small self-centred flash so coverage tools
+	# and in-game "did the press connect?" reads stay consistent with the rest of the kit.
+	_emit_ability_cast(PackedVector2Array([global_position, Vector2(120.0, 0.0)]))
 
 
 ## Axe-style Berserker's Call: leap-slam, then force every enemy in radius onto you.

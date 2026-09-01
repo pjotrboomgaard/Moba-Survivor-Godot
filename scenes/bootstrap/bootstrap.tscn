@@ -15,11 +15,54 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.025, 0.035, 0.055, 1)
 
+[node name="AbilityPanel" type="PanelContainer" parent="StatusLayer"]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 660.0
+offset_bottom = 696.0
+
+[node name="Margin" type="MarginContainer" parent="StatusLayer/AbilityPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
+
+[node name="Layout" type="VBoxContainer" parent="StatusLayer/AbilityPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeroHeader" type="Label" parent="StatusLayer/AbilityPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.62, 0.26, 1)
+theme_override_font_sizes/font_size = 26
+text = "Pick a hero"
+
+[node name="HeroBlurb" type="Label" parent="StatusLayer/AbilityPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.84, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "Hover a hero to inspect their kit."
+autowrap_mode = 2
+
+[node name="Divider" type="HSeparator" parent="StatusLayer/AbilityPanel/Margin/Layout"]
+layout_mode = 2
+
+[node name="AbilityScroll" type="ScrollContainer" parent="StatusLayer/AbilityPanel/Margin/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="AbilityList" type="VBoxContainer" parent="StatusLayer/AbilityPanel/Margin/Layout/AbilityScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
 [node name="LobbyPanel" type="PanelContainer" parent="StatusLayer"]
 offset_left = 700.0
-offset_top = 24.0
-offset_right = 1260.0
-offset_bottom = 696.0
+offset_top = 8.0
+offset_right = 1272.0
+offset_bottom = 712.0
 clip_contents = false
 
 [node name="Margin" type="MarginContainer" parent="StatusLayer/LobbyPanel"]
@@ -36,7 +79,7 @@ theme_override_constants/separation = 8
 [node name="Title" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.48, 0.18, 1)
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 28
 text = "TOBOR"
 horizontal_alignment = 1
 
