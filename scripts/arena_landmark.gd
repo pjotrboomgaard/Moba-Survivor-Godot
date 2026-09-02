@@ -11,7 +11,7 @@ signal triggered(position: Vector2)
 
 const PIXEL_ZOOM := 6.0
 const BODY_RADIUS := 32.0
-const STAND_RADIUS := 110.0
+const STAND_RADIUS := 140.0
 const HINT_RADIUS := 240.0
 const COOLDOWN_SECONDS := 6.0
 
@@ -102,7 +102,8 @@ func _process(delta: float) -> void:
 	if _cooldown > 0.0:
 		_cooldown = maxf(0.0, _cooldown - delta)
 	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
-		# Clients render and tick cooldown visuals; the server owns firing decisions.
+		# Clients render hint + cooldown visuals; the server owns firing decisions.
+		_update_hint()
 		queue_redraw()
 		return
 	var any_player_holding := false
@@ -183,18 +184,82 @@ func _draw() -> void:
 
 
 func _compose_hint() -> String:
+	var meters := int(effect_radius / 10.0)
 	match effect_id:
 		"pulse_wipe":
-			return "%s\nwiping minions in %dm" % [_hint, int(effect_radius / 10.0)]
+			return "%s\n%s in %dm" % [_hint, _wipe_verb(), meters]
 		"freeze_time":
-			return "%s\nfreezes enemies for %ds" % [_hint, int(effect_arg)]
+			return "%s\n%s for %ds" % [_hint, _freeze_verb(), int(effect_arg)]
 		"heal_all":
-			return "%s\nheals the party +%d HP" % [_hint, int(effect_arg)]
+			return "%s\n%s +%d HP" % [_hint, _heal_verb(), int(effect_arg)]
 		_:
 			return _hint
 
 
+func _wipe_verb() -> String:
+	match sprite_name:
+		"tw_factory_landmark_pylon":
+			return "molten pulse wipes minions"
+		"tw_volcano_landmark_arch":
+			return "rift pulse wipes minions"
+		"tw_volcano_landmark_well":
+			return "lava surge wipes minions"
+		"tw_docks_landmark_bell":
+			return "verdant bell wipes minions"
+		"tw_docks_landmark_lighthouse":
+			return "storm pulse wipes minions"
+		_:
+			return "wiping minions"
+
+
+func _freeze_verb() -> String:
+	match sprite_name:
+		"tw_factory_landmark_bay":
+			return "quench-locks enemies"
+		"tw_ice_landmark_hollow":
+			return "vines bind enemies"
+		"tw_ice_landmark_glade":
+			return "freezes enemies"
+		_:
+			return "freezes enemies"
+
+
+func _heal_verb() -> String:
+	match sprite_name:
+		"tw_factory_landmark_vat":
+			return "steam-heals the party"
+		"tw_volcano_landmark_shrine":
+			return "ember-heals the party"
+		"tw_docks_landmark_pool":
+			return "spring-heals the party" if _hint == "Mana Spring" else "tide-heals the party"
+		_:
+			return "heals the party"
+
+
 func _accent_fallback() -> Color:
+	match sprite_name:
+		"tw_factory_landmark_pylon":
+			return Color("ff6a20")
+		"tw_factory_landmark_vat":
+			return Color("c8e8ee")
+		"tw_factory_landmark_bay":
+			return Color("7aa0c8")
+		"tw_volcano_landmark_arch":
+			return Color("c45cff")
+		"tw_volcano_landmark_shrine":
+			return Color("ff7a40")
+		"tw_volcano_landmark_well":
+			return Color("ff3a18")
+		"tw_docks_landmark_bell":
+			return Color("8fd84a")
+		"tw_docks_landmark_pool":
+			return Color("5ec8c0") if _hint == "Mana Spring" else Color("6ec8ff")
+		"tw_ice_landmark_hollow":
+			return Color("6db86a")
+		"tw_ice_landmark_glade":
+			return Color("7db8ff")
+		"tw_docks_landmark_lighthouse":
+			return Color("f4c44a")
 	match effect_id:
 		"pulse_wipe":
 			return Color("f4c44a")

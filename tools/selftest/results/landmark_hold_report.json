@@ -1,0 +1,111 @@
+{
+  "effects": [
+    {
+      "kind": "custom",
+      "t": 0.501711666666667,
+      "text": "boot — teleport onto Molten Pylon at (836.5, 701.9)"
+    },
+    {
+      "kind": "landmarks",
+      "label": "at_boot",
+      "list": [
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Molten Pylon",
+          "pos": "(836.5205, 701.924)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "heal_all",
+          "fill": 0.0,
+          "hint": "Steam Vent",
+          "pos": "(-679.4191, -737.9202)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "freeze_time",
+          "fill": 0.0,
+          "hint": "Quench Bay",
+          "pos": "(-665.928, 793.622)",
+          "ready": true
+        }
+      ],
+      "t": 0.501711666666667
+    },
+    {
+      "kind": "landmarks",
+      "label": "after_teleport",
+      "list": [
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0799828,
+          "hint": "Molten Pylon",
+          "pos": "(836.5205, 701.924)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "heal_all",
+          "fill": 0.0,
+          "hint": "Steam Vent",
+          "pos": "(-679.4191, -737.9202)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "freeze_time",
+          "fill": 0.0,
+          "hint": "Quench Bay",
+          "pos": "(-665.928, 793.622)",
+          "ready": true
+        }
+      ],
+      "t": 0.801641333333333
+    },
+    {
+      "kind": "landmarks",
+      "label": "after_hold",
+      "list": [
+        {
+          "cooldown": 5.50833333333331,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Molten Pylon",
+          "pos": "(836.5205, 701.924)",
+          "ready": false
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "heal_all",
+          "fill": 0.0,
+          "hint": "Steam Vent",
+          "pos": "(-679.4191, -737.9202)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "freeze_time",
+          "fill": 0.0,
+          "hint": "Quench Bay",
+          "pos": "(-665.928, 793.622)",
+          "ready": true
+        }
+      ],
+      "t": 3.60160366666666
+    }
+  ],
+  "elapsed": 3.80160366666666,
+  "enemies_spawned": 0,
+  "hero_position": "(836.5, 701.9)",
+  "player_class": "tobor",
+  "results": {
+    "casts": [],
+    "errors": []
+  },
+  "shots": []
+}

@@ -74,12 +74,13 @@ func _ready() -> void:
 	randomize()
 	NetworkService.peer_left.connect(_on_peer_left)
 	if arena is Arena:
+		# Bind before set_world so a rebuild's landmarks_changed reconnects us; also bind
+		# afterwards in case set_world no-ops on an already-spawned matching world.
+		(arena as Arena).landmarks_changed.connect(_bind_landmarks)
 		# local_player isn't spawned yet (OFFLINE/HOST branches below create it), so use
 		# the class the runtime resolved from the profile/CLI for the world's first paint.
 		(arena as Arena).set_world(PlayerClass.world_of(GameRuntime.active_class_id()))
-		for landmark in (arena as Arena).landmarks:
-			if is_instance_valid(landmark):
-				landmark.triggered.connect(_on_landmark_triggered)
+		_bind_landmarks()
 	hud.upgrade_chosen.connect(_on_local_upgrade_chosen)
 	hud.ability_chosen.connect(_on_local_ability_chosen)
 	hud.shop_item_chosen.connect(_on_local_shop_item_chosen)
@@ -242,13 +243,13 @@ func client_spawn_arena_hazard(spec: Dictionary) -> void:
 func client_landmark_pulse(origin: Vector2, effect_id: String) -> void:
 	match effect_id:
 		"pulse_wipe":
-			hud.flash_combat_text("Storm pulse!", Color("ffd060"))
+			_landmark_flash("Landmark pulse!", Color("ffd060"))
 		"freeze_time":
-			hud.flash_combat_text("Time frozen!", Color("80c0ff"))
+			_landmark_flash("Time frozen!", Color("80c0ff"))
 		"heal_all":
-			hud.flash_combat_text("Blessing!", Color("70d070"))
+			_landmark_flash("Blessing!", Color("70d070"))
 		_:
-			hud.flash_combat_text("Landmark awakened", Color("e8e8e8"))
+			_landmark_flash("Landmark awakened", Color("e8e8e8"))
 	var ring := ArenaHazard.new()
 	ring.configure({
 		"kind": "ring",
@@ -509,6 +510,7 @@ const CPU_PEER_BASE := 101
 
 
 func _spawn_cpu_allies() -> void:
+	# Solo PLAY leaves this false. Only the CO-OP menu button sets fill_cpu_allies.
 	if not GameRuntime.fill_cpu_allies:
 		return
 	if GameRuntime.is_classic() or GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
@@ -816,7 +818,7 @@ func _queue_wave_draft() -> void:
 func _on_wave_group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float) -> void:
 	if game_over or players.is_empty():
 		return
-	_spawn_formation(type_id, formation, count, health_multiplier, speed_multiplier)
+	_spawn_formation(EnemyType.fit_to_biome(type_id), formation, count, health_multiplier, speed_multiplier)
 
 
 func _spawn_formation(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0) -> void:
@@ -907,7 +909,7 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 	# enemy.team_id assignment skipped — Player carries team ids, Enemy does not.
 	# If Rift Clash ever needs per-team enemies, extend Enemy with team_id here.
 	actors.add_child(enemy)
-	enemy.configure(entity_id, true, type_id, health_multiplier, speed_multiplier)
+	enemy.configure(entity_id, true, EnemyType.fit_to_biome(type_id), health_multiplier, speed_multiplier)
 	enemy.defeated.connect(_on_enemy_defeated)
 	enemy.projectile_fired.connect(_on_enemy_projectile_fired)
 	enemy.spawn_requested.connect(_on_enemy_spawn_requested)
@@ -1078,19 +1080,37 @@ func _on_enemy_defeated(enemy: Enemy) -> void:
 			client_play_sound.rpc_id(peer_id, "enemy_death")
 
 
-## Landmark triggering lives server-side only; clients mirror through the HUD flash RPC.
+## Landmark effects run on the session authority: dedicated/listen server, or OFFLINE solo.
+## Clients never simulate the wipe/freeze/heal; they only play the HUD flash RPC.
+func _landmark_is_authority() -> bool:
+	return GameRuntime.is_server() or GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE
+
+
+## Rebind after arena rebuild: `set_world` frees the previous landmark nodes, so the
+## `_ready` connections would otherwise point at freed instances and drop every trigger.
+func _bind_landmarks() -> void:
+	if not (arena is Arena):
+		return
+	for landmark in (arena as Arena).landmarks:
+		if not is_instance_valid(landmark):
+			continue
+		if not landmark.triggered.is_connected(_on_landmark_triggered):
+			landmark.triggered.connect(_on_landmark_triggered)
+
+
 ## Signal contract: ArenaLandmark.triggered(position) — look the landmark up by distance.
 func _on_landmark_triggered(trigger_position: Vector2) -> void:
 	var landmark := _landmark_at(trigger_position)
 	if landmark == null:
 		return
-	if not GameRuntime.is_server():
+	if not _landmark_is_authority():
 		return
 	var now := Time.get_ticks_msec()
-	if _landmark_last_trigger.has(landmark.effect_id) and int(_landmark_last_trigger[landmark.effect_id]) + int(LANDMARK_GLOBAL_COOLDOWN * 1000) > now:
-		hud.flash_combat_text("%s recharging…" % _effect_display(landmark.effect_id), Color("c0c0c0"))
+	var cooldown_key := landmark.sprite_name if not landmark.sprite_name.is_empty() else str(landmark.effect_id)
+	if _landmark_last_trigger.has(cooldown_key) and int(_landmark_last_trigger[cooldown_key]) + int(LANDMARK_GLOBAL_COOLDOWN * 1000) > now:
+		_landmark_flash("%s recharging…" % _effect_display(landmark), Color("c0c0c0"))
 		return
-	_landmark_last_trigger[landmark.effect_id] = now
+	_landmark_last_trigger[cooldown_key] = now
 	print("[landmark] triggered: %s at %s" % [landmark.effect_id, landmark.global_position])
 	match landmark.effect_id:
 		"pulse_wipe":
@@ -1120,9 +1140,50 @@ func _landmark_at(trigger_position: Vector2) -> ArenaLandmark:
 	return best
 
 
+func _landmark_theme(landmark: ArenaLandmark) -> Dictionary:
+	var meters := int(landmark.effect_radius / 10.0)
+	var seconds := int(landmark.effect_arg)
+	var amount := int(landmark.effect_arg)
+	match landmark.sprite_name:
+		"tw_factory_landmark_pylon":
+			return {"outer": Color("ff5a18"), "mid": Color("ff9a30"), "inner": Color("ffe0a0"), "flash": Color("ff7a28"), "text": "Molten pulse! Minions within %dm wiped." % meters}
+		"tw_factory_landmark_vat":
+			return {"outer": Color("b8dce4"), "mid": Color("e0f4f8"), "inner": Color("ffffff"), "flash": Color("c8e8ee"), "text": "Steam vent — everyone healed +%d HP" % amount}
+		"tw_factory_landmark_bay":
+			return {"outer": Color("6a90b8"), "mid": Color("a8c8e0"), "inner": Color("e0eef8"), "flash": Color("7aa0c8"), "text": "Quench lock — enemies stunned for %ds" % seconds}
+		"tw_volcano_landmark_arch":
+			return {"outer": Color("c45cff"), "mid": Color("e090ff"), "inner": Color("ffe0ff"), "flash": Color("d070ff"), "text": "Rift pulse! Minions within %dm wiped." % meters}
+		"tw_volcano_landmark_shrine":
+			return {"outer": Color("ff7a40"), "mid": Color("ffb070"), "inner": Color("ffe0b0"), "flash": Color("ff8a48"), "text": "Ember shrine — everyone healed +%d HP" % amount}
+		"tw_volcano_landmark_well":
+			return {"outer": Color("ff3a18"), "mid": Color("ff7020"), "inner": Color("ffd060"), "flash": Color("ff4a20"), "text": "Lava surge! Minions within %dm wiped." % meters}
+		"tw_docks_landmark_bell":
+			return {"outer": Color("8fd84a"), "mid": Color("c8f080"), "inner": Color("f0ffe0"), "flash": Color("a0e050"), "text": "Verdant bell! Minions within %dm wiped." % meters}
+		"tw_docks_landmark_pool":
+			if landmark._hint == "Tide Font":
+				return {"outer": Color("6ec8ff"), "mid": Color("b0e0ff"), "inner": Color("e8f8ff"), "flash": Color("80d0ff"), "text": "Tide font — everyone healed +%d HP" % amount}
+			return {"outer": Color("5ec8c0"), "mid": Color("90e8e0"), "inner": Color("d8ffff"), "flash": Color("70d8d0"), "text": "Mana spring — everyone healed +%d HP" % amount}
+		"tw_ice_landmark_hollow":
+			return {"outer": Color("6db86a"), "mid": Color("a0d898"), "inner": Color("e0f8d8"), "flash": Color("7cc878"), "text": "Vines bind — enemies stunned for %ds" % seconds}
+		"tw_ice_landmark_glade":
+			return {"outer": Color("80c0ff"), "mid": Color("cfe6ff"), "inner": Color("f0f8ff"), "flash": Color("90c8ff"), "text": "Frozen crystal — enemies stunned for %ds" % seconds}
+		"tw_docks_landmark_lighthouse":
+			return {"outer": Color("f4c44a"), "mid": Color("ffe080"), "inner": Color("fff8d0"), "flash": Color("ffd060"), "text": "Storm pulse! Minions within %dm wiped." % meters}
+	match landmark.effect_id:
+		"pulse_wipe":
+			return {"outer": Color("ffd060"), "mid": Color("fff0b8"), "inner": Color("ffffff"), "flash": Color("ffd060"), "text": "Pulse! Minions within %dm wiped." % meters}
+		"freeze_time":
+			return {"outer": Color("80c0ff"), "mid": Color("cfe6ff"), "inner": Color("ffffff"), "flash": Color("80c0ff"), "text": "Time frozen — enemies stunned for %ds" % seconds}
+		"heal_all":
+			return {"outer": Color("70d070"), "mid": Color("d0ffd0"), "inner": Color("ffffff"), "flash": Color("70d070"), "text": "Blessing — everyone healed +%d HP" % amount}
+		_:
+			return {"outer": Color("e8e8e8"), "mid": Color("ffffff"), "inner": Color("ffffff"), "flash": Color("e8e8e8"), "text": "Landmark awakened"}
+
+
 func _landmark_pulse_wipe(landmark: ArenaLandmark) -> void:
 	var origin := landmark.global_position
 	var kill_radius := landmark.effect_radius
+	var theme := _landmark_theme(landmark)
 	for entity_id in enemies.keys():
 		var enemy := enemies[entity_id] as Enemy
 		if not is_instance_valid(enemy) or enemy.health.is_dead:
@@ -1131,16 +1192,16 @@ func _landmark_pulse_wipe(landmark: ArenaLandmark) -> void:
 			continue
 		if enemy.global_position.distance_to(origin) > kill_radius:
 			continue
-		enemy.health.take_damage(enemy.health.max_value * 4.0 + 9999.0, self)
-	# Three stacked shockwaves sell the wipe far better than one quick ring.
-	_play_landmark_ring(origin, kill_radius, Color("ffd060"), 72.0, 1.1)
-	_play_landmark_ring(origin, kill_radius * 0.66, Color("fff0b8"), 60.0, 0.9, 0.12)
-	_play_landmark_ring(origin, kill_radius * 0.38, Color("ffffff"), 48.0, 0.7, 0.24)
-	hud.flash_combat_text("Storm pulse! Minions within %dm wiped." % int(kill_radius / 10.0), Color("ffd060"))
+		enemy.health.take_damage(enemy.health.max_health * 4.0 + 9999.0, self)
+	_play_landmark_ring(origin, kill_radius, theme["outer"], 72.0, 1.1)
+	_play_landmark_ring(origin, kill_radius * 0.66, theme["mid"], 60.0, 0.9, 0.12)
+	_play_landmark_ring(origin, kill_radius * 0.38, theme["inner"], 48.0, 0.7, 0.24)
+	_landmark_flash(str(theme["text"]), theme["flash"])
 
 
 func _landmark_freeze_time(landmark: ArenaLandmark) -> void:
 	var duration := landmark.effect_arg
+	var theme := _landmark_theme(landmark)
 	for entity_id in enemies.keys():
 		var enemy := enemies[entity_id] as Enemy
 		if not is_instance_valid(enemy) or enemy.health.is_dead:
@@ -1151,9 +1212,9 @@ func _landmark_freeze_time(landmark: ArenaLandmark) -> void:
 			enemy.set_ai_paused(true)
 		if enemy.has_method("set_frozen_visual"):
 			enemy.set_frozen_visual(true)
-	_play_landmark_ring(landmark.global_position, 500.0, Color("80c0ff"), 70.0, 1.4)
-	_play_landmark_ring(landmark.global_position, 300.0, Color("cfe6ff"), 56.0, 1.0, 0.15)
-	hud.flash_combat_text("Time frozen — enemies stunned for %ds" % int(duration), Color("80c0ff"))
+	_play_landmark_ring(landmark.global_position, 500.0, theme["outer"], 70.0, 1.4)
+	_play_landmark_ring(landmark.global_position, 300.0, theme["mid"], 56.0, 1.0, 0.15)
+	_landmark_flash(str(theme["text"]), theme["flash"])
 	await get_tree().create_timer(duration).timeout
 	for entity_id in enemies.keys():
 		var enemy := enemies[entity_id] as Enemy
@@ -1165,27 +1226,49 @@ func _landmark_freeze_time(landmark: ArenaLandmark) -> void:
 			enemy.set_ai_paused(false)
 		if enemy.has_method("set_frozen_visual"):
 			enemy.set_frozen_visual(false)
-	hud.flash_combat_text("Time resumes.", Color("cfe6ff"))
+	_landmark_flash("Time resumes.", theme["inner"])
 
 
 func _landmark_heal_all(landmark: ArenaLandmark) -> void:
 	var amount := landmark.effect_arg
+	var theme := _landmark_theme(landmark)
 	for player in players.values():
 		if is_instance_valid(player) and (player as Player).active:
 			(player as Player).health.heal(amount)
-			# Burst at each player so distant teammates see their heal land too.
-			_play_landmark_ring((player as Player).global_position, 160.0, Color("a8f0a8"), 40.0, 0.8)
-	_play_landmark_ring(landmark.global_position, 480.0, Color("70d070"), 66.0, 1.3)
-	_play_landmark_ring(landmark.global_position, 280.0, Color("d0ffd0"), 52.0, 0.9, 0.15)
-	hud.flash_combat_text("Stone's blessing — everyone healed +%d HP" % int(amount), Color("70d070"))
+			_play_landmark_ring((player as Player).global_position, 160.0, theme["mid"], 40.0, 0.8)
+	_play_landmark_ring(landmark.global_position, 480.0, theme["outer"], 66.0, 1.3)
+	_play_landmark_ring(landmark.global_position, 280.0, theme["inner"], 52.0, 0.9, 0.15)
+	_landmark_flash(str(theme["text"]), theme["flash"])
 
 
-func _effect_display(effect_id: StringName) -> String:
-	match effect_id:
-		"pulse_wipe": return "Storm Bell"
-		"freeze_time": return "Calm"
-		"heal_all": return "Blessing"
-		_: return "Landmark"
+func _effect_display(landmark: ArenaLandmark) -> String:
+	if landmark != null and not landmark._hint.is_empty():
+		return landmark._hint
+	return "Landmark"
+
+
+## HUD no longer has flash_combat_text; reuse the debut banner so solo/host still get a beat.
+func _landmark_flash(text: String, color: Color) -> void:
+	if hud == null:
+		return
+	if hud.has_method("flash_combat_text"):
+		hud.call("flash_combat_text", text, color)
+		return
+	var banner := hud.debut_banner
+	if banner == null:
+		banner = hud.theme_banner
+	if banner == null:
+		return
+	banner.text = text
+	banner.add_theme_color_override("font_color", color)
+	banner.add_theme_font_size_override("font_size", 28)
+	banner.visible = true
+	banner.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	var fade := create_tween()
+	fade.tween_property(banner, "modulate:a", 1.0, 0.2)
+	fade.tween_interval(2.2)
+	fade.tween_property(banner, "modulate:a", 0.0, 0.4)
+	fade.tween_callback(func() -> void: banner.visible = false)
 
 
 func _play_landmark_ring(origin: Vector2, radius: float, color: Color, line_width := 70.0, duration := 1.0, delay := 0.0) -> void:
@@ -1393,8 +1476,15 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 		flash.style = VECTOR_ONLY_KIT_IDS.get(ability_id, effect_style)
 		flash.main_color = primary_color
 		flash.chain_color = secondary_color
-		flash.lifetime = clampf(0.14 + (points[1].x if points.size() >= 2 else 80.0) / 900.0, 0.14, 0.42)
+		# BLAST shatter is a short pop; BURST rings (Energy Field) can linger a beat longer.
+		if flash.style == PlayerClass.EffectStyle.BLAST:
+			flash.lifetime = 0.22
+		elif flash.style == PlayerClass.EffectStyle.BURST:
+			flash.lifetime = clampf(0.28 + (points[1].x if points.size() >= 2 else 80.0) / 1400.0, 0.28, 0.55)
+		else:
+			flash.lifetime = clampf(0.14 + (points[1].x if points.size() >= 2 else 80.0) / 900.0, 0.14, 0.42)
 		flash.points = points
+		KitFxLibrary.apply_to_lightning(flash, ability_id)
 		add_child(flash)
 		if not vector_only:
 			var vfx := ability_vfx_scene.instantiate() as AbilityVfx
