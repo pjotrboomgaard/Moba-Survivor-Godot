@@ -1,12 +1,19 @@
 class_name Arena
 extends Node2D
 
+## Fired after `_spawn_landmarks` so main can rebind `triggered` when rebuild replaces instances.
+signal landmarks_changed
+
 ## Terrain reward: some bosses leave a crater that unlocks fire-themed ability modifiers.
 ## Stubbed here so main.gd's unlock hook runs even before boss rewards are wired up.
 var crater_unlocked: bool = false
 
 func set_crater_unlocked(unlocked: bool) -> void:
+	if crater_unlocked == unlocked:
+		return
 	crater_unlocked = unlocked
+	if is_inside_tree():
+		queue_redraw()
 
 ## Single active arena lives under main. Players / enemies resolve it through this so
 ## nobody needs to hard-wire the path (and so the offline smoke harness can find it).
@@ -40,30 +47,34 @@ const WORLD_NAMES: Array[String] = ["Iron Foundry", "Ashen Caldera", "Verdant Wi
 
 ## Landmarks per world. Each entry:
 ##   [sprite_id, effect_id, radius, stand_seconds, effect_arg, hint, angle_deg, dist_frac]
-## angle_deg / dist_frac place the landmark around spawn (see _landmark_spot), so multiple
-## landmarks spread across the field instead of stacking. Every world pairs one rift /
-## attack landmark (pulse_wipe / freeze_time) with one resource / utility (heal_all),
-## mirroring the canonical kit (Rift Portal + Steam Vent, Frozen Crystal + Mana Spring).
+## angle_deg / dist_frac place the landmark around spawn (see _landmark_spot). Opposite
+## angles (40/220, 90/270) plus dist_frac 0.72–0.85 keep stands far apart. Every world
+## carries attack (pulse_wipe) + utility (heal_all) + freeze (freeze_time) where a third
+## sprite exists; Caldera's extra is a lava-surge wipe instead of a freeze.
 const WORLD_LANDMARKS: Array[Array] = [
-	# Iron Foundry — Foundry Pylon wipes, Steam Vent restores.
+	# Iron Foundry — molten wipe, steam heal, quench freeze.
 	[
-		["tw_factory_landmark_pylon", "pulse_wipe", 700.0, 2.5, 6.0, "Foundry Pylon", 35.0, 0.55],
-		["tw_factory_landmark_vat", "heal_all", 460.0, 2.5, 32.0, "Steam Vent", 210.0, 0.50],
+		["tw_factory_landmark_pylon", "pulse_wipe", 700.0, 2.5, 6.0, "Molten Pylon", 40.0, 0.78],
+		["tw_factory_landmark_vat", "heal_all", 460.0, 2.5, 32.0, "Steam Vent", 220.0, 0.82],
+		["tw_factory_landmark_bay", "freeze_time", 500.0, 2.6, 6.0, "Quench Bay", 130.0, 0.74],
 	],
-	# Ashen Caldera — Rift Portal wipes, Ember Shrine restores.
+	# Ashen Caldera — rift wipe, ember heal, lava surge wipe.
 	[
-		["tw_volcano_landmark_arch", "pulse_wipe", 640.0, 2.8, 6.0, "Rift Portal", 90.0, 0.55],
-		["tw_volcano_landmark_shrine", "heal_all", 480.0, 3.0, 40.0, "Ember Shrine", 270.0, 0.50],
+		["tw_volcano_landmark_arch", "pulse_wipe", 640.0, 2.8, 6.0, "Rift Portal", 90.0, 0.80],
+		["tw_volcano_landmark_shrine", "heal_all", 480.0, 3.0, 40.0, "Ember Shrine", 270.0, 0.78],
+		["tw_volcano_landmark_well", "pulse_wipe", 580.0, 2.6, 6.0, "Lava Surge", 180.0, 0.74],
 	],
-	# Verdant Wilds — Mana Spring restores, Verdant Bell wipes.
+	# Verdant Wilds — mana heal, verdant wipe, root freeze.
 	[
-		["tw_docks_landmark_pool", "heal_all", 480.0, 2.5, 34.0, "Mana Spring", 150.0, 0.52],
-		["tw_docks_landmark_bell", "pulse_wipe", 620.0, 2.6, 6.0, "Verdant Bell", 330.0, 0.52],
+		["tw_docks_landmark_pool", "heal_all", 480.0, 2.5, 34.0, "Mana Spring", 40.0, 0.76],
+		["tw_docks_landmark_bell", "pulse_wipe", 620.0, 2.6, 6.0, "Verdant Bell", 220.0, 0.82],
+		["tw_ice_landmark_hollow", "freeze_time", 520.0, 2.6, 6.0, "Root Hollow", 130.0, 0.74],
 	],
-	# Storm Court — Frozen Crystal freezes, Storm Lighthouse wipes.
+	# Storm Court — freeze crystal, storm wipe, tide heal.
 	[
-		["tw_ice_landmark_glade", "freeze_time", 500.0, 2.5, 6.0, "Frozen Crystal", 20.0, 0.52],
-		["tw_docks_landmark_lighthouse", "pulse_wipe", 660.0, 2.7, 6.0, "Storm Lighthouse", 200.0, 0.55],
+		["tw_ice_landmark_glade", "freeze_time", 500.0, 2.5, 6.0, "Frozen Crystal", 90.0, 0.78],
+		["tw_docks_landmark_lighthouse", "pulse_wipe", 660.0, 2.7, 6.0, "Storm Lighthouse", 270.0, 0.84],
+		["tw_docks_landmark_pool", "heal_all", 480.0, 2.5, 36.0, "Tide Font", 180.0, 0.74],
 	],
 ]
 
@@ -94,21 +105,38 @@ func set_world(world_id: int) -> void:
 
 
 const BASE_SIZE := Vector2(2400.0, 1600.0)
-## Per-biome playfield footprints (indexed by GameRuntime.biome_id):
-##   0 grass meadow — the baseline open field, smallest of the set.
-##   1 volcano      — the caldera bowl; its island pads sit in a modest frame so the
-##                    lava between outcrops stays a close, threatening dunk hazard.
-##   2 ice          — wide floe field: long sightlines between scattered ice floes.
-##   3 factory      — boxy and moderately larger to fit the orthogonal hall layout.
-##   4 docks        — widest: the storm court / boardwalk reads big and open.
-## Classic pins itself to BASE_SIZE via playfield_size(); biome fields grow from there.
+## Per-biome playfield footprints (indexed by GameRuntime.biome_id). Authored pad /
+## hazard / shop coordinates live in BASE_SIZE space and scale up with the field, so
+## classic stays the original 2400×1600 grid while biome worlds restore the larger
+## footprints (roughly 1.8–2× the flattened sizes). Grass stays the smallest.
+##   0 grass meadow — open field, walkable boss-bowl crater in the center.
+##   1 volcano      — caldera: island pads over lava, lava crater bowl in the center.
+##   2 ice          — wide floe field, long sightlines between ice floes.
+##   3 factory      — boxy halls; taller than grass so the corridors have room.
+##   4 docks        — widest: boardwalk and piers over water.
 const SIZE_BY_BIOME: Array[Vector2] = [
-	Vector2(2400.0, 1600.0),
-	Vector2(2600.0, 1900.0),
-	Vector2(3200.0, 2000.0),
-	Vector2(2800.0, 2100.0),
-	Vector2(3400.0, 2200.0),
+	Vector2(4200.0, 2800.0),
+	Vector2(4800.0, 3400.0),
+	Vector2(5200.0, 3400.0),
+	Vector2(4600.0, 3600.0),
+	Vector2(5600.0, 3600.0),
 ]
+## Central boss bowl, world-space (not scaled). ~600×600 so it reads at any biome size
+## while staying inside the volcano spawn island after pads scale up.
+const CRATER_SIZE := Vector2(600.0, 600.0)
+## Volcano only: walkable scorched plug so origin stays a legal spawn inside the lava lip.
+const CRATER_INNER := Vector2(360.0, 360.0)
+
+
+static func crater_rect() -> Rect2:
+	return Rect2(-CRATER_SIZE * 0.5, CRATER_SIZE)
+
+
+## Grass meadow and volcano caldera own the centerpiece crater; other biomes do not.
+func crater_feature_active() -> bool:
+	if not GameRuntime.uses_biomes() or GameRuntime.is_classic():
+		return false
+	return GameRuntime.biome_id == 0 or GameRuntime.biome_id == 1
 
 
 static func playfield_size() -> Vector2:
@@ -217,27 +245,42 @@ func rebuild() -> void:
 
 ## Scatter the fixed lava pool layout for worlds that opt in (ASHEN_CALDERA + IRON_FOUNDRY).
 ## Pools are positioned inside the walkable field so enemies can actually be shoved in.
+## Volcano also carves a 600×600 caldera lake in the center (lava lip around a walkable plug).
 func _build_hazards() -> void:
 	hazard_zones.clear()
 	if not GameRuntime.uses_biomes():
 		return
-	if not HAZARD_WORLDS.has(_world_id):
-		return
 	var biome_kind := _hazard_biome_kind()
 	var scale_factor := playfield_size() / BASE_SIZE
-	for pool in HAZARD_POOLS:
-		var center: Vector2 = pool["center"] * scale_factor
-		var size: Vector2 = pool["size"] * scale_factor
-		var rect := Rect2(center - size * 0.5, size)
-		hazard_zones.append({
-			"rect": rect,
-			"type": "lava",
-			"biome_kind": biome_kind,
-			"player_dot": HAZARD_PLAYER_DOT,
-			"enemy_dot": HAZARD_ENEMY_DOT,
-			"dunk_burst": HAZARD_DUNK_BURST,
-			"scramble_seconds": HAZARD_DUNK_SCRAMBLE,
-		})
+	if HAZARD_WORLDS.has(_world_id):
+		for pool in HAZARD_POOLS:
+			var center: Vector2 = pool["center"] * scale_factor
+			var size: Vector2 = pool["size"] * scale_factor
+			_append_lava_zone(Rect2(center - size * 0.5, size), biome_kind)
+	if GameRuntime.biome_id == 1:
+		_append_crater_lava()
+
+
+func _append_lava_zone(rect: Rect2, biome_kind: String) -> void:
+	if rect.size.x < 8.0 or rect.size.y < 8.0:
+		return
+	hazard_zones.append({
+		"rect": rect,
+		"type": "lava",
+		"biome_kind": biome_kind,
+		"player_dot": HAZARD_PLAYER_DOT,
+		"enemy_dot": HAZARD_ENEMY_DOT,
+		"dunk_burst": HAZARD_DUNK_BURST,
+		"scramble_seconds": HAZARD_DUNK_SCRAMBLE,
+	})
+
+
+## Central volcano crater: the 600×600 bowl is lava, minus a scorched inner plug so
+## Vector2.ZERO stays a legal spawn. Crossing the lip is a dunk.
+func _append_crater_lava() -> void:
+	var inner := Rect2(-CRATER_INNER * 0.5, CRATER_INNER)
+	for piece in _subtract_rect(crater_rect(), inner):
+		_append_lava_zone(piece, "volcano_lava")
 
 
 func _hazard_biome_kind() -> String:
@@ -264,15 +307,17 @@ func hazard_at(world_position: Vector2) -> Dictionary:
 ## seeded-relative spot. Non-grass worlds carry >= 2 (one rift / attack, one resource).
 func _spawn_landmarks() -> void:
 	if not GameRuntime.uses_biomes():
+		landmarks_changed.emit()
 		return
 	if _world_id < 0 or _world_id >= WORLD_LANDMARKS.size():
+		landmarks_changed.emit()
 		return
 	var kit: Array = WORLD_LANDMARKS[_world_id]
 	for spec in kit:
 		if spec.size() < 6:
 			continue
 		var angle_deg := float(spec[6]) if spec.size() > 6 else 0.0
-		var dist_frac := float(spec[7]) if spec.size() > 7 else 0.55
+		var dist_frac := float(spec[7]) if spec.size() > 7 else 0.78
 		var landmark := ArenaLandmark.new()
 		landmark.position = _landmark_spot(angle_deg, dist_frac)
 		add_child(landmark)
@@ -285,13 +330,15 @@ func _spawn_landmarks() -> void:
 			str(spec[5])
 		)
 		landmarks.append(landmark)
+		print("[landmark] spawn %s (%s) at %s" % [spec[5], spec[1], landmark.position])
+	landmarks_changed.emit()
 
 
 ## A seeded, walkable position for one landmark — placed at the given polar offset from
 ## spawn, kept clear of the shop stand, and nudged onto a walk pad if the biome carves
 ## the field up. angle_deg / dist_frac come from the world's landmark kit so multiple
 ## landmarks fan out across the field instead of stacking.
-func _landmark_spot(angle_deg: float, dist_frac: float = 0.55) -> Vector2:
+func _landmark_spot(angle_deg: float, dist_frac: float = 0.78) -> Vector2:
 	var half := playfield_size() * 0.5
 	var distance := minf(half.x, half.y) * dist_frac
 	var candidate := Vector2.RIGHT.rotated(deg_to_rad(angle_deg)) * distance
@@ -432,6 +479,8 @@ func _fits_obstacle(candidate: Vector2) -> bool:
 	# Rocks don't sit mid-pool — a boulder in lava looks wrong and would block dunk shots.
 	if is_in_hazard(candidate, 48.0):
 		return false
+	if crater_feature_active() and crater_rect().grow(24.0).has_point(candidate):
+		return false
 	if walk_pads.is_empty():
 		return true
 	for pad in walk_pads:
@@ -461,7 +510,9 @@ func _pads_for_biome(biome: int) -> Array[Rect2]:
 	var pads: Array[Rect2] = []
 	match biome:
 		1:
-			# Volcano: spawn island, shop island, and outcrops linked by bridges over lava.
+			# Volcano: spawn island (holds the 600×600 caldera bowl after scale), shop
+			# island, and outcrops linked by bridges over lava. Authored in BASE_SIZE
+			# space; _scale_pads grows them with the 4800×3400 playfield.
 			pads.append_array([
 				Rect2(-340, -280, 680, 560),
 				Rect2(400, -420, 420, 300),
@@ -609,6 +660,7 @@ func _draw() -> void:
 		return
 
 	_draw_ground_rect(rect)
+	_draw_crater()
 	_draw_decals()
 	_draw_hazards()
 	if GameRuntime.uses_biomes():
@@ -706,6 +758,8 @@ func _draw_decals() -> void:
 		var texture := SpriteLibrary.texture_for(sprite_name)
 		if texture == null or is_blocked(spot, 30.0):
 			continue
+		if crater_feature_active() and crater_rect().grow(8.0).has_point(spot):
+			continue
 		var size := Vector2(texture.get_width(), texture.get_height()) * PIXEL_ZOOM
 		draw_texture_rect(texture, Rect2(spot - size * 0.5, size), false)
 
@@ -736,6 +790,96 @@ func _draw_hazards() -> void:
 			draw_rect(rect, inner, true)
 		# Glowing rim so the lip stands out against the biome floor.
 		draw_rect(rect, rim, false, 6.0)
+
+
+## Themed centerpiece crater. Grass: walkable earth bowl. Volcano: lava lip around a
+## scorched inner plug (the lava fill itself is painted by _draw_hazards).
+func _draw_crater() -> void:
+	if not crater_feature_active():
+		return
+	if GameRuntime.biome_id == 0 and not crater_unlocked:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _layout_seed() + 7
+	var bowl := crater_rect()
+	var radius := CRATER_SIZE.x * 0.5
+	if GameRuntime.biome_id == 1:
+		_draw_volcano_crater(bowl, rng, radius)
+	else:
+		_draw_grass_crater(bowl, rng, radius)
+
+
+func _draw_grass_crater(bowl: Rect2, rng: RandomNumberGenerator, radius: float) -> void:
+	# Raised turf shadow, then the sunken earth bowl.
+	draw_arc(Vector2.ZERO, radius + 48.0, 0.0, TAU, 96, Color(0, 0, 0, 0.20), 36.0, true)
+	draw_rect(bowl.grow(18.0), Color("4a3824"), true)
+	draw_rect(bowl, Color("5c5044"), true)
+	draw_rect(bowl.grow(-72.0), Color("3a2c1b"), true)
+	var facets := 18
+	var core := Color("3a2c1b")
+	for index in facets:
+		var a0 := TAU * float(index) / float(facets)
+		var a1 := a0 + TAU / float(facets) * 1.08
+		var r0 := (radius - 40.0) * rng.randf_range(0.88, 1.04)
+		var shade := core
+		if index % 3 == 0:
+			shade = core.lightened(0.12)
+		elif index % 3 == 1:
+			shade = core.darkened(0.08)
+		draw_colored_polygon(PackedVector2Array([
+			Vector2.from_angle(a0) * r0,
+			Vector2.from_angle(a1) * r0,
+			Vector2.from_angle(a0 * 0.5 + a1 * 0.5) * r0 * 0.32,
+		]), shade)
+	draw_rect(bowl, Color("7a5630"), false, 8.0)
+	var crack := Color(0, 0, 0, 0.32)
+	for index in 8:
+		var angle := TAU * float(index) / 8.0 + rng.randf_range(-0.18, 0.18)
+		var start := Vector2.from_angle(angle) * radius * 0.18
+		var finish := Vector2.from_angle(angle + rng.randf_range(-0.12, 0.12)) * radius * rng.randf_range(0.72, 0.94)
+		draw_line(start, finish, crack, 5.0, true)
+	_draw_crater_debris(rng, radius, ["tw_crater_shard", "tw_crater_stone", "rock_large"], true)
+
+
+func _draw_volcano_crater(bowl: Rect2, rng: RandomNumberGenerator, radius: float) -> void:
+	# Ash lip around the caldera lake. Inner plug stays scorched rock so spawn is safe;
+	# the lava ring is a hazard zone drawn later by _draw_hazards.
+	draw_arc(Vector2.ZERO, radius + 40.0, 0.0, TAU, 96, Color(0.16, 0.05, 0.02, 0.55), 32.0, true)
+	draw_rect(bowl.grow(16.0), Color("5a2210"), true)
+	draw_rect(bowl, Color("3a1408"), true)
+	var inner := Rect2(-CRATER_INNER * 0.5, CRATER_INNER)
+	draw_rect(inner, Color("6a2e14"), true)
+	draw_rect(inner.grow(-28.0), Color("4a1c0c"), true)
+	draw_rect(inner, Color("c45a28"), false, 5.0)
+	draw_rect(bowl, Color("ff7a29"), false, 8.0)
+	_draw_crater_debris(rng, radius, ["rock_small", "rock_large", "boulder"], false)
+
+
+func _draw_crater_debris(rng: RandomNumberGenerator, radius: float, sprites: Array, grow_grass: bool) -> void:
+	for index in 14:
+		var angle := rng.randf_range(0.0, TAU)
+		var dist := rng.randf_range(radius * 0.72, radius + 36.0)
+		var spot := Vector2.from_angle(angle) * dist
+		var sprite_name := str(sprites[index % sprites.size()])
+		var texture := SpriteLibrary.texture_for(sprite_name)
+		if texture == null:
+			texture = SpriteLibrary.texture_for("rock_small")
+		if texture == null:
+			continue
+		var size := Vector2(texture.get_width(), texture.get_height()) * PIXEL_ZOOM * rng.randf_range(0.5, 0.85)
+		size.y *= 0.62
+		draw_texture_rect(texture, Rect2(spot - size * 0.5, size), false)
+	if not grow_grass:
+		return
+	for index in 10:
+		var angle := rng.randf_range(0.0, TAU)
+		var dist := rng.randf_range(radius * 0.82, radius + 70.0)
+		var spot := Vector2.from_angle(angle) * dist
+		var texture := SpriteLibrary.texture_for("grass_tuft")
+		if texture == null:
+			continue
+		var size := Vector2(texture.get_width(), texture.get_height()) * PIXEL_ZOOM * rng.randf_range(0.7, 1.0)
+		draw_texture_rect(texture, Rect2(spot - size * 0.5, size), false)
 
 
 func _draw_classic_grid(rect: Rect2) -> void:
