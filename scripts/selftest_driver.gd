@@ -415,7 +415,7 @@ func _on_survival_landmark(_pos: Vector2) -> void:
 	_landmark_saves += 1
 	_heal_commit = false
 	_holding_landmark = false
-	_landmark_kite_until = _elapsed + 5.5
+	_landmark_kite_until = _elapsed + 8.0
 	_active_effects.append({"kind": "landmark_save", "t": _elapsed, "hp": _hp_frac(), "saves": _landmark_saves})
 
 
@@ -448,6 +448,8 @@ func _nearest_enemy() -> Node2D:
 		return null
 	for enemy in _alive_enemies():
 		var d := _player.global_position.distance_to(enemy.global_position)
+		if enemy is Enemy and (enemy as Enemy).is_boss:
+			d *= 0.12
 		if d < best_d:
 			best_d = d
 			best = enemy
@@ -503,8 +505,10 @@ func _cheapest_affordable_item() -> String:
 func _preferred_affordable_item() -> String:
 	if _player == null:
 		return ""
-	if _player.can_afford(ShopCatalog.ACTIVE_ITEM_ID) and _player.stacks_of(ShopCatalog.ACTIVE_ITEM_ID) <= 0:
-		return ShopCatalog.ACTIVE_ITEM_ID
+	if _player.stacks_of(ShopCatalog.ACTIVE_ITEM_ID) <= 0:
+		if _player.can_afford(ShopCatalog.ACTIVE_ITEM_ID):
+			return ShopCatalog.ACTIVE_ITEM_ID
+		return ""
 	return _cheapest_affordable_item()
 
 
@@ -671,11 +675,15 @@ func _tick_survival(delta: float) -> void:
 				_walk_target = Vector2.ZERO
 			_walk_deadline = _elapsed + 8.0
 		elif _elapsed < _landmark_kite_until:
-			_walk_target = _peel_near_heal(heal, foe)
+			var boss_foe := foe if (foe is Enemy and (foe as Enemy).is_boss) else null
+			_walk_target = _kite_boss(boss_foe) if boss_foe != null else _peel_near_heal(heal, foe)
 			_walk_deadline = _elapsed + 2.0
 		elif frac >= 0.50 and orb != null and orb_d < 720.0 and nearest_d > 130.0:
 			_walk_target = orb.global_position
 			_walk_deadline = _elapsed + 3.0
+		elif foe is Enemy and (foe as Enemy).is_boss:
+			_walk_target = _kite_boss(foe)
+			_walk_deadline = _elapsed + 2.0
 		else:
 			_walk_target = _fight_near_heal(heal, foe, wave)
 			_walk_deadline = _elapsed + 2.0
@@ -699,7 +707,7 @@ func _tick_survival(delta: float) -> void:
 			slots.append(0)
 		if _player.known_abilities.size() > 1:
 			slots.append(1)
-		if frac <= 0.62:
+		if frac <= 0.62 or boss_up:
 			if _player.known_abilities.size() > 2:
 				slots.append(2)
 			if _player.known_abilities.size() > 3:
@@ -740,6 +748,33 @@ func _fight_near_heal(heal: ArenaLandmark, foe: Node2D, wave: int) -> Vector2:
 	var cand_d := candidate.distance_to(home)
 	if cand_d < band_in or cand_d > band_out:
 		candidate = home + (candidate - home).normalized() * clampf(cand_d, band_in, band_out)
+	return candidate
+
+
+func _kite_boss(foe: Node2D) -> Vector2:
+	var pos := _player.global_position
+	if foe == null:
+		return pos.lerp(Vector2.ZERO, 0.35)
+	var away := pos - foe.global_position
+	var dist := away.length()
+	var from_boss := away.normalized() if dist > 1.0 else Vector2.RIGHT.rotated(_elapsed)
+	var hold := 420.0
+	var radial := Vector2.ZERO
+	if dist < hold:
+		radial = from_boss * (hold - dist + 90.0)
+	elif dist > hold + 80.0:
+		radial = -from_boss * 70.0
+	var tangent := from_boss.orthogonal() * 160.0
+	if int(floor(_elapsed * 1.15)) % 2 == 1:
+		tangent = -tangent
+	if foe is Enemy and ((foe as Enemy).winding_up or (foe as Enemy).charging):
+		radial = from_boss * 280.0
+	var candidate := pos + radial + tangent
+	# Stay in the open crater instead of getting pinned on a corner pad.
+	if candidate.length() > 420.0:
+		candidate = candidate.normalized() * 380.0
+	if candidate.length() < 80.0:
+		candidate = from_boss * 220.0
 	return candidate
 
 

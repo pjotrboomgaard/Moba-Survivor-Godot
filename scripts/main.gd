@@ -275,7 +275,7 @@ func client_landmark_pulse(origin: Vector2, effect_id: String) -> void:
 func client_announce_boss_phase(phase: int, boss_name: String) -> void:
 	hud.announce_boss_phase(phase, boss_name)
 	_shake_cameras(18.0, 0.7)
-	_play_world_flash()
+	_play_world_flash(false)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -1018,7 +1018,7 @@ func _on_boss_phase_changed(phase: int) -> void:
 	if not GameRuntime.is_dedicated_server():
 		hud.announce_boss_phase(phase, boss_name)
 		_shake_cameras(20.0, 0.75)
-		_play_world_flash()
+		_play_world_flash(false)
 	if GameRuntime.is_server():
 		for peer_id in registered_remote_peers.keys():
 			client_announce_boss_phase.rpc_id(peer_id, phase, boss_name)

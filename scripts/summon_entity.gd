@@ -128,6 +128,8 @@ func _explode() -> void:
 		var dmg := power
 		if n is Enemy and (n as Enemy).is_boss and boss_damage_mult > 1.0:
 			dmg *= boss_damage_mult
+		if n.has_method("vulnerability_multiplier"):
+			dmg *= n.vulnerability_multiplier()
 		var health := n.get_node_or_null("HealthComponent")
 		if health != null and health.has_method("take_damage"):
 			health.take_damage(dmg, self)

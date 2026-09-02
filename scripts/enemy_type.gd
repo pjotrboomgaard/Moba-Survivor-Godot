@@ -398,7 +398,7 @@ const TYPES: Array[Dictionary] = [
 		"radius": 68.0,
 		"max_health": 1400.0,
 		"movement_speed": 92.0,
-		"contact_damage": 16.0,
+		"contact_damage": 12.0,
 		"attack_interval": 0.85,
 		"attack_distance": 92.0,
 		"xp_value": 420,
