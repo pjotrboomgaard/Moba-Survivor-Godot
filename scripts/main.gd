@@ -122,7 +122,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if GameRuntime.is_server():
 		_update_host_input()
-		wave_director.report_enemy_count(enemies.size())
+		wave_director.report_enemy_count(_living_enemy_count())
 		if not GameRuntime.is_dedicated_server():
 			hud.update_boss(_find_boss())
 		snapshot_accumulator += delta
@@ -133,6 +133,10 @@ func _physics_process(delta: float) -> void:
 			for peer_id in registered_remote_peers.keys():
 				client_receive_snapshot.rpc_id(peer_id, snapshot)
 				_crater_snapshot_sent[peer_id] = snap_time
+	elif GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
+		wave_director.report_enemy_count(_living_enemy_count())
+		if hud != null:
+			hud.update_boss(_find_boss())
 	elif GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
 		input_accumulator += delta
 		if input_accumulator >= 1.0 / input_send_rate:
@@ -359,7 +363,7 @@ func client_announce_wave(wave: int, theme_name: String, debut_type_id: String) 
 	hud.show_next_wave_button(false)
 	if wave > 0 and wave % WaveDirector.BOSS_WAVE_INTERVAL == 0:
 		_shake_cameras(16.0, 0.6)
-		_play_world_flash()
+		_play_world_flash(false)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -744,7 +748,7 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 		hud.show_next_wave_button(false)
 		if wave > 0 and wave % WaveDirector.BOSS_WAVE_INTERVAL == 0:
 			_shake_cameras(16.0, 0.6)
-			_play_world_flash()
+			_play_world_flash(false)
 	if GameRuntime.is_rift_clash() and SteamService.is_available():
 		var my_team := ""
 		for peer_id in players.keys():
@@ -771,20 +775,22 @@ func _on_intermission_started(next_wave: int, seconds: float) -> void:
 		var beaten := next_wave - 1
 		# Solo meta: bank sparks for the local player when a milestone wave is cleared.
 		if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
-			var sparks: float = PlayerProfile.sparks_for_wave(next_wave)
 			var local_player := _local_player()
 			var hero_id := local_player.class_id if local_player != null else ""
-			if sparks > 0:
-				PlayerProfile.grant_sparks(sparks, hero_id)
-				ProgressionService.auto_unlock_affordable()
-				hud.set_sparks(PlayerProfile.sparks)
+			if beaten > 0 and beaten % 5 == 0 and not _selftest_active():
+				var sparks: float = PlayerProfile.sparks_for_wave(beaten)
+				if sparks > 0:
+					PlayerProfile.grant_sparks(sparks, hero_id)
+					ProgressionService.auto_unlock_affordable()
+					if hud.has_method("set_sparks"):
+						hud.set_sparks(PlayerProfile.sparks)
 			# Ultimates ship with the hero from the start now; the old wave-5 unlock
 			# moment is retired (kept as a no-op for legacy saves via maybe_unlock_ult).
 			if not hero_id.is_empty() and local_player != null:
 				local_player.known_abilities = local_player.known_abilities
-		# MOBA draft: every 3rd wave cleared, hand everyone (CPUs pick instantly) a fresh
+		# MOBA draft: every 6th wave cleared, hand everyone (CPUs pick instantly) a fresh
 		# ability offer so the run keeps growing on top of XP/level picks.
-		if beaten > 0 and beaten % 3 == 0:
+		if beaten > 0 and beaten % 6 == 0:
 			_queue_wave_draft()
 	if GameRuntime.uses_biomes():
 		var previous_biome := GameRuntime.biome_id
@@ -792,13 +798,16 @@ func _on_intermission_started(next_wave: int, seconds: float) -> void:
 		if GameRuntime.biome_id != previous_biome:
 			_play_world_flash()
 	if WaveDirector.shop_opens_before(next_wave):
-		if not GameRuntime.is_dedicated_server():
+		if _selftest_active():
+			pass
+		elif not GameRuntime.is_dedicated_server():
 			hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 			_cpu_auto_shop()
-		if GameRuntime.is_server():
+		if GameRuntime.is_server() and not _selftest_active():
 			for peer_id in registered_remote_peers.keys():
 				client_open_shop.rpc_id(peer_id)
-		return
+		if not _selftest_active():
+			return
 	if not GameRuntime.is_dedicated_server():
 		hud.show_next_wave_button(true, seconds)
 	if GameRuntime.is_server():
@@ -806,7 +815,7 @@ func _on_intermission_started(next_wave: int, seconds: float) -> void:
 			client_show_next_wave_button.rpc_id(peer_id, seconds)
 
 
-## The every-3-waves draft. Uses the level-up offer pipeline directly (queued → stat/ability
+## The every-6-waves draft. Uses the level-up offer pipeline directly (queued → stat/ability
 ## turn → player pick) so CPU allies auto-resolve, clients get an RPC, and offline pauses.
 func _queue_wave_draft() -> void:
 	for peer_id in players.keys():
@@ -910,6 +919,11 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 	# If Rift Clash ever needs per-team enemies, extend Enemy with team_id here.
 	actors.add_child(enemy)
 	enemy.configure(entity_id, true, EnemyType.fit_to_biome(type_id), health_multiplier, speed_multiplier)
+	if not GameRuntime.fill_cpu_allies and players.size() <= 1 and not enemy.is_boss:
+		var dmg := wave_director.solo_contact_multiplier(current_wave)
+		enemy.contact_damage *= dmg
+		enemy.projectile_damage *= dmg
+		enemy.explode_damage *= dmg
 	enemy.defeated.connect(_on_enemy_defeated)
 	enemy.projectile_fired.connect(_on_enemy_projectile_fired)
 	enemy.spawn_requested.connect(_on_enemy_spawn_requested)
@@ -1146,34 +1160,42 @@ func _landmark_theme(landmark: ArenaLandmark) -> Dictionary:
 	var amount := int(landmark.effect_arg)
 	match landmark.sprite_name:
 		"tw_factory_landmark_pylon":
-			return {"outer": Color("ff5a18"), "mid": Color("ff9a30"), "inner": Color("ffe0a0"), "flash": Color("ff7a28"), "text": "Molten pulse! Minions within %dm wiped." % meters}
+			return {"outer": Color("ff5a18"), "mid": Color("ff9a30"), "inner": Color("ffe0a0"), "flash": Color("ff7a28"), "text": "Molten pulse! Minions wiped — elites lose %d%% HP." % int(landmark.effect_arg)}
 		"tw_factory_landmark_vat":
 			return {"outer": Color("b8dce4"), "mid": Color("e0f4f8"), "inner": Color("ffffff"), "flash": Color("c8e8ee"), "text": "Steam vent — everyone healed +%d HP" % amount}
 		"tw_factory_landmark_bay":
-			return {"outer": Color("6a90b8"), "mid": Color("a8c8e0"), "inner": Color("e0eef8"), "flash": Color("7aa0c8"), "text": "Quench lock — enemies stunned for %ds" % seconds}
+			return {"outer": Color("6a90b8"), "mid": Color("a8c8e0"), "inner": Color("e0eef8"), "flash": Color("7aa0c8"), "text": "Quench lock — frozen %ds, extra damage while locked" % seconds}
 		"tw_volcano_landmark_arch":
 			return {"outer": Color("c45cff"), "mid": Color("e090ff"), "inner": Color("ffe0ff"), "flash": Color("d070ff"), "text": "Rift pulse! Minions within %dm wiped." % meters}
 		"tw_volcano_landmark_shrine":
 			return {"outer": Color("ff7a40"), "mid": Color("ffb070"), "inner": Color("ffe0b0"), "flash": Color("ff8a48"), "text": "Ember shrine — everyone healed +%d HP" % amount}
 		"tw_volcano_landmark_well":
-			return {"outer": Color("ff3a18"), "mid": Color("ff7020"), "inner": Color("ffd060"), "flash": Color("ff4a20"), "text": "Lava surge! Minions within %dm wiped." % meters}
+			return {"outer": Color("8ec8ff"), "mid": Color("c8e4ff"), "inner": Color("f0f8ff"), "flash": Color("a0d0ff"), "text": "Obsidian font — frozen %ds, extra damage while locked" % seconds}
 		"tw_docks_landmark_bell":
 			return {"outer": Color("8fd84a"), "mid": Color("c8f080"), "inner": Color("f0ffe0"), "flash": Color("a0e050"), "text": "Verdant bell! Minions within %dm wiped." % meters}
+		"tw_grass_landmark_bell":
+			return {"outer": Color("8fd84a"), "mid": Color("c8f080"), "inner": Color("f0ffe0"), "flash": Color("a0e050"), "text": "Grove bell! Minions within %dm wiped." % meters}
+		"tw_grass_landmark_pool":
+			return {"outer": Color("70d070"), "mid": Color("d0ffd0"), "inner": Color("ffffff"), "flash": Color("70d070"), "text": "Wild spring — everyone healed +%d HP" % amount}
+		"tw_grass_landmark_stone":
+			return {"outer": Color("6db86a"), "mid": Color("a0d898"), "inner": Color("e0f8d8"), "flash": Color("7cc878"), "text": "Root stone — frozen %ds, extra damage while locked" % seconds}
 		"tw_docks_landmark_pool":
 			if landmark._hint == "Tide Font":
 				return {"outer": Color("6ec8ff"), "mid": Color("b0e0ff"), "inner": Color("e8f8ff"), "flash": Color("80d0ff"), "text": "Tide font — everyone healed +%d HP" % amount}
 			return {"outer": Color("5ec8c0"), "mid": Color("90e8e0"), "inner": Color("d8ffff"), "flash": Color("70d8d0"), "text": "Mana spring — everyone healed +%d HP" % amount}
 		"tw_ice_landmark_hollow":
+			if landmark.effect_id == "heal_all":
+				return {"outer": Color("a8e0ff"), "mid": Color("d0f0ff"), "inner": Color("f4fbff"), "flash": Color("b8e8ff"), "text": "Frost well — everyone healed +%d HP" % amount}
 			return {"outer": Color("6db86a"), "mid": Color("a0d898"), "inner": Color("e0f8d8"), "flash": Color("7cc878"), "text": "Vines bind — enemies stunned for %ds" % seconds}
 		"tw_ice_landmark_glade":
-			return {"outer": Color("80c0ff"), "mid": Color("cfe6ff"), "inner": Color("f0f8ff"), "flash": Color("90c8ff"), "text": "Frozen crystal — enemies stunned for %ds" % seconds}
+			return {"outer": Color("80c0ff"), "mid": Color("cfe6ff"), "inner": Color("f0f8ff"), "flash": Color("90c8ff"), "text": "Frozen crystal — frozen %ds, extra damage while locked" % seconds}
 		"tw_docks_landmark_lighthouse":
 			return {"outer": Color("f4c44a"), "mid": Color("ffe080"), "inner": Color("fff8d0"), "flash": Color("ffd060"), "text": "Storm pulse! Minions within %dm wiped." % meters}
 	match landmark.effect_id:
 		"pulse_wipe":
 			return {"outer": Color("ffd060"), "mid": Color("fff0b8"), "inner": Color("ffffff"), "flash": Color("ffd060"), "text": "Pulse! Minions within %dm wiped." % meters}
 		"freeze_time":
-			return {"outer": Color("80c0ff"), "mid": Color("cfe6ff"), "inner": Color("ffffff"), "flash": Color("80c0ff"), "text": "Time frozen — enemies stunned for %ds" % seconds}
+			return {"outer": Color("80c0ff"), "mid": Color("cfe6ff"), "inner": Color("ffffff"), "flash": Color("80c0ff"), "text": "Frozen %ds — extra damage while locked" % seconds}
 		"heal_all":
 			return {"outer": Color("70d070"), "mid": Color("d0ffd0"), "inner": Color("ffffff"), "flash": Color("70d070"), "text": "Blessing — everyone healed +%d HP" % amount}
 		_:
@@ -1183,16 +1205,21 @@ func _landmark_theme(landmark: ArenaLandmark) -> Dictionary:
 func _landmark_pulse_wipe(landmark: ArenaLandmark) -> void:
 	var origin := landmark.global_position
 	var kill_radius := landmark.effect_radius
+	var boss_pct := clampf(landmark.effect_arg, 8.0, 35.0) / 100.0
 	var theme := _landmark_theme(landmark)
 	for entity_id in enemies.keys():
 		var enemy := enemies[entity_id] as Enemy
 		if not is_instance_valid(enemy) or enemy.health.is_dead:
 			continue
-		if enemy.is_boss:
-			continue
 		if enemy.global_position.distance_to(origin) > kill_radius:
 			continue
-		enemy.health.take_damage(enemy.health.max_health * 4.0 + 9999.0, self)
+		if enemy.is_boss:
+			var chunk := enemy.health.max_health * boss_pct
+			if enemy.has_method("vulnerability_multiplier"):
+				chunk *= enemy.vulnerability_multiplier()
+			enemy.health.take_damage(chunk, self)
+		else:
+			enemy.health.take_damage(enemy.health.max_health * 4.0 + 9999.0, self)
 	_play_landmark_ring(origin, kill_radius, theme["outer"], 72.0, 1.1)
 	_play_landmark_ring(origin, kill_radius * 0.66, theme["mid"], 60.0, 0.9, 0.12)
 	_play_landmark_ring(origin, kill_radius * 0.38, theme["inner"], 48.0, 0.7, 0.24)
@@ -1200,20 +1227,24 @@ func _landmark_pulse_wipe(landmark: ArenaLandmark) -> void:
 
 
 func _landmark_freeze_time(landmark: ArenaLandmark) -> void:
-	var duration := landmark.effect_arg
+	var duration := maxf(8.0, landmark.effect_arg)
 	var theme := _landmark_theme(landmark)
 	for entity_id in enemies.keys():
 		var enemy := enemies[entity_id] as Enemy
 		if not is_instance_valid(enemy) or enemy.health.is_dead:
 			continue
+		if enemy.has_method("apply_mark"):
+			enemy.apply_mark(0.75, duration)
+		if enemy.has_method("apply_movement_lock"):
+			enemy.apply_movement_lock(duration)
 		enemy.set_process(false)
 		enemy.set_physics_process(false)
 		if enemy.has_method("set_ai_paused"):
 			enemy.set_ai_paused(true)
 		if enemy.has_method("set_frozen_visual"):
 			enemy.set_frozen_visual(true)
-	_play_landmark_ring(landmark.global_position, 500.0, theme["outer"], 70.0, 1.4)
-	_play_landmark_ring(landmark.global_position, 300.0, theme["mid"], 56.0, 1.0, 0.15)
+	_play_landmark_ring(landmark.global_position, 640.0, theme["outer"], 70.0, 1.4)
+	_play_landmark_ring(landmark.global_position, 380.0, theme["mid"], 56.0, 1.0, 0.15)
 	_landmark_flash(str(theme["text"]), theme["flash"])
 	await get_tree().create_timer(duration).timeout
 	for entity_id in enemies.keys():
@@ -1235,7 +1266,20 @@ func _landmark_heal_all(landmark: ArenaLandmark) -> void:
 	for player in players.values():
 		if is_instance_valid(player) and (player as Player).active:
 			(player as Player).health.heal(amount)
+			# Brief absorb so a clutch pad-fire isn't immediately undone by the pack
+			# that chased you onto the vent.
+			(player as Player).health.add_shield(maxf(28.0, amount * 0.45), 1.35)
 			_play_landmark_ring((player as Player).global_position, 160.0, theme["mid"], 40.0, 0.8)
+	var origin := landmark.global_position
+	for entity_id in enemies.keys():
+		var enemy := enemies[entity_id] as Enemy
+		if not is_instance_valid(enemy) or enemy.health.is_dead:
+			continue
+		var away := enemy.global_position - origin
+		if away.length() > 380.0:
+			continue
+		if enemy.has_method("apply_knockback"):
+			enemy.apply_knockback(away.normalized() * 520.0)
 	_play_landmark_ring(landmark.global_position, 480.0, theme["outer"], 66.0, 1.3)
 	_play_landmark_ring(landmark.global_position, 280.0, theme["inner"], 52.0, 0.9, 0.15)
 	_landmark_flash(str(theme["text"]), theme["flash"])
@@ -1629,7 +1673,7 @@ func _offer_stat_turn(peer_id: int, leveled_player: Player) -> void:
 		_advance_offer(peer_id)
 		return
 	pending_upgrades[peer_id] = upgrade_ids
-	if leveled_player.is_cpu():
+	if leveled_player.is_cpu() or _selftest_active():
 		_apply_upgrade_choice(peer_id, str(upgrade_ids[0]))
 		return
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
@@ -1646,7 +1690,7 @@ func _offer_ability_turn(peer_id: int, leveled_player: Player) -> void:
 		_advance_offer(peer_id)
 		return
 	pending_ability_offers[peer_id] = ability_ids
-	if leveled_player.is_cpu():
+	if leveled_player.is_cpu() or _selftest_active():
 		_apply_ability_choice(peer_id, str(ability_ids[0]))
 		return
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
@@ -1765,16 +1809,18 @@ func _rebuild_arena() -> void:
 			(enemy as Enemy).refresh_biome_look()
 
 
-func _play_world_flash() -> void:
+func _play_world_flash(rebuild: bool = true) -> void:
 	if GameRuntime.is_dedicated_server() or world_flash == null:
-		_rebuild_arena()
+		if rebuild:
+			_rebuild_arena()
 		return
 	world_flash.visible = true
 	world_flash.modulate.a = 0.0
 	var tween := create_tween()
 	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tween.tween_property(world_flash, "modulate:a", 1.0, 0.12)
-	tween.tween_callback(_rebuild_arena)
+	if rebuild:
+		tween.tween_callback(_rebuild_arena)
 	tween.tween_interval(0.08)
 	tween.tween_property(world_flash, "modulate:a", 0.0, 0.4)
 	tween.tween_callback(func() -> void:
@@ -1979,6 +2025,22 @@ func _local_player() -> Player:
 		if is_instance_valid(player) and (player as Player).is_local_player:
 			return player as Player
 	return null
+
+
+func _living_enemy_count() -> int:
+	var n := 0
+	for enemy in enemies.values():
+		if not is_instance_valid(enemy):
+			continue
+		var health: Variant = (enemy as Node).get("health")
+		if health != null and bool(health.get("is_dead")):
+			continue
+		n += 1
+	return n
+
+
+func _selftest_active() -> bool:
+	return OS.has_feature("selftest") or "--selftest" in OS.get_cmdline_args()
 
 
 ## Attach the SelfTestDriver child only when a request file exists. Skipping the call

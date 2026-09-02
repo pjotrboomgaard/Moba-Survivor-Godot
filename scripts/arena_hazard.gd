@@ -43,6 +43,7 @@ func configure(spec: Dictionary) -> void:
 	cosmetic = bool(spec.get("cosmetic", false))
 	global_position = spec.get("origin", global_position)
 	z_index = 8
+	add_to_group("arena_hazards")
 	queue_redraw()
 
 

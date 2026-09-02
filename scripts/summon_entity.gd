@@ -25,9 +25,14 @@ var attack_timer: float = 0.0
 ## Explodes when an enemy steps inside `trigger_radius`; set for spider-mine style summons.
 var trigger_radius: float = 0.0
 var explosion_radius: float = 0.0
+## Extra arm time after deploy so mines never pop the instant they land on a pack.
+var arm_delay: float = 0.0
+## Bosses walking over an armed mine take this many times normal blast damage.
+var boss_damage_mult: float = 1.0
 ## Launch-away impulse applied to every enemy caught by `_explode`; 0 means no displacement.
 var explosion_knockback: float = 0.0
 var _exploded := false
+var _arm_timer: float = 0.0
 
 @onready var _sprite: Sprite2D = $Sprite2D
 @onready var _shadow: Polygon2D = $Shadow
@@ -43,6 +48,7 @@ func setup(p_ability_id: String, p_owner_peer_id: int, p_power: float, p_lifetim
 	time_left = lifetime
 	# Materialize grace period: turret pops in with a deploy animation before firing.
 	_deploy_timer = 0.45
+	_arm_timer = maxf(0.0, arm_delay)
 	attack_timer = _deploy_timer + attack_interval * 0.5
 	var sprite := _sprite_node()
 	sprite.scale = Vector2(0.4, 0.4)
@@ -76,7 +82,10 @@ func _process(delta: float) -> void:
 			sprite.scale = Vector2(3.0, 3.0)
 			sprite.modulate = tint
 	if _is_mine():
-		_check_mine_trigger()
+		if _arm_timer > 0.0:
+			_arm_timer = maxf(0.0, _arm_timer - delta)
+		elif _deploy_timer <= 0.0:
+			_check_mine_trigger()
 	elif _deploy_timer <= 0.0:
 		attack_timer -= delta
 		if attack_timer <= 0.0:
@@ -93,10 +102,17 @@ func _check_mine_trigger() -> void:
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
-		if global_position.distance_to((enemy as Node2D).global_position) > trigger_radius:
+		if global_position.distance_to((enemy as Node2D).global_position) > _overlap_reach(enemy as Node2D):
 			continue
 		_explode()
 		return
+
+
+func _overlap_reach(enemy: Node2D) -> float:
+	var reach := trigger_radius
+	if "body_radius" in enemy:
+		reach += float(enemy.body_radius) * 0.85
+	return reach
 
 
 func _explode() -> void:
@@ -109,9 +125,12 @@ func _explode() -> void:
 		var n := enemy as Node2D
 		if global_position.distance_to(n.global_position) > blast:
 			continue
+		var dmg := power
+		if n is Enemy and (n as Enemy).is_boss and boss_damage_mult > 1.0:
+			dmg *= boss_damage_mult
 		var health := n.get_node_or_null("HealthComponent")
 		if health != null and health.has_method("take_damage"):
-			health.take_damage(power, self)
+			health.take_damage(dmg, self)
 		if explosion_knockback > 0.0 and n.has_method("apply_knockback"):
 			var push_dir := global_position.direction_to(n.global_position)
 			if push_dir.length_squared() <= 0.0:
@@ -138,6 +157,13 @@ func _draw() -> void:
 		var a := TAU * float(i) / 4.0 + PI / 4.0
 		plate.append(Vector2(cos(a), sin(a)) * 12.0 + Vector2(0, 8))
 	draw_colored_polygon(plate, Color(0.0, 0.0, 0.0, 0.35))
+	if _is_mine() or (trigger_radius > 0.0 and _exploded):
+		var armed := _arm_timer <= 0.0 and _deploy_timer <= 0.0
+		var pulse := 0.55 + 0.45 * sin(Time.get_ticks_msec() * 0.008)
+		var ring_color := Color(1.0, 0.35, 0.12, 0.55 * pulse) if armed else Color(0.95, 0.75, 0.2, 0.28 + 0.18 * pulse)
+		draw_arc(Vector2.ZERO, trigger_radius, 0.0, TAU, 28, ring_color, 2.0 if armed else 1.4, true)
+		if not armed:
+			draw_circle(Vector2.ZERO, 6.0, Color(1.0, 0.85, 0.3, 0.45))
 	# Muzzle burst on top of the sprite while we're firing.
 	if _muzzle_t > 0.0:
 		var glow := _muzzle_t * 4.0

@@ -7,7 +7,12 @@ extends RefCounted
 
 const ACTIVE_ITEM_ID := "sirene"
 const SHOP_PRICE_MULTIPLIER := 10
-const ALL_HEROES: Array[String] = ["tobor", "arclight", "bulwark", "warden"]
+const ALL_HEROES: Array[String] = [
+	"tobor", "arclight", "bulwark", "warden", "frostbinder",
+	"cinder", "pyra", "slag", "ember",
+	"thorn", "willow", "stump", "sage",
+	"volt", "nebula", "astral", "rime",
+]
 const TOBOR_ONLY: Array[String] = ["tobor"]
 
 const ITEMS: Array[Dictionary] = [

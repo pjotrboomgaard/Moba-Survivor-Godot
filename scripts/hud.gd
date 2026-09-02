@@ -343,13 +343,6 @@ func _refresh_ability_bar() -> void:
 	if bound_player == null or bound_player.known_abilities.is_empty():
 		ability_bar_label.text = ""
 		return
-	# Ability-name readout only renders when the debug overlay flag is set
-	# (env var MDS_DEBUG_ABILITIES=1 or --debug-abilities CLI flag). Otherwise
-	# leave it empty so the player never sees spell text over the playfield.
-	var show_text := OS.has_feature("debug_abilities") or "--debug-abilities" in OS.get_cmdline_args() or OS.get_environment("MDS_DEBUG_ABILITIES") == "1"
-	if not show_text:
-		ability_bar_label.text = ""
-		return
 	var lines: Array[String] = []
 	for slot in bound_player.known_abilities.size():
 		var entry := bound_player.known_abilities[slot]
@@ -358,7 +351,8 @@ func _refresh_ability_bar() -> void:
 		var ability_name := str(ability_data.get("name", ability_id))
 		var cooldown_left := bound_player.ability_cooldowns[slot] if slot < bound_player.ability_cooldowns.size() else 0.0
 		var status := "READY" if cooldown_left <= 0.0 else "%.1fs" % cooldown_left
-		lines.append("%s  %s (Rk %d)  %s" % [ABILITY_SLOT_KEYS[slot], ability_name, int(entry.rank), status])
+		var key := ABILITY_SLOT_KEYS[slot] if slot < ABILITY_SLOT_KEYS.size() else str(slot + 1)
+		lines.append("%s  %s  %s" % [key, ability_name, status])
 	ability_bar_label.text = "\n".join(lines)
 
 

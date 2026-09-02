@@ -11,6 +11,9 @@ const BOSS_RADIUS := 4.5
 const PLAYER_COLOR := Color("6fd6ff")
 const LOCAL_PLAYER_COLOR := Color("ffe066")
 const SHOP_COLOR := Color("ffc93c")
+const LANDMARK_WIPE := Color("f4c44a")
+const LANDMARK_HEAL := Color("7fd88a")
+const LANDMARK_FREEZE := Color("7db8ff")
 const ENEMY_COLOR := Color("ff5d5d")
 const BOSS_COLOR := Color("ff2a2a")
 const BACKGROUND_COLOR := Color(0.06, 0.09, 0.14, 0.78)
@@ -29,6 +32,19 @@ func _draw() -> void:
 		var shop := _to_local(Arena.shop_stand_position())
 		draw_circle(shop, 3.5, SHOP_COLOR)
 		draw_circle(shop, 3.5, Color(0.2, 0.12, 0.0, 1.0), false, 1.0)
+	for node in get_tree().get_nodes_in_group("landmarks"):
+		if not is_instance_valid(node) or not (node is ArenaLandmark):
+			continue
+		var landmark := node as ArenaLandmark
+		var point := _to_local(landmark.global_position)
+		var color := LANDMARK_WIPE
+		match str(landmark.effect_id):
+			"heal_all":
+				color = LANDMARK_HEAL
+			"freeze_time":
+				color = LANDMARK_FREEZE
+		draw_circle(point, 3.5, color)
+		draw_circle(point, 3.5, Color(0.05, 0.05, 0.08, 1.0), false, 1.0)
 	for enemy_node in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(enemy_node):
 			continue

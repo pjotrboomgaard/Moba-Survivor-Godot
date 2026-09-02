@@ -1,5 +1,27 @@
 # Self-test agent workflow
 
+**Solo clutch balance** (`mode: "solo_survival"`): the driver plays a real solo run through **wave 20 (The Warhos)** — kites, casts, landmarks, and shop buys. Intermissions skip quickly so combat is the wait. It writes `results.verdict`:
+
+- `PASS_CLUTCH` — beaten wave 20, HP dipped into danger (including after wave 10), ability casts, landmark save, shop buy. Intermissions skip once HP is topped off so breathers are used to recover, not to stall.
+- `FAIL_TOO_EASY` — never entered danger, or late-game never went critical
+- `FAIL_TOO_HARD` — died
+- `FAIL_NO_LANDMARK_SAVE` — dipped but never fired a landmark
+- `FAIL_NO_SHOP` — never bought an item
+- `FAIL_NO_ABILITIES` — never cast
+- `FAIL_NO_PROGRESS` — did not beat wave 20
+- `WARN_NEAR_DEATH` — survived but min HP went under 8%
+
+Any agent, any hero:
+
+```
+powershell -ExecutionPolicy Bypass -File tools/selftest/run_selftest.ps1 -RequestPath tools/selftest/requests/solo_survival.json
+powershell -ExecutionPolicy Bypass -File tools/selftest/run_selftest.ps1 -RequestPath tools/selftest/requests/solo_survival.json -Hero ember
+powershell -ExecutionPolicy Bypass -File tools/selftest/run_survival_roster.ps1
+powershell -ExecutionPolicy Bypass -File tools/selftest/run_survival_roster.ps1 -Heroes tobor,ember,bulwark
+```
+
+Kill leftover `Godot*` processes before a run. Report lands in `tools/selftest/results/solo_survival_<hero>_report.json` (or `solo_survival_report.json` with no `-Hero`).
+
 Each agent works in isolation. Standard loop:
 
 1. Write a request JSON in `tools/selftest/requests/<your_test>.json` describing inputs, spawns, snapshots, and probes.

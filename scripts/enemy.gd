@@ -77,6 +77,7 @@ var knockback_velocity := Vector2.ZERO
 ## Hero "mark" abilities (Track, Sunder, Frostbite Mark, ...): extra damage taken from every
 ## source while it lasts, on top of the normal per-damage-type resistance.
 var vulnerability_bonus := 0.0
+var _frozen_visual := false
 var vulnerability_timer := 0.0
 var boss_phase := 1
 var pattern_cooldown := 1.1
@@ -209,6 +210,14 @@ func has_sprite() -> bool:
 	return sprite != null and sprite.texture != null
 
 
+func set_frozen_visual(on: bool) -> void:
+	_frozen_visual = on
+	if sprite != null and is_instance_valid(sprite):
+		sprite.modulate = Color("6ad4ff") if on else Color.WHITE
+	modulate = Color(0.72, 0.93, 1.0, 1.0) if on else Color.WHITE
+	queue_redraw()
+
+
 func damage_multiplier_for(damage_type: int) -> float:
 	return EnemyType.damage_multiplier(type_id, damage_type)
 
@@ -234,6 +243,7 @@ func _physics_process(delta: float) -> void:
 		_on_knockback_landed()
 
 	_update_lava_burn(delta)
+	_update_standing_lava(delta)
 	if scrambling_out > 0.0:
 		scrambling_out = maxf(0.0, scrambling_out - delta)
 		if scrambling_out <= 0.0:
@@ -376,7 +386,7 @@ func _process_boss_fight(delta: float) -> void:
 		if slam_shot_gap <= 0.0:
 			_emit_player_slam()
 			slam_shots_left -= 1
-			slam_shot_gap = 0.32 if boss_phase < 3 else 0.22
+			slam_shot_gap = 0.42 if boss_phase < 3 else 0.32
 		return
 	pattern_cooldown = maxf(0.0, pattern_cooldown - delta)
 	_boss_idle_move()
@@ -422,12 +432,12 @@ func _begin_boss_pattern() -> void:
 		"dash":
 			winding_up = true
 			charge_state_timer = charge_windup * (0.75 if boss_phase >= 3 else 1.0)
-			pattern_cooldown = maxf(2.2, dash_interval / float(boss_phase))
+			pattern_cooldown = maxf(1.35, dash_interval / float(boss_phase + 1))
 			AudioService.play("charge")
 		"slam":
-			slam_shots_left = boss_phase
+			slam_shots_left = 1 + boss_phase
 			slam_shot_gap = 0.0
-			pattern_cooldown = 2.6 - 0.35 * float(boss_phase - 1)
+			pattern_cooldown = 1.85 - 0.18 * float(boss_phase - 1)
 		"shockwave":
 			_emit_hazard({
 				"kind": "ring",
@@ -439,51 +449,68 @@ func _begin_boss_pattern() -> void:
 				"damage": strike_damage,
 				"color": str(outline_color.to_html(false)),
 			})
-			pattern_cooldown = 3.1 - 0.35 * float(boss_phase - 1)
+			pattern_cooldown = 2.15 - 0.22 * float(boss_phase - 1)
 		"cross":
 			_emit_cross_lines(strike_damage)
-			pattern_cooldown = 2.9 - 0.3 * float(boss_phase - 1)
+			pattern_cooldown = 2.05 - 0.2 * float(boss_phase - 1)
 		"storm":
-			slam_shots_left = 3 + boss_phase * 2
+			slam_shots_left = 2 + boss_phase * 2
 			slam_shot_gap = 0.0
 			_emit_cross_lines(strike_damage)
-			pattern_cooldown = 2.4
+			pattern_cooldown = 1.7
 		"volley":
 			projectile_count = _base_projectile_count + boss_phase * 3
 			_fire_projectile()
 			projectile_count = _base_projectile_count
-			pattern_cooldown = 1.7
+			pattern_cooldown = 1.25
 
 
 func _pick_boss_pattern() -> String:
-	var pool: Array[String] = ["slam", "dash"]
+	var pool: Array[String] = ["slam", "slam", "dash"]
 	if type_id == "stormcaller":
-		pool = ["slam", "volley"]
+		pool = ["slam", "slam", "volley"]
 	if boss_phase >= 2:
 		pool.append("shockwave")
 		pool.append("cross")
+		pool.append("slam")
 	if boss_phase >= 3:
 		pool.append("storm")
 		pool.append("cross")
+		pool.append("slam")
 	return pool[randi() % pool.size()]
 
 
 func _emit_player_slam() -> void:
 	if target == null:
 		return
-	var strike_damage := contact_damage if contact_damage > 0.0 else projectile_damage * 1.6
+	var slam_damage := 10.0 + 2.0 * float(boss_phase)
 	var aim := target.global_position
-	if boss_phase >= 3:
-		aim += Vector2(randf_range(-90.0, 90.0), randf_range(-90.0, 90.0))
+	var count := 4 + boss_phase
+	var telegraph := 1.28
+	var blast := 72.0 + 4.0 * float(boss_phase)
+	# Ring around the player with a gap so standing still is punished but a sidestep
+	# through a lane only eats one circle, not a stacked one-shot.
+	var ring := blast + 96.0
 	_emit_hazard({
 		"kind": "circle",
 		"origin": aim,
-		"radius": 92.0 + 12.0 * float(boss_phase),
-		"telegraph": 0.8 if boss_phase < 3 else 0.62,
+		"radius": blast,
+		"telegraph": telegraph,
 		"active": 0.28,
-		"damage": strike_damage,
+		"damage": slam_damage,
 		"color": str(fill_color.to_html(false)),
 	})
+	for index in count:
+		var offset := Vector2.RIGHT.rotated(TAU * float(index) / float(count) + float(boss_phase) * 0.27) * ring
+		_emit_hazard({
+			"kind": "circle",
+			"origin": aim + offset,
+			"radius": blast,
+			"telegraph": telegraph,
+			"active": 0.28,
+			"damage": slam_damage,
+			"color": str(fill_color.to_html(false)),
+		})
 
 
 func _emit_cross_lines(strike_damage: float) -> void:
@@ -713,6 +740,24 @@ func _update_lava_burn(delta: float) -> void:
 		_lava_burn_tick = 0.0
 
 
+## Grounded fodder standing in a lava basin take the zone's enemy DoT. Bosses and fliers
+## skip the standing tick — bosses own the crater, fliers skim the lip.
+func _update_standing_lava(delta: float) -> void:
+	if flying or is_boss or health.is_dead:
+		return
+	if _arena == null:
+		_arena = Arena.arena_root(self)
+		if _arena == null:
+			return
+	var hazard := _arena.hazard_at(global_position)
+	if hazard.is_empty() or str(hazard.get("type", "")) != "lava":
+		return
+	var dot := float(hazard.get("enemy_dot", 0.0))
+	if dot <= 0.0:
+		return
+	health.take_damage(dot * delta, self)
+
+
 func apply_mark(bonus_pct: float, duration: float) -> void:
 	if not server_authoritative:
 		return
@@ -864,7 +909,9 @@ func _draw() -> void:
 			draw_circle(Vector2.ZERO, body_radius * 3.1, Color(fill, 0.09 + 0.05 * glow))
 
 	if has_sprite():
-		if scrambling_out > 0.0:
+		if _frozen_visual:
+			sprite.modulate = Color("6ad4ff")
+		elif scrambling_out > 0.0:
 			# Fresh out of the lava — scorched smoking tint until the crawl-out finishes.
 			sprite.modulate = Color("ff9a55")
 		elif slow_timer > 0.0:

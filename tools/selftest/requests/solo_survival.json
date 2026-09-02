@@ -1,0 +1,10 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 20,
+  "duration": 1100,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Solo clutch through The Warhos (wave 20). Intermissions skip only after HP is topped off. Must barely live with abilities, landmarks, and shop buys, including a late-game HP crisis. PASS_CLUTCH requires beaten wave 20 + danger dip + landmark + shop.",
+  "events": []
+}

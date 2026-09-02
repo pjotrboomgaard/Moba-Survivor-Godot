@@ -2,9 +2,9 @@ class_name XPOrb
 extends Area2D
 
 @export var xp_value := 10
-@export var attraction_radius := 105.0
-@export var attraction_speed := 350.0
-@export var pickup_distance := 24.0
+@export var attraction_radius := 460.0
+@export var attraction_speed := 520.0
+@export var pickup_distance := 28.0
 
 @onready var sprite: Sprite2D = $Sprite
 

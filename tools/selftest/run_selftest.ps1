@@ -1,6 +1,7 @@
 param(
     [Parameter(Mandatory = $true)]
-    [string]$RequestPath
+    [string]$RequestPath,
+    [string]$Hero = ""
 )
 
 # Self-test runner: stages the request JSON, launches the game windowed on main.tscn,
@@ -8,6 +9,7 @@ param(
 # The Godot process inherits this console, so game stdout/stderr (including
 # AudioService/SelfTestDriver prints) streams inline to make diagnosing failures easy.
 # usage: powershell -ExecutionPolicy Bypass -File tools/selftest/run_selftest.ps1 -RequestPath tools/selftest/requests/keg_target.json
+#        powershell -ExecutionPolicy Bypass -File tools/selftest/run_selftest.ps1 -RequestPath tools/selftest/requests/solo_survival.json -Hero arclight
 
 $ProjectRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSCommandPath))
 
@@ -23,11 +25,22 @@ $ResultsDir = Join-Path $ProjectRoot "tools\selftest\results"
 
 Write-Host "Project: $ProjectRoot"
 Write-Host "Request: $RequestPathResolved"
+if ($Hero) { Write-Host "Hero override: $Hero" }
 Write-Host "Staging: $ReqOut"
 
-$bytes = [System.IO.File]::ReadAllBytes($RequestPathResolved)
-[System.IO.File]::WriteAllBytes($ReqOut, $bytes)
-Write-Host ("Staged bytes: {0}" -f $bytes.Length)
+$raw = [System.IO.File]::ReadAllText($RequestPathResolved)
+if ($Hero) {
+    if ($raw -match '"hero"\s*:') {
+        $raw = [regex]::Replace($raw, '"hero"\s*:\s*"[^"]*"', ('"hero": "' + $Hero + '"'))
+    } else {
+        $raw = $raw.TrimStart()
+        if ($raw.StartsWith("{")) {
+            $raw = '{ "hero": "' + $Hero + '",' + $raw.Substring(1)
+        }
+    }
+}
+[System.IO.File]::WriteAllText($ReqOut, $raw)
+Write-Host ("Staged bytes: {0}" -f ([System.Text.Encoding]::UTF8.GetByteCount($raw)))
 if (Test-Path $ReportOut) { Remove-Item $ReportOut -Force }
 
 # Run the game in-process so "user://" resolves to the same %APPDATA%\...\Rift Survivors
@@ -36,7 +49,11 @@ if (Test-Path $ReportOut) { Remove-Item $ReportOut -Force }
 # `&` on the Godot launcher returns as soon as the wrapper detaches; use Wait-Process so
 # we actually block until the real windowed child exits (this is when the report exists).
 $godotProc = Start-Process -FilePath $GodotExe -ArgumentList @("--path", $ProjectRoot, "--selftest", "res://scenes/main/main.tscn") -NoNewWindow -PassThru
-$godotProc.WaitForExit()
+if (-not $godotProc.WaitForExit(1200000)) {
+    Write-Host "TIMEOUT: killing Godot after 20m"
+    Stop-Process -Id $godotProc.Id -Force -ErrorAction SilentlyContinue
+    Get-Process -Name "Godot*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+}
 $logTail = Get-Content (Join-Path $UserDataDir "logs\godot.log") -Tail 80 -ErrorAction SilentlyContinue
 if ($logTail) { Write-Host "`n=== GAME LOG (tail) ==="; $logTail | ForEach-Object { Write-Host $_ } }
 Write-Host "Godot exited."
@@ -55,7 +72,9 @@ if (-not $reportFound) {
 
 if (Test-Path $ReportOut) {
     if (-not (Test-Path $ResultsDir)) { New-Item -ItemType Directory -Path $ResultsDir -Force | Out-Null }
-    $ReportCopy = Join-Path $ResultsDir (([IO.Path]::GetFileNameWithoutExtension($RequestPath)) + "_report.json")
+    $baseName = [IO.Path]::GetFileNameWithoutExtension($RequestPath)
+    if ($Hero) { $baseName = $baseName + "_" + $Hero }
+    $ReportCopy = Join-Path $ResultsDir ($baseName + "_report.json")
     Copy-Item $ReportOut $ReportCopy -Force
     Write-Host "Report copied: $ReportCopy"
     Write-Host "`n=== SELF-TEST REPORT ==="

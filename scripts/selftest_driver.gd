@@ -26,6 +26,34 @@ var _requested_hero: String = ""
 var _casts: Array[Dictionary] = []
 var _errors: Array[String] = []
 var _expected_casts: Array[String] = []
+var _survival := false
+var _survival_duration := 1100.0
+var _until_wave := 20
+var _danger_hp := 0.42
+var _recover_hp := 0.56
+var _hp_samples: Array[Dictionary] = []
+var _min_hp_frac := 1.0
+var _max_hp_frac := 0.0
+var _min_hp_late := 1.0
+var _beaten_wave := 0
+var _last_hp_sample_t := -10.0
+var _wave_snaps: Dictionary = {}
+var _landmark_saves := 0
+var _holding_landmark := false
+var _survival_ai_cd := 0.0
+var _cast_burst_cd := 0.0
+var _pressure_boosts := 0
+var _died := false
+var _verdict := ""
+var _hp_before_landmark := 1.0
+var _finished := false
+var _survival_cast_i := 0
+var _confirm_due: Array[Dictionary] = []
+var _shop_buys: Array[Dictionary] = []
+var _shop_trip := false
+var _want_shop := false
+var _heal_commit := false
+var _landmark_kite_until := 0.0
 
 
 static func from_request(path: String = "user://selftest_request.json") -> SelfTestDriver:
@@ -51,15 +79,24 @@ static func from_request(path: String = "user://selftest_request.json") -> SelfT
 	var hero_req := str((parsed as Dictionary).get("hero", ""))
 	if not hero_req.is_empty():
 		driver._requested_hero = hero_req
+	if str((parsed as Dictionary).get("mode", "")) == "solo_survival":
+		driver._survival = true
+		driver._survival_duration = float((parsed as Dictionary).get("duration", 1100.0))
+		driver._until_wave = int((parsed as Dictionary).get("until_wave", 20))
+		driver._danger_hp = float((parsed as Dictionary).get("danger_hp", 0.42))
+		driver._recover_hp = float((parsed as Dictionary).get("recover_hp", 0.56))
 	return driver
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	print("[SelfTestDriver] _ready() start, parent=%s" % get_parent().name if get_parent() else "null")
 	_host_main = get_parent()
 	# Self-tests need audible/audio-observable behavior regardless of the user's saved
 	# prefs: SFX must be on so sound_probe entries can see a player firing.
 	AudioService.sfx_enabled = true
+	GameRuntime.fill_cpu_allies = false
+	GameRuntime.biome_locked = true
 	if _host_main == null:
 		push_warning("[SelfTestDriver] No parent; shutting down")
 		queue_free()
@@ -75,6 +112,11 @@ func _ready() -> void:
 		_player.apply_class(_requested_hero)
 	if _player != null and not _player.ability_cast.is_connected(_on_player_ability_cast):
 		_player.ability_cast.connect(_on_player_ability_cast)
+	_bind_landmark_saves()
+	if _survival and _host_main != null and _host_main.get("wave_director") != null:
+		var director: WaveDirector = _host_main.wave_director
+		if not director.intermission_started.is_connected(_on_survival_intermission):
+			director.intermission_started.connect(_on_survival_intermission)
 
 
 func _on_player_ability_cast(ability_id: String, _effect_style: int, _points: PackedVector2Array) -> void:
@@ -97,16 +139,22 @@ const _SLOT_ACTIONS := ["ability_1", "ability_2", "ability_3", "ability_4"]
 
 
 func _inject_input(slot: int) -> void:
-	if _player == null or slot < 0 or slot >= _SLOT_ACTIONS.size():
+	if _player == null or slot < 0:
 		return
-	if slot < _player.ability_cooldowns.size() and float(_player.ability_cooldowns[slot]) > 0.0:
+	# Confirm taps must ignore cooldown — the arm tap has not spent CD yet.
+	var pending := int(_player.get("_pending_ability_slot"))
+	if pending != slot and slot < _player.ability_cooldowns.size() and float(_player.ability_cooldowns[slot]) > 0.0:
 		_active_effects.append({"kind": "cast_skipped", "t": _elapsed, "slot": slot, "reason": "cooldown", "cd_left": _player.ability_cooldowns[slot]})
+		return
+	_last_slot_tapped = slot
+	# Direct tap: InputService is ignored while movement is latched for walk/hold.
+	if _player.has_method("scripted_tap_ability"):
+		_player.scripted_tap_ability(slot)
 		return
 	var action: String = _SLOT_ACTIONS[slot]
 	Input.action_release(action)
 	await get_tree().physics_frame
 	Input.action_press(action)
-	_last_slot_tapped = slot
 	await get_tree().physics_frame
 	Input.action_release(action)
 
@@ -157,16 +205,35 @@ var _debug_last_tick := 0.0
 var _debug_last_phys := 0.0
 
 func _physics_process(_delta: float) -> void:
-	if _elapsed - _debug_last_phys >= 0.5:
-		print("[std] phys t=%.2f mode=%s paused=%s" % [_elapsed, str(get_tree().root.process_mode), str(get_tree().paused)])
+	if _elapsed - _debug_last_phys >= 5.0:
+		print("[std] phys t=%.1f paused=%s" % [_elapsed, str(get_tree().paused)])
 		_debug_last_phys = _elapsed
 
 func _process(delta: float) -> void:
+	if get_tree().paused:
+		_resolve_paused_offers()
+		return
 	_elapsed += delta
-	if _elapsed - _debug_last_tick >= 0.5:
-		print("[std] tick t=%.2f events=%d frames=%d" % [_elapsed, _events.size(), Engine.get_process_frames()])
+	if _elapsed - _debug_last_tick >= 5.0:
+		print("[std] tick t=%.1f wave=%d beaten=%d hp=%.2f xp=%d/%d lv=%d" % [
+			_elapsed,
+			int(_host_main.get("current_wave") if _host_main else 0),
+			_beaten_wave,
+			_hp_frac(),
+			_player.current_xp if _player else 0,
+			_player.xp_required if _player else 0,
+			_player.level if _player else 0,
+		])
 		_debug_last_tick = _elapsed
+	if _survival:
+		_tick_survival(delta)
+		if _beaten_wave >= _until_wave or _elapsed >= _survival_duration:
+			_finish_and_quit()
+			return
 	_tick_walk()
+	_flush_confirm_taps()
+	if _survival:
+		_overlay_combat_hold()
 	while not _events.is_empty() and float(_events[0].get("t", 0.0)) <= _elapsed:
 		var event: Dictionary = _events.pop_front()
 		var kind := str(event.get("kind", ""))
@@ -239,11 +306,12 @@ func _tick_walk() -> void:
 	var target := _walk_target as Vector2
 	var offset := target - _player.global_position
 	var dist := offset.length()
+	var attack := _survival
 	if dist < 30.0 or _elapsed > _walk_deadline:
 		_walk_target = null
-		_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, false, false, [false, false, false, false], false)
+		_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, attack, false, [false, false, false, false], false)
 		return
-	_player.set_authority_command(offset.normalized(), _player.aim_world_position, false, false, [false, false, false, false], false)
+	_player.set_authority_command(offset.normalized(), _player.aim_world_position, attack, false, [false, false, false, false], false)
 
 
 ## Snapshot every active landmark's gameplay state so the test report can assert against it.
@@ -325,7 +393,551 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 	_active_effects.append(entry)
 
 
+func _bind_landmark_saves() -> void:
+	if _host_main == null or not (_host_main.get("arena") is Arena):
+		return
+	var arena := _host_main.arena as Arena
+	if arena.has_signal("landmarks_changed") and not arena.landmarks_changed.is_connected(_on_landmarks_changed):
+		arena.landmarks_changed.connect(_on_landmarks_changed)
+	_on_landmarks_changed()
+
+
+func _on_landmarks_changed() -> void:
+	if _host_main == null or not (_host_main.get("arena") is Arena):
+		return
+	for landmark in (_host_main.arena as Arena).landmarks:
+		if landmark is ArenaLandmark and is_instance_valid(landmark):
+			if not landmark.triggered.is_connected(_on_survival_landmark):
+				landmark.triggered.connect(_on_survival_landmark)
+
+
+func _on_survival_landmark(_pos: Vector2) -> void:
+	_landmark_saves += 1
+	_heal_commit = false
+	_holding_landmark = false
+	_landmark_kite_until = _elapsed + 5.5
+	_active_effects.append({"kind": "landmark_save", "t": _elapsed, "hp": _hp_frac(), "saves": _landmark_saves})
+
+
+func _hp_frac() -> float:
+	if _player == null or _player.health == null:
+		return 1.0
+	var mx := maxf(_player.health.max_health, 1.0)
+	return clampf(_player.health.current_health / mx, 0.0, 1.0)
+
+
+func _alive_enemies() -> Array[Node2D]:
+	var out: Array[Node2D] = []
+	if get_tree() == null:
+		return out
+	for node in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(node) or not node is Node2D:
+			continue
+		var n := node as Node2D
+		var health: Variant = n.get("health")
+		if health != null and bool(health.get("is_dead")):
+			continue
+		out.append(n)
+	return out
+
+
+func _nearest_enemy() -> Node2D:
+	var best: Node2D = null
+	var best_d := INF
+	if _player == null:
+		return null
+	for enemy in _alive_enemies():
+		var d := _player.global_position.distance_to(enemy.global_position)
+		if d < best_d:
+			best_d = d
+			best = enemy
+	return best
+
+
+func _landmark_ready(lm: ArenaLandmark) -> bool:
+	return lm != null and is_instance_valid(lm) and lm._cooldown <= 0.05 and lm._ready_to_fire
+
+
+func _landmark_by_effect(effect_id: String) -> ArenaLandmark:
+	if _host_main == null or not (_host_main.get("arena") is Arena) or _player == null:
+		return null
+	var best: ArenaLandmark = null
+	var best_d := INF
+	for landmark in (_host_main.arena as Arena).landmarks:
+		if not (landmark is ArenaLandmark) or not is_instance_valid(landmark):
+			continue
+		var lm := landmark as ArenaLandmark
+		if str(lm.effect_id) != effect_id:
+			continue
+		var d := _player.global_position.distance_to(lm.global_position)
+		if d < best_d:
+			best_d = d
+			best = lm
+	return best
+
+
+func _nearest_landmark() -> ArenaLandmark:
+	return _landmark_by_effect("heal_all")
+
+
+func _shop_position() -> Vector2:
+	return Arena.shop_stand_position()
+
+
+func _cheapest_affordable_item() -> String:
+	if _player == null:
+		return ""
+	var best_id := ""
+	var best_price := 1 << 30
+	for item in ShopCatalog.items_for(_player.class_id):
+		var item_id := str(item.id)
+		if not _player.can_afford(item_id):
+			continue
+		var price := ShopCatalog.price_for(item_id, _player.stacks_of(item_id))
+		if price < best_price:
+			best_price = price
+			best_id = item_id
+	return best_id
+
+
+func _preferred_affordable_item() -> String:
+	if _player == null:
+		return ""
+	if _player.can_afford(ShopCatalog.ACTIVE_ITEM_ID) and _player.stacks_of(ShopCatalog.ACTIVE_ITEM_ID) <= 0:
+		return ShopCatalog.ACTIVE_ITEM_ID
+	return _cheapest_affordable_item()
+
+
+func _try_buy_at_shop() -> void:
+	if _player == null:
+		return
+	if _player.global_position.distance_to(_shop_position()) > Arena.SHOP_STAND_INTERACT_RADIUS:
+		return
+	var bought_any := false
+	while true:
+		var item_id := _preferred_affordable_item()
+		if item_id.is_empty():
+			break
+		var paid := ShopCatalog.price_for(item_id, _player.stacks_of(item_id))
+		if not _player.buy(item_id):
+			break
+		bought_any = true
+		_shop_buys.append({"t": _elapsed, "item": item_id, "gold_left": _player.gold, "paid": paid})
+		_active_effects.append({"kind": "shop_buy", "t": _elapsed, "item": item_id, "gold_left": _player.gold})
+		print("[SelfTestDriver] bought %s gold_left=%d" % [item_id, _player.gold])
+	_want_shop = not _preferred_affordable_item().is_empty() and _shop_buys.size() < 8
+	_shop_trip = _want_shop
+	if bought_any and not _want_shop and _host_main != null and _host_main.get("wave_director") != null and _host_main.wave_director.intermission_timer > 0.0:
+		_host_main.wave_director.skip_intermission()
+
+
+func _on_survival_intermission(next_wave: int, _seconds: float) -> void:
+	_beaten_wave = maxi(_beaten_wave, next_wave - 1)
+	print("[SelfTestDriver] beaten wave %d (next=%d) hp=%.2f" % [_beaten_wave, next_wave, _hp_frac()])
+	if _beaten_wave >= _until_wave:
+		_finish_and_quit()
+
+
+func _maybe_snap_wave(wave: int) -> void:
+	if wave in [5, 10, 15, 20] and not bool(_wave_snaps.get(wave, false)):
+		_wave_snaps[wave] = true
+		_active_effects.append({"kind": "wave_mark", "wave": wave, "t": _elapsed, "hp": _hp_frac(), "gold": _player.gold if _player != null else 0})
+		print("[SelfTestDriver] wave %d mark hp=%.2f gold=%d saves=%d" % [wave, _hp_frac(), _player.gold if _player != null else 0, _landmark_saves])
+
+
+func _pace_intermission() -> void:
+	if _host_main == null or _host_main.get("wave_director") == null:
+		return
+	var director: WaveDirector = _host_main.wave_director
+	if director.intermission_timer <= 0.0:
+		return
+	if _hp_frac() < 0.94:
+		return
+	if _want_shop and _hp_frac() >= 0.70:
+		return
+	var heal := _landmark_by_effect("heal_all")
+	# Spawns drop around the hero. Only start the next wave in the open center so
+	# formations don't clamp onto the vent / lava lip.
+	if _player != null and _player.global_position.length() > 260.0:
+		return
+	# Don't open a swarm wave with the clutch pad still cooling down.
+	if heal != null and not _landmark_ready(heal):
+		return
+	if director.intermission_timer > 1.4:
+		director.skip_intermission()
+
+
+func _tick_survival(delta: float) -> void:
+	if _player == null:
+		return
+	if _player.health != null and _player.health.is_dead:
+		_died = true
+		_finish_and_quit()
+		return
+	var frac := _hp_frac()
+	_min_hp_frac = minf(_min_hp_frac, frac)
+	_max_hp_frac = maxf(_max_hp_frac, frac)
+	var wave := int(_host_main.get("current_wave") if _host_main else 0)
+	if wave >= 10:
+		_min_hp_late = minf(_min_hp_late, frac)
+	if _elapsed - _last_hp_sample_t >= 2.5:
+		_last_hp_sample_t = _elapsed
+		_hp_samples.append({
+			"t": snappedf(_elapsed, 0.01),
+			"hp": snappedf(frac, 0.01),
+			"wave": wave,
+			"enemies": _alive_enemies().size(),
+			"gold": _player.gold,
+		})
+	_maybe_snap_wave(wave)
+	_pace_intermission()
+	_survival_ai_cd -= delta
+	_cast_burst_cd -= delta
+	var heal := _landmark_by_effect("heal_all")
+	var freeze := _landmark_by_effect("freeze_time")
+	var wipe := _landmark_by_effect("pulse_wipe")
+	var foe := _nearest_enemy()
+	if foe != null:
+		_player.aim_world_position = foe.global_position
+	var enemy_n := _alive_enemies().size()
+	var nearest_d := _player.global_position.distance_to(foe.global_position) if foe != null else 9999.0
+	_want_shop = _shop_buys.size() < 8 and not _preferred_affordable_item().is_empty()
+	var in_break := false
+	if _host_main.get("wave_director") != null:
+		in_break = float(_host_main.wave_director.intermission_timer) > 0.0
+	# Combat: start the pad sprint while there is still HP to cross the last 300px.
+	# Intermission: top off so the next wave doesn't open already bleeding.
+	var commit_at := 0.60 if wave < 12 else 0.48
+	if in_break and frac < 0.90:
+		_heal_commit = true
+	elif frac <= commit_at:
+		_heal_commit = true
+	elif frac >= 0.84 or not _landmark_ready(heal):
+		_heal_commit = false
+	var breaking_off := _elapsed < _landmark_kite_until and frac > 0.40
+	var need_heal := (not breaking_off) and _heal_commit and _landmark_ready(heal)
+	var boss_up := foe is Enemy and (foe as Enemy).is_boss
+	var need_freeze := (not breaking_off) and not need_heal and _landmark_ready(freeze) and (
+		(boss_up and nearest_d > 200.0)
+		or (frac <= 0.50 and enemy_n >= 6)
+	)
+	var need_wipe := (not breaking_off) and _landmark_ready(wipe) and not need_heal and not need_freeze and (
+		(boss_up and nearest_d > 220.0)
+		or (frac <= 0.50 and enemy_n >= 8)
+	)
+	var need_shop := (not breaking_off) and _want_shop and in_break and frac >= 0.70 and not need_heal and not need_freeze
+	var target_lm: ArenaLandmark = null
+	if need_heal:
+		target_lm = heal
+		_shop_trip = false
+	elif need_freeze:
+		target_lm = freeze
+		_shop_trip = false
+	elif need_wipe:
+		target_lm = wipe
+		_shop_trip = false
+	if target_lm != null:
+		var on_pad := _player.global_position.distance_to(target_lm.global_position) <= 48.0 and not _in_lava()
+		if on_pad:
+			_holding_landmark = true
+			_walk_target = null
+			_hp_before_landmark = frac
+		else:
+			_holding_landmark = false
+			_walk_target = target_lm.global_position
+			_walk_deadline = _elapsed + 16.0
+	elif need_shop:
+		_holding_landmark = false
+		_shop_trip = true
+		var shop_pos := _shop_position()
+		if foe != null and nearest_d < 90.0:
+			_walk_target = _player.global_position + (_player.global_position - foe.global_position).normalized() * 140.0
+			_walk_deadline = _elapsed + 2.0
+		elif _player.global_position.distance_to(shop_pos) <= 140.0:
+			_walk_target = null
+			_try_buy_at_shop()
+		else:
+			_walk_target = shop_pos
+			_walk_deadline = _elapsed + 10.0
+	else:
+		_holding_landmark = false
+		_shop_trip = false
+		var orb := _nearest_orb()
+		var orb_d := _player.global_position.distance_to(orb.global_position) if orb != null else 9999.0
+		if in_break and frac >= 0.90:
+			if orb != null and orb_d < 980.0:
+				_walk_target = orb.global_position
+			else:
+				_walk_target = Vector2.ZERO
+			_walk_deadline = _elapsed + 8.0
+		elif _elapsed < _landmark_kite_until:
+			_walk_target = _peel_near_heal(heal, foe)
+			_walk_deadline = _elapsed + 2.0
+		elif frac >= 0.50 and orb != null and orb_d < 720.0 and nearest_d > 130.0:
+			_walk_target = orb.global_position
+			_walk_deadline = _elapsed + 3.0
+		else:
+			_walk_target = _fight_near_heal(heal, foe, wave)
+			_walk_deadline = _elapsed + 2.0
+	if _in_lava():
+		_holding_landmark = false
+		_walk_target = _lava_escape()
+		_walk_deadline = _elapsed + 2.0
+	else:
+		var slam_out := _slam_escape()
+		if slam_out != Vector2.INF:
+			_holding_landmark = false
+			_walk_target = slam_out
+			_walk_deadline = _elapsed + 1.4
+		elif _walk_target != null:
+			_walk_target = _safe_walk(_walk_target as Vector2)
+	# Kit Q/E every beat; R (and pool alt) when the clutch window opens.
+	if _cast_burst_cd <= 0.0:
+		_cast_burst_cd = 0.55
+		var slots: Array[int] = []
+		if _player.known_abilities.size() > 0:
+			slots.append(0)
+		if _player.known_abilities.size() > 1:
+			slots.append(1)
+		if frac <= 0.62:
+			if _player.known_abilities.size() > 2:
+				slots.append(2)
+			if _player.known_abilities.size() > 3:
+				slots.append(3)
+		if not slots.is_empty():
+			_cast_two_stage(slots[_survival_cast_i % slots.size()])
+			_survival_cast_i += 1
+
+
+func _fight_near_heal(heal: ArenaLandmark, foe: Node2D, wave: int) -> Vector2:
+	var home := heal.global_position if heal != null and is_instance_valid(heal) else Vector2.ZERO
+	var pos := _player.global_position
+	var home_d := pos.distance_to(home)
+	# Fight in a band ~650px from the vent so a low-HP sprint can outrun the pack.
+	var band_in := 280.0
+	var band_out := 520.0
+	if home_d < band_in and home.length() > 1.0:
+		return pos + (pos - home).normalized() * 160.0
+	if home_d > band_out and home.length() > 1.0:
+		return home + (pos - home).normalized() * ((band_in + band_out) * 0.5)
+	if foe == null:
+		return pos
+	var away := pos - foe.global_position
+	var dist := away.length()
+	var boss_fight := foe is Enemy and (foe as Enemy).is_boss
+	var too_close := 340.0 if boss_fight else (240.0 if wave >= 5 else (200.0 if wave >= 3 else 130.0))
+	var kite := Vector2.ZERO
+	if boss_fight and ((foe as Enemy).winding_up or (foe as Enemy).charging):
+		kite = (away.normalized() if dist > 1.0 else Vector2.RIGHT) * 280.0
+	elif dist < too_close:
+		kite = (away.normalized() if dist > 1.0 else Vector2.RIGHT) * 220.0
+	elif dist > 420.0 and not boss_fight and _alive_enemies().size() < 6:
+		kite = -away.normalized() * 70.0
+	var tangent := (away.orthogonal().normalized() if dist > 1.0 else Vector2.RIGHT) * 120.0
+	if int(floor(_elapsed * 1.4)) % 2 == 1:
+		tangent = -tangent
+	var candidate := pos + kite + tangent
+	var cand_d := candidate.distance_to(home)
+	if cand_d < band_in or cand_d > band_out:
+		candidate = home + (candidate - home).normalized() * clampf(cand_d, band_in, band_out)
+	return candidate
+
+
+func _peel_near_heal(heal: ArenaLandmark, foe: Node2D) -> Vector2:
+	var home := heal.global_position if heal != null and is_instance_valid(heal) else Vector2.ZERO
+	var pos := _player.global_position
+	var kite := Vector2.RIGHT * 80.0
+	if foe != null:
+		var away := pos - foe.global_position
+		if away.length() > 1.0:
+			kite = away.normalized() * 140.0
+	var candidate := pos + kite
+	if home.length() > 1.0:
+		var d := candidate.distance_to(home)
+		if d < 180.0 or d > 380.0:
+			candidate = home + (candidate - home).normalized() * 280.0
+	return candidate
+
+
+func _nearest_orb() -> Node2D:
+	if _player == null or get_tree() == null:
+		return null
+	var best: Node2D = null
+	var best_d := INF
+	for node in get_tree().get_nodes_in_group("xp_orbs"):
+		if not is_instance_valid(node) or not node is Node2D:
+			continue
+		var d := _player.global_position.distance_to((node as Node2D).global_position)
+		if d < best_d:
+			best_d = d
+			best = node as Node2D
+	return best
+
+
+func _arena() -> Arena:
+	if _host_main != null and _host_main.get("arena") is Arena:
+		return _host_main.arena as Arena
+	return null
+
+
+func _in_lava() -> bool:
+	if _player == null:
+		return false
+	var arena := _arena()
+	return arena != null and arena.is_in_hazard(_player.global_position, 16.0)
+
+
+func _lava_escape() -> Vector2:
+	var arena := _arena()
+	if arena == null:
+		return Vector2.ZERO
+	return arena.free_position_near(_player.global_position, 40.0)
+
+
+func _safe_walk(target: Vector2) -> Vector2:
+	var arena := _arena()
+	if arena == null or _player == null:
+		return target
+	if arena.is_in_hazard(target, 14.0):
+		return arena.free_position_near(target, 36.0)
+	var mid := (_player.global_position + target) * 0.5
+	if arena.is_in_hazard(mid, 20.0):
+		return Vector2.ZERO
+	return target
+
+
+## Step out of telegraph slam circles before they go live. Returns Vector2.INF when clear.
+func _slam_escape() -> Vector2:
+	if _player == null or get_tree() == null:
+		return Vector2.INF
+	var pos := _player.global_position
+	var push := Vector2.ZERO
+	var threatened := false
+	for node in get_tree().get_nodes_in_group("arena_hazards"):
+		if not is_instance_valid(node) or not (node is ArenaHazard):
+			continue
+		var hazard := node as ArenaHazard
+		if hazard.kind != ArenaHazard.Kind.CIRCLE:
+			continue
+		var reach := hazard.radius + 28.0
+		var offset := pos - hazard.global_position
+		var dist := offset.length()
+		if dist > reach:
+			continue
+		threatened = true
+		var away := offset if dist > 1.0 else Vector2.RIGHT.rotated(_elapsed)
+		push += away.normalized() * (reach + 50.0 - dist)
+	if not threatened:
+		return Vector2.INF
+	if push.length() < 1.0:
+		push = Vector2.RIGHT.rotated(_elapsed * 2.1)
+	return pos + push.normalized() * 210.0
+
+
+func _overlay_combat_hold() -> void:
+	if _player == null:
+		return
+	var n := 0
+	var nearest := 9999.0
+	var boss_near := false
+	for enemy in _alive_enemies():
+		var d := _player.global_position.distance_to(enemy.global_position)
+		nearest = minf(nearest, d)
+		if d < 90.0:
+			n += 1
+		if enemy is Enemy and (enemy as Enemy).is_boss and d < 520.0:
+			boss_near = true
+	var clustered := n >= 3 and not _holding_landmark
+	var use_dash := (
+		not _holding_landmark
+		and _player.has_active_item()
+		and _player.sprint_cooldown <= 0.0
+		and (clustered or boss_near or nearest < 170.0)
+	)
+	if _holding_landmark:
+		# Plant so the pad's stand-still check (velocity < 8) can fire. Don't auto-attack
+		# while filling — attack_held would keep the body sliding.
+		_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, false, false, [false, false, false, false], false)
+	elif _walk_target == null:
+		var strafe := Vector2.RIGHT.rotated(_elapsed * 1.85) * 0.85
+		_player.set_authority_command(strafe, _player.aim_world_position, true, use_dash, _player.command_ability_slots, clustered)
+	else:
+		_player.set_authority_command(_player.command_move, _player.aim_world_position, true, use_dash, _player.command_ability_slots, clustered)
+
+
+func _ability_id_at(slot: int) -> String:
+	if _player == null or slot < 0 or slot >= _player.known_abilities.size():
+		return ""
+	var entry: Variant = _player.known_abilities[slot]
+	if entry is Dictionary:
+		return str((entry as Dictionary).get("id", ""))
+	return str(entry.get("id", ""))
+
+
+func _needs_confirm(ability_id: String) -> bool:
+	if ability_id.is_empty() or not Player.TARGETED_ABILITIES.has(ability_id):
+		return false
+	var mode := str(Player.TARGETED_ABILITIES[ability_id])
+	return mode != "instant"
+
+
+func _cast_named(ability_id: String) -> void:
+	if _player == null or ability_id.is_empty():
+		return
+	for slot in _player.known_abilities.size():
+		if _ability_id_at(slot) == ability_id:
+			_cast_two_stage(slot)
+			return
+
+
+func _cast_two_stage(slot: int) -> void:
+	_inject_input(slot)
+	if _needs_confirm(_ability_id_at(slot)):
+		_confirm_due.append({"slot": slot, "at": _elapsed + 0.14})
+
+
+func _flush_confirm_taps() -> void:
+	if _confirm_due.is_empty():
+		return
+	var keep: Array[Dictionary] = []
+	for item in _confirm_due:
+		if float(item.get("at", 0.0)) <= _elapsed:
+			_inject_input(int(item.get("slot", 0)))
+		else:
+			keep.append(item)
+	_confirm_due = keep
+
+
+func _resolve_paused_offers() -> void:
+	if _host_main == null or _player == null:
+		get_tree().paused = false
+		return
+	var peer_id := int(_player.owner_peer_id)
+	var stats: Variant = _host_main.get("pending_upgrades")
+	if stats is Dictionary:
+		var offered: Array = (stats as Dictionary).get(peer_id, [])
+		if offered.size() > 0 and _host_main.has_method("_apply_upgrade_choice"):
+			_host_main._apply_upgrade_choice(peer_id, str(offered[0]))
+			return
+	var abils: Variant = _host_main.get("pending_ability_offers")
+	if abils is Dictionary:
+		var offered_ab: Array = (abils as Dictionary).get(peer_id, [])
+		if offered_ab.size() > 0 and _host_main.has_method("_apply_ability_choice"):
+			_host_main._apply_ability_choice(peer_id, str(offered_ab[0]))
+			return
+	var hud: Variant = _host_main.get("hud")
+	if hud != null and hud.get("shop_panel") != null and hud.shop_panel.visible:
+		if hud.has_method("close_shop"):
+			hud.close_shop()
+	if hud != null and hud.get("upgrade_panel") != null and hud.upgrade_panel.visible:
+		hud.upgrade_panel.visible = false
+	get_tree().paused = false
+
+
 func _finish_and_quit() -> void:
+	if _finished:
+		return
+	_finished = true
 	for expected_id in _expected_casts:
 		var found := false
 		for cast in _casts:
@@ -334,6 +946,8 @@ func _finish_and_quit() -> void:
 				break
 		if not found:
 			_errors.append("expected cast never fired: %s" % expected_id)
+	if _survival:
+		_score_survival()
 	var report := {
 		"elapsed": _elapsed,
 		"player_class": _player.class_id if _player != null else "",
@@ -344,10 +958,62 @@ func _finish_and_quit() -> void:
 		"results": {
 			"casts": _casts,
 			"errors": _errors,
+			"verdict": _verdict,
+			"died": _died,
+			"min_hp": _min_hp_frac,
+			"max_hp": _max_hp_frac,
+			"landmark_saves": _landmark_saves,
+			"cast_count": _casts.size(),
+			"shop_buys": _shop_buys,
+			"shop_buy_count": _shop_buys.size(),
+			"gold": _player.gold if _player != null else 0,
+			"pressure_boosts": _pressure_boosts,
+			"hp_samples": _hp_samples,
+			"wave": int(_host_main.get("current_wave") if _host_main else 0),
+			"beaten_wave": _beaten_wave,
+			"until_wave": _until_wave,
+			"min_hp_late": _min_hp_late,
+			"level": _player.level if _player != null else 0,
+			"xp": _player.current_xp if _player != null else 0,
 		},
 	}
 	var file := FileAccess.open(report_out, FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "  "))
 	file.close()
-	print("[SelfTestDriver] report → %s" % report_out)
+	print("[SelfTestDriver] report → %s verdict=%s min_hp=%.2f late=%.2f saves=%d casts=%d buys=%d beaten=%d gold=%d lv=%d" % [report_out, _verdict, _min_hp_frac, _min_hp_late, _landmark_saves, _casts.size(), _shop_buys.size(), _beaten_wave, _player.gold if _player != null else 0, _player.level if _player != null else 0])
 	get_tree().quit(0)
+
+
+func _score_survival() -> void:
+	if _died:
+		_verdict = "FAIL_TOO_HARD"
+		_errors.append("player died at t=%.1f wave=%d min_hp=%.2f" % [_elapsed, int(_host_main.get("current_wave") if _host_main else 0), _min_hp_frac])
+		return
+	if _beaten_wave < _until_wave:
+		_verdict = "FAIL_NO_PROGRESS"
+		_errors.append("only beaten wave %d / %d (t=%.0f)" % [_beaten_wave, _until_wave, _elapsed])
+		return
+	if _casts.is_empty():
+		_verdict = "FAIL_NO_ABILITIES"
+		_errors.append("never cast an ability")
+		return
+	if _min_hp_frac > _danger_hp + 0.08:
+		_verdict = "FAIL_TOO_EASY"
+		_errors.append("min_hp=%.2f never entered danger (<%.2f) — fight was not clutch" % [_min_hp_frac, _danger_hp])
+		return
+	if _min_hp_late > 0.58 and _until_wave >= 10:
+		_verdict = "FAIL_TOO_EASY"
+		_errors.append("late-game min_hp=%.2f never went critical after wave 10" % _min_hp_late)
+		return
+	if _landmark_saves <= 0:
+		_verdict = "FAIL_NO_LANDMARK_SAVE"
+		_errors.append("HP dipped to %.2f but no landmark fired" % _min_hp_frac)
+		return
+	if _shop_buys.is_empty():
+		_verdict = "FAIL_NO_SHOP"
+		_errors.append("never bought an item (gold=%d)" % (_player.gold if _player != null else 0))
+		return
+	if _min_hp_frac <= 0.08:
+		_verdict = "WARN_NEAR_DEATH"
+		return
+	_verdict = "PASS_CLUTCH"

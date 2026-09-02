@@ -246,7 +246,8 @@ const HEALTH_GROWTH_PER_WAVE := 0.10
 ## Offline solo (no CPU allies) ramps from wave 2 so keg/turret/landmarks stay clutch
 ## without making First Contact unfair. Kept modest so wave 5 budget stays under 60.
 const SOLO_HEALTH_PRESSURE := 1.18
-const SOLO_BUDGET_PRESSURE := 1.08
+const SOLO_BUDGET_PRESSURE := 1.0
+const SOLO_DAMAGE_PRESSURE := 1.08
 const SOLO_PRESSURE_FROM_WAVE := 2
 
 ## The lobby's difficulty pick scales enemy health on top of the wave curve above (Pjotr mode
@@ -275,6 +276,9 @@ var wave_elapsed := 0.0
 var player_count := 1
 var pending_groups: Array[Dictionary] = []
 var live_enemy_count := 0
+## True once this wave has actually had living enemies. Prevents skip_intermission from
+## clearing a boss wave on the same frame the first group is still spawning.
+var _wave_engaged := false
 
 
 func start(next_player_count: int = 1, classic: bool = false) -> void:
@@ -304,6 +308,8 @@ func set_player_count(next_player_count: int) -> void:
 
 func report_enemy_count(count: int) -> void:
 	live_enemy_count = count
+	if count > 0:
+		_wave_engaged = true
 
 
 func _process(delta: float) -> void:
@@ -327,6 +333,14 @@ func _process(delta: float) -> void:
 		if group_timer <= 0.0:
 			_release_next_group()
 		return
+
+	# First spawn is often a frame behind skip_intermission; don't treat an empty
+	# field as "wave cleared" until we've seen living enemies. Give bosses extra
+	# time so the announce/flash hitch cannot skip The Ravager.
+	if not _wave_engaged:
+		if wave_elapsed < (4.5 if archetype == Archetype.BOSS else 2.5):
+			return
+		# Spawn never registered — fail open so a broken spawn cannot hang the run.
 
 	var timed_out := wave_elapsed >= WAVE_TIMEOUT_SECONDS and archetype != Archetype.BOSS
 	if live_enemy_count <= 0 or timed_out:
@@ -370,6 +384,7 @@ func _begin_next_wave() -> void:
 	wave += 1
 	wave_elapsed = 0.0
 	group_timer = 0.0
+	_wave_engaged = false
 	var plan := theme_for_wave(wave)
 	archetype = plan.archetype
 	modifier = plan.modifier
@@ -416,6 +431,13 @@ func budget_for_wave(target_wave: int) -> float:
 	if _solo_pressure_active(target_wave):
 		solo_budget *= SOLO_BUDGET_PRESSURE
 	return solo_budget * (1.0 + 0.85 * float(player_count - 1))
+
+
+func solo_contact_multiplier(target_wave: int) -> float:
+	if classic_mode or GameRuntime.fill_cpu_allies or player_count != 1:
+		return 1.0
+	var ramp := 1.0 + 0.016 * float(maxi(0, target_wave - 1))
+	return SOLO_DAMAGE_PRESSURE * ramp
 
 
 ## True for offline PLAY (not CO-OP CPU fill) from wave 2 onward.
@@ -543,9 +565,17 @@ func plan_wave(target_wave: int, wave_archetype: Archetype, wave_modifier: Modif
 		Archetype.ELITE:
 			groups.append_array(_plan_elite(target_wave, budget, multiplier, speed_multiplier, available))
 		Archetype.SWARM:
-			groups.append_array(_plan_filtered(budget * 1.15, multiplier, speed_multiplier, available, ["swarmling", "splitter", "grunt"], EnemyType.Formation.PACK))
+			var swarm_budget := budget * 1.15
+			var swarm_form := EnemyType.Formation.PACK
+			if player_count == 1 and not GameRuntime.fill_cpu_allies:
+				swarm_budget = budget * 0.95
+				swarm_form = EnemyType.Formation.SCATTERED
+			groups.append_array(_plan_filtered(swarm_budget, multiplier, speed_multiplier, available, ["swarmling", "splitter", "grunt"], swarm_form))
 		Archetype.AIR_ASSAULT:
-			groups.append_array(_plan_filtered(budget, multiplier, speed_multiplier, available, _air_ids(), EnemyType.Formation.RING))
+			var air_form := EnemyType.Formation.RING
+			if player_count == 1 and not GameRuntime.fill_cpu_allies:
+				air_form = EnemyType.Formation.SCATTERED
+			groups.append_array(_plan_filtered(budget, multiplier, speed_multiplier, available, _air_ids(), air_form))
 		Archetype.SNIPERS:
 			groups.append_array(_plan_filtered(budget, multiplier, speed_multiplier, available, _sniper_ids(), EnemyType.Formation.SCATTERED))
 		Archetype.AMBUSH:

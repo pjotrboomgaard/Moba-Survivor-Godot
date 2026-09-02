@@ -78,7 +78,10 @@ var facing_direction := Vector2.RIGHT
 var aim_world_position := Vector2.RIGHT * 100.0
 var current_xp := 0
 var level := 1
-var xp_required := 40
+## First level is a handful of grunt orbs; later levels stretch so wave 20 still has picks left.
+const BASE_XP_REQUIRED := 70
+const XP_GROWTH := 1.32
+var xp_required := BASE_XP_REQUIRED
 var gold := 0
 var gold_multiplier := 1.0
 var shop_stacks: Dictionary = {}
@@ -405,13 +408,14 @@ func set_authority_command(move_input: Vector2, aim_position: Vector2, attack_he
 	command_ability = ability_held
 	command_ability_slots = ability_slots_held
 	command_secondary = secondary_held
-	# Any explicit ability-slot press came from the self-test driver (or a net peer); latch so
-	# OFFLINE input polling below doesn't overwrite the scripted command each physics tick.
-	if ability_slots_held is Array:
-		for slot_held in ability_slots_held:
-			if bool(slot_held):
-				_external_command_latched = true
-				break
+	# Self-test / scripted input: latch so OFFLINE polling cannot overwrite walk or hold-still.
+	_external_command_latched = true
+
+
+## Self-test / scripted AI: same rising-edge tap a player would send on ability_1..4.
+## Bypasses InputService so casts still land while movement is latched.
+func scripted_tap_ability(slot: int) -> void:
+	_arm_or_confirm_ability(slot)
 
 
 ## Re-arm input polling for real keyboard/mouse again (self-test driver calls this when it
@@ -1180,6 +1184,7 @@ func _cast_ability_wrench_keg(data: Dictionary, values: Dictionary, _rank: int) 
 ## The keg's pressure-wave: pops every enemy inside away from the centre (HoN Steam Keg's
 ## signature shove), then applies the payload (damage + stun) via the shared hit route.
 func _detonate_wrench_keg(data: Dictionary, values: Dictionary, center: Vector2, radius: float) -> void:
+	_spawn_keg_blast_wave(center, radius)
 	var kick := absf(float(data.get("knockback_on_hit", 380.0)))
 	for enemy in _enemies_in_radius(center, radius):
 		var away_dir := center.direction_to(enemy.global_position)
@@ -1200,19 +1205,59 @@ func _spawn_keg_warning_ring(center: Vector2, radius: float, duration: float) ->
 		return
 	var ring := Line2D.new()
 	ring.default_color = Color(1.0, 0.72, 0.3, 0.9)
-	ring.width = 4.0
+	ring.width = 5.0
 	ring.z_index = 23
-	# Close the loop: perimeter + back to the first point.
-	var points := PackedVector2Array()
-	for k in 32:
-		var a := TAU * float(k) / 32.0
-		points.append(center + Vector2(cos(a), sin(a)) * radius)
-	points.append(points[0])
-	ring.points = points
 	scene_root.add_child(ring)
 	var tw := ring.create_tween()
-	tw.tween_property(ring, "modulate:a", 0.0, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_method(func(t: float) -> void:
+		if not is_instance_valid(ring):
+			return
+		_fill_circle_line(ring, center, lerpf(18.0, radius, t))
+		ring.default_color.a = 0.35 + 0.55 * t
+	, 0.0, 1.0, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tw.tween_callback(ring.queue_free)
+
+
+## Detonation: a filled shockwave that grows out of the keg.
+func _spawn_keg_blast_wave(center: Vector2, radius: float) -> void:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+	var holder := Node2D.new()
+	holder.z_index = 24
+	scene_root.add_child(holder)
+	var fill := Line2D.new()
+	fill.closed = true
+	fill.width = 18.0
+	fill.default_color = Color(1.0, 0.55, 0.18, 0.85)
+	var rim := Line2D.new()
+	rim.closed = true
+	rim.width = 8.0
+	rim.default_color = Color(1.0, 0.92, 0.55, 1.0)
+	holder.add_child(fill)
+	holder.add_child(rim)
+	var life := 0.42
+	var tw := holder.create_tween()
+	tw.tween_method(func(t: float) -> void:
+		if not is_instance_valid(holder):
+			return
+		var r := lerpf(16.0, radius * 1.2, t)
+		_fill_circle_line(fill, center, r)
+		_fill_circle_line(rim, center, r)
+		fill.width = lerpf(22.0, 6.0, t)
+		rim.width = lerpf(10.0, 3.0, t)
+		holder.modulate.a = 1.0 - t * 0.82
+	, 0.0, 1.0, life).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_callback(holder.queue_free)
+
+
+func _fill_circle_line(ring: Line2D, center: Vector2, radius: float) -> void:
+	var points := PackedVector2Array()
+	var steps := 40
+	for k in steps:
+		var a := TAU * float(k) / float(steps)
+		points.append(center + Vector2.from_angle(a) * radius)
+	ring.points = points
 
 
 ## Aftermath: a brief superheated puff (not Energy Field's hex containment pulse).
@@ -1302,10 +1347,12 @@ func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2)
 	sum.range = 0.0
 	sum.owner_damage_type = int(damage_type)
 	sum.position = position
-	# Proximity fuse: wake when anything hostile steps inside this ring…
-	sum.trigger_radius = float(data.get("trigger_radius", 34.0))
-	# …then clip a somewhat wider blast so the mine actually threatens a pack.
-	sum.explosion_radius = float(data.get("explosion_radius", 92.0))
+	# Arm first, then proximity fuse: walking onto an armed mine pops it — planting on a pack does not.
+	sum.trigger_radius = float(data.get("trigger_radius", 28.0))
+	sum.explosion_radius = float(data.get("explosion_radius", 70.0))
+	sum.arm_delay = float(data.get("arm_delay", 1.15))
+	sum.boss_damage_mult = float(data.get("boss_damage_mult", 4.5))
+	sum._arm_timer = sum.arm_delay
 	sum.expired.connect(_on_summon_expired)
 	get_tree().current_scene.add_child(sum)
 	AudioService.play_ability("tobor_spider_mines")
@@ -3124,7 +3171,7 @@ func add_xp(amount: int) -> void:
 	while current_xp >= xp_required:
 		current_xp -= xp_required
 		level += 1
-		xp_required = roundi(xp_required * 1.35)
+		xp_required = roundi(xp_required * XP_GROWTH)
 		xp_changed.emit(current_xp, xp_required, level)
 		level_reached.emit(level)
 	xp_changed.emit(current_xp, xp_required, level)
@@ -3137,7 +3184,7 @@ func dev_add_levels(count: int) -> void:
 		return
 	for _index in count:
 		level += 1
-		xp_required = roundi(xp_required * 1.35)
+		xp_required = roundi(xp_required * XP_GROWTH)
 		xp_changed.emit(current_xp, xp_required, level)
 		level_reached.emit(level)
 

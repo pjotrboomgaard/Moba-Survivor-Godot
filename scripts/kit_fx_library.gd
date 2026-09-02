@@ -21,6 +21,13 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 2,
 		"style": "fire",
 	},
+	"tobor_spider_mines": {
+		"primary_color": "ff8a3d",
+		"secondary_color": "7a2a12",
+		"pulse_count": 1,
+		"ribbon_count": 1,
+		"style": "steam",
+	},
 	"tobor_steam_turret": {
 		"primary_color": "ffd36b",
 		"secondary_color": "ff8a3d",
@@ -87,6 +94,13 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 2,
 		"style": "nature",
 	},
+	"warden_thorn_volley": {
+		"primary_color": "8cff4a",
+		"secondary_color": "d4b06b",
+		"pulse_count": 2,
+		"ribbon_count": 4,
+		"style": "nature",
+	},
 	"warden_voodoo_wards": {
 		"primary_color": "d4b06b",
 		"secondary_color": "8cff4a",
@@ -100,6 +114,28 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 4,
 		"style": "fire",
+	},
+	# ── Frostbinder ──────────────────────────────────────────────────────────
+	"frostbinder_ice_spike": {
+		"primary_color": "a8dcff",
+		"secondary_color": "6f8dff",
+		"pulse_count": 1,
+		"ribbon_count": 3,
+		"style": "ice",
+	},
+	"frostbinder_frost_nova": {
+		"primary_color": "a8dcff",
+		"secondary_color": "dbe9ff",
+		"pulse_count": 3,
+		"ribbon_count": 2,
+		"style": "ice",
+	},
+	"frostbinder_glacial_cone": {
+		"primary_color": "7ba9ff",
+		"secondary_color": "a8dcff",
+		"pulse_count": 4,
+		"ribbon_count": 5,
+		"style": "ice",
 	},
 	# ── Cinder (Blaze / Pyro) ────────────────────────────────────────────────
 	"cinder_dragon_fire": {
@@ -153,6 +189,13 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 2,
 		"style": "fire",
 	},
+	"slag_boulder_hurl": {
+		"primary_color": "ff6b2a",
+		"secondary_color": "ffc46b",
+		"pulse_count": 3,
+		"ribbon_count": 2,
+		"style": "fire",
+	},
 	"slag_volcanic_touch": {
 		"primary_color": "ff6b2a",
 		"secondary_color": "ff8a3d",
@@ -182,6 +225,13 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "nature",
 	},
+	"ember_firebomb": {
+		"primary_color": "ffd36b",
+		"secondary_color": "8cff4a",
+		"pulse_count": 4,
+		"ribbon_count": 3,
+		"style": "nature",
+	},
 	"ember_unbreakable": {
 		"primary_color": "ffc46b",
 		"secondary_color": "ffd36b",
@@ -198,6 +248,13 @@ const KIT_VISUALS: Dictionary = {
 		"style": "nature",
 	},
 	"thorn_toxin_ward": {
+		"primary_color": "a8e05c",
+		"secondary_color": "7dffb4",
+		"pulse_count": 3,
+		"ribbon_count": 2,
+		"style": "nature",
+	},
+	"thorn_toxicity": {
 		"primary_color": "a8e05c",
 		"secondary_color": "7dffb4",
 		"pulse_count": 3,
@@ -248,6 +305,13 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "nature",
 	},
+	"stump_root_charge": {
+		"primary_color": "c49a55",
+		"secondary_color": "8cff4a",
+		"pulse_count": 2,
+		"ribbon_count": 3,
+		"style": "nature",
+	},
 	"stump_overgrowth": {
 		"primary_color": "8ee04a",
 		"secondary_color": "d4b06b",
@@ -257,6 +321,13 @@ const KIT_VISUALS: Dictionary = {
 	},
 	# ── Sage (Nymphel / Nymphora) ────────────────────────────────────────────
 	"sage_grace": {
+		"primary_color": "ffe3ec",
+		"secondary_color": "ffd9e0",
+		"pulse_count": 3,
+		"ribbon_count": 4,
+		"style": "nature",
+	},
+	"sage_petal_dance": {
 		"primary_color": "ffe3ec",
 		"secondary_color": "ffd9e0",
 		"pulse_count": 3,
@@ -292,6 +363,13 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "storm",
 	},
+	"volt_plasma_bolt": {
+		"primary_color": "b0e8ff",
+		"secondary_color": "dbe9ff",
+		"pulse_count": 3,
+		"ribbon_count": 3,
+		"style": "storm",
+	},
 	"volt_typhoon": {
 		"primary_color": "7af0ff",
 		"secondary_color": "b0e8ff",
@@ -301,6 +379,13 @@ const KIT_VISUALS: Dictionary = {
 	},
 	# ── Nebula (Aeon / Chronos) ──────────────────────────────────────────────
 	"nebula_time_shift": {
+		"primary_color": "cbb0ff",
+		"secondary_color": "b48cff",
+		"pulse_count": 2,
+		"ribbon_count": 3,
+		"style": "arcane",
+	},
+	"nebula_arcane_bolt": {
 		"primary_color": "cbb0ff",
 		"secondary_color": "b48cff",
 		"pulse_count": 2,
@@ -329,7 +414,21 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 4,
 		"style": "arcane",
 	},
+	"astral_ghastly_touch": {
+		"primary_color": "fff4c4",
+		"secondary_color": "ffe9a0",
+		"pulse_count": 2,
+		"ribbon_count": 4,
+		"style": "arcane",
+	},
 	"astral_ward_of_light": {
+		"primary_color": "fff4c4",
+		"secondary_color": "ffffff",
+		"pulse_count": 4,
+		"ribbon_count": 5,
+		"style": "arcane",
+	},
+	"astral_moonfall": {
 		"primary_color": "fff4c4",
 		"secondary_color": "ffffff",
 		"pulse_count": 4,
