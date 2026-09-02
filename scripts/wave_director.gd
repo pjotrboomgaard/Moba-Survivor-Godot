@@ -33,60 +33,192 @@ const MODIFIER_NAMES := {
 	Modifier.SURGE: "Surge",
 }
 
-## Waves 1-20 are hand-written so every enemy gets a calm introduction of its
-## own before it ever shows up in a crowd. Beyond that the director improvises.
+## Waves 1-88 are hand-written. 1-20 introduce every roster type on grass; later
+## 20-wave blocks are volcano / ice / factory / docks themed names. Debuts stay on
+## existing type ids only. Beyond 88 the director improvises.
 const SCRIPTED_WAVES: Array[Dictionary] = [
 	{"name": "First Contact", "archetype": Archetype.STANDARD},
 	{"name": "Growing Numbers", "archetype": Archetype.STANDARD, "debut": "swarmling"},
 	{"name": "The Swarm", "archetype": Archetype.SWARM},
 	{"name": "Acid Rain", "archetype": Archetype.STANDARD, "debut": "spitter"},
 	{"name": "The Ravager", "archetype": Archetype.BOSS},
-	{"name": "Wings", "archetype": Archetype.STANDARD, "debut": "drifter"},
+	{"name": "Wings", "archetype": Archetype.AIR_ASSAULT, "debut": "drifter"},
 	{"name": "Air Assault", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
 	{"name": "The Wall", "archetype": Archetype.STANDARD, "debut": "brute"},
 	{"name": "Shadows", "archetype": Archetype.STANDARD, "debut": "stalker", "modifier": Modifier.ENRAGED},
 	{"name": "The Stormcaller", "archetype": Archetype.BOSS},
 	{"name": "Bombardment", "archetype": Archetype.STANDARD, "debut": "bomber"},
-	{"name": "Magma Choir", "archetype": Archetype.STANDARD, "debut": "hexer"},
-	{"name": "Cinder Line", "archetype": Archetype.STANDARD, "debut": "sentinel"},
-	{"name": "Lava Ambush", "archetype": Archetype.AMBUSH, "debut": "lurker"},
-	{"name": "The Reckoning", "archetype": Archetype.BOSS},
-	{"name": "Ashfall", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.ENRAGED, "debut": "splitter"},
-	{"name": "Stampede", "archetype": Archetype.STANDARD, "debut": "charger"},
-	{"name": "Ember Tide", "archetype": Archetype.SWARM, "modifier": Modifier.FRAGILE_HORDE},
-	{"name": "Dark Ritual", "archetype": Archetype.STANDARD, "debut": "summoner"},
+	{"name": "Mending Chant", "archetype": Archetype.STANDARD, "debut": "hexer"},
+	{"name": "Guard Post", "archetype": Archetype.ELITE, "debut": "sentinel"},
+	{"name": "Burrows", "archetype": Archetype.AMBUSH, "debut": "lurker"},
 	{"name": "The Vanguard", "archetype": Archetype.BOSS},
+	{"name": "Pod Burst", "archetype": Archetype.SWARM, "debut": "splitter", "modifier": Modifier.FRAGILE_HORDE},
+	{"name": "Stampede", "archetype": Archetype.STANDARD, "debut": "charger"},
+	{"name": "Overgrowth", "archetype": Archetype.SWARM},
+	{"name": "Dark Ritual", "archetype": Archetype.SNIPERS, "debut": "summoner"},
+	{"name": "The Warhos", "archetype": Archetype.BOSS},
+	{"name": "Kindling", "archetype": Archetype.STANDARD},
+	{"name": "Cinder Ring", "archetype": Archetype.SWARM, "modifier": Modifier.ENRAGED},
+	{"name": "Scorched Wings", "archetype": Archetype.AIR_ASSAULT},
+	{"name": "Sulfur Pits", "archetype": Archetype.AMBUSH},
+	{"name": "The Pyrelord", "archetype": Archetype.BOSS},
+	{"name": "Flashover", "archetype": Archetype.STANDARD},
+	{"name": "Coal Walk", "archetype": Archetype.SWARM},
+	{"name": "Flamewall", "archetype": Archetype.SNIPERS, "modifier": Modifier.ARMORED},
+	{"name": "Charred Ground", "archetype": Archetype.STANDARD},
+	{"name": "The Furnace", "archetype": Archetype.BOSS},
+	{"name": "Scorch", "archetype": Archetype.SWARM, "modifier": Modifier.ENRAGED},
+	{"name": "Ashen Ranks", "archetype": Archetype.ELITE},
+	{"name": "Lava Chorus", "archetype": Archetype.SNIPERS},
+	{"name": "Firebrands", "archetype": Archetype.SWARM},
+	{"name": "The Salamander", "archetype": Archetype.BOSS},
+	{"name": "Smoke Screen", "archetype": Archetype.AMBUSH},
+	{"name": "Ember Storm", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
+	{"name": "Molten March", "archetype": Archetype.STANDARD},
+	{"name": "Blast Furnace", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+	{"name": "The Volcanic", "archetype": Archetype.BOSS},
 	{"name": "Pack Ice", "archetype": Archetype.STANDARD},
 	{"name": "Whiteout", "archetype": Archetype.SNIPERS, "modifier": Modifier.ENRAGED},
 	{"name": "Floes", "archetype": Archetype.AIR_ASSAULT},
 	{"name": "Crevasse", "archetype": Archetype.AMBUSH},
-	{"name": "Apex", "archetype": Archetype.BOSS},
-	{"name": "Drift", "archetype": Archetype.SWARM, "modifier": Modifier.FRAGILE_HORDE},
+	{"name": "The Frostreaver", "archetype": Archetype.BOSS},
+	{"name": "Snowblind", "archetype": Archetype.SWARM, "modifier": Modifier.FRAGILE_HORDE},
 	{"name": "Permafrost", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
 	{"name": "Blizzard", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
 	{"name": "Icebreakers", "archetype": Archetype.STANDARD},
-	{"name": "The Stormcaller", "archetype": Archetype.BOSS},
-	{"name": "Assembly", "archetype": Archetype.STANDARD},
+	{"name": "The Deep Freeze", "archetype": Archetype.BOSS},
+	{"name": "Drift", "archetype": Archetype.SWARM},
+	{"name": "Hoarfrost", "archetype": Archetype.ELITE},
+	{"name": "Black Ice", "archetype": Archetype.AMBUSH},
+	{"name": "Glacier Teeth", "archetype": Archetype.SNIPERS},
+	{"name": "The Avalanche", "archetype": Archetype.BOSS},
+	{"name": "Cold Snap", "archetype": Archetype.ELITE, "modifier": Modifier.ENRAGED},
+	{"name": "Frostbite", "archetype": Archetype.STANDARD},
+	{"name": "Frozen Silence", "archetype": Archetype.AMBUSH},
+	{"name": "Shatterline", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+	{"name": "The Glacier", "archetype": Archetype.BOSS},
+	{"name": "Assembly Line II", "archetype": Archetype.STANDARD},
 	{"name": "Iron Line", "archetype": Archetype.ELITE},
 	{"name": "Kill Floor", "archetype": Archetype.SNIPERS},
 	{"name": "Shift Change", "archetype": Archetype.AMBUSH},
-	{"name": "The Ravager", "archetype": Archetype.BOSS},
+	{"name": "The Foreman", "archetype": Archetype.BOSS},
 	{"name": "Overhead Crane", "archetype": Archetype.AIR_ASSAULT},
 	{"name": "Press Gang", "archetype": Archetype.SWARM},
 	{"name": "Lockdown", "archetype": Archetype.STANDARD, "modifier": Modifier.ENRAGED},
 	{"name": "Scrap Tide", "archetype": Archetype.SWARM, "modifier": Modifier.SURGE},
-	{"name": "The Stormcaller", "archetype": Archetype.BOSS},
+	{"name": "The Machine", "archetype": Archetype.BOSS},
+	{"name": "Soldering", "archetype": Archetype.SNIPERS},
+	{"name": "Conveyor", "archetype": Archetype.STANDARD},
+	{"name": "Welding Arc", "archetype": Archetype.STANDARD, "modifier": Modifier.ENRAGED},
+	{"name": "Debris", "archetype": Archetype.SWARM, "modifier": Modifier.FRAGILE_HORDE},
+	{"name": "The Smelter", "archetype": Archetype.BOSS},
+	{"name": "Overdrive", "archetype": Archetype.STANDARD, "modifier": Modifier.SURGE},
+	{"name": "Deadlocks", "archetype": Archetype.AMBUSH},
+	{"name": "Riveting", "archetype": Archetype.ELITE},
+	{"name": "Full Production", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+	{"name": "The Assembly", "archetype": Archetype.BOSS},
 	{"name": "Boardwalk", "archetype": Archetype.STANDARD},
 	{"name": "High Tide", "archetype": Archetype.AIR_ASSAULT},
 	{"name": "Piers", "archetype": Archetype.AMBUSH},
 	{"name": "Gulls", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.ENRAGED},
-	{"name": "The Vanguard", "archetype": Archetype.BOSS},
+	{"name": "The Warhos", "archetype": Archetype.BOSS},
 	{"name": "Rip Current", "archetype": Archetype.SWARM},
 	{"name": "Longshore", "archetype": Archetype.SNIPERS},
-	{"name": "Storm Wall", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
-	{"name": "Last Call", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
-	{"name": "Apex", "archetype": Archetype.BOSS},
+	{"name": "Storm Wall", "archetype": Archetype.STANDARD, "modifier": Modifier.SURGE},
 ]
+
+## When the run is locked to a biome (hero world / F1), cycle these 20-wave
+## identity blocks instead of the grass intro table. Wave 1 stays First Contact.
+const BIOME_THEMES := {
+	1: [
+		{"name": "Kindling", "archetype": Archetype.STANDARD},
+		{"name": "Cinder Ring", "archetype": Archetype.SWARM, "modifier": Modifier.ENRAGED},
+		{"name": "Scorched Wings", "archetype": Archetype.AIR_ASSAULT},
+		{"name": "Sulfur Pits", "archetype": Archetype.AMBUSH},
+		{"name": "The Pyrelord", "archetype": Archetype.BOSS},
+		{"name": "Flashover", "archetype": Archetype.STANDARD},
+		{"name": "Coal Walk", "archetype": Archetype.SWARM},
+		{"name": "Flamewall", "archetype": Archetype.SNIPERS, "modifier": Modifier.ARMORED},
+		{"name": "Charred Ground", "archetype": Archetype.STANDARD},
+		{"name": "The Furnace", "archetype": Archetype.BOSS},
+		{"name": "Scorch", "archetype": Archetype.SWARM, "modifier": Modifier.ENRAGED},
+		{"name": "Ashen Ranks", "archetype": Archetype.ELITE},
+		{"name": "Lava Chorus", "archetype": Archetype.SNIPERS},
+		{"name": "Firebrands", "archetype": Archetype.SWARM},
+		{"name": "The Salamander", "archetype": Archetype.BOSS},
+		{"name": "Smoke Screen", "archetype": Archetype.AMBUSH},
+		{"name": "Ember Storm", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
+		{"name": "Molten March", "archetype": Archetype.STANDARD},
+		{"name": "Blast Furnace", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+		{"name": "The Volcanic", "archetype": Archetype.BOSS},
+	],
+	2: [
+		{"name": "Pack Ice", "archetype": Archetype.STANDARD},
+		{"name": "Whiteout", "archetype": Archetype.SNIPERS, "modifier": Modifier.ENRAGED},
+		{"name": "Floes", "archetype": Archetype.AIR_ASSAULT},
+		{"name": "Crevasse", "archetype": Archetype.AMBUSH},
+		{"name": "The Frostreaver", "archetype": Archetype.BOSS},
+		{"name": "Snowblind", "archetype": Archetype.SWARM, "modifier": Modifier.FRAGILE_HORDE},
+		{"name": "Permafrost", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+		{"name": "Blizzard", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
+		{"name": "Icebreakers", "archetype": Archetype.STANDARD},
+		{"name": "The Deep Freeze", "archetype": Archetype.BOSS},
+		{"name": "Drift", "archetype": Archetype.SWARM},
+		{"name": "Hoarfrost", "archetype": Archetype.ELITE},
+		{"name": "Black Ice", "archetype": Archetype.AMBUSH},
+		{"name": "Glacier Teeth", "archetype": Archetype.SNIPERS},
+		{"name": "The Avalanche", "archetype": Archetype.BOSS},
+		{"name": "Cold Snap", "archetype": Archetype.STANDARD, "modifier": Modifier.ENRAGED},
+		{"name": "Frostbite", "archetype": Archetype.STANDARD},
+		{"name": "Frozen Silence", "archetype": Archetype.AMBUSH},
+		{"name": "Shatterline", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+		{"name": "The Glacier", "archetype": Archetype.BOSS},
+	],
+	3: [
+		{"name": "Assembly Line II", "archetype": Archetype.STANDARD},
+		{"name": "Iron Line", "archetype": Archetype.ELITE},
+		{"name": "Kill Floor", "archetype": Archetype.SNIPERS},
+		{"name": "Shift Change", "archetype": Archetype.AMBUSH},
+		{"name": "The Foreman", "archetype": Archetype.BOSS},
+		{"name": "Overhead Crane", "archetype": Archetype.AIR_ASSAULT},
+		{"name": "Press Gang", "archetype": Archetype.SWARM},
+		{"name": "Lockdown", "archetype": Archetype.STANDARD, "modifier": Modifier.ENRAGED},
+		{"name": "Scrap Tide", "archetype": Archetype.SWARM, "modifier": Modifier.SURGE},
+		{"name": "The Machine", "archetype": Archetype.BOSS},
+		{"name": "Soldering", "archetype": Archetype.SNIPERS},
+		{"name": "Conveyor", "archetype": Archetype.STANDARD},
+		{"name": "Welding Arc", "archetype": Archetype.STANDARD, "modifier": Modifier.ENRAGED},
+		{"name": "Debris", "archetype": Archetype.SWARM, "modifier": Modifier.FRAGILE_HORDE},
+		{"name": "The Smelter", "archetype": Archetype.BOSS},
+		{"name": "Overdrive", "archetype": Archetype.STANDARD, "modifier": Modifier.SURGE},
+		{"name": "Deadlocks", "archetype": Archetype.AMBUSH},
+		{"name": "Riveting", "archetype": Archetype.ELITE},
+		{"name": "Full Production", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+		{"name": "The Assembly", "archetype": Archetype.BOSS},
+	],
+	4: [
+		{"name": "Boardwalk", "archetype": Archetype.STANDARD},
+		{"name": "High Tide", "archetype": Archetype.AIR_ASSAULT},
+		{"name": "Piers", "archetype": Archetype.AMBUSH},
+		{"name": "Gulls", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.ENRAGED},
+		{"name": "The Warhos", "archetype": Archetype.BOSS},
+		{"name": "Rip Current", "archetype": Archetype.SWARM},
+		{"name": "Longshore", "archetype": Archetype.SNIPERS},
+		{"name": "Storm Wall", "archetype": Archetype.STANDARD, "modifier": Modifier.SURGE},
+		{"name": "Last Call", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+		{"name": "The Maelstrom", "archetype": Archetype.BOSS},
+		{"name": "Low Tide", "archetype": Archetype.SWARM, "modifier": Modifier.FRAGILE_HORDE},
+		{"name": "Harbor Watch", "archetype": Archetype.ELITE},
+		{"name": "Undertow", "archetype": Archetype.AMBUSH},
+		{"name": "Squall", "archetype": Archetype.SNIPERS},
+		{"name": "The Admiral", "archetype": Archetype.BOSS},
+		{"name": "Spray", "archetype": Archetype.STANDARD, "modifier": Modifier.ENRAGED},
+		{"name": "Capstan", "archetype": Archetype.STANDARD},
+		{"name": "Mooring", "archetype": Archetype.AMBUSH},
+		{"name": "Breakwater", "archetype": Archetype.STANDARD, "modifier": Modifier.ARMORED},
+		{"name": "The Tide", "archetype": Archetype.BOSS},
+	],
+}
 
 const IMPROVISED_NAMES := {
 	Archetype.STANDARD: ["Advance", "Pressure", "Relentless", "Grinding Halt"],
@@ -98,7 +230,7 @@ const IMPROVISED_NAMES := {
 	Archetype.BOSS: ["Boss", "The Reckoning", "Apex"],
 }
 
-const INTERMISSION_SECONDS := 14.0
+const INTERMISSION_SECONDS := 10.0
 const SHOP_INTERMISSION_SECONDS := 30.0
 ## The shop opens after every other boss (waves 10, 20, 30, ...).
 const SHOP_WAVE_INTERVAL := 10
@@ -111,6 +243,11 @@ const BOSS_WAVE_INTERVAL := 5
 ## than before, so the run keeps escalating rather than plateauing once players out-level it.
 const BASE_HEALTH_MULTIPLIER := 2.0
 const HEALTH_GROWTH_PER_WAVE := 0.10
+## Offline solo (no CPU allies) ramps from wave 2 so keg/turret/landmarks stay clutch
+## without making First Contact unfair. Kept modest so wave 5 budget stays under 60.
+const SOLO_HEALTH_PRESSURE := 1.18
+const SOLO_BUDGET_PRESSURE := 1.08
+const SOLO_PRESSURE_FROM_WAVE := 2
 
 ## The lobby's difficulty pick scales enemy health on top of the wave curve above (Pjotr mode
 ## only — Classic's endless-grunt test loop stays flat regardless of this).
@@ -209,6 +346,13 @@ static func shop_opens_before(next_wave: int) -> bool:
 	return next_wave > 1 and (next_wave - 1) % SHOP_WAVE_INTERVAL == 0
 
 
+## The enemy type introduced at the given wave, or "" when the wave debuts nothing.
+static func debut_index(target_wave: int) -> String:
+	if target_wave >= 1 and target_wave <= SCRIPTED_WAVES.size():
+		return str(SCRIPTED_WAVES[target_wave - 1].get("debut", ""))
+	return ""
+
+
 func _begin_intermission() -> void:
 	var next_wave := wave + 1
 	intermission_timer = SHOP_INTERMISSION_SECONDS if shop_opens_before(next_wave) else INTERMISSION_SECONDS
@@ -259,6 +403,8 @@ func _release_next_group() -> void:
 
 func health_multiplier_for_wave(target_wave: int) -> float:
 	var base := BASE_HEALTH_MULTIPLIER + HEALTH_GROWTH_PER_WAVE * float(maxi(0, target_wave - 1))
+	if _solo_pressure_active(target_wave):
+		base *= SOLO_HEALTH_PRESSURE
 	return base * float(DIFFICULTY_HEALTH_MULTIPLIERS.get(GameRuntime.difficulty, 1.0))
 
 
@@ -267,11 +413,40 @@ func budget_for_wave(target_wave: int) -> float:
 	# more than double, so the curve keeps getting steeper instead of just shifting up by a
 	# flat amount) on top of the doubled per-enemy health above, so both axes compound.
 	var solo_budget := 24.0 + 6.0 * float(target_wave)
+	if _solo_pressure_active(target_wave):
+		solo_budget *= SOLO_BUDGET_PRESSURE
 	return solo_budget * (1.0 + 0.85 * float(player_count - 1))
+
+
+## True for offline PLAY (not CO-OP CPU fill) from wave 2 onward.
+func _solo_pressure_active(target_wave: int) -> bool:
+	if classic_mode or GameRuntime.fill_cpu_allies:
+		return false
+	if player_count != 1:
+		return false
+	return target_wave >= SOLO_PRESSURE_FROM_WAVE
 
 
 ## Returns {name, archetype, modifier, debut} for any wave number.
 func theme_for_wave(target_wave: int) -> Dictionary:
+	if GameRuntime.uses_biomes() and GameRuntime.biome_locked and GameRuntime.biome_id > 0 and BIOME_THEMES.has(GameRuntime.biome_id):
+		if target_wave <= 1:
+			return {
+				"name": "First Contact",
+				"archetype": Archetype.STANDARD,
+				"modifier": Modifier.NONE,
+				"debut": "",
+			}
+		var block: Array = BIOME_THEMES[GameRuntime.biome_id]
+		if not block.is_empty():
+			var themed: Dictionary = block[(target_wave - 1) % block.size()]
+			return {
+				"name": str(themed.name),
+				"archetype": themed.get("archetype", Archetype.STANDARD) as Archetype,
+				"modifier": themed.get("modifier", Modifier.NONE) as Modifier,
+				"debut": EnemyType.fit_to_biome(str(themed.get("debut", ""))),
+			}
+
 	if target_wave <= SCRIPTED_WAVES.size():
 		var scripted: Dictionary = SCRIPTED_WAVES[target_wave - 1]
 		return {
@@ -353,11 +528,14 @@ func plan_wave(target_wave: int, wave_archetype: Archetype, wave_modifier: Modif
 		return []
 
 	var groups: Array[Dictionary] = []
-	if not debut.is_empty() and EnemyType.is_valid_id(debut):
-		# The debut group arrives first, alone and in small numbers.
-		groups.append(_make_group(EnemyType.by_id(debut), EnemyType.Formation.LONE, DEBUT_COUNT, multiplier, speed_multiplier))
-		budget = maxf(2.0, budget - float(EnemyType.by_id(debut).cost) * float(DEBUT_COUNT))
-		available = _without(available, debut)
+	var fitted_debut := EnemyType.fit_to_biome(debut) if not debut.is_empty() else ""
+	if not fitted_debut.is_empty() and EnemyType.is_valid_id(fitted_debut):
+		var debut_data := EnemyType.by_id(fitted_debut)
+		if int(debut_data.unlock_wave) <= target_wave:
+			# The debut group arrives first, alone and in small numbers.
+			groups.append(_make_group(debut_data, EnemyType.Formation.LONE, DEBUT_COUNT, multiplier, speed_multiplier))
+			budget = maxf(2.0, budget - float(debut_data.cost) * float(DEBUT_COUNT))
+			available = _without(available, fitted_debut)
 
 	match wave_archetype:
 		Archetype.BOSS:
@@ -367,9 +545,9 @@ func plan_wave(target_wave: int, wave_archetype: Archetype, wave_modifier: Modif
 		Archetype.SWARM:
 			groups.append_array(_plan_filtered(budget * 1.15, multiplier, speed_multiplier, available, ["swarmling", "splitter", "grunt"], EnemyType.Formation.PACK))
 		Archetype.AIR_ASSAULT:
-			groups.append_array(_plan_filtered(budget, multiplier, speed_multiplier, available, ["drifter", "bomber"], EnemyType.Formation.RING))
+			groups.append_array(_plan_filtered(budget, multiplier, speed_multiplier, available, _air_ids(), EnemyType.Formation.RING))
 		Archetype.SNIPERS:
-			groups.append_array(_plan_filtered(budget, multiplier, speed_multiplier, available, ["spitter", "summoner", "stalker"], EnemyType.Formation.SCATTERED))
+			groups.append_array(_plan_filtered(budget, multiplier, speed_multiplier, available, _sniper_ids(), EnemyType.Formation.SCATTERED))
 		Archetype.AMBUSH:
 			groups.append_array(_plan_ambush(budget, multiplier, speed_multiplier, available))
 		_:
@@ -426,6 +604,8 @@ func _plan_filtered(budget: float, multiplier: float, speed_multiplier: float, a
 func _plan_elite(target_wave: int, budget: float, multiplier: float, speed_multiplier: float, available: Array[Dictionary]) -> Array[Dictionary]:
 	var groups: Array[Dictionary] = []
 	for elite_id in ["sentinel", "brute"]:
+		if not _id_in_available(elite_id, available):
+			continue
 		var elite := EnemyType.by_id(elite_id)
 		if int(elite.unlock_wave) > target_wave:
 			continue
@@ -436,9 +616,47 @@ func _plan_elite(target_wave: int, budget: float, multiplier: float, speed_multi
 	return groups
 
 
+func _id_in_available(type_id: String, available: Array[Dictionary]) -> bool:
+	for type_data in available:
+		if str(type_data.id) == type_id:
+			return true
+	return false
+
+
+func _air_ids() -> Array:
+	match _active_biome_id():
+		1:
+			return ["bomber"]
+		4:
+			return ["drifter", "bomber"]
+		_:
+			return ["drifter", "bomber"]
+
+
+func _sniper_ids() -> Array:
+	match _active_biome_id():
+		1:
+			return ["spitter", "hexer"]
+		2:
+			return ["spitter", "summoner", "stalker"]
+		3:
+			return ["spitter", "summoner"]
+		4:
+			return ["spitter", "stalker"]
+		_:
+			return ["spitter", "summoner", "stalker"]
+
+
+func _active_biome_id() -> int:
+	if GameRuntime.uses_biomes():
+		return GameRuntime.biome_id
+	return 0
+
+
 func _plan_boss(target_wave: int, _budget: float, multiplier: float, _speed_multiplier: float, _available: Array[Dictionary]) -> Array[Dictionary]:
 	var boss := EnemyType.by_id(EnemyType.boss_for_wave(target_wave))
 	var boss_multiplier := multiplier * (1.0 + 0.35 * float(player_count - 1))
+	# Always a single boss — never a pack of four.
 	return [_make_group(boss, EnemyType.Formation.LONE, 1, boss_multiplier, 1.0)]
 
 

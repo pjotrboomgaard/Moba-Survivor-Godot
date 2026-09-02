@@ -466,6 +466,47 @@ const TYPES: Array[Dictionary] = [
 
 const BOSS_ROTATION: Array[String] = ["ravager", "stormcaller"]
 
+## Signature roster per biome when biomes are on and biome_id > 0 (grass uses the full table).
+## Volcano = lurker/hexer/cinder (charger, splitter, bomber); ice = frost; factory = brute/sentinel;
+## docks = drifter/bomber. Grunt/swarmling stay as early fodder so wave 1 is still fair.
+const BIOME_POOLS := {
+	1: ["grunt", "swarmling", "spitter", "lurker", "hexer", "charger", "splitter", "bomber"],
+	2: ["grunt", "swarmling", "spitter", "stalker", "lurker", "hexer", "brute", "summoner"],
+	3: ["grunt", "swarmling", "spitter", "brute", "sentinel", "splitter", "charger", "summoner"],
+	4: ["grunt", "swarmling", "spitter", "drifter", "bomber", "stalker", "lurker", "hexer"],
+}
+
+const BIOME_STANDINS := {
+	1: {
+		"drifter": "bomber",
+		"brute": "charger",
+		"stalker": "lurker",
+		"sentinel": "hexer",
+		"summoner": "hexer",
+	},
+	2: {
+		"drifter": "stalker",
+		"bomber": "spitter",
+		"sentinel": "brute",
+		"splitter": "lurker",
+		"charger": "lurker",
+	},
+	3: {
+		"drifter": "sentinel",
+		"bomber": "spitter",
+		"lurker": "brute",
+		"hexer": "sentinel",
+		"stalker": "charger",
+	},
+	4: {
+		"brute": "drifter",
+		"sentinel": "bomber",
+		"charger": "drifter",
+		"summoner": "hexer",
+		"splitter": "bomber",
+	},
+}
+
 
 static func ids() -> Array[String]:
 	var type_ids: Array[String] = []
@@ -572,6 +613,22 @@ static func is_boss(type_id: String) -> bool:
 
 
 static func spawnable_for_wave(wave: int) -> Array[Dictionary]:
+	var pool := ids_for_active_biome()
+	var available: Array[Dictionary] = []
+	for type_data in TYPES:
+		if is_boss(str(type_data.id)) or float(type_data.weight) <= 0.0:
+			continue
+		if int(type_data.unlock_wave) > wave:
+			continue
+		if not pool.is_empty() and str(type_data.id) not in pool:
+			continue
+		available.append(type_data)
+	if available.is_empty() and not pool.is_empty():
+		return spawnable_unfiltered(wave)
+	return available
+
+
+static func spawnable_unfiltered(wave: int) -> Array[Dictionary]:
 	var available: Array[Dictionary] = []
 	for type_data in TYPES:
 		if is_boss(str(type_data.id)) or float(type_data.weight) <= 0.0:
@@ -579,6 +636,39 @@ static func spawnable_for_wave(wave: int) -> Array[Dictionary]:
 		if int(type_data.unlock_wave) <= wave:
 			available.append(type_data)
 	return available
+
+
+static func ids_for_active_biome() -> Array[String]:
+	if not GameRuntime.uses_biomes() or GameRuntime.biome_id <= 0:
+		return []
+	return ids_for_biome(GameRuntime.biome_id)
+
+
+static func ids_for_biome(biome: int) -> Array[String]:
+	var raw: Variant = BIOME_POOLS.get(biome, [])
+	var ids: Array[String] = []
+	if raw is Array:
+		for type_id in raw:
+			ids.append(str(type_id))
+	return ids
+
+
+## Map a requested type onto the active biome pool. Bosses and grass (biome 0) pass through.
+static func fit_to_biome(type_id: String) -> String:
+	if type_id.is_empty():
+		return ""
+	if is_boss(type_id):
+		return sanitize_id(type_id)
+	var pool := ids_for_active_biome()
+	if pool.is_empty():
+		return sanitize_id(type_id)
+	if type_id in pool and is_valid_id(type_id):
+		return type_id
+	var standins: Dictionary = BIOME_STANDINS.get(GameRuntime.biome_id, {})
+	var mapped := str(standins.get(type_id, ""))
+	if not mapped.is_empty() and mapped in pool and is_valid_id(mapped):
+		return mapped
+	return str(pool[0])
 
 
 static func boss_for_wave(wave: int) -> String:
