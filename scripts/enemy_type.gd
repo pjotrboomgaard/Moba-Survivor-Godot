@@ -435,9 +435,9 @@ const TYPES: Array[Dictionary] = [
 		"attack_interval": 0.9,
 		"attack_distance": 720.0,
 		"preferred_distance": 380.0,
-		"projectile_damage": 12.0,
+		"projectile_damage": 16.0,
 		"projectile_speed": 500.0,
-		"projectile_count": 5,
+		"projectile_count": 7,
 		"projectile_sprite": "bolt",
 		"xp_value": 460,
 		"gold_value": 200,
@@ -467,11 +467,11 @@ const TYPES: Array[Dictionary] = [
 const BOSS_ROTATION: Array[String] = ["ravager", "stormcaller"]
 
 ## Signature roster per biome when biomes are on and biome_id > 0 (grass uses the full table).
-## Volcano = lurker/hexer/cinder (charger, splitter, bomber); ice = frost; factory = brute/sentinel;
-## docks = drifter/bomber. Grunt/swarmling stay as early fodder so wave 1 is still fair.
+## Duplicates raise pick weight in spawnable_for_wave. Grunt/swarmling stay first so wave 1 is fair.
+## Volcano leans charger/bomber; ice leans lurker/stalker; factory brute/sentinel; docks drifter/bomber.
 const BIOME_POOLS := {
-	1: ["grunt", "swarmling", "spitter", "lurker", "hexer", "charger", "splitter", "bomber"],
-	2: ["grunt", "swarmling", "spitter", "stalker", "lurker", "hexer", "brute", "summoner"],
+	1: ["grunt", "swarmling", "charger", "bomber", "spitter", "lurker", "hexer", "charger", "splitter", "bomber"],
+	2: ["grunt", "swarmling", "lurker", "stalker", "spitter", "lurker", "stalker", "hexer", "brute", "summoner"],
 	3: ["grunt", "swarmling", "spitter", "brute", "sentinel", "splitter", "charger", "summoner"],
 	4: ["grunt", "swarmling", "spitter", "drifter", "bomber", "stalker", "lurker", "hexer"],
 }
@@ -618,11 +618,20 @@ static func spawnable_for_wave(wave: int) -> Array[Dictionary]:
 	for type_data in TYPES:
 		if is_boss(str(type_data.id)) or float(type_data.weight) <= 0.0:
 			continue
-		if int(type_data.unlock_wave) > wave:
+		var unlock := int(type_data.unlock_wave)
+		if wave >= 4:
+			unlock = maxi(1, unlock - 2)
+		if unlock > wave:
 			continue
 		if not pool.is_empty() and str(type_data.id) not in pool:
 			continue
-		available.append(type_data)
+		var copies := 1 if pool.is_empty() else pool.count(str(type_data.id))
+		if copies > 1:
+			var weighted := type_data.duplicate()
+			weighted["weight"] = float(type_data.weight) * float(copies)
+			available.append(weighted)
+		else:
+			available.append(type_data)
 	if available.is_empty() and not pool.is_empty():
 		return spawnable_unfiltered(wave)
 	return available
@@ -633,7 +642,10 @@ static func spawnable_unfiltered(wave: int) -> Array[Dictionary]:
 	for type_data in TYPES:
 		if is_boss(str(type_data.id)) or float(type_data.weight) <= 0.0:
 			continue
-		if int(type_data.unlock_wave) <= wave:
+		var unlock := int(type_data.unlock_wave)
+		if wave >= 4:
+			unlock = maxi(1, unlock - 2)
+		if unlock <= wave:
 			available.append(type_data)
 	return available
 

@@ -52,25 +52,25 @@ const WORLD_NAMES: Array[String] = ["Iron Foundry", "Ashen Caldera", "Verdant Wi
 const WORLD_LANDMARKS: Array[Array] = [
 	# Iron Foundry — slag pulse chunks elites, steam heals, quench freeze + mark.
 	[
-		["tw_factory_landmark_pylon", "pulse_wipe", 1600.0, 0.75, 22.0, "Molten Pylon", 20.0, 0.70],
+		["tw_factory_landmark_pylon", "pulse_wipe", 1600.0, 0.75, 18.0, "Molten Pylon", 20.0, 0.70],
 		["tw_factory_landmark_vat", "heal_all", 480.0, 0.65, 80.0, "Steam Vent", 140.0, 0.76],
 		["tw_factory_landmark_bay", "freeze_time", 560.0, 0.70, 10.0, "Quench Bay", 260.0, 0.72],
 	],
 	# Ashen Caldera — rift wipe, ember heal, long obsidian freeze.
 	[
-		["tw_volcano_landmark_arch", "pulse_wipe", 1600.0, 0.75, 20.0, "Rift Portal", 20.0, 0.70],
+		["tw_volcano_landmark_arch", "pulse_wipe", 1600.0, 0.75, 16.0, "Rift Portal", 20.0, 0.70],
 		["tw_volcano_landmark_shrine", "heal_all", 500.0, 0.65, 88.0, "Ember Shrine", 140.0, 0.76],
 		["tw_volcano_landmark_well", "freeze_time", 580.0, 0.70, 12.0, "Obsidian Font", 260.0, 0.72],
 	],
 	# Verdant Wilds — grove wipe hits packs hard, spring heal, root freeze.
 	[
-		["tw_grass_landmark_bell", "pulse_wipe", 1600.0, 0.75, 22.0, "Grove Bell", 20.0, 0.70],
+		["tw_grass_landmark_bell", "pulse_wipe", 1600.0, 0.75, 18.0, "Grove Bell", 20.0, 0.70],
 		["tw_grass_landmark_pool", "heal_all", 480.0, 0.65, 76.0, "Wild Spring", 140.0, 0.76],
 		["tw_grass_landmark_stone", "freeze_time", 540.0, 0.70, 10.0, "Root Stone", 260.0, 0.72],
 	],
 	# Storm Court — storm pulse, frost-well heal, crystal freeze.
 	[
-		["tw_docks_landmark_lighthouse", "pulse_wipe", 1600.0, 0.75, 20.0, "Storm Lighthouse", 20.0, 0.70],
+		["tw_docks_landmark_lighthouse", "pulse_wipe", 1600.0, 0.75, 16.0, "Storm Lighthouse", 20.0, 0.70],
 		["tw_ice_landmark_hollow", "heal_all", 480.0, 0.65, 76.0, "Frost Well", 140.0, 0.76],
 		["tw_ice_landmark_glade", "freeze_time", 560.0, 0.70, 11.0, "Frozen Crystal", 260.0, 0.72],
 	],
@@ -86,18 +86,31 @@ func world() -> int:
 	return _world_id
 
 
-## Dress the arena as the given PlayerClass.World. Locks GameRuntime to the matching biome
-## so pad layouts, void colors and tile art all agree, then rebuilds obstacles + landmarks.
-## Safe to call before the field is built (deferred via call_deferred when inside tree).
+## Landmark costume for a PlayerClass.World. Does not lock GameRuntime biome — wave
+## cycling owns biome_id. Call dress_from_runtime_biome() when the map should follow
+## the current wave biome (pads, void, tiles, landmarks).
 func set_world(world_id: int) -> void:
 	var index := clampi(world_id, 0, WORLD_TO_BIOME.size() - 1)
 	if index == _world_id and not landmarks.is_empty():
 		return
 	_world_id = index
-	var target_biome: int = WORLD_TO_BIOME[index]
-	if GameRuntime.uses_biomes() and GameRuntime.biome_id != target_biome:
-		# Lock so wave progression doesn't slide the arena out from under the hero's world.
-		GameRuntime.set_biome(target_biome, true)
+	if is_inside_tree():
+		rebuild()
+
+
+## Grass / volcano / ice / factory / docks → landmark world that fits the theme.
+const BIOME_TO_WORLD: Array[int] = [
+	World.VERDANT_WILDS,
+	World.ASHEN_CALDERA,
+	World.STORM_COURT,
+	World.IRON_FOUNDRY,
+	World.VERDANT_WILDS,
+]
+
+
+func dress_from_runtime_biome() -> void:
+	var biome := clampi(GameRuntime.biome_id, 0, BIOME_TO_WORLD.size() - 1)
+	_world_id = BIOME_TO_WORLD[biome]
 	if is_inside_tree():
 		rebuild()
 
@@ -200,6 +213,11 @@ var obstacles: Array[Obstacle] = []
 ## Walkable pads for Pjotr biomes. Empty means the whole playfield is walkable
 ## (Pjotr grass meadow). Classic keeps the clean grid.
 var walk_pads: Array[Rect2] = []
+## Solid void leftover after subtracting pads (water, lava, slag pits). Used by
+## drawing, collision, and water_spawn_point.
+var void_rects: Array[Rect2] = []
+## Ground tiles overdraw this many world pixels into the void so shores read.
+const PAD_DRAW_RIM := 12.0
 ## Terrain hazards (lava pools, etc.) carved from the playfield independent of pads.
 ## Each entry: shape (rect/circle/ring) + type/dots. Circle/ring also store center + radius.
 var hazard_zones: Array[Dictionary] = []
@@ -250,6 +268,7 @@ func rebuild() -> void:
 		child.free()
 	obstacles.clear()
 	walk_pads.clear()
+	void_rects.clear()
 	landmarks.clear()
 	hazard_zones.clear()
 	_fit_walls()
@@ -263,7 +282,7 @@ func rebuild() -> void:
 
 ## Scatter the authored lava-pool layout for worlds that opt in (ASHEN_CALDERA + IRON_FOUNDRY).
 ## Pools are circular basins at fixed compass points so they read as a map feature.
-## Volcano also carves a round caldera lip (lava ring around a walkable plug).
+## Volcano lava is the void between islands — no dunk-ring around origin.
 func _build_hazards() -> void:
 	hazard_zones.clear()
 	if not GameRuntime.uses_biomes():
@@ -275,8 +294,6 @@ func _build_hazards() -> void:
 			var center: Vector2 = pool["center"] * scale_factor
 			var radius := float(pool["radius"]) * minf(scale_factor.x, scale_factor.y)
 			_append_circle_lava(center, radius, biome_kind)
-	if GameRuntime.biome_id == 1:
-		_append_crater_lava()
 
 
 func _append_lava_zone(rect: Rect2, biome_kind: String) -> void:
@@ -460,9 +477,104 @@ func _is_walkable(world_position: Vector2, radius: float = 20.0) -> bool:
 	if walk_pads.is_empty():
 		return true
 	for pad in walk_pads:
-		if pad.grow(-radius).has_point(world_position):
+		if _pad_contains(pad, world_position, radius):
 			return true
 	return false
+
+
+func _pad_contains(pad: Rect2, point: Vector2, inset: float) -> bool:
+	var max_ix := maxf(0.0, pad.size.x * 0.5 - 1.0)
+	var max_iy := maxf(0.0, pad.size.y * 0.5 - 1.0)
+	var ix := minf(maxf(0.0, inset), max_ix)
+	var iy := minf(maxf(0.0, inset), max_iy)
+	var inner := Rect2(pad.position + Vector2(ix, iy), Vector2(pad.size.x - 2.0 * ix, pad.size.y - 2.0 * iy))
+	if inner.size.x <= 0.0 or inner.size.y <= 0.0:
+		return pad.has_point(point)
+	return inner.has_point(point)
+
+
+func is_water_biome() -> bool:
+	# Ice/docks water, volcano lava, factory slag — packs climb out of the void.
+	return GameRuntime.uses_biomes() and GameRuntime.biome_id >= 1
+
+
+## Ice / docks (and any carved biome): a void point near a pad shore, biased toward
+## `toward`, so fliers can arrive from the water. Open field returns `toward`.
+## Grounded callers should snap onto a pad with free_position_near.
+func water_spawn_point(toward: Vector2, flying: bool = false) -> Vector2:
+	if walk_pads.is_empty():
+		return toward
+	var shore := _void_point_near_pad(toward)
+	if not flying:
+		return shore
+	var edge := _nearest_pad_edge(shore)
+	var outward := shore - edge
+	if outward.length_squared() < 1.0:
+		outward = shore - toward
+	if outward.length_squared() < 1.0:
+		outward = Vector2.RIGHT
+	var pushed := edge + outward.normalized() * 96.0
+	if _inside_playfield(pushed) and not _is_walkable(pushed, 8.0):
+		return pushed
+	return shore
+
+
+func _void_point_near_pad(toward: Vector2) -> Vector2:
+	var best := toward
+	var best_score := INF
+	var found := false
+	var pieces: Array[Rect2] = void_rects
+	if pieces.is_empty():
+		pieces = [_arena_rect()]
+	for piece in pieces:
+		if piece.size.x < 18.0 or piece.size.y < 18.0:
+			continue
+		var inner := piece.grow(-16.0)
+		if inner.size.x < 6.0 or inner.size.y < 6.0:
+			inner = piece
+		var candidate := Vector2(
+			clampf(toward.x, inner.position.x, inner.end.x),
+			clampf(toward.y, inner.position.y, inner.end.y)
+		)
+		if not _inside_playfield(candidate):
+			continue
+		if _is_walkable(candidate, 6.0):
+			continue
+		var shore := candidate.distance_squared_to(_nearest_pad_edge(candidate))
+		var score := candidate.distance_squared_to(toward) + shore
+		if score < best_score:
+			best_score = score
+			best = candidate
+			found = true
+	if found:
+		return best
+	var edge := _nearest_pad_edge(toward)
+	var dir := toward - edge
+	if dir.length_squared() < 1.0:
+		dir = edge
+	if dir.length_squared() < 1.0:
+		dir = Vector2.RIGHT
+	var fallback := edge + dir.normalized() * 40.0
+	if _inside_playfield(fallback) and not _is_walkable(fallback, 6.0):
+		return fallback
+	return toward
+
+
+func _nearest_pad_edge(world_position: Vector2) -> Vector2:
+	if walk_pads.is_empty():
+		return world_position
+	var best := walk_pads[0].get_center()
+	var best_d := INF
+	for pad in walk_pads:
+		var closest := Vector2(
+			clampf(world_position.x, pad.position.x, pad.end.x),
+			clampf(world_position.y, pad.position.y, pad.end.y)
+		)
+		var distance := closest.distance_squared_to(world_position)
+		if distance < best_d:
+			best_d = distance
+			best = closest
+	return best
 
 
 ## The nearest free spot on a short outward search, used for enemy spawns.
@@ -477,7 +589,15 @@ func free_position_near(world_position: Vector2, radius: float = 20.0) -> Vector
 			if _inside_playfield(candidate) and not is_blocked(candidate, radius):
 				return candidate
 	if not walk_pads.is_empty():
-		return walk_pads[0].get_center()
+		var offsets: Array[Vector2] = [
+			Vector2(0.5, 0.5), Vector2(0.28, 0.5), Vector2(0.72, 0.5),
+			Vector2(0.5, 0.28), Vector2(0.5, 0.72)
+		]
+		for pad in walk_pads:
+			for offset in offsets:
+				var candidate: Vector2 = pad.position + pad.size * offset
+				if _inside_playfield(candidate) and not is_blocked(candidate, radius):
+					return candidate
 	return world_position
 
 
@@ -515,7 +635,9 @@ func _snap_shop_stand_to_pad() -> void:
 	for pad in walk_pads:
 		if mini(int(pad.size.x), int(pad.size.y)) < 220.0:
 			continue
-		var inner := pad.grow(-SHOP_STAND_CLEARANCE)
+		var inner := pad
+		if pad.size.x > SHOP_STAND_CLEARANCE * 2.0 + 8.0 and pad.size.y > SHOP_STAND_CLEARANCE * 2.0 + 8.0:
+			inner = pad.grow(-SHOP_STAND_CLEARANCE)
 		var candidate := Vector2(
 			clampf(_shop_position.x, inner.position.x, inner.end.x),
 			clampf(_shop_position.y, inner.position.y, inner.end.y)
@@ -568,7 +690,7 @@ func _fits_obstacle(candidate: Vector2) -> bool:
 	for pad in walk_pads:
 		if mini(int(pad.size.x), int(pad.size.y)) < 160:
 			continue
-		if pad.grow(-48.0).has_point(candidate):
+		if _pad_contains(pad, candidate, 48.0):
 			return true
 	return false
 
@@ -592,53 +714,98 @@ func _pads_for_biome(biome: int) -> Array[Rect2]:
 	var pads: Array[Rect2] = []
 	match biome:
 		1:
-			# Volcano: spawn island (holds the 600×600 caldera bowl after scale), shop
-			# island, and outcrops linked by bridges over lava. Authored in BASE_SIZE
-			# space; _scale_pads grows them with the 4800×3400 playfield.
+			# Volcano: caldera bowl, lava islands, stepping-stone causeways.
 			pads.append_array([
-				Rect2(-340, -280, 680, 560),
-				Rect2(400, -420, 420, 300),
-				Rect2(280, -300, 160, 100),
-				Rect2(-200, -760, 400, 300),
-				Rect2(-50, -500, 100, 240),
-				Rect2(-200, 400, 400, 300),
-				Rect2(-50, 240, 100, 180),
-				Rect2(-1100, -220, 440, 440),
-				Rect2(-680, -60, 360, 120),
+				Rect2(-360, -360, 720, 720),
+				Rect2(-56, -720, 112, 380),
+				Rect2(-56, 340, 112, 380),
+				Rect2(-720, -56, 380, 112),
+				Rect2(340, -56, 380, 112),
+				Rect2(420, -560, 360, 300),
+				Rect2(220, -280, 220, 56),
+				Rect2(680, -280, 140, 200),
+				Rect2(560, -90, 56, 180),
+				Rect2(480, 80, 280, 220),
+				Rect2(200, 180, 300, 56),
+				Rect2(-140, 480, 280, 220),
+				Rect2(-1080, -200, 280, 280),
+				Rect2(-820, -40, 560, 56),
+				Rect2(-1040, 220, 220, 180),
+				Rect2(-840, 160, 56, 80),
+				Rect2(-1080, -620, 240, 180),
+				Rect2(-860, -460, 56, 280),
+				Rect2(80, -720, 180, 140),
+				Rect2(-420, -80, 140, 110),
 			])
 		2:
-			# Ice: floes with thin ice between them. Gaps are water.
+			# Ice: scattered floes, long thin leads, tiny bergs in the water.
 			pads.append_array([
-				Rect2(-300, -220, 600, 440),
-				Rect2(380, -400, 400, 280),
-				Rect2(260, -280, 140, 90),
-				Rect2(-1080, -740, 520, 340),
-				Rect2(-800, -420, 120, 220),
-				Rect2(480, 280, 520, 400),
-				Rect2(200, 140, 320, 100),
-				Rect2(-1000, 240, 480, 440),
-				Rect2(-540, 80, 280, 100),
+				Rect2(-200, -150, 400, 300),
+				Rect2(520, -420, 380, 300),
+				Rect2(180, -180, 360, 56),
+				Rect2(-1100, -760, 340, 220),
+				Rect2(-800, -560, 56, 420),
+				Rect2(-800, -160, 620, 56),
+				Rect2(660, 400, 380, 260),
+				Rect2(160, 130, 56, 300),
+				Rect2(160, 400, 520, 56),
+				Rect2(-1100, 420, 360, 260),
+				Rect2(-780, 140, 56, 300),
+				Rect2(-780, 140, 580, 56),
+				Rect2(40, -60, 110, 80),
+				Rect2(-420, -320, 130, 90),
+				Rect2(880, -80, 150, 110),
+				Rect2(-80, 260, 90, 70),
+				Rect2(320, 220, 100, 80),
+				Rect2(-980, -40, 120, 90),
+				Rect2(40, -720, 160, 120),
+				Rect2(80, -600, 56, 460),
+				Rect2(-500, 500, 140, 100),
+				Rect2(-380, 420, 56, 100),
 			])
 		3:
-			# Factory: orthogonal halls. The pits between corridors are unwalkable.
+			# Factory: orthogonal halls, quadrant rooms, catwalks over slag pits.
 			pads.append_array([
-				Rect2(-1100, -140, 2200, 280),
-				Rect2(-140, -740, 280, 1480),
-				Rect2(140, -360, 560, 220),
-				Rect2(780, -740, 240, 1480),
-				Rect2(-1020, -740, 240, 1480),
-				Rect2(-1100, 420, 2200, 220),
+				Rect2(-1100, -100, 2200, 200),
+				Rect2(-100, -740, 200, 1480),
+				Rect2(-1060, -740, 180, 1480),
+				Rect2(880, -740, 180, 1480),
+				Rect2(-1100, -740, 2200, 140),
+				Rect2(-1100, 600, 2200, 140),
+				Rect2(120, -440, 740, 260),
+				Rect2(-860, -500, 280, 200),
+				Rect2(240, -500, 280, 180),
+				Rect2(-860, 280, 280, 200),
+				Rect2(240, 280, 280, 200),
+				Rect2(-600, -180, 56, 80),
+				Rect2(160, -180, 56, 80),
+				Rect2(-600, 100, 56, 80),
+				Rect2(160, 100, 56, 80),
+				Rect2(-420, -720, 200, 120),
+				Rect2(220, 500, 200, 120),
 			])
 		4:
-			# Docks: boardwalk plus piers over water.
+			# Docks: quay, plaza, boardwalk, piers, rafts, warehouse pad.
 			pads.append_array([
-				Rect2(-1100, -160, 2200, 320),
-				Rect2(420, -420, 320, 280),
-				Rect2(-80, -760, 160, 620),
-				Rect2(-720, 140, 160, 600),
-				Rect2(80, 140, 160, 600),
-				Rect2(720, 140, 160, 600),
-				Rect2(-1100, -500, 280, 1000),
+				Rect2(-1100, -50, 2200, 120),
+				Rect2(-1100, -500, 360, 920),
+				Rect2(380, -480, 460, 440),
+				Rect2(-900, 50, 72, 720),
+				Rect2(-460, 50, 72, 700),
+				Rect2(-20, 50, 72, 740),
+				Rect2(420, 50, 72, 700),
+				Rect2(860, 50, 72, 660),
+				Rect2(-220, -740, 72, 710),
+				Rect2(180, -740, 72, 420),
+				Rect2(-720, -720, 220, 180),
+				Rect2(900, -280, 180, 140),
+				Rect2(-980, 620, 140, 90),
+				Rect2(-40, 640, 120, 80),
+				Rect2(520, 620, 140, 90),
+				Rect2(-980, 540, 56, 90),
+				Rect2(20, 560, 56, 90),
+				Rect2(580, 540, 56, 90),
+				Rect2(640, -200, 160, 120),
 			])
 		_:
 			pass
@@ -687,20 +854,20 @@ func _fit_walls() -> void:
 
 
 func _build_void_bodies() -> void:
+	void_rects.clear()
 	if walk_pads.is_empty():
 		return
-	var voids: Array[Rect2] = []
-	voids.append(_arena_rect())
+	void_rects.append(_arena_rect())
 	for pad in walk_pads:
 		var next_voids: Array[Rect2] = []
-		for piece in voids:
+		for piece in void_rects:
 			next_voids.append_array(_subtract_rect(piece, pad))
-		voids = next_voids
+		void_rects = next_voids
 	var body := StaticBody2D.new()
 	body.name = "Voids"
 	body.collision_layer = 1
 	body.collision_mask = 6
-	for piece in voids:
+	for piece in void_rects:
 		if piece.size.x < 12.0 or piece.size.y < 12.0:
 			continue
 		var shape_node := CollisionShape2D.new()
@@ -741,7 +908,14 @@ func _draw() -> void:
 		_draw_classic_grid(rect)
 		return
 
-	_draw_ground_rect(rect)
+	if walk_pads.is_empty():
+		_draw_ground_rect(rect)
+	else:
+		_draw_void_rect(rect)
+		_draw_void_wash(rect)
+		for pad in walk_pads:
+			_draw_ground_rect(pad.grow(PAD_DRAW_RIM))
+		_draw_pad_shores()
 	_draw_crater()
 	_draw_decals()
 	_draw_hazards()
@@ -785,17 +959,67 @@ func _void_color() -> Color:
 
 
 func _draw_void_rect(world_rect: Rect2) -> void:
-	var lava := SpriteLibrary.texture_for("void_tile")
-	if lava == null:
+	var void_tex := SpriteLibrary.texture_for("void_tile")
+	var tint := _void_tile_tint()
+	if void_tex == null:
 		draw_rect(world_rect, _void_color(), true)
 		return
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(PIXEL_ZOOM, PIXEL_ZOOM))
 	draw_texture_rect(
-		lava,
+		void_tex,
 		Rect2(world_rect.position / PIXEL_ZOOM, world_rect.size / PIXEL_ZOOM),
-		true
+		true,
+		tint
 	)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+func _void_tile_tint() -> Color:
+	match GameRuntime.biome_id:
+		1:
+			return Color(1.08, 0.82, 0.68, 1.0)
+		2:
+			return Color(0.62, 0.84, 1.12, 1.0)
+		4:
+			return Color(0.62, 0.84, 1.12, 1.0)
+		3:
+			return Color(0.78, 0.82, 0.88, 1.0)
+		_:
+			return Color.WHITE
+
+
+func _draw_void_wash(world_rect: Rect2) -> void:
+	match GameRuntime.biome_id:
+		1:
+			draw_rect(world_rect, Color(1.0, 0.28, 0.06, 0.16), true)
+		2:
+			draw_rect(world_rect, Color(0.10, 0.32, 0.52, 0.22), true)
+		3:
+			draw_rect(world_rect, Color(0.04, 0.05, 0.08, 0.28), true)
+		4:
+			draw_rect(world_rect, Color(0.08, 0.28, 0.46, 0.22), true)
+
+
+func _draw_pad_shores() -> void:
+	var rim := Color.TRANSPARENT
+	var width := 6.0
+	match GameRuntime.biome_id:
+		1:
+			rim = Color("ff7a29")
+			width = 8.0
+		2:
+			rim = Color("3a7aa0")
+			width = 5.0
+		3:
+			rim = Color("1a1e28")
+			width = 7.0
+		4:
+			rim = Color("1a5a80")
+			width = 5.0
+		_:
+			return
+	for pad in walk_pads:
+		draw_rect(pad, rim, false, width)
 
 
 func _draw_ground_rect(world_rect: Rect2) -> void:
@@ -810,9 +1034,12 @@ func _draw_ground_rect(world_rect: Rect2) -> void:
 	draw_texture_rect(
 		ground,
 		Rect2(world_rect.position / PIXEL_ZOOM, world_rect.size / PIXEL_ZOOM),
-		true
+		true,
+		_ground_tile_modulate()
 	)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0:
+		draw_rect(world_rect, Color(0.38, 0.36, 0.34, 0.22), true)
 
 
 ## Biome-aware ground tile. tobor_world_art generates tw_<biome>_grass_tile for each
@@ -827,6 +1054,12 @@ func _ground_tile_id() -> String:
 	if SpriteLibrary.texture_for(candidate) != null:
 		return candidate
 	return "grass_tile"
+
+
+func _ground_tile_modulate() -> Color:
+	if not GameRuntime.uses_biomes() or GameRuntime.biome_id <= 0:
+		return Color.WHITE
+	return Color(0.76, 0.74, 0.72, 1.0)
 
 
 func _draw_decals() -> void:
@@ -1002,16 +1235,12 @@ func _draw_grass_crater(_bowl: Rect2, rng: RandomNumberGenerator, radius: float)
 
 
 func _draw_volcano_crater(_bowl: Rect2, rng: RandomNumberGenerator, radius: float) -> void:
-	# Round ash lip around the caldera lake. Inner plug stays scorched rock so spawn is
-	# safe; the lava ring is a hazard zone drawn later by _draw_hazards.
-	var inner_r := crater_inner_radius()
-	draw_arc(Vector2.ZERO, radius + 40.0, 0.0, TAU, 24, Color(0.16, 0.05, 0.02, 0.55), 32.0, false)
+	# Walkable scorched bowl — no lava donut. Orange rim is paint only; lava is the void.
+	draw_arc(Vector2.ZERO, radius + 40.0, 0.0, TAU, 24, Color(0.16, 0.05, 0.02, 0.45), 28.0, false)
 	draw_colored_polygon(_regular_polygon(Vector2.ZERO, radius + 16.0, 16), Color("5a2210"))
-	draw_colored_polygon(_regular_polygon(Vector2.ZERO, radius, 16), Color("3a1408"))
-	draw_colored_polygon(_regular_polygon(Vector2.ZERO, inner_r, 14), Color("6a2e14"))
-	draw_colored_polygon(_regular_polygon(Vector2.ZERO, maxf(40.0, inner_r - 28.0), 12), Color("4a1c0c"))
-	draw_arc(Vector2.ZERO, inner_r, 0.0, TAU, 16, Color("c45a28"), 5.0, false)
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 18, Color("ff7a29"), 8.0, false)
+	draw_colored_polygon(_regular_polygon(Vector2.ZERO, radius, 16), Color("6a2e14"))
+	draw_colored_polygon(_regular_polygon(Vector2.ZERO, maxf(48.0, radius - 80.0), 12), Color("4a1c0c"))
+	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 18, Color("ff7a29"), 7.0, false)
 	_draw_crater_debris(rng, radius, ["rock_small", "rock_large", "boulder"], false)
 
 

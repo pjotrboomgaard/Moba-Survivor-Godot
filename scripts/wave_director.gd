@@ -245,9 +245,9 @@ const BASE_HEALTH_MULTIPLIER := 2.0
 const HEALTH_GROWTH_PER_WAVE := 0.10
 ## Offline solo (no CPU allies) ramps from wave 2 so keg/turret/landmarks stay clutch
 ## without making First Contact unfair. Kept modest so wave 5 budget stays under 60.
-const SOLO_HEALTH_PRESSURE := 1.10
-const SOLO_BUDGET_PRESSURE := 1.0
-const SOLO_DAMAGE_PRESSURE := 1.08
+const SOLO_HEALTH_PRESSURE := 1.18
+const SOLO_BUDGET_PRESSURE := 1.08
+const SOLO_DAMAGE_PRESSURE := 1.18
 const SOLO_PRESSURE_FROM_WAVE := 2
 
 ## The lobby's difficulty pick scales enemy health on top of the wave curve above (Pjotr mode
@@ -279,6 +279,12 @@ var live_enemy_count := 0
 ## True once this wave has actually had living enemies. Prevents skip_intermission from
 ## clearing a boss wave on the same frame the first group is still spawning.
 var _wave_engaged := false
+## Solo clutch: extra packs when the field is empty or the player is healthy.
+var pressure_hp := 1.0
+var nearby_enemy_count := 0
+var _reinforcements := 0
+var _pressure_cooldown := 0.0
+var _close_spawn := false
 
 
 func start(next_player_count: int = 1, classic: bool = false) -> void:
@@ -312,6 +318,17 @@ func report_enemy_count(count: int) -> void:
 		_wave_engaged = true
 
 
+func report_pressure(hp_frac: float, nearby: int) -> void:
+	pressure_hp = clampf(hp_frac, 0.0, 1.0)
+	nearby_enemy_count = maxi(0, nearby)
+
+
+func take_close_spawn() -> bool:
+	var close := _close_spawn
+	_close_spawn = false
+	return close
+
+
 func _process(delta: float) -> void:
 	if not running:
 		return
@@ -327,11 +344,16 @@ func _process(delta: float) -> void:
 		return
 
 	wave_elapsed += delta
+	_pressure_cooldown = maxf(0.0, _pressure_cooldown - delta)
 
 	if not pending_groups.is_empty():
 		group_timer = maxf(0.0, group_timer - delta)
 		if group_timer <= 0.0:
 			_release_next_group()
+		return
+
+	if _should_reinforce():
+		_emit_pressure_pack()
 		return
 
 	# First spawn is often a frame behind skip_intermission; don't treat an empty
@@ -385,6 +407,9 @@ func _begin_next_wave() -> void:
 	wave_elapsed = 0.0
 	group_timer = 0.0
 	_wave_engaged = false
+	_reinforcements = 0
+	_pressure_cooldown = 0.0
+	_close_spawn = false
 	var plan := theme_for_wave(wave)
 	archetype = plan.archetype
 	modifier = plan.modifier
@@ -427,7 +452,7 @@ func budget_for_wave(target_wave: int) -> float:
 	# Roughly double the old headcount at every wave (base 12->24, per-wave growth 2.6->6.0 —
 	# more than double, so the curve keeps getting steeper instead of just shifting up by a
 	# flat amount) on top of the doubled per-enemy health above, so both axes compound.
-	var solo_budget := 24.0 + 6.0 * float(target_wave)
+	var solo_budget := 22.0 + 8.2 * float(target_wave)
 	if _solo_pressure_active(target_wave):
 		solo_budget *= SOLO_BUDGET_PRESSURE
 	return solo_budget * (1.0 + 0.85 * float(player_count - 1))
@@ -449,9 +474,63 @@ func _solo_pressure_active(target_wave: int) -> bool:
 	return target_wave >= SOLO_PRESSURE_FROM_WAVE
 
 
+func _desired_live() -> int:
+	var floor_n := 5 + int(float(wave) * 0.85)
+	if pressure_hp >= 0.85:
+		floor_n += 4 + int(float(wave) * 0.4)
+	elif pressure_hp >= 0.65:
+		floor_n += 2
+	elif pressure_hp < 0.4:
+		floor_n = maxi(3, floor_n - 3)
+	return clampi(floor_n, 3, 26)
+
+
+func _should_reinforce() -> bool:
+	if wave < 6:
+		return false
+	if classic_mode or not _solo_pressure_active(wave):
+		return false
+	if archetype == Archetype.BOSS:
+		return false
+	if not _wave_engaged:
+		return false
+	if wave_elapsed < 6.0 or wave_elapsed > 70.0:
+		return false
+	if _pressure_cooldown > 0.0:
+		return false
+	if _reinforcements >= 2 + int(float(wave) / 2.4):
+		return false
+	if pressure_hp < 0.55:
+		return false
+	return live_enemy_count < _desired_live()
+
+
+func _emit_pressure_pack() -> void:
+	_reinforcements += 1
+	_pressure_cooldown = 1.25
+	_close_spawn = true
+	var n := clampi(3 + int(wave / 5) + (2 if pressure_hp >= 0.85 else 0), 3, 6)
+	var type_id := "swarmling"
+	match GameRuntime.biome_id:
+		2:
+			type_id = "lurker" if randf() < 0.35 else "swarmling"
+		4:
+			type_id = "drifter" if randf() < 0.3 else "swarmling"
+		_:
+			type_id = "swarmling"
+	group_timer = 1.15
+	group_ready.emit(
+		type_id,
+		EnemyType.Formation.PACK,
+		n,
+		health_multiplier_for_wave(wave),
+		1.0
+	)
+
+
 ## Returns {name, archetype, modifier, debut} for any wave number.
 func theme_for_wave(target_wave: int) -> Dictionary:
-	if GameRuntime.uses_biomes() and GameRuntime.biome_locked and GameRuntime.biome_id > 0 and BIOME_THEMES.has(GameRuntime.biome_id):
+	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0 and BIOME_THEMES.has(GameRuntime.biome_id):
 		if target_wave <= 1:
 			return {
 				"name": "First Contact",
@@ -596,10 +675,21 @@ func _without(available: Array[Dictionary], excluded_id: String) -> Array[Dictio
 func _plan_standard(budget: float, multiplier: float, speed_multiplier: float, available: Array[Dictionary]) -> Array[Dictionary]:
 	var groups: Array[Dictionary] = []
 	var guard := 0
+	var used: Dictionary = {}
 	while budget > 0.0 and guard < 32:
 		guard += 1
-		var type_data := _pick_weighted_type(available)
-		var count := randi_range(int(type_data.group_min), int(type_data.group_max))
+		var pool := available
+		if used.size() + 1 < available.size() and used.size() > 0:
+			var fresh: Array[Dictionary] = []
+			for type_data in available:
+				if not used.has(str(type_data.id)):
+					fresh.append(type_data)
+			if not fresh.is_empty():
+				pool = fresh
+		var type_data := _pick_weighted_type(pool)
+		used[str(type_data.id)] = true
+		var extra := int(float(wave) / 7.0)
+		var count := randi_range(int(type_data.group_min), int(type_data.group_max)) + extra
 		var group_cost := float(type_data.cost) * float(count)
 		if group_cost > budget and not groups.is_empty():
 			break

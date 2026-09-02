@@ -52,11 +52,14 @@ func setup(p_ability_id: String, p_owner_peer_id: int, p_power: float, p_lifetim
 	attack_timer = _deploy_timer + attack_interval * 0.5
 	var sprite := _sprite_node()
 	sprite.scale = Vector2(0.4, 0.4)
-	# Use the ability icon PNG as the turret's body — tinted with the hero's effect color.
-	var texture := SpriteLibrary.texture_for(ability_id)
+	# Dedicated world bodies for Tobor turret/mines; other summons keep the ability icon.
+	var texture := SpriteLibrary.texture_for(_world_sprite_name())
+	if texture == null:
+		texture = SpriteLibrary.texture_for(ability_id)
 	if texture != null:
 		sprite.texture = texture
-		sprite.modulate = Color(tint.r, tint.g, tint.b, 0.0)
+		var body := _body_modulate()
+		sprite.modulate = Color(body.r, body.g, body.b, 0.0)
 
 
 var _deploy_timer: float = 0.0
@@ -77,10 +80,10 @@ func _process(delta: float) -> void:
 		var t := 1.0 - _deploy_timer / 0.45
 		var sprite := _sprite_node()
 		sprite.scale = Vector2(0.4 + t * 2.6, 0.4 + t * 2.6)
-		sprite.modulate = Color(tint.r, tint.g, tint.b, t)
+		sprite.modulate = Color(_body_modulate().r, _body_modulate().g, _body_modulate().b, t)
 		if _deploy_timer <= 0.0:
-			sprite.scale = Vector2(3.0, 3.0)
-			sprite.modulate = tint
+			sprite.scale = Vector2(3.4, 3.4) if _is_mine() else Vector2(3.0, 3.0)
+			sprite.modulate = _body_modulate()
 	if _is_mine():
 		if _arm_timer > 0.0:
 			_arm_timer = maxf(0.0, _arm_timer - delta)
@@ -115,9 +118,26 @@ func _overlap_reach(enemy: Node2D) -> float:
 	return reach
 
 
+func _world_sprite_name() -> String:
+	match ability_id:
+		"tobor_steam_turret":
+			return "tobor_turret_body"
+		"tobor_spider_mines":
+			return "tobor_mine_body"
+		_:
+			return ability_id
+
+
+func _body_modulate() -> Color:
+	if _world_sprite_name() != ability_id:
+		return Color.WHITE
+	return tint
+
+
 func _explode() -> void:
 	_exploded = true
 	_muzzle_t = 0.4
+	AudioService.play("explosion")
 	var blast := explosion_radius if explosion_radius > 0.0 else trigger_radius
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(enemy) or not enemy is Node2D:

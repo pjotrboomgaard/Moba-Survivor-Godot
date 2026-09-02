@@ -7,8 +7,9 @@ extends RefCounted
 ## teal, pure blues); the player asked for the old, muted grass-meadow feel. TERRAIN_SAT_
 ## ADJUST scales every tile/void/decal/rock palette's saturation toward gray before the
 ## sprites are registered, so a single constant retunes the whole world without hand-
-## editing each palette. 1.0 = original, 0.0 = grayscale. 0.70 ≈ 30% desaturated.
-const TERRAIN_SAT_ADJUST := 0.70
+## editing each palette. 1.0 = original, 0.0 = grayscale. Grass meadow tiles are
+## authored separately and skip this. 0.48 mutes volcano/ice/factory/docks ground.
+const TERRAIN_SAT_ADJUST := 0.48
 ## Matching luminance lift so muting doesn't read as darkening the world. 0 = keep.
 const TERRAIN_LIGHT_ADJUST := 0.08
 

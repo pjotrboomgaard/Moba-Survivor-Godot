@@ -97,7 +97,7 @@ func _ready() -> void:
 	# prefs: SFX must be on so sound_probe entries can see a player firing.
 	AudioService.sfx_enabled = true
 	GameRuntime.fill_cpu_allies = false
-	GameRuntime.biome_locked = true
+	GameRuntime.biome_locked = false
 	if _host_main == null:
 		push_warning("[SelfTestDriver] No parent; shutting down")
 		queue_free()
@@ -710,7 +710,7 @@ func _tick_survival(delta: float) -> void:
 		_walk_deadline = _elapsed + 2.0
 	else:
 		var slam_out := _slam_escape()
-		if slam_out != Vector2.INF:
+		if slam_out != Vector2.INF and target_lm == null:
 			_holding_landmark = false
 			_walk_target = slam_out
 			_walk_deadline = _elapsed + 1.4
@@ -775,7 +775,7 @@ func _kite_boss(foe: Node2D) -> Vector2:
 	var away := pos - foe.global_position
 	var dist := away.length()
 	var from_boss := away.normalized() if dist > 1.0 else Vector2.RIGHT.rotated(_elapsed)
-	var hold := 420.0
+	var hold := 280.0
 	var radial := Vector2.ZERO
 	if dist < hold:
 		radial = from_boss * (hold - dist + 90.0)
@@ -854,7 +854,7 @@ func _safe_walk(target: Vector2) -> Vector2:
 		return arena.free_position_near(target, 36.0)
 	var mid := (_player.global_position + target) * 0.5
 	if arena.is_in_hazard(mid, 20.0):
-		return Vector2.ZERO
+		return arena.free_position_near(_player.global_position, 40.0)
 	return target
 
 
@@ -863,27 +863,48 @@ func _slam_escape() -> Vector2:
 	if _player == null or get_tree() == null:
 		return Vector2.INF
 	var pos := _player.global_position
-	var push := Vector2.ZERO
-	var threatened := false
+	var circles: Array[ArenaHazard] = []
 	for node in get_tree().get_nodes_in_group("arena_hazards"):
 		if not is_instance_valid(node) or not (node is ArenaHazard):
 			continue
 		var hazard := node as ArenaHazard
 		if hazard.kind != ArenaHazard.Kind.CIRCLE:
 			continue
-		var reach := hazard.radius + 28.0
-		var offset := pos - hazard.global_position
-		var dist := offset.length()
-		if dist > reach:
-			continue
-		threatened = true
-		var away := offset if dist > 1.0 else Vector2.RIGHT.rotated(_elapsed)
-		push += away.normalized() * (reach + 50.0 - dist)
+		circles.append(hazard)
+	if circles.is_empty():
+		return Vector2.INF
+	var threatened := false
+	for hazard in circles:
+		if pos.distance_to(hazard.global_position) <= hazard.radius + 28.0:
+			threatened = true
+			break
 	if not threatened:
 		return Vector2.INF
-	if push.length() < 1.0:
-		push = Vector2.RIGHT.rotated(_elapsed * 2.1)
-	return pos + push.normalized() * 210.0
+	var best_safe := pos
+	var best_safe_d := 9999.0
+	var best_any := pos
+	var best_any_clear := -9999.0
+	var radii: Array[float] = [88.0, 108.0, 128.0]
+	for dist in radii:
+		for index in 20:
+			var sample := pos + Vector2.RIGHT.rotated(TAU * float(index) / 20.0) * dist
+			var arena := _arena()
+			if arena != null and (arena.is_blocked(sample, 18.0) or arena.is_in_hazard(sample, 16.0)):
+				continue
+			var clear := 9999.0
+			for hazard in circles:
+				clear = minf(clear, sample.distance_to(hazard.global_position) - hazard.radius)
+			if clear > best_any_clear:
+				best_any_clear = clear
+				best_any = sample
+			if clear > 12.0 and sample.distance_to(pos) < best_safe_d:
+				best_safe_d = sample.distance_to(pos)
+				best_safe = sample
+	if best_safe_d < 900.0:
+		return best_safe
+	if best_any_clear > 0.0:
+		return best_any
+	return pos + Vector2.RIGHT.rotated(_elapsed * 2.1) * 120.0
 
 
 func _boss_is_telegraphing() -> bool:

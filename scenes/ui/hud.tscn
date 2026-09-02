@@ -333,7 +333,7 @@ horizontal_alignment = 1
 [node name="SfxToggle" type="CheckButton" parent="EscapeMenu/EscapeLayout"]
 layout_mode = 2
 text = "SOUND EFFECTS"
-button_pressed = true
+button_pressed = false
 
 [node name="MusicToggle" type="CheckButton" parent="EscapeMenu/EscapeLayout"]
 layout_mode = 2

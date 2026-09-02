@@ -13,7 +13,7 @@ var player_id := ""
 var display_name := "Player"
 var selected_class_id := PlayerClass.DEFAULT_CLASS_ID
 var linked_platforms: Dictionary = {}
-var sfx_enabled := true
+var sfx_enabled := false
 var music_enabled := true
 
 ## Solo meta-progression: sparks earned by surviving waves, hero shards toward unlocks.
@@ -37,6 +37,7 @@ func _ready() -> void:
 
 
 func _load_or_create_profile() -> void:
+	var migrate_sfx_off := false
 	if FileAccess.file_exists(PROFILE_PATH):
 		var profile_file := FileAccess.open(PROFILE_PATH, FileAccess.READ)
 		if profile_file != null:
@@ -46,7 +47,11 @@ func _load_or_create_profile() -> void:
 				display_name = str(parsed.get("display_name", "Player"))
 				selected_class_id = PlayerClass.sanitize_id(str(parsed.get("selected_class_id", PlayerClass.DEFAULT_CLASS_ID)))
 				linked_platforms = parsed.get("linked_platforms", {})
-				sfx_enabled = bool(parsed.get("sfx_enabled", true))
+				sfx_enabled = bool(parsed.get("sfx_enabled", false))
+				# Old saves defaulted SFX on. Flip once so the new opt-in default sticks.
+				if not bool(parsed.get("sfx_opt_in_migrated", false)):
+					sfx_enabled = false
+					migrate_sfx_off = true
 				music_enabled = bool(parsed.get("music_enabled", true))
 				sparks = float(parsed.get("sparks", 0.0))
 				hero_shards = parsed.get("hero_shards", {})
@@ -60,6 +65,8 @@ func _load_or_create_profile() -> void:
 				hero_mastery = parsed.get("hero_mastery", {})
 	if player_id.is_empty():
 		player_id = _generate_local_player_id()
+		_save_profile()
+	elif migrate_sfx_off:
 		_save_profile()
 
 
@@ -218,6 +225,7 @@ func _save_profile() -> void:
 		"selected_class_id": selected_class_id,
 		"linked_platforms": linked_platforms,
 		"sfx_enabled": sfx_enabled,
+		"sfx_opt_in_migrated": true,
 		"music_enabled": music_enabled,
 		"sparks": sparks,
 		"hero_shards": hero_shards,

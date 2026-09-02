@@ -52,6 +52,7 @@ var loadout_slots: Array[Button] = []
 @onready var ability_list: VBoxContainer = $StatusLayer/AbilityPanel/Margin/Layout/AbilityScroll/AbilityList
 
 var _ability_panel_hero_id: String = ""
+var roster_info_button: Button = null
 
 var game_loaded := false
 var class_buttons: Array[Button] = []
@@ -166,6 +167,9 @@ func _ready() -> void:
 	sfx_toggle.toggled.connect(_on_sfx_toggled)
 	music_toggle.toggled.connect(_on_music_toggled)
 	_sync_audio_toggles()
+	if ability_panel != null:
+		ability_panel.visible = false
+		_ability_panel_hero_id = ""
 	SteamService.steam_ready.connect(_on_steam_ready)
 	SteamService.steam_unavailable.connect(_on_steam_unavailable)
 	SteamService.join_requested.connect(_on_steam_join_requested)
@@ -211,13 +215,25 @@ func _build_overhaul_ui() -> void:
 	world_row.add_theme_constant_override("separation", 6)
 	hero_content.add_child(world_row)
 	hero_content.move_child(world_row, class_grid.get_index())
+	var info_row := HBoxContainer.new()
+	info_row.name = "RosterInfoRow"
+	info_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	roster_info_button = Button.new()
+	roster_info_button.name = "RosterInfoButton"
+	roster_info_button.custom_minimum_size = Vector2(120, 34)
+	roster_info_button.text = "INFO"
+	roster_info_button.tooltip_text = "Show or hide abilities for the selected hero"
+	roster_info_button.pressed.connect(_on_roster_info_pressed)
+	info_row.add_child(roster_info_button)
+	hero_content.add_child(info_row)
+	hero_content.move_child(info_row, class_grid.get_index() + 1)
 	# LoadoutPanel goes right under the hero grid.
 	loadout_panel = VBoxContainer.new()
 	loadout_panel.name = "LoadoutPanel"
 	loadout_panel.add_theme_constant_override("separation", 6)
 	loadout_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hero_content.add_child(loadout_panel)
-	hero_content.move_child(loadout_panel, class_grid.get_index() + 1)
+	hero_content.move_child(loadout_panel, class_grid.get_index() + 2)
 	var loadout_header := Label.new()
 	loadout_header.text = "Loadout"
 	loadout_header.add_theme_color_override("font_color", Color("9fb3d1"))
@@ -440,22 +456,7 @@ func _rebuild_hero_cards() -> void:
 		button.text = "%s\n%s" % [str(class_data.name).to_upper(), str(class_data.role).to_upper()]
 		button.add_theme_color_override("font_color", Color(str(class_data.accent_color)))
 		button.toggled.connect(_on_class_toggled.bind(hero_id))
-		# Wrap card + info button in an HBox so the info icon sits beside the card
-		var card_box := HBoxContainer.new()
-		card_box.custom_minimum_size = Vector2(252, 56)
-		card_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		card_box.add_theme_constant_override("separation", 4)
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		card_box.add_child(button)
-		var info_button := Button.new()
-		info_button.custom_minimum_size = Vector2(40, 56)
-		info_button.text = "i"
-		info_button.add_theme_font_size_override("font_size", 13)
-		info_button.add_theme_color_override("font_color", Color(str(class_data.accent_color)))
-		info_button.tooltip_text = "Show ability descriptions for %s" % str(class_data.name)
-		info_button.pressed.connect(_on_hero_info_pressed.bind(hero_id))
-		card_box.add_child(info_button)
-		class_grid.add_child(card_box)
+		class_grid.add_child(button)
 		class_buttons.append(button)
 		_style_hero_card(button, class_data)
 	while class_grid.get_child_count() < 6:
@@ -557,17 +558,25 @@ func _on_class_toggled(is_pressed: bool, class_id: String) -> void:
 	_refresh_class_selection()
 
 
-func _on_hero_info_pressed(hero_id: String) -> void:
+func _on_roster_info_pressed() -> void:
 	AudioService.play("ui_click")
 	if ability_panel == null:
 		return
-	# Toggle: close if already showing this hero, open otherwise.
-	if ability_panel.visible and _ability_panel_hero_id == hero_id:
+	if ability_panel.visible:
 		ability_panel.visible = false
 		_ability_panel_hero_id = ""
+		if roster_info_button != null:
+			roster_info_button.text = "INFO"
 		return
+	_show_selected_hero_info()
+
+
+func _show_selected_hero_info() -> void:
+	var hero_id := PlayerProfile.selected_class_id
 	_ability_panel_hero_id = hero_id
 	_populate_ability_panel(hero_id)
+	if roster_info_button != null:
+		roster_info_button.text = "HIDE"
 
 
 func _sync_audio_toggles() -> void:
@@ -602,6 +611,8 @@ func _refresh_class_selection() -> void:
 	_refresh_loadout_panel()
 	_apply_hero_backdrop()
 	_refresh_header_detail(PlayerProfile.selected_class_id)
+	if ability_panel != null and ability_panel.visible:
+		_show_selected_hero_info()
 
 
 ## ---------------------------------------------------------------------------
@@ -1367,6 +1378,11 @@ func _open_game() -> void:
 	lobby_panel.visible = false
 	backdrop.visible = false
 	status_label.visible = false
+	if ability_panel != null:
+		ability_panel.visible = false
+		_ability_panel_hero_id = ""
+	if roster_info_button != null:
+		roster_info_button.text = "INFO"
 	var action := $StatusLayer.get_node_or_null("ToborAction") as CanvasItem
 	if action != null:
 		action.visible = false

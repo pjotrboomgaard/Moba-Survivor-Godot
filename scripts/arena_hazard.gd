@@ -22,10 +22,12 @@ var line_angle := 0.0
 var damage := 18.0
 var fill_color := Color("ff3a3a")
 var cosmetic := false
+var impact_sfx := ""
 
 var _age := 0.0
 var _hit_ids: Dictionary = {}
 var _finished := false
+var _impact_played := false
 
 
 func configure(spec: Dictionary) -> void:
@@ -41,6 +43,7 @@ func configure(spec: Dictionary) -> void:
 	damage = maxf(0.0, float(spec.get("damage", 18.0)))
 	fill_color = Color(str(spec.get("color", "ff3a3a")))
 	cosmetic = bool(spec.get("cosmetic", false))
+	impact_sfx = str(spec.get("sfx", ""))
 	global_position = spec.get("origin", global_position)
 	z_index = 8
 	add_to_group("arena_hazards")
@@ -53,6 +56,10 @@ func _process(delta: float) -> void:
 	_age += delta
 	queue_redraw()
 	if _is_active():
+		if not _impact_played:
+			_impact_played = true
+			if not impact_sfx.is_empty() and not cosmetic:
+				AudioService.play(impact_sfx)
 		_try_damage()
 	if _age >= telegraph_seconds + active_seconds:
 		_finished = true
@@ -107,14 +114,18 @@ func _overlaps(world_point: Vector2) -> bool:
 func _draw() -> void:
 	var warning := not _is_active()
 	var pulse := 0.45 + 0.55 * sin(_age * 14.0)
-	var alpha := 0.18 + 0.16 * pulse if warning else 0.42
-	var color := Color(fill_color, alpha)
-	var edge := Color(fill_color, 0.85 if warning else 1.0)
 	match kind:
 		Kind.CIRCLE:
+			# Saturated fill + thick bright rim so the empty lanes between slams read as
+			# the dodge path instead of blending into the floor.
+			var fill_a := (0.36 + 0.14 * pulse) if warning else 0.58
+			var color := Color(fill_color, fill_a)
+			var rim := Color(1.0, 0.96, 0.55, 0.95) if warning else Color(fill_color, 1.0)
 			draw_circle(Vector2.ZERO, radius, color)
-			draw_arc(Vector2.ZERO, radius, 0.0, TAU, 64, edge, 4.0, true)
+			draw_arc(Vector2.ZERO, radius, 0.0, TAU, 64, rim, 8.0, true)
+			draw_arc(Vector2.ZERO, maxf(8.0, radius - 10.0), 0.0, TAU, 48, Color(fill_color, 0.55 if warning else 0.8), 3.0, true)
 		Kind.RING:
+			var edge := Color(fill_color, 0.85 if warning else 1.0)
 			var shown := 80.0 if warning else _ring_radius()
 			if warning:
 				draw_arc(Vector2.ZERO, max_radius, 0.0, TAU, 72, Color(fill_color, 0.16 + 0.1 * pulse), 6.0, true)
@@ -124,6 +135,8 @@ func _draw() -> void:
 			var direction := Vector2.RIGHT.rotated(line_angle)
 			var half := direction * line_length * 0.5
 			var width := line_width if warning else line_width * 1.15
+			var color := Color(fill_color, 0.18 + 0.16 * pulse if warning else 0.42)
+			var edge := Color(fill_color, 0.85 if warning else 1.0)
 			draw_line(-half, half, color, width, true)
 			draw_line(-half, half, edge, 5.0, true)
 

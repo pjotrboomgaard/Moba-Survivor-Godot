@@ -153,6 +153,11 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	dash_interval = float(EnemyType.field(type_id, "dash_interval"))
 	dash_timer = dash_interval * 0.5
 	stealth_alpha = float(EnemyType.field(type_id, "stealth_alpha"))
+	if GameRuntime.uses_biomes() and GameRuntime.biome_id == 2 and not flying:
+		if type_id == "lurker" or type_id == "stalker":
+			stealth_alpha = 0.22
+		elif type_id == "grunt" or type_id == "swarmling":
+			stealth_alpha = 0.35
 	separation_weight = float(EnemyType.field(type_id, "separation_weight"))
 	summon_timer = summon_interval
 
@@ -167,6 +172,19 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	health.is_dead = false
 	health.health_changed.emit(health.current_health, health.max_health)
 	_apply_biome_combat()
+	_apply_sprite()
+	queue_redraw()
+
+
+func apply_wave_growth(wave: int) -> void:
+	if is_boss:
+		return
+	var grow := clampf(1.0 + 0.016 * float(maxi(0, wave - 1)), 1.0, 1.32)
+	if is_equal_approx(grow, 1.0):
+		return
+	body_radius *= grow
+	if collision_shape != null and collision_shape.shape is CircleShape2D:
+		(collision_shape.shape as CircleShape2D).radius = body_radius
 	_apply_sprite()
 	queue_redraw()
 
@@ -355,6 +373,7 @@ func _process_boss_dash(delta: float) -> bool:
 			charging = true
 			charge_state_timer = charge_duration
 			charge_direction = global_position.direction_to(target.global_position)
+			AudioService.play("dash")
 		return true
 
 	dash_timer -= delta
@@ -485,12 +504,16 @@ func _emit_player_slam() -> void:
 		return
 	var slam_damage := 10.0 + 2.0 * float(boss_phase)
 	var aim := target.global_position
-	var count := 4 + boss_phase
-	var telegraph := 1.28
-	var blast := 72.0 + 4.0 * float(boss_phase)
-	# Ring around the player with a gap so standing still is punished but a sidestep
-	# through a lane only eats one circle, not a stacked one-shot.
-	var ring := blast + 96.0
+	var count := mini(4 + boss_phase, 6)
+	var telegraph := 1.42
+	var blast := 62.0 + 3.0 * float(boss_phase)
+	# Keep a walkable lane between every pair of circles (and between the center
+	# slam and the ring) so the dodge path reads at a glance, not as a packed blob.
+	var lane := 90.0
+	var ring := blast * 2.0 + lane
+	var spread := sin(PI / float(maxi(count, 2)))
+	if spread > 0.08:
+		ring = maxf(ring, (blast + lane * 0.5) / spread)
 	_emit_hazard({
 		"kind": "circle",
 		"origin": aim,
@@ -499,6 +522,7 @@ func _emit_player_slam() -> void:
 		"active": 0.28,
 		"damage": slam_damage,
 		"color": str(fill_color.to_html(false)),
+		"sfx": "explosion",
 	})
 	for index in count:
 		var offset := Vector2.RIGHT.rotated(TAU * float(index) / float(count) + float(boss_phase) * 0.27) * ring
@@ -572,6 +596,7 @@ func _process_charger(delta: float) -> void:
 			charging = true
 			charge_state_timer = charge_duration
 			charge_direction = global_position.direction_to(target.global_position)
+			AudioService.play("dash")
 		return
 
 	var distance := global_position.distance_to(target.global_position)

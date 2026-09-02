@@ -71,8 +71,12 @@ const BIOME_ALIASES := {
 }
 
 
+## One biome every five waves so a 20-wave run walks grass → volcano → ice → factory.
+const BIOME_CYCLE_WAVES := 5
+
+
 func biome_for_wave(wave: int) -> int:
-	return posmod(int((maxi(1, wave) - 1) / 10.0), BIOME_KEYS.size())
+	return posmod(int((maxi(1, wave) - 1) / float(BIOME_CYCLE_WAVES)), BIOME_KEYS.size())
 
 
 func parse_biome(token: String) -> int:

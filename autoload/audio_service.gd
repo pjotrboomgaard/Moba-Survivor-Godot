@@ -273,7 +273,7 @@ const MUSIC_VOLUME_DB := -18.0
 const POOL_SIZE := 14
 const DEFAULT_MAX_VOICES := 5
 
-var sfx_enabled := true
+var sfx_enabled := false
 var music_enabled := true
 
 ## Self-test/probe hooks: last_play_ability mirrors the ability_id passed to the latest

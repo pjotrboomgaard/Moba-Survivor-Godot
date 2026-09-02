@@ -26,6 +26,7 @@ enum SimulationMode {
 @export var chain_range := 190.0
 @export_range(0.1, 1.0, 0.05) var chain_damage_multiplier := 0.65
 
+const CompanionDroneScript := preload("res://scripts/companion_drone.gd")
 const BODY_RADIUS := 18.0
 const FACING_CLASS_IDS := ["arclight", "bulwark", "warden", "cinder", "pyra", "slag", "ember", "thorn", "willow", "stump", "sage", "volt", "nebula", "astral", "rime"]
 ## Global in-game hero-sprite scale boost (Part 1: heroes felt ~25% small). HUD/menu untouched.
@@ -1358,7 +1359,7 @@ func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2)
 	sum.trigger_radius = float(data.get("trigger_radius", 28.0))
 	sum.explosion_radius = float(data.get("explosion_radius", 70.0))
 	sum.arm_delay = float(data.get("arm_delay", 1.15))
-	sum.boss_damage_mult = float(data.get("boss_damage_mult", 6.0))
+	sum.boss_damage_mult = float(data.get("boss_damage_mult", 4.5))
 	sum._arm_timer = sum.arm_delay
 	sum.expired.connect(_on_summon_expired)
 	get_tree().current_scene.add_child(sum)
@@ -3225,6 +3226,25 @@ func apply_upgrade(upgrade_id: String) -> void:
 			health.max_health += 25.0
 			health.current_health = minf(health.max_health, health.current_health + 25.0)
 			health.health_changed.emit(health.current_health, health.max_health)
+		"gun_drone", "push_drone", "ember_sprite", "heat_gust", "thorn_sprite", "vine_tether", "spark_sprite", "gale_push":
+			_add_companion(upgrade_id)
+
+
+func _add_companion(upgrade_id: String) -> void:
+	if not is_inside_tree():
+		return
+	var want := int(CompanionDroneScript.KIND_FOR_UPGRADE.get(upgrade_id, CompanionDroneScript.Kind.GUN))
+	for child in get_parent().get_children():
+		if child.get_script() == CompanionDroneScript and int(child.kind) == want:
+			child.rank += 1
+			return
+	var drone := CompanionDroneScript.new()
+	get_parent().add_child(drone)
+	var slot := 0
+	for child in get_parent().get_children():
+		if child.get_script() == CompanionDroneScript:
+			slot += 1
+	drone.setup(self, upgrade_id, maxi(0, slot - 1))
 
 
 func snapshot() -> Dictionary:

@@ -1,8 +1,8 @@
 extends Node2D
 
-@export var max_enemies := 70
-@export var spawn_distance_min := 520.0
-@export var spawn_distance_max := 760.0
+@export var max_enemies := 110
+@export var spawn_distance_min := 380.0
+@export var spawn_distance_max := 560.0
 @export var snapshot_rate := 20.0
 @export var input_send_rate := 30.0
 
@@ -74,12 +74,10 @@ func _ready() -> void:
 	randomize()
 	NetworkService.peer_left.connect(_on_peer_left)
 	if arena is Arena:
-		# Bind before set_world so a rebuild's landmarks_changed reconnects us; also bind
-		# afterwards in case set_world no-ops on an already-spawned matching world.
+		# Bind before dress so a rebuild's landmarks_changed reconnects us.
 		(arena as Arena).landmarks_changed.connect(_bind_landmarks)
-		# local_player isn't spawned yet (OFFLINE/HOST branches below create it), so use
-		# the class the runtime resolved from the profile/CLI for the world's first paint.
-		(arena as Arena).set_world(PlayerClass.world_of(GameRuntime.active_class_id()))
+		GameRuntime.reset_biome_for_new_run()
+		(arena as Arena).dress_from_runtime_biome()
 		_bind_landmarks()
 	hud.upgrade_chosen.connect(_on_local_upgrade_chosen)
 	hud.ability_chosen.connect(_on_local_ability_chosen)
@@ -90,6 +88,8 @@ func _ready() -> void:
 	hud.leave_requested.connect(_on_leave_requested)
 	hud.dev_command.connect(_on_local_dev_command)
 	hud.set_connection_text(GameRuntime.mode_name())
+	if hud.upgrade_panel != null:
+		hud.upgrade_panel.visible = false
 	wave_director.wave_started.connect(_on_wave_started)
 	## group_ready is *not* gated by team mode: the co-op `_on_wave_group_ready` handler
 	## runs the plain formation path for Classic & Pjotr co-op, while team directors bind
@@ -123,6 +123,7 @@ func _physics_process(delta: float) -> void:
 	if GameRuntime.is_server():
 		_update_host_input()
 		wave_director.report_enemy_count(_living_enemy_count())
+		_report_wave_pressure()
 		if not GameRuntime.is_dedicated_server():
 			hud.update_boss(_find_boss())
 		snapshot_accumulator += delta
@@ -135,6 +136,7 @@ func _physics_process(delta: float) -> void:
 				_crater_snapshot_sent[peer_id] = snap_time
 	elif GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 		wave_director.report_enemy_count(_living_enemy_count())
+		_report_wave_pressure()
 		if hud != null:
 			hud.update_boss(_find_boss())
 	elif GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
@@ -548,9 +550,6 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 	actors.add_child(player)
 	player.configure(peer_id, mode, local_player, class_id)
 	if arena is Arena:
-		# First hero claims the arena's world; later joiners drop into the same one.
-		# Heroes from another world keep their kit but fight on the founding hero's turf.
-		(arena as Arena).set_world(PlayerClass.world_of(class_id))
 		player.apply_camera_limits((arena as Arena).half_extents())
 	player.staff_cast.connect(_on_staff_cast)
 	player.ability_cast.connect(_on_ability_cast)
@@ -827,11 +826,12 @@ func _queue_wave_draft() -> void:
 func _on_wave_group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float) -> void:
 	if game_over or players.is_empty():
 		return
-	_spawn_formation(EnemyType.fit_to_biome(type_id), formation, count, health_multiplier, speed_multiplier)
+	var close := wave_director.take_close_spawn()
+	_spawn_formation(EnemyType.fit_to_biome(type_id), formation, count, health_multiplier, speed_multiplier, close)
 
 
-func _spawn_formation(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0) -> void:
-	_spawn_formation_near(_first_active_player(), type_id, formation, count, health_multiplier, speed_multiplier)
+func _spawn_formation(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false) -> void:
+	_spawn_formation_near(_first_active_player(), type_id, formation, count, health_multiplier, speed_multiplier, close_spawn)
 
 
 ## Team-zoned variant: same shapes as co-op, but `focus` is the team's anchor instead of
@@ -862,7 +862,7 @@ func _lobby_claims() -> Dictionary:
 var _last_spawn_team := ""
 
 
-func _spawn_formation_near(focus: Variant, type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0) -> void:
+func _spawn_formation_near(focus: Variant, type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false) -> void:
 	var focus_position := Vector2.ZERO
 	if focus is Vector2:
 		focus_position = focus
@@ -873,8 +873,10 @@ func _spawn_formation_near(focus: Variant, type_id: String, formation: int, coun
 		if fallback == null:
 			return
 		focus_position = fallback.global_position
+	var dmin := 170.0 if close_spawn else spawn_distance_min
+	var dmax := 310.0 if close_spawn else spawn_distance_max
 	var base_angle := randf_range(0.0, TAU)
-	var pack_center := Vector2.RIGHT.rotated(base_angle) * randf_range(spawn_distance_min, spawn_distance_max)
+	var pack_center := Vector2.RIGHT.rotated(base_angle) * randf_range(dmin, dmax)
 	for index in count:
 		if enemies.size() >= _enemy_cap():
 			return
@@ -884,14 +886,14 @@ func _spawn_formation_near(focus: Variant, type_id: String, formation: int, coun
 				offset = pack_center + Vector2(randf_range(-110.0, 110.0), randf_range(-110.0, 110.0))
 			EnemyType.Formation.RING:
 				var ring_angle := base_angle + float(index) * TAU / float(maxi(1, count))
-				offset = Vector2.RIGHT.rotated(ring_angle) * spawn_distance_min
+				offset = Vector2.RIGHT.rotated(ring_angle) * dmin
 			EnemyType.Formation.LONE:
 				var lone_angle := randf_range(0.0, TAU)
-				offset = Vector2.RIGHT.rotated(lone_angle) * randf_range(spawn_distance_max, spawn_distance_max + 90.0)
+				offset = Vector2.RIGHT.rotated(lone_angle) * randf_range(dmax, dmax + 90.0)
 			_:
 				var scatter_angle := randf_range(0.0, TAU)
-				offset = Vector2.RIGHT.rotated(scatter_angle) * randf_range(spawn_distance_min, spawn_distance_max)
-		_spawn_enemy_at(focus_position + offset, type_id, health_multiplier, speed_multiplier)
+				offset = Vector2.RIGHT.rotated(scatter_angle) * randf_range(dmin, dmax)
+		_spawn_enemy_at(focus_position + offset, type_id, health_multiplier, speed_multiplier, close_spawn)
 
 
 ## Backwards-compat for summoners/dev tools: spawn relative to the first active player.
@@ -902,23 +904,38 @@ func _spawn_enemy(offset: Vector2, type_id: String, health_multiplier: float, sp
 	return _spawn_enemy_at(focus.global_position + offset, type_id, health_multiplier, speed_multiplier)
 
 
-func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier: float, speed_multiplier: float = 1.0) -> Enemy:
+func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false) -> Enemy:
 	var enemy := enemy_scene.instantiate() as Enemy
 	var entity_id := next_entity_id
 	next_entity_id += 1
+	var fitted_id := EnemyType.fit_to_biome(type_id)
+	var spawn_flying := bool(EnemyType.field(fitted_id, "flying"))
+	var spawn_boss := EnemyType.is_boss(fitted_id)
 	var candidate_position := world_position
-	if arena is Arena:
+	var skip_pad_snap := false
+	if not close_spawn and arena is Arena and (arena as Arena).is_water_biome() and not spawn_boss and randf() < 0.78:
+		var toward := Vector2.ZERO
+		var focus := _first_active_player()
+		if focus != null:
+			toward = focus.global_position
+		candidate_position = (arena as Arena).water_spawn_point(toward, spawn_flying)
+		skip_pad_snap = spawn_flying
+	elif arena is Arena:
 		var half := (arena as Arena).half_extents() - Vector2(40.0, 40.0)
 		candidate_position.x = clampf(candidate_position.x, -half.x, half.x)
 		candidate_position.y = clampf(candidate_position.y, -half.y, half.y)
 	else:
 		candidate_position.x = clampf(candidate_position.x, -1160.0, 1160.0)
 		candidate_position.y = clampf(candidate_position.y, -760.0, 760.0)
-	enemy.global_position = arena.free_position_near(candidate_position, 22.0)
+	if skip_pad_snap:
+		enemy.global_position = candidate_position
+	else:
+		enemy.global_position = arena.free_position_near(candidate_position, 22.0)
 	# enemy.team_id assignment skipped — Player carries team ids, Enemy does not.
 	# If Rift Clash ever needs per-team enemies, extend Enemy with team_id here.
 	actors.add_child(enemy)
-	enemy.configure(entity_id, true, EnemyType.fit_to_biome(type_id), health_multiplier, speed_multiplier)
+	enemy.configure(entity_id, true, fitted_id, health_multiplier, speed_multiplier)
+	enemy.apply_wave_growth(current_wave)
 	if not GameRuntime.fill_cpu_allies and players.size() <= 1 and not enemy.is_boss:
 		var dmg := wave_director.solo_contact_multiplier(current_wave)
 		enemy.contact_damage *= dmg
@@ -982,6 +999,22 @@ func _play_sound(sound_id: String) -> void:
 	if GameRuntime.is_dedicated_server():
 		return
 	AudioService.play(sound_id)
+
+
+func _is_tiny_fodder(enemy: Enemy) -> bool:
+	return enemy != null and enemy.type_id == "swarmling"
+
+
+func _play_landmark_sound(effect_id: String) -> void:
+	match effect_id:
+		"pulse_wipe":
+			_play_sound("sfx_radius")
+		"heal_all":
+			_play_sound("sfx_heal")
+		"freeze_time":
+			_play_sound("sfx_shield")
+		_:
+			_play_sound("scan")
 
 
 func _on_arena_hazard_requested(spec: Dictionary) -> void:
@@ -1088,10 +1121,11 @@ func _on_enemy_defeated(enemy: Enemy) -> void:
 			_award_gold_to_team(killer.team_id, enemy.gold_value)
 	else:
 		_award_gold(enemy.gold_value)
-	_play_sound("enemy_death")
-	if GameRuntime.is_server():
-		for peer_id in registered_remote_peers.keys():
-			client_play_sound.rpc_id(peer_id, "enemy_death")
+	if not _is_tiny_fodder(enemy):
+		_play_sound("enemy_death")
+		if GameRuntime.is_server():
+			for peer_id in registered_remote_peers.keys():
+				client_play_sound.rpc_id(peer_id, "enemy_death")
 
 
 ## Landmark effects run on the session authority: dedicated/listen server, or OFFLINE solo.
@@ -1126,6 +1160,7 @@ func _on_landmark_triggered(trigger_position: Vector2) -> void:
 		return
 	_landmark_last_trigger[cooldown_key] = now
 	print("[landmark] triggered: %s at %s" % [landmark.effect_id, landmark.global_position])
+	_play_landmark_sound(str(landmark.effect_id))
 	match landmark.effect_id:
 		"pulse_wipe":
 			_landmark_pulse_wipe(landmark)
@@ -1803,7 +1838,7 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 
 func _rebuild_arena() -> void:
 	if arena is Arena:
-		(arena as Arena).rebuild()
+		(arena as Arena).dress_from_runtime_biome()
 	_sync_playfield()
 	for enemy in enemies.values():
 		if enemy is Enemy and is_instance_valid(enemy):
@@ -1847,7 +1882,7 @@ func _sync_playfield() -> void:
 		var body := player as Player
 		body.apply_camera_limits(half)
 		if (arena as Arena).is_blocked(body.global_position, 18.0):
-			body.global_position = Vector2.ZERO
+			body.global_position = (arena as Arena).free_position_near(body.global_position, 18.0)
 
 
 ## Applies the open-by-default crater state to the freshly built arena and marks the
@@ -2037,6 +2072,30 @@ func _living_enemy_count() -> int:
 		if health != null and bool(health.get("is_dead")):
 			continue
 		n += 1
+	return n
+
+
+func _report_wave_pressure() -> void:
+	var player := _first_active_player()
+	var hp := 1.0
+	if player != null and player.health != null and player.health.max_health > 0.0:
+		hp = player.health.current_health / player.health.max_health
+	wave_director.report_pressure(hp, _nearby_enemy_count(player, 460.0))
+
+
+func _nearby_enemy_count(player: Player, radius: float) -> int:
+	if player == null:
+		return 0
+	var n := 0
+	var origin := player.global_position
+	for enemy in enemies.values():
+		if not is_instance_valid(enemy):
+			continue
+		var body := enemy as Enemy
+		if body.health != null and body.health.is_dead:
+			continue
+		if origin.distance_to(body.global_position) <= radius:
+			n += 1
 	return n
 
 

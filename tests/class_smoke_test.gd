@@ -770,11 +770,11 @@ func _test_sprite_art() -> void:
 	GameRuntime.biome_id = 4
 	_check(int(EnemyType.biome_multipliers().get("gold", 0)) > 0, "Docks enemies should drop extra gold")
 	GameRuntime.biome_id = saved_combat_biome
-	_check(GameRuntime.biome_for_wave(1) == 0, "Waves 1-10 are the grass meadow")
-	_check(GameRuntime.biome_for_wave(11) == 1, "Wave 11 must enter the volcano biome")
-	_check(GameRuntime.biome_for_wave(21) == 2, "Wave 21 must enter the ice biome")
-	_check(GameRuntime.biome_for_wave(31) == 3, "Wave 31 must enter the factory biome")
-	_check(GameRuntime.biome_for_wave(41) == 4, "Wave 41 must enter the docks biome")
+	_check(GameRuntime.biome_for_wave(1) == 0, "Waves 1-5 are the grass meadow")
+	_check(GameRuntime.biome_for_wave(6) == 1, "Wave 6 must enter the volcano biome")
+	_check(GameRuntime.biome_for_wave(11) == 2, "Wave 11 must enter the ice biome")
+	_check(GameRuntime.biome_for_wave(16) == 3, "Wave 16 must enter the factory biome")
+	_check(GameRuntime.biome_for_wave(21) == 4, "Wave 21 must enter the docks biome")
 	_check(GameRuntime.parse_biome("vulkaan") == 1, "Dev biome aliases should accept Dutch names")
 	_check(GameRuntime.parse_biome("docks") == 4, "Dev biome aliases should accept docks")
 	var saved_lock := GameRuntime.biome_locked

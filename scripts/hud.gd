@@ -118,6 +118,10 @@ func _ready() -> void:
 	_build_chant_overlay()
 	_build_dev_biome_row()
 	_build_boss_overlay()
+	upgrade_panel.visible = false
+	offered_upgrade_ids.clear()
+	if get_tree().paused:
+		get_tree().paused = false
 
 
 func _unhandled_input(event: InputEvent) -> void:

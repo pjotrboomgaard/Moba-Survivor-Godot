@@ -70,6 +70,9 @@ static func _hash(ability_id: String) -> int:
 
 static func _unique_icon(ability_id: String, base_rows: Array, palette: Dictionary) -> Array[String]:
 	var rows := _scale_2x(base_rows)
+	# Keep authored turret/mine silhouettes — hash speckles turn them into sparks.
+	if ability_id == "tobor_steam_turret" or ability_id == "tobor_spider_mines":
+		return rows
 	var hash := _hash(ability_id)
 	for marker_index in 8:
 		var x := 1 + (hash + marker_index * 17) % (ICON_SIZE - 2)

@@ -73,10 +73,9 @@ func _ensure_children() -> void:
 func _apply_visuals() -> void:
 	var sprite := get_node_or_null("Sprite") as Sprite2D
 	if sprite != null:
-		sprite.texture = SpriteLibrary.texture_for(sprite_name)
-		sprite.scale = Vector2(PIXEL_ZOOM, PIXEL_ZOOM)
-		sprite.offset = Vector2(0.0, -28.0)
-		sprite.z_index = 2
+		# Pad + glyph only — the old pixel shrine sprites sat on top of the stand.
+		sprite.texture = null
+		sprite.visible = false
 	var hint := get_node_or_null("Hint") as Label
 	if hint != null:
 		hint.text = _compose_hint()
@@ -187,11 +186,6 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, BODY_RADIUS + 18.0, 0.0, TAU, 16, Color("fff0a0"), 8.0, false)
 	# Tiny pixel glyph so the pad's job (wipe / heal / freeze) reads at a distance.
 	_draw_role_glyph(accent)
-	var sprite := get_node_or_null("Sprite") as Sprite2D
-	if sprite != null and sprite.texture == null:
-		draw_circle(Vector2.ZERO, BODY_RADIUS, accent)
-	if sprite != null:
-		sprite.modulate = Color(1.0, 1.0, 1.0, 0.45) if _cooldown > 0.0 else Color.WHITE
 
 
 func _regular_polygon(center: Vector2, radius: float, facets: int) -> PackedVector2Array:

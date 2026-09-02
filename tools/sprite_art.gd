@@ -2941,6 +2941,8 @@ const PROP_PALETTES := {
 	"spark": {"o": "6b5405", "f": "ffd35a", "l": "fff4c2"},
 	"xp_orb": {"o": "0d4a2b", "f": "50f59e", "l": "d8ffe8"},
 	"coin": {"o": "6b4a05", "f": "ffc93c", "l": "fff0b8"},
+	"tobor_turret_body": ROBOT_HERO_PALETTE,
+	"tobor_mine_body": ROBOT_HERO_PALETTE,
 }
 
 const PROP_ROWS := {
@@ -2993,6 +2995,42 @@ const PROP_ROWS := {
 		"offllffo",
 		".offffo.",
 		"..oooo..",
+	],
+	"tobor_turret_body": [
+		"....ssssss......",
+		"...smmwwmms.....",
+		"...smwwwwms.....",
+		"...smyyyyms.....",
+		"....syyyyys.....",
+		".....syyys......",
+		".....sssss......",
+		"....sswwsss.....",
+		"...sswnnwsss....",
+		"..sswwwwwwss....",
+		".ssssssssssss...",
+		".smmssssssmmss..",
+		".sssssssssssss..",
+		"..sss......sss..",
+		"..mmm......mmm..",
+		"................",
+	],
+	"tobor_mine_body": [
+		"s..............s",
+		".s....ss....s...",
+		"..s..s..s..s....",
+		"...ss....ss.....",
+		"....ssssss......",
+		"...ssyyyyyss....",
+		"..ssyeaaeyss....",
+		".ssyeaaaaeyss...",
+		".ssyeaaaaeyss...",
+		"..ssyeaaeyss....",
+		"...ssyyyyyss....",
+		"....ssssss......",
+		"...ss....ss.....",
+		"..s..s..s..s....",
+		".s....ss....s...",
+		"s..............s",
 	],
 }
 
@@ -3381,25 +3419,25 @@ const SHAPE_KIT_TOBOR_Q := [  # Steam Keg — NUKE_BOLT: falling metal keg with 
 	"..ffff..",
 	"........",
 ]
-const SHAPE_KIT_TOBOR_E := [  # Steam Turret — SUMMON: squat gun turret with muzzle
-	"........",
+const SHAPE_KIT_TOBOR_E := [  # Steam Turret — barrel, riveted body, stance legs
 	"..ffff..",
-	".flaalf.",
-	".faeaff.",
-	"flafflff",
-	"flflflfl",
+	".flaafl.",
+	".faeeaf.",
+	".ffffff.",
+	".flfflf.",
 	"ffffffff",
-	"........",
+	".ff..ff.",
+	".ff..ff.",
 ]
-const SHAPE_KIT_TOBOR_ALT := [  # Spider Mines — SUMMON_TRIG: three-legged mine with eye
-	"...ff...",
-	"..flf...",
-	".flaflf.",
-	"flaeaff.",
-	"flaaff..",
-	".fllf...",
-	"..ff....",
-	"........",
+const SHAPE_KIT_TOBOR_ALT := [  # Spider Mines — eight-leg crawler with hot core
+	"f..ff..f",
+	".f.ff.f.",
+	"..flaf..",
+	".flaealf",
+	".flaealf",
+	"..flaf..",
+	".f.ff.f.",
+	"f..ff..f",
 ]
 const SHAPE_KIT_TOBOR_R := [  # Energy Field — ZONE: hex force-field with corner posts
 	"..ffff..",

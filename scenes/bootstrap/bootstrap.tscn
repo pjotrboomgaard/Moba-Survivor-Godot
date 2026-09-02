@@ -16,6 +16,7 @@ grow_vertical = 2
 color = Color(0.025, 0.035, 0.055, 1)
 
 [node name="AbilityPanel" type="PanelContainer" parent="StatusLayer"]
+visible = false
 offset_left = 24.0
 offset_top = 24.0
 offset_right = 660.0
@@ -264,7 +265,7 @@ theme_override_constants/separation = 12
 layout_mode = 2
 size_flags_horizontal = 3
 text = "SFX"
-button_pressed = true
+button_pressed = false
 
 [node name="MusicToggle" type="CheckButton" parent="StatusLayer/LobbyPanel/Margin/Layout/AudioRow"]
 layout_mode = 2
