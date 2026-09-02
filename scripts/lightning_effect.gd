@@ -19,7 +19,8 @@ var flicker_seed := 0
 
 func _ready() -> void:
 	flicker_seed = randi()
-	if style == PlayerClass.EffectStyle.BURST or style == PlayerClass.EffectStyle.BLAST or style == PlayerClass.EffectStyle.ARC:
+	# BURST/ARC rings need a beat to read; BLAST shatter stays a short pop (keg vs field).
+	if style == PlayerClass.EffectStyle.BURST or style == PlayerClass.EffectStyle.ARC:
 		lifetime = maxf(lifetime, 0.42)
 	queue_redraw()
 
@@ -40,7 +41,7 @@ func _draw() -> void:
 			_draw_burst(points[0], points[1].x, effect_alpha)
 		PlayerClass.EffectStyle.BLAST:
 			var impact := points[1]
-			var radius := points[2].x if points.size() >= 3 else 90.0
+			var radius := points[2].x if points.size() >= 3 else 56.0
 			_draw_blast(points[0], impact, radius, effect_alpha)
 		PlayerClass.EffectStyle.ARC:
 			var radius := points[1].x
@@ -88,19 +89,20 @@ func _draw_burst(center: Vector2, radius: float, alpha: float) -> void:
 func _draw_blast(from: Vector2, impact: Vector2, radius: float, alpha: float) -> void:
 	var line_color := main_color
 	line_color.a *= alpha
-	draw_line(from, impact, line_color, 4.0)
-	# Ribbon trails fanning from the impact point — HoN-faithful shatter.
-	if ribbon_count > 1:
-		var base_angle := (impact - from).angle()
-		for i in range(ribbon_count):
-			var spread := (float(i) / maxf(float(ribbon_count - 1), 1.0) - 0.5) * PI * 0.6
-			var dir := Vector2.from_angle(base_angle + spread)
-			var trail_color := chain_color
-			trail_color.a *= alpha * 0.6
-			draw_line(from, impact + dir * radius * 0.6, trail_color, 2.0)
+	if from.distance_squared_to(impact) > 4.0:
+		draw_line(from, impact, line_color, 3.0)
+	# Compact shatter at impact — never a full-radius filled disc (BURST owns the big ring).
+	var shatter_r := clampf(radius, 28.0, 72.0)
+	var shards := maxi(ribbon_count, 2)
+	var base_angle := (impact - from).angle() if from.distance_squared_to(impact) > 4.0 else 0.0
+	for i in shards:
+		var shard_dir := Vector2.from_angle(base_angle + TAU * float(i) / float(shards))
+		var trail_color := chain_color
+		trail_color.a *= alpha * 0.85
+		draw_line(impact, impact + shard_dir * shatter_r, trail_color, 2.2)
 	var impact_color := chain_color
 	impact_color.a *= alpha
-	draw_circle(impact, radius, impact_color)
+	draw_circle(impact, shatter_r * 0.28, impact_color)
 
 
 func _draw_arc_wedge(center: Vector2, radius: float, facing: Vector2, half_angle: float, alpha: float) -> void:

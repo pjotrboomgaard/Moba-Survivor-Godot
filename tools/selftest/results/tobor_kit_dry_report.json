@@ -1,13 +1,17 @@
 {
   "effects": [],
-  "elapsed": 9.00163566666689,
+  "elapsed": 9.00443400000014,
   "enemies_spawned": 4,
-  "hero_position": "(72.0, 0.696013)",
+  "hero_position": "(72.0, -0.058184)",
   "player_class": "tobor",
   "results": {
-    "casts": [],
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 0.17953
+      }
+    ],
     "errors": [
-      "expected cast never fired: tobor_steam_keg",
       "expected cast never fired: tobor_steam_turret",
       "expected cast never fired: tobor_energy_absorption",
       "expected cast never fired: tobor_energy_field"
@@ -16,23 +20,23 @@
   "shots": [
     {
       "label": "t1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2163/t1_1.002_2163.png",
-      "t": 1.001589
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2207/t1_1.004_2207.png",
+      "t": 1.00446833333333
     },
     {
       "label": "t3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4170/t3_3.002_4170.png",
-      "t": 3.00209199999999
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4206/t3_3.005_4206.png",
+      "t": 3.00482433333333
     },
     {
       "label": "t5",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6174/t5_5.002_6174.png",
-      "t": 5.00198533333337
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6206/t5_5.005_6206.png",
+      "t": 5.00480600000004
     },
     {
       "label": "t8",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9173/t8_8.002_9173.png",
-      "t": 8.00189933333351
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9206/t8_8.005_9206.png",
+      "t": 8.00487433333351
     }
   ]
 }

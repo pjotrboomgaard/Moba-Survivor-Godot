@@ -1155,28 +1155,26 @@ func _on_summon_expired(entity: SummonEntity) -> void:
 
 ## --- Wrench (HoN Engineer-inspired) kit ----------------------------------------------
 
-## Steam Keg: HoN-favoured delayed detonation. The keg rolls/lobs to the impact point,
-## flashes a warning ring during a short fuse, THEN detonates — popping enemies away and
-## leaving a lingering superheated cloud that keeps burning anyone who walks through it.
-## This matches HoN Bombardier/Rally's two-stage Q feel instead of our older instant nuke.
+## Steam Keg: HoN Engineer two-stage Q. Arm, then throw a visible keg to the click point.
+## After a short fuse it detonates with knockback. Residual steam is a brief puff — not
+## Energy Field's persistent containment ring. One ability_cast (throw telegraph) only;
+## a second emit used Vector2(radius, fuse) as a BLAST impact and painted a screen-sized ring.
 func _cast_ability_wrench_keg(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	var throw_range := float(data.get("keg_range", maxf(float(values.range), 460.0)))
+	var origin := global_position
 	var center := _ability_aim_center(throw_range)
 	var radius := float(values.radius)
-	_spawn_ability_projectile(_casting_ability_id, global_position, center)
-	# Fuse window: paint the danger zone during the delay so the read is "incoming!", not
-	# "suddenly blown up". Blast + cloud land after a HoN-esque delay.
+	_spawn_ability_projectile(_casting_ability_id, origin, center)
 	var fuse := maxf(float(data.get("fuse_delay", 0.55)), 0.15)
 	_spawn_keg_warning_ring(center, radius, fuse)
 	get_tree().create_timer(fuse).timeout.connect(func() -> void:
 		if not is_inside_tree():
 			return
 		_detonate_wrench_keg(data, values, center, radius)
-		_spawn_steam_cloud(center, radius, 2.5)
-		_emit_ability_cast(PackedVector2Array([center, Vector2(radius, fuse)]))
+		_spawn_steam_cloud(center, radius * 0.55, 1.2)
 	)
-	# Telegraph the impact point immediately so ability-cast coverage sees the cast now.
-	_emit_ability_cast(PackedVector2Array([global_position, center, Vector2(radius, fuse)]))
+	# Travel BLAST: caster → landing. Compact shatter radius so this never reads as a BURST ring.
+	_emit_ability_cast(PackedVector2Array([origin, center, Vector2(minf(radius * 0.4, 64.0), 0.0)]))
 
 
 ## The keg's pressure-wave: pops every enemy inside away from the centre (HoN Steam Keg's
@@ -1217,18 +1215,39 @@ func _spawn_keg_warning_ring(center: Vector2, radius: float, duration: float) ->
 	tw.tween_callback(ring.queue_free)
 
 
-## Aftermath: a superheated cloud hangs over the detonation circle, pulsing small magic
-## damage ticks onto anyone who hangs around — HoN's signature residual burn instead of
-## the old one-and-done impact.
+## Aftermath: a brief superheated puff (not Energy Field's hex containment pulse).
 func _spawn_steam_cloud(center: Vector2, radius: float, duration: float) -> void:
-	# Visual ground-pulse so the cloud is easy to spot.
-	_spawn_ability_zone_pulse(center, radius, duration)
-	var tick_interval := 0.5
-	var tick_power := 15.0
-	var tick_count := int(floor(duration / tick_interval))
+	_spawn_steam_puff(center, radius, duration)
+	var tick_interval := 0.4
+	var tick_power := 12.0
+	var tick_count := maxi(int(floor(duration / tick_interval)), 1)
 	get_tree().create_timer(tick_interval).timeout.connect(
 		_steam_cloud_tick.bind(center, radius, tick_power, tick_interval, tick_count)
 	)
+
+
+## Soft fire/steam wisps — concentric fading rings, no hex walls or lightning cracks.
+func _spawn_steam_puff(center: Vector2, radius: float, duration: float) -> void:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+	var steam := Color(1.0, 0.55, 0.22, 0.75)
+	for i in 2:
+		var ring := Line2D.new()
+		ring.default_color = steam
+		ring.width = 3.0 if i == 0 else 2.0
+		ring.z_index = 22
+		var ring_radius := radius * (1.0 if i == 0 else 0.55)
+		var points := PackedVector2Array()
+		for k in 24:
+			var a := TAU * float(k) / 24.0
+			points.append(center + Vector2(cos(a), sin(a)) * ring_radius)
+		points.append(points[0])
+		ring.points = points
+		scene_root.add_child(ring)
+		var tw := ring.create_tween()
+		tw.tween_property(ring, "modulate:a", 0.0, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw.tween_callback(ring.queue_free)
 
 
 func _steam_cloud_tick(center: Vector2, radius: float, tick_power: float, tick_interval: float, ticks_left: int) -> void:
@@ -2256,10 +2275,10 @@ func _spawn_ability_zone_pulse(position: Vector2, radius: float, duration: float
 
 
 func _ability_aim_center(max_range: float) -> Vector2:
-	# If a specific ability is armed for two-stage targeting, ALWAYS use aim_world_position
-	# clamped to range — the player explicitly picked a spot. Otherwise auto-pick nearest
-	# enemy in range; fall back to the aim point clamped by range so "I aimed here" works.
-	if not _pending_ability_id.is_empty():
+	# Point/vector kit casts throw to the cursor even after _cast_known_ability clears
+	# _pending_ability_id — otherwise confirm would snap to the nearest enemy.
+	var mode := str(TARGETED_ABILITIES.get(_casting_ability_id, ""))
+	if not _pending_ability_id.is_empty() or mode == "point" or mode == "vector":
 		var clamp_dir := global_position.direction_to(aim_world_position)
 		if clamp_dir.length_squared() <= 0.0:
 			clamp_dir = facing_direction

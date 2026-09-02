@@ -826,8 +826,9 @@ const ABILITIES: Dictionary = {
 		"name": "Steam Keg", "archetype": Archetype.NUKE_BOLT,
 		"description": "Lobs a steam keg at the target location. On impact, deals {power} Magic damage in a {radius}-unit radius and stuns enemies for {stun_duration}s. The keg travels along an arc up to {range} range.",
 		"cooldown_base": 8.0, "cooldown_per_rank": -0.8, "cooldown_min": 4.5,
-		"power_base": 55.0, "power_per_rank": 14.0, "range": 560.0, "radius": 200.0,
+		"power_base": 55.0, "power_per_rank": 14.0, "range": 560.0, "radius": 160.0,
 		"stun_on_hit": {"duration": 0.6},
+		"knockback_on_hit": 380.0, "fuse_delay": 0.55, "keg_range": 560.0,
 	},
 	"tobor_steam_turret": {
 		"name": "Steam Turret", "archetype": Archetype.SUMMON_SPIRIT,
@@ -840,9 +841,9 @@ const ABILITIES: Dictionary = {
 		"name": "Energy Field", "archetype": Archetype.ZONE_CHANNEL,
 		"description": "Projects an expanding energy field for {duration}s, dealing {power} Magic damage per pulse in a {radius} radius and slowing enemies inside by {slow_factor} for {slow_duration}s.",
 		"cooldown_base": 50.0, "cooldown_per_rank": -4.2, "cooldown_min": 30.0,
-		"power_base": 40.0, "power_per_rank": 10.0, "range": 0.0, "radius": 320.0,
-		"duration_base": 5.0, "duration_per_rank": 0.5,
-		"slow_on_hit": {"factor": 0.5, "duration": 2.5},
+		"power_base": 40.0, "power_per_rank": 10.0, "range": 480.0, "radius": 380.0,
+		"duration_base": 8.0, "duration_per_rank": 0.5,
+		"slow_on_hit": {"factor": 0.5, "duration": 8.0},
 	},
 	"tobor_energy_absorption": {
 		"name": "Energy Absorption", "archetype": Archetype.SHIELD_BURST,

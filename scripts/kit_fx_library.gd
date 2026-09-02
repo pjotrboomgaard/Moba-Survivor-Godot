@@ -15,11 +15,11 @@ extends RefCounted
 const KIT_VISUALS: Dictionary = {
 	# ── Tobor (Wrench / Engineer) ────────────────────────────────────────────
 	"tobor_steam_keg": {
-		"primary_color": "ffd36b",
-		"secondary_color": "ff8a3d",
-		"pulse_count": 2,
+		"primary_color": "ff8a3d",
+		"secondary_color": "ffd36b",
+		"pulse_count": 1,
 		"ribbon_count": 2,
-		"style": "steam",
+		"style": "fire",
 	},
 	"tobor_steam_turret": {
 		"primary_color": "ffd36b",
