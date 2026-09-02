@@ -344,14 +344,14 @@ func _refresh_ability_bar() -> void:
 		ability_bar_label.text = ""
 		return
 	var lines: Array[String] = []
-	for slot in bound_player.known_abilities.size():
+	for slot in range(bound_player.known_abilities.size()):
 		var entry := bound_player.known_abilities[slot]
 		var ability_id := str(entry.id)
 		var ability_data := PlayerClass.ability_info(ability_id)
 		var ability_name := str(ability_data.get("name", ability_id))
 		var cooldown_left := bound_player.ability_cooldowns[slot] if slot < bound_player.ability_cooldowns.size() else 0.0
 		var status := "READY" if cooldown_left <= 0.0 else "%.1fs" % cooldown_left
-		var key := ABILITY_SLOT_KEYS[slot] if slot < ABILITY_SLOT_KEYS.size() else str(slot + 1)
+		var key: String = ABILITY_SLOT_KEYS[slot] if slot < ABILITY_SLOT_KEYS.size() else str(slot + 1)
 		lines.append("%s  %s  %s" % [key, ability_name, status])
 	ability_bar_label.text = "\n".join(lines)
 
