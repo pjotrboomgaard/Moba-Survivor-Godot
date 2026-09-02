@@ -611,8 +611,8 @@ func _tick_survival(delta: float) -> void:
 		in_break = float(_host_main.wave_director.intermission_timer) > 0.0
 	# Combat: start the pad sprint while there is still HP to cross the last 300px.
 	# Intermission: top off so the next wave doesn't open already bleeding.
-	var commit_at := 0.60 if wave < 12 else 0.48
-	if in_break and frac < 0.90:
+	var commit_at := 0.36 if wave > 0 and wave % 5 == 0 else (0.60 if wave < 12 else 0.48)
+	if in_break and frac < 0.90 and not (wave > 0 and wave % 5 == 0):
 		_heal_commit = true
 	elif frac <= commit_at:
 		_heal_commit = true
@@ -621,13 +621,14 @@ func _tick_survival(delta: float) -> void:
 	var breaking_off := _elapsed < _landmark_kite_until and frac > 0.40
 	var need_heal := (not breaking_off) and _heal_commit and _landmark_ready(heal)
 	var boss_up := foe is Enemy and (foe as Enemy).is_boss
-	var need_freeze := (not breaking_off) and not need_heal and _landmark_ready(freeze) and (
-		(boss_up and nearest_d > 200.0)
-		or (frac <= 0.50 and enemy_n >= 6)
+	var boss_wave := wave > 0 and wave % 5 == 0
+	var need_freeze := (not breaking_off) and _landmark_ready(freeze) and (
+		boss_up or boss_wave or (frac <= 0.50 and enemy_n >= 6)
 	)
+	if (boss_up or boss_wave) and need_freeze and frac > 0.34:
+		need_heal = false
 	var need_wipe := (not breaking_off) and _landmark_ready(wipe) and not need_heal and not need_freeze and (
-		(boss_up and nearest_d > 220.0)
-		or (frac <= 0.50 and enemy_n >= 8)
+		boss_up or boss_wave or (frac <= 0.50 and enemy_n >= 8)
 	)
 	var need_shop := (not breaking_off) and _want_shop and in_break and frac >= 0.70 and not need_heal and not need_freeze
 	var target_lm: ArenaLandmark = null
@@ -641,7 +642,7 @@ func _tick_survival(delta: float) -> void:
 		target_lm = wipe
 		_shop_trip = false
 	if target_lm != null:
-		var on_pad := _player.global_position.distance_to(target_lm.global_position) <= 48.0 and not _in_lava()
+		var on_pad := _player.global_position.distance_to(target_lm.global_position) <= 90.0 and not _in_lava()
 		if on_pad:
 			_holding_landmark = true
 			_walk_target = null
@@ -697,7 +698,7 @@ func _tick_survival(delta: float) -> void:
 			_holding_landmark = false
 			_walk_target = slam_out
 			_walk_deadline = _elapsed + 1.4
-		elif _walk_target != null:
+		elif _walk_target != null and target_lm == null:
 			_walk_target = _safe_walk(_walk_target as Vector2)
 	# Kit Q/E every beat; R (and pool alt) when the clutch window opens.
 	if _cast_burst_cd <= 0.0:
@@ -869,6 +870,13 @@ func _slam_escape() -> Vector2:
 	return pos + push.normalized() * 210.0
 
 
+func _boss_is_telegraphing() -> bool:
+	for enemy in _alive_enemies():
+		if enemy is Enemy and (enemy as Enemy).is_boss and ((enemy as Enemy).winding_up or (enemy as Enemy).charging):
+			return true
+	return false
+
+
 func _overlay_combat_hold() -> void:
 	if _player == null:
 		return
@@ -887,7 +895,11 @@ func _overlay_combat_hold() -> void:
 		not _holding_landmark
 		and _player.has_active_item()
 		and _player.sprint_cooldown <= 0.0
-		and (clustered or boss_near or nearest < 170.0)
+		and (
+			clustered
+			or (boss_near and _boss_is_telegraphing())
+			or (nearest < 160.0 and not boss_near)
+		)
 	)
 	if _holding_landmark:
 		# Plant so the pad's stand-still check (velocity < 8) can fire. Don't auto-attack
