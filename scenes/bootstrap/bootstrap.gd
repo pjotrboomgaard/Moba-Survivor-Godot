@@ -51,6 +51,8 @@ var loadout_slots: Array[Button] = []
 @onready var ability_hero_blurb: Label = $StatusLayer/AbilityPanel/Margin/Layout/HeroBlurb
 @onready var ability_list: VBoxContainer = $StatusLayer/AbilityPanel/Margin/Layout/AbilityScroll/AbilityList
 
+var _ability_panel_hero_id: String = ""
+
 var game_loaded := false
 var class_buttons: Array[Button] = []
 var world_buttons: Array[Button] = []
@@ -438,8 +440,22 @@ func _rebuild_hero_cards() -> void:
 		button.text = "%s\n%s" % [str(class_data.name).to_upper(), str(class_data.role).to_upper()]
 		button.add_theme_color_override("font_color", Color(str(class_data.accent_color)))
 		button.toggled.connect(_on_class_toggled.bind(hero_id))
-		button.mouse_entered.connect(_on_hero_hovered.bind(hero_id))
-		class_grid.add_child(button)
+		# Wrap card + info button in an HBox so the info icon sits beside the card
+		var card_box := HBoxContainer.new()
+		card_box.custom_minimum_size = Vector2(252, 56)
+		card_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		card_box.add_theme_constant_override("separation", 4)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		card_box.add_child(button)
+		var info_button := Button.new()
+		info_button.custom_minimum_size = Vector2(40, 56)
+		info_button.text = "i"
+		info_button.add_theme_font_size_override("font_size", 13)
+		info_button.add_theme_color_override("font_color", Color(str(class_data.accent_color)))
+		info_button.tooltip_text = "Show ability descriptions for %s" % str(class_data.name)
+		info_button.pressed.connect(_on_hero_info_pressed.bind(hero_id))
+		card_box.add_child(info_button)
+		class_grid.add_child(card_box)
 		class_buttons.append(button)
 		_style_hero_card(button, class_data)
 	while class_grid.get_child_count() < 6:
@@ -502,7 +518,10 @@ func _refresh_game_mode() -> void:
 	if loadout_panel != null:
 		loadout_panel.visible = show_classes
 	if ability_panel != null:
-		ability_panel.visible = show_classes and not _in_network_lobby
+		# Ability panel only shows when user explicitly clicks the info button.
+		if not show_classes or _in_network_lobby:
+			ability_panel.visible = false
+			_ability_panel_hero_id = ""
 	difficulty_label.visible = not GameRuntime.is_classic()
 	difficulty_row.visible = not GameRuntime.is_classic()
 	if cpu_coop_button != null:
@@ -538,7 +557,16 @@ func _on_class_toggled(is_pressed: bool, class_id: String) -> void:
 	_refresh_class_selection()
 
 
-func _on_hero_hovered(hero_id: String) -> void:
+func _on_hero_info_pressed(hero_id: String) -> void:
+	AudioService.play("ui_click")
+	if ability_panel == null:
+		return
+	# Toggle: close if already showing this hero, open otherwise.
+	if ability_panel.visible and _ability_panel_hero_id == hero_id:
+		ability_panel.visible = false
+		_ability_panel_hero_id = ""
+		return
+	_ability_panel_hero_id = hero_id
 	_populate_ability_panel(hero_id)
 
 
@@ -574,7 +602,6 @@ func _refresh_class_selection() -> void:
 	_refresh_loadout_panel()
 	_apply_hero_backdrop()
 	_refresh_header_detail(PlayerProfile.selected_class_id)
-	_populate_ability_panel(PlayerProfile.selected_class_id)
 
 
 ## ---------------------------------------------------------------------------
@@ -939,9 +966,19 @@ func _install_cpu_coop_button() -> void:
 	cpu_coop_button.name = "CpuCoopButton"
 	cpu_coop_button.custom_minimum_size = Vector2(0, 48)
 	cpu_coop_button.text = "CO-OP"
-	var layout := solo_button.get_parent()
-	layout.add_child(cpu_coop_button)
-	layout.move_child(cpu_coop_button, solo_button.get_index() + 1)
+	# Bin it next to Solo inside a horizontal row so it never gets clipped by
+	# the Layout's vertical overflow when the ability panel grows.
+	var row := HBoxContainer.new()
+	row.name = "CoopRow"
+	row.custom_minimum_size = Vector2(0, 48)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 8)
+	var parent := solo_button.get_parent()
+	parent.add_child(row)
+	parent.move_child(row, solo_button.get_index() + 1)
+	solo_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cpu_coop_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(cpu_coop_button)
 	cpu_coop_button.pressed.connect(_on_cpu_coop_pressed)
 
 

@@ -164,7 +164,7 @@ func _physics_process(_delta: float) -> void:
 func _process(delta: float) -> void:
 	_elapsed += delta
 	if _elapsed - _debug_last_tick >= 0.5:
-		print("[std] tick t=%.2f events=%d" % [_elapsed, _events.size()])
+		print("[std] tick t=%.2f events=%d frames=%d" % [_elapsed, _events.size(), Engine.get_process_frames()])
 		_debug_last_tick = _elapsed
 	_tick_walk()
 	while not _events.is_empty() and float(_events[0].get("t", 0.0)) <= _elapsed:

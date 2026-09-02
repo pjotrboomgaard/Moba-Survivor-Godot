@@ -33,16 +33,18 @@ if (Test-Path $ReportOut) { Remove-Item $ReportOut -Force }
 # Run the game in-process so "user://" resolves to the same %APPDATA%\...\Rift Survivors
 # the runner stages to. Player.log next to it captures everything the game prints; we
 # tail it before the report check so the game has fully flushed/closed the report file.
-& $GodotExe --path $ProjectRoot "res://scenes/main/main.tscn"
-Start-Sleep -Milliseconds 500
+# `&` on the Godot launcher returns as soon as the wrapper detaches; use Wait-Process so
+# we actually block until the real windowed child exits (this is when the report exists).
+$godotProc = Start-Process -FilePath $GodotExe -ArgumentList @("--path", $ProjectRoot, "--selftest", "res://scenes/main/main.tscn") -NoNewWindow -PassThru
+$godotProc.WaitForExit()
 $logTail = Get-Content (Join-Path $UserDataDir "logs\godot.log") -Tail 80 -ErrorAction SilentlyContinue
 if ($logTail) { Write-Host "`n=== GAME LOG (tail) ==="; $logTail | ForEach-Object { Write-Host $_ } }
 Write-Host "Godot exited."
 
 # The game prints "report → user://..." before it's closed the FileAccess handle, so
-# polling beats a single Test-Path — give it up to 10s to flush.
+# polling beats a single Test-Path — give it a short window for the FS to settle after exit.
 $reportFound = $false
-for ($i = 0; $i -lt 20; $i++) {
+for ($i = 0; $i -lt 10; $i++) {
     if (Test-Path $ReportOut) { $reportFound = $true; break }
     Start-Sleep -Milliseconds 500
 }

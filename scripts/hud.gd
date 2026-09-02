@@ -343,6 +343,13 @@ func _refresh_ability_bar() -> void:
 	if bound_player == null or bound_player.known_abilities.is_empty():
 		ability_bar_label.text = ""
 		return
+	# Ability-name readout only renders when the debug overlay flag is set
+	# (env var MDS_DEBUG_ABILITIES=1 or --debug-abilities CLI flag). Otherwise
+	# leave it empty so the player never sees spell text over the playfield.
+	var show_text := OS.has_feature("debug_abilities") or "--debug-abilities" in OS.get_cmdline_args() or OS.get_environment("MDS_DEBUG_ABILITIES") == "1"
+	if not show_text:
+		ability_bar_label.text = ""
+		return
 	var lines: Array[String] = []
 	for slot in bound_player.known_abilities.size():
 		var entry := bound_player.known_abilities[slot]

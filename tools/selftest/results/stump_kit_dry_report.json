@@ -1,0 +1,65 @@
+{
+  "effects": [
+    {
+      "cd_left": 53.76,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 0.152134666666667
+    },
+    {
+      "cd_left": 34.772,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.15833333333333
+    }
+  ],
+  "elapsed": 9.00322500000013,
+  "enemies_spawned": 4,
+  "hero_position": "(27.7682, 80.03172)",
+  "player_class": "stump",
+  "results": {
+    "casts": [
+      {
+        "ability_id": "stump_natures_rally",
+        "t": 0.133333333333333
+      },
+      {
+        "ability_id": "stump_camouflage",
+        "t": 2.06666666666666
+      },
+      {
+        "ability_id": "stump_natures_veil",
+        "t": 4.16666666666666
+      },
+      {
+        "ability_id": "stump_overgrowth",
+        "t": 6.15973357575767
+      }
+    ],
+    "errors": []
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2189/t1_1.004_2189.png",
+      "t": 1.003815
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4188/t3_3.008_4188.png",
+      "t": 3.00833333333332
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6182/t5_5.000_6182.png",
+      "t": 5.00002600000004
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_30064/t8_8.004_30064.png",
+      "t": 8.00381533333351
+    }
+  ]
+}

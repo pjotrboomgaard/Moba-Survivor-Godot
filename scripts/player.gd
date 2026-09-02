@@ -1077,11 +1077,15 @@ func _cast_ability_storm_pull(data: Dictionary, values: Dictionary) -> void:
 
 ## Invoker-style zone: brief self-lock then a big ground patch detonates at your feet.
 func _cast_ability_zone_channel(data: Dictionary, values: Dictionary) -> void:
+	print("[zc] ENTER id=%s" % str(data.get("_id", "?")))
 	sprint_cooldown = maxf(sprint_cooldown, 0.45)
 	var center := global_position + facing_direction * 80.0
+	print("[zc] pre-loop")
 	for hurt in _enemies_in_radius(center, float(values.get("radius", 240.0))):
 		_apply_ability_hit(hurt, data, values)
+	print("[zc] post-loop")
 	_emit_ability_cast(PackedVector2Array([center, Vector2(values.get("radius", 240.0), 0.0)]))
+	print("[zc] post-emit")
 
 
 ## Engineer-style summon: anchors a real turret/ward/wisp on the field that shoots
@@ -1995,27 +1999,18 @@ func _cast_ability_willow_strangling_vines(data: Dictionary, values: Dictionary,
 
 ## Stump's Overgrowth: the forest reclaims the arena. Chokes and rebels every hostile inside.
 func _cast_ability_stump_overgrowth(data: Dictionary, values: Dictionary, _rank: int) -> void:
-	print("[player] stump_overgrowth ENTER")
 	var origin := global_position
 	_cast_ability_zone_channel(data, values)
-	print("[player] stump_overgrowth post-channel")
-	var pf := Engine.get_process_frames()
-	print("[player] stump_overgrowth frame=%d" % pf)
+	print("[player] stump_overgrowth post-channel frame=%d" % Engine.get_process_frames())
 	# Overgrowth roots enemies inside while the forest eats them.
-	var captured_origin := origin
-	var captured_power := float(values.get("power", 30.0))
-	var captured_radius := float(values.radius)
 	get_tree().create_timer(0.35).timeout.connect(func() -> void:
-		print("[player] overgrowth timer fire frame=%d" % Engine.get_process_frames())
 		if not is_inside_tree():
 			return
-		for target in _enemies_in_radius(captured_origin, captured_radius * 0.7):
-			_damage_enemy(target, captured_power * 0.5)
+		for target in _enemies_in_radius(origin, float(values.radius) * 0.7):
+			_damage_enemy(target, float(values.get("power", 30.0)) * 0.5)
 			if target.has_method("apply_slow"):
 				target.apply_slow(0.45, 2.5)
-		print("[player] overgrowth timer done")
 	)
-	print("[player] stump_overgrowth EXIT")
 
 
 ## Sage's Charm: Nymphora's siren song. Enemies find themselves unwillingly drawn toward the
