@@ -837,7 +837,7 @@ const ABILITIES: Dictionary = {
 		"name": "Spider Mines", "archetype": Archetype.SUMMON_SPIRIT,
 		"description": "Plants proximity mines that arm after a short delay. They stay put until an enemy walks over them, then detonate for {power} damage — far more against bosses.",
 		"cooldown_base": 11.0, "cooldown_per_rank": -0.9, "cooldown_min": 6.5,
-		"power_base": 42.0, "power_per_rank": 10.0, "range": 480.0,
+		"power_base": 42.0, "power_per_rank": 10.0, "range": 1200.0,
 		"duration_base": 36.0, "duration_per_rank": 2.0, "summon_count": 3,
 		"mine_count": 3, "scatter_radius": 78.0, "trigger_radius": 28.0,
 		"explosion_radius": 70.0, "arm_delay": 1.15, "boss_damage_mult": 4.5,

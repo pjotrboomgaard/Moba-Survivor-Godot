@@ -1321,8 +1321,15 @@ func _cast_ability_wrench_turret(data: Dictionary, values: Dictionary, _rank: in
 func _cast_ability_wrench_mines(data: Dictionary, values: Dictionary, rank: int) -> void:
 	var mine_count := clampi(int(data.get("mine_count", 2)) + rank - 1, 1, WRENCH_MAX_MINES)
 	var scatter_radius := float(data.get("scatter_radius", 70.0))
-	var arm_range := maxf(float(values.range), 420.0)
+	var arm_range := maxf(float(values.range), 1200.0)
 	var center := _ability_aim_center(arm_range)
+	var snap := _nearest_enemy_in_range(arm_range)
+	for candidate in get_tree().get_nodes_in_group("enemies"):
+		if candidate is Enemy and (candidate as Enemy).is_boss and global_position.distance_to((candidate as Node2D).global_position) <= arm_range:
+			snap = candidate
+			break
+	if snap != null:
+		center = snap.global_position
 	for index in mine_count:
 		var point := center
 		if mine_count > 1:

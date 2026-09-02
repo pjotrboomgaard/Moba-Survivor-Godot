@@ -54,6 +54,7 @@ var _shop_trip := false
 var _want_shop := false
 var _heal_commit := false
 var _landmark_kite_until := 0.0
+var _last_lm_effect := ""
 
 
 static func from_request(path: String = "user://selftest_request.json") -> SelfTestDriver:
@@ -411,11 +412,16 @@ func _on_landmarks_changed() -> void:
 				landmark.triggered.connect(_on_survival_landmark)
 
 
-func _on_survival_landmark(_pos: Vector2) -> void:
+func _on_survival_landmark(pos: Vector2) -> void:
 	_landmark_saves += 1
 	_heal_commit = false
 	_holding_landmark = false
 	_landmark_kite_until = _elapsed + 8.0
+	if _host_main != null and _host_main.get("arena") is Arena:
+		for landmark in (_host_main.arena as Arena).landmarks:
+			if landmark is ArenaLandmark and is_instance_valid(landmark) and landmark.global_position.distance_to(pos) < 80.0:
+				_last_lm_effect = str(landmark.effect_id)
+				break
 	_active_effects.append({"kind": "landmark_save", "t": _elapsed, "hp": _hp_frac(), "saves": _landmark_saves})
 
 
@@ -623,14 +629,17 @@ func _tick_survival(delta: float) -> void:
 	var boss_up := foe is Enemy and (foe as Enemy).is_boss
 	var boss_wave := wave > 0 and wave % 5 == 0
 	var need_freeze := (not breaking_off) and _landmark_ready(freeze) and (
-		boss_up or boss_wave or (frac <= 0.50 and enemy_n >= 6)
+		((boss_up or boss_wave) and _last_lm_effect != "freeze_time")
+		or (not boss_up and frac <= 0.50 and enemy_n >= 6)
 	)
+	if in_break and not boss_up:
+		need_freeze = false
 	if (boss_up or boss_wave) and need_freeze and frac > 0.34:
 		need_heal = false
 	var need_wipe := (not breaking_off) and _landmark_ready(wipe) and not need_heal and not need_freeze and (
 		boss_up or boss_wave or (frac <= 0.50 and enemy_n >= 8)
 	)
-	var need_shop := (not breaking_off) and _want_shop and in_break and frac >= 0.70 and not need_heal and not need_freeze
+	var need_shop := (not breaking_off) and _want_shop and in_break and frac >= 0.55 and not need_heal and not need_freeze and not (boss_up and need_wipe)
 	var target_lm: ArenaLandmark = null
 	if need_heal:
 		target_lm = heal
