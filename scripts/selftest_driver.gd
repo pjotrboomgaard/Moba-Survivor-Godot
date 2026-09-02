@@ -521,7 +521,8 @@ func _preferred_affordable_item() -> String:
 func _try_buy_at_shop() -> void:
 	if _player == null:
 		return
-	if _player.global_position.distance_to(_shop_position()) > Arena.SHOP_STAND_INTERACT_RADIUS:
+	var in_break := _host_main != null and _host_main.get("wave_director") != null and float(_host_main.wave_director.intermission_timer) > 0.0
+	if not in_break and _player.global_position.distance_to(_shop_position()) > Arena.SHOP_STAND_INTERACT_RADIUS:
 		return
 	var bought_any := false
 	while true:
@@ -600,6 +601,12 @@ func _tick_survival(delta: float) -> void:
 			"gold": _player.gold,
 		})
 	_maybe_snap_wave(wave)
+	_want_shop = _shop_buys.size() < 8 and not _preferred_affordable_item().is_empty()
+	var in_break := false
+	if _host_main.get("wave_director") != null:
+		in_break = float(_host_main.wave_director.intermission_timer) > 0.0
+	if in_break and _want_shop:
+		_try_buy_at_shop()
 	_pace_intermission()
 	_survival_ai_cd -= delta
 	_cast_burst_cd -= delta
@@ -611,10 +618,6 @@ func _tick_survival(delta: float) -> void:
 		_player.aim_world_position = foe.global_position
 	var enemy_n := _alive_enemies().size()
 	var nearest_d := _player.global_position.distance_to(foe.global_position) if foe != null else 9999.0
-	_want_shop = _shop_buys.size() < 8 and not _preferred_affordable_item().is_empty()
-	var in_break := false
-	if _host_main.get("wave_director") != null:
-		in_break = float(_host_main.wave_director.intermission_timer) > 0.0
 	# Combat: start the pad sprint while there is still HP to cross the last 300px.
 	# Intermission: top off so the next wave doesn't open already bleeding.
 	var commit_at := 0.36 if wave > 0 and wave % 5 == 0 else (0.60 if wave < 12 else 0.48)
