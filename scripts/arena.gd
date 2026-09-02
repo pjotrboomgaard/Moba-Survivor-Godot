@@ -52,25 +52,25 @@ const WORLD_NAMES: Array[String] = ["Iron Foundry", "Ashen Caldera", "Verdant Wi
 const WORLD_LANDMARKS: Array[Array] = [
 	# Iron Foundry — slag pulse chunks elites, steam heals, quench freeze + mark.
 	[
-		["tw_factory_landmark_pylon", "pulse_wipe", 720.0, 0.75, 18.0, "Molten Pylon", 20.0, 0.70],
+		["tw_factory_landmark_pylon", "pulse_wipe", 1600.0, 0.75, 22.0, "Molten Pylon", 20.0, 0.70],
 		["tw_factory_landmark_vat", "heal_all", 480.0, 0.65, 80.0, "Steam Vent", 140.0, 0.76],
 		["tw_factory_landmark_bay", "freeze_time", 560.0, 0.70, 10.0, "Quench Bay", 260.0, 0.72],
 	],
 	# Ashen Caldera — rift wipe, ember heal, long obsidian freeze.
 	[
-		["tw_volcano_landmark_arch", "pulse_wipe", 680.0, 0.75, 16.0, "Rift Portal", 20.0, 0.70],
+		["tw_volcano_landmark_arch", "pulse_wipe", 1600.0, 0.75, 20.0, "Rift Portal", 20.0, 0.70],
 		["tw_volcano_landmark_shrine", "heal_all", 500.0, 0.65, 88.0, "Ember Shrine", 140.0, 0.76],
 		["tw_volcano_landmark_well", "freeze_time", 580.0, 0.70, 12.0, "Obsidian Font", 260.0, 0.72],
 	],
 	# Verdant Wilds — grove wipe hits packs hard, spring heal, root freeze.
 	[
-		["tw_grass_landmark_bell", "pulse_wipe", 700.0, 0.75, 20.0, "Grove Bell", 20.0, 0.70],
+		["tw_grass_landmark_bell", "pulse_wipe", 1600.0, 0.75, 22.0, "Grove Bell", 20.0, 0.70],
 		["tw_grass_landmark_pool", "heal_all", 480.0, 0.65, 76.0, "Wild Spring", 140.0, 0.76],
 		["tw_grass_landmark_stone", "freeze_time", 540.0, 0.70, 10.0, "Root Stone", 260.0, 0.72],
 	],
 	# Storm Court — storm pulse, frost-well heal, crystal freeze.
 	[
-		["tw_docks_landmark_lighthouse", "pulse_wipe", 700.0, 0.75, 16.0, "Storm Lighthouse", 20.0, 0.70],
+		["tw_docks_landmark_lighthouse", "pulse_wipe", 1600.0, 0.75, 20.0, "Storm Lighthouse", 20.0, 0.70],
 		["tw_ice_landmark_hollow", "heal_all", 480.0, 0.65, 76.0, "Frost Well", 140.0, 0.76],
 		["tw_ice_landmark_glade", "freeze_time", 560.0, 0.70, 11.0, "Frozen Crystal", 260.0, 0.72],
 	],

@@ -515,6 +515,10 @@ func _preferred_affordable_item() -> String:
 		if _player.can_afford(ShopCatalog.ACTIVE_ITEM_ID):
 			return ShopCatalog.ACTIVE_ITEM_ID
 		return ""
+	var order: Array[String] = ["sjaal", "benen", "hoverboard", "romp", "armen", "antenne"]
+	for item_id in order:
+		if _player.can_afford(item_id) and _player.stacks_of(item_id) <= 0:
+			return item_id
 	return _cheapest_affordable_item()
 
 
@@ -720,7 +724,7 @@ func _tick_survival(delta: float) -> void:
 			slots.append(0)
 		if _player.known_abilities.size() > 1:
 			slots.append(1)
-		if frac <= 0.62 or boss_up:
+		if frac <= 0.72 or boss_up or enemy_n >= 5:
 			if _player.known_abilities.size() > 2:
 				slots.append(2)
 			if _player.known_abilities.size() > 3:

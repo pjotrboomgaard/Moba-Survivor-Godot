@@ -1211,15 +1211,16 @@ func _landmark_pulse_wipe(landmark: ArenaLandmark) -> void:
 		var enemy := enemies[entity_id] as Enemy
 		if not is_instance_valid(enemy) or enemy.health.is_dead:
 			continue
-		if enemy.global_position.distance_to(origin) > kill_radius:
-			continue
 		if enemy.is_boss:
+			# Pads sit on the rim; freeze holds the boss in the crater. Boss chunk always lands.
 			var chunk := enemy.health.max_health * boss_pct
 			if enemy.has_method("vulnerability_multiplier"):
 				chunk *= enemy.vulnerability_multiplier()
 			enemy.health.take_damage(chunk, self)
-		else:
-			enemy.health.take_damage(enemy.health.max_health * 4.0 + 9999.0, self)
+			continue
+		if enemy.global_position.distance_to(origin) > kill_radius:
+			continue
+		enemy.health.take_damage(enemy.health.max_health * 4.0 + 9999.0, self)
 	_play_landmark_ring(origin, kill_radius, theme["outer"], 72.0, 1.1)
 	_play_landmark_ring(origin, kill_radius * 0.66, theme["mid"], 60.0, 0.9, 0.12)
 	_play_landmark_ring(origin, kill_radius * 0.38, theme["inner"], 48.0, 0.7, 0.24)

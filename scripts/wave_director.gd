@@ -245,7 +245,7 @@ const BASE_HEALTH_MULTIPLIER := 2.0
 const HEALTH_GROWTH_PER_WAVE := 0.10
 ## Offline solo (no CPU allies) ramps from wave 2 so keg/turret/landmarks stay clutch
 ## without making First Contact unfair. Kept modest so wave 5 budget stays under 60.
-const SOLO_HEALTH_PRESSURE := 1.18
+const SOLO_HEALTH_PRESSURE := 1.10
 const SOLO_BUDGET_PRESSURE := 1.0
 const SOLO_DAMAGE_PRESSURE := 1.08
 const SOLO_PRESSURE_FROM_WAVE := 2

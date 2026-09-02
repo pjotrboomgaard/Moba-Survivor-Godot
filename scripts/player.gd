@@ -1358,7 +1358,7 @@ func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2)
 	sum.trigger_radius = float(data.get("trigger_radius", 28.0))
 	sum.explosion_radius = float(data.get("explosion_radius", 70.0))
 	sum.arm_delay = float(data.get("arm_delay", 1.15))
-	sum.boss_damage_mult = float(data.get("boss_damage_mult", 4.5))
+	sum.boss_damage_mult = float(data.get("boss_damage_mult", 6.0))
 	sum._arm_timer = sum.arm_delay
 	sum.expired.connect(_on_summon_expired)
 	get_tree().current_scene.add_child(sum)
