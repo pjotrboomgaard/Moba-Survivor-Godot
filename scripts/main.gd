@@ -607,7 +607,7 @@ func _spawn_cpu_allies() -> void:
 	var cpu_peer := CPU_PEER_BASE
 	if GameRuntime.is_ffa():
 		for _index in 3:
-			_create_player(cpu_peer, Player.SimulationMode.CPU, false, GameRuntime.FFA_CLASS_ID)
+			_create_player(cpu_peer, Player.SimulationMode.CPU, false, GameRuntime.ffa_class_for_peer(cpu_peer))
 			cpu_peer += 1
 		return
 	var allies := PlayerClass.cpu_ally_ids(GameRuntime.active_class_id())
@@ -621,7 +621,7 @@ func _convert_local_to_ffa_bot() -> void:
 	if local_player == null:
 		return
 	local_player.simulation_mode = Player.SimulationMode.CPU
-	local_player.apply_class(GameRuntime.FFA_CLASS_ID)
+	local_player.apply_class(GameRuntime.ffa_class_for_peer(local_player.owner_peer_id))
 	local_player.grant_pvp_spawn_protection()
 	hud.bind_player(local_player)
 	hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
@@ -652,7 +652,7 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 		if RiftClashManager.assigned_teams.is_empty():
 			RiftClashManager.reset_match()
 		RiftClashManager.assign_teams(upcoming, _lobby_claims())
-	var spawn_class := GameRuntime.FFA_CLASS_ID if GameRuntime.is_ffa() else class_id
+	var spawn_class := GameRuntime.ffa_class_for_peer(peer_id) if GameRuntime.is_ffa() else class_id
 	var player := player_scene.instantiate() as Player
 	player.name = "Player_%d" % peer_id
 	player.global_position = _spawn_position_for_peer(peer_id)
@@ -1686,7 +1686,7 @@ func _play_staff_effect(effect_kind: String, points: PackedVector2Array) -> void
 		effect.draw_mode = "simple_circle"
 	effect.points = points
 	add_child(effect)
-	SoundDirector.play("cast_%s" % effect_kind, points[0] if points.size() > 0 else null)
+	SoundDirector.play("attack_%s" % effect_kind, points[0] if points.size() > 0 else null)
 
 
 func _on_ability_cast(ability_id: String, effect_style: int, points: PackedVector2Array) -> void:

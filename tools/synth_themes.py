@@ -189,6 +189,79 @@ def write_wav(path, pcm):
         w.writeframes(pcm)
 
 
+# Short punchy base-attack takes — distinct from the longer ability `cast_*` banks.
+ATTACK_RECIPES = {
+    "tobor": [
+        [dict(wave="square", f0=240, f1=90, dur=0.16, amp=0.55, duty=0.22),
+         dict(wave="crackle", f0=900, f1=280, dur=0.12, amp=0.32)],
+        [dict(wave="square", f0=210, f1=80, dur=0.14, amp=0.52, duty=0.18),
+         dict(wave="whoosh", f0=700, f1=220, dur=0.12, amp=0.28)],
+    ],
+    "arclight": [
+        [dict(wave="zap_noise", f0=2800, f1=600, dur=0.14, amp=0.58),
+         dict(wave="saw", f0=1600, f1=400, dur=0.12, amp=0.32)],
+        [dict(wave="sine", f0=2200, f1=800, dur=0.12, amp=0.50),
+         dict(wave="zap_noise", f0=3400, f1=900, dur=0.10, amp=0.38)],
+    ],
+    "bulwark": [
+        [dict(wave="square", f0=140, f1=50, dur=0.18, amp=0.62, duty=0.38),
+         dict(wave="saw", f0=90, f1=40, dur=0.16, amp=0.36)],
+        [dict(wave="square", f0=120, f1=45, dur=0.16, amp=0.58, duty=0.32),
+         dict(wave="crackle", f0=280, f1=90, dur=0.10, amp=0.24)],
+    ],
+    "warden": [
+        [dict(wave="chime", f0=640, f1=420, dur=0.18, amp=0.48, partials=[1.0, 2.0]),
+         dict(wave="square", f0=160, f1=90, dur=0.12, amp=0.30, duty=0.22)],
+        [dict(wave="chime", f0=720, f1=380, dur=0.16, amp=0.46, partials=[1.0, 1.5]),
+         dict(wave="square", f0=140, f1=80, dur=0.12, amp=0.28, duty=0.2)],
+    ],
+    "cinder": [
+        [dict(wave="whoosh", f0=400, f1=1200, dur=0.16, amp=0.52),
+         dict(wave="crackle", f0=700, f1=240, dur=0.12, amp=0.36)],
+    ],
+    "pyra": [
+        [dict(wave="saw", f0=360, f1=980, dur=0.14, amp=0.50),
+         dict(wave="crackle", f0=900, f1=400, dur=0.10, amp=0.36)],
+    ],
+    "slag": [
+        [dict(wave="saw", f0=90, f1=50, dur=0.18, amp=0.56),
+         dict(wave="crackle", f0=240, f1=100, dur=0.14, amp=0.40)],
+    ],
+    "ember": [
+        [dict(wave="crackle", f0=1400, f1=500, dur=0.14, amp=0.48),
+         dict(wave="chime", f0=900, f1=620, dur=0.12, amp=0.34, partials=[1.0, 2.0])],
+    ],
+    "thorn": [
+        [dict(wave="whoosh", f0=900, f1=240, dur=0.14, amp=0.52),
+         dict(wave="crackle", f0=1200, f1=400, dur=0.10, amp=0.34)],
+    ],
+    "willow": [
+        [dict(wave="chime", f0=1600, f1=900, dur=0.14, amp=0.50, partials=[1.0, 1.5, 2.6])],
+    ],
+    "stump": [
+        [dict(wave="square", f0=220, f1=90, dur=0.14, amp=0.52, duty=0.22),
+         dict(wave="whoosh", f0=260, f1=80, dur=0.12, amp=0.38)],
+    ],
+    "sage": [
+        [dict(wave="chime", f0=1800, f1=1400, dur=0.16, amp=0.48, partials=[1.0, 2.0, 3.0])],
+    ],
+    "volt": [
+        [dict(wave="zap_noise", f0=4600, f1=800, dur=0.12, amp=0.58),
+         dict(wave="saw", f0=2400, f1=500, dur=0.10, amp=0.34)],
+    ],
+    "nebula": [
+        [dict(wave="chime", f0=700, f1=480, dur=0.16, amp=0.46, partials=[1.0, 1.26, 2.0])],
+    ],
+    "astral": [
+        [dict(wave="chime", f0=980, f1=640, dur=0.16, amp=0.48, partials=[1.0, 1.5, 2.5])],
+    ],
+    "rime": [
+        [dict(wave="chime", f0=1900, f1=1100, dur=0.14, amp=0.48, partials=[1.0, 2.0]),
+         dict(wave="crackle", f0=2800, f1=1400, dur=0.10, amp=0.30)],
+    ],
+}
+
+
 def main():
     rng = random.Random(0xC0FFEE)
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -197,6 +270,13 @@ def main():
         for i, take in enumerate(takes):
             suffix = "" if i == 0 else "_%d" % (i + 1)
             path = os.path.join(OUT_DIR, hero + suffix + ".wav")
+            write_wav(path, synthesize(take, rng))
+            written += 1
+            print("wrote %s" % path)
+    for hero, takes in ATTACK_RECIPES.items():
+        for i, take in enumerate(takes):
+            suffix = "" if i == 0 else "_%d" % (i + 1)
+            path = os.path.join(OUT_DIR, "attack_" + hero + suffix + ".wav")
             write_wav(path, synthesize(take, rng))
             written += 1
             print("wrote %s" % path)

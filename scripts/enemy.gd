@@ -227,7 +227,7 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	elif is_boss:
 		collision_mask = 1 | 2 | 4
 	else:
-		collision_mask = 1 | 2 | 4 | 16 | Arena.VOID_LAYER
+		collision_mask = 1 | 2 | 4 | 16
 
 	health.max_health = float(EnemyType.field(type_id, "max_health")) * maxf(1.0, health_multiplier)
 	health.current_health = health.max_health

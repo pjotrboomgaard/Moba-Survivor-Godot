@@ -52,7 +52,7 @@ const ITEMS: Array[Dictionary] = [
 	{
 		"id": "sjaal",
 		"name": "Wings",
-		"description": "+1.5 HP/s. Stay airborne longer with the jetpack. Ranks 2-5: more regen.",
+		"description": "+1.5 HP/s. Hoverboard jumps hang longer. Ranks 2-5: more regen.",
 		"base_price": 52,
 		"price_step": 38,
 		"max_stacks": SHOP_MAX_STACKS,
@@ -106,7 +106,7 @@ const ITEMS: Array[Dictionary] = [
 	{
 		"id": "hoverboard",
 		"name": "Hoverboard",
-		"description": "+45% move speed, and skims right over water/lava/slag gaps instead of being walled off by them — still drains %HP/sec and runs a little slower while actually over the gap, so don't linger. Ranks 2-5: more speed.",
+		"description": "+45% move speed. Press C to hop over rocks and lava (lava still burns if you land in it). Wings lengthen the hang. Ranks 2-5: more speed.",
 		"base_price": 82,
 		"price_step": 55,
 		"max_stacks": SHOP_MAX_STACKS,
@@ -114,7 +114,7 @@ const ITEMS: Array[Dictionary] = [
 		"skate_speed_bonus_step": 0.12,
 		"pickup_radius_bonus": 0.25,
 		"pickup_radius_bonus_step": 0.08,
-		"water_walk": true,
+		"board_jump": true,
 		"heroes": TOBOR_ONLY,
 	},
 ]

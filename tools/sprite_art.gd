@@ -3917,14 +3917,14 @@ const SHAPE_KIT_RIME_R := [  # Absolute Zero — ZONE: expanding nova of absolut
 ## Right-click secondaries. Shared across heroes that use the same kind — not kit Q/E/R.
 ## Distinct silhouettes: ring-blast, snowflake, spark-cross, planted ice ward, brick wall.
 const SHAPE_SECONDARY_REPULSE := [  # Knockback blast — ring with outward ticks
-	"f.oooo.f",
-	".foffof.",
-	"o.ffff.o",
-	"offllffo",
-	"offllffo",
-	"o.ffff.o",
-	".foffof.",
-	"f.oooo.f",
+	"f......f",
+	".f.ff.f.",
+	"..ffff..",
+	".ffllff.",
+	".ffllff.",
+	"..ffff..",
+	".f.ff.f.",
+	"f......f",
 ]
 const SHAPE_SECONDARY_FREEZE := [  # Freeze nova — six-point snowflake
 	"f..ff..f",
@@ -3947,23 +3947,23 @@ const SHAPE_SECONDARY_VOLT_MEND := [  # Shock + heal — spark cross with gold c
 	"...ee...",
 ]
 const SHAPE_SECONDARY_RIME_WARD := [  # Ice ward — hex ring, frost gem, planted stem
-	"..oooo..",
-	".o.ff.o.",
-	"o.faaf.o",
-	"ofalaafo",
-	"o.faaf.o",
-	".o.ff.o.",
-	"..oooo..",
-	"...oo...",
+	"..ffff..",
+	".f.ff.f.",
+	"f.faaf.f",
+	"ffalaaff",
+	"f.faaf.f",
+	".f.ff.f.",
+	"..ffff..",
+	"...ff...",
 ]
 const SHAPE_SECONDARY_WALL := [  # Drawn support wall — stacked bricks
-	"oooooooo",
-	"oflfflfo",
-	"offffffo",
-	"oflfflfo",
-	"offffffo",
-	"oflfflfo",
-	"oooooooo",
+	"........",
+	".flfflf.",
+	".ffffff.",
+	".flfflf.",
+	".ffffff.",
+	".flfflf.",
+	"........",
 	"........",
 ]
 

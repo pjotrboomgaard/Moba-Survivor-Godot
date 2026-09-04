@@ -62,6 +62,7 @@ const FFA_RESPAWN_SECONDS := 30.0
 const FFA_PVP_INVULN_SECONDS := 30.0
 const FFA_PVP_SHIELD_FLICKER_SECONDS := 5.0
 const FFA_CLASS_ID := "tobor"
+const FFA_CPU_PEER_BASE := 101
 const FFA_HEALTH_MULT := 1.45
 ## Primary cannon vs rival heroes: this many connected blasts to drop a full bar.
 const FFA_PVP_SHOTS_TO_KILL := 10.0
@@ -259,9 +260,20 @@ func uses_pixel_art() -> bool:
 func active_class_id() -> String:
 	if is_classic():
 		return "arclight"
-	if is_ffa():
-		return FFA_CLASS_ID
 	return PlayerProfile.selected_class_id
+
+
+## One playable hero per FFA seat. Seat 0 (local) uses the lobby pick; CPUs take the rest.
+func ffa_class_for_peer(peer_id: int) -> String:
+	var roster := PlayerClass.playable_ids()
+	var preferred := PlayerClass.sanitize_id(PlayerProfile.selected_class_id)
+	var start := roster.find(preferred)
+	if start < 0:
+		start = 0
+	var seat := 0
+	if peer_id >= FFA_CPU_PEER_BASE and peer_id < FFA_CPU_PEER_BASE + 8:
+		seat = 1 + (peer_id - FFA_CPU_PEER_BASE)
+	return roster[(start + seat) % roster.size()]
 
 
 func game_mode_name() -> String:

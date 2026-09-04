@@ -32,7 +32,8 @@ var _anim := 0.0
 
 func _ready() -> void:
 	add_to_group("landmarks")
-	z_index = 4
+	z_as_relative = false
+	z_index = 28
 	_ensure_children()
 	_apply_visuals()
 	set_process(true)

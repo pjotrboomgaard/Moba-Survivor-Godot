@@ -35,6 +35,7 @@ static func think(player: Player, delta: float = 0.016) -> Dictionary:
 		"ability": false,
 		"secondary": false,
 		"ability_slots": [true, true, true, true],
+		"jump": false,
 	}
 	if player == null:
 		return result
@@ -73,7 +74,7 @@ static func think(player: Player, delta: float = 0.016) -> Dictionary:
 
 	var desired := _desired_move(player, enemy, ally, distance)
 	result.move = _smooth_move(player, desired, delta)
-	return result
+	return _with_jump(player, result)
 
 
 static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dictionary:
@@ -125,6 +126,7 @@ static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dict
 		return _apply_ffa_dodge(player, result, delta)
 	result.move = _smooth_move(player, _steer_towards(player.global_position, home, 80.0), delta, FFA_MOVE_SCALE)
 	result.aim = home
+	return _apply_ffa_dodge(player, result, delta)
 	return _apply_ffa_dodge(player, result, delta)
 
 
@@ -181,7 +183,7 @@ static func _apply_ffa_dodge(player: Player, result: Dictionary, delta: float) -
 			best_center = marker.global_position
 			best_radius = radius
 	if best_depth < -36.0:
-		return result
+		return _with_jump(player, result)
 	var away := best_center.direction_to(player.global_position)
 	if away.length_squared() <= 0.0:
 		away = player.facing_direction.orthogonal()
@@ -196,6 +198,22 @@ static func _apply_ffa_dodge(player: Player, result: Dictionary, delta: float) -
 		if slots.size() >= 1:
 			slots[0] = true
 		result.ability_slots = slots
+	return _with_jump(player, result)
+
+
+static func _with_jump(player: Player, result: Dictionary) -> Dictionary:
+	result["jump"] = false
+	if player == null or not player.can_board_jump():
+		return result
+	var move: Vector2 = result.get("move", Vector2.ZERO)
+	if move.length_squared() < 0.04:
+		return result
+	var arena := Arena.arena_root(player)
+	if arena == null:
+		return result
+	var ahead := player.global_position + move.normalized() * 56.0
+	if arena.is_blocked(ahead, 18.0) or arena.is_in_void(ahead, 8.0):
+		result.jump = true
 	return result
 
 

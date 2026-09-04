@@ -59,7 +59,7 @@ const CLASSES: Array[Dictionary] = [
 		"aim_assist_radius": 88.0,
 		"chain_count": 0,
 		"chain_range": 0.0,
-		"blast_radius": 20.0,
+		"blast_radius": 30.0,
 		"damage_taken_multiplier": 1.15,
 		"taunt_weight": 1.0,
 		"secondary": "repulse",
@@ -706,13 +706,15 @@ const FROST_SLOW_FACTOR := 0.55
 const FROST_SLOW_DURATION := 2.5
 const CONE_HALF_ANGLE_DEGREES := 36.0
 const ABILITY_CONE_HALF_ANGLE_DEGREES := 62.0
-## Tap blast is about one cinderling across; a full 3s hold scales to ATTACK_CHARGE_SIZE.
-const BLAST_RADIUS := 20.0
+## Tap blast is ~1.5 cinderlings across; a full 3s hold scales to ATTACK_CHARGE_SIZE (max 120).
+const BLAST_RADIUS := 30.0
 const BLAST_AFTERSHOCK_DAMAGE := 0.55
+## PvE tap damage shared by every hero so charge buildup hits the same numbers.
+const SHARED_WEAPON_TAP := 18.0
 ## Hold primary up to this long. Tap is 1x; a full hold is ATTACK_CHARGE_DAMAGE and ATTACK_CHARGE_SIZE.
 const ATTACK_CHARGE_MAX := 3.0
 const ATTACK_CHARGE_DAMAGE := 7.0
-const ATTACK_CHARGE_SIZE := 3.0
+const ATTACK_CHARGE_SIZE := 4.0
 const ATTACK_CHARGE_EXTRA_BOUNCES := 6
 const ATTACK_TAP_DELAY := 0.04
 const ATTACK_FULL_DELAY := 0.22

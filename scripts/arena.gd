@@ -288,15 +288,14 @@ const DECAL_SPRITES: Array[String] = ["grass_tuft", "grass_tuft", "grass_flower"
 ## Everything below is laid out from a fixed seed, so every peer in a session
 ## builds the exact same field without replicating a single byte.
 const LAYOUT_SEED := 20260819
-const OBSTACLE_COUNT := 340
-const ISLAND_OBSTACLE_COUNT := 240
+const OBSTACLE_COUNT := 220
+const ISLAND_OBSTACLE_COUNT := 80
 const DECAL_COUNT := 320
 const WALL_MARGIN := 140.0
 const SPAWN_CLEARANCE := 210.0
 const OBSTACLE_SPACING := 96.0
-## The void-between-pads solid body's own layer, split off from WORLD_LAYER (shared with
-## the outer Walls body) specifically so an item can let a player pass through the void
-## without also letting them clip through the arena boundary — see Player.water_walk.
+## Kept for layer-name compatibility. Lava/water gaps are walkable (5% HP/s burn);
+## only the outer Walls body stays solid.
 const VOID_LAYER := 32
 ## Slow current on the void tile — see _draw_void_rect / _update_water_drift.
 const WATER_DRIFT_INTERVAL := 2.0
@@ -322,23 +321,15 @@ const HAZARD_WORLDS: Array[int] = [0, 1]
 ## Authored circular pools per world (base-size coords). Three basins sit at compass
 ## points so they read as a layout, not a random scatter, and stay off the crater + shop.
 const WORLD_HAZARD_POOLS: Array[Array] = [
-	# Iron Foundry — slag troughs flanking the foundry floor.
-	[
-		{"center": Vector2(-620.0, -280.0), "radius": 118.0},
-		{"center": Vector2(680.0, 140.0), "radius": 108.0},
-		{"center": Vector2(-80.0, 640.0), "radius": 96.0},
-	],
-	# Ashen Caldera — satellite lava bowls around the round crater (the lip is extra).
-	[
-		{"center": Vector2(-780.0, 120.0), "radius": 112.0},
-		{"center": Vector2(720.0, -360.0), "radius": 100.0},
-		{"center": Vector2(220.0, 700.0), "radius": 92.0},
-	],
+	# Extra dunk bowls stay off — the void between pads is the lava/water, and
+	# satellite pools made the carved worlds too tight.
+	[],
+	[],
 ]
 ## Flat DPS is only a fallback — player lava/slag uses percent-of-max-HP so a
 ## high-HP late-run hero cannot stand in a pool for free. Enemies still use the flat tick.
 const HAZARD_PLAYER_DOT := 14.0
-const HAZARD_PLAYER_PERCENT_PER_SECOND := 0.18
+const HAZARD_PLAYER_PERCENT_PER_SECOND := 0.05
 const HAZARD_ENEMY_DOT := 16.0
 const HAZARD_DUNK_BURST := 60.0
 const HAZARD_DUNK_SCRAMBLE := 2.5
@@ -529,6 +520,7 @@ func _spawn_landmarks() -> void:
 		placed.append(landmark.position)
 		landmarks.append(landmark)
 		print("[landmark] spawn %s (%s) at %s" % [spec[5], spec[1], landmark.position])
+	_dress_landmark_props()
 	landmarks_changed.emit()
 
 
@@ -590,8 +582,7 @@ func is_in_hazard(world_position: Vector2, radius: float = 0.0) -> bool:
 
 
 ## True when standing over the void between pads (water/lava/slag gap) rather than on a
-## walkable pad — used by the water-crossing item to know when to tick its damage/slow
-## instead of by collision (that's VOID_LAYER, so a water_walk player can stand here at all).
+## walkable pad. Gaps are walkable for everyone now; this only gates the 5%/s burn.
 func is_in_void(world_position: Vector2, radius: float = 0.0) -> bool:
 	if walk_pads.is_empty():
 		return false
@@ -865,7 +856,7 @@ func _scatter_obstacles() -> void:
 	var limit := playfield_size() * 0.5 - Vector2(WALL_MARGIN, WALL_MARGIN)
 	var area_scale := (playfield_size().x + playfield_size().y) / (BASE_SIZE.x + BASE_SIZE.y)
 	var base_count := ISLAND_OBSTACLE_COUNT if not walk_pads.is_empty() else OBSTACLE_COUNT
-	var wanted := mini(520, int(round(float(base_count) * maxf(1.45, area_scale))))
+	var wanted := mini(220, int(round(float(base_count) * maxf(1.0, area_scale))))
 	# On island biomes, candidates must land inside a walk pad — sampling blindly
 	# across the whole playfield makes that a rare hit, so pick a pad first.
 	var usable_pads: Array[Rect2] = _rock_pads()
@@ -969,6 +960,9 @@ func _pack_pad_rocks() -> void:
 ## Grass (and any leftover open ground) gets grove rings and hedge lines so the
 ## field isn't a flat empty lawn between the four contested shrines.
 func _plant_cover_rocks() -> void:
+	# Island biomes stay open — rocks on narrow pads used to choke every route.
+	if not walk_pads.is_empty():
+		return
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _layout_seed() + 91
 	var factor := playfield_size() / BASE_SIZE
@@ -1001,13 +995,13 @@ func _plant_cover_rocks() -> void:
 ## Corner spawn rooms, mid-edge landmark plazas, and the four lanes that connect them.
 ## Authored in BASE_SIZE space so they scale with the playfield. `wide` is factory halls.
 func _contest_lane_pads(wide: bool) -> Array[Rect2]:
-	var lane := 140.0 if wide else 80.0
+	var lane := 280.0 if wide else 240.0
 	var half_lane := lane * 0.5
 	return [
-		Rect2(-2132, -1448, 520, 400),
-		Rect2(1612, -1448, 520, 400),
-		Rect2(-2132, 1048, 520, 400),
-		Rect2(1612, 1048, 520, 400),
+		Rect2(-2132, -1448, 640, 500),
+		Rect2(1492, -1448, 640, 500),
+		Rect2(-2132, 948, 640, 500),
+		Rect2(1492, 948, 640, 500),
 		Rect2(-380, -380, 760, 760),
 		Rect2(-240, -852, 480, 360),
 		Rect2(828, -180, 480, 360),
@@ -1154,7 +1148,7 @@ func _pads_for_biome(biome: int) -> Array[Rect2]:
 		_:
 			pass
 	pads.append_array(_world_filigree_pads(biome))
-	return _scale_pads(pads)
+	return _scale_pads(_thicken_pads(pads, 200.0))
 
 
 ## Extra rooms, doglegs and stepping stones unique to each carved world so lanes
@@ -1252,6 +1246,23 @@ func _world_filigree_pads(biome: int) -> Array[Rect2]:
 			return []
 
 
+## Narrow island bridges used to be 56–112 wide; bump every pad so routes stay open.
+func _thicken_pads(pads: Array[Rect2], min_span: float) -> Array[Rect2]:
+	var thick: Array[Rect2] = []
+	for pad in pads:
+		var rect := pad
+		if rect.size.x < min_span:
+			var extra := min_span - rect.size.x
+			rect.position.x -= extra * 0.5
+			rect.size.x = min_span
+		if rect.size.y < min_span:
+			var extra := min_span - rect.size.y
+			rect.position.y -= extra * 0.5
+			rect.size.y = min_span
+		thick.append(rect)
+	return thick
+
+
 func _scale_pads(pads: Array[Rect2]) -> Array[Rect2]:
 	var factor := playfield_size() / BASE_SIZE
 	if factor.is_equal_approx(Vector2.ONE):
@@ -1260,6 +1271,21 @@ func _scale_pads(pads: Array[Rect2]) -> Array[Rect2]:
 	for pad in pads:
 		scaled.append(Rect2(pad.position * factor, pad.size * factor))
 	return scaled
+
+
+## Heal pads get a flower ring (drawn in _draw_decals). Damage pads get extra rim rocks.
+func _dress_landmark_props() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _layout_seed() + 44
+	for landmark in landmarks:
+		if not is_instance_valid(landmark):
+			continue
+		var effect := str(landmark.effect_id)
+		if effect == "pulse_wipe" or effect == "battle_frenzy":
+			for index in 7:
+				var angle := TAU * float(index) / 7.0 + 0.21
+				var dist := ArenaLandmark.STAND_RADIUS + rng.randf_range(36.0, 88.0)
+				_try_place_obstacle(landmark.position + Vector2.from_angle(angle) * dist, rng)
 
 
 func _fit_walls() -> void:
@@ -1303,20 +1329,8 @@ func _build_void_bodies() -> void:
 		for piece in void_rects:
 			next_voids.append_array(_subtract_rect(piece, pad))
 		void_rects = next_voids
-	var body := StaticBody2D.new()
-	body.name = "Voids"
-	body.collision_layer = VOID_LAYER
-	body.collision_mask = 6
-	for piece in void_rects:
-		if piece.size.x < 12.0 or piece.size.y < 12.0:
-			continue
-		var shape_node := CollisionShape2D.new()
-		var rect_shape := RectangleShape2D.new()
-		rect_shape.size = piece.size
-		shape_node.shape = rect_shape
-		shape_node.position = piece.get_center()
-		body.add_child(shape_node)
-	add_child(body)
+	# Geometry only — heroes and creeps walk the gaps and take the 5%/s burn.
+	# Outer Walls stay solid so nobody leaves the arena.
 
 
 func _arena_rect() -> Rect2:
@@ -1514,17 +1528,63 @@ func _draw_decals() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _layout_seed() + 1
 	var limit := playfield_size() * 0.5 - Vector2(60.0, 60.0)
-	var count := mini(420, int(round(float(DECAL_COUNT) * (playfield_size().x + playfield_size().y) / (BASE_SIZE.x + BASE_SIZE.y))))
-	for _index in count:
-		var spot := Vector2(rng.randf_range(-limit.x, limit.x), rng.randf_range(-limit.y, limit.y))
-		var sprite_name := DECAL_SPRITES[rng.randi() % DECAL_SPRITES.size()]
-		var texture := SpriteLibrary.texture_for(sprite_name)
-		if texture == null or is_blocked(spot, 30.0):
+	var meadow := walk_pads.is_empty()
+	var patch_sprites: Array[String] = DECAL_SPRITES.duplicate()
+	if not meadow:
+		match GameRuntime.biome_id:
+			1:
+				patch_sprites = ["rock_small", "grass_tuft", "rock_small"]
+			2:
+				patch_sprites = ["grass_bloom", "grass_tuft", "rock_small"]
+			3:
+				patch_sprites = ["rock_small", "rock_large", "grass_tuft"]
+			4:
+				patch_sprites = ["grass_tuft", "rock_small", "grass_flower"]
+	# Organic clusters instead of a uniform sprinkle.
+	var patches := 16 if meadow else 10
+	for _patch in patches:
+		var center := Vector2(rng.randf_range(-limit.x, limit.x), rng.randf_range(-limit.y, limit.y))
+		if not meadow and not _is_walkable(center, 8.0):
 			continue
-		if crater_feature_active() and crater_contains(spot, 8.0):
+		var kind := patch_sprites[rng.randi() % patch_sprites.size()]
+		for _blade in rng.randi_range(7, 16):
+			var spot := center + Vector2(rng.randf_range(-90.0, 90.0), rng.randf_range(-70.0, 70.0))
+			_draw_one_decal(kind, spot)
+	# Landmark dressing: flowers on heal, extra rock scatter on damage pads.
+	for landmark in landmarks:
+		if not is_instance_valid(landmark):
 			continue
-		var size := Vector2(texture.get_width(), texture.get_height()) * PIXEL_ZOOM
-		draw_texture_rect(texture, Rect2(spot - size * 0.5, size), false)
+		var effect := str(landmark.effect_id)
+		var extra_kind := "grass_flower"
+		var extra_count := 4
+		if effect == "heal_all":
+			extra_kind = "grass_bloom" if rng.randf() < 0.45 else "grass_flower"
+			extra_count = 18
+		elif effect == "pulse_wipe" or effect == "battle_frenzy":
+			extra_kind = "rock_small"
+			extra_count = 8
+		elif effect == "freeze_time":
+			extra_kind = "grass_bloom"
+			extra_count = 8
+		else:
+			extra_kind = "grass_tuft"
+			extra_count = 6
+		for _i in extra_count:
+			var ring := rng.randf_range(28.0, ArenaLandmark.STAND_RADIUS + 24.0)
+			var spot := landmark.position + Vector2.from_angle(rng.randf() * TAU) * ring
+			_draw_one_decal(extra_kind, spot)
+
+
+func _draw_one_decal(sprite_name: String, spot: Vector2) -> void:
+	var texture := SpriteLibrary.texture_for(sprite_name)
+	if texture == null:
+		return
+	if crater_feature_active() and crater_contains(spot, 8.0):
+		return
+	if not walk_pads.is_empty() and not _is_walkable(spot, 6.0):
+		return
+	var size := Vector2(texture.get_width(), texture.get_height()) * PIXEL_ZOOM
+	draw_texture_rect(texture, Rect2(spot - size * 0.5, size), false)
 
 
 ## Lava pools paint on top of the ground but under rocks/heroes: round basins tiled with

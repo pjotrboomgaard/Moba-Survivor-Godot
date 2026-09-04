@@ -119,13 +119,13 @@ var knockback_strength := 0.0
 var pickup_radius_bonus := 0.0
 var jetpack_slam := 0.0
 var skate_speed_bonus := 0.0
-## Hoverboard: lets movement pass through the void between pads (see Arena.VOID_LAYER)
-## instead of being physically blocked by it. Standing in the void still ticks the
-## water hazard (damage + a slow) via _update_hazard — see WATER_HAZARD.
+## Hoverboard: C-jump over rocks and lava. Gaps are walkable for everyone (5%/s burn).
 var water_walk := false
+var board_jump := false
 var grab_radius := 0.0
 var _jump_cooldown := 0.0
 var _jump_t := -1.0
+var _energy_fields: Array[Dictionary] = []
 var _grab_timer := 0.0
 var aegis_charges := 0
 var aegis_charges_left := 0
@@ -320,12 +320,10 @@ func _facing_texture() -> Texture2D:
 
 
 func _apply_locomotion() -> void:
-	z_index = 26 if hovering else 20
+	z_index = 32 if _jump_t >= 0.0 else (26 if hovering else 20)
 	_normal_collision_mask = WORLD_LAYER | ENEMY_LAYER
-	if not hovering:
+	if _jump_t < 0.0 and not hovering:
 		_normal_collision_mask |= OBSTACLE_LAYER
-	if not water_walk:
-		_normal_collision_mask |= Arena.VOID_LAYER
 	if sprint_timer <= 0.0:
 		collision_mask = _normal_collision_mask
 
@@ -618,6 +616,7 @@ func _physics_process(delta: float) -> void:
 	var ability_held := command_ability
 	var ability_slots_held := command_ability_slots
 	var secondary_held := command_secondary
+	var jump_pressed := false
 	if simulation_mode == SimulationMode.CPU:
 		var cpu := CpuBrain.think(self, delta)
 		move_input = (cpu.move as Vector2).limit_length(1.0)
@@ -626,12 +625,14 @@ func _physics_process(delta: float) -> void:
 		ability_held = bool(cpu.ability)
 		ability_slots_held = cpu.ability_slots
 		secondary_held = bool(cpu.get("secondary", false))
+		jump_pressed = bool(cpu.get("jump", false))
 	elif simulation_mode == SimulationMode.OFFLINE and not _external_command_latched:
 		move_input = InputService.movement_vector()
 		command_aim = InputService.aim_world_position(self)
 		attack_held = InputService.primary_attack_held()
 		ability_held = InputService.ability_held()
 		secondary_held = InputService.secondary_attack_held()
+		jump_pressed = InputService.jump_pressed()
 		ability_slots_held = [
 			InputService.ability_slot_held(0), InputService.ability_slot_held(1),
 			InputService.ability_slot_held(2), InputService.ability_slot_held(3),
@@ -643,6 +644,8 @@ func _physics_process(delta: float) -> void:
 		facing_direction = aim_direction
 
 	_update_sprint(delta, ability_held)
+	_update_jump(delta, jump_pressed)
+	_update_energy_fields(delta)
 	_update_ability_buff(delta)
 	_update_phase_cloak(delta)
 	health.tick_shield(delta)
@@ -662,6 +665,7 @@ func _physics_process(delta: float) -> void:
 	knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, PLAYER_KNOCKBACK_DECAY * delta)
 	_update_tobor_visual(delta, move_input)
 	_update_hover_visual(delta)
+	_apply_jump_visual()
 
 	_update_buff(delta)
 	_update_items(delta)
@@ -770,7 +774,9 @@ func _weapon_hit(target: Node2D, base_damage: float) -> void:
 		amount *= _charge_damage_mult()
 		rival.health.take_damage(amount, self)
 		return
-	_damage_enemy(target, base_damage * _charge_damage_mult())
+	var tap := PlayerClass.SHARED_WEAPON_TAP
+	var ratio := base_damage / maxf(weapon_damage, 1.0)
+	_damage_enemy(target, tap * ratio * _charge_damage_mult())
 
 
 func _update_hover_visual(delta: float) -> void:
@@ -803,7 +809,6 @@ func _update_sprint(delta: float, ability_held: bool) -> void:
 func _update_items(delta: float) -> void:
 	if health_regen_per_second > 0.0:
 		health.heal(health_regen_per_second * delta)
-	_update_jetpack(delta)
 	_update_grab(delta)
 	if ember_damage_per_second <= 0.0:
 		return
@@ -813,21 +818,72 @@ func _update_items(delta: float) -> void:
 			target_health.take_damage(ember_damage_per_second * delta, self)
 
 
-func _update_jetpack(delta: float) -> void:
-	if jetpack_slam <= 0.0:
-		_jump_t = -1.0
+func can_board_jump() -> bool:
+	return board_jump or stacks_of("hoverboard") > 0
+
+
+func _jump_hang() -> float:
+	var hang := 0.46
+	var wings := stacks_of("sjaal")
+	if wings > 0:
+		hang = 0.78 + 0.10 * float(wings - 1)
+	return hang
+
+
+func _apply_jump_visual() -> void:
+	if sprite == null or _jump_t < 0.0 or class_id == "tobor":
 		return
+	var arc := sin(clampf(_jump_t, 0.0, 1.0) * PI)
+	var hop := -22.0 * arc
+	if stacks_of("sjaal") > 0:
+		hop -= 10.0 * arc
+	sprite.offset = Vector2(sprite.offset.x, hop)
+	_place_health_bar(hop)
+
+
+func _update_jump(delta: float, want_jump: bool) -> void:
 	_jump_cooldown = maxf(0.0, _jump_cooldown - delta)
-	if _jump_t < 0.0:
-		if _jump_cooldown <= 0.0:
-			_jump_t = 0.0
-			_jump_cooldown = 2.0 if stacks_of("sjaal") <= 0 else 2.4
+	if _jump_t >= 0.0:
+		_jump_t += delta / _jump_hang()
+		if _jump_t >= 1.0:
+			_finish_jump()
 		return
-	var duration := 0.55 if stacks_of("sjaal") <= 0 else 0.85
-	_jump_t += delta / duration
-	if _jump_t >= 1.0:
-		_jump_t = -1.0
+	if can_board_jump():
+		if want_jump and _jump_cooldown <= 0.0:
+			_start_jump()
+		return
+	if jetpack_slam <= 0.0:
+		return
+	if _jump_cooldown <= 0.0:
+		_start_jump()
+		_jump_cooldown = 2.0 if stacks_of("sjaal") <= 0 else 2.4
+
+
+func _start_jump() -> void:
+	_jump_t = 0.0
+	_jump_cooldown = 0.28
+	collision_mask = WORLD_LAYER
+	z_index = 32
+
+
+func _finish_jump() -> void:
+	_jump_t = -1.0
+	_apply_locomotion()
+	if jetpack_slam > 0.0:
 		_land_slam()
+	if _arena == null:
+		_arena = Arena.arena_root(self)
+	if _arena != null:
+		for obstacle in _arena.obstacles:
+			if not is_instance_valid(obstacle):
+				continue
+			if global_position.distance_to(obstacle.global_position) < obstacle.body_radius + BODY_RADIUS:
+				global_position = _arena.free_position_near(global_position, BODY_RADIUS + 8.0)
+				break
+
+
+func _update_jetpack(_delta: float) -> void:
+	pass
 
 
 func _land_slam() -> void:
@@ -1666,6 +1722,16 @@ func _cast_ability_wrench_field(data: Dictionary, values: Dictionary, _rank: int
 	# Keep the zone painted for the slow's run so the field reads as a persistent hazard.
 	var zone_duration := maxf(float(values.get("duration", 0.0)), maxf(slow_duration, 1.0))
 	_spawn_ability_zone_pulse(center, radius, clampf(zone_duration, 1.5, 12.0))
+	_energy_fields.append({
+		"center": center,
+		"radius": radius,
+		"life": clampf(zone_duration, 1.5, 12.0),
+		"tick": 0.12,
+		"slow_factor": slow_factor,
+		"data": data,
+		"values": values,
+		"on_rim": {},
+	})
 	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
 
 
@@ -2589,6 +2655,53 @@ func _spawn_ability_zone_pulse(position: Vector2, radius: float, duration: float
 	)
 
 
+## Hex-wall electrocution: enemies crossing or lingering on the rim get shocked again.
+func _update_energy_fields(delta: float) -> void:
+	var index := 0
+	while index < _energy_fields.size():
+		var field: Dictionary = _energy_fields[index]
+		field.life = float(field.life) - delta
+		field.tick = float(field.tick) - delta
+		if float(field.life) <= 0.0:
+			_energy_fields.remove_at(index)
+			continue
+		if float(field.tick) <= 0.0:
+			field.tick = 0.14
+			_tick_energy_field_rim(field)
+		_energy_fields[index] = field
+		index += 1
+
+
+func _tick_energy_field_rim(field: Dictionary) -> void:
+	var center: Vector2 = field.center
+	var radius := float(field.radius)
+	var inner := radius * 0.58
+	var outer := radius * 1.22
+	var seen: Dictionary = field.on_rim
+	var data: Dictionary = field.data
+	var values: Dictionary = field.values
+	var slow_factor := float(field.slow_factor)
+	for enemy in _enemies_in_radius(center, outer):
+		if not is_instance_valid(enemy) or not enemy is Node2D:
+			continue
+		var dist := center.distance_to((enemy as Node2D).global_position)
+		var on_rim := dist >= inner
+		var id := (enemy as Node).get_instance_id()
+		var was_on_rim := bool(seen.get(id, false))
+		if on_rim:
+			if enemy.has_method("apply_shock"):
+				enemy.apply_shock(1.4)
+			if enemy.has_method("apply_slow"):
+				enemy.apply_slow(slow_factor, 1.2)
+			var tick_values := values.duplicate()
+			tick_values.power = float(values.get("power", 12.0)) * (0.55 if was_on_rim else 0.9)
+			_apply_ability_hit(enemy, data, tick_values)
+			seen[id] = true
+		else:
+			seen[id] = false
+	field.on_rim = seen
+
+
 func _ability_aim_center(max_range: float) -> Vector2:
 	# Point/vector kit casts throw to the cursor even after _cast_known_ability clears
 	# _pending_ability_id — otherwise confirm would snap to the nearest enemy.
@@ -2882,12 +2995,18 @@ var _in_water_hazard := false
 ## stays a real risk for the tankiest hero too, not just the squishiest, and a mild slow.
 ## "little bit" per the design ask on the slow, not a hard stop, since the item's whole
 ## point is that the void is now crossable at all — just don't loiter in it.
-const WATER_HAZARD_PERCENT_PER_SECOND := 0.10
-const LAVA_HAZARD_PERCENT_PER_SECOND := 0.18
-const WATER_CROSSING_SPEED_MULT := 0.8
+const WATER_HAZARD_PERCENT_PER_SECOND := 0.05
+const LAVA_HAZARD_PERCENT_PER_SECOND := 0.05
+const WATER_CROSSING_SPEED_MULT := 0.85
 
 func _update_hazard(delta: float) -> void:
 	if simulation_mode == SimulationMode.PROXY:
+		return
+	if _jump_t >= 0.0:
+		if _hazard_inside:
+			_hazard_inside = false
+			_in_water_hazard = false
+			_hazard_visual_off()
 		return
 	if _arena == null:
 		_arena = Arena.arena_root(self)
@@ -2895,13 +3014,10 @@ func _update_hazard(delta: float) -> void:
 			return
 	var hazard := _arena.hazard_at(global_position)
 	if hazard.is_empty() and _arena.is_in_void(global_position):
-		# Void between pads is the biome's hazard (lava/slag or water). Tick anyone
-		# who can stand here (hoverboard / hover) — lava used to be a free walk.
-		if water_walk or hovering:
-			if _arena.is_lava_void():
-				hazard = {"type": "lava", "percent_per_second": LAVA_HAZARD_PERCENT_PER_SECOND}
-			else:
-				hazard = {"type": "water", "percent_per_second": WATER_HAZARD_PERCENT_PER_SECOND}
+		if _arena.is_lava_void():
+			hazard = {"type": "lava", "percent_per_second": LAVA_HAZARD_PERCENT_PER_SECOND}
+		else:
+			hazard = {"type": "water", "percent_per_second": WATER_HAZARD_PERCENT_PER_SECOND}
 	if hazard.is_empty():
 		if _hazard_inside:
 			_hazard_inside = false
@@ -3511,14 +3627,10 @@ func _apply_shop_item(item_id: String) -> void:
 	pickup_radius_bonus += _shop_stat(item, "pickup_radius_bonus", extra)
 	jetpack_slam += _shop_stat(item, "jetpack_slam", extra)
 	skate_speed_bonus += _shop_stat(item, "skate_speed_bonus", extra)
-	if bool(item.get("water_walk", false)) and not water_walk:
+	if bool(item.get("board_jump", false)):
+		board_jump = true
+	if bool(item.get("water_walk", false)):
 		water_walk = true
-		# _normal_collision_mask was fixed at spawn (_apply_locomotion runs once, from
-		# apply_class) — clear the void bit now so the change takes effect immediately
-		# instead of waiting for a respawn.
-		_normal_collision_mask &= ~Arena.VOID_LAYER
-		if sprint_timer <= 0.0:
-			collision_mask = _normal_collision_mask
 	var grab := float(item.get("grab_radius", 0.0))
 	if grab > 0.0:
 		if grab_radius <= 0.0:
