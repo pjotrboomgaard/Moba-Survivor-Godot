@@ -12,7 +12,7 @@ const TEAM_COLORS := [
 	Color("c47bff"),
 	Color("8ee04a"),
 ]
-const SPAWN_INSET := 0.78
+const SPAWN_INSET := 0.74
 const LANE_FOCUS := 0.38
 
 var assigned_teams: Dictionary = {}

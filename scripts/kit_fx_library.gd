@@ -11,6 +11,8 @@ extends RefCounted
 ##   pulse_count     — int, number of expanding pulse rings / stacking bursts
 ##   ribbon_count    — int, number of trailing ribbons / chain strands
 ##   style           — "fire" | "nature" | "storm" | "arcane" | "steam" | "ice"
+##   draw_mode       — optional LightningEffect shape override
+##   lifetime        — optional seconds; overrides the generic flash duration
 
 const KIT_VISUALS: Dictionary = {
 	# ── Tobor (Wrench / Engineer) ────────────────────────────────────────────
@@ -20,6 +22,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 1,
 		"ribbon_count": 2,
 		"style": "fire",
+		"draw_mode": "keg_shatter",
+		"lifetime": 0.28,
 	},
 	"tobor_spider_mines": {
 		"primary_color": "ff8a3d",
@@ -27,6 +31,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 1,
 		"ribbon_count": 1,
 		"style": "steam",
+		"draw_mode": "steam_ring",
+		"lifetime": 0.4,
 	},
 	"tobor_steam_turret": {
 		"primary_color": "ffd36b",
@@ -34,13 +40,17 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 1,
 		"style": "steam",
+		"draw_mode": "gear_ring",
+		"lifetime": 0.45,
 	},
 	"tobor_energy_field": {
 		"primary_color": "7af0ff",
 		"secondary_color": "ffd36b",
 		"pulse_count": 4,
 		"ribbon_count": 6,
-		"style": "arcane",
+		"style": "steam",
+		"draw_mode": "hex_field",
+		"lifetime": 0.9,
 	},
 	# ── Arclight (Joule / Thunderbringer) ────────────────────────────────────
 	"arclight_blast_of_lightning": {
@@ -49,6 +59,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 1,
 		"ribbon_count": 3,
 		"style": "storm",
+		"draw_mode": "storm_bolts",
+		"lifetime": 0.22,
 	},
 	"arclight_chain_lightning": {
 		"primary_color": "b0e8ff",
@@ -56,6 +68,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 5,
 		"style": "storm",
+		"draw_mode": "storm_bolts",
+		"lifetime": 0.28,
 	},
 	"arclight_thundergods_wrath": {
 		"primary_color": "fff8a8",
@@ -63,6 +77,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 4,
 		"ribbon_count": 6,
 		"style": "storm",
+		"draw_mode": "storm_pillar",
+		"lifetime": 0.7,
 	},
 	# ── Bulwark (Tremor / Behemoth) ──────────────────────────────────────────
 	"bulwark_fissure": {
@@ -71,6 +87,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 1,
 		"ribbon_count": 2,
 		"style": "nature",
+		"draw_mode": "fissure_crack",
+		"lifetime": 0.32,
 	},
 	"bulwark_heavyweight": {
 		"primary_color": "c49a55",
@@ -78,6 +96,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 2,
 		"style": "nature",
+		"draw_mode": "fist_shock",
+		"lifetime": 0.4,
 	},
 	"bulwark_echo_slam": {
 		"primary_color": "d4b06b",
@@ -85,6 +105,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 4,
 		"ribbon_count": 3,
 		"style": "nature",
+		"draw_mode": "quake_rings",
+		"lifetime": 0.75,
 	},
 	# ── Warden (Totem / Pollywog) ────────────────────────────────────────────
 	"warden_tongue_tied": {
@@ -93,6 +115,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 1,
 		"ribbon_count": 2,
 		"style": "nature",
+		"draw_mode": "vine_lash",
+		"lifetime": 0.28,
 	},
 	"warden_thorn_volley": {
 		"primary_color": "8cff4a",
@@ -100,6 +124,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 4,
 		"style": "nature",
+		"draw_mode": "vine_lash",
+		"lifetime": 0.32,
 	},
 	"warden_voodoo_wards": {
 		"primary_color": "d4b06b",
@@ -107,6 +133,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 3,
 		"style": "nature",
+		"draw_mode": "ward_spit",
+		"lifetime": 0.45,
 	},
 	"warden_life_drain": {
 		"primary_color": "ff5a5a",
@@ -114,6 +142,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 4,
 		"style": "fire",
+		"draw_mode": "orbit_rings",
+		"lifetime": 0.55,
 	},
 	# ── Frostbinder ──────────────────────────────────────────────────────────
 	"frostbinder_ice_spike": {
@@ -122,6 +152,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 1,
 		"ribbon_count": 3,
 		"style": "ice",
+		"draw_mode": "ice_spike",
+		"lifetime": 0.26,
 	},
 	"frostbinder_frost_nova": {
 		"primary_color": "a8dcff",
@@ -129,6 +161,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 2,
 		"style": "ice",
+		"draw_mode": "shard_burst",
+		"lifetime": 0.5,
 	},
 	"frostbinder_glacial_cone": {
 		"primary_color": "7ba9ff",
@@ -136,6 +170,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 4,
 		"ribbon_count": 5,
 		"style": "ice",
+		"draw_mode": "ice_cone",
+		"lifetime": 0.7,
 	},
 	# ── Cinder (Blaze / Pyro) ────────────────────────────────────────────────
 	"cinder_dragon_fire": {
@@ -144,6 +180,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 4,
 		"style": "fire",
+		"draw_mode": "dragon_breath",
+		"lifetime": 0.4,
 	},
 	"cinder_fiery_assault": {
 		"primary_color": "ffb347",
@@ -151,6 +189,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 3,
 		"style": "fire",
+		"draw_mode": "fire_petals",
+		"lifetime": 0.48,
 	},
 	"cinder_pillar_of_flame": {
 		"primary_color": "ff8a3d",
@@ -158,6 +198,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 4,
 		"ribbon_count": 6,
 		"style": "fire",
+		"draw_mode": "flame_pillar",
+		"lifetime": 0.8,
 	},
 	# ── Pyra (Barrage / Bombardier) ──────────────────────────────────────────
 	"pyra_sticky_bomb": {
@@ -166,6 +208,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 2,
 		"style": "fire",
+		"draw_mode": "bomb_pop",
+		"lifetime": 0.3,
 	},
 	"pyra_boom_dust": {
 		"primary_color": "ff8a5c",
@@ -173,6 +217,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 3,
 		"style": "fire",
+		"draw_mode": "dust_burst",
+		"lifetime": 0.5,
 	},
 	"pyra_air_strike": {
 		"primary_color": "ff6b2a",
@@ -180,6 +226,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 4,
 		"ribbon_count": 5,
 		"style": "fire",
+		"draw_mode": "air_strike",
+		"lifetime": 0.65,
 	},
 	# ── Slag (Vulcan / Magmus) ───────────────────────────────────────────────
 	"slag_steam_bath": {
@@ -187,7 +235,9 @@ const KIT_VISUALS: Dictionary = {
 		"secondary_color": "ffc46b",
 		"pulse_count": 3,
 		"ribbon_count": 2,
-		"style": "fire",
+		"style": "steam",
+		"draw_mode": "steam_ring",
+		"lifetime": 0.5,
 	},
 	"slag_boulder_hurl": {
 		"primary_color": "ff6b2a",
@@ -195,6 +245,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 2,
 		"style": "fire",
+		"draw_mode": "boulder_crash",
+		"lifetime": 0.36,
 	},
 	"slag_volcanic_touch": {
 		"primary_color": "ff6b2a",
@@ -202,6 +254,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 1,
 		"ribbon_count": 2,
 		"style": "fire",
+		"draw_mode": "quake_rings",
+		"lifetime": 0.4,
 	},
 	"slag_eruption": {
 		"primary_color": "ff6b2a",
@@ -209,6 +263,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 5,
 		"ribbon_count": 7,
 		"style": "fire",
+		"draw_mode": "eruption_plume",
+		"lifetime": 0.85,
 	},
 	# ── Ember (Witchfire / Demented) ─────────────────────────────────────────
 	"ember_entangle": {
@@ -217,6 +273,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 4,
 		"style": "nature",
+		"draw_mode": "vine_lash",
+		"lifetime": 0.45,
 	},
 	"ember_healing_wave": {
 		"primary_color": "ffd36b",
@@ -224,13 +282,17 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 4,
 		"ribbon_count": 3,
 		"style": "nature",
+		"draw_mode": "vine_ring",
+		"lifetime": 0.5,
 	},
 	"ember_firebomb": {
 		"primary_color": "ffd36b",
 		"secondary_color": "8cff4a",
 		"pulse_count": 4,
 		"ribbon_count": 3,
-		"style": "nature",
+		"style": "fire",
+		"draw_mode": "bomb_pop",
+		"lifetime": 0.4,
 	},
 	"ember_unbreakable": {
 		"primary_color": "ffc46b",
@@ -238,14 +300,18 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 2,
 		"style": "fire",
+		"draw_mode": "ward_shell",
+		"lifetime": 0.7,
 	},
 	# ── Thorn (Venom / Slither) ──────────────────────────────────────────────
 	"thorn_poison_spray": {
-		"primary_color": "a8e05c",
-		"secondary_color": "d9ff8a",
+		"primary_color": "7dff3a",
+		"secondary_color": "c8ff6a",
 		"pulse_count": 2,
 		"ribbon_count": 5,
 		"style": "nature",
+		"draw_mode": "cone_mist",
+		"lifetime": 1.28,
 	},
 	"thorn_toxin_ward": {
 		"primary_color": "a8e05c",
@@ -253,6 +319,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 2,
 		"style": "nature",
+		"draw_mode": "ward_spit",
+		"lifetime": 0.5,
 	},
 	"thorn_toxicity": {
 		"primary_color": "a8e05c",
@@ -260,6 +328,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 2,
 		"style": "nature",
+		"draw_mode": "vine_lash",
+		"lifetime": 0.45,
 	},
 	"thorn_poison_burst": {
 		"primary_color": "8ce04a",
@@ -267,6 +337,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 4,
 		"ribbon_count": 5,
 		"style": "nature",
+		"draw_mode": "toxic_bloom",
+		"lifetime": 0.75,
 	},
 	# ── Willow (Flick / Forsaken Archer) ─────────────────────────────────────
 	"willow_swift_strike": {
@@ -275,6 +347,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 1,
 		"ribbon_count": 3,
 		"style": "nature",
+		"draw_mode": "dash_slash",
+		"lifetime": 0.28,
 	},
 	"willow_forsaken_shot": {
 		"primary_color": "d4ff8f",
@@ -282,6 +356,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 1,
 		"ribbon_count": 4,
 		"style": "nature",
+		"draw_mode": "vine_lash",
+		"lifetime": 0.24,
 	},
 	"willow_wall_of_roots": {
 		"primary_color": "b8ff6b",
@@ -289,6 +365,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 7,
 		"style": "nature",
+		"draw_mode": "root_wall",
+		"lifetime": 0.8,
 	},
 	# ── Stump (Keeper) ───────────────────────────────────────────────────────
 	"stump_natures_rally": {
@@ -297,6 +375,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 2,
 		"style": "nature",
+		"draw_mode": "rally_totem",
+		"lifetime": 0.5,
 	},
 	"stump_camouflage": {
 		"primary_color": "c49a55",
@@ -304,6 +384,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 3,
 		"style": "nature",
+		"draw_mode": "vine_ring",
+		"lifetime": 0.45,
 	},
 	"stump_root_charge": {
 		"primary_color": "c49a55",
@@ -311,6 +393,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 3,
 		"style": "nature",
+		"draw_mode": "vine_lash",
+		"lifetime": 0.35,
 	},
 	"stump_overgrowth": {
 		"primary_color": "8ee04a",
@@ -318,6 +402,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 4,
 		"ribbon_count": 7,
 		"style": "nature",
+		"draw_mode": "overgrowth",
+		"lifetime": 0.85,
 	},
 	# ── Sage (Nymphel / Nymphora) ────────────────────────────────────────────
 	"sage_grace": {
@@ -326,6 +412,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 4,
 		"style": "nature",
+		"draw_mode": "petal_fan",
+		"lifetime": 0.5,
 	},
 	"sage_petal_dance": {
 		"primary_color": "ffe3ec",
@@ -333,6 +421,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 4,
 		"style": "nature",
+		"draw_mode": "petal_fan",
+		"lifetime": 0.7,
 	},
 	"sage_volatile_pod": {
 		"primary_color": "ffe3ec",
@@ -340,6 +430,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 3,
 		"style": "nature",
+		"draw_mode": "toxic_bloom",
+		"lifetime": 0.4,
 	},
 	"sage_charm": {
 		"primary_color": "ffd9e0",
@@ -347,6 +439,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 6,
 		"style": "nature",
+		"draw_mode": "petal_fan",
+		"lifetime": 0.75,
 	},
 	# ── Volt (Gale / Zephyr) ─────────────────────────────────────────────────
 	"volt_gust": {
@@ -355,6 +449,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 4,
 		"style": "storm",
+		"draw_mode": "wind_cone",
+		"lifetime": 0.55,
 	},
 	"volt_wind_shield": {
 		"primary_color": "b0e8ff",
@@ -362,6 +458,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 3,
 		"style": "storm",
+		"draw_mode": "ward_shell",
+		"lifetime": 0.5,
 	},
 	"volt_plasma_bolt": {
 		"primary_color": "b0e8ff",
@@ -369,6 +467,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 3,
 		"style": "storm",
+		"draw_mode": "storm_bolts",
+		"lifetime": 0.26,
 	},
 	"volt_typhoon": {
 		"primary_color": "7af0ff",
@@ -376,6 +476,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 5,
 		"ribbon_count": 6,
 		"style": "storm",
+		"draw_mode": "typhoon_spiral",
+		"lifetime": 0.85,
 	},
 	# ── Nebula (Aeon / Chronos) ──────────────────────────────────────────────
 	"nebula_time_shift": {
@@ -384,6 +486,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 3,
 		"style": "arcane",
+		"draw_mode": "orbit_rings",
+		"lifetime": 0.4,
 	},
 	"nebula_arcane_bolt": {
 		"primary_color": "cbb0ff",
@@ -391,6 +495,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 3,
 		"style": "arcane",
+		"draw_mode": "orbit_rings",
+		"lifetime": 0.26,
 	},
 	"nebula_curse_of_ages": {
 		"primary_color": "cbb0ff",
@@ -398,6 +504,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 5,
 		"style": "arcane",
+		"draw_mode": "curse_clock",
+		"lifetime": 0.55,
 	},
 	"nebula_chronofield": {
 		"primary_color": "b48cff",
@@ -405,6 +513,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 5,
 		"ribbon_count": 6,
 		"style": "arcane",
+		"draw_mode": "clock_field",
+		"lifetime": 0.9,
 	},
 	# ── Astral (Lumina / Empath) ─────────────────────────────────────────────
 	"astral_essence_link": {
@@ -413,6 +523,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 4,
 		"style": "arcane",
+		"draw_mode": "orbit_rings",
+		"lifetime": 0.4,
 	},
 	"astral_ghastly_touch": {
 		"primary_color": "fff4c4",
@@ -420,6 +532,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 4,
 		"style": "arcane",
+		"draw_mode": "orbit_rings",
+		"lifetime": 0.3,
 	},
 	"astral_ward_of_light": {
 		"primary_color": "fff4c4",
@@ -427,6 +541,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 4,
 		"ribbon_count": 5,
 		"style": "arcane",
+		"draw_mode": "ward_shell",
+		"lifetime": 0.55,
 	},
 	"astral_moonfall": {
 		"primary_color": "fff4c4",
@@ -434,6 +550,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 4,
 		"ribbon_count": 5,
 		"style": "arcane",
+		"draw_mode": "moonfall",
+		"lifetime": 0.7,
 	},
 	"astral_as_one": {
 		"primary_color": "fff4c4",
@@ -441,6 +559,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 5,
 		"ribbon_count": 6,
 		"style": "arcane",
+		"draw_mode": "orbit_rings",
+		"lifetime": 0.85,
 	},
 	# ── Rime (Glacier / Glacius) ─────────────────────────────────────────────
 	"rime_ice_imprisonment": {
@@ -449,6 +569,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 3,
 		"ribbon_count": 4,
 		"style": "ice",
+		"draw_mode": "ice_cage",
+		"lifetime": 0.55,
 	},
 	"rime_chilling_touch": {
 		"primary_color": "cfe8ff",
@@ -456,6 +578,8 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 1,
 		"ribbon_count": 2,
 		"style": "ice",
+		"draw_mode": "chill_burst",
+		"lifetime": 0.4,
 	},
 	"rime_freezing_field": {
 		"primary_color": "dbe9ff",
@@ -463,6 +587,90 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 5,
 		"ribbon_count": 7,
 		"style": "ice",
+		"draw_mode": "freeze_field",
+		"lifetime": 0.95,
+	},
+	# Pool aliases still referenced by VECTOR_ONLY / ability pools.
+	"willow_volley": {
+		"primary_color": "d4ff8f",
+		"secondary_color": "b8ff6b",
+		"pulse_count": 2,
+		"ribbon_count": 5,
+		"style": "nature",
+		"draw_mode": "petal_fan",
+		"lifetime": 0.45,
+	},
+	"pyra_bombardment": {
+		"primary_color": "ff6b2a",
+		"secondary_color": "ffe14a",
+		"pulse_count": 3,
+		"ribbon_count": 4,
+		"style": "fire",
+		"draw_mode": "air_strike",
+		"lifetime": 0.55,
+	},
+	"cinder_whirling_flame": {
+		"primary_color": "ffb347",
+		"secondary_color": "ff8a3d",
+		"pulse_count": 2,
+		"ribbon_count": 3,
+		"style": "fire",
+		"draw_mode": "fire_petals",
+		"lifetime": 0.4,
+	},
+	"slag_lava_surge": {
+		"primary_color": "ff6b2a",
+		"secondary_color": "ffc46b",
+		"pulse_count": 2,
+		"ribbon_count": 3,
+		"style": "fire",
+		"draw_mode": "fire_petals",
+		"lifetime": 0.4,
+	},
+	"ember_storm_cloud": {
+		"primary_color": "ffb46b",
+		"secondary_color": "8cff4a",
+		"pulse_count": 3,
+		"ribbon_count": 3,
+		"style": "fire",
+		"draw_mode": "dust_burst",
+		"lifetime": 0.5,
+	},
+	"stump_natures_veil": {
+		"primary_color": "c49a55",
+		"secondary_color": "8cff4a",
+		"pulse_count": 3,
+		"ribbon_count": 3,
+		"style": "nature",
+		"draw_mode": "vine_ring",
+		"lifetime": 0.5,
+	},
+	"volt_wind_control": {
+		"primary_color": "b0e8ff",
+		"secondary_color": "7af0ff",
+		"pulse_count": 2,
+		"ribbon_count": 4,
+		"style": "storm",
+		"draw_mode": "typhoon_spiral",
+		"lifetime": 0.4,
+	},
+	"nebula_rewind": {
+		"primary_color": "cbb0ff",
+		"secondary_color": "b48cff",
+		"pulse_count": 3,
+		"ribbon_count": 4,
+		"style": "arcane",
+		"draw_mode": "clock_field",
+		"lifetime": 0.5,
+	},
+	"rime_glacier_blast": {
+		"primary_color": "cfe8ff",
+		"secondary_color": "a8dcff",
+		"pulse_count": 3,
+		"ribbon_count": 5,
+		"style": "ice",
+		"draw_mode": "shard_burst",
+		"lifetime": 0.55,
 	},
 }
 
@@ -488,4 +696,7 @@ static func apply_to_lightning(fx: LightningEffect, kit_id: String) -> void:
 	fx.pulse_count = int(data.get("pulse_count", 1))
 	fx.ribbon_count = int(data.get("ribbon_count", 1))
 	fx.style_tag = str(data.get("style", "storm"))
+	fx.draw_mode = str(data.get("draw_mode", ""))
+	if data.has("lifetime"):
+		fx.lifetime = float(data["lifetime"])
 	fx.queue_redraw()

@@ -63,7 +63,7 @@ const WORLD_LANDMARKS: Array[Array] = [
 		["tw_factory_landmark_pylon", "pulse_wipe", 1600.0, 0.75, 18.0, "Molten Pylon", 20.0, 0.35],
 		["tw_factory_landmark_vat", "heal_all", 480.0, 0.65, 80.0, "Steam Vent", 140.0, 0.38],
 		["tw_factory_landmark_bay", "freeze_time", 560.0, 0.70, 10.0, "Quench Bay", 260.0, 0.36],
-		["tw_factory_landmark_turbine", "speed_surge", 600.0, 0.70, 13.0, "Turbo Manifold", -12.0, 0.78],
+		["tw_factory_landmark_bay", "speed_surge", 600.0, 0.70, 13.0, "Turbo Manifold", -12.0, 0.78],
 	],
 	# Ashen Caldera — rift wipe, ember heal, long obsidian freeze. Ember fury totem out on
 	# the far lava islands doubles attack speed and damage.
@@ -71,7 +71,7 @@ const WORLD_LANDMARKS: Array[Array] = [
 		["tw_volcano_landmark_arch", "pulse_wipe", 1600.0, 0.75, 16.0, "Rift Portal", 20.0, 0.35],
 		["tw_volcano_landmark_shrine", "heal_all", 500.0, 0.65, 88.0, "Ember Shrine", 140.0, 0.38],
 		["tw_volcano_landmark_well", "freeze_time", 580.0, 0.70, 12.0, "Obsidian Font", 260.0, 0.36],
-		["tw_volcano_landmark_totem", "battle_frenzy", 620.0, 0.75, 30.0, "Ember Fury Totem", 203.0, 0.82],
+		["tw_volcano_landmark_well", "battle_frenzy", 620.0, 0.75, 30.0, "Ember Fury Totem", 203.0, 0.82],
 	],
 	# Verdant Wilds — grove wipe hits packs hard, spring heal, root freeze. Whispering
 	# thicket out on the far pier cloaks the party and sends nearby packs wandering.
@@ -79,7 +79,7 @@ const WORLD_LANDMARKS: Array[Array] = [
 		["tw_grass_landmark_bell", "pulse_wipe", 1600.0, 0.75, 18.0, "Grove Bell", 20.0, 0.35],
 		["tw_grass_landmark_pool", "heal_all", 480.0, 0.65, 76.0, "Wild Spring", 140.0, 0.38],
 		["tw_grass_landmark_stone", "freeze_time", 540.0, 0.70, 10.0, "Root Stone", 260.0, 0.36],
-		["tw_grass_landmark_thicket", "phase_cloak", 560.0, 0.65, 11.0, "Whispering Thicket", -7.5, 0.82],
+		["tw_grass_landmark_stone", "phase_cloak", 560.0, 0.65, 11.0, "Whispering Thicket", -7.5, 0.82],
 	],
 	# Storm Court — storm pulse, frost-well heal, crystal freeze. Glacial sprint rune out
 	# on the far floes doubles speed for a burst.
@@ -87,7 +87,42 @@ const WORLD_LANDMARKS: Array[Array] = [
 		["tw_docks_landmark_lighthouse", "pulse_wipe", 1600.0, 0.75, 16.0, "Storm Lighthouse", 20.0, 0.35],
 		["tw_ice_landmark_hollow", "heal_all", 480.0, 0.65, 76.0, "Frost Well", 140.0, 0.38],
 		["tw_ice_landmark_glade", "freeze_time", 560.0, 0.70, 11.0, "Frozen Crystal", 260.0, 0.36],
-		["tw_ice_landmark_rune", "speed_surge", 600.0, 0.70, 14.0, "Glacial Sprint Rune", 206.0, 0.92],
+		["tw_ice_landmark_glade", "speed_surge", 600.0, 0.70, 14.0, "Glacial Sprint Rune", 206.0, 0.92],
+	],
+]
+
+## Per-biome kits so every playable world (including docks) gets four contested
+## N/E/S/W shrines with sprites that actually exist.
+const BIOME_LANDMARKS: Array[Array] = [
+	[
+		["tw_grass_landmark_bell", "pulse_wipe", 1600.0, 0.75, 18.0, "Grove Bell"],
+		["tw_grass_landmark_pool", "heal_all", 480.0, 0.65, 76.0, "Wild Spring"],
+		["tw_grass_landmark_stone", "freeze_time", 540.0, 0.70, 10.0, "Root Stone"],
+		["tw_grass_landmark_stone", "phase_cloak", 560.0, 0.65, 11.0, "Whispering Thicket"],
+	],
+	[
+		["tw_volcano_landmark_arch", "pulse_wipe", 1600.0, 0.75, 16.0, "Rift Portal"],
+		["tw_volcano_landmark_shrine", "heal_all", 500.0, 0.65, 88.0, "Ember Shrine"],
+		["tw_volcano_landmark_well", "freeze_time", 580.0, 0.70, 12.0, "Obsidian Font"],
+		["tw_volcano_landmark_well", "battle_frenzy", 620.0, 0.75, 30.0, "Ember Fury"],
+	],
+	[
+		["tw_ice_landmark_hollow", "heal_all", 480.0, 0.65, 76.0, "Frost Well"],
+		["tw_ice_landmark_glade", "freeze_time", 560.0, 0.70, 11.0, "Frozen Crystal"],
+		["tw_ice_landmark_glade", "speed_surge", 600.0, 0.70, 14.0, "Sprint Rune"],
+		["tw_docks_landmark_lighthouse", "pulse_wipe", 1600.0, 0.75, 16.0, "Storm Spire"],
+	],
+	[
+		["tw_factory_landmark_pylon", "pulse_wipe", 1600.0, 0.75, 18.0, "Molten Pylon"],
+		["tw_factory_landmark_vat", "heal_all", 480.0, 0.65, 80.0, "Steam Vent"],
+		["tw_factory_landmark_bay", "freeze_time", 560.0, 0.70, 10.0, "Quench Bay"],
+		["tw_factory_landmark_bay", "speed_surge", 600.0, 0.70, 13.0, "Turbo Bay"],
+	],
+	[
+		["tw_docks_landmark_lighthouse", "pulse_wipe", 1600.0, 0.75, 16.0, "Storm Lighthouse"],
+		["tw_docks_landmark_pool", "heal_all", 480.0, 0.65, 76.0, "Tide Pool"],
+		["tw_docks_landmark_bell", "freeze_time", 560.0, 0.70, 11.0, "Harbor Bell"],
+		["tw_docks_boat", "speed_surge", 600.0, 0.70, 14.0, "Pilot Skiff"],
 	],
 ]
 
@@ -133,16 +168,16 @@ func dress_from_runtime_biome() -> void:
 const BASE_SIZE := Vector2(4800.0, 3200.0)
 ## Per-biome playfield footprints (indexed by GameRuntime.biome_id). Authored pad /
 ## hazard / shop coordinates live in BASE_SIZE space and scale up with the field.
-## Values are 2x the previous biome footprints so four corner spawns and mid-edge
-## landmarks have room to sit apart as contested lanes.
+## These are the original (pre-doubling) sizes: corner spawns stay inset so they
+## don't sit on top of each other, and mid-edge landmarks stay contested.
 const SIZE_BY_BIOME: Array[Vector2] = [
-	Vector2(16800.0, 11200.0),
-	Vector2(19200.0, 13600.0),
-	Vector2(20800.0, 13600.0),
-	Vector2(18400.0, 14400.0),
-	Vector2(22400.0, 14400.0),
+	Vector2(8400.0, 5600.0),
+	Vector2(9600.0, 6800.0),
+	Vector2(10400.0, 6800.0),
+	Vector2(9200.0, 7200.0),
+	Vector2(11200.0, 7200.0),
 ]
-const SPAWN_INSET := 0.78
+const SPAWN_INSET := 0.74
 const LANDMARK_MID_FRAC := 0.42
 ## Central boss bowl, world-space (not scaled). Round crater ~600 across.
 const CRATER_SIZE := Vector2(600.0, 600.0)
@@ -166,11 +201,23 @@ func crater_contains(world_position: Vector2, extra: float = 0.0) -> bool:
 	return world_position.length() <= crater_radius() + extra
 
 
-## Grass meadow and volcano caldera own the centerpiece crater; other biomes do not.
+## Grass meadow and volcano own the centerpiece crater in PvE. FFA always has a
+## center bowl so creeps can be held on the rim while heroes fight inside.
 func crater_feature_active() -> bool:
 	if not GameRuntime.uses_biomes() or GameRuntime.is_classic():
 		return false
+	if GameRuntime.is_ffa():
+		return true
 	return GameRuntime.biome_id == 0 or GameRuntime.biome_id == 1
+
+
+## FFA only: creeps may not cross this radius. Heroes still walk the bowl.
+static func ffa_creep_rim_radius(body_radius: float = 20.0) -> float:
+	return crater_radius() + body_radius + 14.0
+
+
+static func ffa_blocks_creeps_from_crater() -> bool:
+	return GameRuntime.is_ffa()
 
 
 static func playfield_size() -> Vector2:
@@ -241,12 +288,12 @@ const DECAL_SPRITES: Array[String] = ["grass_tuft", "grass_tuft", "grass_flower"
 ## Everything below is laid out from a fixed seed, so every peer in a session
 ## builds the exact same field without replicating a single byte.
 const LAYOUT_SEED := 20260819
-const OBSTACLE_COUNT := 120
-const ISLAND_OBSTACLE_COUNT := 56
+const OBSTACLE_COUNT := 340
+const ISLAND_OBSTACLE_COUNT := 240
 const DECAL_COUNT := 320
 const WALL_MARGIN := 140.0
-const SPAWN_CLEARANCE := 320.0
-const OBSTACLE_SPACING := 165.0
+const SPAWN_CLEARANCE := 210.0
+const OBSTACLE_SPACING := 96.0
 ## The void-between-pads solid body's own layer, split off from WORLD_LAYER (shared with
 ## the outer Walls body) specifically so an item can let a player pass through the void
 ## without also letting them clip through the arena boundary — see Player.water_walk.
@@ -448,10 +495,14 @@ func _spawn_landmarks() -> void:
 	if not GameRuntime.uses_biomes():
 		landmarks_changed.emit()
 		return
-	if _world_id < 0 or _world_id >= WORLD_LANDMARKS.size():
+	var kit: Array = []
+	if GameRuntime.biome_id >= 0 and GameRuntime.biome_id < BIOME_LANDMARKS.size():
+		kit = BIOME_LANDMARKS[GameRuntime.biome_id]
+	elif _world_id >= 0 and _world_id < WORLD_LANDMARKS.size():
+		kit = WORLD_LANDMARKS[_world_id]
+	if kit.is_empty():
 		landmarks_changed.emit()
 		return
-	var kit: Array = WORLD_LANDMARKS[_world_id]
 	var spots := contested_landmark_spots()
 	var placed: Array[Vector2] = []
 	for index in kit.size():
@@ -460,7 +511,11 @@ func _spawn_landmarks() -> void:
 			continue
 		var landmark := ArenaLandmark.new()
 		var preferred := spots[index] if index < spots.size() else _landmark_spot(float(spec[6]) if spec.size() > 6 else 0.0, float(spec[7]) if spec.size() > 7 else 0.42, placed)
+		if GameRuntime.is_ffa() and index < spots.size():
+			preferred = spots[index]
 		landmark.position = free_position_near(preferred, ArenaLandmark.STAND_RADIUS * 0.55)
+		if GameRuntime.is_ffa() and landmark.position.distance_to(preferred) > 220.0:
+			landmark.position = preferred
 		add_child(landmark)
 		landmark.configure(
 			str(spec[0]),
@@ -765,6 +820,8 @@ func _build_field() -> void:
 		walk_pads = _pads_for_biome(GameRuntime.biome_id)
 		_snap_shop_stand_to_pad()
 	_scatter_obstacles()
+	_pack_pad_rocks()
+	_plant_cover_rocks()
 	var shop_stand := SHOP_STAND_SCENE.instantiate() as Node2D
 	shop_stand.global_position = shop_stand_position()
 	add_child(shop_stand)
@@ -807,16 +864,13 @@ func _scatter_obstacles() -> void:
 	rng.seed = _layout_seed()
 	var limit := playfield_size() * 0.5 - Vector2(WALL_MARGIN, WALL_MARGIN)
 	var area_scale := (playfield_size().x + playfield_size().y) / (BASE_SIZE.x + BASE_SIZE.y)
-	var wanted := mini(220, int(round(float(ISLAND_OBSTACLE_COUNT if not walk_pads.is_empty() else OBSTACLE_COUNT) * area_scale)))
-	# On island biomes, candidates must land inside a (comparatively small) walk pad —
-	# sampling blindly across the whole playfield makes that a rare hit on the bigger
-	# maps, so pick a pad first and sample inside it instead of rejecting from the void.
-	var usable_pads: Array[Rect2] = []
-	for pad in walk_pads:
-		if mini(int(pad.size.x), int(pad.size.y)) >= 160:
-			usable_pads.append(pad)
+	var base_count := ISLAND_OBSTACLE_COUNT if not walk_pads.is_empty() else OBSTACLE_COUNT
+	var wanted := mini(520, int(round(float(base_count) * maxf(1.45, area_scale))))
+	# On island biomes, candidates must land inside a walk pad — sampling blindly
+	# across the whole playfield makes that a rare hit, so pick a pad first.
+	var usable_pads: Array[Rect2] = _rock_pads()
 	var attempts := 0
-	while obstacles.size() < wanted and attempts < wanted * 80:
+	while obstacles.size() < wanted and attempts < wanted * 160:
 		attempts += 1
 		var candidate: Vector2
 		if not usable_pads.is_empty():
@@ -830,17 +884,7 @@ func _scatter_obstacles() -> void:
 				rng.randf_range(-limit.x, limit.x),
 				rng.randf_range(-limit.y, limit.y)
 			)
-		if candidate.length() < SPAWN_CLEARANCE:
-			continue
-		if _near_corner_spawn(candidate, SPAWN_CLEARANCE):
-			continue
-		if candidate.distance_to(shop_stand_position()) < SHOP_STAND_CLEARANCE:
-			continue
-		if not _fits_obstacle(candidate):
-			continue
-		if _too_close_to_other_obstacle(candidate):
-			continue
-		_add_obstacle(candidate, OBSTACLE_TYPES[rng.randi() % OBSTACLE_TYPES.size()])
+		_try_place_obstacle(candidate, rng)
 
 
 func _fits_obstacle(candidate: Vector2) -> bool:
@@ -852,9 +896,9 @@ func _fits_obstacle(candidate: Vector2) -> bool:
 	if walk_pads.is_empty():
 		return true
 	for pad in walk_pads:
-		if mini(int(pad.size.x), int(pad.size.y)) < 160:
+		if mini(int(pad.size.x), int(pad.size.y)) < 72:
 			continue
-		if _pad_contains(pad, candidate, 48.0):
+		if _pad_contains(pad, candidate, 28.0):
 			return true
 	return false
 
@@ -881,6 +925,79 @@ func _add_obstacle(world_position: Vector2, type_data: Dictionary) -> void:
 	obstacles.append(obstacle)
 
 
+func _rock_pads() -> Array[Rect2]:
+	var usable: Array[Rect2] = []
+	for pad in walk_pads:
+		if mini(int(pad.size.x), int(pad.size.y)) >= 72:
+			usable.append(pad)
+	return usable
+
+
+func _try_place_obstacle(candidate: Vector2, rng: RandomNumberGenerator) -> bool:
+	if candidate.length() < SPAWN_CLEARANCE:
+		return false
+	if _near_corner_spawn(candidate, SPAWN_CLEARANCE * 0.72):
+		return false
+	if candidate.distance_to(shop_stand_position()) < SHOP_STAND_CLEARANCE:
+		return false
+	if not _fits_obstacle(candidate):
+		return false
+	if _too_close_to_other_obstacle(candidate):
+		return false
+	_add_obstacle(candidate, OBSTACLE_TYPES[rng.randi() % OBSTACLE_TYPES.size()])
+	return true
+
+
+## Stuff extra boulders onto every walk pad so island worlds don't look empty.
+func _pack_pad_rocks() -> void:
+	if walk_pads.is_empty():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _layout_seed() + 17
+	for pad in _rock_pads():
+		var extra := 3
+		if mini(int(pad.size.x), int(pad.size.y)) >= 220:
+			extra = 6
+		for _i in extra:
+			var candidate := Vector2(
+				rng.randf_range(pad.position.x, pad.end.x),
+				rng.randf_range(pad.position.y, pad.end.y)
+			)
+			_try_place_obstacle(candidate, rng)
+
+
+## Grass (and any leftover open ground) gets grove rings and hedge lines so the
+## field isn't a flat empty lawn between the four contested shrines.
+func _plant_cover_rocks() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _layout_seed() + 91
+	var factor := playfield_size() / BASE_SIZE
+	for spot in contested_landmark_spots():
+		for index in 12:
+			if index % 4 == 0:
+				continue
+			var radius := 210.0 + rng.randf_range(-18.0, 36.0)
+			var candidate := spot + Vector2.RIGHT.rotated(TAU * float(index) / 12.0 + 0.18) * radius
+			_try_place_obstacle(candidate, rng)
+	var groves: Array[Vector2] = [
+		Vector2(-720, -280), Vector2(780, -340), Vector2(-640, 360), Vector2(700, 300),
+		Vector2(-240, -620), Vector2(280, 640), Vector2(-1100, 40), Vector2(1180, -40),
+		Vector2(-420, 180), Vector2(460, -160), Vector2(40, -880), Vector2(-80, 900),
+	]
+	for grove in groves:
+		var center := grove * factor
+		for _i in 5:
+			var candidate := center + Vector2(rng.randf_range(-90.0, 90.0), rng.randf_range(-90.0, 90.0))
+			_try_place_obstacle(candidate, rng)
+	var hedges: Array[Vector2] = [
+		Vector2(-1600, -700), Vector2(-1400, -500), Vector2(1500, -680), Vector2(1320, -460),
+		Vector2(-1560, 620), Vector2(-1340, 420), Vector2(1480, 640), Vector2(1280, 440),
+		Vector2(-200, -1280), Vector2(200, -1280), Vector2(-180, 1240), Vector2(220, 1240),
+	]
+	for hedge in hedges:
+		_try_place_obstacle(hedge * factor, rng)
+
+
 ## Corner spawn rooms, mid-edge landmark plazas, and the four lanes that connect them.
 ## Authored in BASE_SIZE space so they scale with the playfield. `wide` is factory halls.
 func _contest_lane_pads(wide: bool) -> Array[Rect2]:
@@ -891,6 +1008,7 @@ func _contest_lane_pads(wide: bool) -> Array[Rect2]:
 		Rect2(1612, -1448, 520, 400),
 		Rect2(-2132, 1048, 520, 400),
 		Rect2(1612, 1048, 520, 400),
+		Rect2(-380, -380, 760, 760),
 		Rect2(-240, -852, 480, 360),
 		Rect2(828, -180, 480, 360),
 		Rect2(-240, 492, 480, 360),
@@ -1035,7 +1153,103 @@ func _pads_for_biome(biome: int) -> Array[Rect2]:
 			])
 		_:
 			pass
+	pads.append_array(_world_filigree_pads(biome))
 	return _scale_pads(pads)
+
+
+## Extra rooms, doglegs and stepping stones unique to each carved world so lanes
+## aren't just a plus-sign through empty void.
+func _world_filigree_pads(biome: int) -> Array[Rect2]:
+	match biome:
+		1:
+			return [
+				Rect2(-280, -1100, 160, 120),
+				Rect2(300, 980, 180, 130),
+				Rect2(-1280, -980, 140, 110),
+				Rect2(1180, 280, 150, 100),
+				Rect2(-480, 820, 90, 220),
+				Rect2(640, -980, 90, 200),
+				Rect2(-900, 720, 180, 70),
+				Rect2(860, 180, 70, 180),
+				Rect2(-1800, -200, 180, 80),
+				Rect2(1640, 360, 170, 90),
+				Rect2(-220, 1120, 150, 90),
+				Rect2(180, -1240, 150, 90),
+				Rect2(-1020, -1180, 80, 220),
+				Rect2(1080, 760, 80, 200),
+				Rect2(-1760, 760, 140, 80),
+				Rect2(1500, -200, 80, 160),
+				Rect2(-80, -1280, 200, 70),
+				Rect2(-720, 1080, 70, 160),
+			]
+		2:
+			return [
+				Rect2(-200, -980, 120, 90),
+				Rect2(240, 980, 130, 90),
+				Rect2(-1280, -420, 100, 80),
+				Rect2(1320, 280, 110, 80),
+				Rect2(-640, 160, 80, 200),
+				Rect2(520, -200, 80, 180),
+				Rect2(-40, 820, 200, 56),
+				Rect2(-900, -980, 160, 70),
+				Rect2(-1760, -200, 160, 80),
+				Rect2(1680, 120, 150, 80),
+				Rect2(-320, 1120, 180, 80),
+				Rect2(280, -1240, 160, 80),
+				Rect2(-1480, 640, 90, 180),
+				Rect2(1400, -880, 90, 180),
+				Rect2(-80, -1280, 220, 64),
+				Rect2(40, 1180, 200, 64),
+				Rect2(-1880, -720, 140, 70),
+				Rect2(1760, 720, 140, 70),
+			]
+		3:
+			return [
+				Rect2(-480, -1100, 200, 160),
+				Rect2(480, -1100, 200, 160),
+				Rect2(-1680, -720, 220, 180),
+				Rect2(40, 880, 180, 140),
+				Rect2(-240, 320, 80, 220),
+				Rect2(280, -320, 80, 220),
+				Rect2(-1280, 40, 220, 80),
+				Rect2(1080, 40, 220, 80),
+				Rect2(-1880, -200, 180, 120),
+				Rect2(1680, -200, 180, 120),
+				Rect2(-1880, 200, 180, 120),
+				Rect2(1680, 200, 180, 120),
+				Rect2(-80, -1280, 240, 90),
+				Rect2(-80, 1180, 240, 90),
+				Rect2(-400, 1080, 80, 180),
+				Rect2(320, 1080, 80, 180),
+				Rect2(-400, -1280, 80, 180),
+				Rect2(320, -1280, 80, 180),
+				Rect2(-1480, 880, 160, 80),
+				Rect2(1280, -980, 160, 80),
+			]
+		4:
+			return [
+				Rect2(320, -1180, 240, 140),
+				Rect2(-1760, -720, 200, 140),
+				Rect2(-80, 980, 200, 120),
+				Rect2(980, 280, 140, 90),
+				Rect2(-1280, 280, 140, 90),
+				Rect2(200, -980, 72, 220),
+				Rect2(-520, -980, 72, 200),
+				Rect2(720, 820, 180, 70),
+				Rect2(-1880, 40, 160, 90),
+				Rect2(1760, 40, 160, 90),
+				Rect2(-80, -1320, 220, 80),
+				Rect2(-80, 1180, 220, 80),
+				Rect2(-900, -1180, 72, 200),
+				Rect2(860, -1180, 72, 200),
+				Rect2(-900, 980, 72, 180),
+				Rect2(860, 980, 72, 180),
+				Rect2(-1480, -980, 180, 80),
+				Rect2(1400, 880, 180, 80),
+				Rect2(40, 280, 90, 220),
+			]
+		_:
+			return []
 
 
 func _scale_pads(pads: Array[Rect2]) -> Array[Rect2]:

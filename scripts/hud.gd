@@ -10,7 +10,7 @@ signal leave_requested
 signal dev_command(command: String)
 signal next_wave_requested
 
-const UPGRADE_ICON_MAX_WIDTH := 40
+const UPGRADE_ICON_MAX_WIDTH := 28
 
 @onready var class_label: Label = $MarginContainer/Layout/Title
 @onready var instructions_label: Label = $MarginContainer/Layout/Instructions
@@ -20,6 +20,7 @@ const UPGRADE_ICON_MAX_WIDTH := 40
 @onready var xp_bar: ProgressBar = $XPBar
 @onready var level_label: Label = $LevelLabel
 @onready var connection_label: Label = $ConnectionLabel
+@onready var world_label: Label = $ConnectionLabel
 @onready var wave_label: Label = $WaveLabel
 @onready var next_wave_button: Button = $NextWaveButton
 @onready var next_wave_timer_label: Label = $NextWaveTimer
@@ -60,6 +61,8 @@ const UPGRADE_ICON_MAX_WIDTH := 40
 @onready var dev_invulnerable_button: Button = $DevPanel/DevLayout/DevButtons/InvulnerableButton
 @onready var dev_add_gold_button: Button = $DevPanel/DevLayout/DevButtons/AddGoldButton
 @onready var codex_panel: PanelContainer = $CodexPanel
+@onready var codex_title: Label = $CodexPanel/CodexLayout/CodexTitle
+@onready var codex_scroll: ScrollContainer = $CodexPanel/CodexLayout/CodexScroll
 @onready var codex_text: RichTextLabel = $CodexPanel/CodexLayout/CodexScroll/CodexText
 @onready var stats_panel: PanelContainer = $StatsPanel
 @onready var stats_text: Label = $StatsPanel/StatsLayout/StatsText
@@ -91,7 +94,19 @@ var secondary_key_label: Label
 var secondary_name_label: Label
 var _shown_secondary_kind := ""
 var rift_banner: Label
-var ffa_scoreboard: Label
+var ffa_scoreboard: VBoxContainer
+var ffa_row_box: VBoxContainer
+var ffa_board_bg: ColorRect
+var aim_reticle: Control
+var ability_icon_row: VBoxContainer
+var ability_icon_slots: Array[Dictionary] = []
+var _shown_ability_ids: Array[String] = []
+var item_icon_row: VBoxContainer
+var item_icon_slots: Array[Dictionary] = []
+var _shown_item_ids: Array[String] = []
+var _hud_wave := 1
+var _hotkeys_visible := false
+var secondary_hotkey_label: Label
 
 
 const SECONDARY_ICON_BY_KIND := {
@@ -122,8 +137,9 @@ func _ready() -> void:
 		## Ability cards run up to 4 lines (name, flavor, effect, modifier) — without wrapping
 		## and a smaller size, that text just overflows the button instead of fitting it.
 		choice_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		choice_button.add_theme_font_size_override("font_size", 15)
-		choice_button.clip_text = false
+		choice_button.add_theme_font_size_override("font_size", 13)
+		choice_button.clip_text = true
+		choice_button.custom_minimum_size = Vector2(220, 108)
 	shop_continue.pressed.connect(_on_shop_continue_pressed)
 	resume_button.pressed.connect(_on_resume_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
@@ -138,7 +154,9 @@ func _ready() -> void:
 	if dev_add_gold_button != null:
 		dev_add_gold_button.pressed.connect(_on_dev_button_pressed.bind("add_gold"))
 	next_wave_button.pressed.connect(_on_next_wave_pressed)
-	codex_text.text = _build_codex_text()
+	codex_title.text = "HOTKEYS  (TAB to close)"
+	codex_text.text = _build_help_text()
+	codex_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	shop_title.text = "SUPERMERCATOR"
 	leave_button.visible = true
 	leave_button.text = "LEAVE TO MENU"
@@ -147,7 +165,16 @@ func _ready() -> void:
 	_build_dev_biome_row()
 	_build_boss_overlay()
 	_build_secondary_slot()
+	_build_ability_icon_bar()
+	_build_item_icon_bar()
+	_build_aim_reticle()
 	_build_ffa_overlay()
+	class_label.visible = false
+	health_bar.visible = false
+	health_label.visible = false
+	instructions_label.visible = false
+	ability_label.visible = false
+	_set_world_wave(1)
 	upgrade_panel.visible = false
 	offered_upgrade_ids.clear()
 	if get_tree().paused:
@@ -155,6 +182,23 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if upgrade_panel.visible and event.is_pressed() and not event.is_echo():
+		if event.is_action_pressed("ability_1"):
+			get_viewport().set_input_as_handled()
+			_on_upgrade_selected(0)
+			return
+		if event.is_action_pressed("ability_2"):
+			get_viewport().set_input_as_handled()
+			_on_upgrade_selected(1)
+			return
+		if event.is_action_pressed("ability_3"):
+			get_viewport().set_input_as_handled()
+			_on_upgrade_selected(2)
+			return
+		if event.is_action_pressed("ability_4"):
+			get_viewport().set_input_as_handled()
+			_on_upgrade_selected(3)
+			return
 	if event.is_action_pressed("show_stats"):
 		stats_panel.visible = true
 		stats_text.text = _build_stats_text()
@@ -169,15 +213,55 @@ func _unhandled_input(event: InputEvent) -> void:
 	if OS.is_debug_build() and event.is_action_pressed("dev_add_level"):
 		dev_command.emit("add_1_level")
 		return
-	if event.is_action_pressed("codex_toggle"):
-		codex_panel.visible = not codex_panel.visible
-		return
 	if not event.is_action_pressed("pause_menu"):
 		return
 	if escape_menu.visible:
 		_close_escape_menu()
 	elif not shop_panel.visible and not upgrade_panel.visible and not game_over_label.visible:
 		_open_escape_menu()
+
+
+func _toggle_help_panel() -> void:
+	if codex_panel.visible:
+		codex_panel.visible = false
+		return
+	codex_text.text = _build_help_text()
+	codex_panel.visible = true
+	codex_scroll.scroll_vertical = 0
+
+
+func _build_help_text() -> String:
+	var lines: Array[String] = []
+	lines.append("[b][color=ffd166]CONTROLS[/color][/b]")
+	lines.append("[b]WASD[/b] — Move")
+	lines.append("[b]Mouse[/b] — Aim")
+	lines.append("[b]LMB[/b] — Hold to charge, release to fire")
+	lines.append("[b]RMB[/b] — Secondary")
+	if bound_player != null:
+		var secondary_name := str(SECONDARY_NAMES.get(bound_player.secondary_kind, bound_player.secondary_kind))
+		lines.append("        %s" % secondary_name)
+	lines.append("[b]1 2 3 4[/b] — Abilities / level-up picks")
+	if bound_player != null:
+		for slot in bound_player.known_abilities.size():
+			var entry: Dictionary = bound_player.known_abilities[slot]
+			var info := PlayerClass.ability_info(str(entry.id))
+			lines.append("        [b]%d[/b] — %s" % [slot + 1, str(info.get("name", entry.id))])
+		if bound_player.has_active_item():
+			lines.append("[b]SPACE[/b] — %s" % ShopCatalog.display_name("sirene", bound_player.class_id))
+		for item_id in _owned_item_ids():
+			if item_id == "sirene":
+				continue
+			lines.append("[b]Item[/b] — %s" % ShopCatalog.display_name(item_id, bound_player.class_id))
+	else:
+		lines.append("[b]SPACE[/b] — Dash (after buying Siren)")
+	lines.append("[b]B[/b] — Shop")
+	lines.append("[b]TAB[/b] — This list")
+	lines.append("[b]SHIFT[/b] — Live stats")
+	lines.append("[b]ESC[/b] — Menu")
+	lines.append("[b]R[/b] — Restart after defeat")
+	lines.append("")
+	lines.append(_build_codex_text())
+	return "\n".join(lines)
 
 
 func _open_escape_menu() -> void:
@@ -252,7 +336,11 @@ func _process(delta: float) -> void:
 		next_wave_timer_label.text = "auto in %ds" % ceili(_next_wave_countdown)
 	_refresh_ability()
 	_refresh_ability_bar()
+	_refresh_ability_icons()
+	_refresh_item_icons()
 	_refresh_secondary_slot()
+	_refresh_aim_reticle()
+	_refresh_hotkey_overlays()
 
 
 ## Hold SHIFT to see it — a live readout of the bound player's current combat stats,
@@ -350,19 +438,8 @@ func _build_dev_biome_row() -> void:
 
 
 func _refresh_ability() -> void:
-	if bound_player == null or not bound_player.has_active_item():
-		ability_label.visible = false
-		return
-	ability_label.visible = true
-	if bound_player.is_sprinting():
-		ability_label.text = "SPACE  %s" % _dash_item_name()
-		ability_label.add_theme_color_override("font_color", Color("ffe08c"))
-	elif bound_player.sprint_cooldown > 0.0:
-		ability_label.text = "SPACE  %.1fs" % bound_player.sprint_cooldown
-		ability_label.add_theme_color_override("font_color", Color("7b8496"))
-	else:
-		ability_label.text = "SPACE  %s READY" % _dash_item_name()
-		ability_label.add_theme_color_override("font_color", Color("94ddff"))
+	ability_label.visible = false
+	ability_label.text = ""
 
 
 func _dash_item_name() -> String:
@@ -379,9 +456,9 @@ func _build_secondary_slot() -> void:
 	secondary_slot.name = "SecondarySlot"
 	secondary_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	secondary_slot.offset_left = 1190.0
-	secondary_slot.offset_top = 204.0
+	secondary_slot.offset_top = 118.0
 	secondary_slot.offset_right = 1252.0
-	secondary_slot.offset_bottom = 292.0
+	secondary_slot.offset_bottom = 206.0
 	add_child(secondary_slot)
 
 	var panel := ColorRect.new()
@@ -446,9 +523,121 @@ func _build_secondary_slot() -> void:
 	secondary_name_label.offset_right = 62.0
 	secondary_name_label.offset_bottom = 80.0
 	secondary_slot.add_child(secondary_name_label)
+	secondary_hotkey_label = Label.new()
+	secondary_hotkey_label.name = "Hotkey"
+	secondary_hotkey_label.text = "RMB"
+	secondary_hotkey_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	secondary_hotkey_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	secondary_hotkey_label.add_theme_font_size_override("font_size", 13)
+	secondary_hotkey_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.45, 1.0))
+	secondary_hotkey_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.9))
+	secondary_hotkey_label.add_theme_constant_override("shadow_outline_size", 4)
+	secondary_hotkey_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	secondary_hotkey_label.offset_left = 0.0
+	secondary_hotkey_label.offset_top = 14.0
+	secondary_hotkey_label.offset_right = 62.0
+	secondary_hotkey_label.offset_bottom = 42.0
+	secondary_hotkey_label.visible = false
+	secondary_slot.add_child(secondary_hotkey_label)
 	secondary_slot.visible = false
-	ability_bar_label.offset_top = 296.0
-	ability_bar_label.offset_bottom = 412.0
+
+
+func _make_kit_icon_slot(parent: Control, key_text: String, compact: bool = false) -> Dictionary:
+	var slot := Control.new()
+	var slot_h := 62.0 if compact else 88.0
+	slot.custom_minimum_size = Vector2(62.0, slot_h)
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(slot)
+
+	var panel := ColorRect.new()
+	panel.color = Color(0.04, 0.05, 0.08, 0.78)
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.add_child(panel)
+
+	var icon := TextureRect.new()
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.offset_left = 7.0
+	icon.offset_top = 4.0
+	icon.offset_right = 55.0
+	icon.offset_bottom = 52.0
+	slot.add_child(icon)
+
+	var cd_bar := ProgressBar.new()
+	cd_bar.show_percentage = false
+	cd_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cd_bar.min_value = 0.0
+	cd_bar.max_value = 1.0
+	cd_bar.value = 0.0
+	cd_bar.fill_mode = ProgressBar.FILL_BOTTOM_TO_TOP
+	cd_bar.offset_left = 7.0
+	cd_bar.offset_top = 4.0
+	cd_bar.offset_right = 55.0
+	cd_bar.offset_bottom = 52.0
+	var cd_bg := StyleBoxFlat.new()
+	cd_bg.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	var cd_fill := StyleBoxFlat.new()
+	cd_fill.bg_color = Color(0.04, 0.06, 0.1, 0.62)
+	cd_bar.add_theme_stylebox_override("background", cd_bg)
+	cd_bar.add_theme_stylebox_override("fill", cd_fill)
+	slot.add_child(cd_bar)
+
+	var key_label := Label.new()
+	key_label.text = key_text
+	key_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	key_label.add_theme_font_size_override("font_size", 11)
+	key_label.add_theme_color_override("font_color", Color(0.85, 0.78, 0.42, 1.0))
+	key_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	key_label.offset_top = 36.0 if compact else 50.0
+	key_label.offset_right = 62.0
+	key_label.offset_bottom = 52.0 if compact else 66.0
+	key_label.clip_text = true
+	slot.add_child(key_label)
+
+	var name_label := Label.new()
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.add_theme_font_size_override("font_size", 10 if compact else 11)
+	name_label.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 1.0))
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	name_label.offset_top = 48.0 if compact else 64.0
+	name_label.offset_right = 62.0
+	name_label.offset_bottom = 62.0 if compact else 80.0
+	name_label.clip_text = true
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	slot.add_child(name_label)
+	var hotkey := Label.new()
+	hotkey.text = key_text
+	hotkey.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hotkey.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hotkey.add_theme_font_size_override("font_size", 13)
+	hotkey.add_theme_color_override("font_color", Color(1.0, 0.92, 0.45, 1.0))
+	hotkey.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.9))
+	hotkey.add_theme_constant_override("shadow_outline_size", 4)
+	hotkey.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hotkey.offset_top = 14.0
+	hotkey.offset_right = 62.0
+	hotkey.offset_bottom = 42.0
+	hotkey.visible = false
+	slot.add_child(hotkey)
+	return {"root": slot, "icon": icon, "bar": cd_bar, "key": key_label, "name": name_label, "hotkey": hotkey, "bind": key_text}
+
+
+func _apply_kit_cooldown(nodes: Dictionary, remaining: float, cooldown_max: float, _ready_key: String = "") -> void:
+	var bar := nodes.bar as ProgressBar
+	var icon := nodes.icon as TextureRect
+	var key_label := nodes.key as Label
+	if remaining > 0.0:
+		bar.value = clampf(remaining / maxf(0.01, cooldown_max), 0.0, 1.0)
+		icon.modulate = Color(0.55, 0.55, 0.6, 1.0)
+		key_label.text = "%.1f" % remaining
+		key_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 1.0))
+	else:
+		bar.value = 0.0
+		icon.modulate = Color.WHITE
+		key_label.text = ""
 
 
 func _secondary_icon_id(kind: String) -> String:
@@ -478,25 +667,204 @@ func _refresh_secondary_slot() -> void:
 	else:
 		secondary_cd_bar.value = 0.0
 		secondary_icon.modulate = Color.WHITE
-		secondary_key_label.text = "RMB"
-		secondary_key_label.add_theme_color_override("font_color", Color(0.85, 0.78, 0.42, 1.0))
+		secondary_key_label.text = ""
 
 
 func _refresh_ability_bar() -> void:
-	if bound_player == null or bound_player.known_abilities.is_empty():
-		ability_bar_label.text = ""
+	ability_bar_label.visible = false
+	ability_bar_label.text = ""
+
+
+func _build_ability_icon_bar() -> void:
+	ability_icon_row = VBoxContainer.new()
+	ability_icon_row.name = "AbilityIconBar"
+	ability_icon_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ability_icon_row.add_theme_constant_override("separation", 2)
+	ability_icon_row.offset_left = 1190.0
+	ability_icon_row.offset_top = 236.0
+	ability_icon_row.offset_right = 1252.0
+	ability_icon_row.offset_bottom = 500.0
+	add_child(ability_icon_row)
+	ability_icon_slots.clear()
+	for slot in 4:
+		ability_icon_slots.append(_make_kit_icon_slot(ability_icon_row, ABILITY_SLOT_KEYS[slot], true))
+
+
+func _build_item_icon_bar() -> void:
+	item_icon_row = VBoxContainer.new()
+	item_icon_row.name = "ItemIconBar"
+	item_icon_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	item_icon_row.add_theme_constant_override("separation", 2)
+	item_icon_row.offset_left = 12.0
+	item_icon_row.offset_top = 176.0
+	item_icon_row.offset_right = 74.0
+	item_icon_row.offset_bottom = 700.0
+	add_child(item_icon_row)
+	item_icon_slots.clear()
+	_shown_item_ids.clear()
+
+
+func _owned_item_ids() -> Array[String]:
+	var ids: Array[String] = []
+	if bound_player == null:
+		return ids
+	for item_id in ShopCatalog.ids():
+		if bound_player.stacks_of(item_id) > 0:
+			ids.append(item_id)
+	return ids
+
+
+func _item_cooldown(item_id: String) -> Vector2:
+	if bound_player == null:
+		return Vector2.ZERO
+	match item_id:
+		"sirene":
+			return Vector2(bound_player.sprint_cooldown, bound_player.sprint_cycle_length())
+		"romp":
+			var wait := 2.4 if bound_player.stacks_of("sjaal") > 0 else 2.0
+			return Vector2(float(bound_player.get("_jump_cooldown")), wait)
+		_:
+			return Vector2.ZERO
+
+
+func _refresh_item_icons() -> void:
+	if item_icon_row == null:
 		return
-	var lines: Array[String] = []
-	for slot in range(bound_player.known_abilities.size()):
-		var entry := bound_player.known_abilities[slot]
+	var ids := _owned_item_ids()
+	if ids.is_empty():
+		item_icon_row.visible = false
+		_shown_item_ids.clear()
+		return
+	item_icon_row.visible = true
+	if ids != _shown_item_ids:
+		for slot in item_icon_slots:
+			var root := slot.root as Control
+			if root != null:
+				root.queue_free()
+		item_icon_slots.clear()
+		var class_id := bound_player.class_id
+		for item_id in ids:
+			var nodes := _make_kit_icon_slot(item_icon_row, _item_bind(item_id), true)
+			(nodes.icon as TextureRect).texture = SpriteLibrary.item_icon(item_id)
+			(nodes.name as Label).text = _item_icon_caption(item_id)
+			item_icon_slots.append(nodes)
+		_shown_item_ids = ids
+	for index in item_icon_slots.size():
+		if index >= ids.size():
+			break
+		(item_icon_slots[index].name as Label).text = _item_icon_caption(ids[index])
+		var cd := _item_cooldown(ids[index])
+		_apply_kit_cooldown(item_icon_slots[index], cd.x, cd.y)
+
+
+func _item_icon_caption(item_id: String) -> String:
+	var class_id := bound_player.class_id if bound_player != null else PlayerClass.DEFAULT_CLASS_ID
+	var caption := _clip_label(ShopCatalog.display_name(item_id, class_id), 6)
+	var stacks := bound_player.stacks_of(item_id) if bound_player != null else 0
+	if stacks > 1:
+		return "%s x%d" % [caption, stacks]
+	return caption
+
+
+func _clip_label(text: String, max_chars: int = 8) -> String:
+	var clipped := text.to_upper()
+	if clipped.length() <= max_chars:
+		return clipped
+	return clipped.substr(0, max_chars)
+
+
+func _item_bind(item_id: String) -> String:
+	match item_id:
+		"sirene":
+			return "SPACE"
+		"romp":
+			return "AUTO"
+		_:
+			return ""
+
+
+func _refresh_hotkey_overlays() -> void:
+	var show := Input.is_action_pressed("codex_toggle")
+	_hotkeys_visible = show
+	if secondary_hotkey_label != null:
+		secondary_hotkey_label.visible = show and secondary_slot != null and secondary_slot.visible
+	for slot in ability_icon_slots:
+		var hotkey := slot.get("hotkey") as Label
+		var root := slot.get("root") as Control
+		if hotkey == null:
+			continue
+		hotkey.text = str(slot.get("bind", ""))
+		hotkey.visible = show and root != null and root.visible
+	for slot in item_icon_slots:
+		var hotkey := slot.get("hotkey") as Label
+		var root := slot.get("root") as Control
+		if hotkey == null:
+			continue
+		var bind := str(slot.get("bind", ""))
+		hotkey.text = bind
+		hotkey.visible = show and root != null and root.visible and not bind.is_empty()
+
+
+func _refresh_ability_icons() -> void:
+	if ability_icon_row == null:
+		return
+	if bound_player == null or bound_player.known_abilities.is_empty():
+		ability_icon_row.visible = false
+		_shown_ability_ids.clear()
+		return
+	ability_icon_row.visible = true
+	var ids: Array[String] = []
+	for slot in ability_icon_slots.size():
+		var nodes: Dictionary = ability_icon_slots[slot]
+		var root := nodes.root as Control
+		if slot >= bound_player.known_abilities.size():
+			root.visible = false
+			continue
+		root.visible = true
+		var entry: Dictionary = bound_player.known_abilities[slot]
 		var ability_id := str(entry.id)
-		var ability_data := PlayerClass.ability_info(ability_id)
-		var ability_name := str(ability_data.get("name", ability_id))
-		var cooldown_left := bound_player.ability_cooldowns[slot] if slot < bound_player.ability_cooldowns.size() else 0.0
-		var status := "READY" if cooldown_left <= 0.0 else "%.1fs" % cooldown_left
-		var key: String = ABILITY_SLOT_KEYS[slot] if slot < ABILITY_SLOT_KEYS.size() else str(slot + 1)
-		lines.append("%s  %s  %s" % [key, ability_name, status])
-	ability_bar_label.text = "\n".join(lines)
+		ids.append(ability_id)
+		var icon := nodes.icon as TextureRect
+		var name_label := nodes.name as Label
+		if slot >= _shown_ability_ids.size() or _shown_ability_ids[slot] != ability_id:
+			icon.texture = SpriteLibrary.texture_for(ability_id)
+			var info := PlayerClass.ability_info(ability_id)
+			name_label.text = _clip_label(str(info.get("name", ability_id)))
+		var remaining: float = bound_player.ability_cooldowns[slot] if slot < bound_player.ability_cooldowns.size() else 0.0
+		var values := PlayerClass.ability_values(ability_id, int(entry.get("rank", 1)))
+		var cooldown_max := maxf(0.01, float(values.get("cooldown", 1.0)))
+		_apply_kit_cooldown(nodes, remaining, cooldown_max)
+		var armed: bool = int(bound_player.get("_pending_ability_slot")) == slot
+		if remaining <= 0.0 and armed:
+			icon.modulate = Color(1.15, 1.1, 0.85, 1.0)
+	_shown_ability_ids = ids
+
+
+func _build_aim_reticle() -> void:
+	aim_reticle = AimReticle.new()
+	aim_reticle.name = "AimReticle"
+	aim_reticle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	aim_reticle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(aim_reticle)
+
+
+func _refresh_aim_reticle() -> void:
+	var menus_open := shop_panel.visible or escape_menu.visible or upgrade_panel.visible or game_over_label.visible or codex_panel.visible
+	var show := bound_player != null and bound_player.is_local_player and not menus_open
+	if aim_reticle != null:
+		aim_reticle.visible = show
+		var reticle := aim_reticle as AimReticle
+		if bound_player != null:
+			reticle.accent = bound_player.accent_color
+			var charging: bool = bool(bound_player.get("_charge_firing"))
+			var charge_t: float = bound_player._shot_charge if charging else bound_player._charge_t()
+			reticle.charge_t = charge_t
+			reticle.show_charge = show and (charge_t > 0.0 or charging)
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN if show else Input.MOUSE_MODE_VISIBLE
+
+
+func _exit_tree() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
 func bind_player(player: Player) -> void:
@@ -511,6 +879,8 @@ func bind_player(player: Player) -> void:
 	_on_xp_changed(player.current_xp, player.xp_required, player.level)
 	_on_gold_changed(player.gold)
 	show_player_class(player.class_id)
+	if GameRuntime.is_ffa() and player.team_id != "":
+		set_team_health_color(RiftClashManager.team_color(player.team_id))
 	_build_shop()
 
 
@@ -518,34 +888,39 @@ func show_player_class(class_id: String) -> void:
 	if class_id == shown_class_id:
 		return
 	shown_class_id = class_id
-	var class_data := PlayerClass.by_id(class_id)
-	class_label.text = "%s // %s" % [str(class_data.name).to_upper(), str(class_data.role).to_upper()]
-	class_label.add_theme_color_override("font_color", Color(class_data.accent_color))
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color(str(class_data.get("health_bar_color", class_data.accent_color)))
-	fill.set_corner_radius_all(3)
-	health_bar.add_theme_stylebox_override("fill", fill)
-	instructions_label.text = "WASD  Move     LMB  Aim     RMB  Secondary     B  Shop     SPACE  Dash     R  Restart"
-	if GameRuntime.is_ffa():
-		instructions_label.text = "FFA  first to %d hero kills     30s respawn     60s spawn shield vs heroes" % GameRuntime.FFA_KILLS_TO_WIN
+	class_label.visible = false
+	health_bar.visible = false
+	health_label.visible = false
+	instructions_label.visible = false
 
 
-func set_connection_text(mode: String) -> void:
-	connection_label.text = mode.to_upper()
+func set_connection_text(_mode: String) -> void:
+	pass
+
+
+func _world_number_for_wave(wave: int) -> int:
+	return (maxi(1, wave) - 1) / GameRuntime.BIOME_CYCLE_WAVES + 1
+
+
+func _set_world_wave(wave: int) -> void:
+	_hud_wave = maxi(1, wave)
+	var hide := GameRuntime.is_classic()
+	if world_label != null:
+		world_label.visible = not hide
+		world_label.text = "WORLD %d" % _world_number_for_wave(_hud_wave)
+	if wave_label != null:
+		wave_label.visible = not hide
 
 
 func set_wave(wave: int, archetype_name: String = "") -> void:
+	_set_world_wave(wave)
 	if GameRuntime.is_classic():
-		wave_label.visible = false
 		return
-	wave_label.visible = true
 	var wave_number := maxi(1, wave)
 	if archetype_name.is_empty():
 		wave_label.text = "WAVE %d" % wave_number
 	else:
 		wave_label.text = "WAVE %d — %s" % [wave_number, archetype_name.to_upper()]
-	if WaveDirector.shop_opens_before(wave_number + 1):
-		wave_label.text += "   SUPERMERCATOR NEXT"
 	var pulse := create_tween()
 	pulse.tween_property(wave_label, "scale", Vector2(1.18, 1.18), 0.12)
 	pulse.tween_property(wave_label, "scale", Vector2.ONE, 0.18)
@@ -865,7 +1240,8 @@ func _refresh_shop() -> void:
 			button.disabled = true
 			continue
 		var price := ShopCatalog.price_for(item_id, stacks)
-		button.text = "%s\n%s\n%d gold" % [item_name, item_description, price]
+		var cap := int(item.max_stacks)
+		button.text = "%s  %d/%d\n%s\n%d gold" % [item_name, stacks, cap, item_description, price]
 		button.disabled = gold < price
 
 
@@ -892,20 +1268,48 @@ func _build_ffa_overlay() -> void:
 	rift_banner = Label.new()
 	rift_banner.name = "RiftBanner"
 	rift_banner.visible = false
-	rift_banner.position = Vector2(24, 72)
+	rift_banner.position = Vector2(12, 8)
 	rift_banner.add_theme_font_size_override("font_size", 16)
 	rift_banner.add_theme_color_override("font_shadow_color", Color.BLACK)
 	rift_banner.add_theme_constant_override("shadow_size", 3)
 	add_child(rift_banner)
-	ffa_scoreboard = Label.new()
+	ffa_board_bg = ColorRect.new()
+	ffa_board_bg.name = "FfaBoardBg"
+	ffa_board_bg.visible = false
+	ffa_board_bg.color = Color(0.04, 0.05, 0.08, 0.72)
+	ffa_board_bg.position = Vector2(8, 8)
+	ffa_board_bg.size = Vector2(268, 152)
+	add_child(ffa_board_bg)
+	ffa_scoreboard = VBoxContainer.new()
 	ffa_scoreboard.name = "FfaScoreboard"
 	ffa_scoreboard.visible = false
-	ffa_scoreboard.position = Vector2(24, 98)
-	ffa_scoreboard.add_theme_font_size_override("font_size", 15)
-	ffa_scoreboard.add_theme_color_override("font_color", Color("e8f0ff"))
-	ffa_scoreboard.add_theme_color_override("font_shadow_color", Color.BLACK)
-	ffa_scoreboard.add_theme_constant_override("shadow_size", 3)
+	ffa_scoreboard.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ffa_scoreboard.position = Vector2(12, 10)
+	ffa_scoreboard.size = Vector2(260, 148)
+	ffa_scoreboard.add_theme_constant_override("separation", 2)
 	add_child(ffa_scoreboard)
+	var title := Label.new()
+	title.text = "LEADERBOARD"
+	title.add_theme_font_size_override("font_size", 13)
+	title.add_theme_color_override("font_color", Color(0.9, 0.93, 0.98, 1.0))
+	ffa_scoreboard.add_child(title)
+	ffa_row_box = VBoxContainer.new()
+	ffa_row_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ffa_row_box.add_theme_constant_override("separation", 3)
+	ffa_scoreboard.add_child(ffa_row_box)
+
+
+func _hero_portrait(class_id: String) -> Texture2D:
+	if class_id == "tobor":
+		return SpriteLibrary.compose_tobor({})
+	return SpriteLibrary.texture_for(class_id)
+
+
+func set_team_health_color(color: Color) -> void:
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = color
+	fill.set_corner_radius_all(3)
+	health_bar.add_theme_stylebox_override("fill", fill)
 
 
 func refresh_rift_clash_banner(team_name: String, corner: String, color: Color) -> void:
@@ -917,22 +1321,55 @@ func refresh_rift_clash_banner(team_name: String, corner: String, color: Color) 
 
 
 func refresh_ffa_scoreboard(rows: Array) -> void:
-	if ffa_scoreboard == null:
+	if ffa_scoreboard == null or ffa_row_box == null:
 		return
 	if rows.is_empty():
 		ffa_scoreboard.visible = false
+		if ffa_board_bg != null:
+			ffa_board_bg.visible = false
 		return
 	ffa_scoreboard.visible = true
-	var lines: PackedStringArray = PackedStringArray(["FFA  first to %d" % GameRuntime.FFA_KILLS_TO_WIN])
+	if ffa_board_bg != null:
+		ffa_board_bg.visible = true
+	for child in ffa_row_box.get_children():
+		ffa_row_box.remove_child(child)
+		child.queue_free()
 	for row in rows:
-		var mark := "*" if bool(row.get("local", false)) else " "
-		var state := "LIVE"
+		var color := row.get("color", Color.WHITE) as Color
+		var line := HBoxContainer.new()
+		line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		line.add_theme_constant_override("separation", 8)
+		var icon := TextureRect.new()
+		icon.custom_minimum_size = Vector2(26, 26)
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon.texture = _hero_portrait(str(row.get("class_id", "tobor")))
+		line.add_child(icon)
+		var name_label := Label.new()
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.text = str(row.get("name", "?"))
+		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.add_theme_color_override("font_color", color)
+		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if bool(row.get("local", false)):
+			name_label.text += "  you"
 		if not bool(row.get("alive", true)):
-			state = "DOWN %.0fs" % float(row.get("respawn", 0.0))
-		elif float(row.get("invuln", 0.0)) > 0.0:
-			state = "SHIELD %.0fs" % float(row.get("invuln", 0.0))
-		lines.append("%s %s  %d  %s" % [mark, str(row.get("name", "?")), int(row.get("kills", 0)), state])
-	ffa_scoreboard.text = "\n".join(lines)
+			name_label.modulate = Color(0.7, 0.72, 0.76, 1.0)
+		line.add_child(name_label)
+		var kills_label := Label.new()
+		kills_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		kills_label.custom_minimum_size = Vector2(36, 0)
+		kills_label.text = str(int(row.get("kills", 0)))
+		kills_label.add_theme_font_size_override("font_size", 15)
+		kills_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.55, 1.0) if bool(row.get("alive", true)) else Color(0.72, 0.74, 0.78, 1.0))
+		kills_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		line.add_child(kills_label)
+		ffa_row_box.add_child(line)
+	var row_count := maxi(rows.size(), 1)
+	if ffa_board_bg != null:
+		ffa_board_bg.size = Vector2(268, 28.0 + float(row_count) * 30.0)
 
 
 func show_rift_clash_result(placement: int, _field: int, winner_name: String, _delta: int, _total: int) -> void:
@@ -970,16 +1407,17 @@ func show_upgrade_ids(player: Player, upgrade_ids: Array[String], pause_game: bo
 	offered_upgrade_ids = upgrade_ids.duplicate()
 	offer_kind = "stat"
 	pauses_game = pause_game
-	offer_title_label.text = "UPGRADE A STAT"
+	offer_title_label.text = "PICK  1  2  3  4"
 	for index in choice_buttons.size():
 		if index >= offered_upgrade_ids.size():
 			choice_buttons[index].visible = false
 			continue
 		var upgrade := PlayerClass.upgrade_info(offered_upgrade_ids[index])
 		choice_buttons[index].visible = true
-		choice_buttons[index].text = "%s\n%s" % [upgrade.name, upgrade.description]
+		choice_buttons[index].text = "[%d]  %s\n%s" % [index + 1, upgrade.name, upgrade.description]
 		choice_buttons[index].icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(offered_upgrade_ids[index])
 	upgrade_panel.visible = true
+	InputService.block_ability_slots = true
 	AudioService.play("level_up")
 	if pauses_game:
 		get_tree().paused = true
@@ -992,7 +1430,7 @@ func show_ability_offer(player: Player, ability_ids: Array[String], pause_game: 
 	offered_upgrade_ids = ability_ids.duplicate()
 	offer_kind = "ability"
 	pauses_game = pause_game
-	offer_title_label.text = "LEARN OR UPGRADE AN ABILITY"
+	offer_title_label.text = "PICK  1  2  3  4"
 	for index in choice_buttons.size():
 		if index >= offered_upgrade_ids.size():
 			choice_buttons[index].visible = false
@@ -1003,12 +1441,14 @@ func show_ability_offer(player: Player, ability_ids: Array[String], pause_game: 
 			if entry.id == ability_id:
 				current_rank = int(entry.rank)
 				break
-		var target_rank := current_rank + 1 if current_rank > 0 else 1
-		var prefix := "UPGRADE (Rank %d)" % target_rank if current_rank > 0 else "LEARN"
+		var info := PlayerClass.ability_info(ability_id)
+		var ability_name := str(info.get("name", ability_id))
+		var verb := "Upgrade" if current_rank > 0 else "Learn"
 		choice_buttons[index].visible = true
-		choice_buttons[index].text = "[%s]\n%s" % [prefix, PlayerClass.ability_description(ability_id, target_rank)]
+		choice_buttons[index].text = "[%d]  %s %s" % [index + 1, verb, ability_name]
 		choice_buttons[index].icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(ability_id)
 	upgrade_panel.visible = true
+	InputService.block_ability_slots = true
 	AudioService.play("level_up")
 	if pauses_game:
 		get_tree().paused = true
@@ -1022,6 +1462,7 @@ func _on_upgrade_selected(index: int) -> void:
 	var chosen_kind := offer_kind
 	upgrade_panel.visible = false
 	offered_upgrade_ids.clear()
+	InputService.block_ability_slots = false
 	if pauses_game:
 		get_tree().paused = false
 	pauses_game = false
@@ -1029,3 +1470,33 @@ func _on_upgrade_selected(index: int) -> void:
 		ability_chosen.emit(chosen_id)
 	else:
 		upgrade_chosen.emit(chosen_id)
+
+
+class AimReticle extends Control:
+	var accent := Color(0.95, 0.95, 0.98, 0.95)
+	var charge_t := 0.0
+	var show_charge := false
+
+	func _process(_delta: float) -> void:
+		queue_redraw()
+
+	func _draw() -> void:
+		var p := get_local_mouse_position()
+		var ring := accent
+		ring.a = 0.9
+		draw_arc(p, 11.0, 0.0, TAU, 28, ring, 1.6, true)
+		draw_arc(p, 3.2, 0.0, TAU, 16, Color(1.0, 1.0, 1.0, 0.85), 1.2, true)
+		var tick := Color(1.0, 1.0, 1.0, 0.8)
+		draw_line(p + Vector2(0.0, -15.0), p + Vector2(0.0, -7.0), tick, 1.4)
+		draw_line(p + Vector2(0.0, 7.0), p + Vector2(0.0, 15.0), tick, 1.4)
+		draw_line(p + Vector2(-15.0, 0.0), p + Vector2(-7.0, 0.0), tick, 1.4)
+		draw_line(p + Vector2(7.0, 0.0), p + Vector2(15.0, 0.0), tick, 1.4)
+		if not show_charge:
+			return
+		var bar_w := 28.0
+		var bar_h := 4.0
+		var origin := p + Vector2(-bar_w * 0.5, 18.0)
+		draw_rect(Rect2(origin, Vector2(bar_w, bar_h)), Color(0.05, 0.06, 0.08, 0.85))
+		var fill := accent
+		fill.a = 0.95
+		draw_rect(Rect2(origin + Vector2(1.0, 1.0), Vector2((bar_w - 2.0) * clampf(charge_t, 0.0, 1.0), bar_h - 2.0)), fill)

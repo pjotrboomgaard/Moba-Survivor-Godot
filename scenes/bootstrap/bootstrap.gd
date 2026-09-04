@@ -142,6 +142,12 @@ func _default_hero_for_world(world_index: int) -> String:
 
 func _ready() -> void:
 	_init_world_helpers()
+	if GameRuntime.is_ffa() and GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
+		AudioService.play_music()
+		_play_mode = 1
+		print("[bootstrap] skipping menu, opening FFA")
+		_open_game()
+		return
 	_build_overhaul_ui()
 	GameRuntime.set_game_mode(GameRuntime.GameMode.PJOTR)
 	_setup_play_mode_toggles()
@@ -524,7 +530,11 @@ func _setup_play_mode_toggles() -> void:
 	solo_toggle.toggled.connect(_on_play_mode_toggled.bind(0))
 	tobor_world_button.toggled.connect(_on_play_mode_toggled.bind(1))
 	coop_toggle.toggled.connect(_on_play_mode_toggled.bind(2))
-	solo_toggle.button_pressed = true
+	if GameRuntime.is_ffa():
+		_play_mode = 1
+		tobor_world_button.set_pressed_no_signal(true)
+	else:
+		solo_toggle.set_pressed_no_signal(true)
 
 
 func _on_play_mode_toggled(is_pressed: bool, mode: int) -> void:
@@ -533,21 +543,21 @@ func _on_play_mode_toggled(is_pressed: bool, mode: int) -> void:
 	AudioService.play("ui_click")
 	_play_mode = mode
 	GameRuntime.fill_cpu_allies = mode == 1
-	GameRuntime.ffa_all_bots = false
 	if mode == 1:
 		GameRuntime.set_team_mode(GameRuntime.TeamMode.FFA)
 	else:
+		GameRuntime.ffa_all_bots = false
 		GameRuntime.set_team_mode(GameRuntime.TeamMode.NONE)
 	_refresh_play_mode()
 
 
 func _refresh_play_mode() -> void:
 	if solo_toggle != null:
-		solo_toggle.button_pressed = _play_mode == 0
+		solo_toggle.set_pressed_no_signal(_play_mode == 0)
 	if tobor_world_button != null:
-		tobor_world_button.button_pressed = _play_mode == 1
+		tobor_world_button.set_pressed_no_signal(_play_mode == 1)
 	if coop_toggle != null:
-		coop_toggle.button_pressed = _play_mode == 2
+		coop_toggle.set_pressed_no_signal(_play_mode == 2)
 	if _in_network_lobby:
 		return
 	var coop := _play_mode == 2

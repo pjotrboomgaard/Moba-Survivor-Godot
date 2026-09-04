@@ -5,7 +5,7 @@ Only the CO-OP menu button sets the flag; `_spawn_cpu_allies` returns immediatel
 
 ## Wave 1 (fair)
 
-- Budget: `24 + 6 * wave` = **30** (no solo pressure)
+- Budget: `22 + 8.2 * wave` = **30.2** (no solo pressure)
 - Health mult: **2.0** (`BASE_HEALTH_MULTIPLIER`, no solo pressure)
 - Planned count: **~24–30 grunts** (STANDARD, grunt cost 1, groups of 3–5 until the budget is spent)
 - Theme: always **First Contact**, even on a locked volcano/ice/factory/docks map
@@ -13,7 +13,7 @@ Only the CO-OP menu button sets the flag; `_spawn_cpu_allies` returns immediatel
 ## Wave 5
 
 - Theme: **The Ravager** (BOSS). Count is **1** — never a pack of bosses
-- Budget formula still evaluates to **58.32** but `_plan_boss` ignores budget and emits one Ravager
+- Budget formula still evaluates to **68.04** but `_plan_boss` ignores budget and emits one Ravager
 - Health mult at Normal solo: **2.832**
 
 ## Health multiplier formula
@@ -29,7 +29,14 @@ Difficulty: Easy 0.65, Normal 1.0, Hard 1.5, Brutal 2.25.
 
 Solo PLAY means `player_count == 1` and `fill_cpu_allies == false` (CO-OP CPU fill skips this bump; 4-player host uses the existing `1 + 0.85 * (players - 1)` budget scale instead).
 
-Budget from wave 2: `(24 + 6 * wave) * 1.08 * (1 + 0.85 * (players - 1))`.
+Budget from wave 2: `(22 + 8.2 * wave) * 1.08 * (1 + 0.85 * (players - 1))`.
+
+## Live enemy cap (solo reinforcement)
+
+`_desired_live()` gates the solo-only reinforcement packs in `_should_reinforce`. Its upper
+clamp used to be a flat 26 forever; it now climbs past wave 10 as
+`min(26 + 3.2 * (wave - 10), 120)`, so later waves can hold noticeably more enemies on
+screen at once instead of plateauing at 26. Waves 1–10 are unaffected (cap stays 26).
 
 ## Landmark timing
 

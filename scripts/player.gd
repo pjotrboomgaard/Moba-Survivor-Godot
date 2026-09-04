@@ -27,7 +27,9 @@ enum SimulationMode {
 @export_range(0.1, 1.0, 0.05) var chain_damage_multiplier := 0.65
 
 const CompanionDroneScript := preload("res://scripts/companion_drone.gd")
+const SPAWN_SHIELD_SCRIPT := preload("res://scripts/spawn_shield_fx.gd")
 const BODY_RADIUS := 18.0
+const PLAYER_KNOCKBACK_DECAY := 1650.0
 const FACING_CLASS_IDS := ["arclight", "bulwark", "warden", "cinder", "pyra", "slag", "ember", "thorn", "willow", "stump", "sage", "volt", "nebula", "astral", "rime"]
 ## Global in-game hero-sprite scale boost (Part 1: heroes felt ~25% small). HUD/menu untouched.
 const HERO_SCALE_BOOST := 1.25
@@ -171,6 +173,14 @@ var cpu_lock_timer := 0.0
 var cpu_smoothed_move := Vector2.ZERO
 var hero_kills := 0
 var pvp_invuln_timer := 0.0
+var knockback_velocity := Vector2.ZERO
+var ffa_respawn_left := 0.0
+var _spawn_shield: Node2D
+var _respawn_label: Label
+var attack_charge := 0.0
+var _shot_charge := 0.0
+var _charge_lock_impact := Vector2.ZERO
+var _charge_firing := false
 
 
 func _ready() -> void:
@@ -180,24 +190,30 @@ func _ready() -> void:
 	xp_changed.emit(current_xp, xp_required, level)
 	_normal_collision_mask = collision_mask
 	set_shop_hint_visible(false)
+	_ensure_spawn_shield()
+	_ensure_respawn_label()
 	queue_redraw()
 
 
 func set_shop_hint_visible(show: bool) -> void:
-	if shop_hint != null:
-		shop_hint.visible = show and is_local_player
+	if shop_hint == null:
+		return
+	shop_hint.visible = show and is_local_player
+	var arrow := shop_hint.get_node_or_null("Arrow")
+	if arrow != null:
+		arrow.visible = false
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if camera != null and _shake_time > 0.0:
-		_shake_time = maxf(0.0, _shake_time - delta)
+		_shake_time = maxf(0.0, _shake_time - _delta)
 		if _shake_time <= 0.0:
 			camera.offset = Vector2.ZERO
 		else:
 			camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * _shake_amp
-	if shop_hint == null or not shop_hint.visible:
-		return
-	shop_hint.position.y = sin(Time.get_ticks_msec() * 0.008) * 6.0
+	_refresh_respawn_label()
+	if shop_hint != null and shop_hint.visible:
+		shop_hint.position.y = sin(Time.get_ticks_msec() * 0.008) * 6.0
 
 
 func configure(peer_id: int, mode: int, local_player: bool, next_class_id: String = PlayerClass.DEFAULT_CLASS_ID) -> void:
@@ -238,11 +254,14 @@ func apply_class(next_class_id: String) -> void:
 	_apply_locomotion()
 	if world_health_bar != null:
 		world_health_bar.set_identity_color(Color(str(class_data.get("health_bar_color", class_data.accent_color))))
+	apply_team_identity()
 	base_damage_taken_multiplier = class_data.damage_taken_multiplier
 	health.damage_taken_multiplier = base_damage_taken_multiplier
 	health.hit_invulnerability_window = 0.15
 	health.max_health = class_data.max_health
-	health.current_health = class_data.max_health
+	if GameRuntime.is_ffa():
+		health.max_health *= GameRuntime.FFA_HEALTH_MULT
+	health.current_health = health.max_health
 	health.is_dead = false
 	health.health_changed.emit(health.current_health, health.max_health)
 	_apply_kit_abilities()
@@ -427,9 +446,71 @@ func is_pvp_protected() -> bool:
 	return pvp_invuln_timer > 0.0
 
 
+func apply_knockback(impulse: Vector2) -> void:
+	if simulation_mode == SimulationMode.PROXY:
+		return
+	knockback_velocity += impulse
+
+
+func apply_team_identity() -> void:
+	if not GameRuntime.is_ffa() or team_id == "":
+		return
+	var color := RiftClashManager.team_color(team_id)
+	accent_color = color
+	if world_health_bar != null:
+		world_health_bar.set_identity_color(color)
+		world_health_bar.set_shield_color(color.lightened(0.22))
+		world_health_bar.show_local_indicators(is_local_player)
+
+
 func grant_pvp_spawn_protection() -> void:
 	pvp_invuln_timer = GameRuntime.FFA_PVP_INVULN_SECONDS
+	_ensure_spawn_shield()
 	_refresh_pvp_modulate()
+
+
+func _ensure_spawn_shield() -> void:
+	if _spawn_shield != null and is_instance_valid(_spawn_shield):
+		return
+	_spawn_shield = SPAWN_SHIELD_SCRIPT.new() as Node2D
+	_spawn_shield.name = "SpawnShield"
+	_spawn_shield.z_index = 32
+	add_child(_spawn_shield)
+
+
+func set_ffa_respawn(seconds: float) -> void:
+	ffa_respawn_left = maxf(0.0, seconds)
+	_refresh_respawn_label()
+
+
+func _ensure_respawn_label() -> void:
+	if _respawn_label != null and is_instance_valid(_respawn_label):
+		return
+	_respawn_label = Label.new()
+	_respawn_label.name = "RespawnCounter"
+	_respawn_label.z_index = 40
+	_respawn_label.top_level = true
+	_respawn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_respawn_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_respawn_label.add_theme_font_size_override("font_size", 28)
+	_respawn_label.add_theme_color_override("font_color", Color("ffe56a"))
+	_respawn_label.add_theme_color_override("font_outline_color", Color("1a1208"))
+	_respawn_label.add_theme_constant_override("outline_size", 10)
+	_respawn_label.custom_minimum_size = Vector2(56, 36)
+	_respawn_label.visible = false
+	add_child(_respawn_label)
+
+
+func _refresh_respawn_label() -> void:
+	_ensure_respawn_label()
+	var show := GameRuntime.is_ffa() and not active and ffa_respawn_left > 0.05
+	_respawn_label.visible = show
+	if world_health_bar != null:
+		world_health_bar.visible = active and not GameRuntime.is_dedicated_server()
+	if not show:
+		return
+	_respawn_label.text = str(ceili(ffa_respawn_left))
+	_respawn_label.global_position = global_position + Vector2(-28.0, -86.0)
 
 
 func has_sprite() -> bool:
@@ -528,6 +609,8 @@ func _physics_process(delta: float) -> void:
 
 	if not active or movement_locked:
 		velocity = Vector2.ZERO
+		knockback_velocity = Vector2.ZERO
+		_reset_attack_charge()
 		return
 
 	var move_input := command_move
@@ -570,12 +653,13 @@ func _physics_process(delta: float) -> void:
 	_update_hazard(delta)
 	var speed := movement_speed * float(ability_buff_stats.get("movement_speed_mult", 1.0))
 	if sprint_timer > 0.0:
-		speed *= 1.0 + SPRINT_SPEED_BONUS
+		speed *= 1.0 + SPRINT_SPEED_BONUS + maxf(0.0, float(stacks_of(ShopCatalog.ACTIVE_ITEM_ID) - 1) * 0.12)
 	speed *= 1.0 + skate_speed_bonus
 	if _in_water_hazard:
 		speed *= WATER_CROSSING_SPEED_MULT
-	velocity = move_input * speed
+	velocity = move_input * speed + knockback_velocity
 	move_and_slide()
+	knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, PLAYER_KNOCKBACK_DECAY * delta)
 	_update_tobor_visual(delta, move_input)
 	_update_hover_visual(delta)
 
@@ -585,10 +669,108 @@ func _physics_process(delta: float) -> void:
 		_apply_support_aura(delta)
 
 	attack_cooldown = maxf(0.0, attack_cooldown - delta)
-	if attack_held and attack_cooldown <= 0.0:
-		_perform_attack()
-		attack_cooldown = attack_interval * float(ability_buff_stats.get("attack_interval_mult", 1.0))
+	_update_attack_charge(delta, attack_held)
 	queue_redraw()
+
+
+func _reset_attack_charge() -> void:
+	attack_charge = 0.0
+	_shot_charge = 0.0
+	_charge_firing = false
+
+
+func _charge_t() -> float:
+	return clampf(attack_charge / PlayerClass.ATTACK_CHARGE_MAX, 0.0, 1.0)
+
+
+func _charge_size_mult(t: float = -1.0) -> float:
+	if t < 0.0:
+		t = _shot_charge
+	return lerpf(1.0, PlayerClass.ATTACK_CHARGE_SIZE, t)
+
+
+func _charge_damage_mult(t: float = -1.0) -> float:
+	if t < 0.0:
+		t = _shot_charge
+	return lerpf(1.0, PlayerClass.ATTACK_CHARGE_DAMAGE, t)
+
+
+func _update_attack_charge(delta: float, held: bool) -> void:
+	if _charge_firing:
+		return
+	if attack_cooldown > 0.0:
+		if not held:
+			attack_charge = 0.0
+		return
+	if held:
+		attack_charge = minf(PlayerClass.ATTACK_CHARGE_MAX, attack_charge + delta)
+		if attack_charge >= PlayerClass.ATTACK_CHARGE_MAX:
+			_release_charged_attack()
+	elif attack_charge > 0.0:
+		_release_charged_attack()
+
+
+func _release_charged_attack() -> void:
+	_shot_charge = _charge_t()
+	attack_charge = 0.0
+	_charge_lock_impact = _charge_aim_point()
+	var delay := lerpf(PlayerClass.ATTACK_TAP_DELAY, PlayerClass.ATTACK_FULL_DELAY, _shot_charge)
+	if delay <= PlayerClass.ATTACK_TAP_DELAY + 0.001:
+		_fire_charged_attack()
+		return
+	_charge_firing = true
+	_register_pending_hazard(_charge_lock_impact, _charge_preview_radius(_shot_charge), delay, "blast")
+	get_tree().create_timer(delay).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		_fire_charged_attack()
+	)
+
+
+func _fire_charged_attack() -> void:
+	_charge_firing = false
+	_perform_attack()
+	attack_cooldown = attack_interval * float(ability_buff_stats.get("attack_interval_mult", 1.0))
+	_shot_charge = 0.0
+	_charge_lock_impact = Vector2.ZERO
+
+
+func _charge_aim_point() -> Vector2:
+	if weapon_kind == PlayerClass.Weapon.CONE_SLAM:
+		return global_position + facing_direction * attack_range * 0.55
+	var primary := _find_primary_pvp_target()
+	if primary != null:
+		return primary.global_position
+	var reach := minf(attack_range, 280.0)
+	if weapon_kind == PlayerClass.Weapon.ENERGY_BLAST:
+		reach = minf(attack_range, 280.0)
+	return global_position + facing_direction * reach
+
+
+func _charge_preview_radius(t: float) -> float:
+	var size := _charge_size_mult(t)
+	match weapon_kind:
+		PlayerClass.Weapon.ENERGY_BLAST:
+			return blast_radius * size
+		PlayerClass.Weapon.FROST_SHARD:
+			return frost_burst_radius * size
+		PlayerClass.Weapon.CONE_SLAM:
+			return attack_range * size
+		_:
+			return lerpf(16.0, 52.0, t)
+
+
+func _weapon_hit(target: Node2D, base_damage: float) -> void:
+	if target is Player and GameRuntime.is_ffa():
+		var rival := target as Player
+		if rival.is_pvp_protected() or rival.team_id == team_id:
+			return
+		var taken := maxf(rival.health.damage_taken_multiplier, 0.05)
+		var amount := rival.health.max_health / (GameRuntime.FFA_PVP_SHOTS_TO_KILL * taken)
+		amount *= _charge_damage_mult()
+		rival.health.take_damage(amount, self)
+		return
+	_damage_enemy(target, base_damage * _charge_damage_mult())
 
 
 func _update_hover_visual(delta: float) -> void:
@@ -607,9 +789,9 @@ func _update_sprint(delta: float, ability_held: bool) -> void:
 	sprint_timer = maxf(0.0, sprint_timer - delta)
 	sprint_cooldown = maxf(0.0, sprint_cooldown - delta)
 	if ability_held and has_active_item() and sprint_timer <= 0.0 and sprint_cooldown <= 0.0:
-		sprint_timer = SPRINT_DURATION
-		sprint_cooldown = SPRINT_COOLDOWN + SPRINT_DURATION
-		AudioService.play("dash")
+		sprint_timer = sprint_burst_duration()
+		sprint_cooldown = sprint_cycle_length()
+		SoundDirector.play("dash", global_position)
 	## Phase Boots: the sprint genuinely phases through units and obstacles now, not just a
 	## speed boost — collision is off for the whole burst and restored the instant it ends.
 	if sprint_timer > 0.0 and not was_sprinting:
@@ -655,7 +837,7 @@ func _land_slam() -> void:
 			target_health.take_damage(jetpack_slam, self)
 		if target.has_method("apply_knockback"):
 			target.apply_knockback(global_position.direction_to(target.global_position) * 280.0)
-	AudioService.play("explosion")
+	SoundDirector.play("explosion", global_position)
 
 
 func _update_grab(delta: float) -> void:
@@ -877,8 +1059,11 @@ func _update_ability_slots(delta: float, slots_held: Array) -> void:
 			continue
 		var held := bool(slots_held[slot])
 		var was_held := slot < _slots_held_prev.size() and _slots_held_prev[slot]
-		if held and not was_held and ability_cooldowns[slot] <= 0.0:
-			_arm_or_confirm_ability(slot)
+		if held and ability_cooldowns[slot] <= 0.0:
+			if simulation_mode == SimulationMode.CPU:
+				_cast_known_ability(slot)
+			elif not was_held:
+				_arm_or_confirm_ability(slot)
 		if slot < _slots_held_prev.size():
 			_slots_held_prev[slot] = held
 
@@ -1212,17 +1397,27 @@ func _cast_ability_wrench_keg(data: Dictionary, values: Dictionary, _rank: int) 
 	var origin := global_position
 	var center := _ability_aim_center(throw_range)
 	var radius := float(values.radius)
-	_spawn_ability_projectile(_casting_ability_id, origin, center)
 	var fuse := maxf(float(data.get("fuse_delay", 0.55)), 0.15)
+	var keg := _spawn_ability_projectile(_casting_ability_id, origin, center, fuse * 0.82, 58.0, true)
 	_spawn_keg_warning_ring(center, radius, fuse)
+	_register_pending_hazard(center, radius, fuse, "keg")
+	var keg_id := _casting_ability_id
 	get_tree().create_timer(fuse).timeout.connect(func() -> void:
 		if not is_inside_tree():
 			return
-		_detonate_wrench_keg(data, values, center, radius)
-		_spawn_steam_cloud(center, radius * 0.55, 1.2)
+		var boom_at := center
+		if keg != null and is_instance_valid(keg):
+			boom_at = keg.global_position
+			keg.queue_free()
+		_detonate_wrench_keg(data, values, boom_at, radius)
+		_spawn_steam_cloud(boom_at, radius * 0.55, 1.2)
+		if not keg_id.is_empty():
+			ability_cast.emit(keg_id, PlayerClass.EffectStyle.BLAST, PackedVector2Array([
+				boom_at,
+				boom_at,
+				Vector2(radius, 0.0),
+			]))
 	)
-	# Travel BLAST: caster → landing. Compact shatter radius so this never reads as a BURST ring.
-	_emit_ability_cast(PackedVector2Array([origin, center, Vector2(minf(radius * 0.4, 64.0), 0.0)]))
 
 
 ## The keg's pressure-wave: pops every enemy inside away from the centre (HoN Steam Keg's
@@ -1230,25 +1425,22 @@ func _cast_ability_wrench_keg(data: Dictionary, values: Dictionary, _rank: int) 
 func _detonate_wrench_keg(data: Dictionary, values: Dictionary, center: Vector2, radius: float) -> void:
 	_spawn_keg_blast_wave(center, radius)
 	var kick := absf(float(data.get("knockback_on_hit", 380.0)))
-	for enemy in _enemies_in_radius(center, radius):
-		var away_dir := center.direction_to(enemy.global_position)
-		if away_dir.length_squared() <= 0.0:
-			away_dir = Vector2.RIGHT
-		if enemy.has_method("apply_knockback"):
-			enemy.apply_knockback(away_dir * kick)
-		else:
-			enemy.knockback_velocity = away_dir * kick
+	for enemy in _pvp_hosts_in_radius(center, radius):
+		_knock_away_from(enemy, center, kick)
 		_apply_ability_hit(enemy, data, values)
+	# Self-cast keg is an escape shove — never self-damage.
+	if global_position.distance_to(center) <= radius + BODY_RADIUS:
+		_knock_away_from(self, center, maxf(kick * 2.35, 860.0))
 
 
 ## Brief ring flash ahead of the blast so the fuse reads as HoN's "get out of the circle"
 ## timing window.
-func _spawn_keg_warning_ring(center: Vector2, radius: float, duration: float) -> void:
+func _spawn_keg_warning_ring(center: Vector2, radius: float, duration: float, color: Color = Color(1.0, 0.72, 0.3, 0.9)) -> void:
 	var scene_root := get_tree().current_scene
 	if scene_root == null:
 		return
 	var ring := Line2D.new()
-	ring.default_color = Color(1.0, 0.72, 0.3, 0.9)
+	ring.default_color = color
 	ring.width = 5.0
 	ring.z_index = 23
 	scene_root.add_child(ring)
@@ -1260,6 +1452,38 @@ func _spawn_keg_warning_ring(center: Vector2, radius: float, duration: float) ->
 		ring.default_color.a = 0.35 + 0.55 * t
 	, 0.0, 1.0, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tw.tween_callback(ring.queue_free)
+
+
+func _register_pending_hazard(center: Vector2, radius: float, duration: float, kind: String) -> void:
+	if not is_inside_tree():
+		return
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+	var marker := Node2D.new()
+	scene_root.add_child(marker)
+	marker.global_position = center
+	marker.add_to_group("pending_blasts")
+	marker.set_meta("radius", radius)
+	marker.set_meta("kind", kind)
+	marker.set_meta("owner_id", get_instance_id())
+	get_tree().create_timer(duration).timeout.connect(func() -> void:
+		if is_instance_valid(marker):
+			marker.queue_free()
+	)
+
+
+func _knock_away_from(target: Node2D, center: Vector2, kick: float) -> void:
+	var away := center.direction_to(target.global_position)
+	if away.length_squared() <= 0.0001:
+		if target == self:
+			away = -facing_direction
+		if away.length_squared() <= 0.0001:
+			away = Vector2.LEFT
+	if target.has_method("apply_knockback"):
+		target.apply_knockback(away * kick)
+	elif "knockback_velocity" in target:
+		target.knockback_velocity = away * kick
 
 
 ## Detonation: a filled shockwave that grows out of the keg.
@@ -1285,7 +1509,7 @@ func _spawn_keg_blast_wave(center: Vector2, radius: float) -> void:
 	tw.tween_method(func(t: float) -> void:
 		if not is_instance_valid(holder):
 			return
-		var r := lerpf(16.0, radius * 1.2, t)
+		var r := lerpf(10.0, radius * 1.15, t)
 		_fill_circle_line(fill, center, r)
 		_fill_circle_line(rim, center, r)
 		fill.width = lerpf(22.0, 6.0, t)
@@ -1356,7 +1580,7 @@ func _steam_cloud_tick(center: Vector2, radius: float, tick_power: float, tick_i
 func _cast_ability_wrench_turret(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	var landing := global_position + facing_direction * 18.0
 	_spawn_summon(data, values, landing)
-	AudioService.play_ability("tobor_steam_turret")
+	SoundDirector.play_ability("tobor_steam_turret", global_position)
 	_emit_ability_cast(PackedVector2Array([global_position, landing]))
 
 
@@ -1412,7 +1636,7 @@ func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2)
 	sum._arm_timer = sum.arm_delay
 	sum.expired.connect(_on_summon_expired)
 	get_tree().current_scene.add_child(sum)
-	AudioService.play_ability("tobor_spider_mines")
+	SoundDirector.play_ability("tobor_spider_mines", global_position)
 	active_summons.append(sum)
 	while active_summons.size() > MAX_ACTIVE_SUMMONS:
 		var oldest: SummonEntity = active_summons.pop_front()
@@ -1628,7 +1852,7 @@ func _cast_ability_pyra_sticky_bomb(data: Dictionary, values: Dictionary, _rank:
 	sum.explosion_knockback = 260.0
 	sum.expired.connect(_on_summon_expired)
 	get_tree().current_scene.add_child(sum)
-	AudioService.play_ability("pyra_sticky_bomb")
+	SoundDirector.play_ability("pyra_sticky_bomb", global_position)
 	active_summons.append(sum)
 	while active_summons.size() > MAX_ACTIVE_SUMMONS:
 		var oldest: SummonEntity = active_summons.pop_front()
@@ -2336,13 +2560,15 @@ static func _ability_id_has_projectile(ability_id: String) -> bool:
 
 
 ## Spawn a friendly lobbed projectile. Purely visual; doesn't deal damage itself.
-func _spawn_ability_projectile(ability_id: String, from_position: Vector2, to_position: Vector2) -> void:
+func _spawn_ability_projectile(ability_id: String, from_position: Vector2, to_position: Vector2, travel_time: float = 0.32, arc_height: float = 42.0, persist: bool = false) -> ProjectileSprite:
 	var scene_root := get_tree().current_scene
 	if scene_root == null:
-		return
+		return null
 	var projectile := ProjectileSpriteScene.instantiate() as ProjectileSprite
 	scene_root.add_child(projectile)
-	projectile.setup(ability_id, from_position, to_position, 0.32, 42.0)
+	projectile.persist_on_land = persist
+	projectile.setup(ability_id, from_position, to_position, travel_time, arc_height)
+	return projectile
 
 
 ## Persistent pulsing zone for ultimates that carry a slow/stun on-hit. The fx burst is
@@ -2774,12 +3000,21 @@ func _update_phase_cloak(delta: float) -> void:
 
 
 func _refresh_secondary_bar() -> void:
-	if world_health_bar != null:
-		world_health_bar.set_secondary_cooldown(secondary_cooldown, secondary_cooldown_max)
+	if world_health_bar == null:
+		return
+	if not is_local_player:
+		world_health_bar.show_local_indicators(false)
+		return
+	world_health_bar.set_secondary_cooldown(secondary_cooldown, secondary_cooldown_max)
 
 
 func _update_secondary(delta: float, held: bool) -> void:
 	secondary_cooldown = maxf(0.0, secondary_cooldown - delta)
+	if simulation_mode == SimulationMode.CPU:
+		_secondary_was_held = held
+		if held and secondary_cooldown <= 0.0:
+			_cast_secondary()
+		return
 	var just_pressed := held and not _secondary_was_held
 	var just_released := (not held) and _secondary_was_held
 	_secondary_was_held = held
@@ -2854,23 +3089,23 @@ func _start_secondary_cooldown() -> void:
 
 
 func _secondary_center() -> Vector2:
-	var travel := minf(PlayerClass.SECONDARY_RADIUS, global_position.distance_to(aim_world_position))
-	if travel <= 8.0:
-		return global_position + facing_direction * 48.0
+	var dist := global_position.distance_to(aim_world_position)
+	if dist <= 48.0:
+		return global_position
+	var travel := minf(PlayerClass.SECONDARY_RADIUS, dist)
 	return global_position + global_position.direction_to(aim_world_position) * travel
 
 
 func _cast_secondary_repulse() -> void:
 	var center := _secondary_center()
-	for target in _enemies_in_radius(center, PlayerClass.SECONDARY_RADIUS):
+	var radius := PlayerClass.SECONDARY_RADIUS
+	for target in _pvp_hosts_in_radius(center, radius):
 		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE)
-		if target.has_method("apply_knockback"):
-			var away := center.direction_to(target.global_position)
-			if away.length_squared() <= 0.0:
-				away = facing_direction
-			target.apply_knockback(away * 640.0)
-	_pulse_allies(center, PlayerClass.SECONDARY_RADIUS, PlayerClass.SECONDARY_HEAL, 28.0)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BLAST, PackedVector2Array([global_position, center, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+		_knock_away_from(target, center, 640.0)
+	if global_position.distance_to(center) <= radius + BODY_RADIUS:
+		_knock_away_from(self, center, 920.0)
+	_pulse_allies(center, radius, PlayerClass.SECONDARY_HEAL, 28.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BLAST, PackedVector2Array([global_position, center, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_freeze() -> void:
@@ -2965,78 +3200,119 @@ func _perform_attack() -> void:
 
 
 func _cast_chain_bolt() -> void:
+	var extra_hops := int(round(float(PlayerClass.ATTACK_CHARGE_EXTRA_BOUNCES) * _shot_charge))
+	var hops := chain_count + extra_hops
+	var saved_range := chain_range
+	chain_range = maxf(chain_range, 48.0) * _charge_size_mult()
 	var primary := _find_primary_pvp_target()
 	var points := PackedVector2Array([global_position])
 	if primary == null:
-		points.append(global_position + facing_direction * minf(attack_range, 180.0))
+		points.append(_charge_lock_impact if _charge_lock_impact != Vector2.ZERO else global_position + facing_direction * minf(attack_range, 180.0))
 		staff_cast.emit(class_id, points)
+		chain_range = saved_range
 		return
 
 	var struck: Array[Node2D] = [primary]
 	points.append(primary.global_position)
-	_damage_enemy(primary, weapon_damage)
+	_weapon_hit(primary, weapon_damage)
 	var previous := primary
 
-	for chain_index in chain_count:
+	for chain_index in hops:
 		var next_target := _find_chain_pvp_target(previous, struck)
 		if next_target == null:
 			break
 		struck.append(next_target)
 		points.append(next_target.global_position)
 		var chain_damage := weapon_damage * pow(chain_damage_multiplier, chain_index + 1)
-		_damage_enemy(next_target, chain_damage)
+		_weapon_hit(next_target, chain_damage)
 		previous = next_target
 
+	chain_range = saved_range
 	staff_cast.emit(class_id, points)
 
 
 func _cast_cone_slam() -> void:
-	var half_angle := deg_to_rad(cone_half_angle_degrees)
-	for target in _pvp_hosts_in_radius(global_position, attack_range):
+	var size := _charge_size_mult()
+	var reach := attack_range * size
+	var half_deg := cone_half_angle_degrees * size
+	var half_angle := deg_to_rad(half_deg)
+	for target in _pvp_hosts_in_radius(global_position, reach):
 		var to_target := global_position.direction_to(target.global_position)
 		if to_target.length_squared() > 0.0 and absf(facing_direction.angle_to(to_target)) > half_angle:
 			continue
-		_damage_enemy(target, weapon_damage)
+		_weapon_hit(target, weapon_damage)
 	staff_cast.emit(class_id, PackedVector2Array([
 		global_position,
-		Vector2(attack_range, cone_half_angle_degrees),
-		global_position + facing_direction * attack_range,
+		Vector2(reach, half_deg),
+		global_position + facing_direction * reach,
 	]))
 
 
 func _cast_energy_blast() -> void:
-	var primary := _find_primary_target()
-	var impact := primary.global_position if primary != null else global_position + facing_direction * minf(attack_range, 280.0)
+	var impact := _charge_lock_impact if _charge_lock_impact != Vector2.ZERO else _charge_aim_point()
+	_detonate_energy_blast(impact)
+
+
+func _detonate_energy_blast(impact: Vector2) -> void:
+	var radius := blast_radius * _charge_size_mult()
 	for pulse_index in maxi(1, blast_pulses):
 		var pulse_damage := weapon_damage if pulse_index == 0 else weapon_damage * PlayerClass.BLAST_AFTERSHOCK_DAMAGE
-		for target in _pvp_hosts_in_radius(impact, blast_radius):
-			_damage_enemy(target, pulse_damage)
+		for target in _pvp_hosts_in_radius(impact, radius):
+			if pulse_index == 0:
+				_weapon_hit(target, weapon_damage)
+			else:
+				_weapon_hit(target, pulse_damage)
 	staff_cast.emit(class_id, PackedVector2Array([
 		global_position,
 		impact,
-		Vector2(blast_radius, 0.0),
+		Vector2(radius, 0.0),
 	]))
 
 
 func _cast_mending_bolt() -> void:
-	var primary := _find_primary_target()
-	var points := PackedVector2Array([global_position])
+	var primary := _find_primary_pvp_target()
 	if primary == null:
-		points.append(global_position + facing_direction * minf(attack_range, 180.0))
+		primary = _find_primary_target()
+	var points := PackedVector2Array([global_position])
+	var impact := _charge_lock_impact if _charge_lock_impact != Vector2.ZERO else (primary.global_position if primary != null else global_position + facing_direction * minf(attack_range, 180.0))
+	if primary == null:
+		points.append(impact)
 	else:
 		points.append(primary.global_position)
-		_damage_enemy(primary, weapon_damage)
+		_weapon_hit(primary, weapon_damage)
+	var extra := int(round(lerpf(0.0, 4.0, _shot_charge)))
+	if extra > 0 and primary != null:
+		var struck: Array[Node2D] = [primary]
+		var saved_range := chain_range
+		chain_range = 90.0 * _charge_size_mult()
+		var previous := primary
+		for _i in extra:
+			var next_target := _find_chain_pvp_target(previous, struck)
+			if next_target == null:
+				break
+			struck.append(next_target)
+			points.append(next_target.global_position)
+			_weapon_hit(next_target, weapon_damage * 0.7)
+			previous = next_target
+		chain_range = saved_range
+	if _shot_charge > 0.12:
+		var heal_r := lerpf(40.0, 180.0, _shot_charge)
+		var heal_amt := weapon_damage * _charge_damage_mult() * 0.35
+		for ally in _allies_in_radius(global_position, heal_r):
+			if ally.health != null:
+				ally.health.heal(heal_amt)
 	staff_cast.emit(class_id, points)
 
 
 func _cast_frost_shard() -> void:
 	var primary := _find_primary_pvp_target()
-	var burst_center := primary.global_position if primary != null else global_position + facing_direction * minf(attack_range, 260.0)
-	for target in _pvp_hosts_in_radius(burst_center, frost_burst_radius):
-		_damage_enemy(target, weapon_damage)
+	var burst_center := _charge_lock_impact if _charge_lock_impact != Vector2.ZERO else (primary.global_position if primary != null else global_position + facing_direction * minf(attack_range, 260.0))
+	var radius := frost_burst_radius * _charge_size_mult()
+	for target in _pvp_hosts_in_radius(burst_center, radius):
+		_weapon_hit(target, weapon_damage)
 		if target.has_method("apply_slow"):
-			target.apply_slow(frost_slow_factor, frost_slow_duration)
-	staff_cast.emit(class_id, PackedVector2Array([burst_center, Vector2(frost_burst_radius, 0.0)]))
+			target.apply_slow(frost_slow_factor, frost_slow_duration * lerpf(1.0, 1.6, _shot_charge))
+	staff_cast.emit(class_id, PackedVector2Array([burst_center, Vector2(radius, 0.0)]))
 
 
 func _enemies_in_radius(center: Vector2, radius: float) -> Array[Node2D]:
@@ -3225,15 +3501,16 @@ func buy(item_id: String) -> bool:
 
 func _apply_shop_item(item_id: String) -> void:
 	var item := ShopCatalog.by_id(item_id)
-	thorns_ratio += float(item.get("thorns_ratio", 0.0))
-	lifesteal_ratio += float(item.get("lifesteal_ratio", 0.0))
-	health_regen_per_second += float(item.get("health_regen_per_second", 0.0))
-	resistance_pierce += float(item.get("resistance_pierce", 0.0))
-	ember_damage_per_second += float(item.get("ember_damage_per_second", 0.0))
-	knockback_strength += float(item.get("knockback_strength", 0.0))
-	pickup_radius_bonus += float(item.get("pickup_radius_bonus", 0.0))
-	jetpack_slam += float(item.get("jetpack_slam", 0.0))
-	skate_speed_bonus += float(item.get("skate_speed_bonus", 0.0))
+	var extra := stacks_of(item_id) > 1
+	thorns_ratio += _shop_stat(item, "thorns_ratio", extra)
+	lifesteal_ratio += _shop_stat(item, "lifesteal_ratio", extra)
+	health_regen_per_second += _shop_stat(item, "health_regen_per_second", extra)
+	resistance_pierce += _shop_stat(item, "resistance_pierce", extra)
+	ember_damage_per_second += _shop_stat(item, "ember_damage_per_second", extra)
+	knockback_strength += _shop_stat(item, "knockback_strength", extra)
+	pickup_radius_bonus += _shop_stat(item, "pickup_radius_bonus", extra)
+	jetpack_slam += _shop_stat(item, "jetpack_slam", extra)
+	skate_speed_bonus += _shop_stat(item, "skate_speed_bonus", extra)
 	if bool(item.get("water_walk", false)) and not water_walk:
 		water_walk = true
 		# _normal_collision_mask was fixed at spawn (_apply_locomotion runs once, from
@@ -3242,7 +3519,12 @@ func _apply_shop_item(item_id: String) -> void:
 		_normal_collision_mask &= ~Arena.VOID_LAYER
 		if sprint_timer <= 0.0:
 			collision_mask = _normal_collision_mask
-	grab_radius = maxf(grab_radius, float(item.get("grab_radius", 0.0)))
+	var grab := float(item.get("grab_radius", 0.0))
+	if grab > 0.0:
+		if grab_radius <= 0.0:
+			grab_radius = grab
+		else:
+			grab_radius += float(item.get("grab_radius_step", grab * 0.22))
 	if item.has("hit_slow_factor"):
 		hit_slow_factor = minf(hit_slow_factor, float(item.hit_slow_factor))
 		hit_slow_duration = maxf(hit_slow_duration, float(item.get("hit_slow_duration", 1.0)))
@@ -3251,8 +3533,23 @@ func _apply_shop_item(item_id: String) -> void:
 	_apply_sprite()
 
 
+func _shop_stat(item: Dictionary, key: String, extra: bool) -> float:
+	if extra:
+		return float(item.get(key + "_step", item.get(key, 0.0)))
+	return float(item.get(key, 0.0))
+
+
 func has_active_item() -> bool:
 	return stacks_of(ShopCatalog.ACTIVE_ITEM_ID) > 0
+
+
+func sprint_burst_duration() -> float:
+	return SPRINT_DURATION + maxf(0.0, float(stacks_of(ShopCatalog.ACTIVE_ITEM_ID) - 1) * 0.25)
+
+
+func sprint_cycle_length() -> float:
+	var cool := maxf(4.5, SPRINT_COOLDOWN - maxf(0.0, float(stacks_of(ShopCatalog.ACTIVE_ITEM_ID) - 1) * 0.85))
+	return cool + sprint_burst_duration()
 
 
 func is_sprinting() -> bool:
@@ -3309,7 +3606,7 @@ func apply_upgrade(upgrade_id: String) -> void:
 		"heavy": weapon_damage += 8.0
 		"chain": chain_count += 1
 		"volt": chain_range += 40.0
-		"blast": blast_radius += 40.0
+		"blast": blast_radius += 10.0
 		"aftershock": blast_pulses += 1
 		"boots": movement_speed += 35.0
 		"plating":
@@ -3379,7 +3676,7 @@ func snapshot() -> Dictionary:
 
 
 func _on_damaged(amount: float) -> void:
-	AudioService.play("hurt")
+	SoundDirector.play("hurt", global_position)
 	var tween := create_tween()
 	tween.tween_property(self, "modulate", Color("ff7777"), 0.05)
 	tween.tween_callback(_refresh_pvp_modulate)
@@ -3403,7 +3700,7 @@ func _on_died() -> void:
 	_hazard_grace_timer = 0.0
 	_hazard_visual_off()
 	modulate = Color(0.35, 0.35, 0.4, 1.0)
-	AudioService.play("player_down")
+	SoundDirector.play("player_down", global_position)
 	player_died.emit(owner_peer_id)
 
 
@@ -3417,7 +3714,7 @@ func revive() -> void:
 	health.is_dead = false
 	health.current_health = health.max_health * 0.5
 	health.health_changed.emit(health.current_health, health.max_health)
-	AudioService.play("revive")
+	SoundDirector.play("revive", global_position)
 
 
 func respawn_ffa(at: Vector2) -> void:
@@ -3429,18 +3726,24 @@ func respawn_ffa(at: Vector2) -> void:
 	health.is_dead = false
 	health.current_health = health.max_health
 	health.health_changed.emit(health.current_health, health.max_health)
+	set_ffa_respawn(0.0)
 	grant_pvp_spawn_protection()
-	AudioService.play("revive")
+	SoundDirector.play("revive", global_position)
 
 
 func _refresh_pvp_modulate() -> void:
 	if not active:
 		return
-	if pvp_invuln_timer <= 0.0:
-		modulate = Color.WHITE
+	modulate = Color.WHITE
+	if world_health_bar == null:
 		return
-	var pulse := 0.72 + 0.28 * (0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.012))
-	modulate = Color(pulse, pulse, 1.0, 0.88)
+	var protected := is_pvp_protected()
+	world_health_bar.set_shield_active(protected)
+	if protected and pvp_invuln_timer <= GameRuntime.FFA_PVP_SHIELD_FLICKER_SECONDS:
+		var beat := 0.10 if pvp_invuln_timer <= 2.0 else 0.20
+		world_health_bar.set_shield_flicker(fmod(pvp_invuln_timer, beat * 2.0) > beat)
+	else:
+		world_health_bar.set_shield_flicker(true)
 
 
 func _draw() -> void:
@@ -3458,7 +3761,7 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, BODY_RADIUS, accent_color, false, 3.0)
 		draw_line(facing_direction * 20.0, facing_direction * 30.0, accent_color, 4.0)
 		draw_circle(facing_direction * 32.0, 4.5, accent_color)
-	if aim_indicator_visible and not _pending_ability_id.is_empty():
+	if aim_indicator_visible and is_local_player and not _pending_ability_id.is_empty():
 		_draw_aim_indicator()
 
 

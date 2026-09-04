@@ -34,7 +34,6 @@ const TERRAIN_SPRITES := [
 	"rock_large",
 	"boulder",
 	"spire",
-	"shop_stand",
 	"void_tile",
 ]
 

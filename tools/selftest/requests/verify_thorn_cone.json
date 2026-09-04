@@ -1,0 +1,21 @@
+{
+	"hero": "thorn",
+	"comment": "Poison Spray must be a slow-fading venom CONE (not a disc) that leaves green poison on enemies.",
+	"expected_casts": ["thorn_poison_spray"],
+	"events": [
+		{"t": 2.6, "kind": "spawn", "at": [160, 0], "type": "grunt", "hp_mult": 20.0},
+		{"t": 2.6, "kind": "spawn", "at": [200, 40], "type": "grunt", "hp_mult": 20.0},
+		{"t": 2.6, "kind": "spawn", "at": [200, -40], "type": "grunt", "hp_mult": 20.0},
+		{"t": 2.6, "kind": "spawn", "at": [240, 0], "type": "brute", "hp_mult": 8.0},
+		{"t": 2.7, "kind": "aim", "at": [220, 0]},
+		{"t": 2.8, "kind": "snap", "label": "thorn_pre"},
+		{"t": 3.0, "kind": "cast", "slot": 0},
+		{"t": 3.15, "kind": "cast", "slot": 0},
+		{"t": 3.35, "kind": "snap", "label": "thorn_cone_peak"},
+		{"t": 3.4, "kind": "sound_probe", "ability_id": "thorn_poison_spray", "label": "sfx_spray"},
+		{"t": 4.0, "kind": "snap", "label": "thorn_cone_linger"},
+		{"t": 4.7, "kind": "snap", "label": "thorn_poison_tint"},
+		{"t": 4.8, "kind": "probe", "label": "after_spray"},
+		{"t": 5.5, "kind": "report"}
+	]
+}

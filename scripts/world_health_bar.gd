@@ -10,6 +10,8 @@ extends ProgressBar
 
 var fill_style: StyleBoxFlat
 var secondary_bar: ProgressBar
+var shield_bar: ProgressBar
+var shield_fill: StyleBoxFlat
 
 
 func _ready() -> void:
@@ -19,7 +21,9 @@ func _ready() -> void:
 	else:
 		fill_style = StyleBoxFlat.new()
 	add_theme_stylebox_override("fill", fill_style)
+	fill_style.bg_color = healthy_color
 	_make_secondary_bar()
+	_make_shield_bar()
 
 
 func _make_secondary_bar() -> void:
@@ -45,11 +49,62 @@ func _make_secondary_bar() -> void:
 	secondary_bar.offset_bottom = -2.0
 
 
+func _make_shield_bar() -> void:
+	shield_bar = ProgressBar.new()
+	shield_bar.show_percentage = false
+	shield_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shield_bar.min_value = 0.0
+	shield_bar.max_value = 1.0
+	shield_bar.value = 1.0
+	shield_bar.visible = false
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.08, 0.09, 0.12, 0.7)
+	bg.set_corner_radius_all(2)
+	shield_fill = StyleBoxFlat.new()
+	shield_fill.bg_color = Color(0.92, 0.94, 1.0, 1.0)
+	shield_fill.set_corner_radius_all(2)
+	shield_bar.add_theme_stylebox_override("background", bg)
+	shield_bar.add_theme_stylebox_override("fill", shield_fill)
+	add_child(shield_bar)
+	shield_bar.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	shield_bar.offset_left = 0.0
+	shield_bar.offset_right = 0.0
+	shield_bar.offset_top = 2.0
+	shield_bar.offset_bottom = 6.0
+
+
 func set_identity_color(color: Color) -> void:
 	healthy_color = color
-	warning_color = color.lerp(Color("f2bd4b"), 0.35)
+	warning_color = color.lerp(Color("f2bd4b"), 0.28)
+	danger_color = color.lerp(Color("f05252"), 0.45)
 	if fill_style != null:
 		fill_style.bg_color = healthy_color
+	set_shield_color(color.lightened(0.22))
+
+
+func set_shield_color(color: Color) -> void:
+	if shield_fill != null:
+		shield_fill.bg_color = color
+
+
+func set_shield_active(on: bool) -> void:
+	if shield_bar == null:
+		return
+	shield_bar.visible = on
+	shield_bar.value = 1.0 if on else 0.0
+	if not on:
+		shield_bar.modulate.a = 1.0
+
+
+func set_shield_flicker(show: bool) -> void:
+	if shield_bar == null:
+		return
+	shield_bar.modulate.a = 1.0 if show else 0.12
+
+
+func show_local_indicators(show: bool) -> void:
+	if secondary_bar != null:
+		secondary_bar.visible = show
 
 
 func bind_health(health: HealthComponent) -> void:
@@ -78,6 +133,8 @@ func _on_health_changed(current_health: float, max_health: float) -> void:
 	if max_health > 0.0:
 		ratio = clampf(current_health / max_health, 0.0, 1.0)
 
+	if fill_style == null:
+		return
 	if ratio <= danger_threshold:
 		fill_style.bg_color = danger_color
 	elif ratio < healthy_threshold:

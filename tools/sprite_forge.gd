@@ -95,7 +95,7 @@ func _write_contact_sheet(sprites: Dictionary) -> void:
 ## the tw_ biome variants are already toned inside ToborWorldArt.all_sprites().
 const CLASSIC_TERRAIN := [
 	"grass_tile", "grass_tuft", "grass_flower", "grass_bloom",
-	"rock_small", "rock_large", "boulder", "spire", "shop_stand", "void_tile",
+	"rock_small", "rock_large", "boulder", "spire", "void_tile",
 ]
 
 

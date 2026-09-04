@@ -31,6 +31,15 @@ var arm_delay: float = 0.0
 var boss_damage_mult: float = 1.0
 ## Launch-away impulse applied to every enemy caught by `_explode`; 0 means no displacement.
 var explosion_knockback: float = 0.0
+## Spider Mines' Repair Pulse merge: the caster (not tracked via owner_peer_id, which
+## nothing currently reads — set directly by whoever spawns this) gets healed for this
+## much when the mine detonates. 0 means no heal (every other summon/mine).
+var heal_on_explode: float = 0.0
+var owner_player: Player = null
+## Mines "crawl" toward the nearest enemy within seek_range once armed, instead of sitting
+## fully still — still a trap, just not a completely static one. 0 = no seeking.
+var seek_speed: float = 0.0
+var seek_range: float = 260.0
 var _exploded := false
 var _arm_timer: float = 0.0
 
@@ -88,6 +97,8 @@ func _process(delta: float) -> void:
 		if _arm_timer > 0.0:
 			_arm_timer = maxf(0.0, _arm_timer - delta)
 		elif _deploy_timer <= 0.0:
+			if seek_speed > 0.0:
+				_seek_toward_nearest(delta)
 			_check_mine_trigger()
 	elif _deploy_timer <= 0.0:
 		attack_timer -= delta
@@ -118,6 +129,24 @@ func _overlap_reach(enemy: Node2D) -> float:
 	return reach
 
 
+## Crawls toward the nearest enemy within seek_range at seek_speed — a trap that closes
+## the last bit of distance on its own instead of only ever triggering on foot traffic
+## that happens to wander directly over it.
+func _seek_toward_nearest(delta: float) -> void:
+	var nearest: Node2D = null
+	var best := seek_range
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy) or not enemy is Node2D:
+			continue
+		var dist := global_position.distance_to((enemy as Node2D).global_position)
+		if dist < best:
+			best = dist
+			nearest = enemy as Node2D
+	if nearest == null:
+		return
+	global_position = global_position.move_toward(nearest.global_position, seek_speed * delta)
+
+
 func _world_sprite_name() -> String:
 	match ability_id:
 		"tobor_steam_turret":
@@ -134,10 +163,30 @@ func _body_modulate() -> Color:
 	return tint
 
 
+const LightningEffectScene: PackedScene = preload("res://scenes/effects/lightning_effect.tscn")
+
+
 func _explode() -> void:
 	_exploded = true
 	_muzzle_t = 0.4
 	AudioService.play("explosion")
+	# Mines used to detonate with damage + sound only — no visible blast at all. Same BURST
+	# effect main.gd's _play_explosion_effect uses, sized to the real explosion_radius.
+	var vfx := LightningEffectScene.instantiate() as LightningEffect
+	vfx.style = PlayerClass.EffectStyle.BURST
+	vfx.main_color = Color("ffb04a")
+	vfx.chain_color = Color("ff5a1e")
+	vfx.points = PackedVector2Array([global_position, Vector2(maxf(explosion_radius, trigger_radius), 0.0)])
+	get_tree().current_scene.add_child(vfx)
+	# Repair Pulse merge: heal the caster (or the nearest ally) for heal_on_explode.
+	if heal_on_explode > 0.0:
+		var target_to_heal: Node = owner_player if owner_player != null else self
+		if target_to_heal.has_method("heal"):
+			target_to_heal.heal(heal_on_explode)
+		else:
+			var hc := target_to_heal.get_node_or_null("HealthComponent") if target_to_heal is Node else null
+			if hc != null and hc.has_method("heal"):
+				hc.heal(heal_on_explode)
 	var blast := explosion_radius if explosion_radius > 0.0 else trigger_radius
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(enemy) or not enemy is Node2D:

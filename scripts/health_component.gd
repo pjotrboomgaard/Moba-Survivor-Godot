@@ -20,6 +20,17 @@ var invulnerable := false
 var shield_amount: float = 0.0
 var shield_timer: float = 0.0
 
+## Brief post-hit grace so several attackers connecting in the same frame/short window
+## don't all land at once — 0.0 (default) means no grace, used by enemies so player AOE
+## still hits every target in a cluster. Ticked down by the owner, same as shield_timer.
+@export var hit_invulnerability_window: float = 0.0
+var _hit_invuln_timer: float = 0.0
+
+
+func tick_hit_invulnerability(delta: float) -> void:
+	if _hit_invuln_timer > 0.0:
+		_hit_invuln_timer = maxf(0.0, _hit_invuln_timer - delta)
+
 
 func _ready() -> void:
 	current_health = max_health
@@ -42,6 +53,8 @@ func tick_shield(delta: float) -> void:
 func take_damage(amount: float, source: Node = null) -> void:
 	if is_dead or invulnerable or amount <= 0.0:
 		return
+	if hit_invulnerability_window > 0.0 and _hit_invuln_timer > 0.0:
+		return
 	last_damage_source = source
 	var mitigated := amount * damage_taken_multiplier
 	if shield_amount > 0.0:
@@ -51,6 +64,8 @@ func take_damage(amount: float, source: Node = null) -> void:
 	if mitigated <= 0.0:
 		health_changed.emit(current_health, max_health)
 		return
+	if hit_invulnerability_window > 0.0:
+		_hit_invuln_timer = hit_invulnerability_window
 	current_health = maxf(0.0, current_health - mitigated)
 	damaged.emit(mitigated)
 	health_changed.emit(current_health, max_health)

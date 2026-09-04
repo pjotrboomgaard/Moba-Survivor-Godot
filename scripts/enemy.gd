@@ -8,6 +8,8 @@ signal exploded(origin: Vector2, radius: float, damage: float)
 signal arena_hazard_requested(spec: Dictionary)
 signal boss_phase_changed(phase: int)
 
+const _MinionCorpse := preload("res://scripts/minion_corpse.gd")
+
 const SEPARATION_RANGE := 62.0
 const SEPARATION_STRENGTH := 130.0
 const KNOCKBACK_DECAY := 720.0
@@ -265,29 +267,15 @@ func refresh_biome_look() -> void:
 	queue_redraw()
 
 
-## Boss body sprites already reskin per biome (tw_<biome>_ravager.png etc. — see
-## SpriteLibrary._skinned_name), but fill_color/outline_color are still the boss's base
-## EnemyType palette, and every attack telegraph (slam rings, cross-line lasers,
-## shockwaves — see _emit_player_slam/_emit_cross_lines/_emit_hazard) is drawn from those
-## two colors. So the reskinned body still threw the exact same-colored attack in every
-## world. Retint to the world's palette so a volcano boss throws fire, an ice boss frost.
-const BOSS_BIOME_PALETTE := {
-	0: {"fill": "8fd66b", "outline": "e8ffd0"},
-	1: {"fill": "ff6a2e", "outline": "ffd08a"},
-	2: {"fill": "5fd0ff", "outline": "eafcff"},
-	3: {"fill": "ffcf4a", "outline": "fff2c0"},
-	4: {"fill": "3ad0c0", "outline": "d0fff5"},
-}
+## Attack telegraphs stay red in every biome. Body sprites are skinned separately.
+const BOSS_RING_COLOR := {"fill": "ff3a3a", "outline": "ffc8c8"}
 
 
 func _apply_boss_biome_theme() -> void:
-	if not is_boss or not GameRuntime.uses_biomes() or GameRuntime.is_classic():
+	if not is_boss:
 		return
-	var palette: Dictionary = BOSS_BIOME_PALETTE.get(GameRuntime.biome_id, {})
-	if palette.is_empty():
-		return
-	fill_color = Color(str(palette.get("fill", fill_color.to_html(false))))
-	outline_color = Color(str(palette.get("outline", outline_color.to_html(false))))
+	fill_color = Color(str(BOSS_RING_COLOR.fill))
+	outline_color = Color(str(BOSS_RING_COLOR.outline))
 
 
 func _apply_biome_combat() -> void:
@@ -342,6 +330,7 @@ func _physics_process(delta: float) -> void:
 		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_DECAY * delta)
 		if knockback_velocity.length() > KNOCKBACK_FLIGHT_THRESHOLD:
 			_was_knocked = true
+		_eject_from_ffa_crater()
 	elif _was_knocked:
 		# Just landed from a knockback arc — check if we ended up in lava.
 		_was_knocked = false
@@ -370,7 +359,9 @@ func _physics_process(delta: float) -> void:
 			return
 	target = _find_nearest_player()
 	if target == null:
-		if _any_player_cloaked():
+		if Arena.ffa_blocks_creeps_from_crater() and _any_living_player_in_crater():
+			_process_crater_watch()
+		elif _any_player_cloaked():
 			_process_wander(delta)
 		else:
 			velocity = Vector2.ZERO
@@ -416,6 +407,11 @@ func _process_teleport(delta: float) -> bool:
 		_arena = Arena.arena_root(self)
 	if _arena != null:
 		dest = _arena.free_position_near(dest, body_radius + 4.0)
+	if Arena.ffa_blocks_creeps_from_crater():
+		var rim := Arena.ffa_creep_rim_radius(body_radius)
+		if dest.length() < rim:
+			var radial := dest.normalized() if dest.length() > 1.0 else Vector2.RIGHT
+			dest = radial * rim
 	global_position = dest
 	queue_redraw()
 	return true
@@ -450,15 +446,52 @@ func _is_still_growing() -> bool:
 	return _growth_age < growth_aggro_seconds
 
 
-func _move(direction_velocity: Vector2) -> void:
+func _move(direction_velocity: Vector2, allow_crater_inward: bool = false) -> void:
 	var dir := direction_velocity
 	if scrambling_out > 0.0:
 		dir *= LAVA_SCRAMBLE_SPEED_MULT
+	dir = _deflect_from_ffa_crater(dir, allow_crater_inward)
 	velocity = dir + _separation_offset()
 	if flying:
 		global_position += velocity * get_physics_process_delta_time()
 	else:
 		move_and_slide()
+	_eject_from_ffa_crater()
+
+
+func _deflect_from_ffa_crater(dir: Vector2, allow_crater_inward: bool = false) -> Vector2:
+	if not Arena.ffa_blocks_creeps_from_crater():
+		return dir
+	var rim := Arena.ffa_creep_rim_radius(body_radius)
+	var dist := global_position.length()
+	if dist > rim + 18.0:
+		return dir
+	if allow_crater_inward and dist > rim + 2.0:
+		return dir
+	var radial := global_position.normalized() if dist > 1.0 else Vector2.RIGHT
+	var inward := dir.dot(radial)
+	if inward < 0.0:
+		dir -= radial * inward
+	if dir.length_squared() < 36.0:
+		if allow_crater_inward:
+			return Vector2.ZERO
+		var around := radial.orthogonal()
+		if target != null:
+			var side := radial.orthogonal().dot(target.global_position - global_position)
+			if side < 0.0:
+				around = -around
+		dir = around * movement_speed * slow_factor
+	return dir
+
+
+func _eject_from_ffa_crater() -> void:
+	if not Arena.ffa_blocks_creeps_from_crater():
+		return
+	var rim := Arena.ffa_creep_rim_radius(body_radius)
+	if global_position.length() >= rim:
+		return
+	var radial := global_position.normalized() if global_position.length() > 1.0 else Vector2.RIGHT
+	global_position = radial * rim
 
 
 func _separation_offset() -> Vector2:
@@ -485,6 +518,17 @@ func _process_wander(delta: float) -> void:
 		wander_direction = Vector2.RIGHT.rotated(randf_range(0.0, TAU))
 		wander_timer = randf_range(WANDER_TURN_MIN, WANDER_TURN_MAX)
 	_move(wander_direction * movement_speed * WANDER_SPEED_MULT * slow_factor)
+
+
+## Player is camping the crater: walk to the rim and hold, don't orbit forever.
+func _process_crater_watch() -> void:
+	var rim := Arena.ffa_creep_rim_radius(body_radius)
+	var dist := global_position.length()
+	if dist <= rim + 8.0:
+		velocity = Vector2.ZERO
+		return
+	var inward := -global_position.normalized() if dist > 1.0 else Vector2.LEFT
+	_move(inward * movement_speed * slow_factor, true)
 
 
 func _process_melee() -> void:
@@ -531,7 +575,7 @@ func _process_boss_dash(delta: float) -> bool:
 			charging = true
 			charge_state_timer = charge_duration
 			charge_direction = global_position.direction_to(target.global_position)
-			AudioService.play("dash")
+			SoundDirector.play("dash", global_position)
 		return true
 
 	dash_timer -= delta
@@ -540,7 +584,7 @@ func _process_boss_dash(delta: float) -> bool:
 		charge_state_timer = charge_windup
 		velocity = Vector2.ZERO
 		queue_redraw()
-		AudioService.play("charge")
+		SoundDirector.play("charge", global_position)
 		return true
 	return false
 
@@ -592,7 +636,7 @@ func _update_boss_phase() -> void:
 	winding_up = false
 	charging = false
 	boss_phase_changed.emit(boss_phase)
-	AudioService.play("boss_alert")
+	SoundDirector.play("boss_alert")
 
 
 func _boss_idle_move() -> void:
@@ -622,7 +666,7 @@ func _begin_boss_pattern() -> void:
 			winding_up = true
 			charge_state_timer = charge_windup * (0.75 if boss_phase >= 3 else 1.0)
 			pattern_cooldown = maxf(1.35, dash_interval / float(boss_phase + 1))
-			AudioService.play("charge")
+			SoundDirector.play("charge", global_position)
 		"slam":
 			slam_shots_left = 1 + boss_phase
 			slam_shot_gap = 0.0
@@ -856,7 +900,7 @@ func _process_charger(delta: float) -> void:
 			charging = true
 			charge_state_timer = charge_duration
 			charge_direction = global_position.direction_to(target.global_position)
-			AudioService.play("dash")
+			SoundDirector.play("dash", global_position)
 		return
 
 	var distance := global_position.distance_to(target.global_position)
@@ -865,7 +909,7 @@ func _process_charger(delta: float) -> void:
 		charge_state_timer = charge_windup
 		velocity = Vector2.ZERO
 		queue_redraw()
-		AudioService.play("charge")
+		SoundDirector.play("charge", global_position)
 		return
 
 	_process_melee()
@@ -1053,7 +1097,7 @@ func _on_knockback_landed() -> void:
 	_lava_burn_seconds = maxf(_lava_burn_seconds, LAVA_DUNK_BURN_DURATION)
 	_lava_burn_tick = 0.0
 	scrambling_out = maxf(scrambling_out, float(hazard.get("scramble_seconds", 2.5)))
-	AudioService.play("hit")
+	SoundDirector.play("hit", global_position)
 	queue_redraw()  # Scramble tint in _draw picks this up next frame.
 
 
@@ -1169,7 +1213,7 @@ func apply_network_state(state: Dictionary) -> void:
 		winding_up = next_winding
 		queue_redraw()
 		if next_winding:
-			AudioService.play("charge")
+			SoundDirector.play("charge", global_position)
 	health.set_network_state(
 		state.get("health", health.current_health),
 		state.get("max_health", health.max_health)
@@ -1199,11 +1243,15 @@ func is_damageable() -> bool:
 func _find_nearest_player() -> Node2D:
 	var nearest: Node2D
 	var best_score := INF
+	var crater_block := Arena.ffa_blocks_creeps_from_crater()
+	var crater := Arena.crater_radius()
 	for candidate in get_tree().get_nodes_in_group("players"):
 		if not is_instance_valid(candidate) or not candidate is Player or not candidate.active:
 			continue
 		var player := candidate as Player
 		if player.is_phase_cloaked():
+			continue
+		if crater_block and player.global_position.length() < crater:
 			continue
 		var weight := 1.0 if taunt_immune else player.taunt_weight
 		var score: float = global_position.distance_squared_to(player.global_position) * weight
@@ -1211,6 +1259,21 @@ func _find_nearest_player() -> Node2D:
 			nearest = player
 			best_score = score
 	return nearest
+
+
+func _any_living_player_in_crater() -> bool:
+	if not Arena.ffa_blocks_creeps_from_crater():
+		return false
+	var crater := Arena.crater_radius()
+	for candidate in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(candidate) or not candidate is Player:
+			continue
+		var player := candidate as Player
+		if not player.active or player.is_phase_cloaked():
+			continue
+		if player.global_position.length() < crater:
+			return true
+	return false
 
 
 ## True when every player in range is phase-cloaked, so a null target should wander
@@ -1238,7 +1301,7 @@ func _attack_target() -> void:
 
 
 func _on_damaged(amount: float) -> void:
-	AudioService.play("hit")
+	SoundDirector.play("hit", global_position)
 	var tween := create_tween()
 	tween.tween_property(self, "modulate", Color(1.7, 1.7, 1.7, 1.0), 0.04)
 	tween.tween_property(self, "modulate", Color.WHITE, 0.1)
@@ -1255,6 +1318,14 @@ func _on_died() -> void:
 	if not death_spawn_id.is_empty() and death_spawn_count > 0:
 		spawn_requested.emit(death_spawn_id, global_position, death_spawn_count)
 	defeated.emit(self)
+	if not is_boss:
+		var parent := get_parent()
+		if parent != null:
+			var corpse: Node2D = _MinionCorpse.new()
+			corpse.setup_from(self)
+			parent.add_child(corpse)
+		queue_free()
+		return
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(self, "scale", Vector2.ZERO, 0.12)

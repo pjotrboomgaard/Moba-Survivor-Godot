@@ -2636,6 +2636,10 @@ const ENEMY_PALETTES := {
 	"charger": {"o": "6b2f05", "f": "ff7a29", "l": "ffd0a8", "e": "2a1000", "w": "ffffff"},
 	"summoner": {"o": "4a1a6b", "f": "c85cff", "l": "eccfff", "e": "1c0630", "w": "ffffff"},
 	"lurker": {"o": "241809", "f": "5a3d2b", "l": "8a6a4a", "e": "120c04", "w": "ffe066"},
+	"cinderling": {"o": "5a1400", "f": "ff5a1e", "l": "ffd08a", "e": "fff2b0", "w": "ffe8a0"},
+	"iceball": {"o": "1a4a5c", "f": "aee9ff", "l": "ffffff", "e": "3a7a94", "w": "ffffff"},
+	"sparkbot": {"o": "5c4a00", "f": "ffd23a", "l": "fff2b0", "e": "1a1400", "w": "ffffff"},
+	"ripcurrent": {"o": "0a3a38", "f": "2ecfc0", "l": "d0fff5", "e": "052422", "w": "ffffff"},
 }
 
 const ENEMY_ROWS := {
@@ -2873,6 +2877,82 @@ const ENEMY_ROWS := {
 		".....o....o.....",
 		"................",
 	],
+	## World-signature trash (see EnemyType's world_exclusive field). Silhouettes borrow
+	## proven shapes from the base roster (alert/poised charger, seamed splitter, boxy
+	## sentinel, finned drifter) so the grid dimensions are guaranteed valid — only the
+	## palette + a couple of accent pixels change to sell the new theme.
+	"cinderling": [
+		"................",
+		"...oo......oo...",
+		"..ofo......ofo..",
+		"..offo.oo.offo..",
+		"...offoffoffo...",
+		"..offffffffffo..",
+		".offfeeffeefffo.",
+		".offfeeffeefffo.",
+		".offffwwwwffffo.",
+		".offflwwwwlfffo.",
+		".offffffffffffo.",
+		"..offffffffffo..",
+		"...oooooooooo...",
+		"...o.o....o.o...",
+		"..oo.o....o.oo..",
+		"................",
+	],
+	"iceball": [
+		"................",
+		".....oooooo.....",
+		"....offffffo....",
+		"...offloofffo...",
+		"..offffloofffffo",
+		"..offeefooeeffo.",
+		"..offffoofffffo.",
+		"..offffoofffffo.",
+		"..offllooollffo.",
+		"..offffoofffffo.",
+		"...offffoofffo..",
+		"....oooooooo....",
+		"....o.o..o.o....",
+		"...oo.o..o.oo...",
+		"................",
+		"................",
+	],
+	"sparkbot": [
+		"................",
+		"....oooooooo....",
+		"...offffffffo...",
+		"..offwwwwwwffo..",
+		"..offffffffffo..",
+		".offfeeffeefffo.",
+		".offfeeffeefffo.",
+		".offffffffffffo.",
+		".offoffwwffoffo.",
+		".offoffffffoffo.",
+		".offffffffffffo.",
+		"..offffffffffo..",
+		"..offoooooofffo.",
+		"...oo.o..o.oo...",
+		"...o..o..o..o...",
+		"................",
+	],
+	"ripcurrent": [
+		"................",
+		"..o..........o..",
+		".ofo.oooooo.ofo.",
+		".offoffffffoffo.",
+		".offlfffffflffo.",
+		"..offweffewffo..",
+		"...offeffeffo...",
+		"...offffffffo...",
+		"...offllllffo...",
+		"....offffffo....",
+		".....oooooo.....",
+		"......o..o......",
+		".....o....o.....",
+		"................",
+		"................",
+		"................",
+	],
 }
 
 const BOSS_PALETTES := {
@@ -2997,40 +3077,40 @@ const PROP_ROWS := {
 		"..oooo..",
 	],
 	"tobor_turret_body": [
-		"....ssssss......",
-		"...smmwwmms.....",
-		"...smwwwwms.....",
-		"...smyyyyms.....",
-		"....syyyyys.....",
-		".....syyys......",
-		".....sssss......",
-		"....sswwsss.....",
-		"...sswnnwsss....",
-		"..sswwwwwwss....",
-		".ssssssssssss...",
-		".smmssssssmmss..",
-		".sssssssssssss..",
+		"................",
+		"........tyyy....",
+		".......kwwwwk...",
+		"......knnwwwk...",
+		".....knnntws....",
+		"....ssnnnnss....",
+		"...swnnnnnnws...",
+		"...swnnwwwnws...",
+		"..ssnnnnnnnnss..",
+		".smmssnnnnssmms.",
+		".ssssssssssssss.",
 		"..sss......sss..",
-		"..mmm......mmm..",
+		"..kmm......mmk..",
+		"..kkk......kkk..",
+		"................",
 		"................",
 	],
 	"tobor_mine_body": [
-		"s..............s",
-		".s....ss....s...",
-		"..s..s..s..s....",
-		"...ss....ss.....",
-		"....ssssss......",
-		"...ssyyyyyss....",
-		"..ssyeaaeyss....",
-		".ssyeaaaaeyss...",
-		".ssyeaaaaeyss...",
-		"..ssyeaaeyss....",
-		"...ssyyyyyss....",
-		"....ssssss......",
-		"...ss....ss.....",
-		"..s..s..s..s....",
-		".s....ss....s...",
-		"s..............s",
+		"k..............k",
+		".k....ssss....k.",
+		"..k..s....s..k..",
+		"...ks......sk...",
+		"....ssnnnnss....",
+		"...snnnnnnnns...",
+		"..snnwwwwwnns...",
+		"..snnwkkwwnns...",
+		"..snnwwttwwns...",
+		"..snnwwwwwnns...",
+		"...snnnnnnnns...",
+		"....ssnnnnss....",
+		"...ks......sk...",
+		"..k..s....s..k..",
+		".k....ssss....k.",
+		"k..............k",
 	],
 }
 
@@ -3419,25 +3499,25 @@ const SHAPE_KIT_TOBOR_Q := [  # Steam Keg — NUKE_BOLT: falling metal keg with 
 	"..ffff..",
 	"........",
 ]
-const SHAPE_KIT_TOBOR_E := [  # Steam Turret — barrel, riveted body, stance legs
-	"..ffff..",
-	".flaafl.",
-	".faeeaf.",
+const SHAPE_KIT_TOBOR_E := [  # Steam Turret — orange cannon on a grey stand
+	"...ff...",
+	"..faaf..",
+	"..feef..",
 	".ffffff.",
-	".flfflf.",
+	".flaalf.",
 	"ffffffff",
 	".ff..ff.",
 	".ff..ff.",
 ]
-const SHAPE_KIT_TOBOR_ALT := [  # Spider Mines — eight-leg crawler with hot core
-	"f..ff..f",
-	".f.ff.f.",
-	"..flaf..",
-	".flaealf",
-	".flaealf",
-	"..flaf..",
-	".f.ff.f.",
-	"f..ff..f",
+const SHAPE_KIT_TOBOR_ALT := [  # Spider Mines — orange body, eight legs, red eye
+	"e.ffff.e",
+	".efaafe.",
+	"..feef..",
+	".faeeaf.",
+	".faeeaf.",
+	"..feef..",
+	".efaafe.",
+	"e.ffff.e",
 ]
 const SHAPE_KIT_TOBOR_R := [  # Energy Field — ZONE: hex force-field with corner posts
 	"..ffff..",
@@ -3834,6 +3914,59 @@ const SHAPE_KIT_RIME_R := [  # Absolute Zero — ZONE: expanding nova of absolut
 	"...ff...",
 ]
 
+## Right-click secondaries. Shared across heroes that use the same kind — not kit Q/E/R.
+## Distinct silhouettes: ring-blast, snowflake, spark-cross, planted ice ward, brick wall.
+const SHAPE_SECONDARY_REPULSE := [  # Knockback blast — ring with outward ticks
+	"f.oooo.f",
+	".foffof.",
+	"o.ffff.o",
+	"offllffo",
+	"offllffo",
+	"o.ffff.o",
+	".foffof.",
+	"f.oooo.f",
+]
+const SHAPE_SECONDARY_FREEZE := [  # Freeze nova — six-point snowflake
+	"f..ff..f",
+	".f.ff.f.",
+	"..faaf..",
+	"ffallaff",
+	"ffallaff",
+	"..faaf..",
+	".f.ff.f.",
+	"f..ff..f",
+]
+const SHAPE_SECONDARY_VOLT_MEND := [  # Shock + heal — spark cross with gold core
+	"e..ff..e",
+	"f.fllf.f",
+	".ffffff.",
+	"fflaalff",
+	".ffffff.",
+	"f.fllf.f",
+	"e..ff..e",
+	"...ee...",
+]
+const SHAPE_SECONDARY_RIME_WARD := [  # Ice ward — hex ring, frost gem, planted stem
+	"..oooo..",
+	".o.ff.o.",
+	"o.faaf.o",
+	"ofalaafo",
+	"o.faaf.o",
+	".o.ff.o.",
+	"..oooo..",
+	"...oo...",
+]
+const SHAPE_SECONDARY_WALL := [  # Drawn support wall — stacked bricks
+	"oooooooo",
+	"oflfflfo",
+	"offffffo",
+	"oflfflfo",
+	"offffffo",
+	"oflfflfo",
+	"oooooooo",
+	"........",
+]
+
 const ABILITY_ICON_ROWS := {
 	# --- Tobor (Wrench) kit ---
 	"tobor_steam_keg": SHAPE_KIT_TOBOR_Q,
@@ -4073,6 +4206,23 @@ const ABILITY_ICON_PALETTES := {
 }
 
 
+const SECONDARY_ICON_ROWS := {
+	"secondary_repulse": SHAPE_SECONDARY_REPULSE,
+	"secondary_freeze": SHAPE_SECONDARY_FREEZE,
+	"secondary_volt_mend": SHAPE_SECONDARY_VOLT_MEND,
+	"secondary_rime_ward": SHAPE_SECONDARY_RIME_WARD,
+	"secondary_wall": SHAPE_SECONDARY_WALL,
+}
+
+const SECONDARY_ICON_PALETTES := {
+	"secondary_repulse": {"o": "2a0a05", "f": "ff8a3d", "l": "ffd36b", "a": "fff0b8"},
+	"secondary_freeze": {"o": "0a2233", "f": "7fd4ff", "l": "eafcff", "a": "ffffff"},
+	"secondary_volt_mend": {"o": "0a1e26", "f": "5aa6ff", "l": "7af0ff", "a": "ffe14a", "e": "8cff4a"},
+	"secondary_rime_ward": {"o": "0a1426", "f": "7ba9ff", "l": "cfe8ff", "a": "ffffff"},
+	"secondary_wall": {"o": "16191f", "f": "8b96a8", "l": "dfe6f2"},
+}
+
+
 const TERRAIN_PALETTES := {
 	"grass_tile": {"a": "26401f", "b": "2f4f26", "c": "3a6130", "d": "47743a"},
 	"grass_tuft": {"c": "3a6130", "d": "47743a", "l": "5c8f47"},
@@ -4290,6 +4440,7 @@ static func all_sprites() -> Dictionary:
 	_collect(sprites, BOSS_ROWS, BOSS_PALETTES)
 	_collect(sprites, PROP_ROWS, PROP_PALETTES)
 	_collect(sprites, ICON_ROWS, ICON_PALETTES)
+	_collect(sprites, SECONDARY_ICON_ROWS, SECONDARY_ICON_PALETTES)
 	var ability_sprites := AbilityArt.all_sprites()
 	for sprite_name in ability_sprites:
 		sprites[sprite_name] = ability_sprites[sprite_name]

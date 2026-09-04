@@ -1,0 +1,19 @@
+{
+	"hero": "arclight",
+	"comment": "Arclight Q bolt vs R storm pillars — must not look like Tobor hex field or Rime ice.",
+	"events": [
+		{"t": 2.6, "kind": "spawn", "at": [160, 0], "type": "grunt", "hp_mult": 12.0},
+		{"t": 2.6, "kind": "spawn", "at": [-160, 0], "type": "grunt", "hp_mult": 12.0},
+		{"t": 2.6, "kind": "spawn", "at": [0, 160], "type": "grunt", "hp_mult": 12.0},
+		{"t": 2.7, "kind": "aim", "at": [160, 0]},
+		{"t": 2.9, "kind": "cast", "slot": 0},
+		{"t": 3.05, "kind": "cast", "slot": 0},
+		{"t": 3.3, "kind": "snap", "label": "arclight_q_bolt"},
+		{"t": 3.35, "kind": "sound_probe", "ability_id": "arclight_blast_of_lightning", "label": "sfx_q"},
+		{"t": 4.7, "kind": "cast", "slot": 3},
+		{"t": 4.85, "kind": "cast", "slot": 3},
+		{"t": 5.1, "kind": "snap", "label": "arclight_r_storm"},
+		{"t": 5.15, "kind": "sound_probe", "ability_id": "arclight_thundergods_wrath", "label": "sfx_r"},
+		{"t": 5.9, "kind": "report"}
+	]
+}

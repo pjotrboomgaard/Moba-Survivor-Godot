@@ -90,7 +90,35 @@ theme_override_colors/font_color = Color(0.96, 0.77, 0.26, 1)
 text = "GLASS CANNON"
 horizontal_alignment = 1
 
+[node name="ModeRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SoloToggle" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
+custom_minimum_size = Vector2(168, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+button_pressed = true
+text = "SOLO"
+
+[node name="CoopToggle" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
+custom_minimum_size = Vector2(168, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "CO-OP"
+
+[node name="ToborWorldButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
+visible = false
+custom_minimum_size = Vector2(168, 58)
+layout_mode = 2
+toggle_mode = true
+text = "TOBOR WORLD
+Cone-bot arena"
+
 [node name="SteamStatusLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.8, 0.65, 1)
 theme_override_font_sizes/font_size = 14
@@ -157,29 +185,6 @@ autowrap_mode = 3
 [node name="SpacerTop" type="Control" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
-
-[node name="ModeRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="ClassicButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
-custom_minimum_size = Vector2(168, 40)
-layout_mode = 2
-toggle_mode = true
-text = "CLASSIC"
-
-[node name="PjotrButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
-custom_minimum_size = Vector2(168, 40)
-layout_mode = 2
-toggle_mode = true
-text = "ARENA"
-
-[node name="ToborWorldButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
-custom_minimum_size = Vector2(168, 58)
-layout_mode = 2
-toggle_mode = true
-text = "TOBOR WORLD
-Cone-bot arena"
 
 [node name="DifficultyLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
@@ -279,21 +284,25 @@ layout_mode = 2
 text = "PLAY"
 
 [node name="HostButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "HOST"
 
 [node name="JoinLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 text = "Join address"
 
 [node name="AddressInput" type="LineEdit" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "127.0.0.1:27015"
 placeholder_text = "127.0.0.1:27015"
 
 [node name="JoinButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "JOIN"

@@ -13,6 +13,7 @@ var to_global: Vector2 = Vector2.ZERO
 var travel_time: float = 0.35
 var arc_height: float = 36.0
 var spin_speed: float = 540.0
+var persist_on_land := false
 
 @onready var _sprite: Sprite2D = $Sprite2D
 var _elapsed: float = 0.0
@@ -38,12 +39,17 @@ func _process(delta: float) -> void:
 	var parabola := -arc_height * 4.0 * t * (1.0 - t)  # peak mid-flight
 	global_position = ground + Vector2(0.0, parabola)
 	_sprite_node().rotation_degrees += spin_speed * delta
-	if t >= 1.0 and not _landed_called:
+	if t < 1.0:
+		return
+	global_position = to_global
+	if not _landed_called:
 		_landed_called = true
 		landed.emit(self)
 		if on_landed.is_valid():
 			on_landed.call(self)
-		queue_free()
+	if persist_on_land:
+		return
+	queue_free()
 
 
 func _sprite_node() -> Sprite2D:

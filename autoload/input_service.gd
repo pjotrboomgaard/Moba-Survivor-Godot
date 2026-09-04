@@ -30,9 +30,12 @@ func ability_held() -> bool:
 
 
 const ABILITY_SLOT_ACTIONS := ["ability_1", "ability_2", "ability_3", "ability_4"]
+var block_ability_slots := false
 
 
 func ability_slot_held(slot: int) -> bool:
+	if block_ability_slots:
+		return false
 	if slot < 0 or slot >= ABILITY_SLOT_ACTIONS.size():
 		return false
 	return Input.is_action_pressed(ABILITY_SLOT_ACTIONS[slot])

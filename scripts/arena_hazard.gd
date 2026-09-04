@@ -14,6 +14,10 @@ var kind: Kind = Kind.CIRCLE
 var telegraph_seconds := 1.0
 var active_seconds := 0.3
 var radius := 90.0
+## Volcano's "flame bloom" pattern: when > 0, a CIRCLE starts at this radius and grows to
+## `radius` over the active window instead of appearing at full size immediately — a
+## telegraphed bloom that "combusts" outward rather than a flat slam. 0 = old static behavior.
+var grow_from := 0.0
 var inner_radius := 0.0
 var max_radius := 1400.0
 var line_length := 3200.0
@@ -35,6 +39,7 @@ func configure(spec: Dictionary) -> void:
 	telegraph_seconds = maxf(0.0, float(spec.get("telegraph", 1.0)))
 	active_seconds = maxf(0.05, float(spec.get("active", 0.3)))
 	radius = maxf(8.0, float(spec.get("radius", 90.0)))
+	grow_from = maxf(0.0, float(spec.get("grow_from", 0.0)))
 	inner_radius = maxf(0.0, float(spec.get("inner_radius", 0.0)))
 	max_radius = maxf(radius, float(spec.get("max_radius", 1400.0)))
 	line_length = maxf(200.0, float(spec.get("length", 3200.0)))
@@ -75,6 +80,13 @@ func _ring_radius() -> float:
 	return lerpf(40.0, max_radius, t)
 
 
+func _circle_radius() -> float:
+	if grow_from <= 0.0:
+		return radius
+	var t := clampf((_age - telegraph_seconds) / maxf(0.05, active_seconds), 0.0, 1.0)
+	return lerpf(grow_from, radius, t)
+
+
 func _try_damage() -> void:
 	if cosmetic or damage <= 0.0 or not is_inside_tree():
 		return
@@ -97,7 +109,7 @@ func _overlaps(world_point: Vector2) -> bool:
 	var local := world_point - global_position
 	match kind:
 		Kind.CIRCLE:
-			return local.length() <= radius
+			return local.length() <= _circle_radius()
 		Kind.RING:
 			var dist := local.length()
 			var band := maxf(28.0, line_width * 0.5)
@@ -117,13 +129,17 @@ func _draw() -> void:
 	match kind:
 		Kind.CIRCLE:
 			# Saturated fill + thick bright rim so the empty lanes between slams read as
-			# the dodge path instead of blending into the floor.
+			# the dodge path instead of blending into the floor. A "bloom" hazard
+			# (grow_from > 0) shows a small warning marker during telegraph, then visibly
+			# inflates from grow_from to radius across the active window instead of
+			# appearing at full size — the telegraph shouldn't spoil the final size.
+			var shown_radius := grow_from if (warning and grow_from > 0.0) else _circle_radius()
 			var fill_a := (0.36 + 0.14 * pulse) if warning else 0.58
 			var color := Color(fill_color, fill_a)
-			var rim := Color(1.0, 0.96, 0.55, 0.95) if warning else Color(fill_color, 1.0)
-			draw_circle(Vector2.ZERO, radius, color)
-			draw_arc(Vector2.ZERO, radius, 0.0, TAU, 64, rim, 8.0, true)
-			draw_arc(Vector2.ZERO, maxf(8.0, radius - 10.0), 0.0, TAU, 48, Color(fill_color, 0.55 if warning else 0.8), 3.0, true)
+			var rim := Color("ffc8c8", 0.95) if warning else Color(fill_color, 1.0)
+			draw_circle(Vector2.ZERO, shown_radius, color)
+			draw_arc(Vector2.ZERO, shown_radius, 0.0, TAU, 64, rim, 8.0, true)
+			draw_arc(Vector2.ZERO, maxf(8.0, shown_radius - 10.0), 0.0, TAU, 48, Color(fill_color, 0.55 if warning else 0.8), 3.0, true)
 		Kind.RING:
 			var edge := Color(fill_color, 0.85 if warning else 1.0)
 			var shown := 80.0 if warning else _ring_radius()

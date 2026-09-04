@@ -236,18 +236,42 @@ const SHOP_INTERMISSION_SECONDS := 30.0
 const SHOP_WAVE_INTERVAL := 10
 const GROUP_INTERVAL_SECONDS := 1.7
 const AMBUSH_GROUP_INTERVAL := 0.2
+## Ambush waves normally dump every group in ~0.2s cadence, so the whole wave's enemies
+## converge on the player in a few seconds instead of the ~25-35s a standard wave spreads
+## out over. Slow the first stretch of releases so a kiting player gets a real beat to
+## react before the fast cadence resumes — still much more sudden than STANDARD, just not
+## "no time to respond" sudden. A live solo run at 70% HP still lost 52% of max HP to the
+## opening burst under the first-pass ramp (2.5s / 0.9s), so both the ramp window and the
+## per-release pace were widened further here.
+const AMBUSH_RAMP_SECONDS := 4.0
+const AMBUSH_RAMP_INTERVAL := 1.1
+## Ambush plans a smaller total budget than a standard wave (80%) so its "surrounded"
+## headcount spike doesn't also add up to a standard wave's full total damage once it's
+## all dumped on a fast cadence — same identity (RING formation, faster releases), fewer
+## bodies doing it.
+const AMBUSH_BUDGET_SCALE := 0.8
+## The very first ambush group releases instantly at wave start with no ramp at all (see
+## _begin_next_wave -> _release_next_group), so it gets its own extra shrink on top of the
+## budget trim above — the opening jolt shouldn't also be the wave's biggest single group.
+const AMBUSH_FIRST_GROUP_SCALE := 0.6
 const WAVE_TIMEOUT_SECONDS := 120.0
 const ELITE_WAVE_INTERVAL := 8
 const BOSS_WAVE_INTERVAL := 5
 ## Enemies start noticeably tankier now (2x the old wave-1 health) and keep climbing faster
 ## than before, so the run keeps escalating rather than plateauing once players out-level it.
 const BASE_HEALTH_MULTIPLIER := 2.0
-const HEALTH_GROWTH_PER_WAVE := 0.10
+const HEALTH_GROWTH_PER_WAVE := 0.14
 ## Offline solo (no CPU allies) ramps from wave 2 so keg/turret/landmarks stay clutch
 ## without making First Contact unfair. Kept modest so wave 5 budget stays under 60.
-const SOLO_HEALTH_PRESSURE := 1.18
+## SOLO_HEALTH_PRESSURE was 1.18: on top of BASE_HEALTH_MULTIPLIER + HEALTH_GROWTH_PER_WAVE
+## already climbing every wave, that flat 18% tax compounds with budget_for_wave AND
+## solo_contact_multiplier (both also wave-indexed) into a much steeper-than-linear curve by
+## wave 15-20 — enemies survive longer *and* hit harder *and* there are more of them, all
+## three axes growing at once. Eased to 1.12 so enemies are still tankier solo than in co-op,
+## just without stacking a third compounding multiplier as hard on the late-wave spike.
+const SOLO_HEALTH_PRESSURE := 1.12
 const SOLO_BUDGET_PRESSURE := 1.08
-const SOLO_DAMAGE_PRESSURE := 1.18
+const SOLO_DAMAGE_PRESSURE := 1.28
 const SOLO_PRESSURE_FROM_WAVE := 2
 
 ## The lobby's difficulty pick scales enemy health on top of the wave curve above (Pjotr mode
@@ -279,7 +303,8 @@ var live_enemy_count := 0
 ## True once this wave has actually had living enemies. Prevents skip_intermission from
 ## clearing a boss wave on the same frame the first group is still spawning.
 var _wave_engaged := false
-## Solo clutch: extra packs when the field is empty or the player is healthy.
+## Keep-engaged packs: extra packs when the field is empty or the player is healthy —
+## any mode, see _should_reinforce().
 var pressure_hp := 1.0
 var nearby_enemy_count := 0
 var _reinforcements := 0
@@ -431,7 +456,7 @@ func _release_next_group() -> void:
 	if pending_groups.is_empty():
 		return
 	var group: Dictionary = pending_groups.pop_front()
-	group_timer = group_interval
+	group_timer = _next_group_interval()
 	group_ready.emit(
 		str(group.type_id),
 		int(group.formation),
@@ -439,6 +464,15 @@ func _release_next_group() -> void:
 		float(group.health_multiplier),
 		float(group.speed_multiplier)
 	)
+
+
+## Ambush stays on its fast cadence overall, but the first AMBUSH_RAMP_SECONDS of a wave
+## release on the slower ramp interval so the opening burst is reactable instead of the
+## whole wave's groups landing within a couple seconds of each other.
+func _next_group_interval() -> float:
+	if archetype == Archetype.AMBUSH and wave_elapsed < AMBUSH_RAMP_SECONDS:
+		return AMBUSH_RAMP_INTERVAL
+	return group_interval
 
 
 func health_multiplier_for_wave(target_wave: int) -> float:
@@ -452,7 +486,7 @@ func budget_for_wave(target_wave: int) -> float:
 	# Roughly double the old headcount at every wave (base 12->24, per-wave growth 2.6->6.0 —
 	# more than double, so the curve keeps getting steeper instead of just shifting up by a
 	# flat amount) on top of the doubled per-enemy health above, so both axes compound.
-	var solo_budget := 22.0 + 8.2 * float(target_wave)
+	var solo_budget := 28.0 + 9.5 * float(target_wave)
 	if _solo_pressure_active(target_wave):
 		solo_budget *= SOLO_BUDGET_PRESSURE
 	return solo_budget * (1.0 + 0.85 * float(player_count - 1))
@@ -461,8 +495,22 @@ func budget_for_wave(target_wave: int) -> float:
 func solo_contact_multiplier(target_wave: int) -> float:
 	if classic_mode or GameRuntime.fill_cpu_allies or player_count != 1:
 		return 1.0
-	var ramp := 1.0 + 0.016 * float(maxi(0, target_wave - 1))
+	# This per-hit multiplier stacks with SOLO_HEALTH_PRESSURE and SOLO_BUDGET_PRESSURE (more,
+	# tankier enemies) AND with every hero's own damage_taken_multiplier — for the roster's most
+	# fragile hero that compounding meant a wave-20 hit already worth ~1.9x baseline. Ramp
+	# coefficient halved (0.016 -> 0.008) so the wave-20 ceiling is closer to +36% instead of
+	# +54% on top of the flat SOLO_DAMAGE_PRESSURE tax, leaving the headcount/HP axes above to
+	# carry more of the late-wave difficulty climb instead of raw per-hit damage.
+	var ramp := 1.0 + 0.012 * float(maxi(0, target_wave - 1))
 	return SOLO_DAMAGE_PRESSURE * ramp
+
+
+## Always-on contact climb so co-op is not a free ride; solo stacks SOLO_DAMAGE_PRESSURE on top.
+func contact_multiplier_for_wave(target_wave: int) -> float:
+	var ramp := 1.0 + 0.014 * float(maxi(0, target_wave - 1))
+	if _solo_pressure_active(target_wave):
+		return solo_contact_multiplier(target_wave)
+	return ramp
 
 
 ## True for offline PLAY (not CO-OP CPU fill) from wave 2 onward.
@@ -475,41 +523,58 @@ func _solo_pressure_active(target_wave: int) -> bool:
 
 
 func _desired_live() -> int:
-	var floor_n := 5 + int(float(wave) * 0.85)
-	if pressure_hp >= 0.85:
-		floor_n += 4 + int(float(wave) * 0.4)
-	elif pressure_hp >= 0.65:
-		floor_n += 2
-	elif pressure_hp < 0.4:
-		floor_n = maxi(3, floor_n - 3)
-	return clampi(floor_n, 3, 26)
+	var floor_n := 12 + int(float(wave) * 2.0)
+	if pressure_hp >= 0.80:
+		floor_n += 12 + int(float(wave) * 1.1)
+	elif pressure_hp >= 0.55:
+		floor_n += 7
+	elif pressure_hp < 0.28:
+		floor_n = maxi(6, floor_n - 4)
+	# Cap climbs from wave 1 so every stage stays busy, not just the late run.
+	var live_cap := mini(55 + int(float(wave) * 4.0), 190)
+	return clampi(floor_n, 6, live_cap)
 
 
+## Was solo-only (gated behind _solo_pressure_active) so co-op waves could go quiet for a
+## stretch once the planned groups were cleared — no minions on screen isn't a breather,
+## it's dead air. Generalized to any mode: it only ever fires when live_enemy_count is
+## already below _desired_live(), so co-op's bigger planned budget naturally keeps this
+## from firing except during an actual lull. Thresholds loosened + cap raised well past the
+## old ~3-per-wave ceiling so a healthy player keeps getting fed a busier field all wave,
+## not just an occasional top-up right after the opening burst clears.
 func _should_reinforce() -> bool:
-	if wave < 6:
+	if wave < 1:
 		return false
-	if classic_mode or not _solo_pressure_active(wave):
+	if classic_mode:
 		return false
-	if archetype == Archetype.BOSS:
+	if archetype == Archetype.BOSS or archetype == Archetype.AMBUSH:
 		return false
 	if not _wave_engaged:
 		return false
-	if wave_elapsed < 6.0 or wave_elapsed > 70.0:
+	if wave_elapsed < 1.0 or wave_elapsed > 90.0:
 		return false
 	if _pressure_cooldown > 0.0:
 		return false
-	if _reinforcements >= 2 + int(float(wave) / 2.4):
+	if _reinforcements >= 12 + int(float(wave) / 1.0):
 		return false
-	if pressure_hp < 0.55:
+	if pressure_hp < 0.32:
 		return false
 	return live_enemy_count < _desired_live()
 
 
+## "Cruising" (pressure_hp >= 0.85, i.e. not just recovering from a scare) gets a tougher
+## minion mixed into the trash pack on top of the headcount bump _desired_live() already
+## gives it — same "more when doing well" idea, but with actual teeth instead of just more
+## bodies, and it keeps scaling as the run's wave-gated roster unlocks tougher trash.
+## Pack size + cadence roughly doubled from the first pass: that pass still read as too
+## sparse in a live playtest, and pressure_hp < 0.5 already backs this whole system off
+## the moment the player is actually struggling, so there's real headroom here.
 func _emit_pressure_pack() -> void:
 	_reinforcements += 1
-	_pressure_cooldown = 1.25
+	_pressure_cooldown = 0.85
 	_close_spawn = true
-	var n := clampi(3 + int(wave / 5) + (2 if pressure_hp >= 0.85 else 0), 3, 6)
+	var cruising := pressure_hp >= 0.80
+	var n := clampi(6 + int(wave / 2) + (8 if cruising else 3), 6, 18)
 	var type_id := "swarmling"
 	match GameRuntime.biome_id:
 		2:
@@ -526,6 +591,32 @@ func _emit_pressure_pack() -> void:
 		health_multiplier_for_wave(wave),
 		1.0
 	)
+	if cruising and wave >= 4:
+		var tougher_id := _tougher_reinforcement_type(wave)
+		if not tougher_id.is_empty():
+			group_ready.emit(
+				tougher_id,
+				EnemyType.Formation.SCATTERED,
+				2 + int(wave / 6),
+				health_multiplier_for_wave(wave),
+				1.0
+			)
+
+
+## Highest-cost non-elite, non-boss type unlocked by this wave — a real step up from
+## swarmling/grunt without duplicating the dedicated Elite-wave roster (brute/sentinel).
+func _tougher_reinforcement_type(target_wave: int) -> String:
+	var best_id := ""
+	var best_cost := 0.0
+	for type_data in EnemyType.spawnable_for_wave(target_wave):
+		var id := str(type_data.id)
+		if id in ["grunt", "swarmling", "brute", "sentinel"] or bool(type_data.get("is_boss", false)):
+			continue
+		var cost := float(type_data.cost)
+		if cost > best_cost:
+			best_cost = cost
+			best_id = id
+	return best_id
 
 
 ## Returns {name, archetype, modifier, debut} for any wave number.
@@ -723,6 +814,14 @@ func _plan_filtered(budget: float, multiplier: float, speed_multiplier: float, a
 
 func _plan_elite(target_wave: int, budget: float, multiplier: float, speed_multiplier: float, available: Array[Dictionary]) -> Array[Dictionary]:
 	var groups: Array[Dictionary] = []
+	# Solo play gets a softer first elite encounter on three axes: a full RING fully encircles
+	# the player with no escape lane (fine with allies to peel, brutal alone), the flat "+2"
+	# base count was tuned around co-op headcount, and dumping the ENTIRE leftover budget into
+	# a full-density _plan_standard() right behind the elites means the wave's newest, fastest
+	# trash (e.g. wave 9's freshly-unlocked stalker) piles on before the elites are even dealt
+	# with. None of this is needed with allies around to split aggro.
+	var solo := player_count == 1 and not GameRuntime.fill_cpu_allies
+	var elite_formation := EnemyType.Formation.SCATTERED if solo else EnemyType.Formation.RING
 	for elite_id in ["sentinel", "brute"]:
 		if not _id_in_available(elite_id, available):
 			continue
@@ -730,9 +829,20 @@ func _plan_elite(target_wave: int, budget: float, multiplier: float, speed_multi
 		if int(elite.unlock_wave) > target_wave:
 			continue
 		var count := 2 + int(target_wave / ELITE_WAVE_INTERVAL)
-		groups.append(_make_group(elite, EnemyType.Formation.RING, count, multiplier, speed_multiplier))
+		if solo:
+			count = maxi(1, count - 1)
+		groups.append(_make_group(elite, elite_formation, count, multiplier, speed_multiplier))
 		budget -= float(elite.cost) * float(count)
-	groups.append_array(_plan_standard(maxf(0.0, budget), multiplier, speed_multiplier, available))
+	var standard_budget := maxf(0.0, budget)
+	if solo:
+		# A live solo run still died to a wave-8 elite pack from steady sustained contact
+		# damage (10 -> 17 enemies on screen, full HP to dead in ~10s), not a single spike —
+		# the elites plus a 0.6x trash tail was still too much all dumped at once. Trimmed
+		# further; _should_reinforce()'s now-generalized keep-engaged packs backfill any
+		# resulting lull once the elites are actually dealt with, so this isn't a net loss
+		# of things to fight, just spread out instead of front-loaded.
+		standard_budget *= 0.4
+	groups.append_array(_plan_standard(standard_budget, multiplier, speed_multiplier, available))
 	return groups
 
 
@@ -781,9 +891,13 @@ func _plan_boss(target_wave: int, _budget: float, multiplier: float, _speed_mult
 
 
 func _plan_ambush(budget: float, multiplier: float, speed_multiplier: float, available: Array[Dictionary]) -> Array[Dictionary]:
-	var groups := _plan_standard(budget, multiplier, speed_multiplier, available)
+	var groups := _plan_standard(budget * AMBUSH_BUDGET_SCALE, multiplier, speed_multiplier, available)
 	for index in groups.size():
 		groups[index].formation = EnemyType.Formation.RING
+	if not groups.is_empty():
+		# Soften the instant, un-ramped opening jolt specifically (see AMBUSH_FIRST_GROUP_SCALE).
+		var first_count := int(groups[0].count)
+		groups[0].count = maxi(1, int(round(float(first_count) * AMBUSH_FIRST_GROUP_SCALE)))
 	return groups
 
 

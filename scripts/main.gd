@@ -105,6 +105,13 @@ const MISSION_WARP_FADE_OUT := 0.9
 var team_wave_directors: Dictionary = {}  # team_id -> WaveDirector
 var _ffa_respawn_in: Dictionary = {}
 var _ffa_shop_timer := 0.0
+var _ffa_status_timer := 0.0
+var _ffa_elapsed := 0.0
+var _ffa_bounty_timer := 0.0
+const FFA_BOUNTY_CAP := 8
+const FFA_BOUNTY_TYPES := ["brute", "hexer", "lurker", "sentinel", "splitter", "bomber"]
+const FFA_CPU_SHOP_SECONDS := 12.0
+var _ffa_world_wave := 1
 
 
 func _ready() -> void:
@@ -144,6 +151,8 @@ func _ready() -> void:
 		if GameRuntime.is_ffa() and GameRuntime.ffa_all_bots:
 			_convert_local_to_ffa_bot()
 		_spawn_initial_wave()
+		if GameRuntime.is_ffa():
+			_maintain_ffa_bounties()
 		# Self-test harness: only boot when explicitly requested via --selftest CLI flag
 		# AND a request file exists. This prevents stale user://selftest_request.json
 		# from hijacking normal play sessions.
@@ -618,13 +627,20 @@ func _convert_local_to_ffa_bot() -> void:
 	hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
 
 
-func _cpu_auto_shop() -> void:
+func _cpu_auto_shop(max_purchases: int = 99, gold_reserve: int = 0) -> void:
 	for player_node in players.values():
 		var player := player_node as Player
 		if player == null or not player.is_cpu() or not player.active:
 			continue
+		var bought := 0
 		for item in ShopCatalog.items_for(player.class_id):
-			player.buy(str(item.id))
+			if bought >= max_purchases:
+				break
+			var item_id := str(item.id)
+			if player.gold - gold_reserve < ShopCatalog.price_for(item_id, player.stacks_of(item_id)):
+				continue
+			if player.buy(item_id):
+				bought += 1
 
 
 func _create_player(peer_id: int, mode: int, local_player: bool, class_id: String = PlayerClass.DEFAULT_CLASS_ID) -> Player:
@@ -655,6 +671,7 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 		if GameRuntime.is_server() or GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 			RiftClashManager.assign_teams(players.keys(), _lobby_claims())
 		player.team_id = str(RiftClashManager.team_of(peer_id))
+		player.apply_team_identity()
 		if GameRuntime.is_server() or GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 			_ensure_team_wave_director(player.team_id)
 		if GameRuntime.is_ffa():
@@ -673,6 +690,7 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 				RiftClashManager.team_color(player.team_id)
 			)
 			if GameRuntime.is_ffa():
+				hud.set_team_health_color(RiftClashManager.team_color(player.team_id))
 				hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
 	wave_director.set_player_count(players.size())
 	return player
@@ -767,6 +785,7 @@ func _ensure_team_wave_director(team_id: String) -> void:
 func _on_team_wave_started(wave: int, theme_name: String, debut_type_id: String, team_id: String) -> void:
 	if not GameRuntime.is_server() and GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
 		return
+	_maybe_advance_ffa_world(wave)
 	var my_team := ""
 	for peer_id in players.keys():
 		var candidate := players[peer_id] as Player
@@ -783,10 +802,14 @@ func _on_team_wave_started(wave: int, theme_name: String, debut_type_id: String,
 func _on_team_intermission_started(next_wave: int, seconds: float, team_id: String) -> void:
 	if not GameRuntime.is_server() and GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
 		return
+	_maybe_advance_ffa_world(next_wave)
 	if WaveDirector.shop_opens_before(next_wave):
 		if not GameRuntime.is_dedicated_server():
 			hud.open_shop(false)
-			_cpu_auto_shop()
+			if GameRuntime.is_ffa():
+				_cpu_auto_shop(2, 400)
+			else:
+				_cpu_auto_shop()
 		if GameRuntime.is_server():
 			for peer_id in registered_remote_peers.keys():
 				client_open_shop.rpc_id(peer_id)
@@ -802,6 +825,22 @@ func _on_team_intermission_started(next_wave: int, seconds: float, team_id: Stri
 			break
 	if my_team == team_id and not GameRuntime.is_dedicated_server():
 		hud.show_next_wave_button(false)
+
+
+func _maybe_advance_ffa_world(wave: int) -> void:
+	if not GameRuntime.is_ffa() or not GameRuntime.uses_biomes():
+		return
+	_update_crater_lock(wave)
+	if wave <= _ffa_world_wave:
+		return
+	_ffa_world_wave = wave
+	var previous := GameRuntime.biome_id
+	GameRuntime.set_biome_for_wave(wave)
+	if hud != null:
+		hud.set_wave(wave)
+	if GameRuntime.biome_id == previous:
+		return
+	_play_mission_warp(wave)
 
 
 func _on_team_wave_group_ready(
@@ -1110,7 +1149,7 @@ func _play_explosion_effect(origin: Vector2, radius: float) -> void:
 	effect.chain_color = Color("ff7a29")
 	effect.points = PackedVector2Array([origin, Vector2(radius, 0.0)])
 	add_child(effect)
-	AudioService.play("explosion")
+	SoundDirector.play("explosion", origin)
 
 
 func _play_sound(sound_id: String) -> void:
@@ -1161,7 +1200,7 @@ func _spawn_arena_hazard(spec: Dictionary) -> void:
 	if GameRuntime.is_dedicated_server() and bool(spec.get("cosmetic", false)):
 		return
 	if not GameRuntime.is_dedicated_server():
-		AudioService.play("charge")
+		SoundDirector.play("charge", spec.get("origin", Vector2.ZERO))
 	var hazard := ArenaHazard.new()
 	actors.add_child(hazard)
 	hazard.configure(spec)
@@ -1220,7 +1259,7 @@ func _spawn_enemy_projectile(origin: Vector2, direction: Vector2, damage: float,
 	actors.add_child(projectile)
 	projectile.configure(direction, damage, speed, true, cosmetic, sprite_name)
 	if not GameRuntime.is_dedicated_server():
-		AudioService.play("enemy_shoot")
+		SoundDirector.play("enemy_shoot", origin)
 
 
 func _spawn_xp_orb(position: Vector2, value: int) -> XPOrb:
@@ -1622,7 +1661,7 @@ func _play_secondary_fx(class_id: String, style: int, points: PackedVector2Array
 		effect.lifetime = 0.48
 	effect.points = points
 	add_child(effect)
-	AudioService.play("cast_%s" % class_id)
+	SoundDirector.play("cast_%s" % class_id, points[0] if points.size() > 0 else null)
 
 
 func _spawn_support_wall(points: PackedVector2Array, duration: float, color: Color) -> void:
@@ -1631,7 +1670,7 @@ func _spawn_support_wall(points: PackedVector2Array, duration: float, color: Col
 	var wall := SupportWall.new()
 	actors.add_child(wall)
 	wall.configure(points, duration, null, color)
-	AudioService.play("sfx_force")
+	SoundDirector.play("sfx_force", points[0] if points.size() > 0 else null)
 
 
 func _play_staff_effect(effect_kind: String, points: PackedVector2Array) -> void:
@@ -1642,9 +1681,12 @@ func _play_staff_effect(effect_kind: String, points: PackedVector2Array) -> void
 	effect.style = class_data.effect_style
 	effect.main_color = Color(class_data.effect_color)
 	effect.chain_color = Color(class_data.effect_secondary)
+	if effect.style == PlayerClass.EffectStyle.BLAST:
+		effect.lifetime = 0.28
+		effect.draw_mode = "simple_circle"
 	effect.points = points
 	add_child(effect)
-	AudioService.play("cast_%s" % effect_kind)
+	SoundDirector.play("cast_%s" % effect_kind, points[0] if points.size() > 0 else null)
 
 
 func _on_ability_cast(ability_id: String, effect_style: int, points: PackedVector2Array) -> void:
@@ -1787,7 +1829,7 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 			var vfx := ability_vfx_scene.instantiate() as AbilityVfx
 			vfx.configure(ability_id, effect_style, points)
 			add_child(vfx)
-	AudioService.play_ability(ability_id)
+	SoundDirector.play_ability(ability_id, points[0] if points.size() > 0 else null)
 
 
 func _on_player_died(_peer_id: int) -> void:
@@ -2192,6 +2234,15 @@ func _reposition_players_to_landing(landing: Vector2) -> void:
 func _trigger_world_landing(mission_number: int) -> void:
 	if GameRuntime.is_classic():
 		return
+	if GameRuntime.is_ffa():
+		if not GameRuntime.is_dedicated_server():
+			hud.announce_mission(mission_number, _mission_planet_name(), _mission_planet_tagline(), MISSION_WARP_CARD_HOLD)
+		_play_arrival_explosion(Vector2.ZERO)
+		_sync_playfield()
+		if GameRuntime.is_server():
+			for peer_id in registered_remote_peers.keys():
+				client_announce_mission.rpc_id(peer_id, mission_number, _mission_planet_name(), _mission_planet_tagline(), MISSION_WARP_CARD_HOLD)
+		return
 	var landing := _landing_position()
 	_reposition_players_to_landing(landing)
 	if not GameRuntime.is_dedicated_server():
@@ -2517,16 +2568,29 @@ func _living_enemies_for_team(team_id: String) -> int:
 func _tick_ffa(delta: float) -> void:
 	if not GameRuntime.is_ffa() or game_over:
 		return
+	_ffa_elapsed += delta
 	_ffa_shop_timer += delta
-	if _ffa_shop_timer >= 3.0:
+	_ffa_status_timer += delta
+	_ffa_bounty_timer += delta
+	if _ffa_shop_timer >= FFA_CPU_SHOP_SECONDS:
 		_ffa_shop_timer = 0.0
-		_cpu_auto_shop()
+		_cpu_auto_shop(1, 450)
 	if hud != null:
 		hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
+	if _ffa_status_timer >= 2.0:
+		_ffa_status_timer = 0.0
+		_write_ffa_sim_status()
+	if _ffa_bounty_timer >= 6.0:
+		_ffa_bounty_timer = 0.0
+		_maintain_ffa_bounties()
 	var due: Array = []
 	for peer_id in _ffa_respawn_in.keys():
 		_ffa_respawn_in[peer_id] = float(_ffa_respawn_in[peer_id]) - delta
-		if float(_ffa_respawn_in[peer_id]) <= 0.0:
+		var remaining := float(_ffa_respawn_in[peer_id])
+		var waiting := players.get(peer_id) as Player
+		if waiting != null:
+			waiting.set_ffa_respawn(remaining)
+		if remaining <= 0.0:
 			due.append(peer_id)
 	for peer_id in due:
 		_ffa_respawn_in.erase(peer_id)
@@ -2541,12 +2605,21 @@ func _on_ffa_player_died(peer_id: int) -> void:
 	if source is Player and source != fallen:
 		var killer := source as Player
 		killer.hero_kills = RiftClashManager.record_hero_kill(killer.owner_peer_id)
+		print("[ffa] kill %s now %d/%d at %.0fs" % [
+			RiftClashManager.team_name(killer.team_id),
+			killer.hero_kills,
+			GameRuntime.FFA_KILLS_TO_WIN,
+			_ffa_elapsed,
+		])
+		_write_ffa_sim_status()
 		if hud != null:
 			hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
 		if RiftClashManager.has_winner():
 			_finish_ffa_match()
 			return
 	_ffa_respawn_in[peer_id] = GameRuntime.FFA_RESPAWN_SECONDS
+	if fallen != null:
+		fallen.set_ffa_respawn(GameRuntime.FFA_RESPAWN_SECONDS)
 
 
 func _respawn_ffa_player(peer_id: int) -> void:
@@ -2557,6 +2630,55 @@ func _respawn_ffa_player(peer_id: int) -> void:
 	player.respawn_ffa(home)
 
 
+func _ffa_bounty_count() -> int:
+	var n := 0
+	if not is_inside_tree():
+		return 0
+	for node in get_tree().get_nodes_in_group("ffa_bounty"):
+		if is_instance_valid(node):
+			n += 1
+	return n
+
+
+func _maintain_ffa_bounties() -> void:
+	if game_over or enemies.size() >= _enemy_cap():
+		return
+	var missing := FFA_BOUNTY_CAP - _ffa_bounty_count()
+	if missing <= 0:
+		return
+	var spots := _ffa_bounty_spots()
+	if spots.is_empty():
+		return
+	var multiplier := wave_director.health_multiplier_for_wave(maxi(1, current_wave)) * 1.35
+	for _i in mini(missing, 3):
+		var spot: Vector2 = spots[randi() % spots.size()]
+		var type_id := str(FFA_BOUNTY_TYPES[randi() % FFA_BOUNTY_TYPES.size()])
+		var enemy := _spawn_enemy_at(spot, type_id, multiplier, 0.92, true)
+		if enemy == null:
+			continue
+		enemy.xp_value = maxi(enemy.xp_value * 3, 48)
+		enemy.gold_value = maxi(enemy.gold_value * 3, 18)
+		enemy.scale = Vector2(1.22, 1.22)
+		enemy.add_to_group("ffa_bounty")
+
+
+func _ffa_bounty_spots() -> Array[Vector2]:
+	var spots: Array[Vector2] = []
+	var rim := Arena.ffa_creep_rim_radius(28.0) + 70.0
+	for index in 6:
+		spots.append(Vector2.RIGHT.rotated(TAU * float(index) / 6.0 + 0.4) * rim)
+	for shrine in Arena.contested_landmark_spots():
+		spots.append(shrine + Vector2.RIGHT.rotated(randf() * TAU) * 160.0)
+	if arena is Arena:
+		var cleaned: Array[Vector2] = []
+		for spot in spots:
+			if Arena.ffa_blocks_creeps_from_crater() and spot.length() < Arena.ffa_creep_rim_radius(24.0):
+				spot = spot.normalized() * Arena.ffa_creep_rim_radius(24.0)
+			cleaned.append((arena as Arena).free_position_near(spot, 24.0))
+		return cleaned
+	return spots
+
+
 func _finish_ffa_match() -> void:
 	if game_over:
 		return
@@ -2565,7 +2687,55 @@ func _finish_ffa_match() -> void:
 	for director in team_wave_directors.values():
 		if director is WaveDirector:
 			(director as WaveDirector).stop()
+	var winner_name := RiftClashManager.team_name(RiftClashManager.team_of(RiftClashManager.winner_peer_id))
+	print("[ffa] winner %s after %.0fs" % [winner_name, _ffa_elapsed])
+	_write_ffa_sim_status()
 	_resolve_rift_clash_match()
+
+
+func _write_ffa_sim_status() -> void:
+	if not GameRuntime.is_ffa():
+		return
+	var heroes: Array = []
+	var creeps_in_bowl := 0
+	var creeps_on_rim := 0
+	var rim := Arena.ffa_creep_rim_radius(20.0)
+	if is_inside_tree():
+		for node in get_tree().get_nodes_in_group("enemies"):
+			if not is_instance_valid(node) or not node is Node2D:
+				continue
+			var dist := (node as Node2D).global_position.length()
+			if dist < Arena.crater_radius():
+				creeps_in_bowl += 1
+			elif dist < rim + 80.0:
+				creeps_on_rim += 1
+	for peer_id in players.keys():
+		var player := players[peer_id] as Player
+		if player == null:
+			continue
+		heroes.append({
+			"peer": int(peer_id),
+			"team": RiftClashManager.team_name(player.team_id),
+			"kills": player.hero_kills,
+			"alive": player.active,
+			"hp": snappedf(player.health.current_health, 0.1),
+			"invuln": snappedf(player.pvp_invuln_timer, 0.1),
+			"dist_center": snappedf(player.global_position.length(), 1.0),
+		})
+	var payload := {
+		"elapsed": snappedf(_ffa_elapsed, 0.1),
+		"kills_to_win": GameRuntime.FFA_KILLS_TO_WIN,
+		"winner": RiftClashManager.winner_peer_id,
+		"winner_name": RiftClashManager.team_name(RiftClashManager.team_of(RiftClashManager.winner_peer_id)) if RiftClashManager.has_winner() else "",
+		"game_over": game_over,
+		"creeps_in_bowl": creeps_in_bowl,
+		"creeps_on_rim": creeps_on_rim,
+		"heroes": heroes,
+	}
+	var file := FileAccess.open("user://ffa_sim_status.json", FileAccess.WRITE)
+	if file != null:
+		file.store_string(JSON.stringify(payload))
+		file.close()
 
 
 func _ffa_scoreboard_rows() -> Array:
@@ -2578,6 +2748,7 @@ func _ffa_scoreboard_rows() -> Array:
 		rows.append({
 			"peer_id": int(peer_id),
 			"name": "%s %s" % [RiftClashManager.team_name(player.team_id), RiftClashManager.team_corner_name(player.team_id)],
+			"class_id": player.class_id,
 			"kills": player.hero_kills,
 			"color": RiftClashManager.team_color(player.team_id),
 			"alive": player.active,

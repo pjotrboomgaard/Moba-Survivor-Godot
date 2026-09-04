@@ -6,15 +6,25 @@ extends RefCounted
 ## wide comfort band so allies don't jitter every physics frame.
 
 const MOVE_SCALE := 0.46
+const FFA_MOVE_SCALE := 0.92
 const TARGET_LOCK_SEC := 1.25
 const SMOOTH_RATE := 2.4
 const FORMATION_HOLD := 88.0
 const TANK_HOLD := 58.0
 const KITE_NEAR := 130.0
 const KITE_FAR_PAD := 110.0
-const FFA_HUNT_RANGE := 920.0
-const FFA_COMMIT_RANGE := 640.0
-const FFA_LANDMARK_HOLD := 150.0
+const FFA_HUNT_RANGE := 2800.0
+const FFA_COMMIT_RANGE := 1600.0
+const FFA_LANDMARK_HOLD := 120.0
+
+static var _hold_left: Dictionary = {}
+
+enum FfaTactic {
+	HUNTER,
+	AMBUSHER,
+	BULLY,
+	SKIRMISHER,
+}
 
 
 static func think(player: Player, delta: float = 0.016) -> Dictionary:
@@ -50,7 +60,7 @@ static func think(player: Player, delta: float = 0.016) -> Dictionary:
 			result.move = _smooth_move(player, Vector2.ZERO, delta)
 		return result
 
-	result.attack = true
+	result.attack = _want_attack_hold(player, delta)
 	result.aim = enemy.global_position
 	var distance := player.global_position.distance_to(enemy.global_position)
 	if distance < 90.0 and player.has_active_item():
@@ -67,7 +77,8 @@ static func think(player: Player, delta: float = 0.016) -> Dictionary:
 
 
 static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dictionary:
-	var rival := _nearest_rival(player)
+	var tactic := _ffa_tactic(player)
+	var rival := _pick_hunt_target(player, tactic)
 	var creep := _locked_enemy(player, delta)
 	var shrine := _contest_landmark(player)
 	var home := RiftClashManager.team_anchor(player.team_id)
@@ -75,68 +86,228 @@ static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dict
 	if player.health.max_health > 0.0:
 		hp = player.health.current_health / player.health.max_health
 	var protected := player.is_pvp_protected()
+	var rival_open := rival != null and not rival.is_pvp_protected()
+	var panic := 0.14 if tactic == FfaTactic.HUNTER else 0.22
+	if tactic == FfaTactic.SKIRMISHER:
+		panic = 0.28
 
-	if not protected and hp < 0.38 and rival != null:
-		var flee := rival.global_position.distance_to(player.global_position)
-		if flee < FFA_HUNT_RANGE:
-			result.aim = rival.global_position
-			result.move = _smooth_move(player, _steer_towards(player.global_position, home, 48.0), delta)
-			if creep != null and player.global_position.distance_to(creep.global_position) < 220.0:
-				result.attack = true
-				result.aim = creep.global_position
-			return result
+	if not protected and hp < panic and rival_open:
+		result.aim = rival.global_position
+		var flee_to := Vector2.ZERO
+		if tactic == FfaTactic.SKIRMISHER and shrine != Vector2.INF:
+			flee_to = shrine
+		result.move = _smooth_move(player, player.global_position.direction_to(flee_to), delta, FFA_MOVE_SCALE)
+		_arm_combat(result, player, rival, player.global_position.distance_to(rival.global_position), delta)
+		return _apply_ffa_dodge(player, result, delta)
 
-	if rival != null and not rival.is_pvp_protected():
+	if rival_open:
 		var gap := player.global_position.distance_to(rival.global_position)
-		var rival_hp := 1.0
-		if rival.health.max_health > 0.0:
-			rival_hp = rival.health.current_health / rival.health.max_health
-		var should_hunt := gap < FFA_COMMIT_RANGE and (hp > rival_hp + 0.06 or hp > 0.58 or protected)
-		if should_hunt:
-			result.attack = true
-			result.aim = rival.global_position
-			result.ability = gap < 420.0
-			result.secondary = gap < 280.0
-			var kite := player.attack_range * 0.62
-			var desired := Vector2.ZERO
-			if gap > kite + 80.0:
-				desired = player.global_position.direction_to(rival.global_position)
-			elif gap < KITE_NEAR:
-				desired = rival.global_position.direction_to(player.global_position)
-			result.move = _smooth_move(player, desired, delta)
-			return result
-
-	if shrine != Vector2.INF:
-		var to_shrine := player.global_position.distance_to(shrine)
-		if to_shrine > FFA_LANDMARK_HOLD:
-			result.move = _smooth_move(player, _steer_towards(player.global_position, shrine, FFA_LANDMARK_HOLD), delta)
-		else:
-			result.move = _smooth_move(player, Vector2.ZERO, delta)
-		if rival != null and player.global_position.distance_to(rival.global_position) < 520.0 and not rival.is_pvp_protected():
-			result.attack = true
-			result.aim = rival.global_position
-			result.ability = true
-			result.secondary = true
-		elif creep != null:
-			result.attack = true
-			result.aim = creep.global_position
-			result.ability = player.global_position.distance_to(creep.global_position) < 300.0
-			result.secondary = player.global_position.distance_to(creep.global_position) < 240.0
-		else:
-			result.aim = shrine
-		return result
+		var hunt := protected or tactic != FfaTactic.AMBUSHER or gap < FFA_COMMIT_RANGE
+		if hunt:
+			_arm_combat(result, player, rival, gap, delta)
+			result.move = _smooth_move(player, _ffa_fight_move(player, rival, tactic, gap), delta, FFA_MOVE_SCALE)
+			return _apply_ffa_dodge(player, result, delta)
 
 	if creep != null:
-		result.attack = true
-		result.aim = creep.global_position
-		result.ability = player.global_position.distance_to(creep.global_position) < 280.0
-		var desired_farm := _desired_move(player, creep, null, player.global_position.distance_to(creep.global_position))
-		result.move = _smooth_move(player, desired_farm, delta)
-		return result
+		_arm_combat(result, player, creep, player.global_position.distance_to(creep.global_position), delta)
+		result.move = _smooth_move(player, _desired_move(player, creep, null, player.global_position.distance_to(creep.global_position)), delta, FFA_MOVE_SCALE)
+		return _apply_ffa_dodge(player, result, delta)
 
-	result.move = _smooth_move(player, _steer_towards(player.global_position, home, 80.0), delta)
+	if tactic == FfaTactic.AMBUSHER:
+		var rim := _ffa_crater_rim(player)
+		result.move = _smooth_move(player, _steer_towards(player.global_position, rim, FFA_LANDMARK_HOLD), delta, FFA_MOVE_SCALE)
+		result.aim = rim
+		return _apply_ffa_dodge(player, result, delta)
+
+	if shrine != Vector2.INF:
+		result.move = _smooth_move(player, _steer_towards(player.global_position, shrine, 80.0), delta, FFA_MOVE_SCALE)
+		result.aim = shrine
+		return _apply_ffa_dodge(player, result, delta)
+	result.move = _smooth_move(player, _steer_towards(player.global_position, home, 80.0), delta, FFA_MOVE_SCALE)
 	result.aim = home
+	return _apply_ffa_dodge(player, result, delta)
+
+
+static func _want_attack_hold(player: Player, delta: float) -> bool:
+	if player.attack_cooldown > 0.05:
+		return false
+	if bool(player.get("_charge_firing")):
+		return false
+	var id := player.get_instance_id()
+	if not _hold_left.has(id):
+		var roll := randf()
+		if roll < 0.42:
+			_hold_left[id] = 0.06
+		elif roll < 0.82:
+			_hold_left[id] = randf_range(0.7, 1.6)
+		else:
+			_hold_left[id] = PlayerClass.ATTACK_CHARGE_MAX
+	_hold_left[id] = float(_hold_left[id]) - delta
+	if float(_hold_left[id]) <= 0.0:
+		_hold_left.erase(id)
+		return false
+	return true
+
+
+static func _arm_combat(result: Dictionary, player: Player, target: Node2D, gap: float, delta: float = 0.016) -> void:
+	result.attack = _want_attack_hold(player, delta)
+	result.aim = target.global_position
+	result.ability = gap < 480.0 or player.is_pvp_protected()
+	result.secondary = gap < 320.0
+	result.ability_slots = [gap < 520.0, gap < 420.0, gap < 380.0, gap < 640.0]
+
+
+static func _apply_ffa_dodge(player: Player, result: Dictionary, delta: float) -> Dictionary:
+	if not player.is_inside_tree():
+		return result
+	var best_center := Vector2.ZERO
+	var best_radius := 0.0
+	var best_depth := -INF
+	for node in player.get_tree().get_nodes_in_group("pending_blasts"):
+		if not is_instance_valid(node) or not node is Node2D:
+			continue
+		var marker := node as Node2D
+		var owner_id := int(marker.get_meta("owner_id", 0))
+		var kind := str(marker.get_meta("kind", "blast"))
+		if owner_id == player.get_instance_id() and kind == "keg":
+			continue
+		var radius := float(marker.get_meta("radius", 80.0))
+		var dist := player.global_position.distance_to(marker.global_position)
+		if dist > radius + 36.0:
+			continue
+		var depth := radius - dist
+		if depth > best_depth:
+			best_depth = depth
+			best_center = marker.global_position
+			best_radius = radius
+	if best_depth < -36.0:
+		return result
+	var away := best_center.direction_to(player.global_position)
+	if away.length_squared() <= 0.0:
+		away = player.facing_direction.orthogonal()
+		if away.length_squared() <= 0.0:
+			away = Vector2.RIGHT
+	result.move = _smooth_move(player, away, delta, FFA_MOVE_SCALE)
+	if best_depth > best_radius * 0.22 or player.global_position.distance_to(best_center) < 56.0:
+		result.attack = false
+		result.aim = player.global_position
+		result.secondary = true
+		var slots: Array = result.get("ability_slots", [false, false, false, false])
+		if slots.size() >= 1:
+			slots[0] = true
+		result.ability_slots = slots
 	return result
+
+
+static func _ffa_fight_move(player: Player, rival: Player, tactic: int, gap: float) -> Vector2:
+	var toward := player.global_position.direction_to(rival.global_position)
+	var side := toward.orthogonal()
+	if int(Time.get_ticks_msec() / 420) % 2 == 1:
+		side = -side
+	var crater_cut := _ffa_cut_through_crater(player, rival, gap)
+	match tactic:
+		FfaTactic.HUNTER:
+			if gap < 78.0:
+				return -toward * 0.35 + side * 0.8
+			if crater_cut.length_squared() > 0.0:
+				return crater_cut + side * 0.18
+			return toward + side * 0.22
+		FfaTactic.AMBUSHER:
+			if gap > 260.0:
+				return toward + side * 0.15
+			return toward * 0.15 + side
+		FfaTactic.BULLY:
+			if crater_cut.length_squared() > 0.0 and gap > player.attack_range:
+				return crater_cut + side * 0.12
+			if gap > player.attack_range * 0.7:
+				return toward + side * 0.18
+			return toward * 0.5 + side * 0.85
+		_:
+			var ideal := player.attack_range * 0.62
+			if crater_cut.length_squared() > 0.0 and gap > ideal + 140.0:
+				return crater_cut + side * 0.35
+			if gap > ideal + 70.0:
+				return toward + side * 0.45
+			if gap < KITE_NEAR:
+				return -toward * 0.85 + side * 0.7
+			return side
+	return toward
+
+
+static func _ffa_cut_through_crater(player: Player, rival: Player, gap: float) -> Vector2:
+	if gap < 520.0:
+		return Vector2.ZERO
+	var from := player.global_position
+	var to := rival.global_position
+	if from.length() < Arena.crater_radius() and to.length() < Arena.crater_radius() * 1.4:
+		return Vector2.ZERO
+	var via := Vector2.ZERO
+	if from.length() > Arena.crater_radius() + 40.0:
+		via = -from.normalized()
+	else:
+		via = to
+		if via.length_squared() < 1.0:
+			via = Vector2.RIGHT
+		via = via.normalized()
+	return via
+
+
+static func _ffa_crater_rim(player: Player) -> Vector2:
+	var home := RiftClashManager.team_anchor(player.team_id)
+	var radial := home
+	if radial.length_squared() < 1.0:
+		radial = Vector2.RIGHT
+	return radial.normalized() * (Arena.crater_radius() + 52.0)
+
+
+static func _orbit(player: Player, center: Vector2, speed: float) -> Vector2:
+	var away := player.global_position - center
+	if away.length_squared() < 16.0:
+		away = Vector2.RIGHT
+	return away.normalized().orthogonal() * speed
+
+
+static func _ffa_tactic(player: Player) -> int:
+	return abs(int(player.team_id)) % 4
+
+
+static func _pick_hunt_target(player: Player, tactic: int) -> Player:
+	var rivals := _rivals(player)
+	var pool: Array[Player] = []
+	for rival in rivals:
+		if not rival.is_pvp_protected():
+			pool.append(rival)
+	if pool.is_empty():
+		return null
+	if tactic == FfaTactic.BULLY:
+		var weakest: Player = pool[0]
+		var worst := 2.0
+		for rival in pool:
+			var frac := 1.0
+			if rival.health.max_health > 0.0:
+				frac = rival.health.current_health / rival.health.max_health
+			if frac < worst:
+				worst = frac
+				weakest = rival
+		return weakest
+	if tactic == FfaTactic.AMBUSHER:
+		var shrine := _contest_landmark(player)
+		var best: Player = pool[0]
+		var best_score := INF
+		for rival in pool:
+			var score := rival.global_position.distance_squared_to(shrine)
+			if score < best_score:
+				best_score = score
+				best = rival
+		return best
+	var nearest: Player = pool[0]
+	var best_dist := INF
+	for rival in pool:
+		var dist := player.global_position.distance_squared_to(rival.global_position)
+		if dist < best_dist:
+			best_dist = dist
+			nearest = rival
+	return nearest
 
 
 static func _desired_move(player: Player, enemy: Node2D, ally: Player, distance: float) -> Vector2:
@@ -198,8 +369,8 @@ static func _locked_enemy(player: Player, delta: float) -> Node2D:
 	return next_enemy
 
 
-static func _smooth_move(player: Player, desired: Vector2, delta: float) -> Vector2:
-	var target := desired.limit_length(1.0) * MOVE_SCALE
+static func _smooth_move(player: Player, desired: Vector2, delta: float, scale: float = MOVE_SCALE) -> Vector2:
+	var target := desired.limit_length(1.0) * scale
 	var blend := clampf(SMOOTH_RATE * delta, 0.12, 0.35)
 	player.cpu_smoothed_move = player.cpu_smoothed_move.lerp(target, blend)
 	if target.length_squared() <= 0.0001 and player.cpu_smoothed_move.length_squared() < 0.01:
@@ -217,24 +388,26 @@ static func _nearest_enemy(player: Player) -> Node2D:
 	if not player.is_inside_tree():
 		return null
 	var best: Node2D
-	var best_dist := INF
+	var best_score := INF
 	for candidate in player.get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(candidate) or not candidate is Node2D:
 			continue
 		if candidate.has_method("is_damageable") and not candidate.is_damageable():
 			continue
 		var dist := player.global_position.distance_squared_to((candidate as Node2D).global_position)
-		if dist < best_dist:
-			best_dist = dist
+		var score := dist
+		if candidate.is_in_group("ffa_bounty"):
+			score *= 0.38
+		if score < best_score:
+			best_score = score
 			best = candidate as Node2D
 	return best
 
 
-static func _nearest_rival(player: Player) -> Player:
+static func _rivals(player: Player) -> Array[Player]:
+	var found: Array[Player] = []
 	if not player.is_inside_tree():
-		return null
-	var best: Player
-	var best_dist := INF
+		return found
 	for candidate in player.get_tree().get_nodes_in_group("players"):
 		if not is_instance_valid(candidate) or not candidate is Player:
 			continue
@@ -243,11 +416,8 @@ static func _nearest_rival(player: Player) -> Player:
 			continue
 		if rival.team_id == player.team_id:
 			continue
-		var dist := player.global_position.distance_squared_to(rival.global_position)
-		if dist < best_dist:
-			best_dist = dist
-			best = rival
-	return best
+		found.append(rival)
+	return found
 
 
 static func _contest_landmark(player: Player) -> Vector2:
@@ -255,7 +425,7 @@ static func _contest_landmark(player: Player) -> Vector2:
 	var best_score := INF
 	for spot in Arena.contested_landmark_spots():
 		var home := RiftClashManager.team_anchor(player.team_id)
-		var score := player.global_position.distance_squared_to(spot) * 0.65 + home.distance_squared_to(spot) * 0.35
+		var score := player.global_position.distance_squared_to(spot) * 0.55 + home.distance_squared_to(spot) * 0.45
 		if score < best_score:
 			best_score = score
 			best = spot

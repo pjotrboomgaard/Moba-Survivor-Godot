@@ -1,0 +1,17 @@
+{
+  "hero": "tobor",
+  "events": [
+    {"kind": "spawn", "at": [200, 0], "type": "cinderling", "hp_mult": 1.0, "spd_mult": 1.0},
+    {"kind": "spawn", "at": [-200, 0], "type": "iceball", "hp_mult": 1.0, "spd_mult": 1.0},
+    {"kind": "spawn", "at": [0, 200], "type": "sparkbot", "hp_mult": 1.0, "spd_mult": 1.0},
+    {"kind": "spawn", "at": [0, -200], "type": "ripcurrent", "hp_mult": 1.0, "spd_mult": 1.0},
+    {"kind": "wait", "duration": 0.3},
+    {"kind": "snap", "label": "spawned"},
+    {"kind": "wait", "duration": 4.0},
+    {"kind": "snap", "label": "after_4s"},
+    {"kind": "wait", "duration": 10.0},
+    {"kind": "snap", "label": "after_14s"},
+    {"kind": "effect_log", "text": "checking iceball growth + cinderling/ripcurrent teleport blinks"},
+    {"kind": "report"}
+  ]
+}

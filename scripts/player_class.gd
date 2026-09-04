@@ -47,7 +47,11 @@ const CLASSES: Array[Dictionary] = [
 		"effect_color": "ffd36b",
 		"effect_secondary": "ff8a3d",
 		"health_bar_color": "ff9a3c",
-		"max_health": 72.0,
+		# Was 72.0 / 1.25x — the lowest EHP in the roster by ~30% versus the next-most-fragile
+		# hero (Cinder/Willow around 82-86 effective HP), which made a 20-wave solo endurance
+		# clear essentially unwinnable regardless of play skill. Nudged toward that pack while
+		# keeping Tobor the roster's most fragile hero by a clear margin (flavor intact).
+		"max_health": 82.0,
 		"movement_speed": 355.0,
 		"attack_interval": 0.65,
 		"weapon_damage": 18.0,
@@ -55,8 +59,8 @@ const CLASSES: Array[Dictionary] = [
 		"aim_assist_radius": 88.0,
 		"chain_count": 0,
 		"chain_range": 0.0,
-		"blast_radius": 70.0,
-		"damage_taken_multiplier": 1.25,
+		"blast_radius": 20.0,
+		"damage_taken_multiplier": 1.15,
 		"taunt_weight": 1.0,
 		"secondary": "repulse",
 		"secondary_cooldown": 9.0,
@@ -64,6 +68,10 @@ const CLASSES: Array[Dictionary] = [
 		"kit_q": "tobor_steam_keg",
 		"kit_e": "tobor_spider_mines",
 		"kit_r": "tobor_energy_field",
+		# PlayerProfile.loadout_for() always auto-equips the *first pool entry not in kit_q/e/r*
+		# as the 4th active slot. Reverted back to tobor_steam_turret leading (was briefly
+		# swapped for tobor_repair_pulse to give solo a default self-heal — reverted at the
+		# user's request, they wanted the turret back as the default 4th).
 		"ability_pool": [
 			"tobor_steam_keg", "tobor_spider_mines", "tobor_energy_field", "tobor_steam_turret",
 			"tobor_energy_absorption", "tobor_keg_lob", "tobor_turret_overdrive", "tobor_scrap_shield",
@@ -698,8 +706,16 @@ const FROST_SLOW_FACTOR := 0.55
 const FROST_SLOW_DURATION := 2.5
 const CONE_HALF_ANGLE_DEGREES := 36.0
 const ABILITY_CONE_HALF_ANGLE_DEGREES := 62.0
-const BLAST_RADIUS := 70.0
+## Tap blast is about one cinderling across; a full 3s hold scales to ATTACK_CHARGE_SIZE.
+const BLAST_RADIUS := 20.0
 const BLAST_AFTERSHOCK_DAMAGE := 0.55
+## Hold primary up to this long. Tap is 1x; a full hold is ATTACK_CHARGE_DAMAGE and ATTACK_CHARGE_SIZE.
+const ATTACK_CHARGE_MAX := 3.0
+const ATTACK_CHARGE_DAMAGE := 7.0
+const ATTACK_CHARGE_SIZE := 3.0
+const ATTACK_CHARGE_EXTRA_BOUNCES := 6
+const ATTACK_TAP_DELAY := 0.04
+const ATTACK_FULL_DELAY := 0.22
 const SWEEP_DEGREES := 12.0
 const SECONDARY_COOLDOWN := 10.0
 const SECONDARY_RADIUS := 170.0
@@ -714,7 +730,7 @@ const UPGRADES: Dictionary = {
 	"heavy": {"name": "Charged Weapon", "description": "+8 weapon damage"},
 	"chain": {"name": "Forked Current", "description": "+1 Arc Staff chain"},
 	"volt": {"name": "Long Arc", "description": "+40 lightning chain range"},
-	"blast": {"name": "Wider Blast", "description": "+40 blast radius"},
+	"blast": {"name": "Wider Blast", "description": "+10 blast radius"},
 	"aftershock": {"name": "Aftershock", "description": "A second blast pulse at the impact"},
 	"boots": {"name": "Windstep Boots", "description": "+35 movement speed"},
 	"vitality": {"name": "Second Wind", "description": "+25 max HP and heal"},
@@ -843,12 +859,13 @@ const ABILITIES: Dictionary = {
 	},
 	"tobor_spider_mines": {
 		"name": "Spider Mines", "archetype": Archetype.SUMMON_SPIRIT,
-		"description": "Plants proximity mines that arm after a short delay. They stay put until an enemy walks over them, then detonate for {power} damage — far more against bosses.",
+		"description": "Plants proximity mines that arm after a short delay, then crawl toward the nearest enemy. On detonation they deal {power} damage in a wide blast — far more against bosses — and heal you for {heal} Health.",
 		"cooldown_base": 11.0, "cooldown_per_rank": -0.9, "cooldown_min": 6.5,
 		"power_base": 42.0, "power_per_rank": 10.0, "range": 1200.0,
 		"duration_base": 36.0, "duration_per_rank": 2.0, "summon_count": 3,
 		"mine_count": 3, "scatter_radius": 78.0, "trigger_radius": 28.0,
-		"explosion_radius": 70.0, "arm_delay": 1.15, "boss_damage_mult": 4.5,
+		"explosion_radius": 100.0, "arm_delay": 1.15, "boss_damage_mult": 4.5,
+		"heal": 18.0, "seek_speed": 80.0, "seek_range": 260.0,
 	},
 	"tobor_steam_turret": {
 		"name": "Steam Turret", "archetype": Archetype.SUMMON_SPIRIT,
@@ -1632,9 +1649,10 @@ const ABILITIES: Dictionary = {
 	# --- Thorn ------------------------------------------------------------------------------
 	"thorn_poison_spray": {
 		"name": "Poison Spray", "archetype": Archetype.CONE_BURST,
-		"description": "Hoses the area in front of you with virulent toxin, dealing {power} Magic damage.",
+		"description": "Hoses the area in front of you with virulent toxin, dealing {power} Magic damage and leaving a lingering venom.",
 		"cooldown_base": 6.0, "cooldown_per_rank": -0.6, "cooldown_min": 3.4,
 		"power_base": 30.0, "power_per_rank": 8.0, "radius": 340.0,
+		"poison_on_hit": {"dps": 12.0, "duration": 3.5},
 	},
 	"thorn_toxin_ward": {
 		"name": "Toxin Ward", "archetype": Archetype.SUMMON_SPIRIT,
@@ -2477,6 +2495,8 @@ static func _modifier_description(data: Dictionary) -> String:
 		parts.append("Marks for +%d%% damage taken for %.1fs" % [int(float(data.mark_on_hit.bonus_pct) * 100.0), float(data.mark_on_hit.duration)])
 	if data.has("lifesteal_pct"):
 		parts.append("Heals you for %d%% of the damage dealt" % int(float(data.lifesteal_pct) * 100.0))
+	if data.has("poison_on_hit"):
+		parts.append("Poisons for %.1fs" % float(data.poison_on_hit.get("duration", 3.5)))
 	return "  ".join(parts)
 
 

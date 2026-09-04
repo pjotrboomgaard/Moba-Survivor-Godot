@@ -29,8 +29,9 @@ func _ready() -> void:
 	if prompt_label != null:
 		prompt_label.visible = false
 	if arrow_label != null:
-		arrow_label.visible = false
-	set_process(false)
+		arrow_label.visible = true
+		arrow_label.z_index = 8
+	set_process(true)
 	queue_redraw()
 
 
@@ -38,7 +39,7 @@ func _process(_delta: float) -> void:
 	if arrow_label == null:
 		return
 	var bob := sin(Time.get_ticks_msec() * 0.007) * 8.0
-	arrow_label.position.y = -118.0 + bob
+	arrow_label.position.y = -152.0 + bob
 	if prompt_label != null:
 		prompt_label.position.y = -102.0 + bob * 0.25
 

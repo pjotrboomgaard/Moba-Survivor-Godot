@@ -1,0 +1,34 @@
+{
+	"hero": "tobor",
+	"comment": "After mission card fades: HUD secondary, keg blast, mine blast, energy-field hex + slow tint. Sound probes per kit ability.",
+	"expected_casts": ["tobor_steam_keg", "tobor_spider_mines", "tobor_energy_field"],
+	"events": [
+		{"t": 2.6, "kind": "spawn", "at": [180, 0], "type": "grunt", "hp_mult": 8.0},
+		{"t": 2.6, "kind": "spawn", "at": [220, 40], "type": "grunt", "hp_mult": 8.0},
+		{"t": 2.6, "kind": "spawn", "at": [160, -50], "type": "grunt", "hp_mult": 8.0},
+		{"t": 2.7, "kind": "aim", "at": [200, 0]},
+		{"t": 2.8, "kind": "snap", "label": "tobor_hud_secondary"},
+		{"t": 2.9, "kind": "probe", "label": "pre_cast"},
+
+		{"t": 3.1, "kind": "cast", "slot": 0},
+		{"t": 3.25, "kind": "cast", "slot": 0},
+		{"t": 3.55, "kind": "snap", "label": "tobor_keg_blast"},
+		{"t": 3.6, "kind": "sound_probe", "ability_id": "tobor_steam_keg", "label": "sfx_keg"},
+
+		{"t": 4.4, "kind": "aim", "at": [200, 0]},
+		{"t": 4.5, "kind": "cast", "slot": 1},
+		{"t": 4.65, "kind": "cast", "slot": 1},
+		{"t": 4.9, "kind": "snap", "label": "tobor_mines_planted"},
+		{"t": 4.95, "kind": "sound_probe", "ability_id": "tobor_spider_mines", "label": "sfx_mines"},
+		{"t": 6.6, "kind": "snap", "label": "tobor_mines_blast"},
+
+		{"t": 7.2, "kind": "aim", "at": [180, 0]},
+		{"t": 7.3, "kind": "cast", "slot": 3},
+		{"t": 7.45, "kind": "cast", "slot": 3},
+		{"t": 7.65, "kind": "snap", "label": "tobor_energy_field"},
+		{"t": 7.7, "kind": "sound_probe", "ability_id": "tobor_energy_field", "label": "sfx_field"},
+		{"t": 8.6, "kind": "snap", "label": "tobor_field_slow_tint"},
+
+		{"t": 9.2, "kind": "report"}
+	]
+}

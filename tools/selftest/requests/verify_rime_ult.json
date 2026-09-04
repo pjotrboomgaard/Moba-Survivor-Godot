@@ -1,0 +1,18 @@
+{
+	"hero": "rime",
+	"comment": "Rime Q ice cage vs R freezing field — ice flakes, not storm bolts or steam hex.",
+	"events": [
+		{"t": 2.6, "kind": "spawn", "at": [150, 0], "type": "grunt", "hp_mult": 12.0},
+		{"t": 2.6, "kind": "spawn", "at": [180, 50], "type": "grunt", "hp_mult": 12.0},
+		{"t": 2.6, "kind": "spawn", "at": [180, -50], "type": "grunt", "hp_mult": 12.0},
+		{"t": 2.7, "kind": "aim", "at": [160, 0]},
+		{"t": 2.9, "kind": "cast", "slot": 0},
+		{"t": 3.05, "kind": "cast", "slot": 0},
+		{"t": 3.3, "kind": "snap", "label": "rime_q_cage"},
+		{"t": 4.7, "kind": "cast", "slot": 3},
+		{"t": 4.85, "kind": "cast", "slot": 3},
+		{"t": 5.15, "kind": "snap", "label": "rime_r_freeze_field"},
+		{"t": 5.2, "kind": "sound_probe", "ability_id": "rime_freezing_field", "label": "sfx_r"},
+		{"t": 5.9, "kind": "report"}
+	]
+}

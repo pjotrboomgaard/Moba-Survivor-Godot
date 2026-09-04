@@ -245,10 +245,11 @@ const MAX_VOICES := {
 	"xp": 1,
 	"gold": 2,
 	"enemy_shoot": 3,
-	"explosion": 2,
+	"explosion": 1,
 	"ui_click": 2,
 	"dash": 2,
 	"charge": 2,
+	"cast_tobor": 2,
 }
 
 const UI_SOUND_IDS := {

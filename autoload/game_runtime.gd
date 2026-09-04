@@ -57,10 +57,14 @@ var fill_cpu_allies := false
 ## FFA / Rift Clash split. NONE until a lobby or the FFA simulate button sets it.
 var team_mode: TeamMode = TeamMode.NONE
 
-const FFA_KILLS_TO_WIN := 10
+const FFA_KILLS_TO_WIN := 15
 const FFA_RESPAWN_SECONDS := 30.0
-const FFA_PVP_INVULN_SECONDS := 60.0
+const FFA_PVP_INVULN_SECONDS := 30.0
+const FFA_PVP_SHIELD_FLICKER_SECONDS := 5.0
 const FFA_CLASS_ID := "tobor"
+const FFA_HEALTH_MULT := 1.45
+## Primary cannon vs rival heroes: this many connected blasts to drop a full bar.
+const FFA_PVP_SHOTS_TO_KILL := 10.0
 ## When true, the local FFA seat is also a CPU (four-bot sim). Menu FFA leaves this false.
 var ffa_all_bots := false
 
@@ -135,7 +139,18 @@ func biome_key() -> String:
 
 
 func _ready() -> void:
-	configure_from_arguments(OS.get_cmdline_user_args())
+	configure_from_arguments(_cli_arguments())
+	if is_ffa():
+		print("[runtime] FFA auto-start bots=%s args=%s" % [ffa_all_bots, ",".join(_cli_arguments())])
+
+
+func _cli_arguments() -> PackedStringArray:
+	var merged: PackedStringArray = OS.get_cmdline_user_args()
+	for argument in OS.get_cmdline_args():
+		if argument.begins_with("--") or argument.begins_with("+"):
+			if argument not in merged:
+				merged.append(argument)
+	return merged
 
 
 func configure_from_arguments(arguments: PackedStringArray) -> void:

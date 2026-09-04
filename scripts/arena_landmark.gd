@@ -210,6 +210,17 @@ func _draw_role_glyph(accent: Color) -> void:
 			draw_rect(Rect2(Vector2(-16.0, -4.0), Vector2(32.0, 8.0)), ink, true)
 			draw_rect(Rect2(Vector2(-14.0, -14.0), Vector2(8.0, 8.0)), ink, true)
 			draw_rect(Rect2(Vector2(6.0, 6.0), Vector2(8.0, 8.0)), ink, true)
+		"speed_surge":
+			draw_rect(Rect2(Vector2(-18.0, -10.0), Vector2(28.0, 6.0)), ink, true)
+			draw_rect(Rect2(Vector2(-14.0, 0.0), Vector2(24.0, 6.0)), ink, true)
+			draw_rect(Rect2(Vector2(-10.0, 10.0), Vector2(20.0, 6.0)), ink, true)
+		"phase_cloak":
+			draw_rect(Rect2(Vector2(-14.0, -18.0), Vector2(28.0, 36.0)), Color(ink, 0.4), true)
+			draw_rect(Rect2(Vector2(-6.0, -10.0), Vector2(12.0, 20.0)), ink, true)
+		"battle_frenzy":
+			draw_rect(Rect2(Vector2(-18.0, -18.0), Vector2(14.0, 14.0)), ink, true)
+			draw_rect(Rect2(Vector2(4.0, 4.0), Vector2(14.0, 14.0)), ink, true)
+			draw_rect(Rect2(Vector2(-4.0, -4.0), Vector2(8.0, 8.0)), ink, true)
 		_:
 			pass
 
@@ -222,6 +233,12 @@ func _compose_hint() -> String:
 			return "%s  ·  FREEZE" % _hint
 		"heal_all":
 			return "%s  ·  HEAL" % _hint
+		"speed_surge":
+			return "%s  ·  SPEED" % _hint
+		"phase_cloak":
+			return "%s  ·  CLOAK" % _hint
+		"battle_frenzy":
+			return "%s  ·  FRENZY" % _hint
 		_:
 			return _hint
 
@@ -304,6 +321,14 @@ func _accent_fallback() -> Color:
 			return Color("7db8ff")
 		"tw_docks_landmark_lighthouse":
 			return Color("f4c44a")
+		"tw_factory_landmark_turbine":
+			return Color("ffe066")
+		"tw_volcano_landmark_totem":
+			return Color("ff3020")
+		"tw_grass_landmark_thicket":
+			return Color("9a70ff")
+		"tw_ice_landmark_rune":
+			return Color("60e0ff")
 	match effect_id:
 		"pulse_wipe":
 			return Color("f4c44a")
@@ -311,5 +336,11 @@ func _accent_fallback() -> Color:
 			return Color("7db8ff")
 		"heal_all":
 			return Color("7fd88a")
+		"speed_surge":
+			return Color("ffe066")
+		"phase_cloak":
+			return Color("9a70ff")
+		"battle_frenzy":
+			return Color("ff3020")
 		_:
 			return Color("e8e8e8")

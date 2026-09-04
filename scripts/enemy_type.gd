@@ -48,6 +48,19 @@ const BASE_DEFAULTS := {
 	"separation_weight": 1.0,
 	"gold_value": 2,
 	"resistances": {},
+	## World-signature trash (cinderling/iceball/sparkbot/ripcurrent): only spawnable once
+	## their biome is actually active (see spawnable_for_wave) — grass's "full roster"
+	## exception would otherwise leak them in from wave 1.
+	"world_exclusive": false,
+	## Blink-attacker (volcano/docks): every teleport_interval seconds, jump to a random
+	## spot teleport_range out from its target instead of walking there. 0 = no teleport.
+	"teleport_interval": 0.0,
+	"teleport_range": 140.0,
+	## Grow-in-place (ice/factory): passively wanders (ignores its target), ramping
+	## body_radius/max_health/contact_damage linearly up to growth_max_mult over
+	## growth_aggro_seconds, then starts actively chasing once fully grown. 0 = no growth.
+	"growth_aggro_seconds": 0.0,
+	"growth_max_mult": 1.0,
 }
 
 const TYPES: Array[Dictionary] = [
@@ -391,10 +404,118 @@ const TYPES: Array[Dictionary] = [
 		},
 	},
 	{
+		"id": "cinderling",
+		"name": "Cinderling",
+		"fill_color": "ff5a1e",
+		"outline_color": "ffd08a",
+		"radius": 15.0,
+		"max_health": 26.0,
+		"movement_speed": 120.0,
+		"contact_damage": 8.0,
+		"attack_interval": 0.8,
+		"attack_distance": 34.0,
+		"xp_value": 16,
+		"gold_value": 5,
+		"world_exclusive": true,
+		"teleport_interval": 3.5,
+		"teleport_range": 150.0,
+		"unlock_wave": 1,
+		"cost": 1.3,
+		"weight": 1.8,
+		"formation": Formation.SCATTERED,
+		"group_min": 2,
+		"group_max": 4,
+		"resistances": {
+			PlayerClass.DamageType.FROST: 1.5,
+			PlayerClass.DamageType.IMPACT: 0.7,
+		},
+	},
+	{
+		"id": "iceball",
+		"name": "Iceball",
+		"fill_color": "aee9ff",
+		"outline_color": "ffffff",
+		"radius": 12.0,
+		"max_health": 16.0,
+		"movement_speed": 70.0,
+		"contact_damage": 4.0,
+		"attack_interval": 0.9,
+		"attack_distance": 34.0,
+		"xp_value": 18,
+		"gold_value": 6,
+		"world_exclusive": true,
+		"growth_aggro_seconds": 14.0,
+		"growth_max_mult": 2.6,
+		"unlock_wave": 1,
+		"cost": 1.6,
+		"weight": 1.6,
+		"formation": Formation.SCATTERED,
+		"group_min": 2,
+		"group_max": 3,
+		"resistances": {
+			PlayerClass.DamageType.IMPACT: 1.4,
+			PlayerClass.DamageType.NATURE: 1.2,
+		},
+	},
+	{
+		"id": "sparkbot",
+		"name": "Sparkbot",
+		"fill_color": "ffd23a",
+		"outline_color": "fff2b0",
+		"radius": 16.0,
+		"max_health": 34.0,
+		"movement_speed": 90.0,
+		"contact_damage": 5.0,
+		"attack_interval": 1.0,
+		"attack_distance": 36.0,
+		"xp_value": 20,
+		"gold_value": 7,
+		"world_exclusive": true,
+		"growth_aggro_seconds": 9.0,
+		"growth_max_mult": 1.8,
+		"unlock_wave": 1,
+		"cost": 1.9,
+		"weight": 1.6,
+		"formation": Formation.SCATTERED,
+		"group_min": 2,
+		"group_max": 3,
+		"resistances": {
+			PlayerClass.DamageType.LIGHTNING: 1.6,
+			PlayerClass.DamageType.FROST: 0.8,
+		},
+	},
+	{
+		"id": "ripcurrent",
+		"name": "Ripcurrent",
+		"fill_color": "2ecfc0",
+		"outline_color": "d0fff5",
+		"radius": 14.0,
+		"max_health": 22.0,
+		"movement_speed": 110.0,
+		"contact_damage": 7.0,
+		"attack_interval": 0.85,
+		"attack_distance": 34.0,
+		"xp_value": 15,
+		"gold_value": 5,
+		"world_exclusive": true,
+		"teleport_interval": 2.6,
+		"teleport_range": 110.0,
+		"unlock_wave": 1,
+		"cost": 1.4,
+		"weight": 1.7,
+		"formation": Formation.SCATTERED,
+		"group_min": 2,
+		"group_max": 4,
+		"resistances": {
+			PlayerClass.DamageType.NATURE: 1.3,
+			PlayerClass.DamageType.IMPACT: 0.8,
+		},
+	},
+	{
 		"id": "ravager",
 		"name": "Ravager",
-		"fill_color": "7a0f2b",
-		"outline_color": "ff6b6b",
+		"fill_color": "ff3a3a",
+		"outline_color": "ffd0d0",
 		"radius": 68.0,
 		"max_health": 1400.0,
 		"movement_speed": 92.0,
@@ -469,11 +590,14 @@ const BOSS_ROTATION: Array[String] = ["ravager", "stormcaller"]
 ## Signature roster per biome when biomes are on and biome_id > 0 (grass uses the full table).
 ## Duplicates raise pick weight in spawnable_for_wave. Grunt/swarmling stay first so wave 1 is fair.
 ## Volcano leans charger/bomber; ice leans lurker/stalker; factory brute/sentinel; docks drifter/bomber.
+## Each world's own signature enemy (cinderling/iceball/sparkbot/ripcurrent) is listed
+## twice so it comes up about as often as the pool's more common entries — pool
+## membership just gates *whether* a type can spawn, weight decides how often within that.
 const BIOME_POOLS := {
-	1: ["grunt", "swarmling", "charger", "bomber", "spitter", "lurker", "hexer", "charger", "splitter", "bomber"],
-	2: ["grunt", "swarmling", "lurker", "stalker", "spitter", "lurker", "stalker", "hexer", "brute", "summoner"],
-	3: ["grunt", "swarmling", "spitter", "brute", "sentinel", "splitter", "charger", "summoner"],
-	4: ["grunt", "swarmling", "spitter", "drifter", "bomber", "stalker", "lurker", "hexer"],
+	1: ["grunt", "swarmling", "charger", "bomber", "spitter", "lurker", "hexer", "charger", "splitter", "bomber", "cinderling", "cinderling"],
+	2: ["grunt", "swarmling", "lurker", "stalker", "spitter", "lurker", "stalker", "hexer", "brute", "summoner", "iceball", "iceball"],
+	3: ["grunt", "swarmling", "spitter", "brute", "sentinel", "splitter", "charger", "summoner", "sparkbot", "sparkbot"],
+	4: ["grunt", "swarmling", "spitter", "drifter", "bomber", "stalker", "lurker", "hexer", "ripcurrent", "ripcurrent"],
 }
 
 const BIOME_STANDINS := {
@@ -617,6 +741,8 @@ static func spawnable_for_wave(wave: int) -> Array[Dictionary]:
 	var available: Array[Dictionary] = []
 	for type_data in TYPES:
 		if is_boss(str(type_data.id)) or float(type_data.weight) <= 0.0:
+			continue
+		if bool(type_data.get("world_exclusive", false)) and GameRuntime.biome_id <= 0:
 			continue
 		var unlock := int(type_data.unlock_wave)
 		if wave >= 4:

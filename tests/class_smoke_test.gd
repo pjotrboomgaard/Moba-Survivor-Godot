@@ -120,7 +120,7 @@ func _test_tobor_blast() -> void:
 	_check(player.blast_radius > 0.0, "Tobor needs a blast radius")
 
 	var primary := _make_enemy(Vector2(140.0, 0.0))
-	var neighbour := _make_enemy(Vector2(180.0, 20.0))
+	var neighbour := _make_enemy(Vector2(152.0, 6.0))
 	var far := _make_enemy(Vector2(520.0, 0.0))
 	_aim(player, primary)
 	player._perform_attack()
@@ -900,7 +900,7 @@ func _test_gold_rewards() -> void:
 	player.gold = 0
 	player.add_gold(100)
 	_check(player.gold == 200, "The gold multiplier is not applied to income")
-	_check(ShopCatalog.SHOP_PRICE_MULTIPLIER == 10, "Shop prices should be scaled up to match full gold income")
+	_check(ShopCatalog.SHOP_PRICE_MULTIPLIER == 18, "Shop prices should be scaled up to match full gold income")
 	_cleanup([player])
 
 
@@ -909,12 +909,14 @@ func _test_shop() -> void:
 
 	_check(not player.buy("romp"), "A broke player must not be able to buy anything")
 
-	player.gold = 4000
+	player.gold = 20000
 	var first_price := ShopCatalog.price_for("romp", 0)
 	_check(player.buy("romp"), "A player with gold should be able to buy")
-	_check(player.gold == 4000 - first_price, "The purchase charged the wrong price")
+	_check(player.gold == 20000 - first_price, "The purchase charged the wrong price")
 	_check(player.stacks_of("romp") == 1, "The purchase was not recorded")
-	_check(ShopCatalog.is_sold_out("romp", 1), "Cosmetic parts sell out after one copy")
+	_check(not ShopCatalog.is_sold_out("romp", 1), "Shop items should keep extra ranks after the first copy")
+	_check(player.buy("romp"), "A second rank should still be buyable")
+	_check(ShopCatalog.is_sold_out("romp", ShopCatalog.SHOP_MAX_STACKS), "Shop items sell out at max rank")
 
 	_check(not player.buy("free_lunch"), "An unknown item must be refused")
 
