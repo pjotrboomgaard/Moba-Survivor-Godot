@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory = $true)]
     [string]$RequestPath,
-    [string]$Hero = ""
+    [string]$Hero = "",
+    [string[]]$ExtraUserArgs = @()
 )
 
 # Self-test runner: stages the request JSON, launches the game windowed on main.tscn,
@@ -48,7 +49,13 @@ if (Test-Path $ReportOut) { Remove-Item $ReportOut -Force }
 # tail it before the report check so the game has fully flushed/closed the report file.
 # `&` on the Godot launcher returns as soon as the wrapper detaches; use Wait-Process so
 # we actually block until the real windowed child exits (this is when the report exists).
-$godotProc = Start-Process -FilePath $GodotExe -ArgumentList @("--path", $ProjectRoot, "--selftest", "res://scenes/main/main.tscn") -NoNewWindow -PassThru
+$godotArgs = @("--path", $ProjectRoot, "--selftest", "res://scenes/main/main.tscn")
+if ($ExtraUserArgs -and $ExtraUserArgs.Count -gt 0) {
+    $godotArgs += "--"
+    $godotArgs += $ExtraUserArgs
+    Write-Host ("User args: {0}" -f ($ExtraUserArgs -join " "))
+}
+$godotProc = Start-Process -FilePath $GodotExe -ArgumentList $godotArgs -NoNewWindow -PassThru
 if (-not $godotProc.WaitForExit(1200000)) {
     Write-Host "TIMEOUT: killing Godot after 20m"
     Stop-Process -Id $godotProc.Id -Force -ErrorAction SilentlyContinue

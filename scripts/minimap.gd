@@ -62,6 +62,8 @@ func _draw() -> void:
 			continue
 		var point := _to_local(player.global_position)
 		var color := LOCAL_PLAYER_COLOR if player.is_local_player else PLAYER_COLOR
+		if GameRuntime.is_ffa() and player.team_id != "":
+			color = RiftClashManager.team_color(player.team_id)
 		draw_circle(point, PLAYER_RADIUS, color)
 		draw_circle(point, PLAYER_RADIUS, Color.BLACK, false, 1.0)
 	draw_rect(rect, BORDER_COLOR, false, 2.0)

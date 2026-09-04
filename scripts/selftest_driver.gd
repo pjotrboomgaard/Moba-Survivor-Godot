@@ -343,6 +343,11 @@ func _record_landmarks(label: String) -> void:
 func _record_probe(label: String) -> void:
 	if _player == null:
 		return
+	var hp_now := 0.0
+	var hp_max := 0.0
+	if _player.health != null:
+		hp_now = float(_player.health.current_health)
+		hp_max = float(_player.health.max_health)
 	_active_effects.append({
 		"kind": "probe",
 		"label": label,
@@ -354,8 +359,40 @@ func _record_probe(label: String) -> void:
 		"last_tapped": _last_slot_tapped,
 		"enemies_alive": _enemies.filter(func(e): return is_instance_valid(e) and not (e.get("health") == null or e.health.is_dead)).size(),
 		"hero": _player.class_id,
+		"hp": hp_now,
+		"hp_max": hp_max,
+		"hp_frac": _hp_frac(),
 		"abilities": (_player.known_abilities.duplicate() if _player.known_abilities else []),
+		"ffa": _ffa_roster(),
 	})
+
+
+func _ffa_roster() -> Dictionary:
+	var heroes: Array = []
+	if not is_inside_tree():
+		return {"count": 0, "heroes": heroes}
+	for node in get_tree().get_nodes_in_group("players"):
+		if not node is Player:
+			continue
+		var player := node as Player
+		heroes.append({
+			"peer": player.owner_peer_id,
+			"team": player.team_id,
+			"class": player.class_id,
+			"cpu": player.is_cpu(),
+			"local": player.is_local_player,
+			"pos": [snappedf(player.global_position.x, 1.0), snappedf(player.global_position.y, 1.0)],
+			"kills": player.hero_kills,
+			"alive": player.active,
+		})
+	return {
+		"enabled": GameRuntime.is_ffa(),
+		"all_bots": GameRuntime.ffa_all_bots,
+		"count": heroes.size(),
+		"heroes": heroes,
+		"kills_to_win": GameRuntime.FFA_KILLS_TO_WIN,
+		"map": [Arena.playfield_size().x, Arena.playfield_size().y],
+	}
 
 
 ## Assert that AudioService actually played the hero bank for a cast. `ability_id` is the
@@ -714,7 +751,7 @@ func _tick_survival(delta: float) -> void:
 			_holding_landmark = false
 			_walk_target = slam_out
 			_walk_deadline = _elapsed + 1.4
-		elif _walk_target != null and target_lm == null:
+		elif _walk_target != null:
 			_walk_target = _safe_walk(_walk_target as Vector2)
 	# Kit Q/E every beat; R (and pool alt) when the clutch window opens.
 	if _cast_burst_cd <= 0.0:
@@ -843,7 +880,8 @@ func _lava_escape() -> Vector2:
 	var arena := _arena()
 	if arena == null:
 		return Vector2.ZERO
-	return arena.free_position_near(_player.global_position, 40.0)
+	var exit := arena.nearest_hazard_exit(_player.global_position, 40.0)
+	return arena.free_position_near(exit, 30.0)
 
 
 func _safe_walk(target: Vector2) -> Vector2:
@@ -852,9 +890,26 @@ func _safe_walk(target: Vector2) -> Vector2:
 		return target
 	if arena.is_in_hazard(target, 14.0):
 		return arena.free_position_near(target, 36.0)
-	var mid := (_player.global_position + target) * 0.5
-	if arena.is_in_hazard(mid, 20.0):
-		return arena.free_position_near(_player.global_position, 40.0)
+	var from := _player.global_position
+	var dist := from.distance_to(target)
+	if dist < 1.0:
+		return target
+	# Sample along the straight-line path (not just the midpoint) so a hazard anywhere
+	# along a long walk — routine on the bigger maps — still gets caught.
+	var steps := clampi(int(dist / 220.0), 1, 8)
+	for i in range(1, steps + 1):
+		var sample := from.lerp(target, float(i) / float(steps + 1))
+		if not arena.is_in_hazard(sample, 20.0):
+			continue
+		# Try to step around the hazard rather than just freezing near our current spot.
+		var dir := (target - from).normalized()
+		var perp := Vector2(-dir.y, dir.x)
+		var sides: Array[float] = [1.0, -1.0]
+		for side in sides:
+			var detour: Vector2 = sample + perp * side * 180.0
+			if not arena.is_in_hazard(detour, 20.0):
+				return arena.free_position_near(detour, 30.0)
+		return arena.free_position_near(arena.nearest_hazard_exit(sample, 40.0), 30.0)
 	return target
 
 
@@ -939,9 +994,11 @@ func _overlay_combat_hold() -> void:
 		)
 	)
 	if _holding_landmark:
-		# Plant so the pad's stand-still check (velocity < 8) can fire. Don't auto-attack
-		# while filling — attack_held would keep the body sliding.
-		_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, false, false, [false, false, false, false], false)
+		# Plant so the pad's stand-still check (velocity < 8) can fire. Basic attack is a
+		# stationary hitscan/AOE for every weapon kind (no self-movement), so it's safe to
+		# keep firing while filling — only move_input and ability_slots stay zeroed, since
+		# some ability kits do include a self-dash that would break the stand-still check.
+		_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, true, false, [false, false, false, false], false)
 	elif _walk_target == null:
 		var strafe := Vector2.RIGHT.rotated(_elapsed * 1.85) * 0.85
 		_player.set_authority_command(strafe, _player.aim_world_position, true, use_dash, _player.command_ability_slots, clustered)

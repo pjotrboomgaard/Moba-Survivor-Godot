@@ -31,6 +31,9 @@ const UPGRADE_ICON_MAX_WIDTH := 40
 @onready var ability_bar_label: Label = $AbilityBar
 @onready var theme_banner: Label = $ThemeBanner
 @onready var debut_banner: Label = $DebutBanner
+@onready var mission_banner: Label = $MissionBanner
+@onready var mission_card_bg: ColorRect = $MissionCardBg
+@onready var mission_subtitle: Label = $MissionSubtitle
 @onready var shop_panel: PanelContainer = $ShopPanel
 @onready var shop_title: Label = $ShopPanel/ShopLayout/ShopTitle
 @onready var shop_gold_label: Label = $ShopPanel/ShopLayout/ShopGold
@@ -81,6 +84,31 @@ var _biome_caption: Label
 var _biome_row: HBoxContainer
 var warning_veil: ColorRect
 var boss_phase_label: Label
+var secondary_slot: Control
+var secondary_icon: TextureRect
+var secondary_cd_bar: ProgressBar
+var secondary_key_label: Label
+var secondary_name_label: Label
+var _shown_secondary_kind := ""
+var rift_banner: Label
+var ffa_scoreboard: Label
+
+
+const SECONDARY_ICON_BY_KIND := {
+	"repulse": "secondary_repulse",
+	"freeze": "secondary_freeze",
+	"volt_mend": "secondary_volt_mend",
+	"rime_ward": "secondary_rime_ward",
+	"wall": "secondary_wall",
+}
+
+const SECONDARY_NAMES := {
+	"repulse": "Repulse",
+	"freeze": "Freeze",
+	"volt_mend": "Volt Mend",
+	"rime_ward": "Rime Ward",
+	"wall": "Wall",
+}
 
 
 func _ready() -> void:
@@ -118,6 +146,8 @@ func _ready() -> void:
 	_build_chant_overlay()
 	_build_dev_biome_row()
 	_build_boss_overlay()
+	_build_secondary_slot()
+	_build_ffa_overlay()
 	upgrade_panel.visible = false
 	offered_upgrade_ids.clear()
 	if get_tree().paused:
@@ -222,6 +252,7 @@ func _process(delta: float) -> void:
 		next_wave_timer_label.text = "auto in %ds" % ceili(_next_wave_countdown)
 	_refresh_ability()
 	_refresh_ability_bar()
+	_refresh_secondary_slot()
 
 
 ## Hold SHIFT to see it — a live readout of the bound player's current combat stats,
@@ -343,6 +374,114 @@ func _dash_item_name() -> String:
 const ABILITY_SLOT_KEYS := ["1", "2", "3", "4"]
 
 
+func _build_secondary_slot() -> void:
+	secondary_slot = Control.new()
+	secondary_slot.name = "SecondarySlot"
+	secondary_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	secondary_slot.offset_left = 1190.0
+	secondary_slot.offset_top = 204.0
+	secondary_slot.offset_right = 1252.0
+	secondary_slot.offset_bottom = 292.0
+	add_child(secondary_slot)
+
+	var panel := ColorRect.new()
+	panel.color = Color(0.04, 0.05, 0.08, 0.78)
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	secondary_slot.add_child(panel)
+
+	secondary_icon = TextureRect.new()
+	secondary_icon.name = "Icon"
+	secondary_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	secondary_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	secondary_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	secondary_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	secondary_icon.offset_left = 7.0
+	secondary_icon.offset_top = 4.0
+	secondary_icon.offset_right = 55.0
+	secondary_icon.offset_bottom = 52.0
+	secondary_slot.add_child(secondary_icon)
+
+	secondary_cd_bar = ProgressBar.new()
+	secondary_cd_bar.name = "Cooldown"
+	secondary_cd_bar.show_percentage = false
+	secondary_cd_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	secondary_cd_bar.min_value = 0.0
+	secondary_cd_bar.max_value = 1.0
+	secondary_cd_bar.value = 0.0
+	secondary_cd_bar.fill_mode = ProgressBar.FILL_BOTTOM_TO_TOP
+	secondary_cd_bar.offset_left = 7.0
+	secondary_cd_bar.offset_top = 4.0
+	secondary_cd_bar.offset_right = 55.0
+	secondary_cd_bar.offset_bottom = 52.0
+	var cd_bg := StyleBoxFlat.new()
+	cd_bg.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	var cd_fill := StyleBoxFlat.new()
+	cd_fill.bg_color = Color(0.04, 0.06, 0.1, 0.62)
+	secondary_cd_bar.add_theme_stylebox_override("background", cd_bg)
+	secondary_cd_bar.add_theme_stylebox_override("fill", cd_fill)
+	secondary_slot.add_child(secondary_cd_bar)
+
+	secondary_key_label = Label.new()
+	secondary_key_label.name = "Key"
+	secondary_key_label.text = "RMB"
+	secondary_key_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	secondary_key_label.add_theme_font_size_override("font_size", 11)
+	secondary_key_label.add_theme_color_override("font_color", Color(0.85, 0.78, 0.42, 1.0))
+	secondary_key_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	secondary_key_label.offset_left = 0.0
+	secondary_key_label.offset_top = 50.0
+	secondary_key_label.offset_right = 62.0
+	secondary_key_label.offset_bottom = 66.0
+	secondary_slot.add_child(secondary_key_label)
+
+	secondary_name_label = Label.new()
+	secondary_name_label.name = "Name"
+	secondary_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	secondary_name_label.add_theme_font_size_override("font_size", 11)
+	secondary_name_label.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 1.0))
+	secondary_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	secondary_name_label.offset_left = 0.0
+	secondary_name_label.offset_top = 64.0
+	secondary_name_label.offset_right = 62.0
+	secondary_name_label.offset_bottom = 80.0
+	secondary_slot.add_child(secondary_name_label)
+	secondary_slot.visible = false
+	ability_bar_label.offset_top = 296.0
+	ability_bar_label.offset_bottom = 412.0
+
+
+func _secondary_icon_id(kind: String) -> String:
+	return str(SECONDARY_ICON_BY_KIND.get(kind, "secondary_repulse"))
+
+
+func _refresh_secondary_slot() -> void:
+	if secondary_slot == null:
+		return
+	if bound_player == null:
+		secondary_slot.visible = false
+		_shown_secondary_kind = ""
+		return
+	secondary_slot.visible = true
+	var kind := bound_player.secondary_kind
+	if kind != _shown_secondary_kind:
+		_shown_secondary_kind = kind
+		secondary_icon.texture = SpriteLibrary.texture_for(_secondary_icon_id(kind))
+		secondary_name_label.text = str(SECONDARY_NAMES.get(kind, kind)).to_upper()
+	var remaining := bound_player.secondary_cooldown
+	var cooldown_max := maxf(0.01, bound_player.secondary_cooldown_max)
+	if remaining > 0.0:
+		secondary_cd_bar.value = clampf(remaining / cooldown_max, 0.0, 1.0)
+		secondary_icon.modulate = Color(0.55, 0.55, 0.6, 1.0)
+		secondary_key_label.text = "%.1f" % remaining
+		secondary_key_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 1.0))
+	else:
+		secondary_cd_bar.value = 0.0
+		secondary_icon.modulate = Color.WHITE
+		secondary_key_label.text = "RMB"
+		secondary_key_label.add_theme_color_override("font_color", Color(0.85, 0.78, 0.42, 1.0))
+
+
 func _refresh_ability_bar() -> void:
 	if bound_player == null or bound_player.known_abilities.is_empty():
 		ability_bar_label.text = ""
@@ -386,7 +525,9 @@ func show_player_class(class_id: String) -> void:
 	fill.bg_color = Color(str(class_data.get("health_bar_color", class_data.accent_color)))
 	fill.set_corner_radius_all(3)
 	health_bar.add_theme_stylebox_override("fill", fill)
-	instructions_label.text = "WASD  Move     LMB  Aim     B  Shop     SPACE  Dash     R  Restart"
+	instructions_label.text = "WASD  Move     LMB  Aim     RMB  Secondary     B  Shop     SPACE  Dash     R  Restart"
+	if GameRuntime.is_ffa():
+		instructions_label.text = "FFA  first to %d hero kills     30s respawn     60s spawn shield vs heroes" % GameRuntime.FFA_KILLS_TO_WIN
 
 
 func set_connection_text(mode: String) -> void:
@@ -445,6 +586,35 @@ func announce_wave(wave: int, theme_display_name: String, debut_type_id: String)
 		return
 	debut_banner.text = "NEW ENEMY: %s" % str(EnemyType.by_id(debut_type_id).name).to_upper()
 	_flash(debut_banner, 3.2)
+	AudioService.play("scan")
+
+
+## Drop-in beat: "MISSION N — LANDED ON <planet>". Fired on the very first wave and again
+## every time the run crosses into a new world (see main.gd's _trigger_world_landing).
+## Held title card behind the black warp screen (see main.gd's mission-warp sequence) —
+## a real beat instead of the quick 3.4s label flash the wave/debut banners use, since a
+## world change deserves to actually read as a destination arrival, not a passing notice.
+func announce_mission(mission_number: int, planet_name: String, tagline: String, hold_seconds: float) -> void:
+	if GameRuntime.is_classic():
+		return
+	mission_banner.text = "MISSION %d\nLANDED ON %s" % [maxi(1, mission_number), planet_name.to_upper()]
+	mission_subtitle.text = tagline
+	for node in [mission_card_bg, mission_banner, mission_subtitle]:
+		node.visible = true
+		node.modulate.a = 0.0
+	var card := create_tween()
+	card.tween_property(mission_card_bg, "modulate:a", 1.0, 0.35)
+	card.parallel().tween_property(mission_banner, "modulate:a", 1.0, 0.35)
+	card.parallel().tween_property(mission_subtitle, "modulate:a", 1.0, 0.35)
+	card.tween_interval(hold_seconds)
+	card.tween_property(mission_card_bg, "modulate:a", 0.0, 0.4)
+	card.parallel().tween_property(mission_banner, "modulate:a", 0.0, 0.4)
+	card.parallel().tween_property(mission_subtitle, "modulate:a", 0.0, 0.4)
+	card.tween_callback(func() -> void:
+		mission_card_bg.visible = false
+		mission_banner.visible = false
+		mission_subtitle.visible = false
+	)
 	AudioService.play("scan")
 
 
@@ -715,6 +885,63 @@ func show_game_over() -> void:
 		return
 	close_shop()
 	game_over_label.visible = true
+	AudioService.play("game_over")
+
+
+func _build_ffa_overlay() -> void:
+	rift_banner = Label.new()
+	rift_banner.name = "RiftBanner"
+	rift_banner.visible = false
+	rift_banner.position = Vector2(24, 72)
+	rift_banner.add_theme_font_size_override("font_size", 16)
+	rift_banner.add_theme_color_override("font_shadow_color", Color.BLACK)
+	rift_banner.add_theme_constant_override("shadow_size", 3)
+	add_child(rift_banner)
+	ffa_scoreboard = Label.new()
+	ffa_scoreboard.name = "FfaScoreboard"
+	ffa_scoreboard.visible = false
+	ffa_scoreboard.position = Vector2(24, 98)
+	ffa_scoreboard.add_theme_font_size_override("font_size", 15)
+	ffa_scoreboard.add_theme_color_override("font_color", Color("e8f0ff"))
+	ffa_scoreboard.add_theme_color_override("font_shadow_color", Color.BLACK)
+	ffa_scoreboard.add_theme_constant_override("shadow_size", 3)
+	add_child(ffa_scoreboard)
+
+
+func refresh_rift_clash_banner(team_name: String, corner: String, color: Color) -> void:
+	if rift_banner == null:
+		return
+	rift_banner.visible = true
+	rift_banner.text = "%s · %s" % [team_name.to_upper(), corner]
+	rift_banner.add_theme_color_override("font_color", color)
+
+
+func refresh_ffa_scoreboard(rows: Array) -> void:
+	if ffa_scoreboard == null:
+		return
+	if rows.is_empty():
+		ffa_scoreboard.visible = false
+		return
+	ffa_scoreboard.visible = true
+	var lines: PackedStringArray = PackedStringArray(["FFA  first to %d" % GameRuntime.FFA_KILLS_TO_WIN])
+	for row in rows:
+		var mark := "*" if bool(row.get("local", false)) else " "
+		var state := "LIVE"
+		if not bool(row.get("alive", true)):
+			state = "DOWN %.0fs" % float(row.get("respawn", 0.0))
+		elif float(row.get("invuln", 0.0)) > 0.0:
+			state = "SHIELD %.0fs" % float(row.get("invuln", 0.0))
+		lines.append("%s %s  %d  %s" % [mark, str(row.get("name", "?")), int(row.get("kills", 0)), state])
+	ffa_scoreboard.text = "\n".join(lines)
+
+
+func show_rift_clash_result(placement: int, _field: int, winner_name: String, _delta: int, _total: int) -> void:
+	close_shop()
+	game_over_label.visible = true
+	if placement == 1:
+		game_over_label.text = "%s WINS\nFirst to %d kills" % [winner_name.to_upper(), GameRuntime.FFA_KILLS_TO_WIN]
+	else:
+		game_over_label.text = "%s WINS\nYou placed #%d\nPress R to restart" % [winner_name.to_upper(), placement]
 	AudioService.play("game_over")
 
 

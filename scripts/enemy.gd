@@ -11,6 +11,23 @@ signal boss_phase_changed(phase: int)
 const SEPARATION_RANGE := 62.0
 const SEPARATION_STRENGTH := 130.0
 const KNOCKBACK_DECAY := 720.0
+## Phase Cloak wander: no target acquired because every nearby player is cloaked.
+const WANDER_TURN_MIN := 1.1
+const WANDER_TURN_MAX := 2.4
+const WANDER_SPEED_MULT := 0.55
+## Boss patterned hazards (slams, cross lines, shockwaves) are tuned for a group that can
+## split up and eat a few hazards each. A solo player has nobody to share that burst with,
+## so scale it down when it's really one squishy target facing the boss alone.
+const SOLO_BOSS_HAZARD_DAMAGE_MULT := 0.6
+## pattern_cooldown's declared default (1.1) is the same for every boss regardless of party
+## size, so a solo player — who just landed on a fresh wave, possibly still mid-shop or
+## walking back from a landmark — gets under a second and a half before the boss's first
+## attack pattern fires. A live solo run on the wave-10 boss went from full HP to a
+## landmark-triggered near-death inside 9 seconds of wave start, then died a few seconds
+## after that save. Give solo an actual opening beat to close distance / get oriented
+## before the first pattern; co-op keeps the tighter default since allies can split the
+## opening aggro.
+const BOSS_INTRO_COOLDOWN_SOLO := 3.5
 
 @export var movement_speed := 100.0
 @export var contact_damage := 6.0
@@ -24,6 +41,7 @@ const KNOCKBACK_DECAY := 720.0
 @onready var sprite: Sprite2D = $Sprite
 
 var type_id := EnemyType.DEFAULT_TYPE_ID
+var team_id := ""
 var behaviour: EnemyType.Behaviour = EnemyType.Behaviour.MELEE
 var body_radius := 17.0
 var fill_color := Color("ff5d5d")
@@ -49,6 +67,18 @@ var charge_speed := 0.0
 var charge_windup := 0.0
 var charge_duration := 0.0
 var dash_interval := 0.0
+## Blink-attacker (cinderling/ripcurrent) — see EnemyType's teleport_interval field.
+var teleport_interval := 0.0
+var teleport_range := 140.0
+var _teleport_timer := 0.0
+## Grow-in-place (iceball/sparkbot) — see EnemyType's growth_aggro_seconds field.
+var growth_aggro_seconds := 0.0
+var growth_max_mult := 1.0
+var _growth_age := 0.0
+var _growth_base_radius := 0.0
+var _growth_base_health := 0.0
+var _growth_base_contact_damage := 0.0
+var _growth_base_captured := false
 ## Lurker-style camouflage: faded while approaching, snaps to fully visible once it commits
 ## to its windup (see winding_up below) so the ambush still telegraphs fairly.
 var stealth_alpha := 1.0
@@ -63,6 +93,16 @@ var slow_factor := 1.0
 var slow_timer := 0.0
 ## HoN-style hard root: while > 0 movement stops (attacks/abilities still allowed).
 var movement_lock_timer := 0.0
+## Venom DoT (Thorn Poison Spray). Distinct from slow-blue / freeze-cyan.
+var poison_timer := 0.0
+var poison_dps := 0.0
+var _poison_source: Node = null
+var _poison_tick_accum := 0.0
+## Electrocute overlay while caught in Energy Field (or similar shock slows).
+var shocked_timer := 0.0
+const POISON_TICK := 0.4
+var wander_timer := 0.0
+var wander_direction := Vector2.ZERO
 var aura_pulse := 0.0
 var summon_timer := 0.0
 var speed_ramp := 0.0
@@ -72,6 +112,8 @@ var charging := false
 var winding_up := false
 var charge_direction := Vector2.RIGHT
 var has_exploded := false
+## Separate throttle on the ice boss's "ice_shift" pattern — see _pick_boss_pattern.
+var _ice_shift_cooldown := 0.0
 var dash_timer := 0.0
 var knockback_velocity := Vector2.ZERO
 ## Hero "mark" abilities (Track, Sunder, Frostbite Mark, ...): extra damage taken from every
@@ -152,6 +194,15 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	charge_duration = float(EnemyType.field(type_id, "charge_duration"))
 	dash_interval = float(EnemyType.field(type_id, "dash_interval"))
 	dash_timer = dash_interval * 0.5
+	teleport_interval = float(EnemyType.field(type_id, "teleport_interval"))
+	teleport_range = float(EnemyType.field(type_id, "teleport_range"))
+	_teleport_timer = teleport_interval * 0.5
+	growth_aggro_seconds = float(EnemyType.field(type_id, "growth_aggro_seconds"))
+	growth_max_mult = float(EnemyType.field(type_id, "growth_max_mult"))
+	_growth_age = 0.0
+	_growth_base_captured = false
+	if is_boss and _solo_boss_fight():
+		pattern_cooldown = BOSS_INTRO_COOLDOWN_SOLO
 	stealth_alpha = float(EnemyType.field(type_id, "stealth_alpha"))
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id == 2 and not flying:
 		if type_id == "lurker" or type_id == "stalker":
@@ -164,8 +215,17 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	var shape := CircleShape2D.new()
 	shape.radius = body_radius
 	collision_shape.shape = shape
-	# Fliers pass over rocks and walkers. Grounded units still bounce off walls, players and rocks.
-	collision_mask = 0 if flying else (1 | 2 | 4 | 16)
+	# Fliers pass over rocks, walkers and the void. Grounded units still bounce off walls,
+	# players, rocks, and the void (split onto its own layer — see Arena.VOID_LAYER).
+	# Bosses skip rocks + the void too: a big-radius body wedging against a rock or
+	# failing to cross a narrow ice-floe land bridge mid-fight reads as a bug, not
+	# difficulty, so they only ever respect the outer walls and other bodies.
+	if flying:
+		collision_mask = 0
+	elif is_boss:
+		collision_mask = 1 | 2 | 4
+	else:
+		collision_mask = 1 | 2 | 4 | 16 | Arena.VOID_LAYER
 
 	health.max_health = float(EnemyType.field(type_id, "max_health")) * maxf(1.0, health_multiplier)
 	health.current_health = health.max_health
@@ -200,11 +260,38 @@ func _apply_sprite() -> void:
 
 
 func refresh_biome_look() -> void:
+	_apply_boss_biome_theme()
 	_apply_sprite()
 	queue_redraw()
 
 
+## Boss body sprites already reskin per biome (tw_<biome>_ravager.png etc. — see
+## SpriteLibrary._skinned_name), but fill_color/outline_color are still the boss's base
+## EnemyType palette, and every attack telegraph (slam rings, cross-line lasers,
+## shockwaves — see _emit_player_slam/_emit_cross_lines/_emit_hazard) is drawn from those
+## two colors. So the reskinned body still threw the exact same-colored attack in every
+## world. Retint to the world's palette so a volcano boss throws fire, an ice boss frost.
+const BOSS_BIOME_PALETTE := {
+	0: {"fill": "8fd66b", "outline": "e8ffd0"},
+	1: {"fill": "ff6a2e", "outline": "ffd08a"},
+	2: {"fill": "5fd0ff", "outline": "eafcff"},
+	3: {"fill": "ffcf4a", "outline": "fff2c0"},
+	4: {"fill": "3ad0c0", "outline": "d0fff5"},
+}
+
+
+func _apply_boss_biome_theme() -> void:
+	if not is_boss or not GameRuntime.uses_biomes() or GameRuntime.is_classic():
+		return
+	var palette: Dictionary = BOSS_BIOME_PALETTE.get(GameRuntime.biome_id, {})
+	if palette.is_empty():
+		return
+	fill_color = Color(str(palette.get("fill", fill_color.to_html(false))))
+	outline_color = Color(str(palette.get("outline", outline_color.to_html(false))))
+
+
 func _apply_biome_combat() -> void:
+	_apply_boss_biome_theme()
 	var mods := EnemyType.biome_multipliers()
 	if mods.is_empty():
 		return
@@ -268,13 +355,25 @@ func _physics_process(delta: float) -> void:
 			queue_redraw()
 
 	_update_slow(delta)
+	_update_poison(delta)
+	_update_shock(delta)
 	_update_vulnerability(delta)
 	if speed_ramp > 0.0:
 		movement_speed = minf(speed_cap, movement_speed + speed_ramp * delta)
 	attack_cooldown = maxf(0.0, attack_cooldown - delta)
+	if growth_aggro_seconds > 0.0:
+		_update_growth(delta)
+		if _is_still_growing():
+			# Not a threat yet — wanders like an unaggroed target instead of chasing, so
+			# the player can choose to kill it small or let it grow into a real problem.
+			_process_wander(delta)
+			return
 	target = _find_nearest_player()
 	if target == null:
-		velocity = Vector2.ZERO
+		if _any_player_cloaked():
+			_process_wander(delta)
+		else:
+			velocity = Vector2.ZERO
 		return
 
 	if aura_heal_per_second > 0.0 and not is_boss:
@@ -289,6 +388,9 @@ func _physics_process(delta: float) -> void:
 	if dash_interval > 0.0 and _process_boss_dash(delta):
 		return
 
+	if teleport_interval > 0.0 and _process_teleport(delta):
+		return
+
 	match behaviour:
 		EnemyType.Behaviour.RANGED:
 			_process_ranged()
@@ -298,6 +400,54 @@ func _physics_process(delta: float) -> void:
 			_process_charger(delta)
 		_:
 			_process_melee()
+
+
+## Blink to a random spot teleport_range out from the target instead of walking there.
+## Returns true the frame it actually blinks (caller skips normal movement that frame).
+func _process_teleport(delta: float) -> bool:
+	_teleport_timer -= delta
+	if _teleport_timer > 0.0:
+		return false
+	_teleport_timer = teleport_interval
+	if target == null:
+		return false
+	var dest := target.global_position + Vector2.RIGHT.rotated(randf_range(0.0, TAU)) * teleport_range
+	if _arena == null:
+		_arena = Arena.arena_root(self)
+	if _arena != null:
+		dest = _arena.free_position_near(dest, body_radius + 4.0)
+	global_position = dest
+	queue_redraw()
+	return true
+
+
+## Ramps body_radius/max_health/contact_damage from 1x to growth_max_mult over
+## growth_aggro_seconds, preserving the current HP fraction so a mid-growth hit still
+## matters instead of being topped off by the next tick's max_health bump.
+func _update_growth(delta: float) -> void:
+	if not _growth_base_captured:
+		_growth_base_radius = body_radius
+		_growth_base_health = health.max_health
+		_growth_base_contact_damage = contact_damage
+		_growth_base_captured = true
+	if _growth_age >= growth_aggro_seconds:
+		return
+	_growth_age = minf(growth_aggro_seconds, _growth_age + delta)
+	var mult := lerpf(1.0, growth_max_mult, _growth_age / growth_aggro_seconds)
+	var hp_frac := health.current_health / maxf(1.0, health.max_health)
+	body_radius = _growth_base_radius * mult
+	contact_damage = _growth_base_contact_damage * mult
+	health.max_health = _growth_base_health * mult
+	health.current_health = clampf(health.max_health * hp_frac, 1.0, health.max_health)
+	health.health_changed.emit(health.current_health, health.max_health)
+	if collision_shape != null and collision_shape.shape is CircleShape2D:
+		(collision_shape.shape as CircleShape2D).radius = body_radius
+	_apply_sprite()
+	queue_redraw()
+
+
+func _is_still_growing() -> bool:
+	return _growth_age < growth_aggro_seconds
 
 
 func _move(direction_velocity: Vector2) -> void:
@@ -327,6 +477,14 @@ func _separation_offset() -> Vector2:
 	if push == Vector2.ZERO:
 		return Vector2.ZERO
 	return push.limit_length(2.0) * SEPARATION_STRENGTH / maxf(0.3, separation_weight)
+
+
+func _process_wander(delta: float) -> void:
+	wander_timer -= delta
+	if wander_timer <= 0.0 or wander_direction == Vector2.ZERO:
+		wander_direction = Vector2.RIGHT.rotated(randf_range(0.0, TAU))
+		wander_timer = randf_range(WANDER_TURN_MIN, WANDER_TURN_MAX)
+	_move(wander_direction * movement_speed * WANDER_SPEED_MULT * slow_factor)
 
 
 func _process_melee() -> void:
@@ -408,6 +566,7 @@ func _process_boss_fight(delta: float) -> void:
 			slam_shot_gap = 0.42 if boss_phase < 3 else 0.32
 		return
 	pattern_cooldown = maxf(0.0, pattern_cooldown - delta)
+	_ice_shift_cooldown = maxf(0.0, _ice_shift_cooldown - delta)
 	_boss_idle_move()
 	if behaviour == EnemyType.Behaviour.RANGED and global_position.distance_to(target.global_position) <= attack_distance:
 		_fire_projectile()
@@ -443,10 +602,21 @@ func _boss_idle_move() -> void:
 		_move(global_position.direction_to(target.global_position) * movement_speed * slow_factor)
 
 
+## True only for real solo play (no CPU-filled allies, exactly one live player) — mirrors the
+## solo detection main.gd already uses to scale enemy contact damage, but here it's read
+## straight off the scene tree since Enemy has no wave_director reference.
+func _solo_boss_fight() -> bool:
+	if not is_boss or GameRuntime.fill_cpu_allies:
+		return false
+	return get_tree().get_nodes_in_group("players").size() <= 1
+
+
 func _begin_boss_pattern() -> void:
 	var pattern := _pick_boss_pattern()
 	var strike_damage := contact_damage if contact_damage > 0.0 else projectile_damage * 1.6
 	strike_damage *= 0.85 + 0.2 * float(boss_phase)
+	if _solo_boss_fight():
+		strike_damage *= SOLO_BOSS_HAZARD_DAMAGE_MULT
 	match pattern:
 		"dash":
 			winding_up = true
@@ -473,7 +643,11 @@ func _begin_boss_pattern() -> void:
 			_emit_cross_lines(strike_damage)
 			pattern_cooldown = 2.05 - 0.2 * float(boss_phase - 1)
 		"storm":
-			slam_shots_left = 2 + boss_phase * 2
+			# Storm already stacks a full slam volley on top of cross lines, so it doesn't
+			# also need more slam shots than the plain "slam" pattern gets — doubling both
+			# axes at once was stacking too many simultaneous hazards for one solo target
+			# to have any dodge lane through.
+			slam_shots_left = 1 + boss_phase
 			slam_shot_gap = 0.0
 			_emit_cross_lines(strike_damage)
 			pattern_cooldown = 1.7
@@ -482,8 +656,21 @@ func _begin_boss_pattern() -> void:
 			_fire_projectile()
 			projectile_count = _base_projectile_count
 			pattern_cooldown = 1.25
+		"flame_bloom":
+			_emit_flame_bloom(strike_damage)
+			pattern_cooldown = 2.0 - 0.15 * float(boss_phase - 1)
+		"ice_shift":
+			_emit_ice_shift(strike_damage)
+			pattern_cooldown = 1.3 - 0.1 * float(boss_phase - 1)
+			# Own cooldown on top of pattern_cooldown — the pool gate in _pick_boss_pattern
+			# already skips offering "ice_shift" while this is up, so the boss reliably
+			# closes back in and fights normally between blinks instead of chain-teleporting.
+			_ice_shift_cooldown = 5.5
 
 
+## Both boss ids (ravager/stormcaller) rotate through every biome by wave number alone
+## (see EnemyType.boss_for_wave) — biome_id, not type_id, is what should color the fight,
+## so a wave-10 boss on volcano throws fire and the same boss on ice moves like ice.
 func _pick_boss_pattern() -> String:
 	var pool: Array[String] = ["slam", "slam", "dash"]
 	if type_id == "stormcaller":
@@ -496,6 +683,21 @@ func _pick_boss_pattern() -> String:
 		pool.append("storm")
 		pool.append("cross")
 		pool.append("slam")
+	match GameRuntime.biome_id:
+		1:
+			# Fire: expanding bloom hazards instead of the plain instant-size slam.
+			pool.append("flame_bloom")
+			pool.append("flame_bloom")
+			if boss_phase >= 2:
+				pool.append("flame_bloom")
+		2:
+			# Ice: the boss itself keeps relocating instead of standing and slamming — but
+			# only when _ice_shift_cooldown has actually elapsed (see _emit_ice_shift). A
+			# live test got stuck on a wave-10 boss for 100+ seconds because this could be
+			# picked back-to-back every ~1.2s pattern cycle, teleporting far enough away
+			# each time that neither the bot nor a real player could ever close the gap.
+			if _ice_shift_cooldown <= 0.0:
+				pool.append("ice_shift")
 	return pool[randi() % pool.size()]
 
 
@@ -503,6 +705,8 @@ func _emit_player_slam() -> void:
 	if target == null:
 		return
 	var slam_damage := 10.0 + 2.0 * float(boss_phase)
+	if _solo_boss_fight():
+		slam_damage *= SOLO_BOSS_HAZARD_DAMAGE_MULT
 	var aim := target.global_position
 	var count := mini(4 + boss_phase, 6)
 	var telegraph := 1.42
@@ -548,13 +752,69 @@ func _emit_cross_lines(strike_damage: float) -> void:
 			"kind": "line",
 			"origin": global_position,
 			"angle": angle,
-			"length": 3600.0,
+			"length": 7200.0,
 			"width": 74.0 + 8.0 * float(boss_phase),
 			"telegraph": 0.95,
 			"active": 0.32,
 			"damage": strike_damage,
 			"color": str(outline_color.to_html(false)),
 		})
+
+
+## Volcano boss signature: one or two circles that start small (barely a warning dot) and
+## visibly inflate to a big "combust" radius across the active window instead of the plain
+## slam's instant full size — a real dodge read (run before it finishes swelling) instead
+## of just another same-sized circle.
+func _emit_flame_bloom(strike_damage: float) -> void:
+	if target == null:
+		return
+	# A live solo run lost 1.0 -> 0.36 HP over ~26s of steady attrition to a fire boss —
+	# the 1.35x "combust" multiplier was just running hot on top of strike_damage already
+	# being phase/solo-scaled. Trimmed, and phase 2+'s second bloom no longer stacks its
+	# own full multiplier on top of the count itself effectively doubling total output.
+	var count := 2 if boss_phase >= 2 else 1
+	for index in count:
+		var aim := target.global_position
+		if index > 0:
+			aim += Vector2.RIGHT.rotated(randf_range(0.0, TAU)) * 160.0
+		_emit_hazard({
+			"kind": "circle",
+			"origin": aim,
+			"radius": 220.0 + 26.0 * float(boss_phase),
+			"grow_from": 36.0,
+			"telegraph": 0.35,
+			"active": 1.7,
+			"damage": strike_damage * (1.1 if count == 1 else 0.75),
+			"color": str(fill_color.to_html(false)),
+			"sfx": "explosion",
+		})
+
+
+## Ice boss signature: blinks to a new spot near the target instead of standing and slamming
+## in place, then cracks a frost ring outward from the arrival point — the fight itself
+## keeps relocating instead of the player always knowing where the next hit lands from.
+func _emit_ice_shift(strike_damage: float) -> void:
+	if target == null:
+		return
+	# Close enough that the player is still in the fight after the blink, not a full sprint
+	# away — the point is unpredictable positioning, not making the boss unreachable.
+	var dest := target.global_position + Vector2.RIGHT.rotated(randf_range(0.0, TAU)) * randf_range(130.0, 210.0)
+	if _arena == null:
+		_arena = Arena.arena_root(self)
+	if _arena != null:
+		dest = _arena.free_position_near(dest, body_radius + 8.0)
+	global_position = dest
+	queue_redraw()
+	_emit_hazard({
+		"kind": "ring",
+		"origin": global_position,
+		"max_radius": 240.0 + 20.0 * float(boss_phase),
+		"width": 44.0,
+		"telegraph": 0.3,
+		"active": 0.45,
+		"damage": strike_damage * 0.85,
+		"color": str(outline_color.to_html(false)),
+	})
 
 
 func _emit_hazard(spec: Dictionary) -> void:
@@ -639,12 +899,20 @@ func _fire_projectile() -> void:
 	if attack_cooldown > 0.0 or projectile_damage <= 0.0:
 		return
 	attack_cooldown = attack_interval
+	# _begin_boss_pattern's strike/slam damage already gets SOLO_BOSS_HAZARD_DAMAGE_MULT, but
+	# this plain per-attack_interval volley didn't — for a ranged boss like Stormcaller (7
+	# projectiles every 0.9s) that's the actual continuous damage source, not the patterns,
+	# and a live solo run died to it in a near-identical ~17s window regardless of the
+	# pattern-side fix. Same reduction, same reasoning: nobody to split this aggro with solo.
+	var dmg := projectile_damage
+	if _solo_boss_fight():
+		dmg *= SOLO_BOSS_HAZARD_DAMAGE_MULT
 	var base_direction := global_position.direction_to(target.global_position)
 	var spread := deg_to_rad(9.0)
 	var start := -spread * float(projectile_count - 1) * 0.5
 	for index in maxi(1, projectile_count):
 		var direction := base_direction.rotated(start + spread * float(index))
-		projectile_fired.emit(global_position, direction, projectile_damage, projectile_speed, projectile_sprite)
+		projectile_fired.emit(global_position, direction, dmg, projectile_speed, projectile_sprite)
 
 
 func _update_summoning(delta: float) -> void:
@@ -698,6 +966,23 @@ func apply_slow(next_slow_factor: float, duration: float) -> void:
 	queue_redraw()
 
 
+func apply_poison(dps: float, duration: float, source: Node = null) -> void:
+	if not server_authoritative:
+		return
+	poison_dps = maxf(poison_dps, maxf(dps, 0.0))
+	poison_timer = maxf(poison_timer, duration)
+	if source != null:
+		_poison_source = source
+	queue_redraw()
+
+
+func apply_shock(duration: float) -> void:
+	if not server_authoritative:
+		return
+	shocked_timer = maxf(shocked_timer, duration)
+	queue_redraw()
+
+
 ## HoN Treant Entangle-style root: movement is fully stopped for `duration` seconds.
 ## Uses the slow machinery with a zero-factor floor so it plays nicely with existing
 ## slow HUD/redraw code and multi-source stacking (longest duration wins).
@@ -710,6 +995,25 @@ func apply_movement_lock(duration: float) -> void:
 	# to 0.1 — a true HoN root is movement = 0.
 	slow_factor = 0.0
 	slow_timer = maxf(slow_timer, duration)
+	queue_redraw()
+
+
+## Snap every timed status this enemy is carrying back to "expired" right now, instead of
+## letting them keep counting down. Needed after a freeze_time landmark: it calls
+## apply_movement_lock/apply_mark for `duration` seconds and then disables this enemy's
+## _process/_physics_process for that same `duration` — but slow_timer/movement_lock_timer/
+## vulnerability_timer only ever tick down inside _physics_process (_update_slow /
+## _update_vulnerability), so while processing is off they sit frozen at their starting
+## value instead of expiring. Re-enabling processing afterward then makes them count down
+## a *second* full duration before movement actually frees up — silently doubling how long
+## the enemy stays rooted past the landmark's advertised freeze length. Call this right
+## after processing resumes so the root/mark end exactly when the freeze visually ends.
+func clear_movement_lock() -> void:
+	movement_lock_timer = 0.0
+	slow_timer = 0.0
+	slow_factor = 1.0
+	vulnerability_timer = 0.0
+	vulnerability_bonus = 0.0
 	queue_redraw()
 
 
@@ -803,6 +1107,32 @@ func _update_slow(delta: float) -> void:
 	if slow_timer <= 0.0:
 		slow_factor = 1.0
 		queue_redraw()
+	elif shocked_timer > 0.0:
+		queue_redraw()
+
+
+func _update_poison(delta: float) -> void:
+	if poison_timer <= 0.0:
+		return
+	poison_timer = maxf(0.0, poison_timer - delta)
+	if server_authoritative:
+		_poison_tick_accum += delta
+		while _poison_tick_accum >= POISON_TICK:
+			_poison_tick_accum -= POISON_TICK
+			if health != null and not health.is_dead:
+				health.take_damage(poison_dps * POISON_TICK, _poison_source)
+	if poison_timer <= 0.0:
+		poison_dps = 0.0
+		_poison_tick_accum = 0.0
+		_poison_source = null
+	queue_redraw()
+
+
+func _update_shock(delta: float) -> void:
+	if shocked_timer <= 0.0:
+		return
+	shocked_timer = maxf(0.0, shocked_timer - delta)
+	queue_redraw()
 
 
 func _update_vulnerability(delta: float) -> void:
@@ -826,6 +1156,14 @@ func apply_network_state(state: Dictionary) -> void:
 	if (slow_timer > 0.0) != next_slowed:
 		queue_redraw()
 	slow_timer = 1.0 if next_slowed else 0.0
+	var next_poisoned: bool = state.get("poisoned", false)
+	if (poison_timer > 0.0) != next_poisoned:
+		queue_redraw()
+	poison_timer = 1.0 if next_poisoned else 0.0
+	var next_shocked: bool = state.get("shocked", false)
+	if (shocked_timer > 0.0) != next_shocked:
+		queue_redraw()
+	shocked_timer = 1.0 if next_shocked else 0.0
 	var next_winding: bool = state.get("winding", false)
 	if next_winding != winding_up:
 		winding_up = next_winding
@@ -847,6 +1185,8 @@ func snapshot() -> Dictionary:
 		"health": health.current_health,
 		"max_health": health.max_health,
 		"slowed": slow_timer > 0.0,
+		"poisoned": poison_timer > 0.0,
+		"shocked": shocked_timer > 0.0,
 		"winding": winding_up,
 		"boss_phase": boss_phase,
 	}
@@ -863,6 +1203,8 @@ func _find_nearest_player() -> Node2D:
 		if not is_instance_valid(candidate) or not candidate is Player or not candidate.active:
 			continue
 		var player := candidate as Player
+		if player.is_phase_cloaked():
+			continue
 		var weight := 1.0 if taunt_immune else player.taunt_weight
 		var score: float = global_position.distance_squared_to(player.global_position) * weight
 		if score < best_score:
@@ -871,12 +1213,27 @@ func _find_nearest_player() -> Node2D:
 	return nearest
 
 
+## True when every player in range is phase-cloaked, so a null target should wander
+## instead of freezing in place (see apply_phase_cloak / _process_wander).
+func _any_player_cloaked() -> bool:
+	for candidate in get_tree().get_nodes_in_group("players"):
+		if candidate is Player and (candidate as Player).is_phase_cloaked():
+			return true
+	return false
+
+
 func _attack_target() -> void:
 	if attack_cooldown > 0.0 or target == null or contact_damage <= 0.0:
 		return
 	var target_health := target.get_node_or_null("HealthComponent") as HealthComponent
 	if target_health != null:
-		target_health.take_damage(contact_damage, self)
+		# Same SOLO_BOSS_HAZARD_DAMAGE_MULT reasoning as _fire_projectile(): a melee boss's
+		# plain per-attack_interval hit is a continuous damage source the pattern-only
+		# reduction never touched.
+		var dmg := contact_damage
+		if _solo_boss_fight():
+			dmg *= SOLO_BOSS_HAZARD_DAMAGE_MULT
+		target_health.take_damage(dmg, self)
 		attack_cooldown = attack_interval
 
 
@@ -908,9 +1265,13 @@ func _on_died() -> void:
 func _draw() -> void:
 	var fill := fill_color
 	var outline := outline_color
-	if slow_timer > 0.0:
-		fill = fill.lerp(Color("6fb7ff"), 0.45)
-		outline = outline.lerp(Color("d3ecff"), 0.6)
+	if poison_timer > 0.0:
+		fill = fill.lerp(Color("5ad43a"), 0.55)
+		outline = outline.lerp(Color("c8ff6a"), 0.7)
+	elif shocked_timer > 0.0 or slow_timer > 0.0:
+		var shock_pulse := 0.55 + 0.45 * sin(float(Time.get_ticks_msec()) * 0.018)
+		fill = fill.lerp(Color("3a9dff"), 0.55 + 0.2 * shock_pulse)
+		outline = outline.lerp(Color("d3ecff"), 0.75)
 	elif scrambling_out > 0.0:
 		fill = fill.lerp(Color("ff7a29"), 0.45)
 		outline = outline.lerp(Color("ffd36b"), 0.5)
@@ -936,13 +1297,19 @@ func _draw() -> void:
 	if has_sprite():
 		if _frozen_visual:
 			sprite.modulate = Color("6ad4ff")
+		elif poison_timer > 0.0:
+			sprite.modulate = Color("6ee05c")
 		elif scrambling_out > 0.0:
 			# Fresh out of the lava — scorched smoking tint until the crawl-out finishes.
 			sprite.modulate = Color("ff9a55")
+		elif shocked_timer > 0.0:
+			var flicker := 0.7 + 0.3 * sin(float(Time.get_ticks_msec()) * 0.04)
+			sprite.modulate = Color("5ab8ff") * Color(flicker, flicker, 1.0, 1.0)
 		elif slow_timer > 0.0:
-			sprite.modulate = Color("9fd8ff")
+			sprite.modulate = Color("6fbfff")
 		else:
 			sprite.modulate = Color.WHITE
+		_draw_status_overlays()
 		return
 
 	draw_circle(Vector2.ZERO, body_radius, fill)
@@ -955,3 +1322,28 @@ func _draw() -> void:
 	elif taunt_immune:
 		draw_line(Vector2(-body_radius * 0.5, 0.0), Vector2(body_radius * 0.5, 0.0), outline, 2.5)
 		draw_line(Vector2(0.0, -body_radius * 0.5), Vector2(0.0, body_radius * 0.5), outline, 2.5)
+	_draw_status_overlays()
+
+
+func _draw_status_overlays() -> void:
+	var t := float(Time.get_ticks_msec()) * 0.001
+	if poison_timer > 0.0:
+		var venom := Color(Color("7dff3a"), 0.45)
+		var drip := Color(Color("c8ff6a"), 0.7)
+		for i in 4:
+			var a := TAU * float(i) / 4.0 + t * 1.4
+			var cloud := Vector2.from_angle(a) * (body_radius * 0.85)
+			draw_circle(cloud + Vector2(0.0, sin(t * 5.0 + float(i)) * 3.0), 4.5, venom)
+			draw_line(cloud, cloud + Vector2(0.0, 7.0 + 4.0 * sin(t * 6.0 + float(i))), drip, 1.4)
+	if shocked_timer > 0.0 or (slow_timer > 0.0 and shocked_timer > 0.0):
+		var spark := Color(Color("d3f6ff"), 0.85)
+		var bolt := Color(Color("5ab8ff"), 0.75)
+		for i in 5:
+			var a := TAU * float(i) / 5.0 + t * 11.0
+			var jag := 0.7 + 0.3 * sin(t * 28.0 + float(i) * 3.1)
+			var inner := Vector2.from_angle(a) * (body_radius * 0.35)
+			var outer := Vector2.from_angle(a + 0.18 * sin(t * 20.0 + float(i))) * (body_radius * (0.95 + 0.25 * jag))
+			draw_line(inner, outer, spark if i % 2 == 0 else bolt, 1.6)
+	elif slow_timer > 0.0:
+		var rim := Color(Color("7ec8ff"), 0.45)
+		draw_arc(Vector2.ZERO, body_radius * 1.15, 0.0, TAU, 20, rim, 2.0, true)

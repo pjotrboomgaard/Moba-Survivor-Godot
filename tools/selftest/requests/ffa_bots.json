@@ -1,0 +1,14 @@
+{
+  "hero": "tobor",
+  "comment": "Four-bot FFA smoke: 4 Tobors on 4 teams, contested landmarks, first-to-10 wiring.",
+  "events": [
+    {"t": 0.8, "kind": "landmarks", "label": "ffa_landmarks"},
+    {"t": 0.9, "kind": "probe", "label": "ffa_start"},
+    {"t": 1.0, "kind": "snap", "label": "ffa_t0"},
+    {"t": 8.0, "kind": "probe", "label": "ffa_8s"},
+    {"t": 8.1, "kind": "snap", "label": "ffa_t8"},
+    {"t": 16.0, "kind": "probe", "label": "ffa_16s"},
+    {"t": 16.1, "kind": "snap", "label": "ffa_t16"},
+    {"t": 16.2, "kind": "report"}
+  ]
+}

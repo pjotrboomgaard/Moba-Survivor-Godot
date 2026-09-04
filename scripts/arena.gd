@@ -47,32 +47,47 @@ const WORLD_NAMES: Array[String] = ["Iron Foundry", "Ashen Caldera", "Verdant Wi
 
 ## Landmarks per world. Each entry:
 ##   [sprite_id, effect_id, radius, stand_seconds, effect_arg, hint, angle_deg, dist_frac]
-## Three roles every map: wipe (effect_arg = boss HP %), heal (HP), freeze (seconds).
-## Angles 20/140/260 and dist_frac ~0.68–0.76 fan them across the field.
+## Three inner roles every map: wipe (effect_arg = boss HP %), heal (HP), freeze (seconds),
+## fanned across angles 20/140/260. _landmark_spot() turns dist_frac into an absolute
+## world distance via minf(half.x, half.y) * dist_frac, so when the maps doubled, these
+## three needed their dist_frac halved (0.70/0.76/0.72 -> 0.35/0.38/0.36) to keep the same
+## absolute distance from spawn as before the doubling — otherwise heal_all in particular
+## ends up too far to reach as an emergency save mid-boss-fight. A fourth landmark sits
+## further out (dist_frac ~0.78–0.92, effect_arg = buff seconds) on the new outer pads each
+## world grew when the maps doubled — a different temporary player buff per world; those
+## are meant to be far out in the new outer areas, so they keep their larger dist_frac.
 const WORLD_LANDMARKS: Array[Array] = [
-	# Iron Foundry — slag pulse chunks elites, steam heals, quench freeze + mark.
+	# Iron Foundry — slag pulse chunks elites, steam heals, quench freeze + mark. Turbo
+	# manifold out on the east annex wing doubles speed for a burst.
 	[
-		["tw_factory_landmark_pylon", "pulse_wipe", 1600.0, 0.75, 18.0, "Molten Pylon", 20.0, 0.70],
-		["tw_factory_landmark_vat", "heal_all", 480.0, 0.65, 80.0, "Steam Vent", 140.0, 0.76],
-		["tw_factory_landmark_bay", "freeze_time", 560.0, 0.70, 10.0, "Quench Bay", 260.0, 0.72],
+		["tw_factory_landmark_pylon", "pulse_wipe", 1600.0, 0.75, 18.0, "Molten Pylon", 20.0, 0.35],
+		["tw_factory_landmark_vat", "heal_all", 480.0, 0.65, 80.0, "Steam Vent", 140.0, 0.38],
+		["tw_factory_landmark_bay", "freeze_time", 560.0, 0.70, 10.0, "Quench Bay", 260.0, 0.36],
+		["tw_factory_landmark_turbine", "speed_surge", 600.0, 0.70, 13.0, "Turbo Manifold", -12.0, 0.78],
 	],
-	# Ashen Caldera — rift wipe, ember heal, long obsidian freeze.
+	# Ashen Caldera — rift wipe, ember heal, long obsidian freeze. Ember fury totem out on
+	# the far lava islands doubles attack speed and damage.
 	[
-		["tw_volcano_landmark_arch", "pulse_wipe", 1600.0, 0.75, 16.0, "Rift Portal", 20.0, 0.70],
-		["tw_volcano_landmark_shrine", "heal_all", 500.0, 0.65, 88.0, "Ember Shrine", 140.0, 0.76],
-		["tw_volcano_landmark_well", "freeze_time", 580.0, 0.70, 12.0, "Obsidian Font", 260.0, 0.72],
+		["tw_volcano_landmark_arch", "pulse_wipe", 1600.0, 0.75, 16.0, "Rift Portal", 20.0, 0.35],
+		["tw_volcano_landmark_shrine", "heal_all", 500.0, 0.65, 88.0, "Ember Shrine", 140.0, 0.38],
+		["tw_volcano_landmark_well", "freeze_time", 580.0, 0.70, 12.0, "Obsidian Font", 260.0, 0.36],
+		["tw_volcano_landmark_totem", "battle_frenzy", 620.0, 0.75, 30.0, "Ember Fury Totem", 203.0, 0.82],
 	],
-	# Verdant Wilds — grove wipe hits packs hard, spring heal, root freeze.
+	# Verdant Wilds — grove wipe hits packs hard, spring heal, root freeze. Whispering
+	# thicket out on the far pier cloaks the party and sends nearby packs wandering.
 	[
-		["tw_grass_landmark_bell", "pulse_wipe", 1600.0, 0.75, 18.0, "Grove Bell", 20.0, 0.70],
-		["tw_grass_landmark_pool", "heal_all", 480.0, 0.65, 76.0, "Wild Spring", 140.0, 0.76],
-		["tw_grass_landmark_stone", "freeze_time", 540.0, 0.70, 10.0, "Root Stone", 260.0, 0.72],
+		["tw_grass_landmark_bell", "pulse_wipe", 1600.0, 0.75, 18.0, "Grove Bell", 20.0, 0.35],
+		["tw_grass_landmark_pool", "heal_all", 480.0, 0.65, 76.0, "Wild Spring", 140.0, 0.38],
+		["tw_grass_landmark_stone", "freeze_time", 540.0, 0.70, 10.0, "Root Stone", 260.0, 0.36],
+		["tw_grass_landmark_thicket", "phase_cloak", 560.0, 0.65, 11.0, "Whispering Thicket", -7.5, 0.82],
 	],
-	# Storm Court — storm pulse, frost-well heal, crystal freeze.
+	# Storm Court — storm pulse, frost-well heal, crystal freeze. Glacial sprint rune out
+	# on the far floes doubles speed for a burst.
 	[
-		["tw_docks_landmark_lighthouse", "pulse_wipe", 1600.0, 0.75, 16.0, "Storm Lighthouse", 20.0, 0.70],
-		["tw_ice_landmark_hollow", "heal_all", 480.0, 0.65, 76.0, "Frost Well", 140.0, 0.76],
-		["tw_ice_landmark_glade", "freeze_time", 560.0, 0.70, 11.0, "Frozen Crystal", 260.0, 0.72],
+		["tw_docks_landmark_lighthouse", "pulse_wipe", 1600.0, 0.75, 16.0, "Storm Lighthouse", 20.0, 0.35],
+		["tw_ice_landmark_hollow", "heal_all", 480.0, 0.65, 76.0, "Frost Well", 140.0, 0.38],
+		["tw_ice_landmark_glade", "freeze_time", 560.0, 0.70, 11.0, "Frozen Crystal", 260.0, 0.36],
+		["tw_ice_landmark_rune", "speed_surge", 600.0, 0.70, 14.0, "Glacial Sprint Rune", 206.0, 0.92],
 	],
 ]
 
@@ -115,23 +130,20 @@ func dress_from_runtime_biome() -> void:
 		rebuild()
 
 
-const BASE_SIZE := Vector2(2400.0, 1600.0)
+const BASE_SIZE := Vector2(4800.0, 3200.0)
 ## Per-biome playfield footprints (indexed by GameRuntime.biome_id). Authored pad /
-## hazard / shop coordinates live in BASE_SIZE space and scale up with the field, so
-## classic stays the original 2400×1600 grid while biome worlds restore the larger
-## footprints (roughly 1.8–2× the flattened sizes). Grass stays the smallest.
-##   0 grass meadow — open field, walkable boss-bowl crater in the center.
-##   1 volcano      — caldera: island pads over lava, lava crater bowl in the center.
-##   2 ice          — wide floe field, long sightlines between ice floes.
-##   3 factory      — boxy halls; taller than grass so the corridors have room.
-##   4 docks        — widest: boardwalk and piers over water.
+## hazard / shop coordinates live in BASE_SIZE space and scale up with the field.
+## Values are 2x the previous biome footprints so four corner spawns and mid-edge
+## landmarks have room to sit apart as contested lanes.
 const SIZE_BY_BIOME: Array[Vector2] = [
-	Vector2(4200.0, 2800.0),
-	Vector2(4800.0, 3400.0),
-	Vector2(5200.0, 3400.0),
-	Vector2(4600.0, 3600.0),
-	Vector2(5600.0, 3600.0),
+	Vector2(16800.0, 11200.0),
+	Vector2(19200.0, 13600.0),
+	Vector2(20800.0, 13600.0),
+	Vector2(18400.0, 14400.0),
+	Vector2(22400.0, 14400.0),
 ]
+const SPAWN_INSET := 0.78
+const LANDMARK_MID_FRAC := 0.42
 ## Central boss bowl, world-space (not scaled). Round crater ~600 across.
 const CRATER_SIZE := Vector2(600.0, 600.0)
 ## Volcano only: walkable scorched plug so origin stays a legal spawn inside the lava lip.
@@ -166,6 +178,33 @@ static func playfield_size() -> Vector2:
 		return BASE_SIZE
 	var index := clampi(GameRuntime.biome_id, 0, SIZE_BY_BIOME.size() - 1)
 	return SIZE_BY_BIOME[index]
+
+
+## Four co-op / FFA spawn rooms: NW, NE, SW, SE. Inset so heroes don't clip the wall.
+static func corner_spawn(slot: int) -> Vector2:
+	var half := playfield_size() * 0.5
+	var inset := Vector2(half.x * SPAWN_INSET, half.y * SPAWN_INSET)
+	match slot % 4:
+		0:
+			return Vector2(-inset.x, -inset.y)
+		1:
+			return Vector2(inset.x, -inset.y)
+		2:
+			return Vector2(-inset.x, inset.y)
+		_:
+			return Vector2(inset.x, inset.y)
+
+
+## Mid-edge landmark seats between the four corner spawns (N, E, S, W).
+static func contested_landmark_spots() -> Array[Vector2]:
+	var half := playfield_size() * 0.5
+	var mid := Vector2(half.x * LANDMARK_MID_FRAC, half.y * LANDMARK_MID_FRAC)
+	return [
+		Vector2(0.0, -mid.y),
+		Vector2(mid.x, 0.0),
+		Vector2(0.0, mid.y),
+		Vector2(-mid.x, 0.0),
+	]
 
 const OBSTACLE_SCENE: PackedScene = preload("res://scenes/arena/obstacle.tscn")
 const SHOP_STAND_SCENE: PackedScene = preload("res://scenes/arena/shop_stand.tscn")
@@ -202,12 +241,21 @@ const DECAL_SPRITES: Array[String] = ["grass_tuft", "grass_tuft", "grass_flower"
 ## Everything below is laid out from a fixed seed, so every peer in a session
 ## builds the exact same field without replicating a single byte.
 const LAYOUT_SEED := 20260819
-const OBSTACLE_COUNT := 30
-const ISLAND_OBSTACLE_COUNT := 14
+const OBSTACLE_COUNT := 120
+const ISLAND_OBSTACLE_COUNT := 56
 const DECAL_COUNT := 320
 const WALL_MARGIN := 140.0
 const SPAWN_CLEARANCE := 320.0
 const OBSTACLE_SPACING := 165.0
+## The void-between-pads solid body's own layer, split off from WORLD_LAYER (shared with
+## the outer Walls body) specifically so an item can let a player pass through the void
+## without also letting them clip through the arena boundary — see Player.water_walk.
+const VOID_LAYER := 32
+## Slow current on the void tile — see _draw_void_rect / _update_water_drift.
+const WATER_DRIFT_INTERVAL := 2.0
+const WATER_DRIFT_STEP := 1.4
+var _water_drift_offset := Vector2.ZERO
+var _water_drift_timer := 0.0
 
 var obstacles: Array[Obstacle] = []
 ## Walkable pads for Pjotr biomes. Empty means the whole playfield is walkable
@@ -240,12 +288,38 @@ const WORLD_HAZARD_POOLS: Array[Array] = [
 		{"center": Vector2(220.0, 700.0), "radius": 92.0},
 	],
 ]
-## Tune the lava dunk numbers (player tick vs enemy tick vs burst on knockback-land).
+## Flat DPS is only a fallback — player lava/slag uses percent-of-max-HP so a
+## high-HP late-run hero cannot stand in a pool for free. Enemies still use the flat tick.
 const HAZARD_PLAYER_DOT := 14.0
+const HAZARD_PLAYER_PERCENT_PER_SECOND := 0.18
 const HAZARD_ENEMY_DOT := 16.0
 const HAZARD_DUNK_BURST := 60.0
 const HAZARD_DUNK_SCRAMBLE := 2.5
-const HAZARD_HOVER_REDUCTION := 0.5
+## Hover still takes most of the burn — 0.5 used to read as "I can loiter in lava".
+const HAZARD_HOVER_REDUCTION := 0.8
+
+
+func _process(delta: float) -> void:
+	_update_water_drift(delta)
+
+
+## Steps the void tile's sampled UV one WATER_DRIFT_STEP along a fixed direction every
+## WATER_DRIFT_INTERVAL seconds — a slow, deliberate current rather than a continuous
+## scroll (see _draw_void_rect). No-ops on the flat grid (walk_pads empty) and in Classic.
+func _update_water_drift(delta: float) -> void:
+	if walk_pads.is_empty() or GameRuntime.is_classic():
+		return
+	_water_drift_timer += delta
+	if _water_drift_timer < WATER_DRIFT_INTERVAL:
+		return
+	_water_drift_timer = 0.0
+	_water_drift_offset += Vector2(0.8, 0.35).normalized() * WATER_DRIFT_STEP
+	var void_tex := SpriteLibrary.texture_for("void_tile")
+	if void_tex != null:
+		var size := Vector2(void_tex.get_width(), void_tex.get_height())
+		if size.x > 0.0 and size.y > 0.0:
+			_water_drift_offset = Vector2(fmod(_water_drift_offset.x, size.x), fmod(_water_drift_offset.y, size.y))
+	queue_redraw()
 
 
 func _ready() -> void:
@@ -305,6 +379,7 @@ func _append_lava_zone(rect: Rect2, biome_kind: String) -> void:
 		"type": "lava",
 		"biome_kind": biome_kind,
 		"player_dot": HAZARD_PLAYER_DOT,
+		"percent_per_second": HAZARD_PLAYER_PERCENT_PER_SECOND,
 		"enemy_dot": HAZARD_ENEMY_DOT,
 		"dunk_burst": HAZARD_DUNK_BURST,
 		"scramble_seconds": HAZARD_DUNK_SCRAMBLE,
@@ -322,6 +397,7 @@ func _append_circle_lava(center: Vector2, radius: float, biome_kind: String) -> 
 		"type": "lava",
 		"biome_kind": biome_kind,
 		"player_dot": HAZARD_PLAYER_DOT,
+		"percent_per_second": HAZARD_PLAYER_PERCENT_PER_SECOND,
 		"enemy_dot": HAZARD_ENEMY_DOT,
 		"dunk_burst": HAZARD_DUNK_BURST,
 		"scramble_seconds": HAZARD_DUNK_SCRAMBLE,
@@ -340,6 +416,7 @@ func _append_crater_lava() -> void:
 		"type": "lava",
 		"biome_kind": "volcano_lava",
 		"player_dot": HAZARD_PLAYER_DOT,
+		"percent_per_second": HAZARD_PLAYER_PERCENT_PER_SECOND,
 		"enemy_dot": HAZARD_ENEMY_DOT,
 		"dunk_burst": HAZARD_DUNK_BURST,
 		"scramble_seconds": HAZARD_DUNK_SCRAMBLE,
@@ -375,14 +452,15 @@ func _spawn_landmarks() -> void:
 		landmarks_changed.emit()
 		return
 	var kit: Array = WORLD_LANDMARKS[_world_id]
+	var spots := contested_landmark_spots()
 	var placed: Array[Vector2] = []
-	for spec in kit:
+	for index in kit.size():
+		var spec: Array = kit[index]
 		if spec.size() < 6:
 			continue
-		var angle_deg := float(spec[6]) if spec.size() > 6 else 0.0
-		var dist_frac := float(spec[7]) if spec.size() > 7 else 0.72
 		var landmark := ArenaLandmark.new()
-		landmark.position = _landmark_spot(angle_deg, dist_frac, placed)
+		var preferred := spots[index] if index < spots.size() else _landmark_spot(float(spec[6]) if spec.size() > 6 else 0.0, float(spec[7]) if spec.size() > 7 else 0.42, placed)
+		landmark.position = free_position_near(preferred, ArenaLandmark.STAND_RADIUS * 0.55)
 		add_child(landmark)
 		landmark.configure(
 			str(spec[0]),
@@ -456,6 +534,70 @@ func is_in_hazard(world_position: Vector2, radius: float = 0.0) -> bool:
 	return false
 
 
+## True when standing over the void between pads (water/lava/slag gap) rather than on a
+## walkable pad — used by the water-crossing item to know when to tick its damage/slow
+## instead of by collision (that's VOID_LAYER, so a water_walk player can stand here at all).
+func is_in_void(world_position: Vector2, radius: float = 0.0) -> bool:
+	if walk_pads.is_empty():
+		return false
+	return _inside_playfield(world_position) and not _is_walkable(world_position, radius)
+
+
+## Geometry-aware escape: pushes straight out of whichever hazard zone(s) contain
+## world_position, using each zone's actual shape instead of a blind radial search —
+## a radial search centered on a position deep inside a large pool (routine on the
+## bigger maps) can fail to reach clear ground within its search bounds and get stuck.
+func nearest_hazard_exit(world_position: Vector2, margin: float = 24.0) -> Vector2:
+	var point := world_position
+	var guard := 0
+	while guard < hazard_zones.size() + 2:
+		guard += 1
+		var containing: Dictionary = {}
+		for zone in hazard_zones:
+			if _zone_contains(zone, point, 0.0):
+				containing = zone
+				break
+		if containing.is_empty():
+			return point
+		var shape := str(containing.get("shape", "rect"))
+		match shape:
+			"circle":
+				var center: Vector2 = containing.get("center", Vector2.ZERO)
+				var out_dir := point - center
+				if out_dir.length() < 1.0:
+					out_dir = Vector2.RIGHT
+				point = center + out_dir.normalized() * (float(containing.get("radius", 0.0)) + margin)
+			"ring":
+				var origin: Vector2 = containing.get("center", Vector2.ZERO)
+				var dist := point.distance_to(origin)
+				var outer := float(containing.get("radius", 0.0))
+				var inner := float(containing.get("inner_radius", 0.0))
+				var dir := point - origin
+				if dir.length() < 1.0:
+					dir = Vector2.RIGHT
+				dir = dir.normalized()
+				if dist - inner <= outer - dist:
+					point = origin + dir * maxf(0.0, inner - margin)
+				else:
+					point = origin + dir * (outer + margin)
+			_:
+				var rect: Rect2 = containing.get("rect", Rect2())
+				var to_left := point.x - rect.position.x
+				var to_right := rect.end.x - point.x
+				var to_top := point.y - rect.position.y
+				var to_bottom := rect.end.y - point.y
+				var nearest := minf(minf(to_left, to_right), minf(to_top, to_bottom))
+				if nearest == to_left:
+					point.x = rect.position.x - margin
+				elif nearest == to_right:
+					point.x = rect.end.x + margin
+				elif nearest == to_top:
+					point.y = rect.position.y - margin
+				else:
+					point.y = rect.end.y + margin
+	return point
+
+
 func _zone_contains(zone: Dictionary, world_position: Vector2, extra: float) -> bool:
 	var shape := str(zone.get("shape", "rect"))
 	match shape:
@@ -496,6 +638,11 @@ func _pad_contains(pad: Rect2, point: Vector2, inset: float) -> bool:
 func is_water_biome() -> bool:
 	# Ice/docks water, volcano lava, factory slag — packs climb out of the void.
 	return GameRuntime.uses_biomes() and GameRuntime.biome_id >= 1
+
+
+## Volcano lava and factory slag gaps — standing in the void here is a burn, not a chill.
+func is_lava_void() -> bool:
+	return GameRuntime.uses_biomes() and (GameRuntime.biome_id == 1 or GameRuntime.biome_id == 3)
 
 
 ## Ice / docks (and any carved biome): a void point near a pad shore, biased toward
@@ -659,16 +806,33 @@ func _scatter_obstacles() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _layout_seed()
 	var limit := playfield_size() * 0.5 - Vector2(WALL_MARGIN, WALL_MARGIN)
-	var area_scale := (playfield_size().x * playfield_size().y) / (BASE_SIZE.x * BASE_SIZE.y)
-	var wanted := int(round(float(ISLAND_OBSTACLE_COUNT if not walk_pads.is_empty() else OBSTACLE_COUNT) * area_scale))
+	var area_scale := (playfield_size().x + playfield_size().y) / (BASE_SIZE.x + BASE_SIZE.y)
+	var wanted := mini(220, int(round(float(ISLAND_OBSTACLE_COUNT if not walk_pads.is_empty() else OBSTACLE_COUNT) * area_scale)))
+	# On island biomes, candidates must land inside a (comparatively small) walk pad —
+	# sampling blindly across the whole playfield makes that a rare hit on the bigger
+	# maps, so pick a pad first and sample inside it instead of rejecting from the void.
+	var usable_pads: Array[Rect2] = []
+	for pad in walk_pads:
+		if mini(int(pad.size.x), int(pad.size.y)) >= 160:
+			usable_pads.append(pad)
 	var attempts := 0
-	while obstacles.size() < wanted and attempts < wanted * 50:
+	while obstacles.size() < wanted and attempts < wanted * 80:
 		attempts += 1
-		var candidate := Vector2(
-			rng.randf_range(-limit.x, limit.x),
-			rng.randf_range(-limit.y, limit.y)
-		)
+		var candidate: Vector2
+		if not usable_pads.is_empty():
+			var pad: Rect2 = usable_pads[rng.randi() % usable_pads.size()]
+			candidate = Vector2(
+				rng.randf_range(pad.position.x, pad.end.x),
+				rng.randf_range(pad.position.y, pad.end.y)
+			)
+		else:
+			candidate = Vector2(
+				rng.randf_range(-limit.x, limit.x),
+				rng.randf_range(-limit.y, limit.y)
+			)
 		if candidate.length() < SPAWN_CLEARANCE:
+			continue
+		if _near_corner_spawn(candidate, SPAWN_CLEARANCE):
 			continue
 		if candidate.distance_to(shop_stand_position()) < SHOP_STAND_CLEARANCE:
 			continue
@@ -702,6 +866,13 @@ func _too_close_to_other_obstacle(candidate: Vector2) -> bool:
 	return false
 
 
+func _near_corner_spawn(candidate: Vector2, radius: float) -> bool:
+	for slot in 4:
+		if candidate.distance_to(corner_spawn(slot)) < radius:
+			return true
+	return false
+
+
 func _add_obstacle(world_position: Vector2, type_data: Dictionary) -> void:
 	var obstacle := OBSTACLE_SCENE.instantiate() as Obstacle
 	obstacle.global_position = world_position
@@ -710,11 +881,38 @@ func _add_obstacle(world_position: Vector2, type_data: Dictionary) -> void:
 	obstacles.append(obstacle)
 
 
+## Corner spawn rooms, mid-edge landmark plazas, and the four lanes that connect them.
+## Authored in BASE_SIZE space so they scale with the playfield. `wide` is factory halls.
+func _contest_lane_pads(wide: bool) -> Array[Rect2]:
+	var lane := 140.0 if wide else 80.0
+	var half_lane := lane * 0.5
+	return [
+		Rect2(-2132, -1448, 520, 400),
+		Rect2(1612, -1448, 520, 400),
+		Rect2(-2132, 1048, 520, 400),
+		Rect2(1612, 1048, 520, 400),
+		Rect2(-240, -852, 480, 360),
+		Rect2(828, -180, 480, 360),
+		Rect2(-240, 492, 480, 360),
+		Rect2(-1248, -180, 480, 360),
+		Rect2(-2200, -half_lane, 4400, lane),
+		Rect2(-half_lane, -1500, lane, 3000),
+		Rect2(-1912, -1288, 1842, lane),
+		Rect2(-1912, -1288, lane, 1218),
+		Rect2(70, -1288, 1842, lane),
+		Rect2(1832, -1288, lane, 1218),
+		Rect2(-1912, 1168, 1842, lane),
+		Rect2(-1912, 70, lane, 1218),
+		Rect2(70, 1168, 1842, lane),
+		Rect2(1832, 70, lane, 1218),
+	]
+
+
 func _pads_for_biome(biome: int) -> Array[Rect2]:
 	var pads: Array[Rect2] = []
 	match biome:
 		1:
-			# Volcano: caldera bowl, lava islands, stepping-stone causeways.
+			pads.append_array(_contest_lane_pads(false))
 			pads.append_array([
 				Rect2(-360, -360, 720, 720),
 				Rect2(-56, -720, 112, 380),
@@ -736,9 +934,16 @@ func _pads_for_biome(biome: int) -> Array[Rect2]:
 				Rect2(-860, -460, 56, 280),
 				Rect2(80, -720, 180, 140),
 				Rect2(-420, -80, 140, 110),
+				Rect2(820, -280, 400, 240),
+				Rect2(-1480, -620, 400, 220),
+				Rect2(-200, 700, 360, 320),
+				Rect2(-620, -980, 220, 160),
+				Rect2(980, 720, 240, 180),
+				Rect2(-1600, 320, 200, 160),
+				Rect2(1400, -720, 180, 140),
 			])
 		2:
-			# Ice: scattered floes, long thin leads, tiny bergs in the water.
+			pads.append_array(_contest_lane_pads(false))
 			pads.append_array([
 				Rect2(-200, -150, 400, 300),
 				Rect2(520, -420, 380, 300),
@@ -762,9 +967,16 @@ func _pads_for_biome(biome: int) -> Array[Rect2]:
 				Rect2(80, -600, 56, 460),
 				Rect2(-500, 500, 140, 100),
 				Rect2(-380, 420, 56, 100),
+				Rect2(1030, -100, 380, 260),
+				Rect2(-1500, -800, 400, 300),
+				Rect2(600, 660, 500, 340),
+				Rect2(-1680, 180, 220, 160),
+				Rect2(1480, -640, 200, 150),
+				Rect2(-540, 880, 180, 140),
+				Rect2(420, -1100, 200, 140),
 			])
 		3:
-			# Factory: orthogonal halls, quadrant rooms, catwalks over slag pits.
+			pads.append_array(_contest_lane_pads(true))
 			pads.append_array([
 				Rect2(-1100, -100, 2200, 200),
 				Rect2(-100, -740, 200, 1480),
@@ -783,9 +995,16 @@ func _pads_for_biome(biome: int) -> Array[Rect2]:
 				Rect2(160, 100, 56, 80),
 				Rect2(-420, -720, 200, 120),
 				Rect2(220, 500, 200, 120),
+				Rect2(1100, -300, 320, 600),
+				Rect2(-1420, -300, 320, 600),
+				Rect2(-300, -1100, 600, 360),
+				Rect2(-1680, 520, 280, 220),
+				Rect2(1320, 520, 280, 220),
+				Rect2(1320, -720, 260, 200),
+				Rect2(-700, 880, 320, 180),
 			])
 		4:
-			# Docks: quay, plaza, boardwalk, piers, rafts, warehouse pad.
+			pads.append_array(_contest_lane_pads(false))
 			pads.append_array([
 				Rect2(-1100, -50, 2200, 120),
 				Rect2(-1100, -500, 360, 920),
@@ -806,6 +1025,13 @@ func _pads_for_biome(biome: int) -> Array[Rect2]:
 				Rect2(20, 560, 56, 90),
 				Rect2(580, 540, 56, 90),
 				Rect2(640, -200, 160, 120),
+				Rect2(1080, -320, 340, 300),
+				Rect2(-1460, -350, 360, 500),
+				Rect2(-140, 720, 360, 300),
+				Rect2(-1760, 640, 240, 160),
+				Rect2(1560, 640, 240, 160),
+				Rect2(1560, -820, 220, 160),
+				Rect2(-400, -1180, 280, 140),
 			])
 		_:
 			pass
@@ -865,7 +1091,7 @@ func _build_void_bodies() -> void:
 		void_rects = next_voids
 	var body := StaticBody2D.new()
 	body.name = "Voids"
-	body.collision_layer = 1
+	body.collision_layer = VOID_LAYER
 	body.collision_mask = 6
 	for piece in void_rects:
 		if piece.size.x < 12.0 or piece.size.y < 12.0:
@@ -958,6 +1184,11 @@ func _void_color() -> Color:
 			return Color("2a2018")
 
 
+## Slow current: every WATER_DRIFT_INTERVAL seconds the void tile's sampled UV nudges one
+## step along a fixed direction (see _update_water_drift) so water/lava/slag reads as
+## flowing instead of a static image, without redrawing every frame — same texture, same
+## tint, it just steps a little. Fixed direction (not random) keeps every co-op peer's
+## draw identical since they all tick the same timer off the same delta.
 func _draw_void_rect(world_rect: Rect2) -> void:
 	var void_tex := SpriteLibrary.texture_for("void_tile")
 	var tint := _void_tile_tint()
@@ -965,11 +1196,14 @@ func _draw_void_rect(world_rect: Rect2) -> void:
 		draw_rect(world_rect, _void_color(), true)
 		return
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(PIXEL_ZOOM, PIXEL_ZOOM))
-	draw_texture_rect(
+	var dest := Rect2(world_rect.position / PIXEL_ZOOM, world_rect.size / PIXEL_ZOOM)
+	draw_texture_rect_region(
 		void_tex,
-		Rect2(world_rect.position / PIXEL_ZOOM, world_rect.size / PIXEL_ZOOM),
-		true,
-		tint
+		dest,
+		Rect2(dest.position + _water_drift_offset, dest.size),
+		tint,
+		false,
+		false
 	)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
@@ -1066,7 +1300,7 @@ func _draw_decals() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _layout_seed() + 1
 	var limit := playfield_size() * 0.5 - Vector2(60.0, 60.0)
-	var count := int(round(float(DECAL_COUNT) * (playfield_size().x * playfield_size().y) / (BASE_SIZE.x * BASE_SIZE.y)))
+	var count := mini(420, int(round(float(DECAL_COUNT) * (playfield_size().x + playfield_size().y) / (BASE_SIZE.x + BASE_SIZE.y))))
 	for _index in count:
 		var spot := Vector2(rng.randf_range(-limit.x, limit.x), rng.randf_range(-limit.y, limit.y))
 		var sprite_name := DECAL_SPRITES[rng.randi() % DECAL_SPRITES.size()]
@@ -1159,7 +1393,10 @@ func _fill_lava_tiles(center: Vector2, inner: float, outer: float, tile: Texture
 	var cell := Vector2(float(tile.get_width()), float(tile.get_height())) * PIXEL_ZOOM
 	if cell.x < 4.0 or cell.y < 4.0:
 		return
-	var start := center - Vector2(outer, outer)
+	# Same slow current as _draw_void_rect (see _update_water_drift), just shifting the
+	# whole tile grid's placement instead of the sampled UV since this path draws each
+	# cell as a separate untiled draw call — visually equivalent drift for a repeating tile.
+	var start := center - Vector2(outer, outer) + _water_drift_offset * PIXEL_ZOOM
 	var x := start.x
 	while x < center.x + outer:
 		var y := start.y

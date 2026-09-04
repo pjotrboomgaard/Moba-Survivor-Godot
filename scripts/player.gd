@@ -75,6 +75,10 @@ var simulation_mode := SimulationMode.OFFLINE
 var is_local_player := true
 var _arena: Arena = null
 var active := true
+## Freezes movement/abilities without touching `active` (the downed/dead state) — used for
+## the mission-warp beat in main.gd so the player stands still behind the black screen
+## instead of wandering off while the arena rebuilds underneath them.
+var movement_locked := false
 var facing_direction := Vector2.RIGHT
 var aim_world_position := Vector2.RIGHT * 100.0
 var current_xp := 0
@@ -113,6 +117,10 @@ var knockback_strength := 0.0
 var pickup_radius_bonus := 0.0
 var jetpack_slam := 0.0
 var skate_speed_bonus := 0.0
+## Hoverboard: lets movement pass through the void between pads (see Arena.VOID_LAYER)
+## instead of being physically blocked by it. Standing in the void still ticks the
+## water hazard (damage + a slow) via _update_hazard — see WATER_HAZARD.
+var water_walk := false
 var grab_radius := 0.0
 var _jump_cooldown := 0.0
 var _jump_t := -1.0
@@ -144,12 +152,25 @@ var ability_cooldowns: Array[float] = [0.0, 0.0, 0.0, 0.0]
 var ability_buff_timer := 0.0
 var ability_buff_stats: Dictionary = {}
 var _ability_damage_taken_factor := 1.0
+## Source of truth for permanent damage-taken changes (class base + "plating" stacks).
+## health.damage_taken_multiplier = base_damage_taken_multiplier * _ability_damage_taken_factor
+## always — keeping these separate instead of mutating health.damage_taken_multiplier
+## directly from both a permanent item AND a temporary ability buff at the same time,
+## which could corrupt it toward near-zero (effectively unkillable) if a "plating" pickup
+## landed while a damage_taken_mult ability buff was active, since clearing that buff would
+## then divide out the wrong (already-modified-by-plating) value instead of the pre-buff one.
+var base_damage_taken_multiplier := 1.0
+## Phase Cloak landmark buff: while > 0, Enemy._find_nearest_player() skips this
+## player when picking a target.
+var phase_cloak_timer := 0.0
 
 
 var _normal_collision_mask := 0
 var cpu_lock_target: Node2D
 var cpu_lock_timer := 0.0
 var cpu_smoothed_move := Vector2.ZERO
+var hero_kills := 0
+var pvp_invuln_timer := 0.0
 
 
 func _ready() -> void:
@@ -217,7 +238,9 @@ func apply_class(next_class_id: String) -> void:
 	_apply_locomotion()
 	if world_health_bar != null:
 		world_health_bar.set_identity_color(Color(str(class_data.get("health_bar_color", class_data.accent_color))))
-	health.damage_taken_multiplier = class_data.damage_taken_multiplier
+	base_damage_taken_multiplier = class_data.damage_taken_multiplier
+	health.damage_taken_multiplier = base_damage_taken_multiplier
+	health.hit_invulnerability_window = 0.15
 	health.max_health = class_data.max_health
 	health.current_health = class_data.max_health
 	health.is_dead = false
@@ -282,6 +305,8 @@ func _apply_locomotion() -> void:
 	_normal_collision_mask = WORLD_LAYER | ENEMY_LAYER
 	if not hovering:
 		_normal_collision_mask |= OBSTACLE_LAYER
+	if not water_walk:
+		_normal_collision_mask |= Arena.VOID_LAYER
 	if sprint_timer <= 0.0:
 		collision_mask = _normal_collision_mask
 
@@ -398,6 +423,15 @@ func is_cpu() -> bool:
 	return simulation_mode == SimulationMode.CPU
 
 
+func is_pvp_protected() -> bool:
+	return pvp_invuln_timer > 0.0
+
+
+func grant_pvp_spawn_protection() -> void:
+	pvp_invuln_timer = GameRuntime.FFA_PVP_INVULN_SECONDS
+	_refresh_pvp_modulate()
+
+
 func has_sprite() -> bool:
 	return sprite != null and sprite.texture != null
 
@@ -448,6 +482,8 @@ func apply_network_state(state: Dictionary) -> void:
 	var state_team := str(state.get("team_id", team_id))
 	if state_team != team_id:
 		team_id = state_team
+	hero_kills = int(state.get("hero_kills", hero_kills))
+	pvp_invuln_timer = float(state.get("pvp_invuln", pvp_invuln_timer))
 	network_target_position = state.get("position", global_position)
 	facing_direction = state.get("facing", facing_direction)
 	aim_world_position = state.get("aim", aim_world_position)
@@ -479,6 +515,9 @@ func apply_network_state(state: Dictionary) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if pvp_invuln_timer > 0.0:
+		pvp_invuln_timer = maxf(0.0, pvp_invuln_timer - delta)
+		_refresh_pvp_modulate()
 	if simulation_mode == SimulationMode.PROXY:
 		var to_net := network_target_position - global_position
 		global_position = global_position.lerp(network_target_position, clampf(delta * 14.0, 0.0, 1.0))
@@ -487,7 +526,7 @@ func _physics_process(delta: float) -> void:
 		_refresh_secondary_bar()
 		return
 
-	if not active:
+	if not active or movement_locked:
 		velocity = Vector2.ZERO
 		return
 
@@ -522,7 +561,9 @@ func _physics_process(delta: float) -> void:
 
 	_update_sprint(delta, ability_held)
 	_update_ability_buff(delta)
+	_update_phase_cloak(delta)
 	health.tick_shield(delta)
+	health.tick_hit_invulnerability(delta)
 	_update_ability_slots(delta, ability_slots_held)
 	_update_secondary(delta, secondary_held)
 	_refresh_secondary_bar()
@@ -531,6 +572,8 @@ func _physics_process(delta: float) -> void:
 	if sprint_timer > 0.0:
 		speed *= 1.0 + SPRINT_SPEED_BONUS
 	speed *= 1.0 + skate_speed_bonus
+	if _in_water_hazard:
+		speed *= WATER_CROSSING_SPEED_MULT
 	velocity = move_input * speed
 	move_and_slide()
 	_update_tobor_visual(delta, move_input)
@@ -1360,6 +1403,12 @@ func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2)
 	sum.explosion_radius = float(data.get("explosion_radius", 70.0))
 	sum.arm_delay = float(data.get("arm_delay", 1.15))
 	sum.boss_damage_mult = float(data.get("boss_damage_mult", 4.5))
+	# Repair Pulse merge: mines heal the caster on detonation.
+	sum.heal_on_explode = float(data.get("heal", 0.0))
+	sum.owner_player = self
+	# Mines crawl toward the nearest enemy instead of sitting still.
+	sum.seek_speed = float(data.get("seek_speed", 0.0))
+	sum.seek_range = float(data.get("seek_range", 260.0))
 	sum._arm_timer = sum.arm_delay
 	sum.expired.connect(_on_summon_expired)
 	get_tree().current_scene.add_child(sum)
@@ -1387,6 +1436,8 @@ func _cast_ability_wrench_field(data: Dictionary, values: Dictionary, _rank: int
 	for enemy in _enemies_in_radius(center, radius):
 		if enemy.has_method("apply_slow"):
 			enemy.apply_slow(slow_factor, slow_duration)
+		if enemy.has_method("apply_shock"):
+			enemy.apply_shock(slow_duration)
 		_apply_ability_hit(enemy, data, values)
 	# Keep the zone painted for the slow's run so the field reads as a persistent hazard.
 	var zone_duration := maxf(float(values.get("duration", 0.0)), maxf(slow_duration, 1.0))
@@ -1621,28 +1672,7 @@ func _cast_ability_ember_entangle(data: Dictionary, values: Dictionary, _rank: i
 ## Thorn's Poison Spray: hosed cone of toxin in front of the caster. The spray spreads fast
 ## and leaves every caught target with a lingering poison tick — Slither's Venom Spray.
 func _cast_ability_thorn_poison_spray(data: Dictionary, values: Dictionary, _rank: int) -> void:
-	var origin := global_position
-	var spray_radius := float(values.get("radius", 340.0))
 	_cast_ability_cone_burst(data, values)
-	# Venom Spray always has a DoT — even if the ability data forgot to include it, the HoN
-	# mechanic demands lingering poison.
-	var tick_power := float(values.get("power", 30.0)) * 0.4
-	var tick_duration := 3.5
-	if data.has("poison_on_hit"):
-		tick_power = float(data.poison_on_hit.get("power", tick_power))
-		tick_duration = float(data.poison_on_hit.get("duration", tick_duration))
-	var half_angle := deg_to_rad(PlayerClass.ABILITY_CONE_HALF_ANGLE_DEGREES)
-	get_tree().create_timer(0.5).timeout.connect(func() -> void:
-		if not is_inside_tree():
-			return
-		for target in _enemies_in_radius(origin, spray_radius * 0.75):
-			var to_t := origin.direction_to(target.global_position)
-			if to_t.length_squared() > 0.0 and absf(facing_direction.angle_to(to_t)) > half_angle:
-				continue
-			_damage_enemy(target, tick_power * (tick_duration / 3.5))
-			if target.has_method("apply_slow"):
-				target.apply_slow(0.7, 1.2)
-	)
 
 
 ## Willow's Swift Strike: Forsaken Archer's blink-quick dash through the enemy line. The
@@ -2233,6 +2263,10 @@ func _apply_ability_hit(target: Node2D, data: Dictionary, values: Dictionary) ->
 			target.apply_slow(0.1, root_duration)
 	if data.has("mark_on_hit") and target.has_method("apply_mark"):
 		target.apply_mark(float(data.mark_on_hit.bonus_pct), float(data.mark_on_hit.duration))
+	if data.has("poison_on_hit") and target.has_method("apply_poison"):
+		var poison: Dictionary = data.poison_on_hit
+		var dps := float(poison.get("dps", poison.get("power", 8.0)))
+		target.apply_poison(dps, float(poison.get("duration", 3.5)), self)
 	if data.has("lifesteal_pct"):
 		health.heal(values.power * float(data.lifesteal_pct))
 
@@ -2614,6 +2648,17 @@ func _arm_hazard_escape(target: Node2D) -> void:
 const HAZARD_GRACE_SECONDS := 0.5
 var _hazard_grace_timer := 0.0
 var _hazard_inside := false
+## True only while the current hazard tick is the water-crossing one (not lava) — gates
+## the movement slow so it never touches the unrelated lava-dunk mechanic.
+var _in_water_hazard := false
+## Water-crossing (Hoverboard): percent-of-max-health drain instead of a flat DPS — the
+## flat 8/s read as "too little" regardless of hero HP; scaling off max_health means it
+## stays a real risk for the tankiest hero too, not just the squishiest, and a mild slow.
+## "little bit" per the design ask on the slow, not a hard stop, since the item's whole
+## point is that the void is now crossable at all — just don't loiter in it.
+const WATER_HAZARD_PERCENT_PER_SECOND := 0.10
+const LAVA_HAZARD_PERCENT_PER_SECOND := 0.18
+const WATER_CROSSING_SPEED_MULT := 0.8
 
 func _update_hazard(delta: float) -> void:
 	if simulation_mode == SimulationMode.PROXY:
@@ -2623,9 +2668,18 @@ func _update_hazard(delta: float) -> void:
 		if _arena == null:
 			return
 	var hazard := _arena.hazard_at(global_position)
+	if hazard.is_empty() and _arena.is_in_void(global_position):
+		# Void between pads is the biome's hazard (lava/slag or water). Tick anyone
+		# who can stand here (hoverboard / hover) — lava used to be a free walk.
+		if water_walk or hovering:
+			if _arena.is_lava_void():
+				hazard = {"type": "lava", "percent_per_second": LAVA_HAZARD_PERCENT_PER_SECOND}
+			else:
+				hazard = {"type": "water", "percent_per_second": WATER_HAZARD_PERCENT_PER_SECOND}
 	if hazard.is_empty():
 		if _hazard_inside:
 			_hazard_inside = false
+			_in_water_hazard = false
 			_hazard_grace_timer = HAZARD_GRACE_SECONDS
 			_hazard_visual_off()
 		else:
@@ -2645,12 +2699,19 @@ func _update_hazard(delta: float) -> void:
 			_hazard_grace_timer = maxf(0.0, _hazard_grace_timer - delta)
 			return
 		_hazard_inside = true
+		_in_water_hazard = str(hazard.get("type", "lava")) == "water"
 		_hazard_visual_on(str(hazard.get("type", "lava")))
 		_apply_hazard_tick(hazard, delta)
 
 
 func _apply_hazard_tick(hazard: Dictionary, delta: float) -> void:
 	var dps := float(hazard.get("player_dot", 14.0))
+	if str(hazard.get("type", "lava")) != "water" and not hazard.has("percent_per_second"):
+		# Lava/slag pools authored with only a flat tick still scale with max HP so
+		# a late-run tank cannot camp the bowl.
+		dps = health.max_health * LAVA_HAZARD_PERCENT_PER_SECOND
+	if hazard.has("percent_per_second"):
+		dps = health.max_health * float(hazard.percent_per_second)
 	if hovering:
 		dps *= Arena.HAZARD_HOVER_REDUCTION
 	if dps <= 0.0:
@@ -2659,8 +2720,9 @@ func _apply_hazard_tick(hazard: Dictionary, delta: float) -> void:
 
 
 func _hazard_visual_on(_hazard_type: String) -> void:
-	if sprite != null:
-		sprite.modulate = Color(1.45, 0.85, 0.65, 1.0)
+	if sprite == null:
+		return
+	sprite.modulate = Color(0.75, 0.95, 1.45, 1.0) if _hazard_type == "water" else Color(1.45, 0.85, 0.65, 1.0)
 
 
 func _hazard_visual_off() -> void:
@@ -2674,13 +2736,13 @@ func _apply_ability_buff(stats: Dictionary, duration: float) -> void:
 	ability_buff_timer = duration
 	if stats.has("damage_taken_mult"):
 		_ability_damage_taken_factor = float(stats.damage_taken_mult)
-		health.damage_taken_multiplier *= _ability_damage_taken_factor
+		health.damage_taken_multiplier = base_damage_taken_multiplier * _ability_damage_taken_factor
 
 
 func _clear_ability_buff() -> void:
 	if _ability_damage_taken_factor != 1.0:
-		health.damage_taken_multiplier /= _ability_damage_taken_factor
 		_ability_damage_taken_factor = 1.0
+		health.damage_taken_multiplier = base_damage_taken_multiplier
 	ability_buff_stats = {}
 	ability_buff_timer = 0.0
 
@@ -2691,6 +2753,24 @@ func _update_ability_buff(delta: float) -> void:
 	ability_buff_timer = maxf(0.0, ability_buff_timer - delta)
 	if ability_buff_timer <= 0.0:
 		_clear_ability_buff()
+
+
+func apply_phase_cloak(duration: float) -> void:
+	phase_cloak_timer = maxf(phase_cloak_timer, duration)
+	if sprite != null:
+		sprite.modulate.a = 0.35
+
+
+func is_phase_cloaked() -> bool:
+	return phase_cloak_timer > 0.0
+
+
+func _update_phase_cloak(delta: float) -> void:
+	if phase_cloak_timer <= 0.0:
+		return
+	phase_cloak_timer = maxf(0.0, phase_cloak_timer - delta)
+	if phase_cloak_timer <= 0.0 and sprite != null:
+		sprite.modulate.a = 1.0
 
 
 func _refresh_secondary_bar() -> void:
@@ -2987,6 +3067,8 @@ func _pvp_hosts_in_radius(center: Vector2, radius: float) -> Array[Node2D]:
 			continue
 		if not rival.active or rival.health.is_dead:
 			continue
+		if rival.is_pvp_protected():
+			continue
 		if center.distance_squared_to(rival.global_position) <= radius_sq:
 			found.append(rival)
 	return found
@@ -3006,6 +3088,8 @@ func _find_primary_pvp_target() -> Node2D:
 			if not is_instance_valid(rival) or rival.team_id == "" or rival.team_id == team_id:
 				continue
 			if not rival.active or rival.health.is_dead:
+				continue
+			if rival.is_pvp_protected():
 				continue
 			if not rival is Node2D:
 				continue
@@ -3070,6 +3154,8 @@ func _find_chain_pvp_target(origin: Node2D, excluded: Array[Node2D]) -> Node2D:
 				continue
 			if not rival.active or rival.health.is_dead or rival in excluded:
 				continue
+			if rival.is_pvp_protected():
+				continue
 			var distance_sq: float = origin.global_position.distance_squared_to(rival.global_position)
 			if distance_sq < nearest_distance_sq:
 				nearest_distance_sq = distance_sq
@@ -3078,6 +3164,12 @@ func _find_chain_pvp_target(origin: Node2D, excluded: Array[Node2D]) -> Node2D:
 
 
 func _damage_enemy(target: Node2D, amount: float) -> void:
+	if target is Player:
+		var rival := target as Player
+		if rival.is_pvp_protected():
+			return
+		if GameRuntime.is_rift_clash() and rival.team_id == team_id:
+			return
 	var target_health := target.get_node_or_null("HealthComponent") as HealthComponent
 	if target_health == null:
 		return
@@ -3142,6 +3234,14 @@ func _apply_shop_item(item_id: String) -> void:
 	pickup_radius_bonus += float(item.get("pickup_radius_bonus", 0.0))
 	jetpack_slam += float(item.get("jetpack_slam", 0.0))
 	skate_speed_bonus += float(item.get("skate_speed_bonus", 0.0))
+	if bool(item.get("water_walk", false)) and not water_walk:
+		water_walk = true
+		# _normal_collision_mask was fixed at spawn (_apply_locomotion runs once, from
+		# apply_class) — clear the void bit now so the change takes effect immediately
+		# instead of waiting for a respawn.
+		_normal_collision_mask &= ~Arena.VOID_LAYER
+		if sprint_timer <= 0.0:
+			collision_mask = _normal_collision_mask
 	grab_radius = maxf(grab_radius, float(item.get("grab_radius", 0.0)))
 	if item.has("hit_slow_factor"):
 		hit_slow_factor = minf(hit_slow_factor, float(item.hit_slow_factor))
@@ -3212,7 +3312,9 @@ func apply_upgrade(upgrade_id: String) -> void:
 		"blast": blast_radius += 40.0
 		"aftershock": blast_pulses += 1
 		"boots": movement_speed += 35.0
-		"plating": health.damage_taken_multiplier = maxf(0.35, health.damage_taken_multiplier - 0.08)
+		"plating":
+			base_damage_taken_multiplier = maxf(0.35, base_damage_taken_multiplier - 0.08)
+			health.damage_taken_multiplier = base_damage_taken_multiplier * _ability_damage_taken_factor
 		"reach": attack_range += 35.0
 		"sweep": cone_half_angle_degrees += PlayerClass.SWEEP_DEGREES
 		"flow": support_heal_per_second += 1.5
@@ -3271,6 +3373,8 @@ func snapshot() -> Dictionary:
 		"ability_cooldowns": ability_cooldowns,
 		"secondary_cooldown": secondary_cooldown,
 		"secondary_cooldown_max": secondary_cooldown_max,
+		"hero_kills": hero_kills,
+		"pvp_invuln": pvp_invuln_timer,
 	}
 
 
@@ -3278,7 +3382,7 @@ func _on_damaged(amount: float) -> void:
 	AudioService.play("hurt")
 	var tween := create_tween()
 	tween.tween_property(self, "modulate", Color("ff7777"), 0.05)
-	tween.tween_property(self, "modulate", Color.WHITE, 0.12)
+	tween.tween_callback(_refresh_pvp_modulate)
 	CombatText.spawn(get_parent(), global_position + Vector2(randf_range(-9.0, 9.0), -30.0), amount)
 	_reflect_damage(amount)
 
@@ -3314,6 +3418,29 @@ func revive() -> void:
 	health.current_health = health.max_health * 0.5
 	health.health_changed.emit(health.current_health, health.max_health)
 	AudioService.play("revive")
+
+
+func respawn_ffa(at: Vector2) -> void:
+	if simulation_mode == SimulationMode.PROXY:
+		return
+	global_position = at
+	active = true
+	modulate = Color.WHITE
+	health.is_dead = false
+	health.current_health = health.max_health
+	health.health_changed.emit(health.current_health, health.max_health)
+	grant_pvp_spawn_protection()
+	AudioService.play("revive")
+
+
+func _refresh_pvp_modulate() -> void:
+	if not active:
+		return
+	if pvp_invuln_timer <= 0.0:
+		modulate = Color.WHITE
+		return
+	var pulse := 0.72 + 0.28 * (0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.012))
+	modulate = Color(pulse, pulse, 1.0, 0.88)
 
 
 func _draw() -> void:

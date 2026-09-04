@@ -12,6 +12,9 @@ const FORMATION_HOLD := 88.0
 const TANK_HOLD := 58.0
 const KITE_NEAR := 130.0
 const KITE_FAR_PAD := 110.0
+const FFA_HUNT_RANGE := 920.0
+const FFA_COMMIT_RANGE := 640.0
+const FFA_LANDMARK_HOLD := 150.0
 
 
 static func think(player: Player, delta: float = 0.016) -> Dictionary:
@@ -28,6 +31,8 @@ static func think(player: Player, delta: float = 0.016) -> Dictionary:
 	if not player.active or player.health.is_dead:
 		player.cpu_smoothed_move = Vector2.ZERO
 		return result
+	if GameRuntime.is_ffa():
+		return _think_ffa(player, result, delta)
 
 	var downed := _downed_ally(player)
 	if downed != null:
@@ -58,6 +63,79 @@ static func think(player: Player, delta: float = 0.016) -> Dictionary:
 
 	var desired := _desired_move(player, enemy, ally, distance)
 	result.move = _smooth_move(player, desired, delta)
+	return result
+
+
+static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dictionary:
+	var rival := _nearest_rival(player)
+	var creep := _locked_enemy(player, delta)
+	var shrine := _contest_landmark(player)
+	var home := RiftClashManager.team_anchor(player.team_id)
+	var hp := 1.0
+	if player.health.max_health > 0.0:
+		hp = player.health.current_health / player.health.max_health
+	var protected := player.is_pvp_protected()
+
+	if not protected and hp < 0.38 and rival != null:
+		var flee := rival.global_position.distance_to(player.global_position)
+		if flee < FFA_HUNT_RANGE:
+			result.aim = rival.global_position
+			result.move = _smooth_move(player, _steer_towards(player.global_position, home, 48.0), delta)
+			if creep != null and player.global_position.distance_to(creep.global_position) < 220.0:
+				result.attack = true
+				result.aim = creep.global_position
+			return result
+
+	if rival != null and not rival.is_pvp_protected():
+		var gap := player.global_position.distance_to(rival.global_position)
+		var rival_hp := 1.0
+		if rival.health.max_health > 0.0:
+			rival_hp = rival.health.current_health / rival.health.max_health
+		var should_hunt := gap < FFA_COMMIT_RANGE and (hp > rival_hp + 0.06 or hp > 0.58 or protected)
+		if should_hunt:
+			result.attack = true
+			result.aim = rival.global_position
+			result.ability = gap < 420.0
+			result.secondary = gap < 280.0
+			var kite := player.attack_range * 0.62
+			var desired := Vector2.ZERO
+			if gap > kite + 80.0:
+				desired = player.global_position.direction_to(rival.global_position)
+			elif gap < KITE_NEAR:
+				desired = rival.global_position.direction_to(player.global_position)
+			result.move = _smooth_move(player, desired, delta)
+			return result
+
+	if shrine != Vector2.INF:
+		var to_shrine := player.global_position.distance_to(shrine)
+		if to_shrine > FFA_LANDMARK_HOLD:
+			result.move = _smooth_move(player, _steer_towards(player.global_position, shrine, FFA_LANDMARK_HOLD), delta)
+		else:
+			result.move = _smooth_move(player, Vector2.ZERO, delta)
+		if rival != null and player.global_position.distance_to(rival.global_position) < 520.0 and not rival.is_pvp_protected():
+			result.attack = true
+			result.aim = rival.global_position
+			result.ability = true
+			result.secondary = true
+		elif creep != null:
+			result.attack = true
+			result.aim = creep.global_position
+			result.ability = player.global_position.distance_to(creep.global_position) < 300.0
+			result.secondary = player.global_position.distance_to(creep.global_position) < 240.0
+		else:
+			result.aim = shrine
+		return result
+
+	if creep != null:
+		result.attack = true
+		result.aim = creep.global_position
+		result.ability = player.global_position.distance_to(creep.global_position) < 280.0
+		var desired_farm := _desired_move(player, creep, null, player.global_position.distance_to(creep.global_position))
+		result.move = _smooth_move(player, desired_farm, delta)
+		return result
+
+	result.move = _smooth_move(player, _steer_towards(player.global_position, home, 80.0), delta)
+	result.aim = home
 	return result
 
 
@@ -152,6 +230,38 @@ static func _nearest_enemy(player: Player) -> Node2D:
 	return best
 
 
+static func _nearest_rival(player: Player) -> Player:
+	if not player.is_inside_tree():
+		return null
+	var best: Player
+	var best_dist := INF
+	for candidate in player.get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(candidate) or not candidate is Player:
+			continue
+		var rival := candidate as Player
+		if rival == player or not rival.active or rival.health.is_dead:
+			continue
+		if rival.team_id == player.team_id:
+			continue
+		var dist := player.global_position.distance_squared_to(rival.global_position)
+		if dist < best_dist:
+			best_dist = dist
+			best = rival
+	return best
+
+
+static func _contest_landmark(player: Player) -> Vector2:
+	var best := Vector2.INF
+	var best_score := INF
+	for spot in Arena.contested_landmark_spots():
+		var home := RiftClashManager.team_anchor(player.team_id)
+		var score := player.global_position.distance_squared_to(spot) * 0.65 + home.distance_squared_to(spot) * 0.35
+		if score < best_score:
+			best_score = score
+			best = spot
+	return best
+
+
 static func _human_ally(player: Player) -> Player:
 	if not player.is_inside_tree():
 		return null
@@ -170,7 +280,7 @@ static func _human_ally(player: Player) -> Player:
 
 
 static func _downed_ally(player: Player) -> Player:
-	if not player.is_inside_tree():
+	if GameRuntime.is_ffa() or not player.is_inside_tree():
 		return null
 	var best: Player
 	var best_dist := INF

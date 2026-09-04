@@ -1,8 +1,8 @@
 extends Node2D
 
 @export var max_enemies := 110
-@export var spawn_distance_min := 380.0
-@export var spawn_distance_max := 560.0
+@export var spawn_distance_min := 760.0
+@export var spawn_distance_max := 1120.0
 @export var snapshot_rate := 20.0
 @export var input_send_rate := 30.0
 
@@ -64,10 +64,47 @@ const RAVAGER_MINION_START_SPEED := 0.28
 const RAVAGER_MINION_RAMP := 18.0
 const RAVAGER_MINION_CAP := 2.2
 
+## Drop-in beat: one planet name per GameRuntime.biome_id (grass/volcano/ice/factory/docks),
+## established once and reused every time the wave cycle loops back to that biome — see
+## _mission_planet_name(). Register matches Arena.WORLD_NAMES ("Iron Foundry", "Ashen
+## Caldera", "Verdant Wilds", "Storm Court").
+const MISSION_PLANET_NAMES: Array[String] = [
+	"Verdant Meridian",
+	"Pyrrhan Expanse",
+	"Frostspire Court",
+	"Ferrum Prime",
+	"Brinehold Wilds",
+]
+## One-line flavor per planet, shown under the title on the mission card.
+const MISSION_PLANET_TAGLINES: Array[String] = [
+	"Rolling meadows, restless roots",
+	"Ash fields and rivers of fire",
+	"Glacial floes, aurora skies",
+	"Iron halls, endless conveyors",
+	"Storm-lashed piers and open water",
+]
+## How long the black-screen title card holds before fading back into the arena — a real
+## beat, not a passing notice (see hud.gd's announce_mission and _play_mission_warp below).
+const MISSION_WARP_CARD_HOLD := 2.6
+## Landing explosion: smaller and less lethal than a landmark pulse_wipe (1600 radius) —
+## flavor for the drop-in, not a wave-clearing nuke. Two passes (immediate + follow-up) so
+## enemies that were just out of range when the player lands still get caught as they close in.
+const ARRIVAL_EXPLOSION_RADIUS := 460.0
+const ARRIVAL_EXPLOSION_FOLLOWUP_DELAY := 2.4
+## Mission warp beat (world change on a boss kill): fade to BLACK (not the quick white
+## wave-bump flash — this is a bigger, distinct beat), hold on the title card, fade back.
+## MISSION_WARP_SCREEN_HOLD is timed to the hud title card's own fade-in/hold/fade-out
+## (0.35 + MISSION_WARP_CARD_HOLD + 0.4) so the screen doesn't clear mid-card.
+const MISSION_WARP_FADE_IN := 0.65
+const MISSION_WARP_SCREEN_HOLD := 0.35 + MISSION_WARP_CARD_HOLD + 0.4
+const MISSION_WARP_FADE_OUT := 0.9
+
 ## Rift Clash: one WaveDirector per active team, keyed by team id. Created lazily on the
 ## server once `RiftClashManager.assign_teams` has run; stays empty in co-op and on clients
 ## (their wave metadata flows in via the co-op snapshot from whichever director raced ahead).
 var team_wave_directors: Dictionary = {}  # team_id -> WaveDirector
+var _ffa_respawn_in: Dictionary = {}
+var _ffa_shop_timer := 0.0
 
 
 func _ready() -> void:
@@ -100,8 +137,12 @@ func _ready() -> void:
 	_init_crater()
 
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
+		if GameRuntime.is_ffa():
+			RiftClashManager.reset_match()
 		_create_player(1, Player.SimulationMode.OFFLINE, true, GameRuntime.active_class_id())
 		_spawn_cpu_allies()
+		if GameRuntime.is_ffa() and GameRuntime.ffa_all_bots:
+			_convert_local_to_ffa_bot()
 		_spawn_initial_wave()
 		# Self-test harness: only boot when explicitly requested via --selftest CLI flag
 		# AND a request file exists. This prevents stale user://selftest_request.json
@@ -148,6 +189,7 @@ func _physics_process(delta: float) -> void:
 		_update_shop_stand_proximity()
 	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT:
 		_update_revives(delta)
+		_tick_ffa(delta)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -254,6 +296,12 @@ func client_landmark_pulse(origin: Vector2, effect_id: String) -> void:
 			_landmark_flash("Time frozen!", Color("80c0ff"))
 		"heal_all":
 			_landmark_flash("Blessing!", Color("70d070"))
+		"speed_surge":
+			_landmark_flash("Speed surge!", Color("ffe066"))
+		"phase_cloak":
+			_landmark_flash("Phase cloak!", Color("9a70ff"))
+		"battle_frenzy":
+			_landmark_flash("Battle frenzy!", Color("ff3020"))
 		_:
 			_landmark_flash("Landmark awakened", Color("e8e8e8"))
 	var ring := ArenaHazard.new()
@@ -265,12 +313,30 @@ func client_landmark_pulse(origin: Vector2, effect_id: String) -> void:
 		"telegraph": 0.0,
 		"active": 0.6,
 		"line_width": 70.0,
-		"color": "ffd060" if effect_id == "pulse_wipe" else ("80c0ff" if effect_id == "freeze_time" else "70d070"),
+		"color": _landmark_ring_color(effect_id),
 		"damage": 0.0,
 		"cosmetic": true,
 	})
 	add_child(ring)
 	_play_sound("enemy_death")
+
+
+func _landmark_ring_color(effect_id: String) -> String:
+	match effect_id:
+		"pulse_wipe":
+			return "ffd060"
+		"freeze_time":
+			return "80c0ff"
+		"heal_all":
+			return "70d070"
+		"speed_surge":
+			return "ffe066"
+		"phase_cloak":
+			return "9a70ff"
+		"battle_frenzy":
+			return "ff3020"
+		_:
+			return "e8e8e8"
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -355,6 +421,12 @@ func server_dev_command(command: String) -> void:
 	if not registered_remote_peers.has(peer_id):
 		return
 	_apply_dev_command(peer_id, command)
+
+
+@rpc("authority", "call_remote", "reliable")
+func client_announce_mission(mission_number: int, planet_name: String, tagline: String, hold_seconds: float) -> void:
+	if not GameRuntime.is_dedicated_server():
+		hud.announce_mission(mission_number, planet_name, tagline, hold_seconds)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -463,6 +535,8 @@ func _update_shop_stand_proximity() -> void:
 ## so this only ever matters in co-op, which is the point — dying isn't a full reset there
 ## as long as someone can reach you and hold position.
 func _update_revives(delta: float) -> void:
+	if GameRuntime.is_ffa():
+		return
 	for peer_id in players.keys():
 		var downed := players[peer_id] as Player
 		if downed == null or not is_instance_valid(downed) or downed.active:
@@ -516,16 +590,32 @@ const CPU_PEER_BASE := 101
 
 
 func _spawn_cpu_allies() -> void:
-	# Solo PLAY leaves this false. Only the CO-OP menu button sets fill_cpu_allies.
+	# Solo PLAY leaves this false. Co-op CPU fill and FFA sim both use it.
 	if not GameRuntime.fill_cpu_allies:
 		return
 	if GameRuntime.is_classic() or GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
 		return
 	var cpu_peer := CPU_PEER_BASE
+	if GameRuntime.is_ffa():
+		for _index in 3:
+			_create_player(cpu_peer, Player.SimulationMode.CPU, false, GameRuntime.FFA_CLASS_ID)
+			cpu_peer += 1
+		return
 	var allies := PlayerClass.cpu_ally_ids(GameRuntime.active_class_id())
 	for index in mini(3, allies.size()):
 		_create_player(cpu_peer, Player.SimulationMode.CPU, false, allies[index])
 		cpu_peer += 1
+
+
+func _convert_local_to_ffa_bot() -> void:
+	var local_player := _local_player()
+	if local_player == null:
+		return
+	local_player.simulation_mode = Player.SimulationMode.CPU
+	local_player.apply_class(GameRuntime.FFA_CLASS_ID)
+	local_player.grant_pvp_spawn_protection()
+	hud.bind_player(local_player)
+	hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
 
 
 func _cpu_auto_shop() -> void:
@@ -540,15 +630,18 @@ func _cpu_auto_shop() -> void:
 func _create_player(peer_id: int, mode: int, local_player: bool, class_id: String = PlayerClass.DEFAULT_CLASS_ID) -> Player:
 	if players.has(peer_id):
 		return players[peer_id] as Player
-	if GameRuntime.is_rift_clash() and RiftClashManager.assigned_teams.is_empty():
-		if GameRuntime.is_server():
+	if GameRuntime.is_rift_clash() and (GameRuntime.is_server() or GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE):
+		var upcoming: Array = players.keys()
+		upcoming.append(peer_id)
+		if RiftClashManager.assigned_teams.is_empty():
 			RiftClashManager.reset_match()
-			RiftClashManager.assign_teams([peer_id], _lobby_claims())
+		RiftClashManager.assign_teams(upcoming, _lobby_claims())
+	var spawn_class := GameRuntime.FFA_CLASS_ID if GameRuntime.is_ffa() else class_id
 	var player := player_scene.instantiate() as Player
 	player.name = "Player_%d" % peer_id
 	player.global_position = _spawn_position_for_peer(peer_id)
 	actors.add_child(player)
-	player.configure(peer_id, mode, local_player, class_id)
+	player.configure(peer_id, mode, local_player, spawn_class)
 	if arena is Arena:
 		player.apply_camera_limits((arena as Arena).half_extents())
 	player.staff_cast.connect(_on_staff_cast)
@@ -559,11 +652,13 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 	player.level_reached.connect(_on_player_level_reached.bind(peer_id))
 	players[peer_id] = player
 	if GameRuntime.is_rift_clash():
-		if GameRuntime.is_server():
+		if GameRuntime.is_server() or GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 			RiftClashManager.assign_teams(players.keys(), _lobby_claims())
 		player.team_id = str(RiftClashManager.team_of(peer_id))
-		if GameRuntime.is_server():
+		if GameRuntime.is_server() or GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 			_ensure_team_wave_director(player.team_id)
+		if GameRuntime.is_ffa():
+			player.grant_pvp_spawn_protection()
 	pending_inputs[peer_id] = {
 		"move": Vector2.ZERO,
 		"aim": player.global_position + Vector2.RIGHT * 100.0,
@@ -577,6 +672,8 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 				RiftClashManager.team_corner_name(player.team_id),
 				RiftClashManager.team_color(player.team_id)
 			)
+			if GameRuntime.is_ffa():
+				hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
 	wave_director.set_player_count(players.size())
 	return player
 
@@ -584,13 +681,14 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 func _spawn_position_for_peer(peer_id: int) -> Vector2:
 	if GameRuntime.is_rift_clash() and not RiftClashManager.assigned_teams.is_empty():
 		var anchor := RiftClashManager.team_anchor(RiftClashManager.team_of(peer_id))
-		# Stagger teammates around their anchor so nobody clips through each other.
 		var slot := 0
 		for other_peer in players.keys():
 			if RiftClashManager.team_of(int(other_peer)) == RiftClashManager.team_of(peer_id):
 				slot += 1
 		var angle := TAU * float(slot) / 4.0
 		return anchor + Vector2.RIGHT.rotated(angle) * 96.0
+	if GameRuntime.fill_cpu_allies or GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
+		return Arena.corner_spawn(players.size())
 	var slot_index := players.size()
 	var angle := float(slot_index) * TAU / float(GameRuntime.DEFAULT_MAX_PLAYERS)
 	return Vector2.RIGHT.rotated(angle) * 72.0
@@ -660,14 +758,14 @@ func _ensure_team_wave_director(team_id: String) -> void:
 	for peer_id in players.keys():
 		if RiftClashManager.team_of(int(peer_id)) == int(team_id):
 			members += 1
-	director.start(maxi(1, members), false)
 	team_wave_directors[team_id] = director
+	director.start(maxi(1, members), false)
 
 
 ## Server-local reaction when a team wave begins — the host HUD shows the wave the
 ## anchor player on this team faces; other corners keep their own pace.
-func _on_team_wave_started(team_id: String, wave: int, theme_name: String, debut_type_id: String) -> void:
-	if not GameRuntime.is_server():
+func _on_team_wave_started(wave: int, theme_name: String, debut_type_id: String, team_id: String) -> void:
+	if not GameRuntime.is_server() and GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
 		return
 	var my_team := ""
 	for peer_id in players.keys():
@@ -682,8 +780,8 @@ func _on_team_wave_started(team_id: String, wave: int, theme_name: String, debut
 
 ## Team-scoped intermission: opens the shop for everyone (the stand is shared), but only
 ## marks this team's timer down — rivals keep marching on their own clock elsewhere.
-func _on_team_intermission_started(team_id: String, next_wave: int, seconds: float) -> void:
-	if not GameRuntime.is_server():
+func _on_team_intermission_started(next_wave: int, seconds: float, team_id: String) -> void:
+	if not GameRuntime.is_server() and GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
 		return
 	if WaveDirector.shop_opens_before(next_wave):
 		if not GameRuntime.is_dedicated_server():
@@ -707,8 +805,8 @@ func _on_team_intermission_started(team_id: String, next_wave: int, seconds: flo
 
 
 func _on_team_wave_group_ready(
-		team_id: String, type_id: String, formation: int, count: int,
-		health_multiplier: float, speed_multiplier: float
+		type_id: String, formation: int, count: int,
+		health_multiplier: float, speed_multiplier: float, team_id: String
 ) -> void:
 	if game_over or players.is_empty():
 		return
@@ -721,6 +819,9 @@ func _spawn_initial_wave() -> void:
 	if initial_wave_spawned or players.is_empty():
 		return
 	initial_wave_spawned = true
+	if GameRuntime.is_rift_clash():
+		wave_director.stop()
+		return
 	if GameRuntime.is_classic():
 		max_enemies = 35
 	wave_director.start(players.size(), GameRuntime.is_classic())
@@ -737,6 +838,9 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 	current_debut_type_id = debut_type_id
 	ready_for_next_wave.clear()
 	_update_crater_lock(wave)
+	if wave == 1 and not GameRuntime.is_ffa() and not GameRuntime.fill_cpu_allies:
+		# Mission 1: fresh run, drop the player at the crater and light up the landing beat.
+		_trigger_world_landing(_mission_number_for_wave(wave))
 	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT:
 		for player in players.values():
 			(player as Player).refresh_wave_items()
@@ -769,9 +873,9 @@ func _on_intermission_started(next_wave: int, seconds: float) -> void:
 	# co-op director is stopped before the first wave in team mode so this stays closed.
 	if GameRuntime.is_rift_clash():
 		return
+	var beaten := next_wave - 1
 	if not GameRuntime.is_dedicated_server():
 		AudioService.play("wave_clear")
-		var beaten := next_wave - 1
 		# Solo meta: bank sparks for the local player when a milestone wave is cleared.
 		if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 			var local_player := _local_player()
@@ -791,11 +895,22 @@ func _on_intermission_started(next_wave: int, seconds: float) -> void:
 		# ability offer so the run keeps growing on top of XP/level picks.
 		if beaten > 0 and beaten % 6 == 0:
 			_queue_wave_draft()
+	var world_changed := false
 	if GameRuntime.uses_biomes():
 		var previous_biome := GameRuntime.biome_id
 		GameRuntime.set_biome_for_wave(next_wave)
-		if GameRuntime.biome_id != previous_biome:
-			_play_world_flash()
+		world_changed = GameRuntime.biome_id != previous_biome
+	# A boss clear (wave % BOSS_WAVE_INTERVAL == 0) always lands on a fresh biome — both
+	# cycle every 5 waves off the same wave count — so the dramatic post-boss warp beat and
+	# the world-transition landing beat are always the same moment. Give it the full
+	# mission-warp beat instead of the quick world-flash used for a plain wave bump.
+	if beaten > 0 and beaten % WaveDirector.BOSS_WAVE_INTERVAL == 0 and not GameRuntime.is_classic():
+		_play_mission_warp(next_wave)
+	elif world_changed:
+		# Defensive fallback for if BOSS_WAVE_INTERVAL and BIOME_CYCLE_WAVES ever diverge —
+		# a world change deserves the same beat as the boss-kill path above, not the quick
+		# wave-bump flash.
+		_play_mission_warp(next_wave)
 	if WaveDirector.shop_opens_before(next_wave):
 		if _selftest_active():
 			pass
@@ -873,8 +988,12 @@ func _spawn_formation_near(focus: Variant, type_id: String, formation: int, coun
 		if fallback == null:
 			return
 		focus_position = fallback.global_position
-	var dmin := 170.0 if close_spawn else spawn_distance_min
-	var dmax := 310.0 if close_spawn else spawn_distance_max
+	# "Close" reinforcement spawns still need to read as pressure, not enemies popping in
+	# adjacent to the player — the reinforcement system got much more frequent this session
+	# (fires far more often when healthy), so what used to be an occasional close pack is now
+	# a regular occurrence, and 340-620 was reading as "spawns right next to me."
+	var dmin := 520.0 if close_spawn else spawn_distance_min
+	var dmax := 820.0 if close_spawn else spawn_distance_max
 	var base_angle := randf_range(0.0, TAU)
 	var pack_center := Vector2.RIGHT.rotated(base_angle) * randf_range(dmin, dmax)
 	for index in count:
@@ -925,19 +1044,18 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 		candidate_position.x = clampf(candidate_position.x, -half.x, half.x)
 		candidate_position.y = clampf(candidate_position.y, -half.y, half.y)
 	else:
-		candidate_position.x = clampf(candidate_position.x, -1160.0, 1160.0)
-		candidate_position.y = clampf(candidate_position.y, -760.0, 760.0)
+		candidate_position.x = clampf(candidate_position.x, -2360.0, 2360.0)
+		candidate_position.y = clampf(candidate_position.y, -1560.0, 1560.0)
 	if skip_pad_snap:
 		enemy.global_position = candidate_position
 	else:
 		enemy.global_position = arena.free_position_near(candidate_position, 22.0)
-	# enemy.team_id assignment skipped — Player carries team ids, Enemy does not.
-	# If Rift Clash ever needs per-team enemies, extend Enemy with team_id here.
+	enemy.team_id = _last_spawn_team
 	actors.add_child(enemy)
 	enemy.configure(entity_id, true, fitted_id, health_multiplier, speed_multiplier)
 	enemy.apply_wave_growth(current_wave)
-	if not GameRuntime.fill_cpu_allies and players.size() <= 1 and not enemy.is_boss:
-		var dmg := wave_director.solo_contact_multiplier(current_wave)
+	if not enemy.is_boss:
+		var dmg := wave_director.contact_multiplier_for_wave(current_wave)
 		enemy.contact_damage *= dmg
 		enemy.projectile_damage *= dmg
 		enemy.explode_damage *= dmg
@@ -1013,6 +1131,12 @@ func _play_landmark_sound(effect_id: String) -> void:
 			_play_sound("sfx_heal")
 		"freeze_time":
 			_play_sound("sfx_shield")
+		"speed_surge":
+			_play_sound("dash")
+		"phase_cloak":
+			_play_sound("scan")
+		"battle_frenzy":
+			_play_sound("charge")
 		_:
 			_play_sound("scan")
 
@@ -1168,6 +1292,12 @@ func _on_landmark_triggered(trigger_position: Vector2) -> void:
 			_landmark_freeze_time(landmark)
 		"heal_all":
 			_landmark_heal_all(landmark)
+		"speed_surge":
+			_landmark_speed_surge(landmark)
+		"phase_cloak":
+			_landmark_phase_cloak(landmark)
+		"battle_frenzy":
+			_landmark_battle_frenzy(landmark)
 	if GameRuntime.is_server():
 		for peer_id in registered_remote_peers.keys():
 			client_landmark_pulse.rpc_id(peer_id, landmark.global_position, str(landmark.effect_id))
@@ -1226,6 +1356,14 @@ func _landmark_theme(landmark: ArenaLandmark) -> Dictionary:
 			return {"outer": Color("80c0ff"), "mid": Color("cfe6ff"), "inner": Color("f0f8ff"), "flash": Color("90c8ff"), "text": "Frozen crystal — frozen %ds, extra damage while locked" % seconds}
 		"tw_docks_landmark_lighthouse":
 			return {"outer": Color("f4c44a"), "mid": Color("ffe080"), "inner": Color("fff8d0"), "flash": Color("ffd060"), "text": "Storm pulse! Minions within %dm wiped." % meters}
+		"tw_factory_landmark_turbine":
+			return {"outer": Color("ffe066"), "mid": Color("fff2b0"), "inner": Color("ffffff"), "flash": Color("ffe066"), "text": "Turbo manifold — double speed for %ds!" % seconds}
+		"tw_volcano_landmark_totem":
+			return {"outer": Color("ff3020"), "mid": Color("ff8060"), "inner": Color("ffd0c0"), "flash": Color("ff3020"), "text": "Ember fury — double attack speed and damage for %ds!" % seconds}
+		"tw_grass_landmark_thicket":
+			return {"outer": Color("9a70ff"), "mid": Color("c8b0ff"), "inner": Color("f0e8ff"), "flash": Color("9a70ff"), "text": "Whispering thicket — cloaked for %ds, nearby foes lose your trail!" % seconds}
+		"tw_ice_landmark_rune":
+			return {"outer": Color("60e0ff"), "mid": Color("b0f0ff"), "inner": Color("ffffff"), "flash": Color("60e0ff"), "text": "Glacial rush — double speed for %ds!" % seconds}
 	match landmark.effect_id:
 		"pulse_wipe":
 			return {"outer": Color("ffd060"), "mid": Color("fff0b8"), "inner": Color("ffffff"), "flash": Color("ffd060"), "text": "Pulse! Minions within %dm wiped." % meters}
@@ -1233,6 +1371,12 @@ func _landmark_theme(landmark: ArenaLandmark) -> Dictionary:
 			return {"outer": Color("80c0ff"), "mid": Color("cfe6ff"), "inner": Color("ffffff"), "flash": Color("80c0ff"), "text": "Frozen %ds — extra damage while locked" % seconds}
 		"heal_all":
 			return {"outer": Color("70d070"), "mid": Color("d0ffd0"), "inner": Color("ffffff"), "flash": Color("70d070"), "text": "Blessing — everyone healed +%d HP" % amount}
+		"speed_surge":
+			return {"outer": Color("ffe066"), "mid": Color("fff2b0"), "inner": Color("ffffff"), "flash": Color("ffe066"), "text": "Speed surge — double speed for %ds!" % seconds}
+		"phase_cloak":
+			return {"outer": Color("9a70ff"), "mid": Color("c8b0ff"), "inner": Color("f0e8ff"), "flash": Color("9a70ff"), "text": "Phase cloak — untraceable for %ds!" % seconds}
+		"battle_frenzy":
+			return {"outer": Color("ff3020"), "mid": Color("ff8060"), "inner": Color("ffd0c0"), "flash": Color("ff3020"), "text": "Battle frenzy — double attack speed and damage for %ds!" % seconds}
 		_:
 			return {"outer": Color("e8e8e8"), "mid": Color("ffffff"), "inner": Color("ffffff"), "flash": Color("e8e8e8"), "text": "Landmark awakened"}
 
@@ -1293,6 +1437,14 @@ func _landmark_freeze_time(landmark: ArenaLandmark) -> void:
 			enemy.set_ai_paused(false)
 		if enemy.has_method("set_frozen_visual"):
 			enemy.set_frozen_visual(false)
+		# apply_mark/apply_movement_lock above set their timers for `duration` seconds, but
+		# those timers only tick inside the _physics_process we just disabled — so they never
+		# counted down while frozen and would otherwise take a second full `duration` to
+		# expire now that processing is back on, leaving the enemy rooted in place (unable to
+		# close on the player) for roughly double the advertised freeze length. Clear them now
+		# so the root/mark end exactly when the freeze visually ends.
+		if enemy.has_method("clear_movement_lock"):
+			enemy.clear_movement_lock()
 	_landmark_flash("Time resumes.", theme["inner"])
 
 
@@ -1318,6 +1470,50 @@ func _landmark_heal_all(landmark: ArenaLandmark) -> void:
 			enemy.apply_knockback(away.normalized() * 520.0)
 	_play_landmark_ring(landmark.global_position, 480.0, theme["outer"], 66.0, 1.3)
 	_play_landmark_ring(landmark.global_position, 280.0, theme["inner"], 52.0, 0.9, 0.15)
+	_landmark_flash(str(theme["text"]), theme["flash"])
+
+
+## Players standing inside the pad when it fires — the new outer buff landmarks bless
+## whoever charged them rather than the whole party (unlike heal_all above).
+func _players_at_landmark(landmark: ArenaLandmark) -> Array:
+	var found: Array = []
+	for player in players.values():
+		if not is_instance_valid(player) or not (player as Player).active or (player as Player).health.is_dead:
+			continue
+		if (player as Player).global_position.distance_to(landmark.global_position) <= ArenaLandmark.STAND_RADIUS:
+			found.append(player)
+	return found
+
+
+func _landmark_speed_surge(landmark: ArenaLandmark) -> void:
+	var duration := maxf(6.0, landmark.effect_arg)
+	var theme := _landmark_theme(landmark)
+	for player in _players_at_landmark(landmark):
+		(player as Player)._apply_ability_buff({"movement_speed_mult": 2.0}, duration)
+		_play_landmark_ring((player as Player).global_position, 150.0, theme["mid"], 42.0, 0.9)
+	_play_landmark_ring(landmark.global_position, landmark.effect_radius, theme["outer"], 64.0, 1.2)
+	_play_landmark_ring(landmark.global_position, landmark.effect_radius * 0.55, theme["inner"], 48.0, 0.9, 0.15)
+	_landmark_flash(str(theme["text"]), theme["flash"])
+
+
+func _landmark_phase_cloak(landmark: ArenaLandmark) -> void:
+	var duration := maxf(6.0, landmark.effect_arg)
+	var theme := _landmark_theme(landmark)
+	for player in _players_at_landmark(landmark):
+		(player as Player).apply_phase_cloak(duration)
+		_play_landmark_ring((player as Player).global_position, 150.0, theme["mid"], 42.0, 0.9)
+	_play_landmark_ring(landmark.global_position, landmark.effect_radius, theme["outer"], 64.0, 1.2)
+	_landmark_flash(str(theme["text"]), theme["flash"])
+
+
+func _landmark_battle_frenzy(landmark: ArenaLandmark) -> void:
+	var duration := maxf(15.0, landmark.effect_arg)
+	var theme := _landmark_theme(landmark)
+	for player in _players_at_landmark(landmark):
+		(player as Player)._apply_ability_buff({"damage_dealt_mult": 2.0, "attack_interval_mult": 0.5}, duration)
+		_play_landmark_ring((player as Player).global_position, 150.0, theme["mid"], 42.0, 0.9)
+	_play_landmark_ring(landmark.global_position, landmark.effect_radius, theme["outer"], 64.0, 1.2)
+	_play_landmark_ring(landmark.global_position, landmark.effect_radius * 0.55, theme["inner"], 48.0, 0.9, 0.15)
 	_landmark_flash(str(theme["text"]), theme["flash"])
 
 
@@ -1463,72 +1659,93 @@ func _on_ability_cast(ability_id: String, effect_style: int, points: PackedVecto
 ## its style per ability fantasy — Keg gets a BLAST shatter cone, Energy Field gets a static
 ## BURST ring, turret gets a WINDUP bounce. Keep pixel-art for heroes we haven't redone.
 const VECTOR_ONLY_KIT_IDS := {
-	# Robot
+	# Robot — kit Q/E/R
 	"tobor_steam_keg": PlayerClass.EffectStyle.BLAST,
-	"tobor_steam_turret": PlayerClass.EffectStyle.BURST,
 	"tobor_spider_mines": PlayerClass.EffectStyle.BURST,
+	"tobor_steam_turret": PlayerClass.EffectStyle.BURST,
 	"tobor_energy_field": PlayerClass.EffectStyle.BURST,
 	"arclight_blast_of_lightning": PlayerClass.EffectStyle.BOLT,
 	"arclight_chain_lightning": PlayerClass.EffectStyle.BOLT,
-	"arclight_electric_field": PlayerClass.EffectStyle.BURST,
 	"arclight_thundergods_wrath": PlayerClass.EffectStyle.BURST,
 	"bulwark_fissure": PlayerClass.EffectStyle.BLAST,
 	"bulwark_heavyweight": PlayerClass.EffectStyle.BURST,
-	"bulwark_enrage": PlayerClass.EffectStyle.WAVE,
 	"bulwark_echo_slam": PlayerClass.EffectStyle.BURST,
 	"warden_tongue_tied": PlayerClass.EffectStyle.BOLT,
-	"warden_voodoo_wards": PlayerClass.EffectStyle.BURST,
-	"warden_cursed_ground": PlayerClass.EffectStyle.BURST,
+	"warden_thorn_volley": PlayerClass.EffectStyle.BOLT,
 	"warden_life_drain": PlayerClass.EffectStyle.WAVE,
+	"warden_voodoo_wards": PlayerClass.EffectStyle.BURST,
 	# Caldera
-	"cinder_whirling_flame": PlayerClass.EffectStyle.BLAST,
-	"cinder_fiery_assault": PlayerClass.EffectStyle.WAVE,
-	"cinder_blazing_strike": PlayerClass.EffectStyle.BLAST,
-	"cinder_blazing_pillar": PlayerClass.EffectStyle.BLAST,
-	"pyra_sticky_bomb": PlayerClass.EffectStyle.BOLT,
+	"frostbinder_ice_spike": PlayerClass.EffectStyle.BOLT,
+	"frostbinder_frost_nova": PlayerClass.EffectStyle.BURST,
+	"frostbinder_glacial_cone": PlayerClass.EffectStyle.ARC,
+	"cinder_dragon_fire": PlayerClass.EffectStyle.BLAST,
+	"cinder_fiery_assault": PlayerClass.EffectStyle.BURST,
+	"cinder_pillar_of_flame": PlayerClass.EffectStyle.BURST,
+	"pyra_sticky_bomb": PlayerClass.EffectStyle.BLAST,
 	"pyra_boom_dust": PlayerClass.EffectStyle.BURST,
-	"pyra_bombardment": PlayerClass.EffectStyle.BURST,
-	"pyra_air_strike": PlayerClass.EffectStyle.BOLT,
-	"slag_steam_bath": PlayerClass.EffectStyle.BURST,
-	"slag_volcanic_touch": PlayerClass.EffectStyle.WAVE,
-	"slag_lava_surge": PlayerClass.EffectStyle.BLAST,
+	"pyra_air_strike": PlayerClass.EffectStyle.BURST,
+	"slag_boulder_hurl": PlayerClass.EffectStyle.BLAST,
+	"slag_volcanic_touch": PlayerClass.EffectStyle.BURST,
 	"slag_eruption": PlayerClass.EffectStyle.BURST,
 	"ember_entangle": PlayerClass.EffectStyle.WAVE,
-	"ember_healing_wave": PlayerClass.EffectStyle.WAVE,
-	"ember_storm_cloud": PlayerClass.EffectStyle.BURST,
+	"ember_firebomb": PlayerClass.EffectStyle.BLAST,
 	"ember_unbreakable": PlayerClass.EffectStyle.BURST,
 	# Wilds
 	"thorn_poison_spray": PlayerClass.EffectStyle.ARC,
 	"thorn_toxin_ward": PlayerClass.EffectStyle.BURST,
 	"thorn_toxicity": PlayerClass.EffectStyle.WAVE,
 	"thorn_poison_burst": PlayerClass.EffectStyle.BURST,
-	"willow_swift_strike": PlayerClass.EffectStyle.BLAST,
+	"willow_swift_strike": PlayerClass.EffectStyle.BOLT,
 	"willow_forsaken_shot": PlayerClass.EffectStyle.BOLT,
-	"willow_volley": PlayerClass.EffectStyle.BOLT,
+	"willow_wall_of_roots": PlayerClass.EffectStyle.BURST,
+	"stump_natures_rally": PlayerClass.EffectStyle.BURST,
+	"stump_root_charge": PlayerClass.EffectStyle.WAVE,
+	"stump_overgrowth": PlayerClass.EffectStyle.BURST,
+	"sage_petal_dance": PlayerClass.EffectStyle.ARC,
+	"sage_volatile_pod": PlayerClass.EffectStyle.BLAST,
+	"sage_charm": PlayerClass.EffectStyle.BURST,
+	# Storm Court
+	"volt_gust": PlayerClass.EffectStyle.ARC,
+	"volt_plasma_bolt": PlayerClass.EffectStyle.BOLT,
+	"volt_typhoon": PlayerClass.EffectStyle.BURST,
+	"nebula_arcane_bolt": PlayerClass.EffectStyle.BOLT,
+	"nebula_curse_of_ages": PlayerClass.EffectStyle.BURST,
+	"nebula_chronofield": PlayerClass.EffectStyle.BURST,
+	"astral_ghastly_touch": PlayerClass.EffectStyle.BOLT,
+	"astral_moonfall": PlayerClass.EffectStyle.BURST,
+	"astral_as_one": PlayerClass.EffectStyle.BURST,
+	"rime_ice_imprisonment": PlayerClass.EffectStyle.BURST,
+	"rime_chilling_touch": PlayerClass.EffectStyle.BURST,
+	"rime_freezing_field": PlayerClass.EffectStyle.BURST,
+	# Pool aliases (still castable; keep vector styles so they do not share a generic disc)
+	"arclight_electric_field": PlayerClass.EffectStyle.BURST,
+	"bulwark_enrage": PlayerClass.EffectStyle.WAVE,
+	"warden_cursed_ground": PlayerClass.EffectStyle.BURST,
+	"cinder_whirling_flame": PlayerClass.EffectStyle.WAVE,
+	"cinder_blazing_strike": PlayerClass.EffectStyle.BLAST,
+	"cinder_blazing_pillar": PlayerClass.EffectStyle.BURST,
+	"pyra_bombardment": PlayerClass.EffectStyle.BURST,
+	"slag_steam_bath": PlayerClass.EffectStyle.BURST,
+	"slag_lava_surge": PlayerClass.EffectStyle.WAVE,
+	"ember_healing_wave": PlayerClass.EffectStyle.WAVE,
+	"ember_storm_cloud": PlayerClass.EffectStyle.BURST,
+	"willow_volley": PlayerClass.EffectStyle.ARC,
 	"willow_strangling_vines": PlayerClass.EffectStyle.WAVE,
 	"stump_rally": PlayerClass.EffectStyle.BURST,
 	"stump_camouflage": PlayerClass.EffectStyle.WAVE,
 	"stump_natures_veil": PlayerClass.EffectStyle.BURST,
-	"stump_overgrowth": PlayerClass.EffectStyle.BURST,
+	"sage_grace": PlayerClass.EffectStyle.WAVE,
 	"sage_grace_of_the_nymph": PlayerClass.EffectStyle.WAVE,
-	"sage_volatile_pod": PlayerClass.EffectStyle.BOLT,
 	"sage_nymphoras_kiss": PlayerClass.EffectStyle.BOLT,
-	"sage_charm": PlayerClass.EffectStyle.WAVE,
-	# Storm Court
-	"volt_gust": PlayerClass.EffectStyle.ARC,
 	"volt_wind_shield": PlayerClass.EffectStyle.BURST,
 	"volt_wind_control": PlayerClass.EffectStyle.WAVE,
-	"volt_typhoon": PlayerClass.EffectStyle.WAVE,
 	"nebula_time_shift": PlayerClass.EffectStyle.WAVE,
-	"nebula_curse_of_ages": PlayerClass.EffectStyle.WAVE,
 	"nebula_rewind": PlayerClass.EffectStyle.WAVE,
 	"nebula_chronosphere": PlayerClass.EffectStyle.BURST,
 	"astral_essence_link": PlayerClass.EffectStyle.BURST,
+	"astral_ward_of_light": PlayerClass.EffectStyle.BURST,
 	"astral_guardian_angel": PlayerClass.EffectStyle.WAVE,
 	"astral_spirit_bond": PlayerClass.EffectStyle.WAVE,
-	"astral_as_one": PlayerClass.EffectStyle.WAVE,
-	"rime_ice_imprisonment": PlayerClass.EffectStyle.BURST,
-	"rime_chilling_touch": PlayerClass.EffectStyle.BURST,
 	"rime_glacier_blast": PlayerClass.EffectStyle.BURST,
 	"rime_absolute_zero": PlayerClass.EffectStyle.BURST,
 }
@@ -1574,6 +1791,9 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 
 
 func _on_player_died(_peer_id: int) -> void:
+	if GameRuntime.is_ffa():
+		_on_ffa_player_died(_peer_id)
+		return
 	if GameRuntime.is_rift_clash() and GameRuntime.is_server():
 		_check_team_eliminations()
 	if _all_players_dead():
@@ -1623,7 +1843,7 @@ func _check_team_eliminations() -> void:
 
 
 func _resolve_rift_clash_match() -> void:
-	if not GameRuntime.is_server():
+	if not GameRuntime.is_server() and GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
 		return
 	RiftClashManager.apply_local_result(multiplayer.get_unique_id())
 	var placements := RiftClashManager.placements()
@@ -1845,11 +2065,16 @@ func _rebuild_arena() -> void:
 			(enemy as Enemy).refresh_biome_look()
 
 
-func _play_world_flash(rebuild: bool = true) -> void:
+## `on_landed` (if valid) runs right after the rebuild, while the screen is still white, so
+## callers can reposition players / drop an arrival explosion before the reveal.
+func _play_world_flash(rebuild: bool = true, on_landed: Callable = Callable()) -> void:
 	if GameRuntime.is_dedicated_server() or world_flash == null:
 		if rebuild:
 			_rebuild_arena()
+		if on_landed.is_valid():
+			on_landed.call()
 		return
+	(world_flash as WorldFlash).set_flash_color(Color.WHITE)
 	world_flash.visible = true
 	world_flash.modulate.a = 0.0
 	var tween := create_tween()
@@ -1857,12 +2082,149 @@ func _play_world_flash(rebuild: bool = true) -> void:
 	tween.tween_property(world_flash, "modulate:a", 1.0, 0.12)
 	if rebuild:
 		tween.tween_callback(_rebuild_arena)
+	if on_landed.is_valid():
+		tween.tween_callback(on_landed)
 	tween.tween_interval(0.08)
 	tween.tween_property(world_flash, "modulate:a", 0.0, 0.4)
 	tween.tween_callback(func() -> void:
 		if world_flash != null:
 			world_flash.visible = false
 	)
+
+
+## The real "you're traveling to a new world" beat for a boss kill, not the quick white
+## wave-bump flash: fade to BLACK, lock every player's controls, rebuild the arena and drop
+## them at the new landing spot behind the black screen, hold on the hud's title card
+## (see MISSION_WARP_SCREEN_HOLD), then fade back and hand control back. ~4 seconds total,
+## versus the old ~1.6s fade-to-white-and-back that read as barely more than a wave bump.
+func _play_mission_warp(next_wave: int) -> void:
+	var mission_number := _mission_number_for_wave(next_wave)
+	if GameRuntime.is_dedicated_server() or world_flash == null:
+		_rebuild_arena()
+		_trigger_world_landing(mission_number)
+		return
+	_set_players_locked(true)
+	_shake_cameras(10.0, 0.3)
+	(world_flash as WorldFlash).set_flash_color(Color.BLACK)
+	world_flash.visible = true
+	world_flash.modulate.a = 0.0
+	var tween := create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tween.tween_property(world_flash, "modulate:a", 1.0, MISSION_WARP_FADE_IN)
+	tween.tween_callback(_rebuild_arena)
+	tween.tween_callback(func() -> void: _trigger_world_landing(mission_number))
+	tween.tween_interval(MISSION_WARP_SCREEN_HOLD)
+	tween.tween_callback(func() -> void: _shake_cameras(6.0, 0.25))
+	tween.tween_property(world_flash, "modulate:a", 0.0, MISSION_WARP_FADE_OUT)
+	tween.tween_callback(func() -> void:
+		if world_flash != null:
+			world_flash.visible = false
+		_set_players_locked(false)
+	)
+
+
+## Freezes/frees every local player's movement + abilities for the mission-warp beat above —
+## a dedicated flag rather than reusing Player.active (that's the downed/dead state and
+## trips other systems that key off it, like revive tracking and the landmark buff check).
+func _set_players_locked(locked: bool) -> void:
+	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
+		return
+	for player in players.values():
+		if is_instance_valid(player):
+			(player as Player).movement_locked = locked
+
+
+## Mission N = which lap of the biome cycle the run is on — increments forever, unlike
+## GameRuntime.biome_id which loops through the 5 biomes and repeats.
+func _mission_number_for_wave(wave: int) -> int:
+	return (maxi(1, wave) - 1) / GameRuntime.BIOME_CYCLE_WAVES + 1
+
+
+func _mission_planet_name() -> String:
+	var index := clampi(GameRuntime.biome_id, 0, MISSION_PLANET_NAMES.size() - 1)
+	return MISSION_PLANET_NAMES[index]
+
+
+func _mission_planet_tagline() -> String:
+	var index := clampi(GameRuntime.biome_id, 0, MISSION_PLANET_TAGLINES.size() - 1)
+	return MISSION_PLANET_TAGLINES[index]
+
+
+## Crater center when the biome has one (grass/volcano); otherwise the nearest legal,
+## walkable spot to the origin so every biome has an equivalent "landing pad".
+func _landing_position() -> Vector2:
+	if not (arena is Arena):
+		return Vector2.ZERO
+	var landing_arena := arena as Arena
+	if landing_arena.crater_feature_active():
+		return Vector2.ZERO
+	return landing_arena.free_position_near(Vector2.ZERO, 40.0)
+
+
+## Fans players out around the landing spot the same way _spawn_position_for_peer does at
+## match start, so co-op teammates don't stack on top of each other.
+func _reposition_players_to_landing(landing: Vector2) -> void:
+	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
+		return
+	# `landing` itself is already validated walkable (see _landing_position), but fanning
+	# co-op players out 72px around it is not — on a biome with narrow/spread-out pads
+	# (ice's floes especially) that offset can land off the pad into the void. A solo
+	# player got stuck in the water on an ice-world transition from exactly this: slot 0's
+	# "offset" is still +72 on the X axis, just never checked against the arena.
+	var landing_arena := arena as Arena if arena is Arena else null
+	var slot := 0
+	for player in players.values():
+		if not is_instance_valid(player):
+			continue
+		var angle := TAU * float(slot) / float(GameRuntime.DEFAULT_MAX_PLAYERS)
+		var spot := landing + Vector2.RIGHT.rotated(angle) * 72.0
+		if landing_arena != null:
+			spot = landing_arena.free_position_near(spot, 40.0)
+		(player as Player).global_position = spot
+		slot += 1
+	_sync_playfield()
+
+
+## The drop-in beat: reposition everyone at the landing spot, bank a mission banner, and
+## detonate an arrival explosion that chunks whatever is already nearby (or wanders in over
+## the next couple seconds) through the normal HealthComponent.take_damage() -> defeated
+## pipeline, so kills still drop XP/gold the usual way.
+func _trigger_world_landing(mission_number: int) -> void:
+	if GameRuntime.is_classic():
+		return
+	var landing := _landing_position()
+	_reposition_players_to_landing(landing)
+	if not GameRuntime.is_dedicated_server():
+		hud.announce_mission(mission_number, _mission_planet_name(), _mission_planet_tagline(), MISSION_WARP_CARD_HOLD)
+	_play_arrival_explosion(landing)
+	if GameRuntime.is_server():
+		for peer_id in registered_remote_peers.keys():
+			client_announce_mission.rpc_id(peer_id, mission_number, _mission_planet_name(), _mission_planet_tagline(), MISSION_WARP_CARD_HOLD)
+
+
+func _play_arrival_explosion(origin: Vector2) -> void:
+	_play_explosion_effect(origin, ARRIVAL_EXPLOSION_RADIUS)
+	if GameRuntime.is_server():
+		for peer_id in registered_remote_peers.keys():
+			client_play_explosion.rpc_id(peer_id, origin, ARRIVAL_EXPLOSION_RADIUS)
+	if not _landmark_is_authority():
+		return
+	_arrival_explosion_damage_pass(origin)
+	await get_tree().create_timer(ARRIVAL_EXPLOSION_FOLLOWUP_DELAY).timeout
+	_arrival_explosion_damage_pass(origin)
+
+
+## Weak trash only — never one-shots a boss with drop-in flavor damage.
+func _arrival_explosion_damage_pass(origin: Vector2) -> void:
+	for entity_id in enemies.keys():
+		var enemy := enemies[entity_id] as Enemy
+		if not is_instance_valid(enemy) or enemy.health.is_dead:
+			continue
+		if enemy.is_boss:
+			continue
+		if enemy.global_position.distance_to(origin) > ARRIVAL_EXPLOSION_RADIUS:
+			continue
+		enemy.health.take_damage(enemy.health.max_health * 4.0 + 9999.0, self)
 
 
 func _transition_to_biome(next_id: int) -> void:
@@ -1987,7 +2349,7 @@ func _apply_player_snapshot(states: Array) -> void:
 					RiftClashManager.team_corner_name(snapshot_player.team_id),
 					RiftClashManager.team_color(snapshot_player.team_id)
 				)
-			if not snapshot_player.active:
+			if not snapshot_player.active and not GameRuntime.is_ffa():
 				hud.show_game_over()
 	_remove_missing_entities(players, seen)
 
@@ -2076,6 +2438,16 @@ func _living_enemy_count() -> int:
 
 
 func _report_wave_pressure() -> void:
+	if GameRuntime.is_rift_clash():
+		for team_id in team_wave_directors.keys():
+			var director := team_wave_directors[team_id] as WaveDirector
+			var hero := _player_on_team(str(team_id))
+			var hp := 1.0
+			if hero != null and hero.health != null and hero.health.max_health > 0.0:
+				hp = hero.health.current_health / hero.health.max_health
+			director.report_enemy_count(_living_enemies_for_team(str(team_id)))
+			director.report_pressure(hp, _nearby_enemy_count(hero, 460.0))
+		return
 	var player := _first_active_player()
 	var hp := 1.0
 	if player != null and player.health != null and player.health.max_health > 0.0:
@@ -2119,6 +2491,102 @@ func _first_active_player() -> Player:
 		if is_instance_valid(player) and (player as Player).active:
 			return player as Player
 	return null
+
+
+func _player_on_team(team_id: String) -> Player:
+	for player_node in players.values():
+		var player := player_node as Player
+		if player != null and player.team_id == team_id:
+			return player
+	return null
+
+
+func _living_enemies_for_team(team_id: String) -> int:
+	var n := 0
+	for enemy in enemies.values():
+		if not is_instance_valid(enemy):
+			continue
+		var body := enemy as Enemy
+		if body.health != null and body.health.is_dead:
+			continue
+		if body.team_id == team_id:
+			n += 1
+	return n
+
+
+func _tick_ffa(delta: float) -> void:
+	if not GameRuntime.is_ffa() or game_over:
+		return
+	_ffa_shop_timer += delta
+	if _ffa_shop_timer >= 3.0:
+		_ffa_shop_timer = 0.0
+		_cpu_auto_shop()
+	if hud != null:
+		hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
+	var due: Array = []
+	for peer_id in _ffa_respawn_in.keys():
+		_ffa_respawn_in[peer_id] = float(_ffa_respawn_in[peer_id]) - delta
+		if float(_ffa_respawn_in[peer_id]) <= 0.0:
+			due.append(peer_id)
+	for peer_id in due:
+		_ffa_respawn_in.erase(peer_id)
+		_respawn_ffa_player(int(peer_id))
+
+
+func _on_ffa_player_died(peer_id: int) -> void:
+	var fallen := players.get(peer_id) as Player
+	if fallen == null:
+		return
+	var source := fallen.health.last_damage_source
+	if source is Player and source != fallen:
+		var killer := source as Player
+		killer.hero_kills = RiftClashManager.record_hero_kill(killer.owner_peer_id)
+		if hud != null:
+			hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
+		if RiftClashManager.has_winner():
+			_finish_ffa_match()
+			return
+	_ffa_respawn_in[peer_id] = GameRuntime.FFA_RESPAWN_SECONDS
+
+
+func _respawn_ffa_player(peer_id: int) -> void:
+	var player := players.get(peer_id) as Player
+	if player == null or game_over:
+		return
+	var home := RiftClashManager.team_anchor(RiftClashManager.team_of(peer_id))
+	player.respawn_ffa(home)
+
+
+func _finish_ffa_match() -> void:
+	if game_over:
+		return
+	game_over = true
+	wave_director.stop()
+	for director in team_wave_directors.values():
+		if director is WaveDirector:
+			(director as WaveDirector).stop()
+	_resolve_rift_clash_match()
+
+
+func _ffa_scoreboard_rows() -> Array:
+	var rows: Array = []
+	for peer_id in players.keys():
+		var player := players[peer_id] as Player
+		if player == null:
+			continue
+		var remaining := float(_ffa_respawn_in.get(peer_id, 0.0))
+		rows.append({
+			"peer_id": int(peer_id),
+			"name": "%s %s" % [RiftClashManager.team_name(player.team_id), RiftClashManager.team_corner_name(player.team_id)],
+			"kills": player.hero_kills,
+			"color": RiftClashManager.team_color(player.team_id),
+			"alive": player.active,
+			"respawn": remaining,
+			"local": player.is_local_player,
+			"invuln": player.pvp_invuln_timer,
+		})
+	rows.sort_custom(func(a, b): return int(a.kills) > int(b.kills))
+	return rows
 
 
 func _all_players_dead() -> bool:

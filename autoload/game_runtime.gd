@@ -26,6 +26,12 @@ enum Difficulty {
 	BRUTAL,
 }
 
+## NONE is co-op / solo PvE. FFA is four rival teams, first to FFA_KILLS_TO_WIN hero kills.
+enum TeamMode {
+	NONE,
+	FFA,
+}
+
 const DEFAULT_PORT := 27015
 const DEFAULT_MAX_PLAYERS := 4
 
@@ -48,6 +54,15 @@ var biome_locked := false
 var biome_from_cli := false
 ## Offline co-op stand-ins: spawn the other three playable heroes as CPU allies.
 var fill_cpu_allies := false
+## FFA / Rift Clash split. NONE until a lobby or the FFA simulate button sets it.
+var team_mode: TeamMode = TeamMode.NONE
+
+const FFA_KILLS_TO_WIN := 10
+const FFA_RESPAWN_SECONDS := 30.0
+const FFA_PVP_INVULN_SECONDS := 60.0
+const FFA_CLASS_ID := "tobor"
+## When true, the local FFA seat is also a CPU (four-bot sim). Menu FFA leaves this false.
+var ffa_all_bots := false
 
 const BIOME_KEYS := ["", "volcano", "ice", "factory", "docks"]
 const BIOME_NAMES := ["Gras", "Vulkaan", "IJs", "Fabriek", "Docks"]
@@ -158,6 +173,15 @@ func configure_from_arguments(arguments: PackedStringArray) -> void:
 			game_mode = GameMode.PJOTR
 		elif argument == "--toborworld":
 			game_mode = GameMode.PJOTR
+		elif argument == "--ffa":
+			team_mode = TeamMode.FFA
+			fill_cpu_allies = true
+			game_mode = GameMode.PJOTR
+		elif argument == "--ffa-bots":
+			team_mode = TeamMode.FFA
+			fill_cpu_allies = true
+			ffa_all_bots = true
+			game_mode = GameMode.PJOTR
 		elif argument.begins_with("--difficulty="):
 			var requested_difficulty := argument.trim_prefix("--difficulty=").to_upper()
 			if requested_difficulty in Difficulty.keys():
@@ -185,10 +209,20 @@ func difficulty_name() -> String:
 	return Difficulty.keys()[difficulty].capitalize()
 
 
+func set_team_mode(next_mode: TeamMode) -> void:
+	team_mode = next_mode
+	if team_mode == TeamMode.NONE:
+		ffa_all_bots = false
+		return
+	fill_cpu_allies = true
+
+
 func is_rift_clash() -> bool:
-	# Team-mode wiring is stubbed (RiftClashManager returns defaults); treat all runs as
-	# the default 4-player co-op mode until the rift mode is actually loaded.
-	return false
+	return team_mode == TeamMode.FFA
+
+
+func is_ffa() -> bool:
+	return team_mode == TeamMode.FFA
 
 
 func is_classic() -> bool:
@@ -210,6 +244,8 @@ func uses_pixel_art() -> bool:
 func active_class_id() -> String:
 	if is_classic():
 		return "arclight"
+	if is_ffa():
+		return FFA_CLASS_ID
 	return PlayerProfile.selected_class_id
 
 
