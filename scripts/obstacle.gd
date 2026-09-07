@@ -7,6 +7,12 @@ extends StaticBody2D
 @onready var sprite: Sprite2D = $Sprite
 @onready var collision: CollisionShape2D = $CollisionShape2D
 
+## Dedicated bit (distinct from the default collision_layer=16 every obstacle already has
+## for movement blocking) so a fog-of-war line-of-sight raycast can query "is there a TREE
+## between these two points" without also stopping at rocks/grass, and without a hit on a
+## closer rock masking a farther tree that's the one actually relevant to vision.
+const VISION_BLOCKER_LAYER := 32
+
 var body_radius := 30.0
 var sprite_id := ""
 
@@ -15,32 +21,70 @@ func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixel
 	sprite_id = sprite_name
 	body_radius = radius
 	var circle := CircleShape2D.new()
-	circle.radius = radius
+	circle.radius = maxf(0.1, radius)
 	collision.shape = circle
+	var decorative := radius < 1.0
+	collision.disabled = decorative
+	if decorative:
+		collision_layer = 0
+		collision_mask = 0
 
 	sprite.texture = SpriteLibrary.texture_for(sprite_name)
-	var zoom := pixel_zoom
-	if sprite_name.begins_with("tree"):
-		zoom = pixel_zoom * 2.15
-		lift_pixels *= 1.8
+	var is_tree := sprite_name.contains("tree")
+	var zoom := display_zoom(sprite_name, pixel_zoom, sprite.texture)
 	sprite.scale = Vector2(zoom, zoom)
-	sprite.offset = Vector2(0.0, -lift_pixels)
+	# Offset is in texture pixels, then multiplied by scale. Pin the trunk/foot
+	# to the collision origin so large native trees stay planted on the click.
+	if is_tree and sprite.texture != null:
+		sprite.offset = Vector2(0.0, -float(sprite.texture.get_height()) * 0.5)
+	else:
+		sprite.offset = Vector2(0.0, -lift_pixels)
 	z_as_relative = false
-	z_index = 12 if sprite_name.begins_with("tree") else 8
+	if sprite != null:
+		sprite.z_as_relative = false
+	if is_floor_cover(sprite_name):
+		z_index = 1
+	elif decorative:
+		# Below landmark pads (z 2) so tufts/flowers never paint over shrines.
+		z_index = 1
+	else:
+		z_index = 12 if is_tree else 8
+	if is_tree:
+		# Trees hide units behind them via LOS raycasts. They do not cast 2D-light umbras.
+		collision_layer |= VISION_BLOCKER_LAYER
 	queue_redraw()
+
+
+func is_vision_blocker() -> bool:
+	return sprite_id.contains("tree")
+
+
+static func tree_display_zoom(pixel_zoom: float, texture: Texture2D) -> float:
+	var native := 16.0
+	if texture != null:
+		native = float(maxi(1, texture.get_width()))
+	return pixel_zoom * 2.15 * (16.0 / native)
+
+
+## World scale for a prop. Kenney mushrooms/bushes shipped at 32px and were
+## drawn at the same zoom as 8px tufts, so they read as huge. Shrink those to
+## a tuft-adjacent footprint; trees keep their dedicated size helper.
+static func display_zoom(sprite_name: String, pixel_zoom: float, texture: Texture2D) -> float:
+	if sprite_name.contains("tree"):
+		return tree_display_zoom(pixel_zoom, texture)
+	var native := 16.0
+	if texture != null:
+		native = float(maxi(1, texture.get_width()))
+	if sprite_name.contains("mushroom"):
+		return pixel_zoom * (10.0 / native)
+	if sprite_name.contains("bush") and native > 16.0:
+		return pixel_zoom * (14.0 / native)
+	return pixel_zoom
+
+
+static func is_floor_cover(sprite_name: String) -> bool:
+	return sprite_name == "grass_lush" or sprite_name == "grass_meadow" or sprite_name == "dirt_tile"
 
 
 func has_sprite() -> bool:
 	return sprite != null and sprite.texture != null
-
-
-func _draw() -> void:
-	# Tight oval under the prop — a full gray disc reads as a rock even when the sprite loaded.
-	var shadow := Color(0.04, 0.07, 0.03, 0.28)
-	if GameRuntime.uses_biomes() and GameRuntime.biome_id != 0:
-		shadow = Color(0.06, 0.03, 0.02, 0.32)
-	var shadow_w := body_radius * 0.62
-	var shadow_h := body_radius * 0.28
-	draw_set_transform(Vector2(0.0, body_radius * 0.22), 0.0, Vector2(1.0, shadow_h / maxf(shadow_w, 1.0)))
-	draw_circle(Vector2.ZERO, shadow_w, shadow)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

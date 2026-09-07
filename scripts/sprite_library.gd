@@ -43,12 +43,23 @@ const TERRAIN_SPRITES := [
 	"tree_pipe",
 	"tree_piling",
 	"tree_willow",
+	"tree_round",
+	"tree_fir",
+	"tree_palm",
+	"tree_cypress",
+	"tree_maple",
 	"rock_small",
 	"rock_large",
 	"boulder",
 	"rock_jagged",
 	"grass_wild",
 	"flower_patch",
+	"lava_chunk",
+	"ice_crystal",
+	"crate_box",
+	"barrel_keg",
+	"bollard",
+	"vent_cap",
 	"spire",
 	"void_tile",
 ]
@@ -67,9 +78,16 @@ static func _skinned_name(sprite_name: String) -> String:
 
 static func _load_png(sprite_name: String) -> Texture2D:
 	var path := "%s/%s.png" % [SPRITE_DIRECTORY, sprite_name]
+	var imported: Texture2D = null
 	if ResourceLoader.exists(path):
-		return load(path) as Texture2D
-	return null
+		imported = load(path) as Texture2D
+	if FileAccess.file_exists(path):
+		var bytes := FileAccess.get_file_as_bytes(path)
+		var image := Image.new()
+		if not bytes.is_empty() and image.load_png_from_buffer(bytes) == OK:
+			if imported == null or imported.get_width() != image.get_width() or imported.get_height() != image.get_height():
+				return ImageTexture.create_from_image(image)
+	return imported
 
 
 ## Scale that makes a square sprite cover the given world radius.

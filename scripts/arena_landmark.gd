@@ -12,7 +12,7 @@ signal triggered(position: Vector2)
 const PIXEL_ZOOM := 6.0
 const BODY_RADIUS := 32.0
 const STAND_RADIUS := 140.0
-const HINT_RADIUS := 2200.0
+const HINT_RADIUS := 280.0
 const COOLDOWN_SECONDS := 20.0
 const PAD_TILE := 16.0
 
@@ -77,7 +77,6 @@ func _ensure_children() -> void:
 func _apply_visuals() -> void:
 	var sprite := get_node_or_null("Sprite") as Sprite2D
 	if sprite != null:
-		# Pad + glyph only — the old pixel shrine sprites sat on top of the stand.
 		sprite.texture = null
 		sprite.visible = false
 	var hint := get_node_or_null("Hint") as Label
@@ -145,11 +144,17 @@ func _update_hint() -> void:
 	var hint := get_node_or_null("Hint") as Label
 	if hint == null:
 		return
+	var show := false
+	for candidate in get_tree().get_nodes_in_group("players"):
+		if candidate is Player and candidate.active and not (candidate as Player).health.is_dead:
+			if candidate.global_position.distance_to(global_position) <= HINT_RADIUS:
+				show = true
+				break
 	if _cooldown > 0.0:
 		hint.text = "%s\n(recharging…)" % _compose_hint()
 	else:
 		hint.text = "%s\nstand still" % _compose_hint()
-	hint.visible = true
+	hint.visible = show
 
 
 func _reset_after_cooldown() -> void:
@@ -160,37 +165,15 @@ func _reset_after_cooldown() -> void:
 
 func _draw() -> void:
 	var accent := _accent_fallback()
-	var pad_tex := SpriteLibrary.texture_for("landmark_pad")
-	if pad_tex != null:
-		var size := Vector2(pad_tex.get_width(), pad_tex.get_height()) * 2.0
-		var span := int(ceil(STAND_RADIUS / size.x)) + 1
-		for x in range(-span, span + 1):
-			for y in range(-span, span + 1):
-				var cell := Vector2(float(x), float(y)) * size
-				if cell.length() > STAND_RADIUS - 10.0:
-					continue
-				draw_texture_rect(pad_tex, Rect2(cell - size * 0.5, size), false)
-	else:
-		var pad := _regular_polygon(Vector2.ZERO, STAND_RADIUS, 8)
-		draw_colored_polygon(pad, Color(0.05, 0.06, 0.08, 0.82))
-		draw_colored_polygon(_regular_polygon(Vector2.ZERO, STAND_RADIUS - 18.0, 8), Color(accent, 0.20))
-		var tile_span := int(floor(STAND_RADIUS / PAD_TILE)) - 1
-		for x in range(-tile_span, tile_span + 1):
-			for y in range(-tile_span, tile_span + 1):
-				var cell := Vector2(float(x), float(y)) * PAD_TILE
-				if cell.length() > STAND_RADIUS - 28.0:
-					continue
-				if (x + y) % 2 != 0:
-					continue
-				draw_rect(Rect2(cell - Vector2(PAD_TILE, PAD_TILE) * 0.38, Vector2(PAD_TILE, PAD_TILE) * 0.76), Color(accent, 0.10), true)
+	var pad := _regular_polygon(Vector2.ZERO, STAND_RADIUS, 8)
+	draw_colored_polygon(pad, Color(0.05, 0.06, 0.08, 0.82))
+	draw_colored_polygon(_regular_polygon(Vector2.ZERO, STAND_RADIUS - 18.0, 8), Color(accent, 0.28))
 	for index in 8:
 		var a0 := TAU * float(index) / 8.0 + PI / 8.0
 		var a1 := TAU * float(index + 1) / 8.0 + PI / 8.0
-		draw_line(Vector2.from_angle(a0) * STAND_RADIUS, Vector2.from_angle(a1) * STAND_RADIUS, Color(accent, 0.62), 5.0)
-	# Slow ambient pulse — 12-facet ring so it stays pixel-hard.
+		draw_line(Vector2.from_angle(a0) * STAND_RADIUS, Vector2.from_angle(a1) * STAND_RADIUS, Color(accent, 0.7), 5.0)
 	var pulse_t := fmod(_anim, 3.0) / 3.0
-	draw_arc(Vector2.ZERO, BODY_RADIUS + 24.0 + pulse_t * 56.0, 0.0, TAU, 12, Color(accent, (1.0 - pulse_t) * 0.4), 3.0, false)
-	# Cooldown / fill as a chunky arc.
+	draw_arc(Vector2.ZERO, BODY_RADIUS + 24.0 + pulse_t * 56.0, 0.0, TAU, 12, Color(accent, (1.0 - pulse_t) * 0.45), 3.0, false)
 	if _cooldown > 0.0:
 		var cd_frac := 1.0 - (_cooldown / COOLDOWN_SECONDS)
 		draw_arc(Vector2.ZERO, BODY_RADIUS + 18.0, -PI / 2.0, -PI / 2.0 + TAU * cd_frac, 16, Color(accent, 0.5), 6.0, false)
@@ -198,8 +181,10 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, BODY_RADIUS + 18.0, -PI / 2.0, -PI / 2.0 + TAU * _fill, 16, Color("fff0a0"), 8.0, false)
 	elif _fill >= 1.0:
 		draw_arc(Vector2.ZERO, BODY_RADIUS + 18.0, 0.0, TAU, 16, Color("fff0a0"), 8.0, false)
-	# Tiny pixel glyph so the pad's job (wipe / heal / freeze) reads at a distance.
-	_draw_role_glyph(accent)
+	var sprite := get_node_or_null("Sprite") as Sprite2D
+	if sprite != null:
+		sprite.visible = false
+	_draw_role_letter(accent)
 
 
 func _regular_polygon(center: Vector2, radius: float, facets: int) -> PackedVector2Array:
@@ -210,33 +195,26 @@ func _regular_polygon(center: Vector2, radius: float, facets: int) -> PackedVect
 	return pts
 
 
-func _draw_role_glyph(accent: Color) -> void:
-	var ink := Color(accent, 0.85)
+func _draw_role_letter(accent: Color) -> void:
+	var letter := "W"
 	match effect_id:
-		"pulse_wipe":
-			draw_rect(Rect2(Vector2(-10.0, -22.0), Vector2(20.0, 8.0)), ink, true)
-			draw_rect(Rect2(Vector2(-6.0, -14.0), Vector2(12.0, 28.0)), ink, true)
 		"heal_all":
-			draw_rect(Rect2(Vector2(-6.0, -18.0), Vector2(12.0, 36.0)), ink, true)
-			draw_rect(Rect2(Vector2(-18.0, -6.0), Vector2(36.0, 12.0)), ink, true)
+			letter = "H"
 		"freeze_time":
-			draw_rect(Rect2(Vector2(-4.0, -20.0), Vector2(8.0, 40.0)), ink, true)
-			draw_rect(Rect2(Vector2(-16.0, -4.0), Vector2(32.0, 8.0)), ink, true)
-			draw_rect(Rect2(Vector2(-14.0, -14.0), Vector2(8.0, 8.0)), ink, true)
-			draw_rect(Rect2(Vector2(6.0, 6.0), Vector2(8.0, 8.0)), ink, true)
+			letter = "F"
 		"speed_surge":
-			draw_rect(Rect2(Vector2(-18.0, -10.0), Vector2(28.0, 6.0)), ink, true)
-			draw_rect(Rect2(Vector2(-14.0, 0.0), Vector2(24.0, 6.0)), ink, true)
-			draw_rect(Rect2(Vector2(-10.0, 10.0), Vector2(20.0, 6.0)), ink, true)
+			letter = "S"
 		"phase_cloak":
-			draw_rect(Rect2(Vector2(-14.0, -18.0), Vector2(28.0, 36.0)), Color(ink, 0.4), true)
-			draw_rect(Rect2(Vector2(-6.0, -10.0), Vector2(12.0, 20.0)), ink, true)
+			letter = "C"
 		"battle_frenzy":
-			draw_rect(Rect2(Vector2(-18.0, -18.0), Vector2(14.0, 14.0)), ink, true)
-			draw_rect(Rect2(Vector2(4.0, 4.0), Vector2(14.0, 14.0)), ink, true)
-			draw_rect(Rect2(Vector2(-4.0, -4.0), Vector2(8.0, 8.0)), ink, true)
+			letter = "R"
 		_:
-			pass
+			letter = "W"
+	var font := ThemeDB.fallback_font
+	var size := 72
+	var width := 120.0
+	draw_string(font, Vector2(-width * 0.5, 28.0), letter, HORIZONTAL_ALIGNMENT_CENTER, width, size, Color(0.02, 0.02, 0.03, 0.85))
+	draw_string(font, Vector2(-width * 0.5, 24.0), letter, HORIZONTAL_ALIGNMENT_CENTER, width, size, Color(accent, 0.98))
 
 
 func _compose_hint() -> String:

@@ -39,7 +39,7 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var music_toggle: CheckButton = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow/MusicToggle
 
 # --- Overhaul UI (built programmatically in _ready, parented into the existing Layout) ---
-var world_row: HBoxContainer = null
+var world_row: HFlowContainer = null
 var loadout_panel: VBoxContainer = null
 var loadout_row: HBoxContainer = null
 var ability_pool: GridContainer = null
@@ -53,6 +53,7 @@ var loadout_slots: Array[Button] = []
 
 var _ability_panel_hero_id: String = ""
 var roster_info_button: Button = null
+var _shown_kit_ids: Array[String] = []
 
 var game_loaded := false
 var class_buttons: Array[Button] = []
@@ -149,6 +150,8 @@ func _ready() -> void:
 		_open_game()
 		return
 	_build_overhaul_ui()
+	_constrain_lobby_layout()
+	_layout_ability_hover_panel()
 	GameRuntime.set_game_mode(GameRuntime.GameMode.PJOTR)
 	_setup_play_mode_toggles()
 	easy_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.EASY))
@@ -157,7 +160,6 @@ func _ready() -> void:
 	brutal_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.BRUTAL))
 	_refresh_difficulty()
 	for slot_index in loadout_slots.size():
-		(loadout_slots[slot_index] as Button).disabled = true
 		_decorate_slot_button(loadout_slots[slot_index] as Button)
 	_apply_tobor_theme()
 	_build_class_selection()
@@ -204,58 +206,49 @@ func _attach_ui_verify() -> void:
 ## Builds the WorldRow, LoadoutPanel (LoadoutRow + AbilityPool) and wires them into the
 ## existing tscn Layout so the .tscn doesn't need to be rewritten. Parents them around
 ## the ClassGrid so the reading order is: ModeRow (Solo/Co-op) → Difficulty → Hero label →
-## WorldRow → ClassGrid → INFO → LoadoutPanel → ClassDescription.
+## WorldRow → ClassGrid → HERO ABILITIES → LoadoutPanel → ClassDescription.
 func _build_overhaul_ui() -> void:
 	var layout := class_grid.get_parent() as VBoxContainer
 	if layout == null:
 		return
+	layout.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	# Wrap WorldRow + ClassGrid + LoadoutPanel in a ScrollContainer so the growing
 	# hero content scrolls instead of pushing StartGameButton (a later Layout sibling)
 	# offscreen. The scroll container expands to fill leftover space, so the ModeRow
 	# and StartGameButton keep their fixed slots below it.
 	var hero_scroll := ScrollContainer.new()
 	hero_scroll.name = "HeroContentScroll"
+	hero_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hero_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	hero_scroll.custom_minimum_size = Vector2(0, 240)
+	hero_scroll.custom_minimum_size = Vector2(0, 120)
 	hero_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	layout.add_child(hero_scroll)
 	layout.move_child(hero_scroll, class_grid.get_index())
 	var hero_content := VBoxContainer.new()
 	hero_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hero_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	hero_content.add_theme_constant_override("separation", 6)
 	hero_scroll.add_child(hero_content)
 	# Reparent the hero grid into the scroll content; the `class_grid` onready ref is
 	# unaffected because it points at the node, not its parent.
 	class_grid.reparent(hero_content)
-	# WorldRow sits directly above the hero grid.
-	world_row = HBoxContainer.new()
+	class_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# WorldRow sits directly above the hero grid and wraps on narrow panels.
+	world_row = HFlowContainer.new()
 	world_row.name = "WorldRow"
-	world_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	world_row.add_theme_constant_override("separation", 6)
+	world_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	world_row.add_theme_constant_override("h_separation", 6)
+	world_row.add_theme_constant_override("v_separation", 6)
 	hero_content.add_child(world_row)
 	hero_content.move_child(world_row, class_grid.get_index())
-	var info_row := HBoxContainer.new()
-	info_row.name = "RosterInfoRow"
-	info_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	roster_info_button = Button.new()
-	roster_info_button.name = "RosterInfoButton"
-	roster_info_button.custom_minimum_size = Vector2(120, 34)
-	roster_info_button.text = "INFO"
-	roster_info_button.tooltip_text = "Show or hide abilities for the selected hero"
-	roster_info_button.pressed.connect(_on_roster_info_pressed)
-	info_row.add_child(roster_info_button)
-	hero_content.add_child(info_row)
-	hero_content.move_child(info_row, class_grid.get_index() + 1)
-	# LoadoutPanel goes right under the hero grid.
+	# Four kit abilities sit directly under the hero grid; hover shows their info.
 	loadout_panel = VBoxContainer.new()
 	loadout_panel.name = "LoadoutPanel"
 	loadout_panel.add_theme_constant_override("separation", 6)
 	loadout_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hero_content.add_child(loadout_panel)
-	hero_content.move_child(loadout_panel, class_grid.get_index() + 2)
+	hero_content.move_child(loadout_panel, class_grid.get_index() + 1)
 	var loadout_header := Label.new()
-	loadout_header.text = "Loadout"
+	loadout_header.text = "Abilities"
 	loadout_header.add_theme_color_override("font_color", Color("9fb3d1"))
 	loadout_panel.add_child(loadout_header)
 	loadout_row = HBoxContainer.new()
@@ -264,24 +257,60 @@ func _build_overhaul_ui() -> void:
 	loadout_row.add_theme_constant_override("separation", 8)
 	loadout_panel.add_child(loadout_row)
 	loadout_slots = []
-	for slot_name in ["Slot1", "Slot2", "Slot3", "SlotUlt"]:
+	for slot_index in 4:
 		var b := Button.new()
-		b.name = slot_name
+		b.name = "Slot%d" % (slot_index + 1)
 		b.toggle_mode = false
 		b.custom_minimum_size = Vector2(72, 72)
-		b.disabled = true
+		b.disabled = false
+		b.focus_mode = Control.FOCUS_NONE
+		b.mouse_entered.connect(_on_ability_slot_hover.bind(slot_index))
+		b.mouse_exited.connect(_on_ability_slot_unhover)
 		loadout_row.add_child(b)
 		loadout_slots.append(b)
-	var pool_header := Label.new()
-	pool_header.text = "Pool"
-	pool_header.add_theme_color_override("font_color", Color("9fb3d1"))
-	loadout_panel.add_child(pool_header)
-	ability_pool = GridContainer.new()
-	ability_pool.name = "AbilityPool"
-	ability_pool.columns = 4
-	ability_pool.add_theme_constant_override("h_separation", 6)
-	ability_pool.add_theme_constant_override("v_separation", 6)
-	loadout_panel.add_child(ability_pool)
+
+
+func _constrain_lobby_layout() -> void:
+	lobby_panel.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
+	lobby_panel.anchor_left = 1.0
+	lobby_panel.anchor_top = 0.0
+	lobby_panel.anchor_right = 1.0
+	lobby_panel.anchor_bottom = 1.0
+	lobby_panel.offset_left = -508.0
+	lobby_panel.offset_top = 10.0
+	lobby_panel.offset_right = -10.0
+	lobby_panel.offset_bottom = -10.0
+	lobby_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	lobby_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	lobby_panel.clip_contents = true
+	lobby_panel.size_flags_horizontal = Control.SIZE_SHRINK_END
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.05, 0.055, 0.07, 0.97)
+	panel_style.border_color = Color(0.32, 0.26, 0.16, 1.0)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(4)
+	lobby_panel.add_theme_stylebox_override("panel", panel_style)
+	var layout := lobby_panel.get_node_or_null("Margin/Layout") as VBoxContainer
+	if layout != null:
+		layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		layout.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	for button in [solo_toggle, coop_toggle, tobor_world_button, easy_button, normal_button, hard_button, brutal_button]:
+		if button == null:
+			continue
+		button.custom_minimum_size = Vector2(0, 36)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.clip_text = true
+	if mode_row != null:
+		mode_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		mode_row.add_theme_constant_override("separation", 6)
+	if difficulty_row != null:
+		difficulty_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		difficulty_row.add_theme_constant_override("separation", 6)
+	if status_label.get_parent() != layout and layout != null:
+		status_label.reparent(layout)
+		status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		status_label.add_theme_font_size_override("font_size", 15)
 
 
 func _start_runtime() -> void:
@@ -407,7 +436,11 @@ func _hero_backdrop() -> TextureRect:
 		return art
 	art = TextureRect.new()
 	art.name = "ToborAction"
-	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art.offset_left = 0.0
+	art.offset_top = 0.0
+	art.offset_right = -518.0
+	art.offset_bottom = 0.0
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(art)
@@ -418,7 +451,8 @@ func _hero_backdrop() -> TextureRect:
 func _apply_hero_backdrop() -> void:
 	var art := _hero_backdrop()
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.offset_right = -518.0
 	art.texture = SpriteLibrary.menu_backdrop_for(PlayerProfile.selected_class_id)
 	art.visible = true
 
@@ -445,7 +479,9 @@ func _build_world_tabs() -> void:
 		var tab := Button.new()
 		tab.toggle_mode = true
 		tab.button_group = group
-		tab.custom_minimum_size = Vector2(120, 34)
+		tab.custom_minimum_size = Vector2(210, 32)
+		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tab.clip_text = true
 		tab.text = world_name(world).to_upper()
 		tab.add_theme_font_size_override("font_size", 12)
 		tab.toggled.connect(_on_world_tab_toggled.bind(world))
@@ -470,7 +506,7 @@ func _rebuild_hero_cards() -> void:
 		var button := Button.new()
 		button.toggle_mode = true
 		button.button_group = _hero_group
-		button.custom_minimum_size = Vector2(252, 56)
+		button.custom_minimum_size = Vector2(0, 52)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.add_theme_font_size_override("font_size", 13)
 		button.add_theme_constant_override("line_spacing", 0)
@@ -483,11 +519,6 @@ func _rebuild_hero_cards() -> void:
 		class_grid.add_child(button)
 		class_buttons.append(button)
 		_style_hero_card(button, class_data)
-	while class_grid.get_child_count() < 6:
-		var pad := Control.new()
-		pad.custom_minimum_size = Vector2(252, 56)
-		pad.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		class_grid.add_child(pad)
 	_rebuilding_cards = false
 	_refresh_class_selection()
 
@@ -539,7 +570,7 @@ func _setup_play_mode_toggles() -> void:
 	coop_toggle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tobor_world_button.visible = true
 	tobor_world_button.text = "FFA"
-	tobor_world_button.custom_minimum_size = Vector2(168, 40)
+	tobor_world_button.custom_minimum_size = Vector2(0, 36)
 	mode_row.move_child(tobor_world_button, 1)
 	solo_toggle.toggled.connect(_on_play_mode_toggled.bind(0))
 	tobor_world_button.toggled.connect(_on_play_mode_toggled.bind(1))
@@ -585,26 +616,16 @@ func _refresh_play_mode() -> void:
 	steam_status_label.visible = coop
 	if cpu_coop_button != null:
 		cpu_coop_button.visible = false
-	if not coop:
-		lobby_title_label.visible = false
-		player_slots.visible = false
-		lobby_action_row.visible = false
-		invite_button.visible = false
-		start_game_button.visible = false
-		waiting_label.visible = false
-	else:
-		lobby_title_label.visible = true
-		lobby_title_label.text = "Lobby"
-		player_slots.visible = true
-		lobby_action_row.visible = true
-		invite_button.visible = true
-		invite_button.disabled = true
-		leave_lobby_button.visible = false
-		cancel_create_button.visible = false
-		start_game_button.visible = true
-		start_game_button.disabled = true
-		waiting_label.visible = false
-		_refresh_player_slots()
+	# Keep the co-op setup screen on the hero picker + Host/Join. The four empty
+	# lobby slots only appear after a real network lobby exists.
+	lobby_title_label.visible = false
+	player_slots.visible = false
+	lobby_action_row.visible = false
+	invite_button.visible = false
+	start_game_button.visible = false
+	waiting_label.visible = false
+	leave_lobby_button.visible = false
+	cancel_create_button.visible = false
 
 
 func _refresh_game_mode() -> void:
@@ -654,28 +675,15 @@ func _on_class_toggled(is_pressed: bool, class_id: String) -> void:
 
 
 func _on_roster_info_pressed() -> void:
-	AudioService.play("ui_click")
-	if ability_panel == null:
-		return
-	if ability_panel.visible:
-		ability_panel.visible = false
-		_ability_panel_hero_id = ""
-		_sync_info_button_text()
-		return
-	_show_selected_hero_info()
+	return
 
 
 func _show_selected_hero_info() -> void:
-	var hero_id := PlayerProfile.selected_class_id
-	_ability_panel_hero_id = hero_id
-	_populate_ability_panel(hero_id)
-	_sync_info_button_text()
+	return
 
 
 func _sync_info_button_text() -> void:
-	if roster_info_button == null:
-		return
-	roster_info_button.text = "HIDE" if (ability_panel != null and ability_panel.visible) else "INFO"
+	return
 
 
 func _sync_audio_toggles() -> void:
@@ -710,10 +718,6 @@ func _refresh_class_selection() -> void:
 	_refresh_loadout_panel()
 	_apply_hero_backdrop()
 	_refresh_header_detail(PlayerProfile.selected_class_id)
-	if ability_panel != null and ability_panel.visible:
-		_show_selected_hero_info()
-	else:
-		_sync_info_button_text()
 
 
 ## ---------------------------------------------------------------------------
@@ -940,36 +944,107 @@ func _refresh_loadout_panel() -> void:
 	if loadout_panel == null:
 		return
 	var hero_id := PlayerProfile.selected_class_id
-	var loadout: Array = []
-	if PlayerProfile.has_method("loadout_for"):
-		loadout = PlayerProfile.loadout_for(hero_id)
-	else:
-		var kit := PlayerClass.kit_ability_ids(hero_id)
-		var pool := PlayerClass.ability_pool_for(hero_id)
-		var alt := ""
-		for aid in pool:
-			if aid not in kit:
-				alt = aid
-				break
-		loadout = [kit[0] if kit.size() > 0 else "", kit[1] if kit.size() > 1 else "", alt, kit[2] if kit.size() > 2 else ""]
-	var slot_names := ["1", "2", "3", "ULT"]
+	_shown_kit_ids = _hero_ability_ids(hero_id)
+	var slot_names := ["Q", "E", "D", "R"]
 	for slot_index in loadout_slots.size():
 		var button := loadout_slots[slot_index] as Button
-		var want: String = str(loadout[slot_index]) if slot_index < loadout.size() else ""
-		var label: String = slot_names[slot_index]
-		button.disabled = true
+		var want: String = str(_shown_kit_ids[slot_index]) if slot_index < _shown_kit_ids.size() else ""
+		var label: String = slot_names[slot_index] if slot_index < slot_names.size() else str(slot_index + 1)
+		button.disabled = false
 		button.text = ""
 		if want.is_empty() or not PlayerClass.ABILITIES.has(want):
 			button.icon = null
-			(button.get_node_or_null("SlotTag") as Label).text = label
+			button.tooltip_text = ""
+			var tag := button.get_node_or_null("SlotTag") as Label
+			if tag != null:
+				tag.text = label
 			continue
 		button.icon = SpriteLibrary.texture_for(want)
 		button.expand_icon = false
 		button.add_theme_constant_override("icon_max_width", 52)
 		button.add_theme_constant_override("icon_max_height", 52)
-		(button.get_node_or_null("SlotTag") as Label).text = label
+		var tag_ok := button.get_node_or_null("SlotTag") as Label
+		if tag_ok != null:
+			tag_ok.text = label
 		button.tooltip_text = _ability_tooltip(want)
-	_refresh_ability_pool(hero_id)
+
+
+func _hero_ability_ids(hero_id: String) -> Array[String]:
+	var ids: Array[String] = []
+	if PlayerProfile.has_method("loadout_for"):
+		for aid in PlayerProfile.loadout_for(hero_id):
+			ids.append(str(aid))
+	if ids.size() >= 4:
+		return ids.slice(0, 4)
+	var kit := PlayerClass.kit_ability_ids(hero_id)
+	for aid in kit:
+		if aid not in ids:
+			ids.append(aid)
+	var secondary := str(PlayerClass.by_id(hero_id).get("secondary", ""))
+	if not secondary.is_empty() and PlayerClass.ABILITIES.has(secondary) and secondary not in ids:
+		ids.insert(mini(2, ids.size()), secondary)
+	while ids.size() < 4:
+		ids.append("")
+	return ids.slice(0, 4)
+
+
+func _on_ability_slot_hover(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= _shown_kit_ids.size():
+		return
+	var ability_id := str(_shown_kit_ids[slot_index])
+	if ability_id.is_empty():
+		return
+	_show_ability_hover(ability_id)
+
+
+func _on_ability_slot_unhover() -> void:
+	_hide_ability_hover()
+
+
+func _layout_ability_hover_panel() -> void:
+	if ability_panel == null:
+		return
+	ability_panel.visible = false
+	ability_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ability_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	ability_panel.anchor_left = 0.0
+	ability_panel.anchor_top = 0.0
+	ability_panel.anchor_right = 0.0
+	ability_panel.anchor_bottom = 0.0
+	ability_panel.offset_left = 28.0
+	ability_panel.offset_top = 96.0
+	ability_panel.offset_right = 500.0
+	ability_panel.offset_bottom = 420.0
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.045, 0.06, 0.88)
+	style.border_color = Color(0.95, 0.62, 0.22, 0.85)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	ability_panel.add_theme_stylebox_override("panel", style)
+	if ability_hero_blurb != null:
+		ability_hero_blurb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ability_hero_blurb.add_theme_font_size_override("font_size", 18)
+	var scroll := ability_panel.get_node_or_null("Margin/Layout/AbilityScroll") as Control
+	if scroll != null:
+		scroll.visible = false
+	var divider := ability_panel.get_node_or_null("Margin/Layout/Divider") as Control
+	if divider != null:
+		divider.visible = false
+
+
+func _show_ability_hover(ability_id: String) -> void:
+	if ability_panel == null or ability_hero_header == null or ability_hero_blurb == null:
+		return
+	var text := _ability_tooltip(ability_id)
+	var lines := text.split("\n")
+	ability_hero_header.text = str(lines[0]) if lines.size() > 0 else ability_id
+	ability_hero_blurb.text = "\n".join(PackedStringArray(lines.slice(1))) if lines.size() > 1 else ""
+	ability_panel.visible = true
+
+
+func _hide_ability_hover() -> void:
+	if ability_panel != null:
+		ability_panel.visible = false
 
 
 func _ability_tooltip(ability_id: String) -> String:
@@ -1010,33 +1085,8 @@ func _stat_summary(cls: Dictionary) -> String:
 	return "%s · HP %d · CD %ds" % [rng, int(cls.get("max_health", 0)), int(cls.get("attack_interval", 0))]
 
 
-func _refresh_ability_pool(hero_id: String) -> void:
-	if ability_pool == null:
-		return
-	for child in ability_pool.get_children():
-		ability_pool.remove_child(child)
-		child.free()
-	var kit: Array = PlayerClass.kit_ability_ids(hero_id)
-	var pool: Array[String] = PlayerClass.ability_pool_for(hero_id)
-	var shown: Array[String] = []
-	for aid in kit:
-		if not shown.has(aid):
-			shown.append(aid)
-	for aid in pool:
-		if shown.size() >= 12:
-			break
-		if aid not in shown:
-			shown.append(aid)
-	for ability_id in shown:
-		var info: Dictionary = PlayerClass.ABILITIES.get(ability_id, {})
-		if info.is_empty():
-			continue
-		var btn := TextureButton.new()
-		btn.custom_minimum_size = Vector2(48, 48)
-		btn.stretch_mode = TextureButton.STRETCH_SCALE
-		btn.texture_normal = SpriteLibrary.texture_for(ability_id)
-		btn.tooltip_text = _ability_tooltip(ability_id)
-		ability_pool.add_child(btn)
+func _refresh_ability_pool(_hero_id: String) -> void:
+	return
 
 
 func _decorate_slot_button(button: Button) -> void:
@@ -1127,12 +1177,18 @@ func _build_world_editor_button() -> void:
 		return
 	var btn := Button.new()
 	btn.name = "WorldEditorButton"
-	btn.custom_minimum_size = Vector2(0, 0)
-	btn.text = "  WORLD EDITOR  "
+	btn.custom_minimum_size = Vector2(0, 36)
+	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn.clip_text = true
+	btn.text = "WORLD EDITOR"
 	btn.tooltip_text = "Open the world/level editor to place trees, rocks, grass and landmarks"
 	btn.pressed.connect(_on_world_editor_pressed)
 	row.add_child(btn)
 	row.move_child(btn, row.get_child_count() - 1)
+	for child in row.get_children():
+		if child is Button:
+			(child as Button).add_theme_font_size_override("font_size", 12)
+			(child as Button).clip_text = true
 
 
 func _on_world_editor_pressed() -> void:
