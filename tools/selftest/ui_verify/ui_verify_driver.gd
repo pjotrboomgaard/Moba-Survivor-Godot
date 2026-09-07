@@ -36,9 +36,24 @@ func _ready() -> void:
 	_steps.append({"t": 9.0, "kind": "api_erase_one"})
 	# 7. save the level.
 	_steps.append({"t": 9.5, "kind": "api_save"})
-	# 8. final shot + finish.
+	# 8. final shot of the grass world.
 	_steps.append({"t": 11.0, "kind": "shot", "label": "editor_final"})
-	_steps.append({"t": 11.5, "kind": "finish"})
+	# 9. switch to volcano, confirm the biome name actually changed, screenshot it.
+	_steps.append({"t": 11.5, "kind": "api_switch_world", "dir": 1, "expect": "Vulkaan"})
+	_steps.append({"t": 12.5, "kind": "shot", "label": "world_volcano"})
+	# 10. switch again to ice, place a couple of props there too (proves placement still
+	#     works after a world swap, and that ice's own save file is independent).
+	_steps.append({"t": 13.0, "kind": "api_switch_world", "dir": 1, "expect": "IJs"})
+	_steps.append({"t": 14.0, "kind": "api_place_in_new_world"})
+	_steps.append({"t": 14.5, "kind": "shot", "label": "world_ice_with_props"})
+	_steps.append({"t": 15.0, "kind": "api_save"})
+	# 11. switch back to grass (2 steps back: ice -> volcano -> grass) and confirm the
+	#     ORIGINAL grass save (from step 7) is still there untouched, independent of the
+	#     other worlds' saves.
+	_steps.append({"t": 15.5, "kind": "api_switch_world", "dir": -2, "expect": "Gras"})
+	_steps.append({"t": 16.0, "kind": "check_grass_restored"})
+	_steps.append({"t": 16.5, "kind": "shot", "label": "world_back_to_grass"})
+	_steps.append({"t": 17.0, "kind": "finish"})
 	_steps.sort_custom(func(a, b): return float(a.t) < float(b.t))
 
 
@@ -61,6 +76,12 @@ func _run_step(step: Dictionary) -> void:
 			_api_erase_one()
 		"api_save":
 			_api_save()
+		"api_switch_world":
+			_api_switch_world(int(step.get("dir", 1)), str(step.get("expect", "")))
+		"api_place_in_new_world":
+			_api_place_in_new_world()
+		"check_grass_restored":
+			_check_grass_restored()
 		"finish":
 			_finish()
 
@@ -133,6 +154,38 @@ func _api_save() -> void:
 	var save_path := "user://world_editor_level.json"
 	var exists := FileAccess.file_exists(save_path)
 	_check("api_save_level", exists, "save file exists=%s at %s" % [str(exists), save_path])
+
+
+func _api_switch_world(dir: int, expect_name: String) -> void:
+	var ed := _editor()
+	if ed == null:
+		_check("world_switch_editor_present", false, "WorldEditor node not found")
+		return
+	ed._switch_world(dir)
+	var actual := GameRuntime.biome_name()
+	_check("world_switch_to_%s" % expect_name, actual == expect_name, "expected=%s actual=%s biome_id=%d" % [expect_name, actual, GameRuntime.biome_id])
+
+
+func _api_place_in_new_world() -> void:
+	var ed := _editor()
+	if ed == null:
+		return
+	ed.place_at(Vector2(50.0, 50.0), "rock_large")
+	ed.place_at(Vector2(-80.0, 120.0), "tree_dead")
+	var placed: int = int(ed.get("_placed"))
+	_check("api_place_after_world_switch", placed >= 2, "placed=%d in world=%s" % [placed, GameRuntime.biome_name()])
+
+
+func _check_grass_restored() -> void:
+	var ed := _editor()
+	if ed == null:
+		return
+	# Grass's own save (from the earlier api_save step) had 6 obstacles left after the
+	# one erase -- switching back to grass should reload exactly that count, proving
+	# each world's save file is independent of the others' (ice's props from
+	# _api_place_in_new_world must NOT bleed into grass's reload).
+	var placed: int = int(ed.get("_placed"))
+	_check("grass_save_independent_of_other_worlds", placed == 6, "placed=%d (expected 6 from grass's own save)" % placed)
 
 
 func _screenshot(label: String) -> void:

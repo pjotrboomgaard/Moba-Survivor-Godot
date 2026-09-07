@@ -30,29 +30,74 @@
       "detail": "save file exists=true at user://world_editor_level.json",
       "name": "api_save_level",
       "ok": true
+    },
+    {
+      "detail": "expected=Vulkaan actual=Vulkaan biome_id=1",
+      "name": "world_switch_to_Vulkaan",
+      "ok": true
+    },
+    {
+      "detail": "expected=IJs actual=IJs biome_id=2",
+      "name": "world_switch_to_IJs",
+      "ok": true
+    },
+    {
+      "detail": "placed=2 in world=IJs",
+      "name": "api_place_after_world_switch",
+      "ok": true
+    },
+    {
+      "detail": "save file exists=true at user://world_editor_level.json",
+      "name": "api_save_level",
+      "ok": true
+    },
+    {
+      "detail": "expected=Gras actual=Gras biome_id=0",
+      "name": "world_switch_to_Gras",
+      "ok": true
+    },
+    {
+      "detail": "placed=6 (expected 6 from grass's own save)",
+      "name": "grass_save_independent_of_other_worlds",
+      "ok": true
     }
   ],
-  "elapsed": 11.500603,
+  "elapsed": 17.0043066666665,
   "shots": [
     {
       "err": 0,
       "label": "lobby",
-      "path": "user://ui_verify_shots/lobby_3679.png"
+      "path": "user://ui_verify_shots/lobby_3889.png"
     },
     {
       "err": 0,
       "label": "editor",
-      "path": "user://ui_verify_shots/editor_7178.png"
+      "path": "user://ui_verify_shots/editor_7395.png"
     },
     {
       "err": 0,
       "label": "editor_with_props",
-      "path": "user://ui_verify_shots/editor_with_props_10187.png"
+      "path": "user://ui_verify_shots/editor_with_props_10388.png"
     },
     {
       "err": 0,
       "label": "editor_final",
-      "path": "user://ui_verify_shots/editor_final_12686.png"
+      "path": "user://ui_verify_shots/editor_final_12887.png"
+    },
+    {
+      "err": 0,
+      "label": "world_volcano",
+      "path": "user://ui_verify_shots/world_volcano_14403.png"
+    },
+    {
+      "err": 0,
+      "label": "world_ice_with_props",
+      "path": "user://ui_verify_shots/world_ice_with_props_16412.png"
+    },
+    {
+      "err": 0,
+      "label": "world_back_to_grass",
+      "path": "user://ui_verify_shots/world_back_to_grass_18413.png"
     }
   ],
   "verdict": "PASS"

@@ -7,6 +7,8 @@ class_name WorldEditor
 ## Controls:
 ##   1 Tree  2 Rock  3 Grass  4 Landmark  5/Erase  6 cycle tree
 ##   LMB place · RMB erase · Scroll zoom · MMB drag pan · G grid
+##   [ / ] switch world (grass/volcano/ice/factory/docks) -- each world keeps its own
+##   save file, so switching worlds swaps to that world's own saved layout (or blank).
 ##   T randomize · X clear · S save · O load · Esc back to menu
 
 const OBSTACLE_SPEC := {
@@ -28,12 +30,13 @@ const ROCKS := ["rock_small", "rock_large", "boulder"]
 const GRASS := ["grass_bush", "grass_long", "grass_mushroom"]
 const LANDMARK_EFFECTS := ["pulse_wipe", "heal_all", "freeze_time", "phase_cloak"]
 
-const SAVE_PATH := "user://world_editor_level.json"
+const SAVE_DIR := "user://world_editor_levels/"
 
 var arena: Node2D
 var cam: Camera2D = null
 var toolbar_layer: CanvasLayer = null
 var status_label: Label = null
+var world_label: Label = null
 
 var cam_zoom := 0.25
 var _panning := false
@@ -58,6 +61,42 @@ func _ready() -> void:
 	_apply_zoom()
 	_build_toolbar()
 	_refresh_status()
+
+
+## Save path is per-world so switching worlds doesn't clobber another world's saved
+## level. Grass (biome_key() == "") keeps the original bare filename so the existing
+## UI-verify harness (which checks for "user://world_editor_level.json" specifically)
+## keeps working unmodified.
+func _save_path_for_current_world() -> String:
+	var key := GameRuntime.biome_key()
+	if key.is_empty():
+		return "user://world_editor_level.json"
+	return "user://world_editor_level_%s.json" % key
+
+
+## Switch which world/biome the editor is dressing. Rebuilding the arena frees every
+## child except Walls (see Arena.rebuild()) -- including any obstacles/landmarks we
+## placed -- so this always starts the new world from a blank (or its own previously
+## saved) canvas rather than carrying over props that wouldn't make sense in a
+## different biome (e.g. volcano rocks sitting on an ice field).
+func _switch_world(delta: int) -> void:
+	var count: int = GameRuntime.BIOME_KEYS.size()
+	var next_id: int = posmod(GameRuntime.biome_id + delta, count)
+	GameRuntime.set_biome(next_id, true)
+	_placed_nodes.clear()
+	_placed = 0
+	_erased = 0
+	# dress_from_runtime_biome() (not a plain rebuild()) -- it re-derives Arena's internal
+	# _world_id from GameRuntime.biome_id before rebuilding, which is what actually swaps
+	# the tileset/void/pad theme. rebuild() alone reuses whatever _world_id was already set
+	# (from the editor's initial grass dressing) and would silently keep showing grass.
+	if arena != null and arena.has_method("dress_from_runtime_biome"):
+		arena.dress_from_runtime_biome()
+	elif arena != null and arena.has_method("rebuild"):
+		arena.rebuild()
+	_load()
+	_refresh_status()
+	AudioService.play("ui_click")
 
 
 # ---------------- Camera ----------------
@@ -145,6 +184,10 @@ func _handle_key(kc: int) -> void:
 			_clear_placed()
 		KEY_G:
 			cam.visible = not cam.visible  # no-op safe; grid is off-screen by default
+		KEY_BRACKETLEFT:
+			_switch_world(-1)
+		KEY_BRACKETRIGHT:
+			_switch_world(1)
 		KEY_1:
 			_set_tool(TREES[0])
 		KEY_2:
@@ -328,19 +371,21 @@ func _save() -> void:
 				"pos": [node.global_position.x, node.global_position.y],
 				"effect": str(node.get("effect_id")),
 			})
-	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var path := _save_path_for_current_world()
+	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		push_warning("[WorldEditor] Could not open file for writing")
 		return
 	file.store_string(JSON.stringify(data))
 	file.close()
-	print("[WorldEditor] Saved %d obstacles, %d landmarks -> %s" % [data.obstacles.size(), data.landmarks.size(), SAVE_PATH])
+	print("[WorldEditor] Saved %d obstacles, %d landmarks -> %s" % [data.obstacles.size(), data.landmarks.size(), path])
 
 
 func _load() -> void:
-	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var path := _save_path_for_current_world()
+	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		print("[WorldEditor] No saved level at %s" % SAVE_PATH)
+		print("[WorldEditor] No saved level at %s" % path)
 		return
 	var parsed = JSON.parse_string(file.get_as_text())
 	file.close()
@@ -370,6 +415,11 @@ func _build_toolbar() -> void:
 	toolbar_layer.add_child(bar)
 
 	bar.add_child(_make_label("WORLD EDITOR"))
+	bar.add_child(_make_spacer())
+	bar.add_child(_make_button("[ Prev World", "world_prev"))
+	world_label = _make_label("")
+	bar.add_child(world_label)
+	bar.add_child(_make_button("Next World ]", "world_next"))
 	bar.add_child(_make_spacer())
 	bar.add_child(_make_button("1 Tree", "tool", TREES[0]))
 	bar.add_child(_make_button("2 Rock", "tool", ROCKS[0]))
@@ -411,6 +461,10 @@ func _make_button(text: String, action: String, arg: Variant = "") -> Button:
 
 func _on_button(action: String, arg: Variant) -> void:
 	match action:
+		"world_prev":
+			_switch_world(-1)
+		"world_next":
+			_switch_world(1)
 		"tool":
 			_set_tool(String(arg))
 		"randomize":
@@ -426,6 +480,8 @@ func _on_button(action: String, arg: Variant) -> void:
 
 
 func _refresh_status() -> void:
+	if world_label != null:
+		world_label.text = "WORLD: %s" % GameRuntime.biome_name().to_upper()
 	if status_label != null:
 		status_label.text = "tool=%s  placed=%d  erased=%d" % [_tool, _placed, _erased]
 
