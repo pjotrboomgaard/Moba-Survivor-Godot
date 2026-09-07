@@ -553,6 +553,17 @@ func _desired_live() -> int:
 ## from firing except during an actual lull. Thresholds loosened + cap raised well past the
 ## old ~3-per-wave ceiling so a healthy player keeps getting fed a busier field all wave,
 ## not just an occasional top-up right after the opening burst clears.
+##
+## NEARBY_CAP: report_pressure() has tracked nearby_enemy_count (within 460px of the
+## player) since it was added, but nothing ever read it here — this function only ever
+## looked at map-wide live_enemy_count and pressure_hp, so a long "cruising" (>=0.80 HP)
+## streak could keep stacking cruising-bonus packs (up to 18 each, see
+## _emit_pressure_pack) into a population that was fine while scattered across the map
+## but became a lethal local ambush the moment it converged — exactly the "shouldn't make
+## dying scenarios worse" backoff failing to fire because it was gated on total HP/count,
+## not on how crowded the player's immediate surroundings already were. A live solo run
+## went from full HP to dead in under a survival-tick's gap early in wave 9 this way.
+const NEARBY_DANGER_CAP := 22
 func _should_reinforce() -> bool:
 	if wave < 1:
 		return false
@@ -569,6 +580,8 @@ func _should_reinforce() -> bool:
 	if _reinforcements >= 12 + int(float(wave) / 1.0):
 		return false
 	if pressure_hp < 0.32:
+		return false
+	if nearby_enemy_count >= NEARBY_DANGER_CAP:
 		return false
 	return live_enemy_count < _desired_live()
 
