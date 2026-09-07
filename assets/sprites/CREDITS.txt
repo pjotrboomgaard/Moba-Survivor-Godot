@@ -1,0 +1,23 @@
+New world-editor terrain props (tree_willow, rock_jagged, grass_wild, flower_patch, and
+their per-biome tw_<biome>_* recolors) were pixelated down from real reference art found
+on OpenGameArt.org via tools/asset_pipeline.gd (downscale + palette quantize), then
+retinted per biome via tools/asset_recolor.gd using the existing BIOME_TREE_PALETTES /
+BIOME_ROCK_PALETTES / BIOME_DECAL_PALETTES from tools/tobor_world_art.gd.
+
+Sources:
+- tree_willow  <- "The Pixel Tree" by (see page), https://opengameart.org/content/the-pixel-tree
+  Tree.png, dual-licensed CC-BY 3.0 / CC0. Attribution not required under the CC0 grant.
+- rock_jagged  <- "Rock Pixel Art Pack", https://opengameart.org/content/rock-pixel-art-pack
+  rockpack.png, CC-BY 4.0. ATTRIBUTION REQUIRED if this game ships: credit the original
+  author from that OpenGameArt page.
+- grass_wild, flower_patch <- "Flowers", https://opengameart.org/content/flowers
+  plants_2.png, CC0. Attribution not required.
+
+Each sprite was cropped from its sheet with tools/asset_crop.gd, then piped through
+tools/asset_pipeline.gd (target size 16-24px, 6-8 color palette) to match the project's
+existing hand-authored pixel-art density. Verified against the original reference with
+tools/asset_compare.gd (perceptual similarity 0.92-0.97 on all four, well above the 0.70
+default pass threshold).
+
+Before shipping: add a visible credit for the Rock Pixel Art Pack author (CC-BY 4.0) to
+whatever credits screen this project uses.

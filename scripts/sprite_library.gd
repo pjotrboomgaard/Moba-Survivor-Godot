@@ -42,9 +42,13 @@ const TERRAIN_SPRITES := [
 	"tree_dead",
 	"tree_pipe",
 	"tree_piling",
+	"tree_willow",
 	"rock_small",
 	"rock_large",
 	"boulder",
+	"rock_jagged",
+	"grass_wild",
+	"flower_patch",
 	"spire",
 	"void_tile",
 ]

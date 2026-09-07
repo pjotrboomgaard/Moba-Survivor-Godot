@@ -5,7 +5,7 @@ class_name WorldEditor
 ## place/erase trees, rocks, grass and landmarks, pan/zoom, and save/load a level.
 ##
 ## Controls:
-##   1 Tree  2 Rock  3 Grass  4 Landmark  5/Erase  6 cycle tree
+##   1 Tree  2 Rock  3 Grass  4 Landmark  5/Erase  6 cycle tree  7 cycle rock  8 cycle grass
 ##   LMB place · RMB erase · Scroll zoom · MMB drag pan · G grid
 ##   [ / ] switch world (grass/volcano/ice/factory/docks) -- each world keeps its own
 ##   save file, so switching worlds swaps to that world's own saved layout (or blank).
@@ -17,17 +17,21 @@ const OBSTACLE_SPEC := {
 	"tree_piling": {"radius": 14.0, "lift": 28.0},
 	"tree_pipe": {"radius": 12.0, "lift": 26.0},
 	"tree_dead": {"radius": 14.0, "lift": 24.0},
+	"tree_willow": {"radius": 18.0, "lift": 28.0},
 	"rock_small": {"radius": 18.0, "lift": 6.0},
 	"rock_large": {"radius": 28.0, "lift": 8.0},
 	"boulder": {"radius": 34.0, "lift": 10.0},
+	"rock_jagged": {"radius": 20.0, "lift": 7.0},
 	"grass_bush": {"radius": 0.0, "lift": 0.0},
 	"grass_long": {"radius": 0.0, "lift": 0.0},
 	"grass_mushroom": {"radius": 0.0, "lift": 0.0},
+	"grass_wild": {"radius": 0.0, "lift": 0.0},
+	"flower_patch": {"radius": 0.0, "lift": 0.0},
 }
 
-const TREES := ["tree_oak", "tree_pine", "tree_piling", "tree_pipe", "tree_dead"]
-const ROCKS := ["rock_small", "rock_large", "boulder"]
-const GRASS := ["grass_bush", "grass_long", "grass_mushroom"]
+const TREES := ["tree_oak", "tree_pine", "tree_piling", "tree_pipe", "tree_dead", "tree_willow"]
+const ROCKS := ["rock_small", "rock_large", "boulder", "rock_jagged"]
+const GRASS := ["grass_bush", "grass_long", "grass_mushroom", "grass_wild", "flower_patch"]
 const LANDMARK_EFFECTS := ["pulse_wipe", "heal_all", "freeze_time", "phase_cloak"]
 
 const SAVE_DIR := "user://world_editor_levels/"
@@ -171,6 +175,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _handle_key(kc: int) -> void:
 	var tree_idx := TREES.find(_tool)
+	var rock_idx := ROCKS.find(_tool)
+	var grass_idx := GRASS.find(_tool)
 	match kc:
 		KEY_ESCAPE, KEY_Q:
 			_exit()
@@ -200,6 +206,10 @@ func _handle_key(kc: int) -> void:
 			_set_tool("erase")
 		KEY_6:
 			_set_tool(TREES[((tree_idx if tree_idx >= 0 else 0) + 1) % TREES.size()])
+		KEY_7:
+			_set_tool(ROCKS[((rock_idx if rock_idx >= 0 else 0) + 1) % ROCKS.size()])
+		KEY_8:
+			_set_tool(GRASS[((grass_idx if grass_idx >= 0 else 0) + 1) % GRASS.size()])
 
 
 func _over_ui() -> bool:
@@ -426,6 +436,11 @@ func _build_toolbar() -> void:
 	bar.add_child(_make_button("3 Grass", "tool", GRASS[0]))
 	bar.add_child(_make_button("4 Landmark", "tool", "landmark"))
 	bar.add_child(_make_button("5 Erase", "tool", "erase"))
+	bar.add_child(_make_spacer())
+	bar.add_child(_make_button("Willow", "tool", "tree_willow"))
+	bar.add_child(_make_button("Jagged Rock", "tool", "rock_jagged"))
+	bar.add_child(_make_button("Wild Grass", "tool", "grass_wild"))
+	bar.add_child(_make_button("Flower Patch", "tool", "flower_patch"))
 	bar.add_child(_make_spacer())
 	bar.add_child(_make_button("T Randomize", "randomize"))
 	bar.add_child(_make_button("X Clear", "clear"))

@@ -123,12 +123,27 @@ func _api_place_all() -> void:
 	var positions := [
 		Vector2(120.0, 120.0), Vector2(240.0, 160.0), Vector2(-160.0, 100.0),
 		Vector2(0.0, 300.0), Vector2(200.0, -140.0), Vector2(-220.0, -180.0),
+		Vector2(320.0, 260.0), Vector2(-320.0, 260.0), Vector2(320.0, -260.0), Vector2(-320.0, -260.0),
 	]
-	var sprites := ["tree_oak", "tree_pine", "tree_dead", "rock_small", "grass_bush", "grass_mushroom"]
+	var sprites := [
+		"tree_oak", "tree_pine", "tree_dead", "rock_small", "grass_bush", "grass_mushroom",
+		# New reference-sourced pixel-art assets (tools/asset_pipeline.gd + tools/asset_recolor.gd):
+		"tree_willow", "rock_jagged", "grass_wild", "flower_patch",
+	]
 	for i in sprites.size():
 		ed.place_at(positions[i], sprites[i])
 	var placed_after := int(ed.get("_placed"))
-	_check("api_place_obstacles", placed_after >= 6, "placed=%d" % placed_after)
+	_check("api_place_obstacles", placed_after >= sprites.size(), "placed=%d" % placed_after)
+	# Confirm the new assets actually resolved to a real baked texture, not the
+	# vector-drawing fallback (SpriteLibrary.texture_for returns null on a miss).
+	var new_ids := ["tree_willow", "rock_jagged", "grass_wild", "flower_patch"]
+	var new_nodes: Array = ed.get("_placed_nodes")
+	var new_found := 0
+	for node in new_nodes:
+		if node != null and is_instance_valid(node) and new_ids.has(str(node.get("sprite_id"))):
+			if bool(node.call("has_sprite")):
+				new_found += 1
+	_check("api_new_assets_have_sprite", new_found == new_ids.size(), "new_assets_with_sprite=%d/%d" % [new_found, new_ids.size()])
 	# Place a landmark via the tool + API.
 	ed._set_tool("landmark")
 	ed._place_landmark(Vector2(0.0, 0.0))
@@ -180,12 +195,12 @@ func _check_grass_restored() -> void:
 	var ed := _editor()
 	if ed == null:
 		return
-	# Grass's own save (from the earlier api_save step) had 6 obstacles left after the
+	# Grass's own save (from the earlier api_save step) had 10 obstacles left after the
 	# one erase -- switching back to grass should reload exactly that count, proving
 	# each world's save file is independent of the others' (ice's props from
 	# _api_place_in_new_world must NOT bleed into grass's reload).
 	var placed: int = int(ed.get("_placed"))
-	_check("grass_save_independent_of_other_worlds", placed == 6, "placed=%d (expected 6 from grass's own save)" % placed)
+	_check("grass_save_independent_of_other_worlds", placed == 10, "placed=%d (expected 10 from grass's own save)" % placed)
 
 
 func _screenshot(label: String) -> void:
