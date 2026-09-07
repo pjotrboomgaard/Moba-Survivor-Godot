@@ -1,0 +1,92 @@
+{
+  "assets": [
+    {
+      "id": "volcano_tree",
+      "source_url": "https://opengameart.org/content/tiny-rpg-forest",
+      "local_source": "tools/assets/sources/volcano_tree.png",
+      "output_path": "assets/sprites/tw_volcano_tree_oak.png",
+      "target_size": 16,
+      "palette_size": 8,
+      "biome": "volcano",
+      "asset_type": "tree",
+      "animated": false
+    },
+    {
+      "id": "ice_tree",
+      "source_url": "https://aamatniekss.itch.io/topdown-fantasy-forest",
+      "local_source": "tools/assets/sources/ice_tree.png",
+      "output_path": "assets/sprites/tw_ice_tree_oak.png",
+      "target_size": 16,
+      "palette_size": 8,
+      "biome": "ice",
+      "asset_type": "tree",
+      "animated": false
+    },
+    {
+      "id": "factory_tree",
+      "source_url": "https://freegamesprites.itch.io/forest-pack",
+      "local_source": "tools/assets/sources/factory_tree.png",
+      "output_path": "assets/sprites/tw_factory_tree_oak.png",
+      "target_size": 16,
+      "palette_size": 8,
+      "biome": "factory",
+      "asset_type": "tree",
+      "animated": false
+    },
+    {
+      "id": "docks_tree",
+      "source_url": "https://aamatniekss.itch.io/topdown-fantasy-forest",
+      "local_source": "tools/assets/sources/docks_tree.png",
+      "output_path": "assets/sprites/tw_docks_tree_pipe.png",
+      "target_size": 16,
+      "palette_size": 8,
+      "biome": "docks",
+      "asset_type": "tree",
+      "animated": false
+    },
+    {
+      "id": "volcano_rock",
+      "source_url": "https://opengameart.org/content/tiny-rpg-forest",
+      "local_source": "tools/assets/sources/volcano_rock.png",
+      "output_path": "assets/sprites/tw_volcano_rock_large.png",
+      "target_size": 16,
+      "palette_size": 6,
+      "biome": "volcano",
+      "asset_type": "rock",
+      "animated": false
+    },
+    {
+      "id": "ice_rock",
+      "source_url": "https://opengameart.org/content/tiny-rpg-forest",
+      "local_source": "tools/assets/sources/ice_rock.png",
+      "output_path": "assets/sprites/tw_ice_rock_large.png",
+      "target_size": 16,
+      "palette_size": 6,
+      "biome": "ice",
+      "asset_type": "rock",
+      "animated": false
+    },
+    {
+      "id": "grass_patch",
+      "source_url": "https://freegamesprites.itch.io/forest-pack",
+      "local_source": "tools/assets/sources/grass_patch.png",
+      "output_path": "assets/sprites/tw_grass_tuft.png",
+      "target_size": 16,
+      "palette_size": 6,
+      "biome": "generic",
+      "asset_type": "grass",
+      "animated": false
+    },
+    {
+      "id": "flower",
+      "source_url": "https://aamatniekss.itch.io/topdown-fantasy-forest",
+      "local_source": "tools/assets/sources/flower.png",
+      "output_path": "assets/sprites/tw_grass_flower.png",
+      "target_size": 16,
+      "palette_size": 6,
+      "biome": "generic",
+      "asset_type": "flower",
+      "animated": false
+    }
+  ]
+}

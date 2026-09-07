@@ -32,27 +32,27 @@
       "ok": true
     }
   ],
-  "elapsed": 11.5006203333333,
+  "elapsed": 11.500603,
   "shots": [
     {
       "err": 0,
       "label": "lobby",
-      "path": "user://ui_verify_shots/lobby_3622.png"
+      "path": "user://ui_verify_shots/lobby_3679.png"
     },
     {
       "err": 0,
       "label": "editor",
-      "path": "user://ui_verify_shots/editor_7113.png"
+      "path": "user://ui_verify_shots/editor_7178.png"
     },
     {
       "err": 0,
       "label": "editor_with_props",
-      "path": "user://ui_verify_shots/editor_with_props_10122.png"
+      "path": "user://ui_verify_shots/editor_with_props_10187.png"
     },
     {
       "err": 0,
       "label": "editor_final",
-      "path": "user://ui_verify_shots/editor_final_12622.png"
+      "path": "user://ui_verify_shots/editor_final_12686.png"
     }
   ],
   "verdict": "PASS"
