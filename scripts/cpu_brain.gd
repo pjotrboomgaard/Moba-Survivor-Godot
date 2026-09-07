@@ -43,7 +43,15 @@ static func think(player: Player, delta: float = 0.016) -> Dictionary:
 		player.cpu_smoothed_move = Vector2.ZERO
 		return result
 	if GameRuntime.is_ffa():
-		return _think_ffa(player, result, delta)
+		# Throttle FFA bot thinking: re-plan at most every 120ms. Between plans the
+		# previous decision is held, cutting per-frame AI cost for up to 4 rivals.
+		player._ffa_think_timer -= delta
+		if player._ffa_think_timer > 0.0:
+			return player._ffa_last_think if not player._ffa_last_think.is_empty() else result
+		player._ffa_think_timer = 0.12
+		var ffa_result := _think_ffa(player, result, delta)
+		player._ffa_last_think = ffa_result
+		return ffa_result
 
 	var downed := _downed_ally(player)
 	if downed != null:

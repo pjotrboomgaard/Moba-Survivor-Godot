@@ -1,0 +1,395 @@
+{
+  "effects": [
+    {
+      "kind": "custom",
+      "t": 0.406408515151515,
+      "text": "Lava dunk selftest — keg knockback into factory-slag pool at (-560,-420)."
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "hero": "tobor",
+      "hp": 82.0,
+      "hp_frac": 1.0,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "after_keg_armed",
+      "last_tapped": 0,
+      "pending_id": "tobor_steam_keg",
+      "pending_slot": 0,
+      "summons": 0,
+      "t": 1.05431745454545
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        24.1846666666667,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "hero": "tobor",
+      "hp": 82.0,
+      "hp_frac": 1.0,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "after_keg_confirm",
+      "last_tapped": 0,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 1.462251
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        23.3346666666667,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "hero": "tobor",
+      "hp": 82.0,
+      "hp_frac": 1.0,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "keg_impact",
+      "last_tapped": 0,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 2.30186066666666
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        22.6346666666668,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "hero": "tobor",
+      "hp": 82.0,
+      "hp_frac": 1.0,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "grunt_dunked",
+      "last_tapped": 0,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 3.01395866666666
+    },
+    {
+      "kind": "custom",
+      "t": 3.65544033333333,
+      "text": "Tobor stands in slag pool — expect player_dot dps + red sprite tint."
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        21.8346666666668,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "hero": "tobor",
+      "hp": 82.0,
+      "hp_frac": 1.0,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "player_in_lava",
+      "last_tapped": 0,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 3.80297733333333
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        20.3346666666669,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "hero": "tobor",
+      "hp": 82.0,
+      "hp_frac": 1.0,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "hp_after_1_5s",
+      "last_tapped": 0,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 5.30613633333332
+    },
+    {
+      "kind": "custom",
+      "t": 5.65727799999999,
+      "text": "Second pool re-entry after grace window — should tick again on next frame."
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        19.8180000000003,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "hero": "tobor",
+      "hp": 75.1,
+      "hp_frac": 0.915853658536585,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "player_second_pool",
+      "last_tapped": 0,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 5.82139866666665
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        18.434666666667,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "hero": "tobor",
+      "hp": 75.1,
+      "hp_frac": 0.915853658536585,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "player_recovered",
+      "last_tapped": 0,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 7.21170966666665
+    }
+  ],
+  "elapsed": 7.81170933333332,
+  "enemies_spawned": 1,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "beaten_wave": 0,
+    "cast_count": 1,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 1.412221
+      }
+    ],
+    "died": false,
+    "errors": [],
+    "gold": 4,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": [
+    {
+      "label": "arena_pools_pre",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4333/arena_pools_pre_0.608_4333.png",
+      "t": 0.608078333333333
+    },
+    {
+      "label": "keg_in_air",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5345/keg_in_air_1.612_5345.png",
+      "t": 1.61248366666666
+    },
+    {
+      "label": "keg_impact",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5924/keg_impact_2.207_5924.png",
+      "t": 2.20721533333333
+    },
+    {
+      "label": "grunt_dunked_into_lava",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6520/grunt_dunked_into_lava_2.802_6520.png",
+      "t": 2.80204233333333
+    },
+    {
+      "label": "player_in_lava",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7433/player_in_lava_3.705_7432.png",
+      "t": 3.70544033333333
+    },
+    {
+      "label": "player_in_lava_tick2",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8929/player_in_lava_tick2_5.205_8929.png",
+      "t": 5.20465788888888
+    },
+    {
+      "label": "player_second_pool",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9432/player_second_pool_5.707_9432.png",
+      "t": 5.70727799999999
+    },
+    {
+      "label": "player_off_lava",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10822/player_off_lava_7.105_10822.png",
+      "t": 7.10470633333332
+    }
+  ]
+}

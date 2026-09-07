@@ -1,0 +1,147 @@
+{
+  "effects": [
+    {
+      "ability_id": "arclight_blast_of_lightning",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "cast_arclight",
+      "kind": "sound_probe",
+      "label": "sfx_q",
+      "last_play_ability": "arclight_blast_of_lightning",
+      "last_play_sound_id": "cast_arclight",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/arclight.wav",
+      "t": 3.39203599999999
+    },
+    {
+      "cd_left": 191.833333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.86666666666666
+    },
+    {
+      "ability_id": "arclight_thundergods_wrath",
+      "assert_ability_match": true,
+      "assert_bank_match": false,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_arclight",
+      "kind": "sound_probe",
+      "label": "sfx_r",
+      "last_play_ability": "arclight_thundergods_wrath",
+      "last_play_sound_id": "xp",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/sfx/xp.ogg",
+      "t": 5.25878333333332
+    }
+  ],
+  "elapsed": 5.90306366666666,
+  "enemies_spawned": 3,
+  "hero_position": "(72.0, -0.011169)",
+  "player_class": "arclight",
+  "results": {
+    "beaten_wave": 0,
+    "cast_count": 16,
+    "casts": [
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 3.06097333333333
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 4.70909166666666
+      }
+    ],
+    "died": false,
+    "errors": [],
+    "gold": 60,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 40
+  },
+  "shots": [
+    {
+      "label": "arclight_q_bolt",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7409/arclight_q_bolt_3.311_7409.png",
+      "t": 3.31127799999999
+    },
+    {
+      "label": "arclight_r_storm",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9200/arclight_r_storm_5.117_9200.png",
+      "t": 5.11666666666666
+    }
+  ]
+}

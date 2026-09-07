@@ -1,60 +1,82 @@
 {
   "effects": [
     {
-      "cd_left": 7.71666666666667,
+      "cd_left": 7.7,
       "kind": "cast_skipped",
       "reason": "cooldown",
-      "slot": 2,
-      "t": 4.15502733333333
+      "slot": 1,
+      "t": 2.15302233333333
     },
     {
-      "cd_left": 99.7566666666667,
+      "cd_left": 99.74,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 6.15000000000008
+      "t": 6.15611833333338
     }
   ],
-  "elapsed": 9.00470066666679,
+  "elapsed": 9.00344700000004,
   "enemies_spawned": 4,
-  "hero_position": "(89.25845, 3.264247)",
+  "hero_position": "(77.1397, 0.667494)",
   "player_class": "thorn",
   "results": {
+    "beaten_wave": 0,
+    "cast_count": 4,
     "casts": [
       {
         "ability_id": "thorn_poison_spray",
-        "t": 0.179865666666667
+        "t": 0.271433
+      },
+      {
+        "ability_id": "thorn_toxicity",
+        "t": 2.05322333333333
+      },
+      {
+        "ability_id": "thorn_toxin_ward",
+        "t": 4.15515873015872
       },
       {
         "ability_id": "thorn_poison_burst",
-        "t": 6.06304300000008
+        "t": 6.05441524242429
       }
     ],
-    "errors": [
-      "expected cast never fired: thorn_toxin_ward",
-      "expected cast never fired: thorn_toxicity"
-    ]
+    "died": false,
+    "errors": [],
+    "gold": 52,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 2,
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 45
   },
   "shots": [
     {
       "label": "t1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2139/t1_1.005_2139.png",
-      "t": 1.00473366666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3359/t1_1.001_3359.png",
+      "t": 1.00082590909091
     },
     {
       "label": "t3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4140/t3_3.003_4140.png",
-      "t": 3.00271024242423
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5356/t3_3.004_5356.png",
+      "t": 3.00378787878787
     },
     {
       "label": "t5",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6149/t5_5.005_6149.png",
-      "t": 5.00507000000004
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7349/t5_5.001_7349.png",
+      "t": 5.0007575757576
     },
     {
       "label": "t8",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9139/t8_8.000_9139.png",
-      "t": 8.00000000000017
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10359/t8_8.005_10359.png",
+      "t": 8.00539266666674
     }
   ]
 }

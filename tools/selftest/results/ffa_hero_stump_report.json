@@ -1,0 +1,539 @@
+{
+  "effects": [
+    {
+      "kind": "landmarks",
+      "label": "ffa_landmarks",
+      "list": [
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "heal_all",
+          "fill": 0.0,
+          "hint": "Wild Spring",
+          "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "freeze_time",
+          "fill": 0.0,
+          "hint": "Root Stone",
+          "pos": "(0.0, 1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
+          "ready": true
+        }
+      ],
+      "t": 1.000437
+    },
+    {
+      "abilities": [
+        {
+          "id": "stump_natures_rally",
+          "rank": 3
+        },
+        {
+          "id": "stump_root_charge",
+          "rank": 1
+        },
+        {
+          "id": "stump_camouflage",
+          "rank": 1
+        },
+        {
+          "id": "stump_overgrowth",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "stump",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2846.0,
+              -1934.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3057.0,
+              -1824.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2867.0,
+              1912.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              3189.0,
+              2365.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "stump",
+      "hp": 304.5,
+      "hp_frac": 1.0,
+      "hp_max": 304.5,
+      "kind": "probe",
+      "label": "ffa_start",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 1.20591124242424
+    },
+    {
+      "abilities": [
+        {
+          "id": "stump_natures_rally",
+          "rank": 3
+        },
+        {
+          "id": "stump_root_charge",
+          "rank": 1
+        },
+        {
+          "id": "stump_camouflage",
+          "rank": 1
+        },
+        {
+          "id": "stump_overgrowth",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        32.7933333333345,
+        8.58466666666701,
+        14.9386666666677,
+        155.50666666665
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "stump",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -3184.0,
+              -1819.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2263.0,
+              505.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2536.0,
+              1802.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -1442.0,
+              2776.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "stump",
+      "hp": 195.556,
+      "hp_frac": 0.642220032840723,
+      "hp_max": 304.5,
+      "kind": "probe",
+      "label": "ffa_mid",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 24.0082216666667
+    },
+    {
+      "abilities": [
+        {
+          "id": "stump_natures_rally",
+          "rank": 3
+        },
+        {
+          "id": "stump_root_charge",
+          "rank": 1
+        },
+        {
+          "id": "stump_camouflage",
+          "rank": 1
+        },
+        {
+          "id": "stump_overgrowth",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        9.29333333333514,
+        0.0,
+        0.0,
+        132.006666666631
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "stump",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -692.0,
+              -414.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              1758.0,
+              1217.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -1517.0,
+              806.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -311.0,
+              185.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "stump",
+      "hp": 203.836,
+      "hp_frac": 0.618622154779971,
+      "hp_max": 329.5,
+      "kind": "probe",
+      "label": "ffa_end",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 47.5166666666666
+    }
+  ],
+  "elapsed": 48.0022683333332,
+  "enemies_spawned": 0,
+  "hero_position": "(-630.6383, -394.8953)",
+  "player_class": "stump",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "cast_count": 4,
+    "casts": [
+      {
+        "ability_id": "stump_overgrowth",
+        "t": 2.86377033333333
+      },
+      {
+        "ability_id": "stump_natures_rally",
+        "t": 3.02575757575758
+      },
+      {
+        "ability_id": "stump_root_charge",
+        "t": 4.05561166666667
+      },
+      {
+        "ability_id": "stump_camouflage",
+        "t": 4.078945
+      }
+    ],
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "stump",
+          "cpu": true,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            -631.0,
+            -395.0
+          ],
+          "team": "0"
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            1712.0,
+            1112.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": false,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -1517.0,
+            806.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            -292.0,
+            171.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 462,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "stump",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "stump",
+        "gold": 6,
+        "hp": 0.99,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "stump",
+        "gold": 12,
+        "hp": 0.96,
+        "kills": 0,
+        "t": 10.17
+      },
+      {
+        "alive": true,
+        "class": "stump",
+        "gold": 36,
+        "hp": 0.93,
+        "kills": 0,
+        "t": 15.19
+      },
+      {
+        "alive": true,
+        "class": "stump",
+        "gold": 150,
+        "hp": 0.75,
+        "kills": 0,
+        "t": 20.24
+      },
+      {
+        "alive": true,
+        "class": "stump",
+        "gold": 188,
+        "hp": 0.71,
+        "kills": 0,
+        "t": 25.25
+      },
+      {
+        "alive": true,
+        "class": "stump",
+        "gold": 220,
+        "hp": 0.59,
+        "kills": 0,
+        "t": 30.26
+      },
+      {
+        "alive": true,
+        "class": "stump",
+        "gold": 266,
+        "hp": 0.53,
+        "kills": 0,
+        "t": 35.37
+      },
+      {
+        "alive": true,
+        "class": "stump",
+        "gold": 270,
+        "hp": 0.62,
+        "kills": 0,
+        "t": 40.37
+      },
+      {
+        "alive": true,
+        "class": "stump",
+        "gold": 377,
+        "hp": 0.62,
+        "kills": 0,
+        "t": 45.42
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 5,
+    "max_hp": 1.0,
+    "min_hp": 0.495356321839081,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 1,
+    "xp": 127
+  },
+  "shots": []
+}

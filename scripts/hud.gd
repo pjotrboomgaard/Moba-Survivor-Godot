@@ -115,6 +115,20 @@ const SECONDARY_ICON_BY_KIND := {
 	"volt_mend": "secondary_volt_mend",
 	"rime_ward": "secondary_rime_ward",
 	"wall": "secondary_wall",
+	"vine_tangle": "secondary_vine_tangle",
+	"ice_block": "secondary_ice_block",
+	"heat_burst": "secondary_heat_burst",
+	"blast_jump": "secondary_blast_jump",
+	"magma_armor": "secondary_magma_armor",
+	"cinder_veil": "secondary_cinder_veil",
+	"bramble_snare": "secondary_bramble_snare",
+	"windstep": "secondary_windstep",
+	"oak_bark": "secondary_oak_bark",
+	"bloom_mend": "secondary_bloom_mend",
+	"gale_gust": "secondary_gale_gust",
+	"time_skip": "secondary_time_skip",
+	"ward_light": "secondary_ward_light",
+	"glacial_nova": "secondary_glacial_nova",
 }
 
 const SECONDARY_NAMES := {
@@ -123,6 +137,20 @@ const SECONDARY_NAMES := {
 	"volt_mend": "Volt Mend",
 	"rime_ward": "Rime Ward",
 	"wall": "Wall",
+	"vine_tangle": "Tangle",
+	"ice_block": "Ice Block",
+	"heat_burst": "Heat Burst",
+	"blast_jump": "Blast Jump",
+	"magma_armor": "Magma Armor",
+	"cinder_veil": "Cinder Veil",
+	"bramble_snare": "Bramble",
+	"windstep": "Windstep",
+	"oak_bark": "Oak Bark",
+	"bloom_mend": "Bloom",
+	"gale_gust": "Gale Gust",
+	"time_skip": "Time Skip",
+	"ward_light": "Ward Light",
+	"glacial_nova": "Glacial",
 }
 
 
@@ -461,21 +489,15 @@ func _build_secondary_slot() -> void:
 	secondary_slot.offset_bottom = 206.0
 	add_child(secondary_slot)
 
-	var panel := ColorRect.new()
-	panel.color = Color(0.04, 0.05, 0.08, 0.78)
-	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	secondary_slot.add_child(panel)
-
 	secondary_icon = TextureRect.new()
 	secondary_icon.name = "Icon"
 	secondary_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	secondary_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	secondary_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	secondary_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	secondary_icon.offset_left = 7.0
-	secondary_icon.offset_top = 4.0
-	secondary_icon.offset_right = 55.0
+	secondary_icon.offset_left = 2.0
+	secondary_icon.offset_top = 0.0
+	secondary_icon.offset_right = 60.0
 	secondary_icon.offset_bottom = 52.0
 	secondary_slot.add_child(secondary_icon)
 
@@ -487,14 +509,14 @@ func _build_secondary_slot() -> void:
 	secondary_cd_bar.max_value = 1.0
 	secondary_cd_bar.value = 0.0
 	secondary_cd_bar.fill_mode = ProgressBar.FILL_BOTTOM_TO_TOP
-	secondary_cd_bar.offset_left = 7.0
-	secondary_cd_bar.offset_top = 4.0
-	secondary_cd_bar.offset_right = 55.0
+	secondary_cd_bar.offset_left = 2.0
+	secondary_cd_bar.offset_top = 0.0
+	secondary_cd_bar.offset_right = 60.0
 	secondary_cd_bar.offset_bottom = 52.0
 	var cd_bg := StyleBoxFlat.new()
 	cd_bg.bg_color = Color(0.0, 0.0, 0.0, 0.0)
 	var cd_fill := StyleBoxFlat.new()
-	cd_fill.bg_color = Color(0.04, 0.06, 0.1, 0.62)
+	cd_fill.bg_color = Color(0.06, 0.08, 0.12, 0.52)
 	secondary_cd_bar.add_theme_stylebox_override("background", cd_bg)
 	secondary_cd_bar.add_theme_stylebox_override("fill", cd_fill)
 	secondary_slot.add_child(secondary_cd_bar)

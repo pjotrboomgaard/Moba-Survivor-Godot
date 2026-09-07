@@ -160,8 +160,8 @@ func _test_hero_secondaries() -> void:
 	warden.aim_world_position = frozen.global_position
 	warden.facing_direction = Vector2.RIGHT
 	warden._update_secondary(0.016, true)
-	_check(frozen.is_slowed() and frozen.slow_factor < 0.25, "Warden secondary should freeze enemies")
-	_check(patient.health.current_health > patient_before, "Warden freeze should also heal allies")
+	_check(frozen.is_slowed() and frozen.slow_factor < 0.25, "Warden tangle should root enemies")
+	_check(patient.health.current_health > patient_before, "Warden tangle should also heal allies")
 
 	var tank := _make_player("bulwark", Vector2(0.0, 400.0))
 	tank.aim_world_position = Vector2(120.0, 400.0)
@@ -192,6 +192,12 @@ func _test_hero_secondaries() -> void:
 		for existing in colors:
 			_check(color.to_html(false) != existing.to_html(false), "Health-bar colors should differ per hero")
 		colors.append(color)
+	var seen_secondaries: Dictionary = {}
+	for class_data in PlayerClass.CLASSES:
+		var sec := str(class_data.get("secondary", ""))
+		_check(not sec.is_empty(), "%s needs a secondary" % str(class_data.get("id", "")))
+		_check(not seen_secondaries.has(sec), "Secondary %s is reused" % sec)
+		seen_secondaries[sec] = true
 	_cleanup([tobor, ally, shoved, warden, frozen, patient, tank, wizard, blasted] + walls)
 
 
@@ -900,6 +906,11 @@ func _test_gold_rewards() -> void:
 	player.gold = 0
 	player.add_gold(100)
 	_check(player.gold == 200, "The gold multiplier is not applied to income")
+	player.gold_multiplier = 1.0
+	player.gold = 11
+	_check(player.lose_half_gold() == 5, "Death should take half gold, rounded down")
+	_check(player.gold == 6, "The leftover gold after a death tax is wrong")
+	_check(GameRuntime.HERO_KILL_GOLD == 500, "Hero kills should pay a flat gold bounty")
 	_check(ShopCatalog.SHOP_PRICE_MULTIPLIER == 18, "Shop prices should be scaled up to match full gold income")
 	_cleanup([player])
 

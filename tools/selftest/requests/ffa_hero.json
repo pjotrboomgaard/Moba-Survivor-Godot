@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "comment": "Four-bot FFA: requested hero as local CPU vs three lobby robots. CpuBrain plays the kit; no injected casts.",
+  "events": [
+    {"t": 1.0, "kind": "landmarks", "label": "ffa_landmarks"},
+    {"t": 1.2, "kind": "probe", "label": "ffa_start"},
+    {"t": 24.0, "kind": "probe", "label": "ffa_mid"},
+    {"t": 47.5, "kind": "probe", "label": "ffa_end"},
+    {"t": 48.0, "kind": "report"}
+  ]
+}

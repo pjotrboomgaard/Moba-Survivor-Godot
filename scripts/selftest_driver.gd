@@ -27,6 +27,7 @@ var _casts: Array[Dictionary] = []
 var _errors: Array[String] = []
 var _expected_casts: Array[String] = []
 var _survival := false
+var _ffa := false
 var _survival_duration := 1100.0
 var _until_wave := 20
 var _danger_hp := 0.42
@@ -86,6 +87,8 @@ static func from_request(path: String = "user://selftest_request.json") -> SelfT
 		driver._until_wave = int((parsed as Dictionary).get("until_wave", 20))
 		driver._danger_hp = float((parsed as Dictionary).get("danger_hp", 0.42))
 		driver._recover_hp = float((parsed as Dictionary).get("recover_hp", 0.56))
+	elif str((parsed as Dictionary).get("mode", "")) == "ffa":
+		driver._ffa = true
 	return driver
 
 
@@ -96,7 +99,10 @@ func _ready() -> void:
 	# Self-tests need audible/audio-observable behavior regardless of the user's saved
 	# prefs: SFX must be on so sound_probe entries can see a player firing.
 	AudioService.sfx_enabled = true
-	GameRuntime.fill_cpu_allies = false
+	# Solo kit-dry must not spawn CPU allies. FFA already spawned its four-bot roster
+	# before this driver attaches — leave fill_cpu_allies alone so wave scaling stays FFA.
+	if not GameRuntime.is_ffa():
+		GameRuntime.fill_cpu_allies = false
 	GameRuntime.biome_locked = false
 	if _host_main == null:
 		push_warning("[SelfTestDriver] No parent; shutting down")
@@ -110,7 +116,12 @@ func _ready() -> void:
 		print("[SelfTestDriver] local player after wait=%s" % (_player.class_id if _player else "null"))
 	if _player != null and not _requested_hero.is_empty() and PlayerClass.is_valid_id(_requested_hero):
 		print("[SelfTestDriver] swapping hero → %s (was %s)" % [_requested_hero, _player.class_id])
+		var was_cpu := _player.is_cpu()
 		_player.apply_class(_requested_hero)
+		if was_cpu:
+			_player.simulation_mode = Player.SimulationMode.CPU
+			if GameRuntime.is_ffa():
+				_player.grant_pvp_spawn_protection()
 	if _player != null and not _player.ability_cast.is_connected(_on_player_ability_cast):
 		_player.ability_cast.connect(_on_player_ability_cast)
 	_bind_landmark_saves()
@@ -231,6 +242,8 @@ func _process(delta: float) -> void:
 		if _beaten_wave >= _until_wave or _elapsed >= _survival_duration:
 			_finish_and_quit()
 			return
+	elif _ffa:
+		_tick_ffa(delta)
 	_tick_walk()
 	_flush_confirm_taps()
 	if _survival:
@@ -1089,6 +1102,9 @@ func _finish_and_quit() -> void:
 			_errors.append("expected cast never fired: %s" % expected_id)
 	if _survival:
 		_score_survival()
+	elif _ffa or GameRuntime.is_ffa():
+		_score_ffa()
+	var roster := _ffa_roster() if (_ffa or GameRuntime.is_ffa()) else {}
 	var report := {
 		"elapsed": _elapsed,
 		"player_class": _player.class_id if _player != null else "",
@@ -1116,13 +1132,75 @@ func _finish_and_quit() -> void:
 			"min_hp_late": _min_hp_late,
 			"level": _player.level if _player != null else 0,
 			"xp": _player.current_xp if _player != null else 0,
+			"hero_kills": _player.hero_kills if _player != null else 0,
+			"alive": _player != null and _player.active and (_player.health == null or not _player.health.is_dead),
+			"ffa": roster,
 		},
 	}
 	var file := FileAccess.open(report_out, FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "  "))
 	file.close()
-	print("[SelfTestDriver] report → %s verdict=%s min_hp=%.2f late=%.2f saves=%d casts=%d buys=%d beaten=%d gold=%d lv=%d" % [report_out, _verdict, _min_hp_frac, _min_hp_late, _landmark_saves, _casts.size(), _shop_buys.size(), _beaten_wave, _player.gold if _player != null else 0, _player.level if _player != null else 0])
+	print("[SelfTestDriver] report → %s verdict=%s min_hp=%.2f late=%.2f saves=%d casts=%d buys=%d beaten=%d gold=%d lv=%d kills=%d" % [report_out, _verdict, _min_hp_frac, _min_hp_late, _landmark_saves, _casts.size(), _shop_buys.size(), _beaten_wave, _player.gold if _player != null else 0, _player.level if _player != null else 0, _player.hero_kills if _player != null else 0])
 	get_tree().quit(0)
+
+
+func _tick_ffa(_delta: float) -> void:
+	if _player == null:
+		return
+	var frac := _hp_frac()
+	_min_hp_frac = minf(_min_hp_frac, frac)
+	_max_hp_frac = maxf(_max_hp_frac, frac)
+	if _player.health != null and _player.health.is_dead:
+		_died = true
+	if _elapsed - _last_hp_sample_t < 5.0:
+		return
+	_last_hp_sample_t = _elapsed
+	_hp_samples.append({
+		"t": snappedf(_elapsed, 0.01),
+		"hp": snappedf(frac, 0.01),
+		"gold": _player.gold,
+		"kills": _player.hero_kills,
+		"alive": _player.active,
+		"class": _player.class_id,
+	})
+
+
+func _score_ffa() -> void:
+	var roster := _ffa_roster()
+	if not bool(roster.get("enabled", false)):
+		_verdict = "FAIL_NOT_FFA"
+		_errors.append("match was not FFA")
+		return
+	if int(roster.get("count", 0)) != 4:
+		_verdict = "FAIL_NO_ROSTER"
+		_errors.append("ffa roster count=%d want 4" % int(roster.get("count", 0)))
+		return
+	if _player == null:
+		_verdict = "FAIL_NO_PLAYER"
+		_errors.append("local player missing")
+		return
+	if not _requested_hero.is_empty() and _player.class_id != _requested_hero:
+		_verdict = "FAIL_WRONG_HERO"
+		_errors.append("local class=%s want %s" % [_player.class_id, _requested_hero])
+		return
+	var kills := int(_player.hero_kills)
+	var gold := int(_player.gold)
+	var alive := _player.active and (_player.health == null or not _player.health.is_dead)
+	var casts := _casts.size()
+	if casts <= 0 and gold < 10 and kills <= 0:
+		_verdict = "FAIL_IDLE"
+		_errors.append("never fought: casts=0 gold=%d kills=%d" % [gold, kills])
+		return
+	if not alive and kills <= 0:
+		_verdict = "WARN_DEAD"
+		return
+	if kills >= 1:
+		_verdict = "PASS_KILLS"
+		return
+	if alive and (casts >= 1 or gold >= 20):
+		_verdict = "PASS_OK"
+		return
+	_verdict = "WARN_QUIET"
 
 
 func _score_survival() -> void:

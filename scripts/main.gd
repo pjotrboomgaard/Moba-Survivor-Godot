@@ -108,7 +108,7 @@ var _ffa_shop_timer := 0.0
 var _ffa_status_timer := 0.0
 var _ffa_elapsed := 0.0
 var _ffa_bounty_timer := 0.0
-const FFA_BOUNTY_CAP := 8
+const FFA_BOUNTY_CAP := 4
 const FFA_BOUNTY_TYPES := ["brute", "hexer", "lurker", "sentinel", "splitter", "bomber"]
 const FFA_CPU_SHOP_SECONDS := 12.0
 var _ffa_world_wave := 1
@@ -1278,7 +1278,10 @@ func _spawn_xp_orb(position: Vector2, value: int) -> XPOrb:
 func _on_enemy_defeated(enemy: Enemy) -> void:
 	enemies.erase(enemy.network_id)
 	_spawn_xp_orb(enemy.global_position, enemy.xp_value)
-	if GameRuntime.is_rift_clash() and enemy.health.last_damage_source is Player:
+	if GameRuntime.is_ffa() and enemy.health.last_damage_source is Player:
+		var creep_killer := enemy.health.last_damage_source as Player
+		creep_killer.add_gold(maxi(1, int(round(float(enemy.gold_value) * 1.5))))
+	elif GameRuntime.is_rift_clash() and enemy.health.last_damage_source is Player:
 		var killer := enemy.health.last_damage_source as Player
 		if killer.team_id != "":
 			_award_gold_to_team(killer.team_id, enemy.gold_value)
@@ -2604,6 +2607,7 @@ func _on_ffa_player_died(peer_id: int) -> void:
 	var source := fallen.health.last_damage_source
 	if source is Player and source != fallen:
 		var killer := source as Player
+		killer.add_gold(GameRuntime.HERO_KILL_GOLD + fallen.last_death_gold_lost)
 		killer.hero_kills = RiftClashManager.record_hero_kill(killer.owner_peer_id)
 		print("[ffa] kill %s now %d/%d at %.0fs" % [
 			RiftClashManager.team_name(killer.team_id),

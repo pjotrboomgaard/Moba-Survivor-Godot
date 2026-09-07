@@ -32,8 +32,9 @@ var _anim := 0.0
 
 func _ready() -> void:
 	add_to_group("landmarks")
+	# Pads sit above grass (Arena _draw at z 0) and below Actors (heroes/creeps/VFX at 20).
 	z_as_relative = false
-	z_index = 28
+	z_index = 2
 	_ensure_children()
 	_apply_visuals()
 	set_process(true)
@@ -68,6 +69,8 @@ func _ensure_children() -> void:
 		hint.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
 		hint.add_theme_constant_override("outline_size", 4)
 		hint.visible = false
+		hint.z_as_relative = false
+		hint.z_index = 30
 		add_child(hint)
 
 
@@ -157,19 +160,29 @@ func _reset_after_cooldown() -> void:
 
 func _draw() -> void:
 	var accent := _accent_fallback()
-	# Chunky pixel pad: octagon floor + checker tiles so the stand reads as a shrine, not a glow.
-	var pad := _regular_polygon(Vector2.ZERO, STAND_RADIUS, 8)
-	draw_colored_polygon(pad, Color(0.05, 0.06, 0.08, 0.82))
-	draw_colored_polygon(_regular_polygon(Vector2.ZERO, STAND_RADIUS - 18.0, 8), Color(accent, 0.20))
-	var tile_span := int(floor(STAND_RADIUS / PAD_TILE)) - 1
-	for x in range(-tile_span, tile_span + 1):
-		for y in range(-tile_span, tile_span + 1):
-			var cell := Vector2(float(x), float(y)) * PAD_TILE
-			if cell.length() > STAND_RADIUS - 28.0:
-				continue
-			if (x + y) % 2 != 0:
-				continue
-			draw_rect(Rect2(cell - Vector2(PAD_TILE, PAD_TILE) * 0.38, Vector2(PAD_TILE, PAD_TILE) * 0.76), Color(accent, 0.10), true)
+	var pad_tex := SpriteLibrary.texture_for("landmark_pad")
+	if pad_tex != null:
+		var size := Vector2(pad_tex.get_width(), pad_tex.get_height()) * 2.0
+		var span := int(ceil(STAND_RADIUS / size.x)) + 1
+		for x in range(-span, span + 1):
+			for y in range(-span, span + 1):
+				var cell := Vector2(float(x), float(y)) * size
+				if cell.length() > STAND_RADIUS - 10.0:
+					continue
+				draw_texture_rect(pad_tex, Rect2(cell - size * 0.5, size), false)
+	else:
+		var pad := _regular_polygon(Vector2.ZERO, STAND_RADIUS, 8)
+		draw_colored_polygon(pad, Color(0.05, 0.06, 0.08, 0.82))
+		draw_colored_polygon(_regular_polygon(Vector2.ZERO, STAND_RADIUS - 18.0, 8), Color(accent, 0.20))
+		var tile_span := int(floor(STAND_RADIUS / PAD_TILE)) - 1
+		for x in range(-tile_span, tile_span + 1):
+			for y in range(-tile_span, tile_span + 1):
+				var cell := Vector2(float(x), float(y)) * PAD_TILE
+				if cell.length() > STAND_RADIUS - 28.0:
+					continue
+				if (x + y) % 2 != 0:
+					continue
+				draw_rect(Rect2(cell - Vector2(PAD_TILE, PAD_TILE) * 0.38, Vector2(PAD_TILE, PAD_TILE) * 0.76), Color(accent, 0.10), true)
 	for index in 8:
 		var a0 := TAU * float(index) / 8.0 + PI / 8.0
 		var a1 := TAU * float(index + 1) / 8.0 + PI / 8.0

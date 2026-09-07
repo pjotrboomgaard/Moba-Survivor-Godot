@@ -94,12 +94,28 @@ func _write_contact_sheet(sprites: Dictionary) -> void:
 ## toning, so the default grass world rendered saturated. Tone exactly those here;
 ## the tw_ biome variants are already toned inside ToborWorldArt.all_sprites().
 const CLASSIC_TERRAIN := [
-	"grass_tile", "grass_tuft", "grass_flower", "grass_bloom",
+	"grass_tile", "grass_tuft", "grass_long", "grass_flower", "grass_bloom",
+	"grass_lush", "grass_meadow", "dirt_tile",
+	"tree_oak", "tree_pine", "tree_dead", "tree_pipe", "tree_piling",
 	"rock_small", "rock_large", "boulder", "spire", "void_tile",
+]
+## Kenney Tiny Town bushes/pads only. Trees and rocks are SpriteArt so they
+## stay transparent pixel props instead of grass-backed town tiles.
+const IMPORTED_TERRAIN := [
+	"grass_bush", "grass_mushroom", "landmark_pad",
 ]
 
 
+func _is_imported(sprite_name: String) -> bool:
+	for key in IMPORTED_TERRAIN:
+		if sprite_name == key or sprite_name.ends_with("_%s" % key):
+			return true
+	return false
+
+
 func _write_sprite(sprite_name: String, sprite: Dictionary) -> bool:
+	if _is_imported(str(sprite_name)):
+		return true
 	var rows: Array = sprite.rows
 	var palette: Dictionary = sprite.palette
 	if CLASSIC_TERRAIN.has(sprite_name):

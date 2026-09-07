@@ -58,7 +58,12 @@ const ITEMS: Array[Dictionary] = [
 		"max_stacks": SHOP_MAX_STACKS,
 		"health_regen_per_second": 1.5,
 		"health_regen_per_second_step": 1.0,
-		"heroes": TOBOR_ONLY,
+		"heroes": ALL_HEROES,
+		"alias": {
+			"arclight": {"name": "Feathered Cloak", "description": "+1.5 HP/s. Ranks 2-5: more regen."},
+			"bulwark": {"name": "Mending Plating", "description": "+1.5 HP/s. Ranks 2-5: more regen."},
+			"warden": {"name": "Mossy Vestment", "description": "+1.5 HP/s. Ranks 2-5: more regen."},
+		},
 	},
 	{
 		"id": "romp",
@@ -69,7 +74,12 @@ const ITEMS: Array[Dictionary] = [
 		"max_stacks": SHOP_MAX_STACKS,
 		"jetpack_slam": 32.0,
 		"jetpack_slam_step": 18.0,
-		"heroes": TOBOR_ONLY,
+		"heroes": ALL_HEROES,
+		"alias": {
+			"arclight": {"name": "Charge Booster", "description": "Hops every 2s. Landing slams enemies. Ranks 2-5: harder slam."},
+			"bulwark": {"name": "Siege Boots", "description": "Hops every 2s. Landing slams enemies. Ranks 2-5: harder slam."},
+			"warden": {"name": "Glider Tunic", "description": "Hops every 2s. Landing slams enemies. Ranks 2-5: harder slam."},
+		},
 	},
 	{
 		"id": "armen",
@@ -106,7 +116,7 @@ const ITEMS: Array[Dictionary] = [
 	{
 		"id": "hoverboard",
 		"name": "Hoverboard",
-		"description": "+45% move speed. Press C to hop over rocks and lava (lava still burns if you land in it). Wings lengthen the hang. Ranks 2-5: more speed.",
+		"description": "+45% move speed. Press Space (or C) to hop over rocks, trees, and lava. Wings lengthen the hang. Ranks 2-5: more speed.",
 		"base_price": 82,
 		"price_step": 55,
 		"max_stacks": SHOP_MAX_STACKS,

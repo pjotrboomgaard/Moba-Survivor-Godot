@@ -1,0 +1,111 @@
+{
+  "effects": [
+    {
+      "ability_id": "thorn_poison_spray",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "cast_thorn",
+      "kind": "sound_probe",
+      "label": "sfx_spray",
+      "last_play_ability": "thorn_poison_spray",
+      "last_play_sound_id": "cast_thorn",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/thorn.wav",
+      "t": 3.41456966666666
+    },
+    {
+      "abilities": [
+        {
+          "id": "thorn_poison_spray",
+          "rank": 1
+        },
+        {
+          "id": "thorn_toxicity",
+          "rank": 1
+        },
+        {
+          "id": "thorn_toxin_ward",
+          "rank": 1
+        },
+        {
+          "id": "thorn_poison_burst",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        21.3733333333334,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 4,
+      "hero": "thorn",
+      "hp": 104.05,
+      "hp_frac": 0.904782608695656,
+      "hp_max": 115.0,
+      "kind": "probe",
+      "label": "after_spray",
+      "last_tapped": 0,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 4.81694799999999
+    }
+  ],
+  "elapsed": 5.50178488888888,
+  "enemies_spawned": 4,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "thorn",
+  "results": {
+    "beaten_wave": 0,
+    "cast_count": 1,
+    "casts": [
+      {
+        "ability_id": "thorn_poison_spray",
+        "t": 3.15026066666666
+      }
+    ],
+    "died": false,
+    "errors": [],
+    "gold": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "thorn_pre",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6932/thorn_pre_2.816_6932.png",
+      "t": 2.81591899999999
+    },
+    {
+      "label": "thorn_cone_peak",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7452/thorn_cone_peak_3.350_7452.png",
+      "t": 3.35026066666666
+    },
+    {
+      "label": "thorn_cone_linger",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8105/thorn_cone_linger_4.006_8105.png",
+      "t": 4.00605766666666
+    },
+    {
+      "label": "thorn_poison_tint",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8813/thorn_poison_tint_4.711_8813.png",
+      "t": 4.71090733333332
+    }
+  ]
+}

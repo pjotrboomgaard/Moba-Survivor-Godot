@@ -1,0 +1,547 @@
+{
+  "effects": [
+    {
+      "kind": "landmarks",
+      "label": "ffa_landmarks",
+      "list": [
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "heal_all",
+          "fill": 0.0,
+          "hint": "Wild Spring",
+          "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "freeze_time",
+          "fill": 0.0,
+          "hint": "Root Stone",
+          "pos": "(0.0, 1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
+          "ready": true
+        }
+      ],
+      "t": 1.000847
+    },
+    {
+      "abilities": [
+        {
+          "id": "pyra_sticky_bomb",
+          "rank": 4
+        },
+        {
+          "id": "pyra_boom_dust",
+          "rank": 1
+        },
+        {
+          "id": "pyra_bombardment",
+          "rank": 1
+        },
+        {
+          "id": "pyra_air_strike",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        20.5096666666667,
+        0.0,
+        0.0,
+        267.616666666668
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2790.0,
+              -1871.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2968.0,
+              -1904.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2902.0,
+              1978.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              3216.0,
+              2379.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "pyra",
+      "hp": 159.5,
+      "hp_frac": 1.0,
+      "hp_max": 159.5,
+      "kind": "probe",
+      "label": "ffa_start",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 1,
+      "t": 1.20968566666667
+    },
+    {
+      "abilities": [
+        {
+          "id": "pyra_sticky_bomb",
+          "rank": 4
+        },
+        {
+          "id": "pyra_boom_dust",
+          "rank": 1
+        },
+        {
+          "id": "pyra_bombardment",
+          "rank": 1
+        },
+        {
+          "id": "pyra_air_strike",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        18.4486436666668,
+        32.4600000000012,
+        79.2400000000012,
+        244.816666666669
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2490.0,
+              -1336.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2655.0,
+              -1301.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2795.0,
+              1246.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -1569.0,
+              2535.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "pyra",
+      "hp": 153.2,
+      "hp_frac": 0.960501567398119,
+      "hp_max": 159.5,
+      "kind": "probe",
+      "label": "ffa_mid",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 24.0125763333334
+    },
+    {
+      "abilities": [
+        {
+          "id": "pyra_sticky_bomb",
+          "rank": 4
+        },
+        {
+          "id": "pyra_boom_dust",
+          "rank": 1
+        },
+        {
+          "id": "pyra_bombardment",
+          "rank": 1
+        },
+        {
+          "id": "pyra_air_strike",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        11.0237333333331,
+        8.96000000000179,
+        55.7400000000025,
+        221.316666666651
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 1,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -695.0,
+              336.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2445.0,
+              -382.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -429.0,
+              80.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -823.0,
+              348.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "pyra",
+      "hp": 46.1433333333335,
+      "hp_frac": 0.289299895506793,
+      "hp_max": 159.5,
+      "kind": "probe",
+      "label": "ffa_end",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 1,
+      "t": 47.5092592592593
+    }
+  ],
+  "elapsed": 48.0086739595959,
+  "enemies_spawned": 0,
+  "hero_position": "(-781.7976, 352.913)",
+  "player_class": "pyra",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "cast_count": 6,
+    "casts": [
+      {
+        "ability_id": "pyra_sticky_bomb",
+        "t": 0.0
+      },
+      {
+        "ability_id": "pyra_air_strike",
+        "t": 0.608149555555556
+      },
+      {
+        "ability_id": "pyra_boom_dust",
+        "t": 2.69814814814814
+      },
+      {
+        "ability_id": "pyra_bombardment",
+        "t": 3.39034271428571
+      },
+      {
+        "ability_id": "pyra_sticky_bomb",
+        "t": 21.6599256666667
+      },
+      {
+        "ability_id": "pyra_sticky_bomb",
+        "t": 42.9104826666666
+      }
+    ],
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "pyra",
+          "cpu": true,
+          "kills": 1,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            -782.0,
+            353.0
+          ],
+          "team": "0"
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            2442.0,
+            -380.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": false,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -429.0,
+            80.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            -914.0,
+            403.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 991,
+    "hero_kills": 1,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 16,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.16
+      },
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 46,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.17
+      },
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 52,
+        "hp": 0.96,
+        "kills": 0,
+        "t": 15.19
+      },
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 96,
+        "hp": 0.96,
+        "kills": 0,
+        "t": 20.22
+      },
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 136,
+        "hp": 0.96,
+        "kills": 0,
+        "t": 25.24
+      },
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 182,
+        "hp": 0.89,
+        "kills": 0,
+        "t": 30.25
+      },
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 190,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 35.25
+      },
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 280,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 40.26
+      },
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 298,
+        "hp": 0.98,
+        "kills": 0,
+        "t": 45.27
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 6,
+    "max_hp": 1.0,
+    "min_hp": 0.289299895506793,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "PASS_KILLS",
+    "wave": 1,
+    "xp": 125
+  },
+  "shots": []
+}

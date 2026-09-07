@@ -445,8 +445,14 @@ const _DOCKS_TILE := [
 const TERRAIN_PALETTES := {
 	"grass_tile": {"a": "5c5044", "b": "6e5e4e", "c": "4a4038", "d": "e08a3a"},
 	"grass_tuft": {"c": "3a3028", "d": "2a2018", "l": "c45a20"},
+	"grass_long": {"c": "3a3028", "d": "2a2018", "l": "c45a20", "h": "e85a2a"},
 	"grass_flower": {"c": "6e5e4e", "d": "e8e4d8", "p": "f6f1e4", "w": "ffffff"},
 	"grass_bloom": {"c": "6e5e4e", "d": "c43018", "y": "e85a2a", "w": "ffe08c"},
+	"tree_oak": {"o": "1a140c", "t": "6b4a2c", "s": "3a2818", "m": "2f5a28", "l": "4a8a38", "h": "7ab84a", "g": "3f6a37"},
+	"tree_pine": {"o": "14180c", "t": "5a3c22", "s": "2a2010", "m": "1e4a24", "l": "2f6a30", "h": "5a9a40", "w": "e8f0d8"},
+	"tree_dead": {"o": "1a0c08", "t": "4a2a18", "s": "2a1810", "m": "3a2214", "l": "6b3a20", "h": "c45a20", "w": "ffe08c"},
+	"tree_pipe": {"o": "101418", "t": "3a4656", "s": "1a1e24", "m": "5a6270", "l": "8b95a1", "h": "2bbfbe", "w": "e85a2a"},
+	"tree_piling": {"o": "1a1210", "t": "6b4a1a", "s": "3a2a10", "m": "8a6230", "l": "c9a227", "h": "2f8fb0", "w": "dfe6f2"},
 	"rock_small": {"o": "1a1210", "s": "6b4a1a", "m": "c9a227", "h": "ffe08c", "g": "3a2a10"},
 	"rock_large": {"o": "121418", "s": "3a4656", "m": "5a6270", "h": "8b95a1", "g": "2bbfbe"},
 	"boulder": {"o": "121418", "s": "3a2a10", "m": "6b4a1a", "h": "c9a227", "g": "2a2010"},
@@ -472,6 +478,16 @@ const TERRAIN_ROWS := {
 		"...c....",
 		"........",
 	],
+	"grass_long": [
+		"........",
+		"..h.l.h.",
+		".h.l.h.l",
+		".lhdhlh.",
+		".ldcd.l.",
+		"..dccd..",
+		"...cc...",
+		"........",
+	],
 	"grass_flower": [
 		"........",
 		"........",
@@ -491,6 +507,96 @@ const TERRAIN_ROWS := {
 		"..dcd...",
 		"...c....",
 		"........",
+	],
+	"tree_oak": [
+		"................",
+		".....hhhhhh.....",
+		"....hhllllhh....",
+		"...hllmmmmllh...",
+		"..hllmmmmmmllh..",
+		"..hlmmggggmmlh..",
+		"...hllmmmmllh...",
+		"....hhllllhh....",
+		"......gttg......",
+		"......stts......",
+		"......stts......",
+		"......stts......",
+		"......stts......",
+		".....osssso.....",
+		"................",
+		"................",
+	],
+	"tree_pine": [
+		".......hh.......",
+		"......hllh......",
+		".....hllllh.....",
+		"....hlmmmmlh....",
+		".....hllllh.....",
+		"....hlmmmmlh....",
+		"...hllmmmmllh...",
+		"....hllllllh....",
+		"......stts......",
+		"......stts......",
+		"......stts......",
+		"......stts......",
+		".....osssso.....",
+		"................",
+		"................",
+		"................",
+	],
+	"tree_dead": [
+		"........h.......",
+		".......hlh......",
+		"......h.lh......",
+		".....tt.l.......",
+		"....ttt.........",
+		"...sttt.........",
+		"...stts.h.......",
+		"...sttsl........",
+		"...stts.........",
+		"...stts.........",
+		"...stts.........",
+		"..osssso........",
+		"................",
+		"................",
+		"................",
+		"................",
+	],
+	"tree_pipe": [
+		"................",
+		"......llll......",
+		".....lhhhhl.....",
+		".....lmhwhl.....",
+		".....lhhhhl.....",
+		"......wwww......",
+		"......smmms.....",
+		"......smmms.....",
+		"......shhhs.....",
+		"......smmms.....",
+		"......smmms.....",
+		"......oooo......",
+		"................",
+		"................",
+		"................",
+		"................",
+	],
+	"tree_piling": [
+		"................",
+		".....hhhhhh.....",
+		"....hllllllh....",
+		".....hhhhhh.....",
+		"......stts......",
+		"......stts......",
+		"......swws......",
+		"......stts......",
+		"......stts......",
+		"......stts......",
+		"......stts......",
+		".....osssso.....",
+		"................",
+		"................",
+		"................",
+		"................",
 	],
 	"rock_small": [
 		"................",
@@ -650,10 +756,10 @@ const BIOME_VOID_PALETTES := {
 }
 
 const BIOME_DECAL_PALETTES := {
-	"volcano": {"c": "3a1c14", "d": "e85a2a", "l": "ff7a29", "p": "ffdc4d", "w": "fff3b0", "y": "ff7a29"},
-	"ice": {"c": "9cbcd4", "d": "d0e8f6", "l": "ffffff", "p": "e8f6ff", "w": "ffffff", "y": "b8d4e8"},
-	"factory": {"c": "4a4a52", "d": "2bbfbe", "l": "e85a2a", "p": "8b95a1", "w": "dfe6f2", "y": "ffe14a"},
-	"docks": {"c": "8a6230", "d": "2f8fb0", "l": "c9a227", "p": "dfe6f2", "w": "ffffff", "y": "4f8fe0"},
+	"volcano": {"c": "3a1c14", "d": "e85a2a", "l": "ff7a29", "p": "ffdc4d", "w": "fff3b0", "y": "ff7a29", "h": "ff9a40"},
+	"ice": {"c": "9cbcd4", "d": "d0e8f6", "l": "ffffff", "p": "e8f6ff", "w": "ffffff", "y": "b8d4e8", "h": "ffffff"},
+	"factory": {"c": "4a4a52", "d": "2bbfbe", "l": "e85a2a", "p": "8b95a1", "w": "dfe6f2", "y": "ffe14a", "h": "2bbfbe"},
+	"docks": {"c": "8a6230", "d": "2f8fb0", "l": "c9a227", "p": "dfe6f2", "w": "ffffff", "y": "4f8fe0", "h": "dfe6f2"},
 }
 
 const BIOME_ROCK_PALETTES := {
@@ -661,6 +767,13 @@ const BIOME_ROCK_PALETTES := {
 	"ice": {"o": "3a5068", "s": "7aa0b8", "m": "b8d4e8", "h": "e8f6ff", "g": "ffffff", "w": "d0e8f6"},
 	"factory": {"o": "101418", "s": "3a3a40", "m": "5a6270", "h": "8b95a1", "g": "2bbfbe", "w": "e85a2a"},
 	"docks": {"o": "1a1210", "s": "3a2a10", "m": "6b4a1a", "h": "c9a227", "g": "2f8fb0", "w": "dfe6f2"},
+}
+
+const BIOME_TREE_PALETTES := {
+	"volcano": {"o": "1a0808", "t": "4a2a18", "s": "2a1810", "m": "3a2214", "l": "6b3a20", "h": "c45a20", "g": "e85a2a", "w": "ffe08c"},
+	"ice": {"o": "3a5068", "t": "7aa0b8", "s": "5a7088", "m": "8ab0c8", "l": "c8dcec", "h": "e8f6ff", "g": "ffffff", "w": "ffffff"},
+	"factory": {"o": "101418", "t": "3a4656", "s": "1a1e24", "m": "5a6270", "l": "8b95a1", "h": "2bbfbe", "g": "e85a2a", "w": "e85a2a"},
+	"docks": {"o": "1a1210", "t": "6b4a1a", "s": "3a2a10", "m": "8a6230", "l": "c9a227", "h": "2f8fb0", "g": "dfe6f2", "w": "dfe6f2"},
 }
 
 const _VOLCANO_TILE := [
@@ -955,8 +1068,14 @@ static func all_sprites() -> Dictionary:
 		sprites["%s_grass_tile" % biome] = {"rows": tiles[biome], "palette": _tone_terrain(BIOME_TILE_PALETTES[biome])}
 		sprites["%s_void_tile" % biome] = {"rows": voids[biome], "palette": _tone_terrain(BIOME_VOID_PALETTES[biome])}
 		sprites["%s_grass_tuft" % biome] = {"rows": tufts[biome], "palette": _tone_terrain(BIOME_DECAL_PALETTES[biome])}
+		sprites["%s_grass_long" % biome] = {"rows": TERRAIN_ROWS.grass_long, "palette": _tone_terrain(BIOME_DECAL_PALETTES[biome])}
 		sprites["%s_grass_flower" % biome] = {"rows": TERRAIN_ROWS.grass_flower, "palette": _tone_terrain(BIOME_DECAL_PALETTES[biome])}
 		sprites["%s_grass_bloom" % biome] = {"rows": TERRAIN_ROWS.grass_bloom, "palette": _tone_terrain(BIOME_DECAL_PALETTES[biome])}
+		sprites["%s_tree_oak" % biome] = {"rows": TERRAIN_ROWS.tree_oak, "palette": _tone_terrain(BIOME_TREE_PALETTES[biome])}
+		sprites["%s_tree_pine" % biome] = {"rows": TERRAIN_ROWS.tree_pine, "palette": _tone_terrain(BIOME_TREE_PALETTES[biome])}
+		sprites["%s_tree_dead" % biome] = {"rows": TERRAIN_ROWS.tree_dead, "palette": _tone_terrain(BIOME_TREE_PALETTES[biome])}
+		sprites["%s_tree_pipe" % biome] = {"rows": TERRAIN_ROWS.tree_pipe, "palette": _tone_terrain(BIOME_TREE_PALETTES[biome])}
+		sprites["%s_tree_piling" % biome] = {"rows": TERRAIN_ROWS.tree_piling, "palette": _tone_terrain(BIOME_TREE_PALETTES[biome])}
 		sprites["%s_rock_small" % biome] = {"rows": rocks[biome], "palette": _tone_terrain(BIOME_ROCK_PALETTES[biome])}
 		sprites["%s_rock_large" % biome] = {"rows": TERRAIN_ROWS.rock_large, "palette": _tone_terrain(BIOME_ROCK_PALETTES[biome])}
 		sprites["%s_boulder" % biome] = {"rows": TERRAIN_ROWS.boulder, "palette": _tone_terrain(BIOME_ROCK_PALETTES[biome])}

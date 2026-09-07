@@ -1,0 +1,74 @@
+{
+  "effects": [
+    {
+      "cd_left": 345.45,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.85779699999999
+    },
+    {
+      "ability_id": "rime_freezing_field",
+      "assert_ability_match": true,
+      "assert_bank_match": false,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_rime",
+      "kind": "sound_probe",
+      "label": "sfx_r",
+      "last_play_ability": "rime_freezing_field",
+      "last_play_sound_id": "xp",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/sfx/xp.ogg",
+      "t": 5.26619033333332
+    }
+  ],
+  "elapsed": 5.90972499999999,
+  "enemies_spawned": 3,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "rime",
+  "results": {
+    "beaten_wave": 0,
+    "cast_count": 2,
+    "casts": [
+      {
+        "ability_id": "rime_ice_imprisonment",
+        "t": 3.06180899999999
+      },
+      {
+        "ability_id": "rime_freezing_field",
+        "t": 4.70272799999999
+      }
+    ],
+    "died": false,
+    "errors": [],
+    "gold": 32,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 30
+  },
+  "shots": [
+    {
+      "label": "rime_q_cage",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7409/rime_q_cage_3.313_7409.png",
+      "t": 3.31280266666666
+    },
+    {
+      "label": "rime_r_freeze_field",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9242/rime_r_freeze_field_5.158_9242.png",
+      "t": 5.15794966666666
+    }
+  ]
+}

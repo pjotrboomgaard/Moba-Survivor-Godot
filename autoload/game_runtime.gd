@@ -59,6 +59,8 @@ var team_mode: TeamMode = TeamMode.NONE
 
 const FFA_KILLS_TO_WIN := 15
 const FFA_RESPAWN_SECONDS := 30.0
+## Flat gold paid to the hero who landed a player kill, on top of the victim's lost purse.
+const HERO_KILL_GOLD := 500
 const FFA_PVP_INVULN_SECONDS := 30.0
 const FFA_PVP_SHIELD_FLICKER_SECONDS := 5.0
 const FFA_CLASS_ID := "tobor"

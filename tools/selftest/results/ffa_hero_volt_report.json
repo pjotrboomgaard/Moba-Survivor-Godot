@@ -1,0 +1,551 @@
+{
+  "effects": [
+    {
+      "kind": "landmarks",
+      "label": "ffa_landmarks",
+      "list": [
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "heal_all",
+          "fill": 0.0,
+          "hint": "Wild Spring",
+          "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "freeze_time",
+          "fill": 0.0,
+          "hint": "Root Stone",
+          "pos": "(0.0, 1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
+          "ready": true
+        }
+      ],
+      "t": 1.00563421212121
+    },
+    {
+      "abilities": [
+        {
+          "id": "volt_gust",
+          "rank": 3
+        },
+        {
+          "id": "volt_plasma_bolt",
+          "rank": 1
+        },
+        {
+          "id": "volt_wind_shield",
+          "rank": 1
+        },
+        {
+          "id": "volt_typhoon",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "volt",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2755.0,
+              -1887.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2975.0,
+              -1888.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2867.0,
+              1926.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              3164.0,
+              2373.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "volt",
+      "hp": 159.5,
+      "hp_frac": 1.0,
+      "hp_max": 159.5,
+      "kind": "probe",
+      "label": "ffa_start",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 1.2
+    },
+    {
+      "abilities": [
+        {
+          "id": "volt_gust",
+          "rank": 3
+        },
+        {
+          "id": "volt_plasma_bolt",
+          "rank": 1
+        },
+        {
+          "id": "volt_wind_shield",
+          "rank": 1
+        },
+        {
+          "id": "volt_typhoon",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        11.0033333333339,
+        16.4945,
+        31.5600000000009,
+        187.026666666651
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "volt",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -1793.0,
+              -977.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              1380.0,
+              -1213.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2644.0,
+              1649.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -1942.0,
+              2776.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "volt",
+      "hp": 153.2,
+      "hp_frac": 0.960501567398119,
+      "hp_max": 159.5,
+      "kind": "probe",
+      "label": "ffa_mid",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 24.0222222222222
+    },
+    {
+      "abilities": [
+        {
+          "id": "volt_gust",
+          "rank": 3
+        },
+        {
+          "id": "volt_plasma_bolt",
+          "rank": 1
+        },
+        {
+          "id": "volt_wind_shield",
+          "rank": 1
+        },
+        {
+          "id": "volt_typhoon",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        20.1184000000001,
+        15.2945,
+        8.07666666666801,
+        163.543333333298
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "volt",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -508.0,
+              421.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              1469.0,
+              -1080.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -789.0,
+              534.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -646.0,
+              401.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "volt",
+      "hp": 143.75,
+      "hp_frac": 0.901253918495298,
+      "hp_max": 159.5,
+      "kind": "probe",
+      "label": "ffa_end",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 47.5030303030302
+    }
+  ],
+  "elapsed": 48.0248219999999,
+  "enemies_spawned": 0,
+  "hero_position": "(-513.1943, 425.8918)",
+  "player_class": "volt",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "cast_count": 7,
+    "casts": [
+      {
+        "ability_id": "volt_typhoon",
+        "t": 3.670386
+      },
+      {
+        "ability_id": "volt_gust",
+        "t": 4.28538000000001
+      },
+      {
+        "ability_id": "volt_plasma_bolt",
+        "t": 6.41137833333335
+      },
+      {
+        "ability_id": "volt_wind_shield",
+        "t": 8.94242424242425
+      },
+      {
+        "ability_id": "volt_plasma_bolt",
+        "t": 23.4443186666667
+      },
+      {
+        "ability_id": "volt_gust",
+        "t": 45.4999999999999
+      },
+      {
+        "ability_id": "volt_plasma_bolt",
+        "t": 45.7232619999999
+      }
+    ],
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "volt",
+          "cpu": true,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            -513.0,
+            426.0
+          ],
+          "team": "0"
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            1469.0,
+            -1009.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": false,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -789.0,
+            534.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            -658.0,
+            460.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 337,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "volt",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.14
+      },
+      {
+        "alive": true,
+        "class": "volt",
+        "gold": 12,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "volt",
+        "gold": 42,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.15
+      },
+      {
+        "alive": true,
+        "class": "volt",
+        "gold": 72,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 15.15
+      },
+      {
+        "alive": true,
+        "class": "volt",
+        "gold": 82,
+        "hp": 0.96,
+        "kills": 0,
+        "t": 20.2
+      },
+      {
+        "alive": true,
+        "class": "volt",
+        "gold": 162,
+        "hp": 0.96,
+        "kills": 0,
+        "t": 25.22
+      },
+      {
+        "alive": true,
+        "class": "volt",
+        "gold": 184,
+        "hp": 0.9,
+        "kills": 0,
+        "t": 30.28
+      },
+      {
+        "alive": true,
+        "class": "volt",
+        "gold": 184,
+        "hp": 0.9,
+        "kills": 0,
+        "t": 35.33
+      },
+      {
+        "alive": true,
+        "class": "volt",
+        "gold": 184,
+        "hp": 0.9,
+        "kills": 0,
+        "t": 40.34
+      },
+      {
+        "alive": true,
+        "class": "volt",
+        "gold": 189,
+        "hp": 0.9,
+        "kills": 0,
+        "t": 45.36
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 4,
+    "max_hp": 1.0,
+    "min_hp": 0.86833855799373,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 1,
+    "xp": 131
+  },
+  "shots": []
+}

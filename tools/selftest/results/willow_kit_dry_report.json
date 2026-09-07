@@ -1,56 +1,75 @@
 {
   "effects": [
     {
-      "cd_left": 28.1,
+      "cd_left": 27.9666666666667,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 0.152505
+      "t": 0.266666666666667
     }
   ],
-  "elapsed": 9.00666100000014,
+  "elapsed": 9.00459366666672,
   "enemies_spawned": 4,
-  "hero_position": "(362.3323, -88.76199)",
+  "hero_position": "(374.1116, -105.4922)",
   "player_class": "willow",
   "results": {
+    "beaten_wave": 0,
+    "cast_count": 4,
     "casts": [
       {
         "ability_id": "willow_swift_strike",
-        "t": 0.133333333333333
+        "t": 0.15
       },
       {
         "ability_id": "willow_forsaken_shot",
-        "t": 2.16498699999999
+        "t": 2.15458733333333
       },
       {
         "ability_id": "willow_volley",
-        "t": 4.165466
+        "t": 4.154583
+      },
+      {
+        "ability_id": "willow_wall_of_roots",
+        "t": 6.15465300000005
       }
     ],
-    "errors": [
-      "expected cast never fired: willow_strangling_vines"
-    ]
+    "died": false,
+    "errors": [],
+    "gold": 44,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 2,
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 5
   },
   "shots": [
     {
       "label": "t1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2171/t1_1.007_2171.png",
-      "t": 1.00707133333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3212/t1_1.005_3212.png",
+      "t": 1.00456633333333
     },
     {
       "label": "t3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4162/t3_3.007_4162.png",
-      "t": 3.00665033333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5217/t3_3.005_5217.png",
+      "t": 3.00471966666666
     },
     {
       "label": "t5",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6164/t5_5.007_6164.png",
-      "t": 5.00714100000004
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7228/t5_5.003_7228.png",
+      "t": 5.00303030303032
     },
     {
       "label": "t8",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9163/t8_8.007_9163.png",
-      "t": 8.00663633333351
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10223/t8_8.004_10223.png",
+      "t": 8.00395925925936
     }
   ]
 }

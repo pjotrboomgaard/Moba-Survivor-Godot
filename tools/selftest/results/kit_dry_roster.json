@@ -1,0 +1,114 @@
+[
+    {
+        "hero":  "tobor",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  "expected cast never fired: tobor_energy_absorption"
+    },
+    {
+        "hero":  "arclight",
+        "exit":  0,
+        "casts":  14,
+        "died":  false,
+        "errors":  ""
+    },
+    {
+        "hero":  "bulwark",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  ""
+    },
+    {
+        "hero":  "warden",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  "expected cast never fired: warden_mending_wave"
+    },
+    {
+        "hero":  "cinder",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  ""
+    },
+    {
+        "hero":  "pyra",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  ""
+    },
+    {
+        "hero":  "slag",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  "expected cast never fired: slag_lava_surge"
+    },
+    {
+        "hero":  "ember",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  "expected cast never fired: ember_storm_cloud"
+    },
+    {
+        "hero":  "thorn",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  ""
+    },
+    {
+        "hero":  "willow",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  ""
+    },
+    {
+        "hero":  "stump",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  "expected cast never fired: stump_natures_veil"
+    },
+    {
+        "hero":  "sage",
+        "exit":  2,
+        "casts":  0,
+        "died":  false,
+        "errors":  ""
+    },
+    {
+        "hero":  "volt",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  "expected cast never fired: volt_wind_control"
+    },
+    {
+        "hero":  "nebula",
+        "exit":  0,
+        "casts":  3,
+        "died":  false,
+        "errors":  "expected cast never fired: nebula_curse_of_ages | expected cast never fired: nebula_rewind"
+    },
+    {
+        "hero":  "astral",
+        "exit":  0,
+        "casts":  4,
+        "died":  false,
+        "errors":  "expected cast never fired: astral_ward_of_light | expected cast never fired: astral_spirit_bond"
+    },
+    {
+        "hero":  "rime",
+        "exit":  0,
+        "casts":  9,
+        "died":  false,
+        "errors":  ""
+    }
+]

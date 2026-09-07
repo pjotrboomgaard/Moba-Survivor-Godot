@@ -1,0 +1,6 @@
+[gd_scene load=3 format=3 uid="uid://ui_verify_driver_scene"]
+
+[ext_resource type="Script" path="res://tools/selftest/ui_verify/ui_verify_driver.gd" id="1_script"]
+
+[node name="UIViewerDriver" type="Node"]
+script = ExtResource("1_script")

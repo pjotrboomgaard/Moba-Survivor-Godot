@@ -1,72 +1,98 @@
 {
   "effects": [
     {
-      "cd_left": 38.024,
+      "cd_left": 20.0768333333333,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 0.150519
+      "t": 0.2
     },
     {
-      "cd_left": 57.5166666666667,
+      "cd_left": 57.5,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 2.15827357575757
+      "t": 2.1538243030303
     },
     {
-      "cd_left": 230.316666666667,
+      "cd_left": 37.924,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 4.15621333333333
+    },
+    {
+      "cd_left": 230.3,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 6.15236633333342
+      "t": 6.15757575757582
     }
   ],
-  "elapsed": 9.00174000000014,
+  "elapsed": 9.00000000000012,
   "enemies_spawned": 4,
-  "hero_position": "(461.5563, -128.8032)",
+  "hero_position": "(72.0, 0.0)",
   "player_class": "slag",
   "results": {
+    "beaten_wave": 0,
+    "cast_count": 4,
     "casts": [
       {
-        "ability_id": "slag_steam_bath",
-        "t": 0.133333333333333
+        "ability_id": "slag_boulder_hurl",
+        "t": 0.149936
       },
       {
         "ability_id": "slag_volcanic_touch",
-        "t": 2.0666069090909
+        "t": 2.0538243030303
       },
       {
-        "ability_id": "slag_lava_surge",
-        "t": 4.160326
+        "ability_id": "slag_steam_bath",
+        "t": 4.05623033333333
       },
       {
         "ability_id": "slag_eruption",
-        "t": 6.06069966666675
+        "t": 6.05562690909098
       }
     ],
-    "errors": []
+    "died": false,
+    "errors": [
+      "expected cast never fired: slag_lava_surge"
+    ],
+    "gold": 40,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 2,
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 35
   },
   "shots": [
     {
       "label": "t1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2162/t1_1.002_2162.png",
-      "t": 1.00177033333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3314/t1_1.003_3314.png",
+      "t": 1.0030303030303
     },
     {
       "label": "t3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4163/t3_3.008_4163.png",
-      "t": 3.00827357575757
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5299/t3_3.001_5299.png",
+      "t": 3.00075757575757
     },
     {
       "label": "t5",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6164/t5_5.003_6164.png",
-      "t": 5.00275024242428
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7300/t5_5.006_7300.png",
+      "t": 5.00630400000004
     },
     {
       "label": "t8",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9163/t8_8.002_9163.png",
-      "t": 8.00236633333351
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10302/t8_8.006_10302.png",
+      "t": 8.00562690909105
     }
   ]
 }

@@ -144,6 +144,8 @@ const LAVA_DUNK_BURN_DPS := 22.0
 const LAVA_DUNK_BURN_DURATION := 4.0
 const LAVA_SCRAMBLE_SPEED_MULT := 0.45
 const KNOCKBACK_FLIGHT_THRESHOLD := 60.0
+var _target_refresh_timer := 0.0
+const TARGET_REFRESH_INTERVAL := 0.4
 
 
 func _ready() -> void:
@@ -357,7 +359,10 @@ func _physics_process(delta: float) -> void:
 			# the player can choose to kill it small or let it grow into a real problem.
 			_process_wander(delta)
 			return
-	target = _find_nearest_player()
+	_target_refresh_timer -= delta
+	if _target_refresh_timer <= 0.0:
+		_target_refresh_timer = TARGET_REFRESH_INTERVAL
+		target = _find_nearest_player()
 	if target == null:
 		if Arena.ffa_blocks_creeps_from_crater() and _any_living_player_in_crater():
 			_process_crater_watch()

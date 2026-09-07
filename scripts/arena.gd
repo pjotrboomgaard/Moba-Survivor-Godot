@@ -202,7 +202,7 @@ func crater_contains(world_position: Vector2, extra: float = 0.0) -> bool:
 
 
 ## Grass meadow and volcano own the centerpiece crater in PvE. FFA always has a
-## center bowl so creeps can be held on the rim while heroes fight inside.
+## center bowl so the arena still reads a crater, but creeps walk it like anyone else.
 func crater_feature_active() -> bool:
 	if not GameRuntime.uses_biomes() or GameRuntime.is_classic():
 		return false
@@ -211,13 +211,13 @@ func crater_feature_active() -> bool:
 	return GameRuntime.biome_id == 0 or GameRuntime.biome_id == 1
 
 
-## FFA only: creeps may not cross this radius. Heroes still walk the bowl.
+## Kept for status logs. Creeps are no longer held on this rim.
 static func ffa_creep_rim_radius(body_radius: float = 20.0) -> float:
 	return crater_radius() + body_radius + 14.0
 
 
 static func ffa_blocks_creeps_from_crater() -> bool:
-	return GameRuntime.is_ffa()
+	return false
 
 
 static func playfield_size() -> Vector2:
@@ -278,12 +278,16 @@ static func shop_stand_position() -> Vector2:
 const PIXEL_ZOOM := 4.0
 
 const OBSTACLE_TYPES: Array[Dictionary] = [
-	{"sprite": "rock_small", "radius": 24.0, "lift": 3.0},
-	{"sprite": "rock_large", "radius": 30.0, "lift": 3.0},
-	{"sprite": "boulder", "radius": 44.0, "lift": 5.0},
-	{"sprite": "spire", "radius": 28.0, "lift": 8.0},
+	{"sprite": "rock_small", "radius": 22.0, "lift": 8.0},
+	{"sprite": "rock_large", "radius": 28.0, "lift": 10.0},
+	{"sprite": "boulder", "radius": 40.0, "lift": 14.0},
+	{"sprite": "spire", "radius": 26.0, "lift": 16.0},
 ]
 const DECAL_SPRITES: Array[String] = ["grass_tuft", "grass_tuft", "grass_flower", "grass_bloom"]
+const ZONE_KINDS: Array[String] = [
+	"grass", "flowers", "forest", "rocks", "clearing", "thicket", "bloom", "barren", "mixed",
+]
+const TREE_SPACING := 118.0
 
 ## Everything below is laid out from a fixed seed, so every peer in a session
 ## builds the exact same field without replicating a single byte.
@@ -315,6 +319,8 @@ const PAD_DRAW_RIM := 12.0
 ## Terrain hazards (lava pools, etc.) carved from the playfield independent of pads.
 ## Each entry: shape (rect/circle/ring) + type/dots. Circle/ring also store center + radius.
 var hazard_zones: Array[Dictionary] = []
+## Nine organic biome patches (grass, flowers, forest, rocks, ...). Same roles every world.
+var terrain_zones: Array[Dictionary] = []
 ## Worlds that get lava hazards (PlayerClass.World: 0=IRON_FOUNDRY, 1=ASHEN_CALDERA).
 ## Foundry pools read as molten-slag basins; Caldera pools are straight lava.
 const HAZARD_WORLDS: Array[int] = [0, 1]
@@ -810,9 +816,11 @@ func _build_field() -> void:
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0:
 		walk_pads = _pads_for_biome(GameRuntime.biome_id)
 		_snap_shop_stand_to_pad()
+	_build_terrain_zones()
 	_scatter_obstacles()
 	_pack_pad_rocks()
 	_plant_cover_rocks()
+	_plant_zone_props()
 	var shop_stand := SHOP_STAND_SCENE.instantiate() as Node2D
 	shop_stand.global_position = shop_stand_position()
 	add_child(shop_stand)
@@ -894,9 +902,9 @@ func _fits_obstacle(candidate: Vector2) -> bool:
 	return false
 
 
-func _too_close_to_other_obstacle(candidate: Vector2) -> bool:
+func _too_close_to_other_obstacle(candidate: Vector2, spacing: float = OBSTACLE_SPACING) -> bool:
 	for obstacle in obstacles:
-		if candidate.distance_to(obstacle.global_position) < OBSTACLE_SPACING:
+		if candidate.distance_to(obstacle.global_position) < spacing:
 			return true
 	return false
 
@@ -924,7 +932,7 @@ func _rock_pads() -> Array[Rect2]:
 	return usable
 
 
-func _try_place_obstacle(candidate: Vector2, rng: RandomNumberGenerator) -> bool:
+func _try_place_obstacle(candidate: Vector2, rng: RandomNumberGenerator, type_override: Dictionary = {}, spacing: float = OBSTACLE_SPACING) -> bool:
 	if candidate.length() < SPAWN_CLEARANCE:
 		return false
 	if _near_corner_spawn(candidate, SPAWN_CLEARANCE * 0.72):
@@ -933,9 +941,12 @@ func _try_place_obstacle(candidate: Vector2, rng: RandomNumberGenerator) -> bool
 		return false
 	if not _fits_obstacle(candidate):
 		return false
-	if _too_close_to_other_obstacle(candidate):
+	if _too_close_to_other_obstacle(candidate, spacing):
 		return false
-	_add_obstacle(candidate, OBSTACLE_TYPES[rng.randi() % OBSTACLE_TYPES.size()])
+	var type_data: Dictionary = type_override
+	if type_data.is_empty():
+		type_data = OBSTACLE_TYPES[rng.randi() % OBSTACLE_TYPES.size()]
+	_add_obstacle(candidate, type_data)
 	return true
 
 
@@ -990,6 +1001,107 @@ func _plant_cover_rocks() -> void:
 	]
 	for hedge in hedges:
 		_try_place_obstacle(hedge * factor, rng)
+
+
+func _build_terrain_zones() -> void:
+	terrain_zones.clear()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _layout_seed() + 7
+	var half := playfield_size() * 0.5 - Vector2(80.0, 80.0)
+	var kinds: Array[String] = ZONE_KINDS.duplicate()
+	for index in kinds.size():
+		var swap := rng.randi_range(index, kinds.size() - 1)
+		var temp := kinds[index]
+		kinds[index] = kinds[swap]
+		kinds[swap] = temp
+	for index in 9:
+		var grid_x := index % 3
+		var grid_y := int(index / 3)
+		var center := Vector2(
+			lerpf(-half.x, half.x, (float(grid_x) + 0.5) / 3.0),
+			lerpf(-half.y, half.y, (float(grid_y) + 0.5) / 3.0)
+		)
+		center += Vector2(rng.randf_range(-220.0, 220.0), rng.randf_range(-160.0, 160.0))
+		terrain_zones.append({
+			"kind": kinds[index],
+			"center": center,
+			"rx": rng.randf_range(720.0, 980.0),
+			"ry": rng.randf_range(520.0, 760.0),
+			"warp": rng.randf_range(0.78, 1.28),
+		})
+
+
+func _zone_sample(zone: Dictionary, rng: RandomNumberGenerator) -> Vector2:
+	var angle := rng.randf() * TAU
+	var radius := sqrt(rng.randf())
+	return zone.center + Vector2(cos(angle) * float(zone.rx) * radius, sin(angle) * float(zone.ry) * radius)
+
+
+func _tree_obstacle_type(rng: RandomNumberGenerator) -> Dictionary:
+	var sprite := "tree_oak"
+	match GameRuntime.biome_id:
+		1:
+			sprite = "tree_dead"
+		2:
+			sprite = "tree_pine"
+		3:
+			sprite = "tree_pipe"
+		4:
+			sprite = "tree_piling"
+		_:
+			sprite = "tree_pine" if rng.randf() < 0.35 else "tree_oak"
+	return {"sprite": sprite, "radius": 18.0, "lift": 28.0}
+
+
+func _plant_zone_props() -> void:
+	if terrain_zones.is_empty():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _layout_seed() + 131
+	for zone in terrain_zones:
+		var kind := str(zone.kind)
+		match kind:
+			"forest":
+				var trees := 42 if walk_pads.is_empty() else 18
+				for _i in trees:
+					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), TREE_SPACING)
+				for _i in 10:
+					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), TREE_SPACING * 0.82)
+			"rocks":
+				var extra := 14 if walk_pads.is_empty() else 6
+				for _i in extra:
+					_try_place_obstacle(_zone_sample(zone, rng), rng, {}, 80.0)
+			"thicket":
+				for _i in 16:
+					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), 96.0)
+			"mixed":
+				for _i in 10:
+					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), TREE_SPACING)
+			"grass":
+				for _i in 6:
+					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), TREE_SPACING * 1.15)
+
+
+func _decal_sprites_for_zone(kind: String) -> Array[String]:
+	match kind:
+		"grass":
+			return ["grass_tuft", "grass_long", "grass_tuft"]
+		"flowers":
+			return ["grass_flower", "grass_flower", "grass_bloom"]
+		"forest":
+			return ["grass_tuft", "grass_bush", "grass_long", "grass_mushroom"]
+		"rocks":
+			return ["rock_small", "grass_tuft", "rock_small"]
+		"clearing":
+			return ["grass_flower", "grass_tuft"]
+		"thicket":
+			return ["grass_bush", "grass_long", "grass_tuft", "rock_small"]
+		"bloom":
+			return ["grass_bloom", "grass_flower", "grass_bloom"]
+		"barren":
+			return ["rock_small", "grass_tuft"]
+		_:
+			return DECAL_SPRITES
 
 
 ## Corner spawn rooms, mid-edge landmark plazas, and the four lanes that connect them.
@@ -1370,6 +1482,7 @@ func _draw() -> void:
 		for pad in walk_pads:
 			_draw_ground_rect(pad.grow(PAD_DRAW_RIM))
 		_draw_pad_shores()
+	_draw_zone_floors()
 	_draw_crater()
 	_draw_decals()
 	_draw_hazards()
@@ -1500,8 +1613,6 @@ func _draw_ground_rect(world_rect: Rect2) -> void:
 		_ground_tile_modulate()
 	)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0:
-		draw_rect(world_rect, Color(0.38, 0.36, 0.34, 0.22), true)
 
 
 ## Biome-aware ground tile. tobor_world_art generates tw_<biome>_grass_tile for each
@@ -1519,37 +1630,55 @@ func _ground_tile_id() -> String:
 
 
 func _ground_tile_modulate() -> Color:
-	if not GameRuntime.uses_biomes() or GameRuntime.biome_id <= 0:
-		return Color.WHITE
-	return Color(0.76, 0.74, 0.72, 1.0)
+	return Color.WHITE
+
+
+func _zone_ground_tile(kind: String) -> String:
+	match kind:
+		"forest", "thicket":
+			return "grass_lush"
+		"flowers", "bloom":
+			return "grass_meadow"
+		"rocks", "barren":
+			return "dirt_tile"
+		_:
+			return ""
+
+
+func _draw_zone_floors() -> void:
+	for zone in terrain_zones:
+		var tile_id := _zone_ground_tile(str(zone.kind))
+		if tile_id.is_empty():
+			continue
+		var tile := SpriteLibrary.texture_for(tile_id)
+		if tile == null:
+			continue
+		var half := Vector2(float(zone.rx), float(zone.ry))
+		var world_rect := Rect2(zone.center - half, half * 2.0)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(PIXEL_ZOOM, PIXEL_ZOOM))
+		draw_texture_rect(
+			tile,
+			Rect2(world_rect.position / PIXEL_ZOOM, world_rect.size / PIXEL_ZOOM),
+			true
+		)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _draw_decals() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _layout_seed() + 1
 	var limit := playfield_size() * 0.5 - Vector2(60.0, 60.0)
-	var meadow := walk_pads.is_empty()
-	var patch_sprites: Array[String] = DECAL_SPRITES.duplicate()
-	if not meadow:
-		match GameRuntime.biome_id:
-			1:
-				patch_sprites = ["rock_small", "grass_tuft", "rock_small"]
-			2:
-				patch_sprites = ["grass_bloom", "grass_tuft", "rock_small"]
-			3:
-				patch_sprites = ["rock_small", "rock_large", "grass_tuft"]
-			4:
-				patch_sprites = ["grass_tuft", "rock_small", "grass_flower"]
-	# Organic clusters instead of a uniform sprinkle.
-	var patches := 16 if meadow else 10
-	for _patch in patches:
-		var center := Vector2(rng.randf_range(-limit.x, limit.x), rng.randf_range(-limit.y, limit.y))
-		if not meadow and not _is_walkable(center, 8.0):
-			continue
-		var kind := patch_sprites[rng.randi() % patch_sprites.size()]
-		for _blade in rng.randi_range(7, 16):
-			var spot := center + Vector2(rng.randf_range(-90.0, 90.0), rng.randf_range(-70.0, 70.0))
-			_draw_one_decal(kind, spot)
+	# Light flowers everywhere so the field never reads as a bare tile grid.
+	for _i in 210:
+		var spot := Vector2(rng.randf_range(-limit.x, limit.x), rng.randf_range(-limit.y, limit.y))
+		var kind := "grass_bloom" if rng.randf() < 0.22 else "grass_flower"
+		_draw_one_decal(kind, spot)
+	# Dense scatter unique to each of the nine organic zones.
+	for zone in terrain_zones:
+		var sprites := _decal_sprites_for_zone(str(zone.kind))
+		var count := 90 if walk_pads.is_empty() else 40
+		for _blade in count:
+			_draw_one_decal(sprites[rng.randi() % sprites.size()], _zone_sample(zone, rng))
 	# Landmark dressing: flowers on heal, extra rock scatter on damage pads.
 	for landmark in landmarks:
 		if not is_instance_valid(landmark):
@@ -1579,7 +1708,7 @@ func _draw_one_decal(sprite_name: String, spot: Vector2) -> void:
 	var texture := SpriteLibrary.texture_for(sprite_name)
 	if texture == null:
 		return
-	if crater_feature_active() and crater_contains(spot, 8.0):
+	if crater_feature_active() and crater_contains(spot, 8.0) and sprite_name.begins_with("rock"):
 		return
 	if not walk_pads.is_empty() and not _is_walkable(spot, 6.0):
 		return

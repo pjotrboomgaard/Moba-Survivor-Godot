@@ -1,0 +1,547 @@
+{
+  "effects": [
+    {
+      "kind": "landmarks",
+      "label": "ffa_landmarks",
+      "list": [
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "heal_all",
+          "fill": 0.0,
+          "hint": "Wild Spring",
+          "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "freeze_time",
+          "fill": 0.0,
+          "hint": "Root Stone",
+          "pos": "(0.0, 1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
+          "ready": true
+        }
+      ],
+      "t": 1.00404062962963
+    },
+    {
+      "abilities": [
+        {
+          "id": "slag_boulder_hurl",
+          "rank": 4
+        },
+        {
+          "id": "slag_volcanic_touch",
+          "rank": 1
+        },
+        {
+          "id": "slag_steam_bath",
+          "rank": 1
+        },
+        {
+          "id": "slag_eruption",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        19.0268333333334,
+        0.0,
+        0.0,
+        229.349999999999
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "slag",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2827.0,
+              -1965.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2966.0,
+              -1943.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2796.0,
+              2041.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              3220.0,
+              2355.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "slag",
+      "hp": 290.0,
+      "hp_frac": 1.0,
+      "hp_max": 290.0,
+      "kind": "probe",
+      "label": "ffa_start",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 1.20141433333333
+    },
+    {
+      "abilities": [
+        {
+          "id": "slag_boulder_hurl",
+          "rank": 4
+        },
+        {
+          "id": "slag_volcanic_touch",
+          "rank": 1
+        },
+        {
+          "id": "slag_steam_bath",
+          "rank": 1
+        },
+        {
+          "id": "slag_eruption",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        15.7255243333335,
+        36.3166666666679,
+        16.7406666666679,
+        206.549999999981
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "slag",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2571.0,
+              -1884.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2026.0,
+              -2099.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2400.0,
+              1502.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -1822.0,
+              2772.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "slag",
+      "hp": 224.85,
+      "hp_frac": 0.775344827586207,
+      "hp_max": 290.0,
+      "kind": "probe",
+      "label": "ffa_mid",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 24.0054443333333
+    },
+    {
+      "abilities": [
+        {
+          "id": "slag_boulder_hurl",
+          "rank": 4
+        },
+        {
+          "id": "slag_volcanic_touch",
+          "rank": 1
+        },
+        {
+          "id": "slag_steam_bath",
+          "rank": 1
+        },
+        {
+          "id": "slag_eruption",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        9.54986666666638,
+        12.8166666666689,
+        0.0,
+        183.049999999962
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "slag",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -506.0,
+              -349.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2717.0,
+              -1568.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -401.0,
+              409.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -619.0,
+              700.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "slag",
+      "hp": 268.45,
+      "hp_frac": 0.852222222222223,
+      "hp_max": 315.0,
+      "kind": "probe",
+      "label": "ffa_end",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 47.5021276666667
+    }
+  ],
+  "elapsed": 48.0111346666667,
+  "enemies_spawned": 0,
+  "hero_position": "(-425.3487, -288.7238)",
+  "player_class": "slag",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "cast_count": 6,
+    "casts": [
+      {
+        "ability_id": "slag_boulder_hurl",
+        "t": 0.0
+      },
+      {
+        "ability_id": "slag_eruption",
+        "t": 0.15
+      },
+      {
+        "ability_id": "slag_volcanic_touch",
+        "t": 2.71111111111111
+      },
+      {
+        "ability_id": "slag_steam_bath",
+        "t": 2.71111111111111
+      },
+      {
+        "ability_id": "slag_boulder_hurl",
+        "t": 20.2330332222222
+      },
+      {
+        "ability_id": "slag_boulder_hurl",
+        "t": 41.7558333333333
+      }
+    ],
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "slag",
+          "cpu": true,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            -425.0,
+            -289.0
+          ],
+          "team": "0"
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            2720.0,
+            -1510.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -316.0,
+            322.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            -578.0,
+            666.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 460,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "slag",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "slag",
+        "gold": 0,
+        "hp": 0.99,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "slag",
+        "gold": 24,
+        "hp": 0.95,
+        "kills": 0,
+        "t": 10.16
+      },
+      {
+        "alive": true,
+        "class": "slag",
+        "gold": 78,
+        "hp": 0.93,
+        "kills": 0,
+        "t": 15.18
+      },
+      {
+        "alive": true,
+        "class": "slag",
+        "gold": 150,
+        "hp": 0.82,
+        "kills": 0,
+        "t": 20.19
+      },
+      {
+        "alive": true,
+        "class": "slag",
+        "gold": 252,
+        "hp": 0.83,
+        "kills": 0,
+        "t": 25.2
+      },
+      {
+        "alive": true,
+        "class": "slag",
+        "gold": 260,
+        "hp": 0.85,
+        "kills": 0,
+        "t": 30.21
+      },
+      {
+        "alive": true,
+        "class": "slag",
+        "gold": 314,
+        "hp": 0.82,
+        "kills": 0,
+        "t": 35.21
+      },
+      {
+        "alive": true,
+        "class": "slag",
+        "gold": 362,
+        "hp": 0.85,
+        "kills": 0,
+        "t": 40.21
+      },
+      {
+        "alive": true,
+        "class": "slag",
+        "gold": 406,
+        "hp": 0.85,
+        "kills": 0,
+        "t": 45.23
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 6,
+    "max_hp": 1.0,
+    "min_hp": 0.775344827586207,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 1,
+    "xp": 28
+  },
+  "shots": []
+}

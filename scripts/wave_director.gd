@@ -257,10 +257,10 @@ const AMBUSH_FIRST_GROUP_SCALE := 0.6
 const WAVE_TIMEOUT_SECONDS := 120.0
 const ELITE_WAVE_INTERVAL := 8
 const BOSS_WAVE_INTERVAL := 5
-## Enemies start noticeably tankier now (2x the old wave-1 health) and keep climbing faster
+## Enemies start noticeably tankier now (2.4x the old wave-1 health) and keep climbing faster
 ## than before, so the run keeps escalating rather than plateauing once players out-level it.
-const BASE_HEALTH_MULTIPLIER := 2.0
-const HEALTH_GROWTH_PER_WAVE := 0.14
+const BASE_HEALTH_MULTIPLIER := 2.8
+const HEALTH_GROWTH_PER_WAVE := 0.22
 ## Offline solo (no CPU allies) ramps from wave 2 so keg/turret/landmarks stay clutch
 ## without making First Contact unfair. Kept modest so wave 5 budget stays under 60.
 ## SOLO_HEALTH_PRESSURE was 1.18: on top of BASE_HEALTH_MULTIPLIER + HEALTH_GROWTH_PER_WAVE
@@ -269,10 +269,15 @@ const HEALTH_GROWTH_PER_WAVE := 0.14
 ## wave 15-20 — enemies survive longer *and* hit harder *and* there are more of them, all
 ## three axes growing at once. Eased to 1.12 so enemies are still tankier solo than in co-op,
 ## just without stacking a third compounding multiplier as hard on the late-wave spike.
-const SOLO_HEALTH_PRESSURE := 1.12
-const SOLO_BUDGET_PRESSURE := 1.08
-const SOLO_DAMAGE_PRESSURE := 1.28
+const SOLO_HEALTH_PRESSURE := 1.15
+const SOLO_BUDGET_PRESSURE := 1.12
+const SOLO_DAMAGE_PRESSURE := 1.35
 const SOLO_PRESSURE_FROM_WAVE := 2
+## FFA: each "team" is a single hero fighting 3 rivals, so enemies get an extra 25%
+## health bump and a 15% budget bump on top of the base curve to keep the challenge.
+const FFA_HEALTH_PRESSURE := 1.25
+const FFA_BUDGET_PRESSURE := 1.15
+const FFA_DAMAGE_PRESSURE := 1.20
 
 ## The lobby's difficulty pick scales enemy health on top of the wave curve above (Pjotr mode
 ## only — Classic's endless-grunt test loop stays flat regardless of this).
@@ -479,6 +484,8 @@ func health_multiplier_for_wave(target_wave: int) -> float:
 	var base := BASE_HEALTH_MULTIPLIER + HEALTH_GROWTH_PER_WAVE * float(maxi(0, target_wave - 1))
 	if _solo_pressure_active(target_wave):
 		base *= SOLO_HEALTH_PRESSURE
+	if GameRuntime.is_ffa():
+		base *= FFA_HEALTH_PRESSURE
 	return base * float(DIFFICULTY_HEALTH_MULTIPLIERS.get(GameRuntime.difficulty, 1.0))
 
 
@@ -489,6 +496,8 @@ func budget_for_wave(target_wave: int) -> float:
 	var solo_budget := 28.0 + 9.5 * float(target_wave)
 	if _solo_pressure_active(target_wave):
 		solo_budget *= SOLO_BUDGET_PRESSURE
+	if GameRuntime.is_ffa():
+		solo_budget *= FFA_BUDGET_PRESSURE
 	return solo_budget * (1.0 + 0.85 * float(player_count - 1))
 
 
@@ -510,6 +519,8 @@ func contact_multiplier_for_wave(target_wave: int) -> float:
 	var ramp := 1.0 + 0.014 * float(maxi(0, target_wave - 1))
 	if _solo_pressure_active(target_wave):
 		return solo_contact_multiplier(target_wave)
+	if GameRuntime.is_ffa():
+		return ramp * FFA_DAMAGE_PRESSURE
 	return ramp
 
 

@@ -173,6 +173,7 @@ func _ready() -> void:
 	sfx_toggle.toggled.connect(_on_sfx_toggled)
 	music_toggle.toggled.connect(_on_music_toggled)
 	_sync_audio_toggles()
+	_build_world_editor_button()
 	if ability_panel != null:
 		ability_panel.visible = false
 		_ability_panel_hero_id = ""
@@ -183,8 +184,21 @@ func _ready() -> void:
 	NetworkService.peer_joined.connect(_on_lobby_peer_joined)
 	_refresh_steam_status()
 	AudioService.play_music()
+	# UI verify driver: attach when --ui-verify flag is present.
+	if "--ui-verify" in OS.get_cmdline_args():
+		call_deferred("_attach_ui_verify")
 	call_deferred("_start_runtime")
 	set_process(true)
+
+
+func _attach_ui_verify() -> void:
+	var driver_scene: PackedScene = load("res://tools/selftest/ui_verify/ui_verify_driver.tscn")
+	if driver_scene == null:
+		print("[ui-verify] driver scene not found")
+		return
+	var driver = driver_scene.instantiate()
+	get_tree().root.add_child(driver)
+	print("[ui-verify] driver attached to root (survives scene changes)")
 
 
 ## Builds the WorldRow, LoadoutPanel (LoadoutRow + AbilityPool) and wires them into the
@@ -1105,6 +1119,25 @@ func _on_host_pressed() -> void:
 		_start_steam_host()
 	else:
 		_start_host()
+
+
+func _build_world_editor_button() -> void:
+	var row := mode_row as HBoxContainer
+	if row == null:
+		return
+	var btn := Button.new()
+	btn.name = "WorldEditorButton"
+	btn.custom_minimum_size = Vector2(0, 0)
+	btn.text = "  WORLD EDITOR  "
+	btn.tooltip_text = "Open the world/level editor to place trees, rocks, grass and landmarks"
+	btn.pressed.connect(_on_world_editor_pressed)
+	row.add_child(btn)
+	row.move_child(btn, row.get_child_count() - 1)
+
+
+func _on_world_editor_pressed() -> void:
+	AudioService.play("ui_click")
+	get_tree().change_scene_to_file("res://scenes/world_editor/world_editor.tscn")
 
 
 func _on_join_pressed() -> void:

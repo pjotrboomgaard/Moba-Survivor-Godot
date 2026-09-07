@@ -1,0 +1,59 @@
+{
+  "all_ok": true,
+  "checks": [
+    {
+      "detail": "/root/Bootstrap/StatusLayer/LobbyPanel/Margin/Layout/ModeRow/WorldEditorButton",
+      "name": "editor_button_found",
+      "ok": true
+    },
+    {
+      "detail": "WorldEditor node present",
+      "name": "editor_scene_loaded",
+      "ok": true
+    },
+    {
+      "detail": "placed=6",
+      "name": "api_place_obstacles",
+      "ok": true
+    },
+    {
+      "detail": "placed=7",
+      "name": "api_place_landmark",
+      "ok": true
+    },
+    {
+      "detail": "erased=true before=7 after=6",
+      "name": "api_erase_obstacle",
+      "ok": true
+    },
+    {
+      "detail": "save file exists=true at user://world_editor_level.json",
+      "name": "api_save_level",
+      "ok": true
+    }
+  ],
+  "elapsed": 11.5006203333333,
+  "shots": [
+    {
+      "err": 0,
+      "label": "lobby",
+      "path": "user://ui_verify_shots/lobby_3622.png"
+    },
+    {
+      "err": 0,
+      "label": "editor",
+      "path": "user://ui_verify_shots/editor_7113.png"
+    },
+    {
+      "err": 0,
+      "label": "editor_with_props",
+      "path": "user://ui_verify_shots/editor_with_props_10122.png"
+    },
+    {
+      "err": 0,
+      "label": "editor_final",
+      "path": "user://ui_verify_shots/editor_final_12622.png"
+    }
+  ],
+  "verdict": "PASS"
+}

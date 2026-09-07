@@ -91,6 +91,7 @@ const XP_GROWTH := 1.32
 var xp_required := BASE_XP_REQUIRED
 var gold := 0
 var gold_multiplier := 1.0
+var last_death_gold_lost := 0
 var shop_stacks: Dictionary = {}
 var _tobor_walk_phase := 0.0
 var _tobor_facing := "front"
@@ -165,12 +166,21 @@ var base_damage_taken_multiplier := 1.0
 ## Phase Cloak landmark buff: while > 0, Enemy._find_nearest_player() skips this
 ## player when picking a target.
 var phase_cloak_timer := 0.0
+var crowd_slow_factor := 1.0
+var crowd_slow_timer := 0.0
+var _secondary_move_mult := 1.0
+var _secondary_move_timer := 0.0
+var _secondary_dr_mult := 1.0
+var _secondary_dr_timer := 0.0
+var _secondary_invuln_timer := 0.0
 
 
 var _normal_collision_mask := 0
 var cpu_lock_target: Node2D
 var cpu_lock_timer := 0.0
 var cpu_smoothed_move := Vector2.ZERO
+var _ffa_think_timer := 0.0
+var _ffa_last_think := {}
 var hero_kills := 0
 var pvp_invuln_timer := 0.0
 var knockback_velocity := Vector2.ZERO
@@ -360,11 +370,16 @@ func _update_tobor_visual(delta: float, move_input: Vector2) -> void:
 func _hero_sprite_scale() -> Vector2:
 	if sprite == null or sprite.texture == null:
 		return Vector2.ONE
+	var boost := HERO_SCALE_BOOST
+	if class_id == "arclight" or class_id == "bulwark" or class_id == "warden":
+		boost *= 1.125
+	elif class_id != "tobor":
+		boost *= 1.25
 	if FACING_CLASS_IDS.has(class_id):
-		return SpriteLibrary.scale_for_radius(sprite.texture, BODY_RADIUS * 2.2 * HERO_SCALE_BOOST)
+		return SpriteLibrary.scale_for_radius(sprite.texture, BODY_RADIUS * 2.2 * boost)
 	if sprite.texture.get_width() >= 32:
-		return SpriteLibrary.tobor_scale(BODY_RADIUS * 1.45 * HERO_SCALE_BOOST)
-	return SpriteLibrary.scale_for_radius(sprite.texture, BODY_RADIUS * 1.45 * HERO_SCALE_BOOST)
+		return SpriteLibrary.tobor_scale(BODY_RADIUS * 1.45 * boost)
+	return SpriteLibrary.scale_for_radius(sprite.texture, BODY_RADIUS * 1.45 * boost)
 
 
 func _paint_hero_facing() -> void:
@@ -424,9 +439,9 @@ func _paint_tobor_sprite() -> void:
 		hop = -sin(fmod(_tobor_walk_phase, 1.0) * PI) * 10.0
 	if _jump_t >= 0.0:
 		var arc := sin(clampf(_jump_t, 0.0, 1.0) * PI)
-		hop -= 18.0 * arc
+		hop -= 28.0 * arc
 		if stacks_of("sjaal") > 0:
-			hop -= 8.0 * arc
+			hop -= 12.0 * arc
 	sprite.rotation = 0.0
 	sprite.flip_h = false
 	sprite.texture = SpriteLibrary.compose_tobor(shop_stacks, walk_frame, _tobor_facing)
@@ -448,6 +463,11 @@ func apply_knockback(impulse: Vector2) -> void:
 	if simulation_mode == SimulationMode.PROXY:
 		return
 	knockback_velocity += impulse
+
+
+func apply_slow(next_slow_factor: float, duration: float) -> void:
+	crowd_slow_factor = minf(crowd_slow_factor if crowd_slow_timer > 0.0 else 1.0, clampf(next_slow_factor, 0.12, 1.0))
+	crowd_slow_timer = maxf(crowd_slow_timer, duration)
 
 
 func apply_team_identity() -> void:
@@ -609,6 +629,10 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		knockback_velocity = Vector2.ZERO
 		_reset_attack_charge()
+		_tick_cooldowns(delta)
+		sprint_cooldown = maxf(0.0, sprint_cooldown - delta)
+		_refresh_secondary_bar()
+		_refresh_respawn_label()
 		return
 
 	var move_input := command_move
@@ -648,13 +672,16 @@ func _physics_process(delta: float) -> void:
 	_update_energy_fields(delta)
 	_update_ability_buff(delta)
 	_update_phase_cloak(delta)
+	_tick_secondary_effects(delta)
 	health.tick_shield(delta)
 	health.tick_hit_invulnerability(delta)
 	_update_ability_slots(delta, ability_slots_held)
 	_update_secondary(delta, secondary_held)
 	_refresh_secondary_bar()
 	_update_hazard(delta)
-	var speed := movement_speed * float(ability_buff_stats.get("movement_speed_mult", 1.0))
+	var speed := movement_speed * float(ability_buff_stats.get("movement_speed_mult", 1.0)) * _secondary_move_mult
+	if crowd_slow_timer > 0.0:
+		speed *= crowd_slow_factor
 	if sprint_timer > 0.0:
 		speed *= 1.0 + SPRINT_SPEED_BONUS + maxf(0.0, float(stacks_of(ShopCatalog.ACTIVE_ITEM_ID) - 1) * 0.12)
 	speed *= 1.0 + skate_speed_bonus
@@ -794,7 +821,7 @@ func _update_sprint(delta: float, ability_held: bool) -> void:
 	var was_sprinting := sprint_timer > 0.0
 	sprint_timer = maxf(0.0, sprint_timer - delta)
 	sprint_cooldown = maxf(0.0, sprint_cooldown - delta)
-	if ability_held and has_active_item() and sprint_timer <= 0.0 and sprint_cooldown <= 0.0:
+	if ability_held and has_active_item() and sprint_timer <= 0.0 and sprint_cooldown <= 0.0 and not can_board_jump():
 		sprint_timer = sprint_burst_duration()
 		sprint_cooldown = sprint_cycle_length()
 		SoundDirector.play("dash", global_position)
@@ -823,10 +850,10 @@ func can_board_jump() -> bool:
 
 
 func _jump_hang() -> float:
-	var hang := 0.46
+	var hang := 0.62
 	var wings := stacks_of("sjaal")
 	if wings > 0:
-		hang = 0.78 + 0.10 * float(wings - 1)
+		hang = 0.92 + 0.12 * float(wings - 1)
 	return hang
 
 
@@ -834,9 +861,9 @@ func _apply_jump_visual() -> void:
 	if sprite == null or _jump_t < 0.0 or class_id == "tobor":
 		return
 	var arc := sin(clampf(_jump_t, 0.0, 1.0) * PI)
-	var hop := -22.0 * arc
+	var hop := -32.0 * arc
 	if stacks_of("sjaal") > 0:
-		hop -= 10.0 * arc
+		hop -= 14.0 * arc
 	sprite.offset = Vector2(sprite.offset.x, hop)
 	_place_health_bar(hop)
 
@@ -1105,11 +1132,17 @@ func _unit_target_range_for(_ability_id: String) -> float:
 var _slots_held_prev: Array[bool] = [false, false, false, false]
 
 
+func _tick_cooldowns(delta: float) -> void:
+	for slot in ability_cooldowns.size():
+		ability_cooldowns[slot] = maxf(0.0, ability_cooldowns[slot] - delta)
+	secondary_cooldown = maxf(0.0, secondary_cooldown - delta)
+
+
 func _update_ability_slots(delta: float, slots_held: Array) -> void:
 	if known_abilities.is_empty():
+		_tick_cooldowns(delta)
 		return
-	for slot in known_abilities.size():
-		ability_cooldowns[slot] = maxf(0.0, ability_cooldowns[slot] - delta)
+	_tick_cooldowns(delta)
 	for slot in known_abilities.size():
 		if slot >= slots_held.size():
 			continue
@@ -3078,13 +3111,13 @@ func _apply_ability_buff(stats: Dictionary, duration: float) -> void:
 	ability_buff_timer = duration
 	if stats.has("damage_taken_mult"):
 		_ability_damage_taken_factor = float(stats.damage_taken_mult)
-		health.damage_taken_multiplier = base_damage_taken_multiplier * _ability_damage_taken_factor
+	_refresh_taken_mult()
 
 
 func _clear_ability_buff() -> void:
 	if _ability_damage_taken_factor != 1.0:
 		_ability_damage_taken_factor = 1.0
-		health.damage_taken_multiplier = base_damage_taken_multiplier
+		_refresh_taken_mult()
 	ability_buff_stats = {}
 	ability_buff_timer = 0.0
 
@@ -3125,7 +3158,7 @@ func _refresh_secondary_bar() -> void:
 
 
 func _update_secondary(delta: float, held: bool) -> void:
-	secondary_cooldown = maxf(0.0, secondary_cooldown - delta)
+	# Cooldown ticks in _tick_cooldowns so it still runs while dead.
 	if simulation_mode == SimulationMode.CPU:
 		_secondary_was_held = held
 		if held and secondary_cooldown <= 0.0:
@@ -3194,8 +3227,36 @@ func _cast_secondary() -> void:
 			_cast_secondary_volt_mend()
 		"rime_ward":
 			_cast_secondary_rime_ward()
+		"vine_tangle":
+			_cast_secondary_vine_tangle()
+		"ice_block":
+			_cast_secondary_ice_block()
+		"heat_burst":
+			_cast_secondary_heat_burst()
+		"blast_jump":
+			_cast_secondary_blast_jump()
+		"magma_armor":
+			_cast_secondary_magma_armor()
+		"cinder_veil":
+			_cast_secondary_cinder_veil()
+		"bramble_snare":
+			_cast_secondary_bramble_snare()
+		"windstep":
+			_cast_secondary_windstep()
+		"oak_bark":
+			_cast_secondary_oak_bark()
+		"bloom_mend":
+			_cast_secondary_bloom_mend()
+		"gale_gust":
+			_cast_secondary_gale_gust()
+		"time_skip":
+			_cast_secondary_time_skip()
+		"ward_light":
+			_cast_secondary_ward_light()
+		"glacial_nova":
+			_cast_secondary_glacial_nova()
 		_:
-			_cast_secondary_volt_mend()
+			_cast_secondary_repulse()
 	_start_secondary_cooldown()
 
 
@@ -3255,6 +3316,168 @@ func _cast_secondary_rime_ward() -> void:
 			target.apply_slow(0.4, 2.2)
 	_pulse_allies(center, PlayerClass.SECONDARY_RADIUS, PlayerClass.SECONDARY_HEAL * 0.7, 40.0)
 	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+
+
+func _cast_secondary_vine_tangle() -> void:
+	var center := global_position
+	var radius := PlayerClass.SECONDARY_RADIUS * 0.92
+	for target in _pvp_hosts_in_radius(center, radius):
+		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.55)
+		if target.has_method("apply_slow"):
+			target.apply_slow(0.14, 2.8)
+		_knock_away_from(target, center, 220.0)
+	_pulse_allies(center, radius, PlayerClass.SECONDARY_HEAL * 0.45, 0.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.WAVE, PackedVector2Array([center, Vector2(radius, 0.0)]))
+
+
+func _cast_secondary_ice_block() -> void:
+	_secondary_invuln_timer = 1.05
+	health.invulnerable = true
+	for target in _pvp_hosts_in_radius(global_position, PlayerClass.SECONDARY_RADIUS * 0.7):
+		if target.has_method("apply_slow"):
+			target.apply_slow(0.22, 1.8)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(90.0, 0.0)]))
+
+
+func _cast_secondary_heat_burst() -> void:
+	var dir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
+	for target in _pvp_hosts_in_cone(global_position, dir, 240.0, 42.0):
+		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE)
+		_knock_away_from(target, global_position, 780.0)
+	_secondary_move_mult = 1.28
+	_secondary_move_timer = 1.6
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.ARC, PackedVector2Array([global_position, global_position + dir * 240.0]))
+
+
+func _cast_secondary_blast_jump() -> void:
+	var away := -facing_direction
+	if away.length_squared() <= 0.0:
+		away = Vector2.LEFT
+	for target in _pvp_hosts_in_radius(global_position, 150.0):
+		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.85)
+		_knock_away_from(target, global_position, 820.0)
+	global_position += away * 210.0
+	apply_knockback(away * 380.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BLAST, PackedVector2Array([global_position, Vector2(150.0, 0.0)]))
+
+
+func _cast_secondary_magma_armor() -> void:
+	health.add_shield(48.0, 3.4)
+	for target in _pvp_hosts_in_radius(global_position, 150.0):
+		if target.has_method("apply_slow"):
+			target.apply_slow(0.45, 1.6)
+		_knock_away_from(target, global_position, 360.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(150.0, 0.0)]))
+
+
+func _cast_secondary_cinder_veil() -> void:
+	apply_phase_cloak(2.2)
+	health.heal(PlayerClass.SECONDARY_HEAL * 0.7)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(80.0, 0.0)]))
+
+
+func _cast_secondary_bramble_snare() -> void:
+	var center := _secondary_center()
+	for target in _pvp_hosts_in_radius(center, PlayerClass.SECONDARY_RADIUS):
+		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.5)
+		if target.has_method("apply_slow"):
+			target.apply_slow(0.16, 3.0)
+		if target.has_method("apply_poison"):
+			target.apply_poison(4.0, 2.5, self)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+
+
+func _cast_secondary_windstep() -> void:
+	var dir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
+	var from := global_position
+	global_position += dir * 240.0
+	for target in _pvp_hosts_in_radius(from.lerp(global_position, 0.5), 90.0):
+		if target.has_method("apply_slow"):
+			target.apply_slow(0.4, 1.4)
+	_secondary_move_mult = 1.22
+	_secondary_move_timer = 1.2
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BOLT, PackedVector2Array([from, global_position]))
+
+
+func _cast_secondary_oak_bark() -> void:
+	_secondary_dr_mult = 0.55
+	_secondary_dr_timer = 2.6
+	_refresh_taken_mult()
+	for target in _pvp_hosts_in_radius(global_position, 130.0):
+		_knock_away_from(target, global_position, 480.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(130.0, 0.0)]))
+
+
+func _cast_secondary_bloom_mend() -> void:
+	_pulse_allies(global_position, PlayerClass.SECONDARY_RADIUS * 1.15, PlayerClass.SECONDARY_HEAL * 1.35, 18.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.WAVE, PackedVector2Array([global_position, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+
+
+func _cast_secondary_gale_gust() -> void:
+	var dir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
+	for target in _pvp_hosts_in_cone(global_position, dir, 280.0, 38.0):
+		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.6)
+		_knock_away_from(target, global_position, 980.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.ARC, PackedVector2Array([global_position, global_position + dir * 280.0]))
+
+
+func _cast_secondary_time_skip() -> void:
+	var origin := global_position
+	var dir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
+	for target in _pvp_hosts_in_radius(origin, 140.0):
+		if target.has_method("apply_slow"):
+			target.apply_slow(0.35, 1.8)
+	global_position += dir * 260.0
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([origin, Vector2(140.0, 0.0)]))
+
+
+func _cast_secondary_ward_light() -> void:
+	_pulse_allies(global_position, PlayerClass.SECONDARY_RADIUS * 1.2, PlayerClass.SECONDARY_HEAL * 0.4, 52.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+
+
+func _cast_secondary_glacial_nova() -> void:
+	var center := global_position
+	for target in _pvp_hosts_in_radius(center, PlayerClass.SECONDARY_RADIUS):
+		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.65)
+		if target.has_method("apply_slow"):
+			target.apply_slow(0.12, 2.8)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+
+
+func _pvp_hosts_in_cone(origin: Vector2, direction: Vector2, reach: float, half_angle_deg: float) -> Array[Node2D]:
+	var dir := direction.normalized()
+	var found: Array[Node2D] = []
+	var limit := deg_to_rad(half_angle_deg)
+	for target in _pvp_hosts_in_radius(origin, reach):
+		var to := origin.direction_to(target.global_position)
+		if to.length_squared() <= 0.0001 or absf(dir.angle_to(to)) <= limit:
+			found.append(target)
+	return found
+
+
+func _tick_secondary_effects(delta: float) -> void:
+	if crowd_slow_timer > 0.0:
+		crowd_slow_timer = maxf(0.0, crowd_slow_timer - delta)
+		if crowd_slow_timer <= 0.0:
+			crowd_slow_factor = 1.0
+	if _secondary_move_timer > 0.0:
+		_secondary_move_timer = maxf(0.0, _secondary_move_timer - delta)
+		if _secondary_move_timer <= 0.0:
+			_secondary_move_mult = 1.0
+	if _secondary_dr_timer > 0.0:
+		_secondary_dr_timer = maxf(0.0, _secondary_dr_timer - delta)
+		if _secondary_dr_timer <= 0.0:
+			_secondary_dr_mult = 1.0
+			_refresh_taken_mult()
+	if _secondary_invuln_timer > 0.0:
+		_secondary_invuln_timer = maxf(0.0, _secondary_invuln_timer - delta)
+		if _secondary_invuln_timer <= 0.0:
+			health.invulnerable = false
+
+
+func _refresh_taken_mult() -> void:
+	health.damage_taken_multiplier = base_damage_taken_multiplier * _ability_damage_taken_factor * _secondary_dr_mult
 
 
 func _pulse_allies(center: Vector2, radius: float, heal_amount: float, shield_amount: float) -> void:
@@ -3591,6 +3814,18 @@ func add_gold(amount: int) -> void:
 	gold_changed.emit(gold)
 
 
+func lose_half_gold() -> int:
+	if simulation_mode == SimulationMode.PROXY:
+		last_death_gold_lost = 0
+		return 0
+	last_death_gold_lost = gold / 2
+	if last_death_gold_lost <= 0:
+		return 0
+	gold -= last_death_gold_lost
+	gold_changed.emit(gold)
+	return last_death_gold_lost
+
+
 func stacks_of(item_id: String) -> int:
 	return int(shop_stacks.get(item_id, 0))
 
@@ -3811,6 +4046,7 @@ func _on_died() -> void:
 	_hazard_inside = false
 	_hazard_grace_timer = 0.0
 	_hazard_visual_off()
+	lose_half_gold()
 	modulate = Color(0.35, 0.35, 0.4, 1.0)
 	SoundDirector.play("player_down", global_position)
 	player_died.emit(owner_peer_id)

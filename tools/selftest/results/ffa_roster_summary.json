@@ -1,0 +1,12 @@
+﻿{
+    "hero":  "tobor,ember",
+    "class":  "tobor",
+    "verdict":  "FAIL_WRONG_HERO",
+    "kills":  "0",
+    "gold":  "120",
+    "casts":  "8",
+    "alive":  "False",
+    "min_hp":  "0.0",
+    "roster":  "4",
+    "exit":  0
+}

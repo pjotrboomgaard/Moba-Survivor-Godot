@@ -1,0 +1,551 @@
+{
+  "effects": [
+    {
+      "kind": "landmarks",
+      "label": "ffa_landmarks",
+      "list": [
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "heal_all",
+          "fill": 0.0,
+          "hint": "Wild Spring",
+          "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "freeze_time",
+          "fill": 0.0,
+          "hint": "Root Stone",
+          "pos": "(0.0, 1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
+          "ready": true
+        }
+      ],
+      "t": 1.00516122222222
+    },
+    {
+      "abilities": [
+        {
+          "id": "cinder_dragon_fire",
+          "rank": 3
+        },
+        {
+          "id": "cinder_fiery_assault",
+          "rank": 1
+        },
+        {
+          "id": "cinder_whirling_flame",
+          "rank": 1
+        },
+        {
+          "id": "cinder_pillar_of_flame",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        20.5096666666667,
+        44.8966666666667,
+        27.7526666666667,
+        83.2966666666667
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -3069.0,
+              -1914.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2976.0,
+              -1895.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2825.0,
+              1979.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              3158.0,
+              2372.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "cinder",
+      "hp": 130.5,
+      "hp_frac": 1.0,
+      "hp_max": 130.5,
+      "kind": "probe",
+      "label": "ffa_start",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 1.20479655555555
+    },
+    {
+      "abilities": [
+        {
+          "id": "cinder_dragon_fire",
+          "rank": 3
+        },
+        {
+          "id": "cinder_fiery_assault",
+          "rank": 1
+        },
+        {
+          "id": "cinder_whirling_flame",
+          "rank": 1
+        },
+        {
+          "id": "cinder_pillar_of_flame",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        18.4486436666668,
+        22.096666666668,
+        4.95266666666701,
+        60.496666666668
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2897.0,
+              290.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2760.0,
+              -1974.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2738.0,
+              1379.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -1531.0,
+              2253.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "cinder",
+      "hp": 126.6,
+      "hp_frac": 0.970114942528736,
+      "hp_max": 130.5,
+      "kind": "probe",
+      "label": "ffa_mid",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 24.0013716666667
+    },
+    {
+      "abilities": [
+        {
+          "id": "cinder_dragon_fire",
+          "rank": 3
+        },
+        {
+          "id": "cinder_fiery_assault",
+          "rank": 1
+        },
+        {
+          "id": "cinder_whirling_flame",
+          "rank": 1
+        },
+        {
+          "id": "cinder_pillar_of_flame",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        10.9193333333338,
+        36.963333333336
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -918.0,
+              -14.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3901.0,
+              155.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -326.0,
+              98.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -339.0,
+              33.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "cinder",
+      "hp": 101.8,
+      "hp_frac": 0.780076628352491,
+      "hp_max": 130.5,
+      "kind": "probe",
+      "label": "ffa_end",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 47.538028
+    }
+  ],
+  "elapsed": 48.0344896666667,
+  "enemies_spawned": 0,
+  "hero_position": "(-1068.338, -47.031)",
+  "player_class": "cinder",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "cast_count": 7,
+    "casts": [
+      {
+        "ability_id": "cinder_dragon_fire",
+        "t": 0.0
+      },
+      {
+        "ability_id": "cinder_fiery_assault",
+        "t": 0.0
+      },
+      {
+        "ability_id": "cinder_whirling_flame",
+        "t": 0.0
+      },
+      {
+        "ability_id": "cinder_pillar_of_flame",
+        "t": 0.0
+      },
+      {
+        "ability_id": "cinder_dragon_fire",
+        "t": 21.7107633333334
+      },
+      {
+        "ability_id": "cinder_whirling_flame",
+        "t": 29.5085830000001
+      },
+      {
+        "ability_id": "cinder_dragon_fire",
+        "t": 47.538028
+      }
+    ],
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "cinder",
+          "cpu": true,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            -1068.0,
+            -47.0
+          ],
+          "team": "0"
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            3955.0,
+            207.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": false,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -326.0,
+            98.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            -332.0,
+            79.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 274,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 6,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 12,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.16
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 30,
+        "hp": 0.95,
+        "kills": 0,
+        "t": 10.17
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 56,
+        "hp": 0.97,
+        "kills": 0,
+        "t": 15.18
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 82,
+        "hp": 0.97,
+        "kills": 0,
+        "t": 20.22
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 110,
+        "hp": 0.97,
+        "kills": 0,
+        "t": 25.25
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 136,
+        "hp": 0.93,
+        "kills": 0,
+        "t": 30.26
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 178,
+        "hp": 0.83,
+        "kills": 0,
+        "t": 35.32
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 192,
+        "hp": 0.78,
+        "kills": 0,
+        "t": 40.33
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 222,
+        "hp": 0.78,
+        "kills": 0,
+        "t": 45.37
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 4,
+    "max_hp": 1.0,
+    "min_hp": 0.616091954022989,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 1,
+    "xp": 137
+  },
+  "shots": []
+}

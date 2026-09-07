@@ -1,0 +1,94 @@
+{
+  "effects": [
+    {
+      "cd_left": 16.9445,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.151575
+    },
+    {
+      "cd_left": 46.5266666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 4.15151515151515
+    },
+    {
+      "cd_left": 207.26,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.15823466666668
+    }
+  ],
+  "elapsed": 9.00227272727278,
+  "enemies_spawned": 4,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "volt",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "cast_count": 4,
+    "casts": [
+      {
+        "ability_id": "volt_gust",
+        "t": 0.201143666666667
+      },
+      {
+        "ability_id": "volt_plasma_bolt",
+        "t": 2.05152981818181
+      },
+      {
+        "ability_id": "volt_wind_shield",
+        "t": 4.05151515151514
+      },
+      {
+        "ability_id": "volt_typhoon",
+        "t": 6.05000000000002
+      }
+    ],
+    "died": false,
+    "errors": [
+      "expected cast never fired: volt_wind_control"
+    ],
+    "ffa": {},
+    "gold": 48,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 2,
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 25
+  },
+  "shots": [
+    {
+      "label": "t1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3243/t1_1.001_3243.png",
+      "t": 1.00142090909091
+    },
+    {
+      "label": "t3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5237/t3_3.006_5237.png",
+      "t": 3.00575899999999
+    },
+    {
+      "label": "t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7240/t5_5.002_7240.png",
+      "t": 5.00174100000001
+    },
+    {
+      "label": "t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10259/t8_8.008_10259.png",
+      "t": 8.00834000000008
+    }
+  ]
+}
