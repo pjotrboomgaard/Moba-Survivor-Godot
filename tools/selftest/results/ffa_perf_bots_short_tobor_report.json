@@ -37,32 +37,32 @@
           "ready": true
         }
       ],
-      "t": 1.00171133333333
+      "t": 1.00444666666667
     },
     {
       "abilities": [
         {
-          "id": "arclight_blast_of_lightning",
-          "rank": 2
+          "id": "tobor_steam_keg",
+          "rank": 5
         },
         {
-          "id": "arclight_chain_lightning",
+          "id": "tobor_spider_mines",
           "rank": 1
         },
         {
-          "id": "arclight_static_bolt",
+          "id": "tobor_steam_turret",
           "rank": 1
         },
         {
-          "id": "arclight_thundergods_wrath",
+          "id": "tobor_energy_field",
           "rank": 1
         }
       ],
       "cds": [
-        20.5096666666667,
-        37.2166666666667,
-        9.35326666666661,
-        190.816666666666
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -72,14 +72,14 @@
         "heroes": [
           {
             "alive": true,
-            "class": "arclight",
+            "class": "tobor",
             "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              -2929.0,
-              -2022.0
+              -2887.0,
+              -1956.0
             ],
             "team": "0"
           },
@@ -91,8 +91,8 @@
             "local": false,
             "peer": 101,
             "pos": [
-              3080.0,
-              -1994.0
+              3128.0,
+              -1959.0
             ],
             "team": "1"
           },
@@ -104,8 +104,8 @@
             "local": false,
             "peer": 102,
             "pos": [
-              -2919.0,
-              2008.0
+              -2903.0,
+              2044.0
             ],
             "team": "2"
           },
@@ -117,8 +117,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              3176.0,
-              2221.0
+              3242.0,
+              2219.0
             ],
             "team": "3"
           }
@@ -129,42 +129,42 @@
           5600.0
         ]
       },
-      "hero": "arclight",
-      "hp": 145.0,
+      "hero": "tobor",
+      "hp": 118.9,
       "hp_frac": 1.0,
-      "hp_max": 145.0,
+      "hp_max": 118.9,
       "kind": "probe",
       "label": "ffa_start",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.20171133333333
+      "t": 1.20295533333333
     },
     {
       "abilities": [
         {
-          "id": "arclight_blast_of_lightning",
-          "rank": 2
+          "id": "tobor_steam_keg",
+          "rank": 5
         },
         {
-          "id": "arclight_chain_lightning",
+          "id": "tobor_spider_mines",
           "rank": 1
         },
         {
-          "id": "arclight_static_bolt",
+          "id": "tobor_steam_turret",
           "rank": 1
         },
         {
-          "id": "arclight_thundergods_wrath",
+          "id": "tobor_energy_field",
           "rank": 1
         }
       ],
       "cds": [
-        18.4486436666668,
-        14.4166666666679,
-        0.419933333333229,
-        168.016666666648
+        11.8845813333334,
+        1.45999999999969,
+        9.31999999999982,
+        157.933333333306
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -174,129 +174,27 @@
         "heroes": [
           {
             "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": true,
-            "peer": 1,
-            "pos": [
-              -260.0,
-              1141.0
-            ],
-            "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              -200.0,
-              809.0
-            ],
-            "team": "1"
-          },
-          {
-            "alive": true,
-            "class": "bulwark",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 102,
-            "pos": [
-              -2260.0,
-              1314.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "warden",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 103,
-            "pos": [
-              1627.0,
-              2490.0
-            ],
-            "team": "3"
-          }
-        ],
-        "kills_to_win": 15,
-        "map": [
-          8400.0,
-          5600.0
-        ]
-      },
-      "hero": "arclight",
-      "hp": 145.0,
-      "hp_frac": 1.0,
-      "hp_max": 145.0,
-      "kind": "probe",
-      "label": "ffa_mid",
-      "last_tapped": -1,
-      "pending_id": "",
-      "pending_slot": -1,
-      "summons": 0,
-      "t": 24.001282666666
-    },
-    {
-      "abilities": [
-        {
-          "id": "arclight_blast_of_lightning",
-          "rank": 2
-        },
-        {
-          "id": "arclight_chain_lightning",
-          "rank": 1
-        },
-        {
-          "id": "arclight_static_bolt",
-          "rank": 1
-        },
-        {
-          "id": "arclight_thundergods_wrath",
-          "rank": 1
-        }
-      ],
-      "cds": [
-        0.0,
-        0.0,
-        0.0,
-        144.516666666629
-      ],
-      "enemies_alive": 0,
-      "ffa": {
-        "all_bots": true,
-        "count": 4,
-        "enabled": true,
-        "heroes": [
-          {
-            "alive": false,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": true,
-            "peer": 1,
-            "pos": [
-              847.0,
-              611.0
-            ],
-            "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
+            "class": "tobor",
             "cpu": true,
             "kills": 1,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -297.0,
+              392.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": false,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              -58.0,
-              -18.0
+              1759.0,
+              -757.0
             ],
             "team": "1"
           },
@@ -308,8 +206,8 @@
             "local": false,
             "peer": 102,
             "pos": [
-              -1502.0,
-              754.0
+              -631.0,
+              411.0
             ],
             "team": "2"
           },
@@ -321,8 +219,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              1022.0,
-              -5.0
+              211.0,
+              325.0
             ],
             "team": "3"
           }
@@ -333,130 +231,192 @@
           5600.0
         ]
       },
-      "hero": "arclight",
-      "hp": 0.0,
-      "hp_frac": 0.0,
-      "hp_max": 145.0,
+      "hero": "tobor",
+      "hp": 118.9,
+      "hp_frac": 1.0,
+      "hp_max": 118.9,
       "kind": "probe",
-      "label": "ffa_end",
+      "label": "ffa_45s",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
-      "summons": 0,
-      "t": 47.5079686666647
+      "summons": 1,
+      "t": 45.0247549999999
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 5
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.266799999999747,
+        9.97666666666643,
+        5.53666666666643,
+        114.94999999995
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 2,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -395.0,
+              154.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              -561.0,
+              477.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -1837.0,
+              1026.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -225.0,
+              339.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "tobor",
+      "hp": 112.0,
+      "hp_frac": 0.941968040370059,
+      "hp_max": 118.9,
+      "kind": "probe",
+      "label": "ffa_88s",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 4,
+      "t": 88.0009736666658
     }
   ],
-  "elapsed": 48.0079686666646,
+  "elapsed": 90.0008666666657,
   "enemies_spawned": 0,
-  "hero_position": "(847.3895, 611.4016)",
-  "player_class": "arclight",
+  "hero_position": "(-2.444983, -221.6131)",
+  "player_class": "tobor",
   "results": {
-    "alive": false,
+    "alive": true,
     "beaten_wave": 0,
-    "cast_count": 25,
+    "cast_count": 15,
     "casts": [
       {
-        "ability_id": "arclight_blast_of_lightning",
-        "t": 0.0
+        "ability_id": "tobor_energy_field",
+        "t": 10.940833
       },
       {
-        "ability_id": "arclight_chain_lightning",
-        "t": 0.0
+        "ability_id": "tobor_steam_keg",
+        "t": 11.9121200476191
       },
       {
-        "ability_id": "arclight_static_bolt",
-        "t": 0.0
+        "ability_id": "tobor_spider_mines",
+        "t": 12.139908
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_steam_turret",
+        "t": 12.264908
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_spider_mines",
+        "t": 29.3063299999999
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_steam_turret",
+        "t": 35.595783
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_steam_keg",
+        "t": 36.1546509999999
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_spider_mines",
+        "t": 46.4748493333333
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_steam_turret",
+        "t": 54.3472113333333
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_steam_keg",
+        "t": 57.4776165555554
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_spider_mines",
+        "t": 63.647569333333
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_steam_turret",
+        "t": 74.8154126666662
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_steam_keg",
+        "t": 75.2940476190472
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "ability_id": "tobor_spider_mines",
+        "t": 80.8110169999996
       },
       {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_static_bolt",
-        "t": 13.8767203333333
-      },
-      {
-        "ability_id": "arclight_blast_of_lightning",
-        "t": 21.7090909090904
-      },
-      {
-        "ability_id": "arclight_static_bolt",
-        "t": 24.426282666666
-      },
-      {
-        "ability_id": "arclight_static_bolt",
-        "t": 34.9735519393927
+        "ability_id": "tobor_steam_keg",
+        "t": 88.825552999999
       }
     ],
-    "died": true,
+    "died": false,
     "errors": [],
     "ffa": {
       "all_bots": true,
@@ -464,15 +424,15 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": false,
-          "class": "arclight",
+          "alive": true,
+          "class": "tobor",
           "cpu": true,
-          "kills": 0,
+          "kills": 2,
           "local": true,
           "peer": 1,
           "pos": [
-            847.0,
-            611.0
+            -2.0,
+            -222.0
           ],
           "team": "0"
         },
@@ -480,12 +440,12 @@
           "alive": true,
           "class": "arclight",
           "cpu": true,
-          "kills": 1,
+          "kills": 0,
           "local": false,
           "peer": 101,
           "pos": [
-            -78.0,
-            -13.0
+            -551.0,
+            253.0
           ],
           "team": "1"
         },
@@ -497,21 +457,21 @@
           "local": false,
           "peer": 102,
           "pos": [
-            -1410.0,
-            709.0
+            -1480.0,
+            826.0
           ],
           "team": "2"
         },
         {
-          "alive": false,
+          "alive": true,
           "class": "warden",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 103,
           "pos": [
-            1022.0,
-            -5.0
+            -153.0,
+            313.0
           ],
           "team": "3"
         }
@@ -522,102 +482,166 @@
         5600.0
       ]
     },
-    "gold": 167,
-    "hero_kills": 0,
+    "gold": 1020,
+    "hero_kills": 2,
     "hp_samples": [
       {
         "alive": true,
-        "class": "arclight",
-        "gold": 218,
+        "class": "tobor",
+        "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 0.15
+        "t": 0.14
       },
       {
         "alive": true,
-        "class": "arclight",
-        "gold": 218,
+        "class": "tobor",
+        "gold": 0,
         "hp": 1.0,
         "kills": 0,
         "t": 5.15
       },
       {
         "alive": true,
-        "class": "arclight",
-        "gold": 224,
-        "hp": 0.95,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
         "kills": 0,
         "t": 10.17
       },
       {
         "alive": true,
-        "class": "arclight",
-        "gold": 224,
+        "class": "tobor",
+        "gold": 61,
         "hp": 1.0,
         "kills": 0,
         "t": 15.18
       },
       {
         "alive": true,
-        "class": "arclight",
-        "gold": 224,
+        "class": "tobor",
+        "gold": 192,
         "hp": 1.0,
         "kills": 0,
         "t": 20.18
       },
       {
         "alive": true,
-        "class": "arclight",
-        "gold": 278,
+        "class": "tobor",
+        "gold": 196,
         "hp": 1.0,
         "kills": 0,
         "t": 25.19
       },
       {
         "alive": true,
-        "class": "arclight",
-        "gold": 278,
+        "class": "tobor",
+        "gold": 196,
         "hp": 1.0,
         "kills": 0,
         "t": 30.2
       },
       {
-        "alive": false,
-        "class": "arclight",
-        "gold": 167,
-        "hp": 0.0,
+        "alive": true,
+        "class": "tobor",
+        "gold": 226,
+        "hp": 1.0,
         "kills": 0,
-        "t": 35.2
+        "t": 35.21
       },
       {
-        "alive": false,
-        "class": "arclight",
-        "gold": 167,
-        "hp": 0.0,
-        "kills": 0,
-        "t": 40.21
+        "alive": true,
+        "class": "tobor",
+        "gold": 892,
+        "hp": 0.88,
+        "kills": 1,
+        "t": 40.22
       },
       {
-        "alive": false,
-        "class": "arclight",
-        "gold": 167,
-        "hp": 0.0,
-        "kills": 0,
-        "t": 45.22
+        "alive": true,
+        "class": "tobor",
+        "gold": 924,
+        "hp": 1.0,
+        "kills": 1,
+        "t": 45.23
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 502,
+        "hp": 0.88,
+        "kills": 2,
+        "t": 50.25
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 587,
+        "hp": 1.0,
+        "kills": 2,
+        "t": 55.26
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 705,
+        "hp": 1.0,
+        "kills": 2,
+        "t": 60.28
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 729,
+        "hp": 1.0,
+        "kills": 2,
+        "t": 65.28
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 763,
+        "hp": 1.0,
+        "kills": 2,
+        "t": 70.29
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 801,
+        "hp": 1.0,
+        "kills": 2,
+        "t": 75.36
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 923,
+        "hp": 1.0,
+        "kills": 2,
+        "t": 80.37
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 986,
+        "hp": 1.0,
+        "kills": 2,
+        "t": 85.38
       }
     ],
     "landmark_saves": 0,
-    "level": 3,
+    "level": 9,
     "max_hp": 1.0,
-    "min_hp": 0.0,
+    "min_hp": 0.241968040370059,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "shop_buy_count": 0,
     "shop_buys": [],
     "until_wave": 20,
-    "verdict": "WARN_DEAD",
+    "verdict": "PASS_KILLS",
     "wave": 1,
-    "xp": 97
+    "xp": 397
   },
   "shots": []
 }

@@ -1,0 +1,16 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "comment": "Four-bot FFA perf reproduction: ~3 minutes, CpuBrain plays all 4 seats, periodic probes so tools/selftest/run_selftest.ps1's [perf] log (added to selftest_driver.gd) gives a time series for before/after comparison. See perf/ffa-lag-fix branch.",
+  "events": [
+    {"t": 1.0, "kind": "landmarks", "label": "ffa_landmarks"},
+    {"t": 1.2, "kind": "probe", "label": "ffa_start"},
+    {"t": 30.0, "kind": "probe", "label": "ffa_30s"},
+    {"t": 60.0, "kind": "probe", "label": "ffa_60s"},
+    {"t": 90.0, "kind": "probe", "label": "ffa_90s"},
+    {"t": 120.0, "kind": "probe", "label": "ffa_120s"},
+    {"t": 150.0, "kind": "probe", "label": "ffa_150s"},
+    {"t": 178.0, "kind": "probe", "label": "ffa_178s"},
+    {"t": 180.0, "kind": "report"}
+  ]
+}

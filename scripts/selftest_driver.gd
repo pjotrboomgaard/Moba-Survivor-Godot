@@ -218,7 +218,35 @@ var _debug_last_phys := 0.0
 
 func _physics_process(_delta: float) -> void:
 	if _elapsed - _debug_last_phys >= 5.0:
-		print("[std] phys t=%.1f paused=%s" % [_elapsed, str(get_tree().paused)])
+		# TEMP PERF INSTRUMENTATION (perf/ffa-lag-fix): frame/physics process time (ms),
+		# live object count, and the shared enemy pool size, sampled every 5s so a full
+		# reproduction run leaves a time series to compare before/after a fix. Remove once
+		# the FFA lag investigation is done.
+		var enemy_n := -1
+		if _host_main != null and _host_main.get("enemies") != null:
+			enemy_n = (_host_main.get("enemies") as Dictionary).size()
+		# sep_avg: mean number of candidate enemies each Enemy._separation_offset() call
+		# actually examined over the last ~5s window (see Enemy.consume_separation_stats).
+		# Directly measures the enemy-separation fix's algorithmic win (bounded by local
+		# density after the spatial-hash change) independent of wall-clock/CPU noise from
+		# other processes on a shared machine — compare this against `enemies` (what the
+		# old O(enemies) per-call scan would have cost every single call).
+		var sep_stats := Enemy.consume_separation_stats()
+		var sep_calls := int(sep_stats.get("calls", 0))
+		var sep_candidates := int(sep_stats.get("candidates", 0))
+		var sep_avg := (float(sep_candidates) / float(sep_calls)) if sep_calls > 0 else 0.0
+		print("[perf] t=%.1f fps=%d proc_ms=%.2f phys_ms=%.2f objects=%d nodes=%d enemies=%d sep_calls=%d sep_avg=%.1f paused=%s" % [
+			_elapsed,
+			Engine.get_frames_per_second(),
+			Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
+			Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
+			Performance.get_monitor(Performance.OBJECT_COUNT),
+			Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
+			enemy_n,
+			sep_calls,
+			sep_avg,
+			str(get_tree().paused),
+		])
 		_debug_last_phys = _elapsed
 
 func _process(delta: float) -> void:

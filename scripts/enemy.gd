@@ -12,6 +12,27 @@ const _MinionCorpse := preload("res://scripts/minion_corpse.gd")
 
 const SEPARATION_RANGE := 62.0
 const SEPARATION_STRENGTH := 130.0
+## Uniform-grid cell size for the shared separation spatial hash (see _rebuild_separation_grid).
+## Must be >= SEPARATION_RANGE so a 3x3 neighbourhood around any point's own cell is
+## guaranteed to contain every other enemy within SEPARATION_RANGE of it.
+const SEPARATION_CELL_SIZE := 64.0
+## FFA runs up to four independent WaveDirectors feeding the same shared enemy pool (see
+## main.gd's team_wave_directors), so live enemy counts that would be rare in solo/co-op
+## (near the 110-160 global cap, see main.gd's max_enemies/BOSS_MAX_ENEMIES) are common
+## there instead. Every non-idle enemy calls _separation_offset() every physics frame, and
+## it used to do `get_tree().get_nodes_in_group("enemies")` + a full linear scan each time —
+## O(enemies^2) per physics tick. A live 4-bot FFA reproduction (tools/selftest/requests/
+## ffa_perf_bots.json) measured Performance.TIME_PHYSICS_PROCESS climbing from ~10ms at
+## enemies=40-60 to 17-29ms (occasionally 65-74ms) once the shared pool sat at the ~110 cap,
+## well past the 16.6ms/frame budget for 60fps — this is the "gets laggy" the enemy count
+## itself doesn't explain (see wave_director.gd's per-team budget_for_wave/_desired_live).
+## Fix: bucket enemies into a uniform grid rebuilt once per physics frame (O(n)) and have
+## each enemy only scan its own 3x3 neighbourhood (bounded by local density, not total
+## population) instead of the whole pool. Behaviourally identical — same SEPARATION_RANGE
+## cutoff and falloff — just no longer wastefully comparing against enemies that are
+## nowhere near close enough to matter.
+static var _separation_grid: Dictionary = {}  # Vector2i cell -> Array[Enemy]
+static var _separation_grid_frame: int = -1
 const KNOCKBACK_DECAY := 720.0
 ## Phase Cloak wander: no target acquired because every nearby player is cloaked.
 const WANDER_TURN_MIN := 1.1
@@ -499,19 +520,72 @@ func _eject_from_ffa_crater() -> void:
 	global_position = radial * rim
 
 
+static func _separation_cell(pos: Vector2) -> Vector2i:
+	return Vector2i(int(floor(pos.x / SEPARATION_CELL_SIZE)), int(floor(pos.y / SEPARATION_CELL_SIZE)))
+
+
+## Rebuilds the shared enemy->cell bucket map at most once per physics frame (guarded by
+## Engine.get_physics_frames(), which only advances once per tick regardless of how many
+## enemies call in). O(n) total per frame however many enemies call _separation_offset(),
+## versus the old O(n) `get_tree().get_nodes_in_group("enemies")` call repeated by every
+## single one of them (O(n^2) overall).
+func _rebuild_separation_grid() -> void:
+	var frame := Engine.get_physics_frames()
+	if frame == Enemy._separation_grid_frame:
+		return
+	Enemy._separation_grid_frame = frame
+	Enemy._separation_grid.clear()
+	for candidate in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(candidate) or not candidate is Node2D:
+			continue
+		var key := _separation_cell((candidate as Node2D).global_position)
+		var bucket: Array = Enemy._separation_grid.get(key, [])
+		bucket.append(candidate)
+		Enemy._separation_grid[key] = bucket
+
+
+## TEMP PERF INSTRUMENTATION (perf/ffa-lag-fix): counts how many candidate enemies each
+## _separation_offset() call actually has to examine (the 3x3 neighbourhood's combined
+## bucket size) versus the old code's fixed cost of `enemies.size()` (the whole pool) on
+## every single call. Read + reset via Enemy.consume_separation_stats() — see
+## selftest_driver.gd's periodic [perf] print. Remove alongside the rest of the temp
+## instrumentation once the FFA lag investigation is done.
+static var _sep_sample_calls := 0
+static var _sep_sample_candidates := 0
+
+
+static func consume_separation_stats() -> Dictionary:
+	var calls := Enemy._sep_sample_calls
+	var candidates := Enemy._sep_sample_candidates
+	Enemy._sep_sample_calls = 0
+	Enemy._sep_sample_candidates = 0
+	return {"calls": calls, "candidates": candidates}
+
+
 func _separation_offset() -> Vector2:
 	if separation_weight <= 0.0:
 		return Vector2.ZERO
+	_rebuild_separation_grid()
 	var push := Vector2.ZERO
 	var range_sq := SEPARATION_RANGE * SEPARATION_RANGE
-	for candidate in get_tree().get_nodes_in_group("enemies"):
-		if candidate == self or not is_instance_valid(candidate) or not candidate is Node2D:
-			continue
-		var offset: Vector2 = global_position - (candidate as Node2D).global_position
-		var distance_sq := offset.length_squared()
-		if distance_sq <= 0.01 or distance_sq > range_sq:
-			continue
-		push += offset.normalized() * (1.0 - sqrt(distance_sq) / SEPARATION_RANGE)
+	var base_cell := _separation_cell(global_position)
+	var scanned := 0
+	# SEPARATION_CELL_SIZE >= SEPARATION_RANGE guarantees every enemy within range sits in
+	# this 3x3 neighbourhood around our own cell — see the constant's comment above.
+	for dx in range(-1, 2):
+		for dy in range(-1, 2):
+			var bucket: Array = Enemy._separation_grid.get(Vector2i(base_cell.x + dx, base_cell.y + dy), [])
+			scanned += bucket.size()
+			for candidate in bucket:
+				if candidate == self or not is_instance_valid(candidate):
+					continue
+				var offset: Vector2 = global_position - (candidate as Node2D).global_position
+				var distance_sq := offset.length_squared()
+				if distance_sq <= 0.01 or distance_sq > range_sq:
+					continue
+				push += offset.normalized() * (1.0 - sqrt(distance_sq) / SEPARATION_RANGE)
+	Enemy._sep_sample_calls += 1
+	Enemy._sep_sample_candidates += scanned
 	if push == Vector2.ZERO:
 		return Vector2.ZERO
 	return push.limit_length(2.0) * SEPARATION_STRENGTH / maxf(0.3, separation_weight)

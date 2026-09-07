@@ -118,6 +118,20 @@ func local_steam_id() -> int:
 	return int(Steam.getSteamID()) if initialized else 0
 
 
+## Sets the local player's Steam Rich Presence to the current FFA wave/team so friends
+## can see it in their friends list. main.gd called this every wave with no such method
+## ever existing on this autoload -- threw a script error on every FFA wave start
+## (functionally harmless, but spammed stderr). setRichPresence is guarded the same way
+## the rest of this file guards less-universal Steam API calls (see setLobbyData above).
+func set_rift_clash_presence(wave: int, team_id: String) -> void:
+	if not initialized or not Steam.has_method("setRichPresence"):
+		return
+	var label := "Wave %d" % wave
+	if not team_id.is_empty():
+		label += " · Team %s" % team_id.capitalize()
+	Steam.setRichPresence("status", label)
+
+
 func create_lobby(max_players: int) -> void:
 	_creating_lobby = true
 	_lobby_create_elapsed = 0.0

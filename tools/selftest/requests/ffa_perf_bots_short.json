@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "comment": "Shorter (~90s) 4-bot FFA smoke used to verify main.gd's _report_wave_pressure single-pass consolidation (perf/ffa-lag-fix) doesn't change wave/pressure behaviour.",
+  "events": [
+    {"t": 1.0, "kind": "landmarks", "label": "ffa_landmarks"},
+    {"t": 1.2, "kind": "probe", "label": "ffa_start"},
+    {"t": 45.0, "kind": "probe", "label": "ffa_45s"},
+    {"t": 88.0, "kind": "probe", "label": "ffa_88s"},
+    {"t": 90.0, "kind": "report"}
+  ]
+}

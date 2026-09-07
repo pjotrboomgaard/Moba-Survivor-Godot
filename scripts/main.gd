@@ -2493,14 +2493,25 @@ func _living_enemy_count() -> int:
 
 func _report_wave_pressure() -> void:
 	if GameRuntime.is_rift_clash():
+		# FFA runs up to 4 independent WaveDirectors (see team_wave_directors), and this used
+		# to run one full O(enemies) scan of the shared pool per team for the alive count plus
+		# another for the nearby count — up to 8 scans every physics frame just to report
+		# counts. One shared pass (_compute_team_enemy_stats) now does all of it in O(enemies)
+		# total, regardless of team count.
+		var hero_by_team: Dictionary = {}
+		for team_id in team_wave_directors.keys():
+			hero_by_team[str(team_id)] = _player_on_team(str(team_id))
+		var stats := _compute_team_enemy_stats(hero_by_team, 460.0)
+		var alive: Dictionary = stats.get("alive", {})
+		var nearby: Dictionary = stats.get("nearby", {})
 		for team_id in team_wave_directors.keys():
 			var director := team_wave_directors[team_id] as WaveDirector
-			var hero := _player_on_team(str(team_id))
+			var hero: Player = hero_by_team.get(str(team_id))
 			var hp := 1.0
 			if hero != null and hero.health != null and hero.health.max_health > 0.0:
 				hp = hero.health.current_health / hero.health.max_health
-			director.report_enemy_count(_living_enemies_for_team(str(team_id)))
-			director.report_pressure(hp, _nearby_enemy_count(hero, 460.0))
+			director.report_enemy_count(int(alive.get(str(team_id), 0)))
+			director.report_pressure(hp, int(nearby.get(str(team_id), 0)))
 		return
 	var player := _first_active_player()
 	var hp := 1.0
@@ -2523,6 +2534,27 @@ func _nearby_enemy_count(player: Player, radius: float) -> int:
 		if origin.distance_to(body.global_position) <= radius:
 			n += 1
 	return n
+
+
+## One pass over the shared enemy pool computing, per team, both the live count and the
+## count within `radius` of that team's hero (hero_by_team: team_id -> Player, may hold
+## null for a team with no live hero) — see _report_wave_pressure().
+func _compute_team_enemy_stats(hero_by_team: Dictionary, radius: float) -> Dictionary:
+	var alive: Dictionary = {}
+	var nearby: Dictionary = {}
+	var radius_sq := radius * radius
+	for enemy in enemies.values():
+		if not is_instance_valid(enemy):
+			continue
+		var body := enemy as Enemy
+		if body.health != null and body.health.is_dead:
+			continue
+		var team_id := str(body.team_id)
+		alive[team_id] = int(alive.get(team_id, 0)) + 1
+		var hero: Player = hero_by_team.get(team_id)
+		if hero != null and hero.global_position.distance_squared_to(body.global_position) <= radius_sq:
+			nearby[team_id] = int(nearby.get(team_id, 0)) + 1
+	return {"alive": alive, "nearby": nearby}
 
 
 func _selftest_active() -> bool:
@@ -2554,18 +2586,6 @@ func _player_on_team(team_id: String) -> Player:
 			return player
 	return null
 
-
-func _living_enemies_for_team(team_id: String) -> int:
-	var n := 0
-	for enemy in enemies.values():
-		if not is_instance_valid(enemy):
-			continue
-		var body := enemy as Enemy
-		if body.health != null and body.health.is_dead:
-			continue
-		if body.team_id == team_id:
-			n += 1
-	return n
 
 
 func _tick_ffa(delta: float) -> void:
