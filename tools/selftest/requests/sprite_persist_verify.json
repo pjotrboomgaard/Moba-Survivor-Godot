@@ -1,0 +1,22 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 5,
+  "duration": 90,
+  "time_scale": 1.5,
+  "build": "tank",
+  "comment": "Multi-screenshot sprite-persistence test: snap every ~8s to confirm hero+enemy sprites never vanish (depth_z + fog fixes).",
+  "events": [
+    {"kind": "snap", "label": "p_0s", "t": 2.0},
+    {"kind": "snap", "label": "p_8s", "t": 10.0},
+    {"kind": "snap", "label": "p_16s", "t": 18.0},
+    {"kind": "snap", "label": "p_24s", "t": 26.0},
+    {"kind": "snap", "label": "p_32s", "t": 34.0},
+    {"kind": "snap", "label": "p_40s", "t": 42.0},
+    {"kind": "snap", "label": "p_50s", "t": 52.0},
+    {"kind": "snap", "label": "p_60s", "t": 62.0},
+    {"kind": "snap", "label": "p_72s", "t": 74.0},
+    {"kind": "snap", "label": "p_84s", "t": 86.0},
+    {"kind": "report", "t": 90.0}
+  ]
+}
