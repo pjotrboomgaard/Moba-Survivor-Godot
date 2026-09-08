@@ -1,5 +1,6 @@
 {
   "hero": "tobor",
+  "mode": "ffa",
   "comment": "Four-bot FFA smoke: 4 Tobors on 4 teams, contested landmarks, first-to-10 wiring.",
   "events": [
     {"t": 0.8, "kind": "landmarks", "label": "ffa_landmarks"},

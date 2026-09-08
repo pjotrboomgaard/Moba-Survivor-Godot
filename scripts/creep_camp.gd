@@ -127,8 +127,15 @@ func _update_alive_counts() -> void:
 		_camp_alive_counts[i] = alive
 
 func _build_markers() -> void:
+	# Biome-aware tint: camp markers glow with the world's signature color so
+	# each world's camps read distinctly (volcano = ember orange, ice = cyan,
+	# factory = steel blue, docks = amber, grass = leafy green).
+	var biome_tint := _biome_tint()
 	for i in _camp_positions.size():
 		var accent: Color = CAMP_ACCENT_COLORS[i % CAMP_ACCENT_COLORS.size()]
+		# Blend the camp's base accent with the biome tint (40% biome) so the
+		# camp shape stays identifiable but the world reads through.
+		accent = accent.lerp(biome_tint, 0.4)
 		var spr := Sprite2D.new()
 		spr.texture = _make_camp_marker_texture(i, accent)
 		spr.position = _camp_positions[i]
@@ -137,6 +144,23 @@ func _build_markers() -> void:
 		spr.modulate = Color.WHITE
 		add_child(spr)
 		_camp_markers.append(spr)
+
+
+## Signature glow color per biome so camp markers read as "this world's camp".
+func _biome_tint() -> Color:
+	if not GameRuntime.uses_biomes():
+		return Color("7dbb5a")  # grass: leafy green
+	match GameRuntime.biome_id:
+		1:
+			return Color("ff7a29")  # volcano: ember orange
+		2:
+			return Color("5ad4ff")  # ice: cyan
+		3:
+			return Color("5a70a8")  # factory: steel blue
+		4:
+			return Color("d4a017")  # docks: amber
+		_:
+			return Color("7dbb5a")
 
 
 ## Each camp gets a distinct pixel-art marker: camp 0 = diamond (red/brute),
