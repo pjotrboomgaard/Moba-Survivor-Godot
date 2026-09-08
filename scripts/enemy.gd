@@ -154,6 +154,20 @@ var slam_shot_gap := 0.0
 var _base_projectile_count := 1
 var _stuck_time := 0.0
 
+## Camp Guardian: a stationary tanky elite that guards a creep camp.
+## - Holds its position (leashed to spawn point within CAMP_GUARDIAN_LEASH_RADIUS).
+## - Emits a periodic undodgeable area "slam" pulse around itself.
+## - Takes reduced damage (damage resistance) so it is a real threat.
+## - Does NOT chase the player far — it holds camp. If the player leaves the
+##   leash radius the guardian loses aggro and stops.
+var is_camp_guardian := false
+var camp_guardian_home := Vector2.ZERO
+const CAMP_GUARDIAN_LEASH_RADIUS := 260.0
+var _camp_guardian_slaam_timer := 0.0
+const CAMP_GUARDIAN_SLAM_INTERVAL := 2.2
+const CAMP_GUARDIAN_SLAM_RADIUS := 150.0
+const CAMP_GUARDIAN_SLAM_DAMAGE := 24.0
+
 ## Terrain-hazard / lava-dunk state. Flying enemies skim over pools; grounded ones take
 ## the full dunk when a knockback arc drops them inside lava. Scramble slows the crawl
 ## back out, and `_lava_dunked_this_flight` keeps one knockback from multi-dunking on
