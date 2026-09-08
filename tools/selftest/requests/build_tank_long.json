@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "build": "tank",
+  "time_scale": 2.0,
+  "until_wave": 20,
+  "duration": 900,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Long tank build: verify wave 20, quest diversity, creep camps. Lightning 2x (~450s wall clock).",
+  "events": []
+}

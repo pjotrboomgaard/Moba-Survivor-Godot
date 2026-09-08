@@ -92,8 +92,8 @@ var aim_world_position := Vector2.RIGHT * 100.0
 var current_xp := 0
 var level := 1
 ## First level is a handful of grunt orbs; later levels stretch so wave 20 still has picks left.
-const BASE_XP_REQUIRED := 100
-const XP_GROWTH := 1.20
+const BASE_XP_REQUIRED := 80
+const XP_GROWTH := 1.17
 var xp_required := BASE_XP_REQUIRED
 var gold := 0
 var gold_multiplier := 1.0
