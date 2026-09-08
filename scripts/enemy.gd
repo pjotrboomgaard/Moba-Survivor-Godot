@@ -714,13 +714,16 @@ func _process_camp_guardian(delta: float) -> void:
 	if _camp_guardian_slaam_timer <= 0.0:
 		_camp_guardian_slaam_timer = CAMP_GUARDIAN_SLAM_INTERVAL
 		_emit_camp_guardian_slaam()
-	# Hold position: if target is within leash, stand still; if out of leash, stop.
+	# Camp guardian behaviour: within leash range, advance to attack range and
+	# hit the target. Out of leash, hold still (does not chase far away).
 	var dist := global_position.distance_to(target.global_position)
 	if dist <= CAMP_GUARDIAN_LEASH_RADIUS:
-		# Within leash: hold camp position, face target, attack if in range.
-		velocity = Vector2.ZERO
-		# Attack with contact damage (reduced by guardian damage_taken_multiplier).
-		if dist <= attack_distance:
+		# Within leash: close the gap if out of attack range, otherwise attack.
+		if dist > attack_distance:
+			velocity = global_position.direction_to(target.global_position) * movement_speed * 0.85
+		else:
+			velocity = Vector2.ZERO
+			# Attack with contact damage (reduced by guardian damage_taken_multiplier).
 			_attack_target()
 		# Visual: face the target.
 		queue_redraw()
@@ -1446,6 +1449,9 @@ func _find_nearest_player() -> Node2D:
 			continue
 		var player := candidate as Player
 		if player.is_phase_cloaked():
+			continue
+		# Creeps do not target a player in boss form (FFA/solo takeover).
+		if player.in_boss_form:
 			continue
 		if crater_block and player.global_position.length() < crater:
 			continue

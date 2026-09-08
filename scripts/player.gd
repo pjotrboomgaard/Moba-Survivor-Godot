@@ -121,6 +121,31 @@ var hovering := false
 ## True while an ability is armed and waiting for a confirm press/click — see TARGETED_ABILITIES.
 var aim_indicator_visible := false
 var _shake_time := 0.0
+## Synergy bonuses (extra stats granted when a synergy pair is completed).
+var _companion_damage_bonus := 0.0
+var _kill_heal_amount := 0.0
+var _move_heal_per_second := 0.0
+## Synergy keys already granted (each synergy fires only once).
+var _granted_synergies: Dictionary = {}
+## Boss-takeover state (FFA & solo): when this player defeats the wave boss, they
+## temporarily "become the boss" — boosted speed/damage, boss-form attacks on
+## hotkeys, and (FFA) creeps won't target them. They revert when killed by a
+## rival (FFA) or after the timer / on death (solo).
+var in_boss_form := false
+var boss_form_type_id := ""
+var boss_form_timer := 0.0
+var boss_form_hero_kills := 0
+## Boss-form ability cooldowns (independent from the hero kit). Mirrors the
+## boss pattern pacing so the taken-over hero feels like the boss.
+var _boss_slam_cd := 0.0
+var _boss_cross_cd := 0.0
+var _boss_volley_cd := 0.0
+const BOSS_FORM_DURATION := 45.0
+const BOSS_FORM_SPEED_MULT := 1.45
+const BOSS_FORM_DAMAGE_MULT := 1.8
+const BOSS_FORM_MAX_HEALTH_BONUS := 120.0
+const BOSS_FORM_CAMERA_ZOOM := 0.5
+const BOSS_FORM_HERO_KILLS_REQUIRED := 3
 var _shake_amp := 0.0
 
 const SPRINT_DURATION := 1.5
@@ -244,6 +269,7 @@ func _process(_delta: float) -> void:
 		else:
 			camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * _shake_amp
 	_refresh_respawn_label()
+	_tick_boss_form(_delta)
 	if shop_hint != null and shop_hint.visible:
 		shop_hint.position.y = sin(Time.get_ticks_msec() * 0.008) * 6.0
 
@@ -302,6 +328,181 @@ func apply_class(next_class_id: String) -> void:
 	_apply_kit_abilities()
 	_apply_sprite()
 	queue_redraw()
+
+
+## ---- Boss-form (takeover) state -----------------------------------------------------------
+
+func is_in_boss_form() -> bool:
+	return in_boss_form
+
+
+## Grant boss-form: boosted stats, boss-tinted sprite, creeps won't target us (FFA).
+## Called by main.gd when this player defeats the wave boss.
+func grant_boss_form(boss_type_id: String) -> void:
+	if in_boss_form:
+		# Refresh timer, don't stack.
+		boss_form_timer = BOSS_FORM_DURATION
+		return
+	in_boss_form = true
+	boss_form_type_id = boss_type_id
+	boss_form_timer = BOSS_FORM_DURATION
+	boss_form_hero_kills = 0
+	# Stat boosts.
+	movement_speed *= BOSS_FORM_SPEED_MULT
+	weapon_damage *= BOSS_FORM_DAMAGE_MULT
+	_add_max_health(BOSS_FORM_MAX_HEALTH_BONUS)
+	# Visual: tint toward the boss colour, zoom out camera to see more of the arena
+	# so the player can unleash boss-scale attacks.
+	if sprite != null:
+		sprite.modulate = Color(1.4, 0.6, 0.4)
+		# Boss-form pulse ring.
+		if world_health_bar != null:
+			world_health_bar.set_identity_color(Color("ff4444"))
+	if camera != null and is_local_player:
+		camera.zoom = Vector2(BOSS_FORM_CAMERA_ZOOM, BOSS_FORM_CAMERA_ZOOM)
+	queue_redraw()
+
+
+## Revert boss-form: restore original stats, sprite colour.
+func revert_boss_form() -> void:
+	if not in_boss_form:
+		return
+	in_boss_form = false
+	boss_form_timer = 0.0
+	boss_form_hero_kills = 0
+	# Restore base stats (re-apply class data for the core stats).
+	var class_data := PlayerClass.by_id(class_id)
+	movement_speed = class_data.movement_speed
+	weapon_damage = class_data.weapon_damage
+	attack_interval = class_data.attack_interval * 0.5
+	# Note: max_health is NOT reverted (permanent gain), just noted.
+	if sprite != null:
+		sprite.modulate = Color.WHITE
+		if world_health_bar != null:
+			world_health_bar.set_identity_color(Color(str(class_data.get("health_bar_color", class_data.accent_color))))
+	# Restore camera zoom.
+	if camera != null and is_local_player:
+		camera.zoom = Vector2(1.0, 1.0)
+	boss_form_type_id = ""
+	queue_redraw()
+
+
+## Tick the boss-form timer and its three attack cooldowns (called from _process).
+func _tick_boss_form(delta: float) -> void:
+	if not in_boss_form:
+		return
+	boss_form_timer -= delta
+	_boss_slam_cd = maxf(0.0, _boss_slam_cd - delta)
+	_boss_cross_cd = maxf(0.0, _boss_cross_cd - delta)
+	_boss_volley_cd = maxf(0.0, _boss_volley_cd - delta)
+	if boss_form_timer <= 0.0:
+		revert_boss_form()
+
+
+## Boss-form ability A (slot Q): Ring Slam — undodgeable shockwave circles around
+## the player, mirroring the boss's "slam" pattern. Cooldown mirrors the boss.
+func _boss_form_slam() -> void:
+	if not in_boss_form or _boss_slam_cd > 0.0:
+		return
+	_boss_slam_cd = 3.0
+	var arena_root := get_parent()
+	if arena_root == null:
+		return
+	var dmg := weapon_damage * 2.5
+	var radius := 90.0 + 8.0 * _boss_form_phase()
+	var ring := radius * 2.0 + 90.0
+	var count := 4
+	var offset_dir := randf() * TAU
+	for index in count:
+		var offset := Vector2.RIGHT.rotated(TAU * float(index) / float(count) + offset_dir) * ring
+		_emit_boss_form_hazard("circle", global_position + offset, radius, 1.1, 0.28, dmg, Color("ff5533"))
+	_emit_boss_form_hazard("circle", global_position, radius, 0.9, 0.28, dmg, Color("ff5533"))
+
+
+## Boss-form ability B (slot E): Cross Lines — directional hazard lines that sweep
+## through the arena, mirroring the boss's "cross" pattern.
+func _boss_form_cross() -> void:
+	if not in_boss_form or _boss_cross_cd > 0.0:
+		return
+	_boss_cross_cd = 2.6
+	var dmg := weapon_damage * 2.0
+	var toward := facing_direction.angle()
+	var angles: Array[float] = [toward, toward + PI * 0.5]
+	for angle in angles:
+		var dir := Vector2.RIGHT.rotated(angle)
+		_emit_boss_form_hazard_line(dir, 1.1, 0.28, dmg, Color("ffaa33"))
+
+
+## Boss-form ability C (slot R): Volley — fires a ring of projectiles in many
+## directions, mirroring the boss's "volley" pattern.
+func _boss_form_volley() -> void:
+	if not in_boss_form or _boss_volley_cd > 0.0:
+		return
+	_boss_volley_cd = 3.5
+	var arena_root := get_parent()
+	if arena_root == null or not arena_root.has_method("spawn_player_projectile"):
+		return
+	var count := 10 + 3 * _boss_form_phase()
+	var offset_dir := randf() * TAU
+	for index in count:
+		var dir := Vector2.RIGHT.rotated(TAU * float(index) / float(count) + offset_dir)
+		arena_root.call("spawn_player_projectile", global_position, dir, self)
+
+
+func _is_slot_held(slots_held: Array, slot: int) -> bool:
+	return slot < slots_held.size() and bool(slots_held[slot])
+
+
+func _boss_form_phase() -> int:
+	# Higher phase (more damage/coverage) as the boss-form timer runs down, so the
+	# taken-over hero gets *more* powerful the longer they hold the form.
+	var frac := 1.0 - boss_form_timer / BOSS_FORM_DURATION
+	if frac < 0.34:
+		return 1
+	if frac < 0.67:
+		return 2
+	return 3
+
+
+## Emit a boss-style area hazard through the main scene's hazard system.
+func _emit_boss_form_hazard(kind: String, origin: Vector2, radius: float, telegraph: float, active: float, damage: float, color: Color) -> void:
+	var main_root := get_parent()
+	if main_root == null or not main_root.has_method("player_hazard_requested"):
+		return
+	main_root.call("player_hazard_requested", {
+		"kind": kind,
+		"origin": origin,
+		"radius": radius,
+		"telegraph": telegraph,
+		"active": active,
+		"damage": damage,
+		"color": str(color.to_html(false)),
+	})
+
+
+## Emit a boss-style line hazard.
+func _emit_boss_form_hazard_line(direction: Vector2, telegraph: float, active: float, damage: float, color: Color) -> void:
+	var main_root := get_parent()
+	if main_root == null or not main_root.has_method("player_hazard_requested"):
+		return
+	main_root.call("player_hazard_requested", {
+		"kind": "line",
+		"origin": global_position,
+		"direction": direction,
+		"telegraph": telegraph,
+		"active": active,
+		"damage": damage,
+		"color": str(color.to_html(false)),
+	})
+
+
+## Increment the hero-kill counter while in boss form (FFA). Returns true if the
+## threshold has been reached (caller should revert).
+func boss_form_register_hero_kill() -> bool:
+	boss_form_hero_kills += 1
+	if boss_form_hero_kills >= BOSS_FORM_HERO_KILLS_REQUIRED:
+		return true
+	return false
 
 
 ## Start every hero with the loadout the player pre-picked in the menu: 3 regular slots from
@@ -721,6 +922,10 @@ func _physics_process(delta: float) -> void:
 	velocity = move_input * speed + knockback_velocity
 	move_and_slide()
 	_refresh_sort_z()
+	# Synergy "Skirmisher": healing while moving (movement = safety = life).
+	if _move_heal_per_second > 0.0 and velocity.length_squared() > 400.0 and not health.is_dead:
+		health.current_health = minf(health.max_health, health.current_health + _move_heal_per_second * delta)
+		health.health_changed.emit(health.current_health, health.max_health)
 	_tick_pulse_blast(delta)
 	knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, PLAYER_KNOCKBACK_DECAY * delta)
 	_update_tobor_visual(delta, move_input)
@@ -1186,6 +1391,18 @@ func _tick_cooldowns(delta: float) -> void:
 
 
 func _update_ability_slots(delta: float, slots_held: Array) -> void:
+	# Boss-form override: while in boss form, slots Q/E/R fire boss-style
+	# attacks (slam / cross / volley) instead of the hero kit. This lets the
+	# taken-over hero unleash the full boss arsenal on hotkeys.
+	if in_boss_form:
+		if _is_slot_held(slots_held, 0):
+			_boss_form_slam()
+		if _is_slot_held(slots_held, 1):
+			_boss_form_cross()
+		if _is_slot_held(slots_held, 2):
+			_boss_form_volley()
+		_tick_cooldowns(delta)
+		return
 	if known_abilities.is_empty():
 		_tick_cooldowns(delta)
 		return
@@ -3882,7 +4099,13 @@ func _damage_enemy(target: Node2D, amount: float) -> void:
 		resistance *= target.vulnerability_multiplier()
 	var ability_damage_mult := float(ability_buff_stats.get("damage_dealt_mult", 1.0))
 	var dealt := amount * damage_dealt_multiplier * ability_damage_mult * resistance
+	var was_alive := not target_health.is_dead
 	target_health.take_damage(dealt, self)
+	# Synergy "Iron Will" / "Bruiser": healing on kill. Only triggers if this hit
+	# actually killed the target (was alive before, dead after).
+	if was_alive and target_health.is_dead and _kill_heal_amount > 0.0:
+		health.current_health = minf(health.max_health, health.current_health + _kill_heal_amount)
+		health.health_changed.emit(health.current_health, health.max_health)
 	if hit_slow_factor < 1.0 and target.has_method("apply_slow"):
 		target.apply_slow(hit_slow_factor, hit_slow_duration)
 	if knockback_strength > 0.0 and target.has_method("apply_knockback"):
@@ -4140,6 +4363,52 @@ func apply_upgrade(upgrade_id: String) -> void:
 		"swarm_drones":
 			_add_companion("gun_drone")
 			_add_companion("gun_drone")
+	# Apply any newly-completed synergy bonuses (re-evaluates the full set so
+	# each new upgrade can complete a pair, e.g. rapid + keen_eye -> Critical Tempo).
+	_apply_synergy_bonuses()
+
+
+## Apply stat bonuses from every completed synergy pair that hasn't been granted yet.
+## Each synergy grants its bonus the first time both required upgrades are held.
+func _apply_synergy_bonuses() -> void:
+	for syn in UpgradeCatalog.active_synergies(taken_upgrades):
+		var key := str(syn.get("key", ""))
+		if key.is_empty() or _granted_synergies.has(key):
+			continue
+		_granted_synergies[key] = true
+		var bonus: Dictionary = syn.get("bonus", {})
+		if bonus.has("attack_interval_mult"):
+			attack_interval = maxf(0.12, attack_interval * float(bonus["attack_interval_mult"]))
+		if bonus.has("weapon_damage_flat"):
+			weapon_damage += float(bonus["weapon_damage_flat"])
+		if bonus.has("max_health_flat"):
+			_add_max_health(float(bonus["max_health_flat"]))
+		if bonus.has("damage_taken_mult"):
+			_add_damage_reduction(float(bonus["damage_taken_mult"]))
+		if bonus.has("crit_chance"):
+			crit_chance += float(bonus["crit_chance"])
+		if bonus.has("crit_mult"):
+			crit_mult = maxf(crit_mult, crit_mult + float(bonus["crit_mult"]))
+		if bonus.has("attack_range_flat"):
+			attack_range += float(bonus["attack_range_flat"])
+		if bonus.has("movement_speed_flat"):
+			movement_speed += float(bonus["movement_speed_flat"])
+		if bonus.has("blast_radius_flat"):
+			blast_radius += float(bonus["blast_radius_flat"])
+		if bonus.has("extra_projectiles_flat"):
+			extra_projectiles += int(bonus["extra_projectiles_flat"])
+		if bonus.has("xp_gain_mult"):
+			xp_gain_mult += float(bonus["xp_gain_mult"])
+		if bonus.has("chain_range_flat"):
+			chain_range += float(bonus["chain_range_flat"])
+		if bonus.has("companion_damage_flat"):
+			_companion_damage_bonus += float(bonus["companion_damage_flat"])
+		if bonus.has("self_heal_on_kill"):
+			_kill_heal_amount += float(bonus["self_heal_on_kill"])
+		if bonus.has("self_heal_on_move"):
+			_move_heal_per_second += float(bonus["self_heal_on_move"])
+		_granted_synergies[key] = true
+		print("Synergy unlocked: ", str(syn.get("name", key)))
 
 
 func _apply_ability_token(ability_id: String) -> void:
@@ -4234,6 +4503,10 @@ func _reflect_damage(amount: float) -> void:
 
 
 func _on_died() -> void:
+	# Losing boss form on death: the taken-over state is a temporary power, not
+	# permanent. Revert to the hero so they respawn as their normal class.
+	if in_boss_form:
+		revert_boss_form()
 	active = false
 	_hazard_inside = false
 	_hazard_grace_timer = 0.0

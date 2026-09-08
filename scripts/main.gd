@@ -1383,6 +1383,17 @@ func _spawn_arena_hazard(spec: Dictionary) -> void:
 	hazard.configure(spec)
 
 
+## Public entry point for player boss-form attacks to emit arena hazards, with the
+## same RPC/cosmetic handling as enemy hazards.
+func player_hazard_requested(spec: Dictionary) -> void:
+	_spawn_arena_hazard(spec)
+	if GameRuntime.is_server():
+		var remote_spec := spec.duplicate()
+		remote_spec["cosmetic"] = true
+		for peer_id in registered_remote_peers.keys():
+			client_spawn_arena_hazard.rpc_id(peer_id, remote_spec)
+
+
 func _on_boss_phase_changed(phase: int) -> void:
 	var boss := _find_boss()
 	var boss_name := "BOSS"
@@ -1405,6 +1416,15 @@ func _on_boss_death(enemy: Enemy) -> void:
 		if GameRuntime.is_server():
 			for peer_id in registered_remote_peers.keys():
 				client_play_sound.rpc_id(peer_id, "explosion")
+
+	# Boss takeover: whoever landed the killing blow "becomes the boss" for a
+	# while — boosted stats, boss-form attacks, and (FFA) creeps won't target
+	# them. In solo they get to stomp the remaining creeps, in FFA they can
+	# rival other heroes until killed or the timer expires.
+	if not GameRuntime.is_dedicated_server() and enemy.health.last_damage_source is Player:
+		var boss_killer := enemy.health.last_damage_source as Player
+		if boss_killer != null and is_instance_valid(boss_killer):
+			boss_killer.grant_boss_form(enemy.type_id)
 
 
 func _shake_cameras(amplitude: float, duration: float) -> void:
@@ -2901,6 +2921,15 @@ func _on_ffa_player_died(peer_id: int) -> void:
 		var killer := source as Player
 		killer.add_gold(GameRuntime.HERO_KILL_GOLD + fallen.last_death_gold_lost)
 		killer.hero_kills = RiftClashManager.record_hero_kill(killer.owner_peer_id)
+		# Boss-form: once the boss-holder lands 3 hero kills, they're overpowered —
+		# revert to their normal hero so the match stays balanced.
+		if killer.in_boss_form:
+			print("[boss-form] %s hit %d hero kills, reverting to hero" % [
+				RiftClashManager.team_name(killer.team_id),
+				killer.boss_form_hero_kills,
+			])
+			if killer.boss_form_register_hero_kill():
+				killer.revert_boss_form()
 		print("[ffa] kill %s now %d/%d at %.0fs" % [
 			RiftClashManager.team_name(killer.team_id),
 			killer.hero_kills,

@@ -7,6 +7,106 @@ const ABILITY_PREFIX := "ability:"
 const RARE_CHANCE := 0.18
 const LEGENDARY_CHANCE := 0.045
 
+## Synergy trees: when a player holds upgrades from BOTH sides of a pair, they
+## earn an extra bonus on top of the individual effects. This is what makes
+## builds feel like "paths" — e.g. Tempo + Crit becomes a crit-tempo build,
+## Tank + Power becomes a bruiser build that self-damages to heal.
+## Each entry: key, both required (upgrade ids), a human name, and a bonus dict
+## of stat_key -> value applied when the pair is complete.
+const SYNERGIES := {
+	"tempo_crit": {
+		"requires": ["rapid", "keen_eye"],
+		"name": "Critical Tempo",
+		"bonus": {"crit_mult": 0.5, "crit_chance": 0.06},
+		"flavor": "Fast attacks stack into a relentless crit stream.",
+	},
+	"tempo_power": {
+		"requires": ["haste", "heavy"],
+		"name": "Rapid Fire",
+		"bonus": {"attack_interval_mult": 0.15, "weapon_damage_flat": 4.0},
+		"flavor": "You swing so fast the impacts compound.",
+	},
+	"tank_power": {
+		"requires": ["plating", "heavy"],
+		"name": "Bruiser",
+		"bonus": {"damage_taken_mult": -0.06, "weapon_damage_flat": 6.0},
+		"flavor": "Hitting hard means taking hard hits back — you shrug it off.",
+	},
+	"tank_selfdmg": {
+		"requires": ["vitality", "plating"],
+		"name": "Iron Will",
+		"bonus": {"self_heal_on_kill": 3.0, "max_health_flat": 30.0},
+		"flavor": "Every kill knits your wounds closed.",
+	},
+	"move_range": {
+		"requires": ["boots", "reach"],
+		"name": "Ranged Striker",
+		"bonus": {"attack_range_flat": 50.0, "movement_speed_flat": 25.0},
+		"flavor": "Speed plus reach lets you outmanoeuvre everything.",
+	},
+	"move_jump": {
+		"requires": ["boots", "flow"],
+		"name": "Skirmisher",
+		"bonus": {"movement_speed_flat": 20.0, "self_heal_on_move": 0.5},
+		"flavor": "Keep moving, keep healing. No standstill.",
+	},
+	"splash_power": {
+		"requires": ["blast", "heavy"],
+		"name": "Cataclysm",
+		"bonus": {"blast_radius_flat": 20.0, "weapon_damage_flat": 8.0},
+		"flavor": "Bigger blasts, bigger damage. Wipe rooms out.",
+	},
+	"crit_chain": {
+		"requires": ["keen_eye", "chain"],
+		"name": "Chain Critter",
+		"bonus": {"chain_range_flat": 30.0, "crit_mult": 0.3},
+		"flavor": "Crits jump between enemies like a lightning chain.",
+	},
+	"volley_splash": {
+		"requires": ["extra_bolt", "blast"],
+		"name": "Shrapnel Storm",
+		"bonus": {"blast_radius_flat": 12.0, "extra_projectiles_flat": 1},
+		"flavor": "More projectiles, more splash. Total annihilation.",
+	},
+	"farm_tempo": {
+		"requires": ["scholar", "rapid"],
+		"name": "Grinder",
+		"bonus": {"xp_gain_mult": 0.15, "attack_interval_mult": 0.1},
+		"flavor": "Fast kills, fast XP. Snowball into a monster.",
+	},
+	"pulse_tank": {
+		"requires": ["metronome", "ironhide"],
+		"name": "Living Fortress",
+		"bonus": {"pulse_radius_flat": 40.0, "max_health_flat": 40.0},
+		"flavor": "A walking bomb that barely dents when hit.",
+	},
+	"drone_volley": {
+		"requires": ["gun_drone", "extra_bolt"],
+		"name": "Drone Swarm Synergy",
+		"bonus": {"extra_projectiles_flat": 1, "companion_damage_flat": 4.0},
+		"flavor": "Your drones share your volley — more fire, more drones.",
+	},
+}
+
+## Return all synergies where the player holds ALL required upgrades.
+static func active_synergies(taken_upgrade_ids: Array) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var taken: Dictionary = {}
+	for id in taken_upgrade_ids:
+		taken[str(id)] = true
+	for key in SYNERGIES.keys():
+		var syn: Dictionary = SYNERGIES[key]
+		var complete := true
+		for req in syn.requires:
+			if not taken.has(str(req)):
+				complete = false
+				break
+		if complete:
+			var entry := syn.duplicate()
+			entry["key"] = str(key)
+			out.append(entry)
+	return out
+
 const _P := {
 	"o": "1a1210", "w": "f4f1ea", "y": "ffe14a", "g": "50f59e", "b": "4f8fe0",
 	"r": "e85a2a", "p": "c45ec8", "c": "7fd4ff", "s": "8b95a1", "n": "6b4a1a",
