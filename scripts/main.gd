@@ -1259,7 +1259,7 @@ func _spawn_enemy(offset: Vector2, type_id: String, health_multiplier: float, sp
 	return _spawn_enemy_at(focus.global_position + offset, type_id, health_multiplier, speed_multiplier)
 
 
-func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false) -> Enemy:
+func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false, camp_guardian: bool = false) -> Enemy:
 	var enemy := enemy_scene.instantiate() as Enemy
 	var entity_id := next_entity_id
 	next_entity_id += 1
@@ -1295,6 +1295,14 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 		enemy.contact_damage *= dmg
 		enemy.projectile_damage *= dmg
 		enemy.explode_damage *= dmg
+	# Camp guardian setup: hold position, undodgeable slam pulse, reduced damage
+	# taken, and no-chase past the leash radius (see Enemy._process_camp_guardian).
+	if camp_guardian:
+		enemy.is_camp_guardian = true
+		enemy.camp_guardian_home = enemy.global_position
+		enemy.health.damage_taken_multiplier = 0.6  # tanky: takes 60% of normal damage
+		# Guardian contact damage is already high (brute/sentinel/etc); the undodgeable
+		# slam pulse in _process_camp_guardian adds the "you always take dmg" element.
 	enemy.defeated.connect(_on_enemy_defeated)
 	enemy.projectile_fired.connect(_on_enemy_projectile_fired)
 	enemy.spawn_requested.connect(_on_enemy_spawn_requested)

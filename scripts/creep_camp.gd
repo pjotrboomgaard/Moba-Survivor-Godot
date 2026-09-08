@@ -3,13 +3,22 @@ extends Node2D
 ## Tougher creep camp spawner (HoN-style). Spawned by main.gd after arena/player setup.
 ## No class_name on purpose: keep the global script-class registry clean.
 
-const RESPAWN_INTERVAL := 45.0
+const RESPAWN_INTERVAL := 120.0  # 2-minute respawn (was 45s)
 const SQUAD_SIZE := 3
 const MAX_ALIVE_PER_CAMP := 2
 const CAMP_JITTER := 46.0
 const MARKER_Z_INDEX := 2000  # above the depth_z range (~400+int(y)) so camp rings stay visible
 
-const TOUGH_TYPES: Array[String] = ["brute", "sentinel", "stalker", "summoner"]
+## 3 unique camps, each with its own elite roster, marker art and accent color.
+## Each camp guardian is tanky (takes reduced damage), holds position, and emits an
+## undodgeable slam pulse, so engaging a camp is a real risk/reward choice.
+const CAMP_COUNT := 3
+const CAMP_ROSTERS: Array[String] = ["brute", "sentinel", "stalker"]
+const CAMP_ACCENT_COLORS: Array[Color] = [
+	Color("ff4d4d"),  # camp 0: red (brute)
+	Color("4d9fff"),  # camp 1: blue (sentinel)
+	Color("c45ec8"),  # camp 2: purple (stalker)
+]
 const HEALTH_RANGE := [2.0, 4.0]
 const SPEED_RANGE := [0.8, 1.2]
 
@@ -72,12 +81,12 @@ func _build_camp_positions() -> Array[Vector2]:
 	var half: Vector2 = _arena.half_extents()
 	if half.x < 80.0 or half.y < 80.0:
 		half = Vector2(2360.0, 1560.0) * 0.5
-	# 4 fixed camps at roughly 1/3 and 2/3 of the half extents on each axis.
+	# 3 fixed camps at distinct corners of the arena, well spread so the
+	# player has to choose which one to raid.
 	return [
-		Vector2(-half.x * 0.34, -half.y * 0.55),
-		Vector2( half.x * 0.55, -half.y * 0.34),
-		Vector2(-half.x * 0.55,  half.y * 0.34),
-		Vector2( half.x * 0.34,  half.y * 0.55),
+		Vector2(-half.x * 0.55, -half.y * 0.55),
+		Vector2( half.x * 0.60, -half.y * 0.30),
+		Vector2(-half.x * 0.30,  half.y * 0.55),
 	]
 
 func _respawn_camps() -> void:
@@ -92,10 +101,14 @@ func _respawn_camps() -> void:
 				randf_range(-CAMP_JITTER, CAMP_JITTER),
 				randf_range(-CAMP_JITTER, CAMP_JITTER),
 			)
-			var type_id := TOUGH_TYPES[randi() % TOUGH_TYPES.size()]
+			# Each camp has its own unique guardian type (CAMP_ROSTERS[i]).
+			# Camp 0 = brute (red), camp 1 = sentinel (blue), camp 2 = stalker (purple).
+			var type_id := CAMP_ROSTERS[i % CAMP_ROSTERS.size()]
 			var health_mult := randf_range(HEALTH_RANGE[0], HEALTH_RANGE[1])
 			var speed_mult := randf_range(SPEED_RANGE[0], SPEED_RANGE[1])
-			_main._spawn_enemy_at(pos, type_id, health_mult, speed_mult)
+			# camp_guardian=true: tanky (takes 60% dmg), holds position,
+			# emits undodgeable slam pulse, doesn't chase past leash radius.
+			_main._spawn_enemy_at(pos, type_id, health_mult, speed_mult, false, true)
 			_camp_alive_counts[i] = int(_camp_alive_counts.get(i, 0)) + 1
 
 func _update_alive_counts() -> void:
@@ -114,37 +127,61 @@ func _update_alive_counts() -> void:
 		_camp_alive_counts[i] = alive
 
 func _build_markers() -> void:
-	var tex := _make_marker_texture()
 	for i in _camp_positions.size():
+		var accent: Color = CAMP_ACCENT_COLORS[i % CAMP_ACCENT_COLORS.size()]
 		var spr := Sprite2D.new()
-		spr.texture = tex
+		spr.texture = _make_camp_marker_texture(i, accent)
 		spr.position = _camp_positions[i]
 		spr.z_index = MARKER_Z_INDEX
 		spr.z_as_relative = false
-		spr.modulate = Color(0.9, 0.7, 1.0, 0.55)
+		spr.modulate = Color.WHITE
 		add_child(spr)
 		_camp_markers.append(spr)
 
-func _make_marker_texture() -> ImageTexture:
-	var size := 56
+
+## Each camp gets a distinct pixel-art marker: camp 0 = diamond (red/brute),
+## camp 1 = square (blue/sentinel), camp 2 = triangle (purple/stalker).
+## All sit on a soft radial glow so they read as "camp" from the minimap distance.
+func _make_camp_marker_texture(camp_index: int, accent: Color) -> ImageTexture:
+	var size := 64
 	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
 	var cx := size / 2.0
 	var cy := size / 2.0
-	var outer := size * 0.48
-	var inner := size * 0.34
+	var half := size / 2.0
 	for y in size:
 		for x in size:
 			var p := Vector2(x - cx, y - cy)
 			var d := p.length()
-			var a := 0.0
-			if d <= outer and d >= outer - 3.0:
-				a = 0.9
-			elif d <= inner and d >= inner - 2.0:
-				a = 0.45
-			elif d < inner - 2.0:
-				a = 0.18
+			# Soft outer glow (radial).
+			var glow_a := 0.0
+			if d <= half and d >= half - 10.0:
+				glow_a = 0.18
+			elif d < half - 10.0:
+				glow_a = 0.10
+			# Core shape by camp index.
+			var core_a := 0.0
+			var core_c: Color = accent
+			match camp_index % 3:
+				0:
+					# Diamond: |x - cx| + |y - cy| <= r
+					if absf(p.x) + absf(p.y) <= 16.0:
+						core_a = 0.95
+						core_c = accent.lerp(Color.WHITE, 0.25)
+				1:
+					# Square with a notch.
+					if absf(p.x) <= 14.0 and absf(p.y) <= 14.0:
+						core_a = 0.95
+						core_c = accent.lerp(Color.WHITE, 0.2)
+				2:
+					# Upward triangle.
+					if p.y >= -14.0 and p.y <= 14.0 and absf(p.x) <= (14.0 - absf(p.y + 14.0) * 0.5):
+						core_a = 0.95
+						core_c = accent.lerp(Color.WHITE, 0.3)
+			var a := maxf(glow_a, core_a)
 			if a > 0.0:
-				img.set_pixel(x, y, Color(0.95, 0.72, 1.0, a))
+				var c: Color = accent if core_a > 0.0 else Color(0.9, 0.8, 1.0, 1.0)
+				c = c.lerp(core_c, core_a)
+				img.set_pixel(x, y, c if a > 0.5 else Color(c.r, c.g, c.b, a))
 	return ImageTexture.create_from_image(img)
 
 func _notification(what: int) -> void:

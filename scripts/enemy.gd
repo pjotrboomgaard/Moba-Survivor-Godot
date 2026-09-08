@@ -418,6 +418,14 @@ func _physics_process(delta: float) -> void:
 			velocity = Vector2.ZERO
 		return
 
+	# Camp guardians hold their ground: they do not chase the player beyond the
+	# leash radius and instead emit a periodic undodgeable slam pulse when the
+	# player is inside the camp. If the target drops out of the leash they stop
+	# completely (no chase) so kiting away fully disengages.
+	if is_camp_guardian:
+		_process_camp_guardian(delta)
+		return
+
 	if aura_heal_per_second > 0.0 and not is_boss:
 		_apply_healing_aura(delta)
 	if summon_count > 0 and summon_interval > 0.0:
@@ -692,6 +700,51 @@ func _process_ranged() -> void:
 
 func _process_support() -> void:
 	_hold_preferred_distance()
+
+
+## Camp guardian behaviour: hold position at the camp, do not chase the player
+## beyond the leash radius, and emit a periodic undodgeable area slam pulse when
+## the player is inside the camp. If the target drops out of the leash radius,
+## the guardian stops moving (no chase) so kiting away fully disengages.
+func _process_camp_guardian(delta: float) -> void:
+	# Slam pulse timer.
+	_camp_guardian_slaam_timer -= delta
+	if _camp_guardian_slaam_timer <= 0.0:
+		_camp_guardian_slaam_timer = CAMP_GUARDIAN_SLAM_INTERVAL
+		_emit_camp_guardian_slaam()
+	# Hold position: if target is within leash, stand still; if out of leash, stop.
+	var dist := global_position.distance_to(target.global_position)
+	if dist <= CAMP_GUARDIAN_LEASH_RADIUS:
+		# Within leash: hold camp position, face target, attack if in range.
+		velocity = Vector2.ZERO
+		# Attack with contact damage (reduced by guardian damage_taken_multiplier).
+		if dist <= attack_distance:
+			_attack_target()
+		# Visual: face the target.
+		queue_redraw()
+	else:
+		# Out of leash: stop completely (no chase).
+		velocity = Vector2.ZERO
+
+
+## Emit an undodgeable area damage pulse around the camp guardian. All players
+## inside CAMP_GUARDIAN_SLAM_RADIUS take CAMP_GUARDIAN_SLAM_DAMAGE.
+func _emit_camp_guardian_slaam() -> void:
+	var arena_root := get_parent()
+	if arena_root == null:
+		return
+	for candidate in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(candidate) or not candidate is Player:
+			continue
+		var player := candidate as Player
+		if not player.active or player.health.is_dead:
+			continue
+		if global_position.distance_to(player.global_position) <= CAMP_GUARDIAN_SLAM_RADIUS:
+			player.health.take_damage(CAMP_GUARDIAN_SLAM_DAMAGE, self)
+			# Visual feedback: brief red flash on the player.
+			var flash := create_tween()
+			flash.tween_property(player, "modulate", Color(1.3, 0.9, 0.9, 1.0), 0.05)
+			flash.tween_property(player, "modulate", Color.WHITE, 0.12)
 
 
 ## A periodic lunge layered on top of a boss's normal behaviour (melee/ranged), so bosses stay
