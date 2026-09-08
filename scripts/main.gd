@@ -4,6 +4,7 @@ const WorldClock := preload("res://scripts/world_clock.gd")
 const UpgradeCatalog := preload("res://scripts/upgrade_catalog.gd")
 const RunSave := preload("res://scripts/run_save.gd")
 const SideQuestDirector := preload("res://scripts/side_quest_director.gd")
+const CreepCampScript := preload("res://scripts/creep_camp.gd")
 
 @export var max_enemies := 110
 @export var spawn_distance_min := 760.0
@@ -66,6 +67,7 @@ var ready_for_next_wave: Dictionary = {}
 ## peer_id of the downed player -> seconds a stationary teammate has stood next to them.
 var revive_progress: Dictionary = {}
 var _side_quest_director: Node = null
+var _creep_camp: Node = null
 
 const REVIVE_RADIUS := 60.0
 const REVIVE_DURATION := 5.0
@@ -1025,6 +1027,7 @@ func capture_run() -> Dictionary:
 		"known_abilities": player.known_abilities.duplicate(true),
 		"shop_stacks": player.shop_stacks.duplicate(true),
 		"taken_upgrades": player.taken_upgrades.duplicate() if not player.taken_upgrades.is_empty() else _taken_upgrades.duplicate(),
+		"level_upgrades": player.level_upgrades.duplicate(true),
 		"position": {"x": player.global_position.x, "y": player.global_position.y},
 	}
 
@@ -2913,6 +2916,11 @@ func _start_side_quests() -> void:
 	_side_quest_director.name = "SideQuestDirector"
 	add_child(_side_quest_director)
 	_side_quest_director.setup(self)
+
+	_creep_camp = CreepCampScript.new()
+	_creep_camp.name = "CreepCamp"
+	add_child(_creep_camp)
+	_creep_camp.start(self, arena)
 
 
 var _last_side_quest_text := ""

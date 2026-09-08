@@ -110,6 +110,7 @@ var _shown_item_ids: Array[String] = []
 var _hud_wave := 1
 var _hotkeys_visible := false
 var secondary_hotkey_label: Label
+var _build_log_label: Label
 
 
 const SECONDARY_ICON_BY_KIND := {
@@ -201,6 +202,7 @@ func _ready() -> void:
 	_build_aim_reticle()
 	_build_ffa_overlay()
 	_build_side_quest_label()
+	_build_build_log()
 	class_label.visible = false
 	health_bar.visible = false
 	health_label.visible = false
@@ -373,6 +375,7 @@ func _process(delta: float) -> void:
 	_refresh_secondary_slot()
 	_refresh_aim_reticle()
 	_refresh_hotkey_overlays()
+	_refresh_build_log()
 	# Quest toast fade-out
 	if _quest_toast != null and _quest_toast.visible:
 		_quest_toast_timer -= delta
@@ -1357,6 +1360,43 @@ func _build_side_quest_label() -> void:
 	_quest_toast.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.95))
 	_quest_toast.add_theme_constant_override("shadow_outline_size", 3)
 	add_child(_quest_toast)
+
+
+func _build_build_log() -> void:
+	_build_log_label = Label.new()
+	_build_log_label.name = "BuildLog"
+	_build_log_label.visible = true
+	var vp_size := get_viewport().get_visible_rect().size
+	_build_log_label.position = Vector2(0, vp_size.y - 44.0)
+	_build_log_label.size = Vector2(vp_size.x, 40.0)
+	_build_log_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_build_log_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_build_log_label.add_theme_font_size_override("font_size", 12)
+	_build_log_label.add_theme_color_override("font_color", Color(0.75, 0.85, 0.95, 0.85))
+	_build_log_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.9))
+	_build_log_label.add_theme_constant_override("shadow_outline_size", 2)
+	add_child(_build_log_label)
+
+
+func _refresh_build_log() -> void:
+	if _build_log_label == null or bound_player == null:
+		return
+	var lu: Dictionary = bound_player.level_upgrades
+	if lu.is_empty():
+		_build_log_label.text = ""
+		return
+	# Show the most recent up-to-4 levels, oldest first.
+	var levels: Array[int] = lu.keys()
+	levels.sort()
+	var recent: Array[int] = levels.slice(maxi(0, levels.size() - 4), levels.size())
+	var parts: Array[String] = []
+	for lvl in recent:
+		var ids: Array = lu.get(lvl, [])
+		var names: Array[String] = []
+		for uid in ids:
+			names.append(str(uid))
+		parts.append("Lv%d: %s" % [lvl, ", ".join(names)])
+	_build_log_label.text = "  |  ".join(parts)
 
 
 func set_side_quest_text(text: String) -> void:

@@ -48,6 +48,36 @@ func _draw() -> void:
 				color = LANDMARK_FREEZE
 		draw_circle(point, 3.5, color)
 		draw_circle(point, 3.5, Color(0.05, 0.05, 0.08, 1.0), false, 1.0)
+	# Water/lava hazard zones: tinted circles/rects so the player can see danger on the minimap.
+	var arena_node: Node = get_tree().get_first_node_in_group("arena")
+	if arena_node != null and arena_node.has_method("get_hazard_zones"):
+		var zones: Array = arena_node.get_hazard_zones()
+		var field := Arena.playfield_size()
+		var scale := size.x / maxf(1.0, field.x)
+		for zone in zones:
+			var ztype := str((zone as Dictionary).get("type", "lava"))
+			var zcolor: Color
+			if ztype == "water":
+				zcolor = Color(0.15, 0.45, 0.75, 0.4)
+			elif ztype == "lava":
+				var biome_kind := str((zone as Dictionary).get("biome_kind", ""))
+				if biome_kind == "volcano_lava":
+					zcolor = Color(0.98, 0.22, 0.05, 0.55)
+				elif biome_kind == "factory_slag":
+					zcolor = Color(0.55, 0.5, 0.45, 0.4)
+				else:
+					zcolor = Color(0.7, 0.35, 0.15, 0.4)
+			else:
+				zcolor = Color(0.7, 0.35, 0.15, 0.4)
+			var zshape := str((zone as Dictionary).get("shape", "circle"))
+			if zshape == "circle":
+				var zc := Vector2((zone as Dictionary).get("center", Vector2.ZERO))
+				var zr := float((zone as Dictionary).get("radius", 30.0))
+				draw_circle(_to_local(zc), zr * scale, zcolor)
+			else:
+				var zr := Rect2((zone as Dictionary).get("rect", Rect2()))
+				var tl := _to_local(zr.position)
+				draw_rect(Rect2(tl, zr.size * scale), zcolor, true)
 	# Trees and rocks: subtle, low-saturation dots so the map reads as terrain without
 	# competing with the bright enemy/player markers.
 	for obs in get_tree().get_nodes_in_group("obstacles"):

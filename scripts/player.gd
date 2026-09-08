@@ -98,6 +98,9 @@ var xp_required := BASE_XP_REQUIRED
 var gold := 0
 var gold_multiplier := 1.0
 var taken_upgrades: Array[String] = []
+## Maps level (int) → list of upgrade ids taken at that level. Used by the HUD to
+## display the build progression at the bottom of the screen.
+var level_upgrades: Dictionary = {}
 var extra_shots := 0
 var extra_projectiles := 0
 var double_blast_chance := 0.0
@@ -4021,14 +4024,23 @@ func set_invulnerable(value: bool) -> void:
 	health.invulnerable = value
 
 
+func _record_level_upgrade(upgrade_id: String) -> void:
+	var lvl := level
+	if not level_upgrades.has(lvl):
+		level_upgrades[lvl] = []
+	level_upgrades[lvl].append(upgrade_id)
+
+
 func apply_upgrade(upgrade_id: String) -> void:
 	if simulation_mode == SimulationMode.PROXY:
 		return
 	if UpgradeCatalog.is_ability_token(upgrade_id):
 		_apply_ability_token(UpgradeCatalog.ability_id_from(upgrade_id))
 		taken_upgrades.append(upgrade_id)
+		_record_level_upgrade(upgrade_id)
 		return
 	taken_upgrades.append(upgrade_id)
+	_record_level_upgrade(upgrade_id)
 	match upgrade_id:
 		"rapid", "rime":
 			attack_interval = maxf(0.18, attack_interval * 0.82)

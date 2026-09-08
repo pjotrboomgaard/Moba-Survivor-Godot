@@ -112,9 +112,31 @@ func _nearest_enemy(reach: float) -> Node2D:
 
 func _draw() -> void:
 	var fill := _fill()
-	draw_circle(Vector2.ZERO, 7.0 + float(rank), Color(0.0, 0.0, 0.0, 0.35))
-	draw_circle(Vector2.ZERO, 5.5 + float(rank) * 0.4, fill)
-	draw_circle(Vector2.ZERO, 2.2, Color(1.0, 1.0, 1.0, 0.85))
+	var accent := Color(0.1, 0.1, 0.12, 0.9)
+	var r := 5.5 + float(rank) * 0.4
+	# Drop shadow underneath.
+	draw_rect(Rect2(-r - 1.0, r * 0.35, r * 2.0 + 2.0, 3.0), Color(0.0, 0.0, 0.0, 0.22))
+	# Rotors: two little spinning propellers on either side.
+	var spin := fmod(Time.get_ticks_msec() * 0.02 + _orbit, TAU)
+	var rotor_l := Vector2(-r * 0.8, -r * 0.35)
+	var rotor_r := Vector2(r * 0.8, -r * 0.35)
+	var blade := Vector2(cos(spin), sin(spin)) * r * 0.55
+	draw_line(rotor_l - blade, rotor_l + blade, Color(0.2, 0.2, 0.25, 0.7), 1.5)
+	draw_line(rotor_r - blade, rotor_r + blade, Color(0.2, 0.2, 0.25, 0.7), 1.5)
+	draw_circle(rotor_l, 1.6, Color(0.25, 0.25, 0.3, 0.9))
+	draw_circle(rotor_r, 1.6, Color(0.25, 0.25, 0.3, 0.9))
+	# Arms connecting rotors to the body.
+	draw_line(rotor_l, Vector2(0.0, 0.0), accent, 1.4)
+	draw_line(rotor_r, Vector2(0.0, 0.0), accent, 1.4)
+	# Body: a small rounded capsule.
+	var body_w := r * 0.85
+	var body_h := r * 0.7
+	draw_rect(Rect2(-body_w, -body_h, body_w * 2.0, body_h * 2.0), fill)
+	# Cockpit light.
+	draw_rect(Rect2(-r * 0.28, -r * 0.3, r * 0.56, r * 0.5), Color(1.0, 1.0, 1.0, 0.85))
+	# Rank pips on the body.
+	for i in rank:
+		draw_rect(Rect2(r * 0.45 + float(i) * 3.0, -1.0, 2.0, 2.0), Color(1.0, 0.9, 0.5, 0.9))
 
 
 func _fill() -> Color:

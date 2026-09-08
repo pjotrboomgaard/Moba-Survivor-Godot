@@ -738,6 +738,9 @@ func is_in_hazard(world_position: Vector2, radius: float = 0.0) -> bool:
 			return true
 	return false
 
+func get_hazard_zones() -> Array:
+	return hazard_zones
+
 
 ## True when standing over the void between pads (water/lava/slag gap) rather than on a
 ## walkable pad. Gaps are walkable for everyone now; this only gates the 5%/s burn.

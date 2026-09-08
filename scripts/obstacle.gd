@@ -19,6 +19,8 @@ var body_radius := 30.0
 var sprite_id := ""
 var _shadow: Sprite2D = null
 var _shadow_rev := -1
+var _is_tree_shadow := false
+var _shadow_img: Image = null
 
 
 func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixels: float) -> void:
@@ -56,15 +58,91 @@ func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixel
 	else:
 		z_index = 8
 	if is_tree:
-		# Trees hide units behind them via LOS raycasts. They do not cast 2D-light umbras.
+		# Trees hide units behind them via LOS raycasts. They do not cast 2D-light umbras,
+		# but they cast a rotating canopy shadow that follows the sun and fits the trunk.
 		collision_layer |= VISION_BLOCKER_LAYER
-		set_process(false)
+		_ensure_shadow(zoom, is_tree)
+		if WorldClock.shadow_alpha > 0.0:
+			set_process(true)
+		else:
+			set_process(false)
 	else:
-		# Small non-tree objects (rocks, crates, etc.) get a subtle ground shadow.
+		# Small non-tree objects (rocks, crates, etc.) get a rotating ground shadow
+		# that fits their footprint and swings with the sun.
 		if not decorative and body_radius >= 1.0:
-			_ensure_small_shadow(zoom, lift_pixels)
-		set_process(false)
+			_ensure_shadow(zoom, is_tree)
+			if WorldClock.shadow_alpha > 0.0:
+				set_process(true)
+			else:
+				set_process(false)
 	queue_redraw()
+
+
+func _process(_delta: float) -> void:
+	# Only rebuild the shadow when the sun actually moved (revision changed).
+	if _shadow_rev == WorldClock.revision:
+		return
+	if WorldClock.shadow_alpha <= 0.0:
+		set_process(false)
+		_update_shadow_rotation()
+		return
+	_update_shadow()
+
+
+func _update_shadow_rotation() -> void:
+	if _shadow == null:
+		return
+	var dir := WorldClock.sun_dir
+	var shadow_dir := -dir
+	# The shadow points away from the sun, stretched along that axis.
+	var angle := shadow_dir.angle()
+	_shadow.rotation = angle + PI / 2.0
+	var stretch := WorldClock.shadow_stretch
+	_shadow.scale = Vector2(1.0, 1.0 + stretch)
+	# Offset the shadow toward the sun direction so it reads as cast light.
+	_shadow.position = shadow_dir * (body_radius * 0.15) + Vector2(0.0, 0.0)
+	_shadow.modulate = Color(0.0, 0.0, 0.0, WorldClock.shadow_alpha)
+
+
+func _update_shadow() -> void:
+	_shadow_rev = WorldClock.revision
+	_update_shadow_rotation()
+
+
+func _ensure_shadow(zoom: float, is_tree: bool) -> void:
+	if _shadow != null:
+		return
+	_shadow = Sprite2D.new()
+	_shadow.name = "Shadow"
+	_shadow.z_as_relative = false
+	_shadow.z_index = -1
+	_is_tree_shadow = is_tree
+	_build_shadow_texture(zoom)
+	_update_shadow_rotation()
+	add_child(_shadow)
+
+
+func _build_shadow_texture(zoom: float) -> void:
+	# Shape-fit the shadow: trees are broad ovals (canopy), rocks are rounder.
+	var radius_px := int(maxf(4.0, body_radius * zoom * 0.9))
+	var w := maxi(6, radius_px)
+	var h := maxi(4, int(radius_px * 0.55)) if _is_tree_shadow else maxi(4, int(radius_px * 0.7))
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	var center := Vector2(w * 0.5, h * 0.5)
+	for y in h:
+		for x in w:
+			var px := Vector2(x - center.x, y - center.y)
+			# Elliptical falloff so the shadow fits the footprint shape.
+			var nd := Vector2(px.x / (w * 0.5), px.y / (h * 0.5))
+			var d := nd.length()
+			var alpha := 0.0
+			if d < 0.6:
+				alpha = 1.0
+			elif d < 1.0:
+				alpha = 1.0 - (d - 0.6) / 0.4
+			img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.5))
+	_shadow_img = img
+	_shadow.texture = ImageTexture.create_from_image(img)
 
 
 func is_vision_blocker() -> bool:
