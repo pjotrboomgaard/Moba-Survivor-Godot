@@ -62,6 +62,10 @@ const TERRAIN_SPRITES := [
 	"vent_cap",
 	"spire",
 	"void_tile",
+	"town_house",
+	"town_shop",
+	"town_church",
+	"town_well",
 ]
 
 
