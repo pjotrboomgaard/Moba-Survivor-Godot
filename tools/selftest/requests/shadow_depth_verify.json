@@ -1,0 +1,21 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 3,
+  "duration": 60,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Verify depth_z fix (sprites no longer sort behind ground), shadows visible, zoom 0.5 overview, and off-screen enemy spawns. Walks through tree/rock areas and snaps at several times.",
+  "events": [
+    {"kind": "snap", "label": "verify_start", "t": 3.0},
+    {"kind": "walk_to", "at": [300.0, -300.0], "timeout": 8.0, "t": 4.0},
+    {"kind": "snap", "label": "verify_trees_up", "t": 10.0},
+    {"kind": "walk_to", "at": [0.0, 300.0], "timeout": 8.0, "t": 11.0},
+    {"kind": "snap", "label": "verify_rock_down", "t": 18.0},
+    {"kind": "walk_to", "at": [-300.0, -200.0], "timeout": 8.0, "t": 19.0},
+    {"kind": "snap", "label": "verify_spawn_left", "t": 28.0},
+    {"kind": "walk_to", "at": [200.0, 100.0], "timeout": 8.0, "t": 29.0},
+    {"kind": "snap", "label": "verify_combat", "t": 40.0},
+    {"kind": "snap", "label": "verify_late", "t": 55.0}
+  ]
+}

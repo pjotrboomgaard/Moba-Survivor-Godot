@@ -7,7 +7,7 @@ const RESPAWN_INTERVAL := 45.0
 const SQUAD_SIZE := 3
 const MAX_ALIVE_PER_CAMP := 2
 const CAMP_JITTER := 46.0
-const MARKER_Z_INDEX := 12  # above obstacles (z<=8, decorative z 1), below enemies (depth_z ~ 42+)
+const MARKER_Z_INDEX := 2000  # above the depth_z range (~400+int(y)) so camp rings stay visible
 
 const TOUGH_TYPES: Array[String] = ["brute", "sentinel", "stalker", "summoner"]
 const HEALTH_RANGE := [2.0, 4.0]

@@ -72,5 +72,12 @@ static func _refresh() -> void:
 		shadow_alpha = lerpf(0.36, 0.10, k)
 
 
+## Depth z for canvas-item sorting: sprites lower on screen (larger world_y)
+## render in front. The arena ground is drawn at z=0, so every dynamic canvas
+## item must stay strictly above it. The old formula `40 + int(y)` produced
+## negative values in the upper half of the map (y < -42), which sorted
+## sprites BEHIND the ground and made the hero/enemies "disappear" there.
+## A large base offset keeps the ordering correct while guaranteeing a
+## positive z for every playable position (playfield y is bounded by ±~800).
 static func depth_z(world_y: float, bias: int = 0) -> int:
-	return 40 + int(world_y) + bias
+	return 400 + int(world_y) + bias

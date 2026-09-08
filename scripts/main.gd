@@ -7,8 +7,12 @@ const SideQuestDirector := preload("res://scripts/side_quest_director.gd")
 const CreepCampScript := preload("res://scripts/creep_camp.gd")
 
 @export var max_enemies := 110
-@export var spawn_distance_min := 760.0
-@export var spawn_distance_max := 1120.0
+## Spawn ring relative to the player. At the default zoom of 0.5 the viewport
+## spans ~2560px wide, so the screen edge is ~1280px from the player. Spawning
+## beyond that guarantees enemies appear off-screen and walk in, instead of
+## popping into view in front of the player.
+@export var spawn_distance_min := 1400.0
+@export var spawn_distance_max := 1800.0
 @export var snapshot_rate := 20.0
 @export var input_send_rate := 30.0
 
@@ -228,12 +232,15 @@ func _physics_process(delta: float) -> void:
 			_send_local_input()
 	if not GameRuntime.is_dedicated_server() and not GameRuntime.is_classic():
 		_update_shop_stand_proximity()
-		_update_fog_visibility(delta)
-		if fog_of_war != null:
-			var trees := PackedVector2Array()
-			if arena is Arena:
-				trees = (arena as Arena).vision_tree_positions()
-			fog_of_war.follow_player(_local_player(), trees)
+		# During self-test runs we disable all vision hiding (fog-of-war) so the
+		# bot and screenshots always see every sprite. No hiding "as an idea".
+		if not _selftest_active():
+			_update_fog_visibility(delta)
+			if fog_of_war != null:
+				var trees := PackedVector2Array()
+				if arena is Arena:
+					trees = (arena as Arena).vision_tree_positions()
+				fog_of_war.follow_player(_local_player(), trees)
 	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT:
 		_update_revives(delta)
 		_tick_ffa(delta)
