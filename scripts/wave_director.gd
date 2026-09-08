@@ -493,7 +493,7 @@ func budget_for_wave(target_wave: int) -> float:
 	# Roughly double the old headcount at every wave (base 12->24, per-wave growth 2.6->6.0 —
 	# more than double, so the curve keeps getting steeper instead of just shifting up by a
 	# flat amount) on top of the doubled per-enemy health above, so both axes compound.
-	var solo_budget := 28.0 + 9.5 * float(target_wave)
+	var solo_budget := 22.0 + 8.0 * float(target_wave)
 	if _solo_pressure_active(target_wave):
 		solo_budget *= SOLO_BUDGET_PRESSURE
 	if GameRuntime.is_ffa():
