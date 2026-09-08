@@ -266,7 +266,10 @@ func apply_class(next_class_id: String) -> void:
 	body_color = Color(class_data.body_color)
 	accent_color = Color(class_data.accent_color)
 	movement_speed = class_data.movement_speed
-	attack_interval = class_data.attack_interval
+	# Base attack is twice as quick by default (attack_interval halved). This is
+	# the single authoritative point: every hero inherits it, and the per-class
+	# attack_interval values stay as their base for stat/ability scaling.
+	attack_interval = class_data.attack_interval * 0.5
 	weapon_damage = class_data.weapon_damage
 	attack_range = class_data.attack_range
 	aim_assist_radius = class_data.aim_assist_radius

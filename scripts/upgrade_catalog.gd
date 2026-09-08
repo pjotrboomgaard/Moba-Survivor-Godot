@@ -153,55 +153,83 @@ static func ability_id_from(token: String) -> String:
 	return token.substr(ABILITY_PREFIX.length()) if is_ability_token(token) else token
 
 
+## Build an offer with a controlled rarity mix so the player mostly sees commons:
+##  - ~70% of the time: all-4 commons
+##  - ~25% of the time: 3 commons + 1 rare
+##  - ~5%  of the time: 3 commons + 1 legendary (the "really cool" moment)
+## This replaces the old per-slot independent roll which produced 3+ rares.
 static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int, amount: int = 4) -> Array[String]:
 	var out: Array[String] = []
+	# Decide the rarity slots up front (stat slots only; ability token handled below).
+	var stat_slots := maxi(1, amount)
+	var rarities: Array[String] = []
+	var roll := randf()
+	if roll < 0.05:
+		# Rare-legendary moment: 3 common + 1 legendary.
+		for i in stat_slots - 1:
+			rarities.append("common")
+		rarities.append("legendary")
+	elif roll < 0.30:
+		# 3 common + 1 rare.
+		for i in stat_slots - 1:
+			rarities.append("common")
+		rarities.append("rare")
+	else:
+		# All commons (most common).
+		for i in stat_slots:
+			rarities.append("common")
+	rarities.shuffle()
+
+	var used: Dictionary = {}
+	for rarity in rarities:
+		var pick := _pick_stat_for_rarity(class_upgrade_ids, rarity, used, level)
+		if pick.is_empty():
+			# Fallback to a common if the chosen rarity pool was exhausted.
+			pick = _pick_stat_for_rarity(class_upgrade_ids, "common", used, level)
+		if not pick.is_empty():
+			used[pick] = true
+			out.append(pick)
+
+	# Prepend an ability token if the hero still has abilities to learn.
 	if not ability_ids.is_empty():
 		out.append(ABILITY_PREFIX + str(ability_ids[randi() % ability_ids.size()]))
-	var used: Dictionary = {}
-	while out.size() < amount:
-		var pick := _pick_stat(class_upgrade_ids, level, used)
-		if pick.is_empty():
-			break
-		used[pick] = true
-		out.append(pick)
+	# Cap at `amount` (in case ability token pushed over).
+	if out.size() > amount:
+		out.resize(amount)
 	out.shuffle()
 	return out
 
 
-static func _pick_stat(class_upgrade_ids: Array, level: int, used: Dictionary) -> String:
-	var rarity := _roll_rarity(level)
-	var pool := _pool_for(class_upgrade_ids, rarity)
+static func _pick_stat_for_rarity(class_upgrade_ids: Array, rarity: String, used: Dictionary, level: int) -> String:
+	var pool := _pool_for(class_upgrade_ids, rarity, level)
 	pool.shuffle()
 	for id in pool:
 		if not used.has(id):
 			return id
-	var fallback := _pool_for(class_upgrade_ids, "common")
-	fallback.shuffle()
-	for id in fallback:
-		if not used.has(id):
-			return id
+	# If this specific rarity pool was exhausted, fall back to common.
+	if rarity != "common":
+		var fb := _pool_for(class_upgrade_ids, "common", level)
+		fb.shuffle()
+		for id in fb:
+			if not used.has(id):
+				return id
 	return ""
 
 
-static func _roll_rarity(level: int) -> String:
-	var legend := LEGENDARY_CHANCE + 0.006 * float(maxi(0, level - 6))
-	var rare := RARE_CHANCE + 0.012 * float(maxi(0, level - 4))
-	var roll := randf()
-	if roll < legend:
-		return "legendary"
-	if roll < legend + rare:
-		return "rare"
-	return "common"
-
-
-static func _pool_for(class_upgrade_ids: Array, rarity: String) -> Array[String]:
+## Every hero draws from the SAME generic stat pool — no hero-specific drones or
+## sprites. The upgrade list is fully shared across classes so a Bulwark player
+## never sees "Ember Sprite" or other hero-flavoured items. `class_upgrade_ids` is
+## kept for signature stability but intentionally ignored here.
+static func _pool_for(class_upgrade_ids: Array, rarity: String, level: int = 1) -> Array[String]:
+	# Generic pool: every hero draws from the same stat pool so no hero-specific
+	# drones/sprites surface. class_upgrade_ids and level are kept for signature
+	# stability but intentionally unused here.
 	var out: Array[String] = []
-	var class_ids: Array = class_upgrade_ids
 	for id in DEFS.keys():
 		if str(DEFS[id].get("rarity", "common")) != rarity:
 			continue
+		# Only surface upgrades on a recognised build path so offers stay meaningful.
 		var path := str(DEFS[id].get("path", ""))
-		if path == "drone" or path == "farm" or path == "pulse" or path == "crit" or path == "tempo" or path == "power" or path == "splash" or path == "volley" or path == "tank":
-			if rarity != "common" or class_ids.has(id) or path in ["farm", "pulse", "crit", "tempo", "power", "splash", "volley", "tank", "drone"]:
-				out.append(str(id))
+		if path in ["farm", "pulse", "crit", "tempo", "power", "splash", "volley", "tank", "drone"]:
+			out.append(str(id))
 	return out

@@ -85,5 +85,15 @@ static func _refresh() -> void:
 ## Depth z for canvas-item sorting: sprites lower on screen (larger world_y)
 ## render in front. The arena ground is drawn at z=0, so every dynamic canvas
 ## item must stay strictly above it.
+##
+## The largest biome arena is 11200 x 7200 world units (world_y in
+## ~[-3600, +3600]). Godot clamps z_index to [-4096, 4096], so a 1:1 world_y->z
+## mapping overflows. We compress the y-range: divide by DEPTH_Z_SCALE so the
+## full field spans ~3000 z-units, then add DEPTH_Z_BASE so the minimum stays
+## comfortably above 0 (ground) and the maximum stays below 4096.
+## Result: min z ~ 2000 - 1500 = 500, max z ~ 2000 + 1500 = 3500.
+const DEPTH_Z_SCALE := 2.0
+const DEPTH_Z_BASE := 2000
+
 static func depth_z(world_y: float, bias: int = 0) -> int:
-	return 400 + int(world_y) + bias
+	return int(DEPTH_Z_BASE + world_y / DEPTH_Z_SCALE) + bias

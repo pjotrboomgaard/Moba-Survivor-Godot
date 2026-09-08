@@ -96,6 +96,10 @@ func _build_visuals() -> void:
 
 
 func _process(delta: float) -> void:
+	# Keep the NPC sorted with other units by world_y so it never gets buried
+	# behind the ground plane or floats above everything (depth_z base covers the
+	# full arena range).
+	z_index = WorldClock.depth_z(global_position.y, 3)
 	if is_dead or is_rescued:
 		return
 	if _main == null:

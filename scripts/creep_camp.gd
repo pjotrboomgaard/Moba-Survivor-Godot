@@ -7,7 +7,7 @@ const RESPAWN_INTERVAL := 120.0  # 2-minute respawn (was 45s)
 const SQUAD_SIZE := 3
 const MAX_ALIVE_PER_CAMP := 2
 const CAMP_JITTER := 46.0
-const MARKER_Z_INDEX := 2000  # above the depth_z range (~400+int(y)) so camp rings stay visible
+const MARKER_Z_INDEX := 3800  # above the compressed depth_z range (max ~3500) so camp rings stay visible, within Godot's 4096 cap
 
 ## 3 unique camps, each with its own elite roster, marker art and accent color.
 ## Each camp guardian is tanky (takes reduced damage), holds position, and emits an
