@@ -1,0 +1,493 @@
+{
+  "effects": [
+    {
+      "kind": "landmarks",
+      "label": "ffa_landmarks",
+      "list": [
+        {
+          "cooldown": 0.0,
+          "effect_id": "heal_all",
+          "fill": 0.0,
+          "hint": "Wild Spring",
+          "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "freeze_time",
+          "fill": 0.0,
+          "hint": "Root Stone",
+          "pos": "(0.0, 1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        }
+      ],
+      "t": 0.820626666666667
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -3095.0,
+              -2001.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3186.0,
+              -2180.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2961.0,
+              1995.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              3146.0,
+              2113.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "tobor",
+      "hp": 118.9,
+      "hp_frac": 1.0,
+      "hp_max": 118.9,
+      "kind": "probe",
+      "label": "ffa_start",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 0.903681666666666
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        23.5513333333334,
+        16.7433333333334,
+        18.4366666666667,
+        186.383333333329
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2392.0,
+              -1524.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2553.0,
+              -1882.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2289.0,
+              336.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              2675.0,
+              1578.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "tobor",
+      "hp": 118.9,
+      "hp_frac": 1.0,
+      "hp_max": 118.9,
+      "kind": "probe",
+      "label": "ffa_8s",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 4,
+      "t": 8.04058344444445
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        15.5846666666671,
+        8.77666666666637,
+        10.4699999999999,
+        178.416666666656
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -1564.0,
+              -1548.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2133.0,
+              -1564.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -1596.0,
+              -87.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              2472.0,
+              378.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "tobor",
+      "hp": 110.62,
+      "hp_frac": 0.930361648444071,
+      "hp_max": 118.9,
+      "kind": "probe",
+      "label": "ffa_16s",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 1,
+      "t": 16.0043073174603
+    }
+  ],
+  "elapsed": 16.2411033333333,
+  "enemies_spawned": 0,
+  "hero_position": "(-1587.066, -1502.302)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 4,
+    "casts": [
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 2.39393939393939
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 7.59433948484849
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 7.72411724242425
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 7.90102747619048
+      }
+    ],
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": true,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            -1587.0,
+            -1502.0
+          ],
+          "team": "0"
+        },
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            2109.0,
+            -1507.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -1594.0,
+            -101.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            2461.0,
+            365.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 68,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 2,
+    "level_upgrades": {
+      "2": [
+        "double_tap"
+      ]
+    },
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "double_tap"
+    ],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 1,
+    "xp": 41
+  },
+  "shots": [
+    {
+      "label": "ffa_t0",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3374/ffa_t0_1.029_3374.png",
+      "t": 1.02932633333333
+    },
+    {
+      "label": "ffa_t8",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10492/ffa_t8_8.130_10492.png",
+      "t": 8.12967600000001
+    },
+    {
+      "label": "ffa_t16",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_18461/ffa_t16_16.100_18461.png",
+      "t": 16.1
+    }
+  ]
+}

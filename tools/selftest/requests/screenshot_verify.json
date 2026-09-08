@@ -1,0 +1,16 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "build": "tank",
+  "time_scale": 1.0,
+  "until_wave": 4,
+  "duration": 60,
+  "comment": "Screenshot verification: capture the game at various points to confirm visuals (shadows, sprites, camp markers, minimap).",
+  "events": [
+    {"t": 5.0, "kind": "snap", "label": "start"},
+    {"t": 15.0, "kind": "snap", "label": "wave1_mid"},
+    {"t": 30.0, "kind": "snap", "label": "wave1_late"},
+    {"t": 45.0, "kind": "snap", "label": "wave2"},
+    {"t": 58.0, "kind": "report"}
+  ]
+}

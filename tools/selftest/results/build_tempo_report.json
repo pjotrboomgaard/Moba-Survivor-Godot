@@ -1,0 +1,641 @@
+{
+  "effects": [
+    {
+      "cd_left": 19.3263333333332,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.66507933333333
+    },
+    {
+      "cd_left": 43.7466666666668,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 3.23025933333333
+    },
+    {
+      "cd_left": 26.7693333333332,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 3.79025933333333
+    },
+    {
+      "cd_left": 26.6026666666665,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 3.94732666666667
+    },
+    {
+      "cd_left": 82.1466666666668,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.39987866666667
+    },
+    {
+      "cd_left": 16.9596666666664,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 5.00426866666667
+    },
+    {
+      "cd_left": 41.3466666666669,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 5.6101756969697
+    },
+    {
+      "cd_left": 24.3359999999998,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 6.21710210389611
+    },
+    {
+      "cd_left": 24.1693333333331,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 6.36948305627706
+    },
+    {
+      "cd_left": 79.7133333333336,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.82662591341992
+    },
+    {
+      "cd_left": 14.5263333333331,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 7.43656133333333
+    },
+    {
+      "cd_left": 38.9133333333337,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 8.05271133333333
+    },
+    {
+      "cd_left": 21.9359999999996,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 8.622654
+    },
+    {
+      "cd_left": 21.769333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 8.78932066666667
+    },
+    {
+      "cd_left": 77.3133333333337,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 9.20598733333334
+    },
+    {
+      "cd_left": 12.2263333333331,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 9.76420866666667
+    },
+    {
+      "cd_left": 36.5800000000005,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 10.3845642222222
+    },
+    {
+      "cd_left": 19.5359999999995,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 11.0064351111111
+    },
+    {
+      "cd_left": 19.4026666666662,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 11.1609906666667
+    },
+    {
+      "cd_left": 74.9133333333339,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 11.6192646666667
+    },
+    {
+      "cd_left": 9.7596666666664,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 12.2268241038961
+    },
+    {
+      "cd_left": 34.1800000000007,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 12.7882988888889
+    },
+    {
+      "cd_left": 17.2026666666661,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 13.3484333333333
+    },
+    {
+      "cd_left": 17.0359999999994,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 13.5084333333333
+    },
+    {
+      "cd_left": 72.613333333334,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 13.9111111111111
+    },
+    {
+      "cd_left": 7.45966666666641,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 14.53
+    },
+    {
+      "cd_left": 31.8133333333341,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 15.1459362222222
+    },
+    {
+      "cd_left": 14.802666666666,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 15.763976
+    },
+    {
+      "cd_left": 14.6359999999994,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 15.9195315555555
+    },
+    {
+      "cd_left": 70.1466666666675,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 16.3885713333333
+    },
+    {
+      "cd_left": 5.02633333333309,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 16.940400969697
+    },
+    {
+      "cd_left": 29.4800000000007,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 17.4909090909091
+    },
+    {
+      "cd_left": 12.502666666666,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 18.0424242424242
+    },
+    {
+      "cd_left": 12.3359999999994,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 18.2
+    },
+    {
+      "cd_left": 67.9133333333343,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 18.6121212121212
+    },
+    {
+      "cd_left": 2.79299999999976,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 19.1666666666667
+    },
+    {
+      "cd_left": 27.2466666666672,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 19.7181818181818
+    },
+    {
+      "cd_left": 10.2693333333327,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 20.2936673333333
+    },
+    {
+      "cd_left": 10.102666666666,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 20.4566302962963
+    },
+    {
+      "cd_left": 65.6800000000011,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 20.8592592592593
+    },
+    {
+      "cd_left": 0.559666666666429,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 21.4285714285714
+    },
+    {
+      "cd_left": 24.9800000000004,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 21.9952380952381
+    },
+    {
+      "cd_left": 8.00266666666605,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 22.5533561587302
+    },
+    {
+      "cd_left": 7.83599999999938,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 22.7152609206349
+    },
+    {
+      "cd_left": 63.4133333333345,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 23.1200228253968
+    },
+    {
+      "cd_left": 22.6800000000003,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 24.2997353333334
+    },
+    {
+      "cd_left": 5.66933333333272,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 24.8930446666667
+    },
+    {
+      "cd_left": 5.50266666666606,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 25.0558546666667
+    },
+    {
+      "cd_left": 61.0800000000013,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 25.4503186666667
+    },
+    {
+      "cd_left": 19.3596666666665,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 26.002924
+    },
+    {
+      "cd_left": 20.4133333333336,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 26.5570906666667
+    },
+    {
+      "cd_left": 3.4359999999994,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 27.1112573333334
+    },
+    {
+      "cd_left": 3.26933333333273,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 27.2693646666667
+    },
+    {
+      "cd_left": 58.8800000000015,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 27.6643466666667
+    },
+    {
+      "cd_left": 17.1596666666664,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 28.21776
+    },
+    {
+      "cd_left": 18.1800000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 28.7760933333333
+    },
+    {
+      "cd_left": 1.2359999999994,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 29.333206
+    },
+    {
+      "cd_left": 1.06933333333273,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 29.4915393333333
+    },
+    {
+      "cd_left": 56.6466666666683,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 29.8873726666667
+    },
+    {
+      "cd_left": 14.9263333333331,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 30.4440393333333
+    },
+    {
+      "cd_left": 15.9466666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 31.0040393333333
+    },
+    {
+      "cd_left": 54.3800000000017,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 32.1508226666666
+    },
+    {
+      "cd_left": 12.6263333333331,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 32.7432126666666
+    },
+    {
+      "cd_left": 13.68,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 33.2969846666666
+    },
+    {
+      "cd_left": 26.7359999999999,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 33.9199544444444
+    },
+    {
+      "cd_left": 26.5693333333332,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 34.0751846666666
+    },
+    {
+      "cd_left": 51.9800000000019,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 34.5408459999999
+    }
+  ],
+  "elapsed": 34.9297348888888,
+  "enemies_spawned": 0,
+  "hero_position": "(203.9751, -725.6862)",
+  "player_class": "cinder",
+  "results": {
+    "alive": false,
+    "beaten_wave": 0,
+    "build": "tempo",
+    "cast_count": 6,
+    "casts": [
+      {
+        "ability_id": "cinder_dragon_fire",
+        "t": 0.3
+      },
+      {
+        "ability_id": "cinder_fiery_assault",
+        "t": 0.877372
+      },
+      {
+        "ability_id": "cinder_whirling_flame",
+        "t": 1.61333333333333
+      },
+      {
+        "ability_id": "cinder_pillar_of_flame",
+        "t": 2.05333333333333
+      },
+      {
+        "ability_id": "cinder_dragon_fire",
+        "t": 23.6866894920635
+      },
+      {
+        "ability_id": "cinder_whirling_flame",
+        "t": 31.7240393333333
+      }
+    ],
+    "died": true,
+    "errors": [
+      "player died at t=34.9 wave=1 min_hp=0.02"
+    ],
+    "ffa": {},
+    "gold": 57,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "enemies": 15,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 0.3,
+        "wave": 1
+      },
+      {
+        "enemies": 19,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 2.82,
+        "wave": 1
+      },
+      {
+        "enemies": 25,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 5.38,
+        "wave": 1
+      },
+      {
+        "enemies": 40,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 7.9,
+        "wave": 1
+      },
+      {
+        "enemies": 45,
+        "gold": 10,
+        "hp": 1.0,
+        "t": 10.46,
+        "wave": 1
+      },
+      {
+        "enemies": 58,
+        "gold": 21,
+        "hp": 0.88,
+        "t": 13.03,
+        "wave": 1
+      },
+      {
+        "enemies": 61,
+        "gold": 21,
+        "hp": 0.88,
+        "t": 15.53,
+        "wave": 1
+      },
+      {
+        "enemies": 63,
+        "gold": 27,
+        "hp": 0.88,
+        "t": 18.04,
+        "wave": 1
+      },
+      {
+        "enemies": 73,
+        "gold": 35,
+        "hp": 0.8,
+        "t": 20.61,
+        "wave": 1
+      },
+      {
+        "enemies": 70,
+        "gold": 38,
+        "hp": 0.68,
+        "t": 23.12,
+        "wave": 1
+      },
+      {
+        "enemies": 68,
+        "gold": 58,
+        "hp": 0.68,
+        "t": 25.69,
+        "wave": 1
+      },
+      {
+        "enemies": 64,
+        "gold": 62,
+        "hp": 0.68,
+        "t": 28.22,
+        "wave": 1
+      },
+      {
+        "enemies": 76,
+        "gold": 62,
+        "hp": 0.68,
+        "t": 30.76,
+        "wave": 1
+      },
+      {
+        "enemies": 46,
+        "gold": 113,
+        "hp": 0.39,
+        "t": 33.3,
+        "wave": 1
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 3,
+    "level_upgrades": {
+      "2": [
+        "reach"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 0.0222222222222222,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 1,
+    "quests_seen": {
+      "stand_lantern": 1
+    },
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "reach"
+    ],
+    "until_wave": 12,
+    "verdict": "FAIL_TOO_HARD",
+    "wave": 1,
+    "xp": 136
+  },
+  "shots": []
+}
