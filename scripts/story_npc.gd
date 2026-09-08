@@ -182,9 +182,6 @@ func _local_player() -> Player:
 
 
 func _on_rescued() -> void:
-
-
-func _on_rescued() -> void:
 	# Happy jump animation
 	if _sprite != null:
 		var tween := create_tween()
