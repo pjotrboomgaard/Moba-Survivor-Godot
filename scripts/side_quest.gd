@@ -1,4 +1,3 @@
-class_name SideQuest
 extends Node2D
 
 const SideQuestArt := preload("res://scripts/side_quest_art.gd")
@@ -10,7 +9,7 @@ func _story_npc_script() -> GDScript:
 		_StoryNPC_script = load("res://scripts/story_npc.gd")
 	return _StoryNPC_script
 
-signal completed(quest: SideQuest)
+signal completed(quest: Node2D)
 
 const PIXEL_ZOOM := 3.6
 const CATCH_RADIUS := 30.0
@@ -50,7 +49,7 @@ var _chase_vel := Vector2.RIGHT
 var _chase_speed := 210.0
 var _markers: Array[Node2D] = []
 var _visited: Array[bool] = []
-var _enemy: Enemy = null
+var _enemy: Node2D = null
 var _ring_color := Color(1.0, 0.86, 0.35, 0.85)
 var _story_npc: Node2D = null
 var _rescue_creeps: Array[Node2D] = []
@@ -135,11 +134,11 @@ func _process(delta: float) -> void:
 			_tick_dance(delta, player)
 
 
-func _owner() -> Player:
+func _owner() -> Node2D:
 	if _main == null:
 		return null
 	var found: Variant = _main.players.get(owner_peer_id)
-	return found as Player
+	return found as Node2D
 
 
 func _outskirts_origin() -> Vector2:
@@ -150,9 +149,13 @@ func _outskirts_origin() -> Vector2:
 		slot = int(player.team_id)
 	elif player != null:
 		slot = maxi(0, int(_main.players.keys().find(owner_peer_id)))
-	var base := Arena.corner_spawn(slot)
-	if GameRuntime.is_ffa():
-		base = RiftClashManager.team_anchor(slot)
+	var base := Vector2.ZERO
+	if arena != null:
+		base = arena.corner_spawn(slot)
+	var gr: Node = _main.get_tree().root.get_node_or_null("GameRuntime")
+	var rcm: Node = _main.get_tree().root.get_node_or_null("RiftClashManager")
+	if gr != null and gr.is_ffa() and rcm != null:
+		base = rcm.team_anchor(slot)
 	var away := base
 	if away.length() < 80.0:
 		away = Vector2.RIGHT.rotated(float(slot) * TAU * 0.25 + 0.4) * 900.0
@@ -161,8 +164,8 @@ func _outskirts_origin() -> Vector2:
 	away += Vector2.RIGHT.rotated(randf() * TAU) * randf_range(80.0, 220.0)
 	if arena != null:
 		if arena.crater_contains(away, 48.0):
-			away = away.normalized() * (Arena.crater_radius() + 160.0) if away.length() > 1.0 else Vector2(720, -520)
-		if away.distance_to(Arena.shop_stand_position()) < Arena.SHOP_STAND_CLEARANCE + 80.0:
+			away = away.normalized() * (arena.crater_radius() + 160.0) if away.length() > 1.0 else Vector2(720, -520)
+		if away.distance_to(Arena.shop_stand_position()) < 140.0 + 80.0:
 			away += Vector2(180.0, 90.0)
 		away = arena.free_position_near(away, 22.0)
 		var half := arena.half_extents() - Vector2(80.0, 80.0)
@@ -257,7 +260,7 @@ func _refresh_anim_frames() -> void:
 			(marker as Sprite2D).texture = tex
 
 
-func _tick_chase(delta: float, player: Player) -> void:
+func _tick_chase(delta: float, player: Node2D) -> void:
 	if _chase == null:
 		return
 	var pos: Vector2 = _chase.global_position
@@ -279,12 +282,12 @@ func _tick_chase(delta: float, player: Player) -> void:
 		pos.x = clampf(pos.x, -half.x, half.x)
 		pos.y = clampf(pos.y, -half.y, half.y)
 		if arena.crater_contains(pos, 8.0):
-			pos = pos.normalized() * (Arena.crater_radius() + 40.0)
+			pos = pos.normalized() * (arena.crater_radius() + 40.0)
 	_chase.global_position = pos
 	seek_position = pos
 
 
-func _tick_collect(player: Player) -> void:
+func _tick_collect(player: Node2D) -> void:
 	for i in _markers.size():
 		if _visited[i]:
 			continue
@@ -301,7 +304,7 @@ func _tick_collect(player: Player) -> void:
 		_finish()
 
 
-func _tick_smash(delta: float, player: Player) -> void:
+func _tick_smash(delta: float, player: Node2D) -> void:
 	_smash_cd = maxf(0.0, _smash_cd - delta)
 	if _markers.is_empty() or not is_instance_valid(_markers[0]):
 		return
@@ -309,7 +312,7 @@ func _tick_smash(delta: float, player: Player) -> void:
 	seek_position = target.global_position
 	if player.global_position.distance_to(target.global_position) > SMASH_RADIUS:
 		return
-	var swinging := player.attack_cooldown > player.attack_interval * 0.55
+	var swinging: bool = float(player.attack_cooldown) > float(player.attack_interval) * 0.55
 	if swinging and _smash_cd <= 0.0:
 		_smash_hp -= 1
 		_smash_cd = 0.28
@@ -320,7 +323,7 @@ func _tick_smash(delta: float, player: Player) -> void:
 			_finish()
 
 
-func _tick_stand(delta: float, player: Player) -> void:
+func _tick_stand(delta: float, player: Node2D) -> void:
 	var center := global_position
 	if not _markers.is_empty() and is_instance_valid(_markers[0]):
 		center = _markers[0].global_position
@@ -336,7 +339,7 @@ func _tick_stand(delta: float, player: Player) -> void:
 	queue_redraw()
 
 
-func _tick_visit(player: Player) -> void:
+func _tick_visit(player: Node2D) -> void:
 	for i in _markers.size():
 		if _visited[i]:
 			continue
@@ -367,8 +370,8 @@ func _update_seek_unvisited() -> void:
 		if _visited[i]:
 			continue
 		if is_instance_valid(_markers[i]):
-		seek_position = _markers[i].global_position
-		return
+			seek_position = _markers[i].global_position
+			return
 
 
 ## Rescue mode: spawn a StoryNPC (kid/villager) that gets attacked by creeps.
@@ -395,7 +398,7 @@ func _spawn_rescue(origin: Vector2) -> void:
 		var pos := origin + offset
 		if arena != null:
 			pos = arena.free_position_near(pos, 20.0)
-		var creep: Enemy = null
+		var creep: Node2D = null
 		if _main.has_method("_spawn_enemy_at"):
 			creep = _main._spawn_enemy_at(pos, "grunt", 0.5, 0.6, false)
 		if creep != null:
@@ -403,7 +406,7 @@ func _spawn_rescue(origin: Vector2) -> void:
 			_rescue_creeps.append(creep)
 
 
-func _tick_rescue(delta: float, player: Player) -> void:
+func _tick_rescue(delta: float, player: Node2D) -> void:
 	if _story_npc == null or not is_instance_valid(_story_npc):
 		_finish()
 		return
@@ -419,7 +422,7 @@ func _tick_rescue(delta: float, player: Player) -> void:
 	for c in _rescue_creeps:
 		if is_instance_valid(c):
 			alive_creeps += 1
-	if alive_creeps == 0 and _story_npc.is_instance_valid() and not _story_npc.is_dead:
+	if alive_creeps == 0 and is_instance_valid(_story_npc) and not _story_npc.is_dead:
 		_finish()
 
 
@@ -456,7 +459,7 @@ func _spawn_dance(origin: Vector2) -> void:
 	seek_position = _dance_moves[0]
 
 
-func _tick_dance(delta: float, player: Player) -> void:
+func _tick_dance(delta: float, player: Node2D) -> void:
 	_dance_timer += delta
 	var move_time := _dance_duration / float(maxi(1, _dance_moves.size()))
 	var seg := int(_dance_timer / move_time)
@@ -494,7 +497,7 @@ func _tick_dance(delta: float, player: Player) -> void:
 		_finish()
 
 
-func _spawn_dance_reward(player: Player) -> void:
+func _spawn_dance_reward(player: Node2D) -> void:
 	var main := _main
 	if main == null or main.get("actors") == null:
 		return
@@ -553,3 +556,7 @@ func _draw() -> void:
 	var ring := _ring_color
 	ring.a = pulse
 	draw_arc(center, STAND_RADIUS, 0.0, TAU, 32, ring, 3.0, true)
+
+
+
+

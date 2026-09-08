@@ -1,4 +1,3 @@
-class_name FriendlyMinion
 extends Node2D
 
 ## A friendly creep summoned as a quest reward. Follows the local player and attacks
@@ -85,28 +84,28 @@ func _process(delta: float) -> void:
 			_hit(foe)
 
 
-func _owner_player() -> Player:
+func _owner_player() -> Node2D:
 	if _main == null:
 		return null
 	var players: Dictionary = _main.get("players")
 	if players == null:
 		return null
 	var found = players.get(_owner_peer_id)
-	return found as Player
+	return found as Node2D
 
 
-func _nearest_enemy() -> Enemy:
+func _nearest_enemy() -> Node2D:
 	if _main == null:
 		return null
-	var best: Enemy = null
+	var best: Node2D = null
 	var best_d := INF
 	var enemies: Dictionary = _main.get("enemies")
 	if enemies == null:
 		return null
 	for e in enemies.values():
-		if not is_instance_valid(e) or not (e is Enemy):
+		if not is_instance_valid(e) or not (e is Node2D):
 			continue
-		var enemy := e as Enemy
+		var enemy := e
 		if enemy.is_boss:
 			continue
 		var d := global_position.distance_to(enemy.global_position)
@@ -116,7 +115,7 @@ func _nearest_enemy() -> Enemy:
 	return best
 
 
-func _hit(foe: Enemy) -> void:
+func _hit(foe: Node2D) -> void:
 	_attack_cd = ATTACK_INTERVAL
 	var target_health: Node = foe.get_node_or_null("HealthComponent")
 	if target_health != null and target_health.has_method("take_damage"):

@@ -65,7 +65,7 @@ var _crater_snapshot_sent: Dictionary = {}
 var ready_for_next_wave: Dictionary = {}
 ## peer_id of the downed player -> seconds a stationary teammate has stood next to them.
 var revive_progress: Dictionary = {}
-var _side_quest_director: SideQuestDirector = null
+var _side_quest_director: Node = null
 
 const REVIVE_RADIUS := 60.0
 const REVIVE_DURATION := 5.0
@@ -2921,7 +2921,7 @@ var _last_side_quest_text := ""
 func _refresh_side_quest_hud() -> void:
 	if hud == null or _side_quest_director == null:
 		return
-	var text := _side_quest_director.hud_text_for_local()
+	var text: String = _side_quest_director.hud_text_for_local()
 	if not text.is_empty() and _last_side_quest_text.is_empty():
 		hud.show_quest_toast("New side quest: %s" % text)
 	_last_side_quest_text = text

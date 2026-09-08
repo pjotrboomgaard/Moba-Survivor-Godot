@@ -1,12 +1,11 @@
-class_name StoryNPC
 extends Node2D
 
 ## A story NPC (kid, villager, etc.) that runs around the map, gets attacked by creeps,
 ## and needs the player to save them. Has a health bar, can die, and rewards the player
 ## on rescue.
 
-signal rescued(npc: StoryNPC)
-signal died(npc: StoryNPC)
+signal rescued(npc: Node2D)
+signal died(npc: Node2D)
 
 const PIXEL_ZOOM := 3.6
 const ATTACK_RANGE := 80.0
@@ -183,6 +182,9 @@ func _local_player() -> Player:
 
 
 func _on_rescued() -> void:
+
+
+func _on_rescued() -> void:
 	# Happy jump animation
 	if _sprite != null:
 		var tween := create_tween()
@@ -218,7 +220,7 @@ func _on_died() -> void:
 	died.emit(self)
 
 
-func _show_reward_text(player: Player, gold: int, xp: int) -> void:
+func _show_reward_text(player: Node2D, gold: int, xp: int) -> void:
 	# Create a floating text label
 	var label := Label.new()
 	label.text = "+%d gold + %d XP" % [gold, xp]

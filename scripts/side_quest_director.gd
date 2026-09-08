@@ -1,7 +1,6 @@
-class_name SideQuestDirector
 extends Node
 
-const SideQuest := preload("res://scripts/side_quest.gd")
+const SideQuestScript := preload("res://scripts/side_quest.gd")
 
 ## Per-player randomized outskirts side quests. A completed task rolls a new kind.
 
@@ -58,7 +57,7 @@ func _grant(peer_id: int) -> void:
 		return
 	_clear_peer(peer_id)
 	var spec := _pick_spec(peer_id)
-	var quest := SideQuest.new()
+	var quest := SideQuestScript.new()
 	quest.name = "SideQuest_%d" % peer_id
 	quest.configure(peer_id, spec)
 	quest.completed.connect(_on_quest_completed)
@@ -71,7 +70,7 @@ func _grant(peer_id: int) -> void:
 	_notify_quest_spawned(quest, peer_id)
 
 
-func _notify_quest_spawned(quest: SideQuest, peer_id: int) -> void:
+func _notify_quest_spawned(quest: Node2D, peer_id: int) -> void:
 	if _main == null or _main.get("hud") == null:
 		return
 	var hud: Node = _main.get("hud")
@@ -100,10 +99,10 @@ func _pick_spec(peer_id: int) -> Dictionary:
 	return spec
 
 
-func _on_quest_completed(quest: SideQuest) -> void:
+func _on_quest_completed(quest: Node2D) -> void:
 	if quest == null:
 		return
-	var peer_id := quest.owner_peer_id
+	var peer_id: int = int(quest.owner_peer_id)
 	_pay_out(quest)
 	_clear_peer(peer_id)
 	if _main != null and _main.has_method("_refresh_side_quest_hud"):
@@ -113,10 +112,10 @@ func _on_quest_completed(quest: SideQuest) -> void:
 		_grant(peer_id)
 
 
-func _pay_out(quest: SideQuest) -> void:
+func _pay_out(quest: Node2D) -> void:
 	if _main == null:
 		return
-	var player := _main.players.get(quest.owner_peer_id) as Player
+	var player = _main.players.get(quest.owner_peer_id)
 	if player == null:
 		return
 	var gold := int(quest.spec.get("gold", 0))
@@ -140,10 +139,10 @@ func hud_text_for_local() -> String:
 	if _main == null:
 		return ""
 	for player_node in _main.players.values():
-		var player := player_node as Player
+		var player = player_node
 		if player == null or not player.is_local_player:
 			continue
-		var quest: SideQuest = _active.get(player.owner_peer_id) as SideQuest
+		var quest: Node2D = _active.get(player.owner_peer_id) as Node2D
 		if quest == null:
 			return ""
 		return quest.hud_line
@@ -151,7 +150,8 @@ func hud_text_for_local() -> String:
 
 
 func _clear_peer(peer_id: int) -> void:
-	var quest: SideQuest = _active.get(peer_id) as SideQuest
+	var quest: Node2D = _active.get(peer_id) as Node2D
 	_active.erase(peer_id)
 	if quest != null and is_instance_valid(quest):
 		quest.queue_free()
+
