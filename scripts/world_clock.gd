@@ -35,11 +35,14 @@ static func _refresh() -> void:
 	var t := time_of_day
 	is_night = t >= NIGHT_START and t < NIGHT_END
 	# Sun stays in the southern half of the screen and only swings east/west.
+	# It rises in the EAST (+x) and sets in the WEST (-x) to match real-world
+	# convention. The shadow (opposite of sun_dir) therefore points west at
+	# dawn, south at noon, and east at dusk.
 	var day_span := NIGHT_START
 	var sun_t := clampf(t / maxf(0.001, day_span), 0.0, 1.0)
 	if is_night:
 		sun_t = 1.0 if t < (NIGHT_START + NIGHT_END) * 0.5 else 0.0
-	var azimuth := lerpf(-0.72, 0.72, sun_t)
+	var azimuth := lerpf(0.72, -0.72, sun_t)
 	sun_dir = Vector2(sin(azimuth), absf(cos(azimuth)) * 0.72 + 0.28).normalized()
 	var noon := 1.0 - absf(sun_t - 0.5) * 2.0
 	if is_night:

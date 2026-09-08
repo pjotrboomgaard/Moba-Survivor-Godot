@@ -100,18 +100,23 @@ func _update_shadow_rotation() -> void:
 	if _shadow == null:
 		return
 	var dir := WorldClock.sun_dir
+	# Shadow points away from the sun. At dawn the sun is low in the east
+	# (small +x), so the shadow points west (-x) and is long. At noon the sun
+	# is high (dir ~ (0.0, 1.0)), so the shadow points straight down (-y) and
+	# is short. At dusk the sun is low in the west, shadow points east.
 	var shadow_dir := -dir
-	# The shadow points away from the sun, stretched along that axis.
 	var angle := shadow_dir.angle()
+	# Texture is built with the wide canopy at local -Y and the thin trunk at
+	# local +Y. Rotating by (angle + PI/2) makes local -Y align with
+	# shadow_dir, so the canopy end swings away from the sun.
 	_shadow.rotation = angle + PI / 2.0
 	var stretch := WorldClock.shadow_stretch
-	_shadow.scale = Vector2(1.0, 1.0 + stretch)
-	# The tree shadow's canopy center moves along the shadow direction in
-	# proportion to the sun's stretch: at dawn/dusk (high stretch) the shadow
-	# reaches far to the side, at noon (low stretch) it stays short and close.
-	# Rocks keep a fixed small base offset.
-	var off := body_radius * (0.5 + stretch * 1.2) if _is_tree_shadow else body_radius * 0.22
-	_shadow.position = shadow_dir * off + Vector2(0.0, body_radius * 0.12)
+	# Trees: the shadow center slides along shadow_dir in proportion to how
+	# low the sun is (high stretch = low sun = long shadow that reaches far).
+	# Rocks keep a small fixed base offset so their blob stays under the rock.
+	var off := body_radius * (0.5 + stretch * 1.4) if _is_tree_shadow else body_radius * 0.22
+	_shadow.position = shadow_dir * off + Vector2(0.0, body_radius * 0.10)
+	_shadow.scale = Vector2.ONE
 	_shadow.modulate = Color(0.0, 0.0, 0.0, WorldClock.shadow_alpha)
 
 
@@ -171,9 +176,9 @@ func _build_shadow_texture(zoom: float) -> void:
 		_shadow_img = img
 		_shadow.texture = ImageTexture.create_from_image(img)
 	else:
-		# Rocks: small rounder blobs, clearly smaller than the rock body.
-		var w := maxi(5, int(radius_px * 0.45))
-		var h := maxi(4, int(w * 0.62))
+		# Rocks: small rounder blobs that read as a cast shadow at the base.
+		var w := maxi(8, int(radius_px * 0.72))
+		var h := maxi(6, int(radius_px * 0.45))
 		var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
 		var center := Vector2(w * 0.5, h * 0.5)
 		for y in h:
@@ -182,11 +187,11 @@ func _build_shadow_texture(zoom: float) -> void:
 				var nd := Vector2(px.x / (w * 0.5), px.y / (h * 0.5))
 				var d := nd.length()
 				var alpha := 0.0
-				if d < 0.6:
+				if d < 0.55:
 					alpha = 1.0
 				elif d < 1.0:
-					alpha = 1.0 - (d - 0.6) / 0.4
-				img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.85))
+					alpha = 1.0 - (d - 0.55) / 0.45
+				img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.95))
 		_shadow_img = img
 		_shadow.texture = ImageTexture.create_from_image(img)
 
