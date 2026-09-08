@@ -623,13 +623,17 @@ func _apply_fog_visibility(target: Node2D, from: Vector2) -> void:
 	# Tree/rock occlusion (the old raycast against Obstacle.VISION_BLOCKER_LAYER)
 	# was disabled because it fully hid sprites whenever a tree or rock sat between
 	# the player and the target, which read as sprites "disappearing".
-	var visible_now := dist <= Player.VISION_RADIUS
-	# Soft fade instead of a hard on/off so sprites never vanish abruptly.
+	#
+	# The user zooms out to ~0.5 for a wide overview, so a 700px hard fade ring
+	# made half the on-screen enemies invisible. Raise the fully-visible radius to
+	# cover the zoomed-out screen (~1900 world units half-width) and keep a soft
+	# outer grace band so sprites never vanish abruptly.
+	var full_radius := 1900.0
+	var visible_now := dist <= full_radius
 	if visible_now:
 		target.modulate.a = 1.0
-	elif dist <= Player.VISION_RADIUS * 1.35:
-		# Grace band: fade linearly from 1.0 to 0.0 across the outer 35% ring.
-		var t := (dist - Player.VISION_RADIUS) / (Player.VISION_RADIUS * 0.35)
+	elif dist <= full_radius * 1.25:
+		var t := (dist - full_radius) / (full_radius * 0.25)
 		target.modulate.a = maxf(0.0, 1.0 - t)
 	else:
 		target.modulate.a = 0.0
