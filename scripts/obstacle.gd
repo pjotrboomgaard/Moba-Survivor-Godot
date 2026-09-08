@@ -37,6 +37,13 @@ func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixel
 
 	sprite.texture = SpriteLibrary.texture_for(sprite_name)
 	var is_tree := sprite_name.contains("tree")
+	# Town buildings face different directions for a natural semi-iso town look.
+	if sprite_name.begins_with("town_"):
+		sprite.rotation = [0.0, 0.52, 0.78, 1.05, 1.57, 2.1, 2.62, 3.14][randi() % 8]
+		# Random rotation also rotates the collision circle center offset — keep
+		# the collision shape centered on the body so rotation is purely visual.
+		sprite.offset = Vector2(0.0, -lift_pixels * 0.6)
+		z_index = WorldClock.depth_z(global_position.y) + 4
 	var zoom := display_zoom(sprite_name, pixel_zoom, sprite.texture)
 	sprite.scale = Vector2(zoom, zoom)
 	# Offset is in texture pixels, then multiplied by scale. Pin the trunk/foot
