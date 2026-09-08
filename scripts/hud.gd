@@ -1340,9 +1340,10 @@ func _build_side_quest_label() -> void:
 	quest_label.name = "QuestLabel"
 	quest_label.visible = false
 	quest_label.position = Vector2(290, 14)
-	quest_label.size = Vector2(620, 32)
+	quest_label.size = Vector2(620, 68)
 	quest_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	quest_label.add_theme_font_size_override("font_size", 16)
+	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	quest_label.add_theme_font_size_override("font_size", 15)
 	quest_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.42, 1.0))
 	quest_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.92))
 	quest_label.add_theme_constant_override("shadow_outline_size", 4)

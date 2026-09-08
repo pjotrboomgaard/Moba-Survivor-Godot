@@ -2,10 +2,18 @@ extends Node
 
 const SideQuestScript := preload("res://scripts/side_quest.gd")
 
-## Per-player randomized outskirts side quests. A completed task rolls a new kind.
+## Per-player randomized outskirts side quests. A completed task rolls a new kind
+## after a cooldown. Up to MAX_ACTIVE_QUESTS_PER_PEER may be active at once so a
+## player can choose between several objectives.
 
 const DELAY_BEFORE_FIRST := 2.8
-const DELAY_AFTER_COMPLETE := 3.6
+## Cooldown between spawns. When a quest completes while another is still active, a
+## new one rolls after this delay (45-60s game time) so the bot sees fresh quests.
+const DELAY_AFTER_COMPLETE := 50.0
+## Maximum concurrent side quests a single player can have at once.
+const MAX_ACTIVE_QUESTS_PER_PEER := 2
+## How many recent quest modes to deprioritize for variety.
+const RECENT_MODE_COUNT := 2
 
 const POOL: Array[Dictionary] = [
 	{"id": "chase_butterfly", "mode": "chase", "art": "butterfly", "anim": true, "speed": 235.0, "title": "Catch the butterfly", "gold": 45, "xp": 40},
@@ -36,9 +44,28 @@ const POOL: Array[Dictionary] = [
 	{"id": "dance_giggle", "mode": "dance", "art": "marked", "title": "Giggle-run with the sprite", "gold": 95, "xp": 70, "buff": {"damage_dealt_mult": 1.15}, "buff_time": 12.0},
 ]
 
+## Biome (GameRuntime.biome_id) -> per-quest-mode weight. 1.0 = neutral, >1 boosts,
+## <1 suppresses. Grass (id 0) falls through to _DEFAULT_WEIGHTS (all 1.0).
+const _BIOME_MODE_WEIGHTS: Dictionary = {
+	# Volcano: favor smashing and shard-collecting (lava/volcanic theme)
+	1: {"smash": 2.0, "collect": 1.6, "chase": 1.0, "stand": 0.7, "visit": 0.7, "kill": 1.2, "rescue": 0.8, "dance": 0.6},
+	# Ice: favor standing-still and chase quests (frozen theme)
+	2: {"stand": 2.0, "chase": 1.6, "collect": 0.8, "smash": 0.8, "visit": 0.9, "kill": 1.0, "rescue": 0.9, "dance": 0.8},
+	# Factory: favor collect and smash (industrial theme)
+	3: {"collect": 2.0, "smash": 1.6, "kill": 1.1, "chase": 0.8, "stand": 0.9, "visit": 0.9, "rescue": 0.8, "dance": 0.8},
+	# Docks: favor visit and rescue (port theme)
+	4: {"visit": 2.0, "rescue": 1.8, "collect": 1.0, "kill": 1.0, "chase": 0.8, "smash": 0.8, "stand": 0.8, "dance": 0.8},
+}
+const _DEFAULT_MODE_WEIGHT: float = 1.0
+
+
 var _main: Node = null
-var _active: Dictionary = {}
-var _recent: Dictionary = {}
+## Per-peer list of currently active SideQuest nodes (up to MAX_ACTIVE_QUESTS_PER_PEER).
+var _active_quests: Dictionary = {}
+## Per-peer list of the most recent quest modes used (for variety deprioritization).
+var _recent_modes: Dictionary = {}
+## Per-peer last quest ids (kept small to avoid exact repeats back-to-back).
+var _recent_ids: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
 
 
@@ -52,10 +79,47 @@ func setup(main: Node) -> void:
 		_grant(int(peer))
 
 
+func _active_count(peer_id: int) -> int:
+	var quests: Array = _active_quests.get(peer_id, [])
+	var count := 0
+	for q in quests:
+		if is_instance_valid(q):
+			count += 1
+	return count
+
+
+func _remove_quest_from_peer(peer_id: int, quest: Node2D) -> void:
+	var quests: Array = _active_quests.get(peer_id, [])
+	quests.erase(quest)
+	_active_quests[peer_id] = quests
+
+
+## Initial grant: top a peer up to MAX_ACTIVE_QUESTS_PER_PEER so they get choices.
 func _grant(peer_id: int) -> void:
 	if _main == null or not _main.players.has(peer_id):
 		return
-	_clear_peer(peer_id)
+	# Prune stale entries so the count reflects live quests.
+	var quests: Array = _active_quests.get(peer_id, [])
+	var alive: Array = []
+	for q in quests:
+		if is_instance_valid(q):
+			alive.append(q)
+	_active_quests[peer_id] = alive
+	while _active_count(peer_id) < MAX_ACTIVE_QUESTS_PER_PEER:
+		_spawn_one(peer_id)
+
+
+## Spawn a single new quest for a peer.
+func _spawn_one(peer_id: int) -> void:
+	if _main == null or not _main.players.has(peer_id):
+		return
+	# Remove any stale/inactive quest entries for this peer first.
+	var quests: Array = _active_quests.get(peer_id, [])
+	var alive: Array = []
+	for q in quests:
+		if is_instance_valid(q):
+			alive.append(q)
+	_active_quests[peer_id] = alive
 	var spec := _pick_spec(peer_id)
 	var quest := SideQuestScript.new()
 	quest.name = "SideQuest_%d" % peer_id
@@ -64,10 +128,31 @@ func _grant(peer_id: int) -> void:
 	var host: Node = _main.actors if _main.get("actors") != null else _main
 	host.add_child(quest)
 	quest.begin(_main)
-	_active[peer_id] = quest
+	_active_quests[peer_id].append(quest)
+	_track_recent_mode(peer_id, str(spec.get("mode", "collect")))
 	if _main.has_method("_refresh_side_quest_hud"):
 		_main._refresh_side_quest_hud()
 	_notify_quest_spawned(quest, peer_id)
+
+
+func _track_recent_mode(peer_id: int, mode: String) -> void:
+	var modes: Array = _recent_modes.get(peer_id, [])
+	modes.push_front(mode)
+	if modes.size() > RECENT_MODE_COUNT:
+		modes.pop_back()
+	_recent_modes[peer_id] = modes
+
+
+func _recent_mode_set(peer_id: int) -> Array:
+	return _recent_modes.get(peer_id, [])
+
+
+func _biome_mode_weight(mode: String) -> float:
+	var biome: int = int(GameRuntime.biome_id)
+	var weights: Dictionary = _BIOME_MODE_WEIGHTS.get(biome, {})
+	if not weights.has(mode):
+		return _DEFAULT_MODE_WEIGHT
+	return float(weights[mode])
 
 
 func _notify_quest_spawned(quest: Node2D, peer_id: int) -> void:
@@ -83,19 +168,38 @@ func _notify_quest_spawned(quest: Node2D, peer_id: int) -> void:
 
 
 func _pick_spec(peer_id: int) -> Dictionary:
-	var banned: Array = _recent.get(peer_id, [])
-	var choices: Array[Dictionary] = []
+	# Avoid exact repeats: skip ids used in the last 4 rolls.
+	var banned_ids: Array = _recent_ids.get(peer_id, [])
+	# Deprioritize modes used in the last RECENT_MODE_COUNT rolls (variety).
+	var recent_modes: Array = _recent_mode_set(peer_id)
+	var biome_weights: Array[Dictionary] = []
 	for entry in POOL:
-		if banned.has(str(entry.id)):
-			continue
-		choices.append(entry)
-	if choices.is_empty():
-		choices = POOL.duplicate()
-	var spec: Dictionary = choices[_rng.randi() % choices.size()].duplicate(true)
-	banned.append(str(spec.id))
-	if banned.size() > 4:
-		banned.pop_front()
-	_recent[peer_id] = banned
+		var id_key: String = str(entry.id)
+		var banned: bool = banned_ids.has(id_key)
+		var weight: float = _biome_mode_weight(str(entry.get("mode", "collect")))
+		# Recent modes get a heavy penalty to push variety.
+		if recent_modes.has(str(entry.get("mode", "collect"))):
+			weight *= 0.25
+		if banned:
+			weight *= 0.1
+		biome_weights.append({"entry": entry, "weight": weight})
+	# Weighted random pick.
+	var total_weight: float = 0.0
+	for bw in biome_weights:
+		total_weight += maxf(0.001, float(bw.weight))
+	var roll: float = _rng.randf() * total_weight
+	var acc: float = 0.0
+	var chosen: Dictionary = POOL[0]
+	for bw in biome_weights:
+		acc += maxf(0.001, float(bw.weight))
+		if roll <= acc:
+			chosen = bw.entry
+			break
+	var spec: Dictionary = chosen.duplicate(true)
+	banned_ids.push_front(str(chosen.id))
+	if banned_ids.size() > 4:
+		banned_ids.pop_back()
+	_recent_ids[peer_id] = banned_ids
 	return spec
 
 
@@ -104,12 +208,16 @@ func _on_quest_completed(quest: Node2D) -> void:
 		return
 	var peer_id: int = int(quest.owner_peer_id)
 	_pay_out(quest)
-	_clear_peer(peer_id)
+	# Remove only this quest from the peer's list, keeping any other active quest.
+	_remove_quest_from_peer(peer_id, quest)
 	if _main != null and _main.has_method("_refresh_side_quest_hud"):
 		_main._refresh_side_quest_hud()
+	# After the cooldown, spawn a replacement only if the peer is still below the cap.
 	await get_tree().create_timer(DELAY_AFTER_COMPLETE).timeout
-	if is_instance_valid(_main) and not bool(_main.get("game_over")):
-		_grant(peer_id)
+	if not (is_instance_valid(_main) and not bool(_main.get("game_over"))):
+		return
+	if _active_count(peer_id) < MAX_ACTIVE_QUESTS_PER_PEER:
+		_spawn_one(peer_id)
 
 
 func _pay_out(quest: Node2D) -> void:
@@ -135,6 +243,8 @@ func _pay_out(quest: Node2D) -> void:
 		_main._landmark_flash(line, Color("7dffb0"))
 
 
+## HUD shows up to MAX_ACTIVE_QUESTS_PER_PEER lines for the local player, joined
+## with a newline so the HUD label can render multiple concurrent quests.
 func hud_text_for_local() -> String:
 	if _main == null:
 		return ""
@@ -142,16 +252,22 @@ func hud_text_for_local() -> String:
 		var player = player_node
 		if player == null or not player.is_local_player:
 			continue
-		var quest: Node2D = _active.get(player.owner_peer_id) as Node2D
-		if quest == null:
-			return ""
-		return quest.hud_line
+		var quests: Array = _active_quests.get(player.owner_peer_id, [])
+		var lines: Array[String] = []
+		for q in quests:
+			if is_instance_valid(q) and not str(q.hud_line).is_empty():
+				lines.append(str(q.hud_line))
+		return "\n".join(lines)
 	return ""
 
 
+## Free every active quest for a peer. Used on game-over / teardown.
 func _clear_peer(peer_id: int) -> void:
-	var quest: Node2D = _active.get(peer_id) as Node2D
-	_active.erase(peer_id)
-	if quest != null and is_instance_valid(quest):
-		quest.queue_free()
+	var quests: Array = _active_quests.get(peer_id, [])
+	for q in quests:
+		if is_instance_valid(q):
+			q.queue_free()
+	_active_quests.erase(peer_id)
+	_recent_modes.erase(peer_id)
+	_recent_ids.erase(peer_id)
 

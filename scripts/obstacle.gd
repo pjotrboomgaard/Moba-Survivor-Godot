@@ -106,9 +106,10 @@ func _update_shadow_rotation() -> void:
 	# is short. At dusk the sun is low in the west, shadow points east.
 	var shadow_dir := -dir
 	var angle := shadow_dir.angle()
-	# Texture is built with the wide canopy at local -Y and the thin trunk at
-	# local +Y. Rotating by (angle + PI/2) makes local -Y align with
-	# shadow_dir, so the canopy end swings away from the sun.
+	# Texture is built with the canopy at the top (local -Y) and the trunk
+	# at the bottom (local +Y). Rotating by (angle + PI/2) makes local -Y
+	# (the canopy) align with shadow_dir, so the tree "falls" away from the
+	# sun with its trunk end anchored near the tree base.
 	_shadow.rotation = angle + PI / 2.0
 	var stretch := WorldClock.shadow_stretch
 	# Trees: the shadow center slides along shadow_dir in proportion to how
@@ -116,7 +117,13 @@ func _update_shadow_rotation() -> void:
 	# Rocks keep a small fixed base offset so their blob stays under the rock.
 	var off := body_radius * (0.5 + stretch * 1.4) if _is_tree_shadow else body_radius * 0.22
 	_shadow.position = shadow_dir * off + Vector2(0.0, body_radius * 0.10)
-	_shadow.scale = Vector2.ONE
+	if _is_tree_shadow:
+		# Flatten the tree silhouette perpendicular to the fall direction so
+		# it reads as a ground projection, not a floating tree. Local X is
+		# perpendicular to the fall (local -Y = shadow_dir) after rotation.
+		_shadow.scale = Vector2(0.45, 1.0)
+	else:
+		_shadow.scale = Vector2.ONE
 	_shadow.modulate = Color(0.0, 0.0, 0.0, WorldClock.shadow_alpha)
 
 
@@ -142,39 +149,25 @@ func _ensure_shadow(zoom: float, is_tree: bool) -> void:
 
 
 func _build_shadow_texture(zoom: float) -> void:
-	# Shape-fit the shadow: trees are broad elongated silhouettes with a canopy
-	# bulge and a thin trunk tail; rocks are smaller rounder blobs. The tree
-	# shadow tapers from a wide canopy end (y=0) to a thin trunk point (y=h-1),
-	# so when rotated to point away from the sun, the trunk end sits near the
-	# tree base and the canopy end swings far out.
+	# Shape-fit the shadow: trees derive their silhouette from the actual
+	# sprite texture (trunk-to-canopy pixels become a dark ground shape),
+	# rocks are smaller rounder blobs.
 	var radius_px := int(maxf(4.0, body_radius * zoom * 0.9))
 	if _is_tree_shadow:
-		# Wide canopy blob with an elongated trunk tail.
-		var w := maxi(8, int(radius_px * 1.6))
-		var h := maxi(6, int(radius_px * 1.0))
-		var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
-		var cx := float(w) * 0.5
-		for y in h:
-			# Taper: wide at canopy end (y=0), thin at trunk end (y=h-1).
-			var t := float(y) / float(h)  # 0 = canopy, 1 = trunk
-			var half_w := (w * 0.5) * (1.0 - t * 0.85)
-			# Canopy bulge: slightly wider around the top 40% for a rounded canopy.
-			if t < 0.4:
-				half_w *= 1.15
-			for x in w:
-				var dx := absf(float(x) - cx)
-				var alpha := 0.0
-				if dx < half_w * 0.7:
-					alpha = 1.0
-				elif dx < half_w:
-					alpha = 1.0 - (dx - half_w * 0.7) / (half_w * 0.3)
-				# Vertical falloff at the trunk tip.
-				if t > 0.85:
-					alpha *= (1.0 - t) / 0.15
-				if alpha > 0.0:
-					img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.85))
-		_shadow_img = img
-		_shadow.texture = ImageTexture.create_from_image(img)
+		# Build the shadow silhouette from the tree sprite's real pixels.
+		# The tree texture has the canopy at the top (low y) and the trunk
+		# at the bottom (high y). We convert every opaque pixel into a dark
+		# shadow pixel, producing a 1:1 silhouette. In _update_shadow_rotation
+		# the sprite is rotated so this silhouette "falls" away from the sun
+		# and squashed so it reads as a ground projection.
+		var tex := sprite.texture if sprite != null else null
+		var src := tex.get_image() if tex != null else null
+		if src == null:
+			# Fallback: generic tapered ellipse if the texture can't be read.
+			_src_to_fallback_tree_img(radius_px)
+		else:
+			_shadow_img = _silhouette_from_image(src)
+		_shadow.texture = ImageTexture.create_from_image(_shadow_img)
 	else:
 		# Rocks: small rounder blobs that read as a cast shadow at the base.
 		var w := maxi(8, int(radius_px * 0.72))
@@ -194,6 +187,48 @@ func _build_shadow_texture(zoom: float) -> void:
 				img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.95))
 		_shadow_img = img
 		_shadow.texture = ImageTexture.create_from_image(img)
+
+
+## Derive a 1:1 dark silhouette from a source Image. Every pixel whose alpha
+## exceeds 0.4 becomes a dark shadow pixel; everything else stays transparent.
+func _silhouette_from_image(src: Image) -> Image:
+	var w := src.get_width()
+	var h := src.get_height()
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	for y in h:
+		for x in w:
+			var c := src.get_pixel(x, y)
+			if c.a > 0.4:
+				img.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.55))
+			else:
+				img.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
+	return img
+
+
+## Fallback generic tapered-ellipse tree shadow (used only if the sprite
+## texture can't be read via get_image()).
+func _src_to_fallback_tree_img(radius_px: int) -> void:
+	var w := maxi(8, int(radius_px * 1.6))
+	var h := maxi(6, int(radius_px * 1.0))
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	var cx := float(w) * 0.5
+	for y in h:
+		var t := float(y) / float(h)
+		var half_w := (w * 0.5) * (1.0 - t * 0.85)
+		if t < 0.4:
+			half_w *= 1.15
+		for x in w:
+			var dx := absf(float(x) - cx)
+			var alpha := 0.0
+			if dx < half_w * 0.7:
+				alpha = 1.0
+			elif dx < half_w:
+				alpha = 1.0 - (dx - half_w * 0.7) / (half_w * 0.3)
+			if t > 0.85:
+				alpha *= (1.0 - t) / 0.15
+			if alpha > 0.0:
+				img.set_pixel(x, y, Color(0.0, 0.0, 0.0, alpha * 0.85))
+	_shadow_img = img
 
 
 func is_vision_blocker() -> bool:

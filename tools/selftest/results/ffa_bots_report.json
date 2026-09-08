@@ -45,7 +45,7 @@
           "ready": true
         }
       ],
-      "t": 0.832992666666667
+      "t": 0.831896333333333
     },
     {
       "abilities": [
@@ -70,7 +70,7 @@
         0.0,
         0.0,
         0.0,
-        0.0
+        191.516666666666
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -86,36 +86,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2927.0,
-              -2003.0
+              -2988.0,
+              -2179.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              3289.0,
-              -2083.0
-            ],
-            "team": "1"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 102,
-            "pos": [
-              -3104.0,
-              2065.0
-            ],
-            "team": "2"
           },
           {
             "alive": true,
@@ -123,10 +97,36 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 101,
+            "pos": [
+              3272.0,
+              -2075.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2921.0,
+              2103.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              3251.0,
-              2019.0
+              3275.0,
+              1988.0
             ],
             "team": "3"
           }
@@ -147,7 +147,7 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 0.914599666666667
+      "t": 0.916351333333333
     },
     {
       "abilities": [
@@ -169,10 +169,10 @@
         }
       ],
       "cds": [
-        18.2513333333337,
-        11.4433333333332,
-        13.27,
-        185.483333333328
+        17.2846666666671,
+        10.4766666666665,
+        12.17,
+        184.383333333327
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -188,36 +188,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -1993.0,
-              -1186.0
+              -2401.0,
+              -1289.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              2769.0,
-              -1020.0
-            ],
-            "team": "1"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 102,
-            "pos": [
-              -2437.0,
-              800.0
-            ],
-            "team": "2"
           },
           {
             "alive": true,
@@ -225,10 +199,36 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 101,
+            "pos": [
+              3718.0,
+              -2334.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2001.0,
+              2776.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              2692.0,
-              1165.0
+              3699.0,
+              1557.0
             ],
             "team": "3"
           }
@@ -248,8 +248,8 @@
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
-      "summons": 1,
-      "t": 8.00814319047618
+      "summons": 4,
+      "t": 8.03913522222222
     },
     {
       "abilities": [
@@ -271,10 +271,10 @@
         }
       ],
       "cds": [
-        10.2346666666669,
-        3.42666666666635,
-        5.2533333333331,
-        177.466666666655
+        9.2846666666668,
+        2.47666666666635,
+        4.16999999999977,
+        176.383333333321
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -290,36 +290,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2428.0,
-              -1512.0
+              -2089.0,
+              -1464.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              2747.0,
-              -578.0
-            ],
-            "team": "1"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 102,
-            "pos": [
-              -1711.0,
-              -767.0
-            ],
-            "team": "2"
           },
           {
             "alive": true,
@@ -327,10 +301,36 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 101,
+            "pos": [
+              2984.0,
+              -2489.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2918.0,
+              2005.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              1748.0,
-              734.0
+              3699.0,
+              1557.0
             ],
             "team": "3"
           }
@@ -350,13 +350,13 @@
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
-      "summons": 1,
-      "t": 16.0197229494949
+      "summons": 4,
+      "t": 16.0368483333333
     }
   ],
-  "elapsed": 16.25,
+  "elapsed": 16.2166666666667,
   "enemies_spawned": 0,
-  "hero_position": "(-2375.073, -1536.484)",
+  "hero_position": "(-2102.667, -1503.57)",
   "player_class": "tobor",
   "results": {
     "alive": true,
@@ -366,21 +366,22 @@
     "casts": [
       {
         "ability_id": "tobor_energy_field",
-        "t": 1.48262666666667
+        "t": 0.412822666666667
       },
       {
         "ability_id": "tobor_spider_mines",
-        "t": 2.27011166666667
+        "t": 1.31430533333333
       },
       {
         "ability_id": "tobor_steam_turret",
-        "t": 2.52105057575758
+        "t": 1.48103733333333
       },
       {
         "ability_id": "tobor_steam_keg",
-        "t": 2.56271724242424
+        "t": 1.57035133333333
       }
     ],
+    "creep_kills": 7,
     "died": false,
     "errors": [],
     "ffa": {
@@ -396,36 +397,10 @@
           "local": true,
           "peer": 1,
           "pos": [
-            -2375.0,
-            -1536.0
+            -2103.0,
+            -1504.0
           ],
           "team": "0"
-        },
-        {
-          "alive": true,
-          "class": "tobor",
-          "cpu": true,
-          "kills": 0,
-          "local": false,
-          "peer": 101,
-          "pos": [
-            2801.0,
-            -614.0
-          ],
-          "team": "1"
-        },
-        {
-          "alive": true,
-          "class": "arclight",
-          "cpu": true,
-          "kills": 0,
-          "local": false,
-          "peer": 102,
-          "pos": [
-            -1662.0,
-            -748.0
-          ],
-          "team": "2"
         },
         {
           "alive": true,
@@ -433,10 +408,36 @@
           "cpu": true,
           "kills": 0,
           "local": false,
+          "peer": 101,
+          "pos": [
+            2982.0,
+            -2493.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -2931.0,
+            1961.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
           "peer": 103,
           "pos": [
-            1707.0,
-            713.0
+            3699.0,
+            1557.0
           ],
           "team": "3"
         }
@@ -447,7 +448,7 @@
         5600.0
       ]
     },
-    "gold": 60,
+    "gold": 54,
     "hero_kills": 0,
     "hp_samples": [
       {
@@ -456,71 +457,65 @@
         "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 0.14
+        "t": 0.15
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 12,
+        "gold": 24,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.18
+        "t": 5.19
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 42,
+        "gold": 28,
         "hp": 1.0,
         "kills": 0,
-        "t": 10.19
+        "t": 10.22
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 60,
+        "gold": 54,
         "hp": 1.0,
         "kills": 0,
-        "t": 15.22
+        "t": 15.26
       }
     ],
     "landmark_saves": 0,
-    "level": 2,
-    "level_upgrades": {
-      "2": [
-        "double_tap"
-      ]
-    },
+    "level": 1,
+    "level_upgrades": {},
     "max_hp": 1.0,
-    "min_hp": 1.0,
+    "min_hp": 0.895542472666106,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 0,
     "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
-    "taken_upgrades": [
-      "double_tap"
-    ],
+    "taken_upgrades": [],
     "until_wave": 20,
     "verdict": "PASS_OK",
     "wave": 1,
-    "xp": 35
+    "xp": 40
   },
   "shots": [
     {
       "label": "ffa_t0",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3395/ffa_t0_1.035_3395.png",
-      "t": 1.03533566666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3975/ffa_t0_1.001_3975.png",
+      "t": 1.00089133333333
     },
     {
       "label": "ffa_t8",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10511/ffa_t8_8.137_10511.png",
-      "t": 8.13671461904761
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11093/ffa_t8_8.133_11093.png",
+      "t": 8.133351
     },
     {
       "label": "ffa_t16",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_18483/ffa_t16_16.109_18483.png",
-      "t": 16.1086118383838
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_19104/ffa_t16_16.132_19104.png",
+      "t": 16.1315903333333
     }
   ]
 }
