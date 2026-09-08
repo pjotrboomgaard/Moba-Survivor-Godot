@@ -488,8 +488,18 @@ func _spawn_town_minion(player: Node2D) -> void:
 	# minions so the owner has a real combat companion, not just a creep-farm helper.
 	if minion.has_method("can_attack_heroes"):
 		minion.can_attack_heroes = true
+	# Give the town pet its own animal art and beefed-up stats so it can survive
+	# and trade with enemy heroes instead of dying on arrival.
+	var art := str(spec.get("art", "wolf"))
+	if minion.has("art_id"):
+		minion.art_id = art
+	if minion.has("hp"):
+		minion.hp = 120.0
+	if minion.has("attack_damage"):
+		minion.attack_damage = 35.0
+	if minion.has("attack_interval"):
+		minion.attack_interval = 0.5
 	if main.has_method("_landmark_flash"):
-		var art := str(spec.get("art", "wolf"))
 		main._landmark_flash("%s joined your party!" % art.capitalize(), Color("9fd4ff"))
 
 

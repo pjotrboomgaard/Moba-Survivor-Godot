@@ -67,6 +67,15 @@ var cone_half_angle_degrees := PlayerClass.CONE_HALF_ANGLE_DEGREES
 var secondary_kind := "repulse"
 var secondary_cooldown := 0.0
 var secondary_cooldown_max := PlayerClass.SECONDARY_COOLDOWN
+## Hold-to-charge for the RMB secondary: how long RMB has been held this windup.
+## Releasing at full charge boosts damage/area + unlocks the secondary effect.
+var secondary_charge := 0.0
+## Seconds of hold needed to reach a fully-boosted secondary.
+const SECONDARY_CHARGE_MAX := 1.4
+## Maximum damage multiplier at full charge (1.0 tap -> 2.0 fully charged).
+const SECONDARY_CHARGE_DAMAGE_MULT_MAX := 2.0
+## Maximum radius/area multiplier at full charge.
+const SECONDARY_CHARGE_RADIUS_MULT_MAX := 1.5
 var command_secondary := false
 var _secondary_was_held := false
 var _drawing_wall := false
@@ -3416,18 +3425,26 @@ func _refresh_secondary_bar() -> void:
 		world_health_bar.show_local_indicators(false)
 		return
 	world_health_bar.set_secondary_cooldown(secondary_cooldown, secondary_cooldown_max)
+	# Show the hold-charge bar under the health bar while RMB is winding up.
+	var charging := simulation_mode != SimulationMode.CPU and secondary_cooldown <= 0.0 and secondary_charge > 0.0 and secondary_kind != "wall"
+	world_health_bar.set_secondary_charge(_secondary_charge_t() if charging else 0.0)
 
 
 func _update_secondary(delta: float, held: bool) -> void:
 	# Cooldown ticks in _tick_cooldowns so it still runs while dead.
+	# CPUs fire the secondary instantly at full strength (no hold charge) so bots
+	# keep using their kit without a long wind-up.
 	if simulation_mode == SimulationMode.CPU:
 		_secondary_was_held = held
 		if held and secondary_cooldown <= 0.0:
+			secondary_charge = 0.0
 			_cast_secondary()
+			_refresh_secondary_bar()
 		return
 	var just_pressed := held and not _secondary_was_held
 	var just_released := (not held) and _secondary_was_held
 	_secondary_was_held = held
+	# The wall is already a draw-to-place spell; it does not use the hold-charge.
 	if secondary_kind == "wall" and simulation_mode != SimulationMode.CPU:
 		if just_pressed and secondary_cooldown <= 0.0:
 			_drawing_wall = true
@@ -3439,8 +3456,19 @@ func _update_secondary(delta: float, held: bool) -> void:
 			if just_released or _wall_draw_age >= 2.0 or _wall_length() >= PlayerClass.WALL_MAX_LENGTH:
 				_commit_wall()
 		return
+	# Hold-to-charge: while RMB is held and off cooldown, the wind-up bar fills.
+	# Releasing fires the secondary with a damage/area bonus scaled by the charge.
 	if just_pressed and secondary_cooldown <= 0.0:
+		secondary_charge = 0.0
+	elif just_released and secondary_cooldown <= 0.0 and not _drawing_wall:
+		# Release fires the charged secondary. Reset the wind-up after casting.
 		_cast_secondary()
+		secondary_charge = 0.0
+		_refresh_secondary_bar()
+	# Tick the charge forward while actively charging.
+	if _secondary_was_held and secondary_cooldown <= 0.0:
+		secondary_charge = minf(SECONDARY_CHARGE_MAX, secondary_charge + delta)
+	_refresh_secondary_bar()
 
 
 func _append_wall_point(point: Vector2) -> void:
@@ -3534,176 +3562,215 @@ func _secondary_center() -> Vector2:
 	return global_position + global_position.direction_to(aim_world_position) * travel
 
 
+## 0..1 fraction of the RMB charge currently banked (before it resets on release).
+func _secondary_charge_t() -> float:
+	return clampf(secondary_charge / SECONDARY_CHARGE_MAX, 0.0, 1.0)
+
+
+## Damage multiplier at the current charge: 1.0 on a quick tap, up to
+## SECONDARY_CHARGE_DAMAGE_MULT_MAX at full charge.
+func _sec_dmg() -> float:
+	return PlayerClass.SECONDARY_DAMAGE * lerpf(1.0, SECONDARY_CHARGE_DAMAGE_MULT_MAX, _secondary_charge_t())
+
+
+## Radius/area multiplier at the current charge: 1.0 on tap, up to
+## SECONDARY_CHARGE_RADIUS_MULT_MAX at full charge.
+func _sec_radius_mult() -> float:
+	return lerpf(1.0, SECONDARY_CHARGE_RADIUS_MULT_MAX, _secondary_charge_t())
+
+
+## Effect/duration multiplier at the current charge — the "second effect" ramps
+## up in strength (longer/stronger slow, bigger heal, higher shield) as you hold.
+func _sec_effect_mult() -> float:
+	return 1.0 + _secondary_charge_t() * 0.9
+
+
 func _cast_secondary_repulse() -> void:
 	var center := _secondary_center()
-	var radius := PlayerClass.SECONDARY_RADIUS
+	var radius := PlayerClass.SECONDARY_RADIUS * _sec_radius_mult()
+	var dmg := _sec_dmg()
 	for target in _pvp_hosts_in_radius(center, radius):
-		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE)
-		_knock_away_from(target, center, 640.0)
+		_damage_enemy(target, dmg)
+		_knock_away_from(target, center, 640.0 * _sec_radius_mult())
 	if global_position.distance_to(center) <= radius + BODY_RADIUS:
 		_knock_away_from(self, center, 920.0)
-	_pulse_allies(center, radius, PlayerClass.SECONDARY_HEAL, 28.0)
+	_pulse_allies(center, radius, PlayerClass.SECONDARY_HEAL, 28.0 * _sec_effect_mult())
 	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BLAST, PackedVector2Array([global_position, center, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_freeze() -> void:
 	var center := _secondary_center()
-	for target in _enemies_in_radius(center, PlayerClass.SECONDARY_RADIUS):
-		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.7)
+	var radius := PlayerClass.SECONDARY_RADIUS * _sec_radius_mult()
+	for target in _enemies_in_radius(center, radius):
+		_damage_enemy(target, _sec_dmg() * 0.7)
 		if target.has_method("apply_slow"):
-			target.apply_slow(0.12, 2.6)
-	_pulse_allies(center, PlayerClass.SECONDARY_RADIUS, PlayerClass.SECONDARY_HEAL, 0.0)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+			target.apply_slow(0.12, 2.6 * _sec_effect_mult())
+	_pulse_allies(center, radius, PlayerClass.SECONDARY_HEAL, 0.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_volt_mend() -> void:
 	var center := _secondary_center()
-	for target in _enemies_in_radius(center, PlayerClass.SECONDARY_RADIUS):
-		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE)
+	var radius := PlayerClass.SECONDARY_RADIUS * _sec_radius_mult()
+	for target in _enemies_in_radius(center, radius):
+		_damage_enemy(target, _sec_dmg())
 		if target.has_method("apply_knockback"):
 			var away := center.direction_to(target.global_position)
 			if away.length_squared() <= 0.0:
 				away = facing_direction
-			target.apply_knockback(away * 560.0)
-	_pulse_allies(center, PlayerClass.SECONDARY_RADIUS, PlayerClass.SECONDARY_HEAL, 0.0)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BLAST, PackedVector2Array([global_position, center, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+			target.apply_knockback(away * 560.0 * _sec_radius_mult())
+	_pulse_allies(center, radius, PlayerClass.SECONDARY_HEAL, 0.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BLAST, PackedVector2Array([global_position, center, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_rime_ward() -> void:
 	var center := _secondary_center()
-	for target in _enemies_in_radius(center, PlayerClass.SECONDARY_RADIUS):
-		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.75)
+	var radius := PlayerClass.SECONDARY_RADIUS * _sec_radius_mult()
+	for target in _enemies_in_radius(center, radius):
+		_damage_enemy(target, _sec_dmg() * 0.75)
 		if target.has_method("apply_slow"):
-			target.apply_slow(0.4, 2.2)
-	_pulse_allies(center, PlayerClass.SECONDARY_RADIUS, PlayerClass.SECONDARY_HEAL * 0.7, 40.0)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+			target.apply_slow(0.4, 2.2 * _sec_effect_mult())
+	_pulse_allies(center, radius, PlayerClass.SECONDARY_HEAL * 0.7, 40.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_vine_tangle() -> void:
 	var center := global_position
-	var radius := PlayerClass.SECONDARY_RADIUS * 0.92
+	var radius := PlayerClass.SECONDARY_RADIUS * 0.92 * _sec_radius_mult()
 	for target in _pvp_hosts_in_radius(center, radius):
-		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.55)
+		_damage_enemy(target, _sec_dmg() * 0.55)
 		if target.has_method("apply_slow"):
-			target.apply_slow(0.14, 2.8)
-		_knock_away_from(target, center, 220.0)
+			target.apply_slow(0.14, 2.8 * _sec_effect_mult())
+		_knock_away_from(target, center, 220.0 * _sec_radius_mult())
 	_pulse_allies(center, radius, PlayerClass.SECONDARY_HEAL * 0.45, 0.0)
 	secondary_fx.emit(class_id, PlayerClass.EffectStyle.WAVE, PackedVector2Array([center, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_ice_block() -> void:
-	_secondary_invuln_timer = 1.05
+	_secondary_invuln_timer = 1.05 * _sec_effect_mult()
 	health.invulnerable = true
-	for target in _pvp_hosts_in_radius(global_position, PlayerClass.SECONDARY_RADIUS * 0.7):
+	var radius := PlayerClass.SECONDARY_RADIUS * 0.7 * _sec_radius_mult()
+	for target in _pvp_hosts_in_radius(global_position, radius):
 		if target.has_method("apply_slow"):
-			target.apply_slow(0.22, 1.8)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(90.0, 0.0)]))
+			target.apply_slow(0.22, 1.8 * _sec_effect_mult())
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_heat_burst() -> void:
 	var dir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
-	for target in _pvp_hosts_in_cone(global_position, dir, 240.0, 42.0):
-		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE)
-		_knock_away_from(target, global_position, 780.0)
+	var reach := 240.0 * _sec_radius_mult()
+	for target in _pvp_hosts_in_cone(global_position, dir, reach, 42.0):
+		_damage_enemy(target, _sec_dmg())
+		_knock_away_from(target, global_position, 780.0 * _sec_radius_mult())
 	_secondary_move_mult = 1.28
-	_secondary_move_timer = 1.6
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.ARC, PackedVector2Array([global_position, global_position + dir * 240.0]))
+	_secondary_move_timer = 1.6 * _sec_effect_mult()
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.ARC, PackedVector2Array([global_position, global_position + dir * reach]))
 
 
 func _cast_secondary_blast_jump() -> void:
 	var away := -facing_direction
 	if away.length_squared() <= 0.0:
 		away = Vector2.LEFT
-	for target in _pvp_hosts_in_radius(global_position, 150.0):
-		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.85)
-		_knock_away_from(target, global_position, 820.0)
-	global_position += away * 210.0
-	apply_knockback(away * 380.0)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BLAST, PackedVector2Array([global_position, Vector2(150.0, 0.0)]))
+	var radius := 150.0 * _sec_radius_mult()
+	for target in _pvp_hosts_in_radius(global_position, radius):
+		_damage_enemy(target, _sec_dmg() * 0.85)
+		_knock_away_from(target, global_position, 820.0 * _sec_radius_mult())
+	global_position += away * (210.0 * _sec_radius_mult())
+	apply_knockback(away * 380.0 * _sec_radius_mult())
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BLAST, PackedVector2Array([global_position, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_magma_armor() -> void:
-	health.add_shield(48.0, 3.4)
-	for target in _pvp_hosts_in_radius(global_position, 150.0):
+	health.add_shield(48.0 * _sec_effect_mult(), 3.4 * _sec_effect_mult())
+	var radius := 150.0 * _sec_radius_mult()
+	for target in _pvp_hosts_in_radius(global_position, radius):
 		if target.has_method("apply_slow"):
-			target.apply_slow(0.45, 1.6)
-		_knock_away_from(target, global_position, 360.0)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(150.0, 0.0)]))
+			target.apply_slow(0.45, 1.6 * _sec_effect_mult())
+		_knock_away_from(target, global_position, 360.0 * _sec_radius_mult())
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_cinder_veil() -> void:
-	apply_phase_cloak(2.2)
-	health.heal(PlayerClass.SECONDARY_HEAL * 0.7)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(80.0, 0.0)]))
+	apply_phase_cloak(2.2 * _sec_effect_mult())
+	health.heal(PlayerClass.SECONDARY_HEAL * 0.7 * _sec_effect_mult())
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(80.0 * _sec_radius_mult(), 0.0)]))
 
 
 func _cast_secondary_bramble_snare() -> void:
 	var center := _secondary_center()
-	for target in _pvp_hosts_in_radius(center, PlayerClass.SECONDARY_RADIUS):
-		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.5)
+	var radius := PlayerClass.SECONDARY_RADIUS * _sec_radius_mult()
+	for target in _pvp_hosts_in_radius(center, radius):
+		_damage_enemy(target, _sec_dmg() * 0.5)
 		if target.has_method("apply_slow"):
-			target.apply_slow(0.16, 3.0)
+			target.apply_slow(0.16, 3.0 * _sec_effect_mult())
 		if target.has_method("apply_poison"):
-			target.apply_poison(4.0, 2.5, self)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+			target.apply_poison(4.0 * _sec_effect_mult(), 2.5, self)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_windstep() -> void:
 	var dir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
 	var from := global_position
-	global_position += dir * 240.0
-	for target in _pvp_hosts_in_radius(from.lerp(global_position, 0.5), 90.0):
+	global_position += dir * (240.0 * _sec_radius_mult())
+	var radius := 90.0 * _sec_radius_mult()
+	for target in _pvp_hosts_in_radius(from.lerp(global_position, 0.5), radius):
 		if target.has_method("apply_slow"):
-			target.apply_slow(0.4, 1.4)
+			target.apply_slow(0.4, 1.4 * _sec_effect_mult())
 	_secondary_move_mult = 1.22
-	_secondary_move_timer = 1.2
+	_secondary_move_timer = 1.2 * _sec_effect_mult()
 	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BOLT, PackedVector2Array([from, global_position]))
 
 
 func _cast_secondary_oak_bark() -> void:
 	_secondary_dr_mult = 0.55
-	_secondary_dr_timer = 2.6
+	_secondary_dr_timer = 2.6 * _sec_effect_mult()
 	_refresh_taken_mult()
-	for target in _pvp_hosts_in_radius(global_position, 130.0):
-		_knock_away_from(target, global_position, 480.0)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(130.0, 0.0)]))
+	var radius := 130.0 * _sec_radius_mult()
+	for target in _pvp_hosts_in_radius(global_position, radius):
+		_knock_away_from(target, global_position, 480.0 * _sec_radius_mult())
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_bloom_mend() -> void:
-	_pulse_allies(global_position, PlayerClass.SECONDARY_RADIUS * 1.15, PlayerClass.SECONDARY_HEAL * 1.35, 18.0)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.WAVE, PackedVector2Array([global_position, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+	var radius := PlayerClass.SECONDARY_RADIUS * 1.15 * _sec_radius_mult()
+	_pulse_allies(global_position, radius, PlayerClass.SECONDARY_HEAL * 1.35 * _sec_effect_mult(), 18.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.WAVE, PackedVector2Array([global_position, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_gale_gust() -> void:
 	var dir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
-	for target in _pvp_hosts_in_cone(global_position, dir, 280.0, 38.0):
-		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.6)
-		_knock_away_from(target, global_position, 980.0)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.ARC, PackedVector2Array([global_position, global_position + dir * 280.0]))
+	var reach := 280.0 * _sec_radius_mult()
+	for target in _pvp_hosts_in_cone(global_position, dir, reach, 38.0):
+		_damage_enemy(target, _sec_dmg() * 0.6)
+		_knock_away_from(target, global_position, 980.0 * _sec_radius_mult())
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.ARC, PackedVector2Array([global_position, global_position + dir * reach]))
 
 
 func _cast_secondary_time_skip() -> void:
 	var origin := global_position
 	var dir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
-	for target in _pvp_hosts_in_radius(origin, 140.0):
+	var radius := 140.0 * _sec_radius_mult()
+	for target in _pvp_hosts_in_radius(origin, radius):
 		if target.has_method("apply_slow"):
-			target.apply_slow(0.35, 1.8)
-	global_position += dir * 260.0
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([origin, Vector2(140.0, 0.0)]))
+			target.apply_slow(0.35, 1.8 * _sec_effect_mult())
+	global_position += dir * (260.0 * _sec_radius_mult())
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([origin, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_ward_light() -> void:
-	_pulse_allies(global_position, PlayerClass.SECONDARY_RADIUS * 1.2, PlayerClass.SECONDARY_HEAL * 0.4, 52.0)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+	var radius := PlayerClass.SECONDARY_RADIUS * 1.2 * _sec_radius_mult()
+	_pulse_allies(global_position, radius, PlayerClass.SECONDARY_HEAL * 0.4 * _sec_effect_mult(), 52.0)
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([global_position, Vector2(radius, 0.0)]))
 
 
 func _cast_secondary_glacial_nova() -> void:
 	var center := global_position
-	for target in _pvp_hosts_in_radius(center, PlayerClass.SECONDARY_RADIUS):
-		_damage_enemy(target, PlayerClass.SECONDARY_DAMAGE * 0.65)
+	var radius := PlayerClass.SECONDARY_RADIUS * _sec_radius_mult()
+	for target in _pvp_hosts_in_radius(center, radius):
+		_damage_enemy(target, _sec_dmg() * 0.65)
 		if target.has_method("apply_slow"):
-			target.apply_slow(0.12, 2.8)
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(PlayerClass.SECONDARY_RADIUS, 0.0)]))
+			target.apply_slow(0.12, 2.8 * _sec_effect_mult())
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([center, Vector2(radius, 0.0)]))
 
 
 func _pvp_hosts_in_cone(origin: Vector2, direction: Vector2, reach: float, half_angle_deg: float) -> Array[Node2D]:

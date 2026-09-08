@@ -1,7 +1,9 @@
 extends Node2D
 
 ## A friendly creep summoned as a quest reward. Follows the local player and attacks
-## nearby enemies for a limited time. Visual: a small teal circle with a subtle glow.
+## nearby enemies for a limited time. Town pets (wolf/raven/fox) render with their own
+## pixel art and are tougher combat companions that can also target enemy heroes and
+## other teams' minions.
 
 const LIFETIME := 30.0
 const FOLLOW_RADIUS := 90.0
@@ -18,6 +20,19 @@ var _sprite: Sprite2D = null
 var _owner_peer_id := 1
 var _wander_offset := Vector2.ZERO
 var _wander_t := 0.0
+
+## Optional animal art id ("wolf"/"raven"/"fox") so town pets render with their
+## own pixel art instead of the generic teal circle.
+var art_id := ""
+## Town pets are tougher combat companions (higher hp + damage) so they can
+## actually reach and trade with enemy heroes rather than die on arrival.
+var hp := 60.0
+var attack_damage: float = ATTACK_DAMAGE
+var attack_interval: float = ATTACK_INTERVAL
+## Town minions join the owner's team: they can attack enemy heroes and other
+## friendly minions. Toggle per-minion so the default dance-reward minions keep
+## the legacy enemies-only behaviour.
+var can_attack_heroes := false
 
 
 func _ready() -> void:
@@ -37,10 +52,6 @@ func configure(main: Node, owner_peer_id: int, spawn_pos: Vector2) -> void:
 ## the default 30s dance-reward minions).
 func set_lifetime(seconds: float) -> void:
 	_life = seconds
-## Town minions join the owner's team: they can attack enemy heroes and other
-## friendly minions. Toggle per-minion so the default dance-reward minions keep
-## the legacy enemies-only behaviour.
-var can_attack_heroes := false
 
 
 func _build_sprite() -> void:
@@ -48,6 +59,15 @@ func _build_sprite() -> void:
 	_sprite.name = "Body"
 	_sprite.z_as_relative = false
 	_sprite.z_index = 5
+	# Town pets render with their own animal pixel art; everything else keeps the
+	# generic teal circle.
+	if art_id != "":
+		var tex: Texture2D = SideQuestArt.texture(art_id)
+		if tex != null:
+			_sprite.texture = tex
+			_sprite.scale = Vector2.ONE
+			add_child(_sprite)
+			return
 	var img := Image.create(12, 12, false, Image.FORMAT_RGBA8)
 	var c := Vector2(6, 6)
 	for y in 12:
@@ -71,8 +91,7 @@ func _process(delta: float) -> void:
 		return
 	_attack_cd = maxf(0.0, _attack_cd - delta)
 	var player := _owner_player()
-	if player == null or not player.active:
-		velocity = Vector2.ZERO
+	if player == null:
 		return
 	# Wander offset so minions don't stack exactly on the player.
 	_wander_t += delta
@@ -114,8 +133,8 @@ func _nearest_enemy() -> Node2D:
 		for e in enemies.values():
 			if not is_instance_valid(e) or not (e is Node2D):
 				continue
-			var enemy := e
-			if enemy.is_boss:
+			var enemy: Node2D = e
+			if bool(enemy.get("is_boss")):
 				continue
 			var d := global_position.distance_to(enemy.global_position)
 			if d < best_d:
@@ -127,7 +146,7 @@ func _nearest_enemy() -> Node2D:
 		for candidate in get_tree().get_nodes_in_group("players"):
 			if not is_instance_valid(candidate) or not (candidate is Node2D):
 				continue
-			var p := candidate as Node2D
+			var p: Node2D = candidate
 			if owner != null and p == owner:
 				continue
 			var p_health: Node = p.get_node_or_null("HealthComponent")
@@ -144,7 +163,7 @@ func _nearest_enemy() -> Node2D:
 		for candidate in get_tree().get_nodes_in_group("friendly_minion"):
 			if not is_instance_valid(candidate) or not (candidate is Node2D):
 				continue
-			var m := candidate as Node2D
+			var m: Node2D = candidate
 			if m == self:
 				continue
 			var m_owner_id: Variant = m.get("_owner_peer_id")
@@ -158,10 +177,32 @@ func _nearest_enemy() -> Node2D:
 
 
 func _hit(foe: Node2D) -> void:
-	_attack_cd = ATTACK_INTERVAL
+	_attack_cd = attack_interval
 	var target_health: Node = foe.get_node_or_null("HealthComponent")
 	if target_health != null and target_health.has_method("take_damage"):
-		target_health.call("take_damage", ATTACK_DAMAGE, self)
+		target_health.call("take_damage", attack_damage, self)
+	else:
+		# Some nodes (e.g. other minions) expose take_damage directly instead of
+		# carrying a HealthComponent child.
+		if foe.has_method("take_damage") and foe != self:
+			foe.call("take_damage", attack_damage)
+
+
+## Take damage from enemy heroes/creeps. Town pets have real HP so they can
+## be killed in combat — when they drop to 0 they die and fade.
+func take_damage(amount: float) -> void:
+	hp -= amount
+	if hp <= 0.0:
+		_die()
+
+
+func _die() -> void:
+	if _sprite != null:
+		var fade_tween := create_tween()
+		fade_tween.tween_property(_sprite, "modulate:a", 0.0, 0.25)
+		fade_tween.finished.connect(queue_free)
+	# Stop acting immediately.
+	_life = 0.0
 
 
 func _draw() -> void:

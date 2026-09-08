@@ -840,6 +840,12 @@ func _refresh_hotkey_overlays() -> void:
 func _refresh_ability_icons() -> void:
 	if ability_icon_row == null:
 		return
+	# Boss-form override: while the hero holds the boss form, the Q/E/R slots show
+	# the boss's dedicated abilities (slam / cross / volley) with their own icons
+	# and cooldowns instead of the hero kit.
+	if bound_player != null and bool(bound_player.get("in_boss_form")):
+		_refresh_bossform_ability_icons()
+		return
 	if bound_player == null or bound_player.known_abilities.is_empty():
 		ability_icon_row.visible = false
 		_shown_ability_ids.clear()
@@ -870,6 +876,39 @@ func _refresh_ability_icons() -> void:
 		if remaining <= 0.0 and armed:
 			icon.modulate = Color(1.15, 1.1, 0.85, 1.0)
 	_shown_ability_ids = ids
+
+
+## Boss-form ability icons: swap the Q/E/R slots to the boss's dedicated
+## slam / cross / volley abilities, using the bossform_* pixel-art icons and the
+## boss's own cooldown timers. Slot 4 (ultimate) is hidden in boss form.
+const BOSSFORM_ABILITIES: Array = [
+	{"icon": "bossform_slam", "name": "Ring Slam", "cd": 3.0},
+	{"icon": "bossform_cross", "name": "Cross Sweep", "cd": 2.6},
+	{"icon": "bossform_volley", "name": "Volley", "cd": 3.5},
+]
+
+func _refresh_bossform_ability_icons() -> void:
+	ability_icon_row.visible = true
+	for slot in ability_icon_slots.size():
+		var nodes: Dictionary = ability_icon_slots[slot]
+		var root := nodes.root as Control
+		if slot >= 3:
+			# Hide the 4th (ultimate) slot in boss form.
+			root.visible = false
+			continue
+		root.visible = true
+		var ability: Dictionary = BOSSFORM_ABILITIES[slot]
+		var icon := nodes.icon as TextureRect
+		var name_label := nodes.name as Label
+		icon.texture = SpriteLibrary.texture_for(str(ability.icon))
+		name_label.text = _clip_label(str(ability.name))
+		# Cooldowns come from the boss-form timers on the player.
+		var cd_key := "_boss_slam_cd" if slot == 0 else ("_boss_cross_cd" if slot == 1 else "_boss_volley_cd")
+		var remaining: float = float(bound_player.get(cd_key))
+		var cooldown_max: float = float(ability.cd)
+		_apply_kit_cooldown(nodes, remaining, cooldown_max)
+		# Boss-form abilities glow with an accent color to signal the form.
+		icon.modulate = Color(1.1, 0.9, 0.7, 1.0) if remaining <= 0.0 else Color(0.6, 0.55, 0.5, 1.0)
 
 
 func _build_aim_reticle() -> void:
