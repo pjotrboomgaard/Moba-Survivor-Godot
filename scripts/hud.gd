@@ -1386,11 +1386,12 @@ func _refresh_build_log() -> void:
 		_build_log_label.text = ""
 		return
 	# Show the most recent up-to-4 levels, oldest first.
-	var levels: Array[int] = lu.keys()
+	var levels := lu.keys()
 	levels.sort()
-	var recent: Array[int] = levels.slice(maxi(0, levels.size() - 4), levels.size())
+	var start_idx := maxi(0, levels.size() - 4)
 	var parts: Array[String] = []
-	for lvl in recent:
+	for i in range(start_idx, levels.size()):
+		var lvl: int = int(levels[i])
 		var ids: Array = lu.get(lvl, [])
 		var names: Array[String] = []
 		for uid in ids:

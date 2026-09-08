@@ -982,6 +982,10 @@ func restore_run(data: Dictionary) -> void:
 	player.current_xp = int(data.get("xp", player.current_xp))
 	player.level = int(data.get("level", player.level))
 	player.xp_required = int(data.get("xp_required", player.xp_required))
+	# Restore per-level upgrade history so the build log shows the correct level per upgrade.
+	var saved_lu: Variant = data.get("level_upgrades", {})
+	if saved_lu is Dictionary:
+		player.level_upgrades = (saved_lu as Dictionary).duplicate(true)
 	player.xp_changed.emit(player.current_xp, player.xp_required, player.level)
 	var abilities: Array[Dictionary] = []
 	for raw_ability in data.get("known_abilities", []):
