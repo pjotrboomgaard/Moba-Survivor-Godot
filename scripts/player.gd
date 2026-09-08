@@ -3169,7 +3169,7 @@ func _update_ability_buff(delta: float) -> void:
 func apply_phase_cloak(duration: float) -> void:
 	phase_cloak_timer = maxf(phase_cloak_timer, duration)
 	if sprite != null:
-		sprite.modulate.a = 0.35
+		sprite.modulate.a = 0.55
 
 
 func is_phase_cloaked() -> bool:
