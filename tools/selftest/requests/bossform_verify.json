@@ -1,0 +1,23 @@
+{
+	"hero": "arclight",
+	"comment": "Boss form: grant form, verify HUD swap + stat boosts + all 3 attacks fire (direct calls). Movement speed + damage should be boosted; attacks set their cooldowns.",
+	"events": [
+		{"t": 0.3, "kind": "spawn", "at": [100, 40], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [100, -40], "type": "grunt"},
+		{"t": 0.5, "kind": "bossform_probe", "label": "before_grant"},
+		{"t": 0.6, "kind": "bossform_grant", "boss": "brute"},
+		{"t": 0.7, "kind": "bossform_probe", "label": "after_grant"},
+		{"t": 1.2, "kind": "snap", "label": "bossform_hud"},
+		{"t": 2.0, "kind": "bossform_attack", "which": "slam"},
+		{"t": 2.1, "kind": "bossform_probe", "label": "after_slam"},
+		{"t": 2.6, "kind": "snap", "label": "slam_impact"},
+		{"t": 3.5, "kind": "bossform_attack", "which": "cross"},
+		{"t": 3.6, "kind": "bossform_probe", "label": "after_cross"},
+		{"t": 4.1, "kind": "snap", "label": "cross_impact"},
+		{"t": 5.5, "kind": "bossform_attack", "which": "volley"},
+		{"t": 5.6, "kind": "bossform_probe", "label": "after_volley"},
+		{"t": 6.1, "kind": "snap", "label": "volley_impact"},
+		{"t": 7.0, "kind": "probe", "label": "bossform_state"},
+		{"t": 8.0, "kind": "report"}
+	]
+}

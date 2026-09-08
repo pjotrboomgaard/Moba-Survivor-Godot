@@ -1,0 +1,306 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 3,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              72.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "arclight",
+      "hp": 100.0,
+      "hp_frac": 1.0,
+      "hp_max": 100.0,
+      "kind": "probe",
+      "label": "pre_hold",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 0.441666666666667
+    },
+    {
+      "charge_t": 0.0,
+      "enemies_alive": 16,
+      "kind": "secondary_probe",
+      "label": "pre_hold",
+      "secondary_charge": 0.0,
+      "secondary_charge_max": 1.4,
+      "secondary_cooldown": 0.0,
+      "secondary_cooldown_max": 10.0,
+      "secondary_kind": "volt_mend",
+      "t": 0.519689
+    },
+    {
+      "hp": 0.94,
+      "kind": "landmark_save",
+      "saves": 1,
+      "t": 0.747663777777778
+    },
+    {
+      "charge_t": 0.55952380952381,
+      "enemies_alive": 10,
+      "kind": "secondary_probe",
+      "label": "mid_charge",
+      "secondary_charge": 0.783333333333334,
+      "secondary_charge_max": 1.4,
+      "secondary_cooldown": 0.0,
+      "secondary_cooldown_max": 10.0,
+      "secondary_kind": "volt_mend",
+      "t": 1.40159166666667
+    },
+    {
+      "charge_t": 1.0,
+      "enemies_alive": 14,
+      "kind": "secondary_probe",
+      "label": "post_release",
+      "secondary_charge": 1.4,
+      "secondary_charge_max": 1.4,
+      "secondary_cooldown": 0.0,
+      "secondary_cooldown_max": 10.0,
+      "secondary_kind": "volt_mend",
+      "t": 2.230854
+    },
+    {
+      "charge_t": 0.0,
+      "enemies_alive": 14,
+      "kind": "secondary_probe",
+      "label": "post_release",
+      "secondary_charge": 0.0,
+      "secondary_charge_max": 1.4,
+      "secondary_cooldown": 9.93333333333333,
+      "secondary_cooldown_max": 10.0,
+      "secondary_kind": "volt_mend",
+      "t": 2.305595
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              66.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "arclight",
+      "hp": 100.0,
+      "hp_frac": 1.0,
+      "hp_max": 100.0,
+      "kind": "probe",
+      "label": "post_release",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 2.528919
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              66.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "arclight",
+      "hp": 100.0,
+      "hp_frac": 1.0,
+      "hp_max": 100.0,
+      "kind": "probe",
+      "label": "cooldown_check",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 4.03722222222222
+    },
+    {
+      "charge_t": 0.0,
+      "enemies_alive": 41,
+      "kind": "secondary_probe",
+      "label": "cooldown_done",
+      "secondary_charge": 0.0,
+      "secondary_charge_max": 1.4,
+      "secondary_cooldown": 0.0,
+      "secondary_cooldown_max": 10.0,
+      "secondary_kind": "volt_mend",
+      "t": 12.5365006666667
+    }
+  ],
+  "elapsed": 13.0,
+  "enemies_spawned": 3,
+  "hero_position": "(65.60301, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 114,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 1,
+    "level": 2,
+    "level_upgrades": {
+      "2": [
+        "flow"
+      ]
+    },
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "flow"
+    ],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 15
+  },
+  "shots": [
+    {
+      "label": "after_charged_cast",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5731/after_charged_cast_3.000_5730.png",
+      "t": 3.0
+    }
+  ]
+}

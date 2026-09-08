@@ -1,0 +1,19 @@
+{
+	"hero": "arclight",
+	"comment": "Verify RMB hold-to-charge: hold for full charge, release fires with boosted damage/radius, cooldown resets after. Capture charge bar mid-hold.",
+	"events": [
+		{"t": 0.3, "kind": "spawn", "at": [80, 0], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [80, 30], "type": "grunt"},
+		{"t": 0.3, "kind": "spawn", "at": [80, -30], "type": "grunt"},
+		{"t": 0.4, "kind": "probe", "label": "pre_hold"},
+		{"t": 0.5, "kind": "secondary_probe", "label": "pre_hold"},
+		{"t": 0.5, "kind": "aim", "at": [80, 0]},
+		{"t": 0.6, "kind": "secondary_hold", "duration": 1.6},
+		{"t": 2.3, "kind": "secondary_probe", "label": "post_release"},
+		{"t": 2.5, "kind": "probe", "label": "post_release"},
+		{"t": 3.0, "kind": "snap", "label": "after_charged_cast"},
+		{"t": 4.0, "kind": "probe", "label": "cooldown_check"},
+		{"t": 12.5, "kind": "secondary_probe", "label": "cooldown_done"},
+		{"t": 13.0, "kind": "report"}
+	]
+}

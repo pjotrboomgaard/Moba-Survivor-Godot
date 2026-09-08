@@ -3444,17 +3444,24 @@ func _update_secondary(delta: float, held: bool) -> void:
 	var just_pressed := held and not _secondary_was_held
 	var just_released := (not held) and _secondary_was_held
 	_secondary_was_held = held
-	# The wall is already a draw-to-place spell; it does not use the hold-charge.
+	# The wall is a draw-to-place spell: it uses the same hold-charge, but the charge
+	# grows the max drawable length (bigger wall the longer you hold) and boosts the
+	# heal pulse. It does NOT fire on a release tap like the burst secondaries.
 	if secondary_kind == "wall" and simulation_mode != SimulationMode.CPU:
 		if just_pressed and secondary_cooldown <= 0.0:
 			_drawing_wall = true
 			_wall_draw_age = 0.0
+			secondary_charge = 0.0
 			_wall_points = PackedVector2Array([global_position])
 		if _drawing_wall:
 			_wall_draw_age += delta
 			_append_wall_point(aim_world_position)
-			if just_released or _wall_draw_age >= 2.0 or _wall_length() >= PlayerClass.WALL_MAX_LENGTH:
+			# Longer hold = longer wall + stronger heal on commit.
+			secondary_charge = minf(SECONDARY_CHARGE_MAX, secondary_charge + delta)
+			if just_released or _wall_draw_age >= 2.0 or _wall_length() >= PlayerClass.WALL_MAX_LENGTH * _sec_radius_mult():
 				_commit_wall()
+				secondary_charge = 0.0
+		_refresh_secondary_bar()
 		return
 	# Hold-to-charge: while RMB is held and off cooldown, the wind-up bar fills.
 	# Releasing fires the secondary with a damage/area bonus scaled by the charge.
@@ -3477,7 +3484,7 @@ func _append_wall_point(point: Vector2) -> void:
 		return
 	if _wall_points[_wall_points.size() - 1].distance_to(point) < 18.0:
 		return
-	if _wall_length() + _wall_points[_wall_points.size() - 1].distance_to(point) > PlayerClass.WALL_MAX_LENGTH:
+	if _wall_length() + _wall_points[_wall_points.size() - 1].distance_to(point) > PlayerClass.WALL_MAX_LENGTH * _sec_radius_mult():
 		return
 	_wall_points.append(point)
 
@@ -3493,13 +3500,17 @@ func _commit_wall() -> void:
 	_drawing_wall = false
 	var points := _wall_points.duplicate()
 	_wall_points = PackedVector2Array()
+	var charge_t := _secondary_charge_t()
+	# Bigger wall + stronger heal pulse the longer it was charged.
+	var wall_radius := 90.0 * _sec_radius_mult()
 	if points.size() < 2:
 		var facing := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
 		var origin := global_position + facing * 36.0
 		var across := facing.orthogonal()
-		points = PackedVector2Array([origin - across * 90.0, origin + across * 90.0])
+		points = PackedVector2Array([origin - across * wall_radius, origin + across * wall_radius])
 	_spawn_support_wall(points)
-	_pulse_allies(global_position, PlayerClass.SECONDARY_RADIUS, PlayerClass.SECONDARY_HEAL * 0.6, 22.0)
+	_pulse_allies(global_position, PlayerClass.SECONDARY_RADIUS * _sec_radius_mult(), PlayerClass.SECONDARY_HEAL * 0.6 * _sec_effect_mult(), 22.0)
+	secondary_charge = 0.0
 	_start_secondary_cooldown()
 
 

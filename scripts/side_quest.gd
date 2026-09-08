@@ -438,15 +438,55 @@ func _tick_rescue(delta: float, player: Node2D) -> void:
 ## animal joins as a persistent friendly minion that fights for the player.
 ## This is distinct from dance (mirror moves) and rescue (save an NPC from creeps):
 ## here there are no hostiles - it is a peaceful "adopt the pet" interaction.
-func _spawn_town(origin: Vector2) -> void:
-	# Spawn the town animal as a marker sprite the player must approach.
+func _spawn_town(_origin: Vector2) -> void:
+	# Town quests live at the top-left corner of the map so they are always
+	# findable. The animal sits at a small gathering spot near the corner.
+	var arena: Arena = _main.arena as Arena if _main != null else null
+	var town_pos := Vector2.ZERO
+	if arena != null:
+		var half := arena.half_extents()
+		var inset := half * 0.18
+		town_pos = Vector2(-half.x + inset.x, -half.y + inset.y)
+		# Pull off any hazard / obstacle so the player can actually stand here.
+		town_pos = arena.free_position_near(town_pos, 24.0)
 	var art := str(spec.get("art", "wolf"))
-	_town_sprite = _spawn_sprite(art, origin, 4.6)
+	_town_sprite = _spawn_sprite(art, town_pos, 4.6)
 	_town_stand = 0.0
 	_town_stand_need = float(spec.get("stand", 4.0))
-	seek_position = origin
+	seek_position = town_pos
+	global_position = town_pos
+	# Scatter a small cluster of town buildings around the gathering spot so the
+	# "town" reads as an actual settlement, not a lone animal in the open.
+	if arena != null:
+		_spawn_town_houses(arena, town_pos)
 	if _main != null and _main.has_method("_landmark_flash"):
 		_main._landmark_flash("Befriend the %s" % art, Color("9fd4ff"))
+
+
+## Place a handful of town buildings around the gathering spot. Buildings are
+## decorative obstacles (no collision) so they never block the player.
+func _spawn_town_houses(arena: Arena, center: Vector2) -> void:
+	var ObstacleScene: PackedScene = load("res://scenes/arena/obstacle.tscn")
+	if ObstacleScene == null:
+		return
+	# A fixed, pleasant arrangement around the well so the town reads as placed,
+	# not random. Angles are deterministic so the layout is stable across runs.
+	var kinds: Array[String] = ["town_house", "town_shop", "town_church", "town_house", "town_well"]
+	var radii: Array[float] = [22.0, 26.0, 20.0, 22.0, 14.0]
+	var lifts: Array[float] = [12.0, 12.0, 16.0, 12.0, 6.0]
+	for i in kinds.size():
+		var kind := kinds[i]
+		var angle := TAU * float(i) / float(kinds.size()) + 0.35
+		var dist := 95.0 + float(i % 3) * 34.0
+		var pos := center + Vector2.RIGHT.rotated(angle) * dist
+		pos = arena.free_position_near(pos, 30.0)
+		var obstacle: Obstacle = ObstacleScene.instantiate()
+		arena.add_child(obstacle)
+		obstacle.global_position = pos
+		obstacle.configure(kind, radii[i], 3.6, lifts[i])
+		obstacle.add_to_group("obstacles")
+		obstacle.add_to_group("obstacle_" + kind)
+		arena.register_obstacle(obstacle)
 
 
 func _tick_town(delta: float, player: Node2D) -> void:

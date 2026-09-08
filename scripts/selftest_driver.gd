@@ -359,6 +359,23 @@ func _process(delta: float) -> void:
 					_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, false, false, [false, false, false, false], false)
 			"landmarks":
 				_record_landmarks(str(event.get("label", "landmarks")))
+			"secondary_hold":
+				# Hold RMB for `duration` seconds to wind up the charge, then release.
+				# Exercises the hold-to-charge RMB path end-to-end.
+				_secondary_hold(float(event.get("duration", 0.6)))
+			"secondary_probe":
+				_record_secondary_probe(str(event.get("label", "secondary")))
+			"bossform_grant":
+				# Directly grant boss form to verify HUD icons + movement + attacks.
+				if _player != null:
+					_player.grant_boss_form(str(event.get("boss", "brute")))
+					_record_probe("bossform_granted")
+			"bossform_probe":
+				_record_bossform_probe(str(event.get("label", "bossform")))
+			"bossform_attack":
+				# Directly fire one of the boss attacks (slam/cross/volley) to verify
+				# they run without error and set their cooldowns.
+				_bossform_fire_attack(str(event.get("which", "slam")))
 			"report":
 				_finish_and_quit()
 
@@ -429,6 +446,88 @@ func _record_probe(label: String) -> void:
 		"hp_frac": _hp_frac(),
 		"abilities": (_player.known_abilities.duplicate() if _player.known_abilities else []),
 		"ffa": _ffa_roster(),
+	})
+
+
+## Hold RMB for the given duration to wind up the secondary charge, then release.
+## Verifies the hold-to-charge path: charge accumulates while held, and the
+## release triggers a boosted secondary cast.
+func _secondary_hold(duration: float) -> void:
+	if _player == null:
+		return
+	_player.aim_world_position = _player.global_position + Vector2(120.0, 0.0)
+	_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, false, false, [false, false, false, false], true)
+	# Sample the charge mid-hold to verify it accumulates while RMB is held.
+	if duration > 0.25:
+		await get_tree().create_timer(duration * 0.5).timeout
+		_record_secondary_probe("mid_charge")
+	await get_tree().create_timer(maxf(0.0, duration * 0.5)).timeout
+	_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, false, false, [false, false, false, false], false)
+	# Sample right after release: charge should be reset and cooldown started.
+	_record_secondary_probe("post_release")
+
+
+## Snapshot the secondary charge/cooldown state so a test report can assert on
+## the hold-to-charge behaviour.
+func _record_secondary_probe(label: String) -> void:
+	if _player == null:
+		return
+	_active_effects.append({
+		"kind": "secondary_probe",
+		"label": label,
+		"t": _elapsed,
+		"secondary_kind": _player.secondary_kind,
+		"secondary_charge": _player.secondary_charge,
+		"secondary_charge_max": _player.SECONDARY_CHARGE_MAX,
+		"charge_t": _player._secondary_charge_t(),
+		"secondary_cooldown": _player.secondary_cooldown,
+		"secondary_cooldown_max": _player.secondary_cooldown_max,
+		"enemies_alive": _alive_enemies().size(),
+	})
+
+
+## Snapshot boss-form state: whether the player is in boss form, the three boss
+## attack cooldowns, and the boss-form timer. Used to verify slam/cross/volley
+## fire and the HUD icons swap correctly.
+func _record_bossform_probe(label: String) -> void:
+	if _player == null:
+		return
+	_active_effects.append({
+		"kind": "bossform_probe",
+		"label": label,
+		"t": _elapsed,
+		"in_boss_form": _player.in_boss_form,
+		"boss_form_timer": _player.boss_form_timer,
+		"boss_form_hero_kills": _player.boss_form_hero_kills,
+		"slam_cd": _player._boss_slam_cd,
+		"cross_cd": _player._boss_cross_cd,
+		"volley_cd": _player._boss_volley_cd,
+		"movement_speed": _player.movement_speed,
+		"weapon_damage": _player.weapon_damage,
+	})
+
+
+## Directly fire one boss-form attack by name to verify it runs without error.
+func _bossform_fire_attack(which: String) -> void:
+	if _player == null or not _player.in_boss_form:
+		_active_effects.append({"kind": "bossform_attack", "error": "not in boss form", "which": which, "t": _elapsed})
+		return
+	match which:
+		"slam":
+			_player._boss_form_slam()
+		"cross":
+			_player._boss_form_cross()
+		"volley":
+			_player._boss_form_volley()
+		_:
+			return
+	_active_effects.append({
+		"kind": "bossform_attack",
+		"which": which,
+		"t": _elapsed,
+		"slam_cd_after": _player._boss_slam_cd,
+		"cross_cd_after": _player._boss_cross_cd,
+		"volley_cd_after": _player._boss_volley_cd,
 	})
 
 

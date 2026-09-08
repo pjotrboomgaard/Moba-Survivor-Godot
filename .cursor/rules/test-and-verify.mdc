@@ -1,0 +1,47 @@
+---
+description: Every change must be tested and verified in the running game before it is considered done
+alwaysApply: true
+---
+
+# Test everything and verify it in-game
+
+A task is only "done" when it has actually run in the game and been confirmed working.
+Never report a change as complete on the basis of a code edit, a parse check, or a unit
+expectation alone.
+
+## What "verified in-game" means
+
+For every gameplay, UI, asset, or script change:
+
+1. **Drive it in the real game.** Use the self-test harness
+   (`powershell -ExecutionPolicy Bypass -File tools/selftest/run_selftest.ps1
+   -RequestPath tools/selftest/requests/<name>.json`, add `-Hero <id>` when a specific
+   hero is the subject). Add `--pjotr`/`-Classic` user args when the change is mode-specific.
+2. **Collect evidence, not assumptions.** Read the resulting
+   `tools/selftest/results/<name>_report.json` and the screenshots under
+   `tools/selftest/results/`. A passing report plus a matching screenshot is the
+   verification, not a claim that it "should work."
+3. **Assert concrete criteria, not just "no crash."** Each feature needs explicit
+   expected outcomes (e.g. "charged RMB deals >=2x damage vs a tap", "the charge bar is
+   visible and fills over the hold", "the town minion can hit an enemy hero", "the wall is
+   longer after a long hold"). Encode these as probe/`expected_*` entries in the request.
+4. **Cover the failure edges.** Check the off cases too: cooldown still applies after
+   release, CPUs are unaffected, non-target heroes don't break, and it works on the
+   intended hero *and* at least one other hero.
+5. **If it can't be observed yet, build the observation first.** Missing a probe, a
+   screenshot hook, a report field, or a test scene means the test environment is
+   incomplete — add it so the behavior can be measured, then re-run.
+6. **Restart the running app** with `tools/restart_app.ps1` before ending the turn, so
+   the user sees the change in the live game.
+
+## When a verification fails
+
+- Fix the root cause, re-run the same test, and re-verify. Do not mark the task done
+  while its test is red.
+- Keep the failing evidence (report + screenshot path) in your notes so progress is
+  auditable.
+
+## Scope
+
+This applies to all feature work, balance tweaks, quest logic, upgrade paths, boss form,
+town quests, corpses, shadows, minimap, and any other system in this project.
