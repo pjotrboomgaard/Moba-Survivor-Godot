@@ -1,0 +1,18 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 8,
+  "duration": 420,
+  "time_scale": 1.5,
+  "build": "tempo",
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Quest diversity check: run longer to see multiple quest types including dance/rescue. 420s real time at 1.5x = 630s game time.",
+  "events": [
+    {"t": 10, "snap": "quest_start"},
+    {"t": 120, "snap": "quest_mid1"},
+    {"t": 240, "snap": "quest_mid2"},
+    {"t": 360, "snap": "quest_mid3"},
+    {"t": 410, "snap": "quest_end"}
+  ]
+}
