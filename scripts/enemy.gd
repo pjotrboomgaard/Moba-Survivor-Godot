@@ -1500,6 +1500,29 @@ func _attack_target() -> void:
 			dmg *= SOLO_BOSS_HAZARD_DAMAGE_MULT
 		target_health.take_damage(dmg, self)
 		attack_cooldown = attack_interval / WorldClock.night_attack_mult
+		# Visual: a quick lunge toward the target to telegraph the hit.
+		if not is_boss:
+			_play_melee_dash()
+
+
+## A short forward lunge + scale pop that plays when a melee enemy lands a hit,
+## so contact damage reads as a deliberate strike instead of an invisible tick.
+func _play_melee_dash() -> void:
+	if target == null:
+		return
+	var dir := global_position.direction_to(target.global_position)
+	if dir == Vector2.ZERO:
+		return
+	# Lunge forward a few pixels, hold briefly, then slide back to the start.
+	var origin := position
+	var lunge := dir * (body_radius * 0.45)
+	var tween := create_tween()
+	tween.tween_property(self, "position", origin + lunge, 0.05)
+	tween.tween_property(self, "position", origin, 0.11)
+	# Scale pop for a "slam" feel.
+	var base_scale := scale
+	tween.tween_property(self, "scale", base_scale * 1.12, 0.05)
+	tween.parallel().tween_property(self, "scale", base_scale, 0.10)
 
 
 func _on_damaged(amount: float) -> void:
