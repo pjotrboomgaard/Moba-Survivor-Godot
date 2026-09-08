@@ -1,0 +1,17 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 10,
+  "duration": 240,
+  "time_scale": 1.5,
+  "build": "tank",
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Verify new camp system: 3 unique camps, tanky camp guardians, undodgeable slam, no-chase, 2-min respawn. Bot should seek camps and take some damage from guardians.",
+  "events": [
+    {"at": 10, "snap": "camp_early"},
+    {"at": 60, "snap": "camp_mid"},
+    {"at": 120, "snap": "camp_late"},
+    {"at": 180, "snap": "camp_end"}
+  ]
+}

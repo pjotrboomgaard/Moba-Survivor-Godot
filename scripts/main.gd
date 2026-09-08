@@ -1301,8 +1301,11 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 		enemy.is_camp_guardian = true
 		enemy.camp_guardian_home = enemy.global_position
 		enemy.health.damage_taken_multiplier = 0.6  # tanky: takes 60% of normal damage
-		# Guardian contact damage is already high (brute/sentinel/etc); the undodgeable
-		# slam pulse in _process_camp_guardian adds the "you always take dmg" element.
+		# Contact damage is halved — the undodgeable slam pulse (14 dmg / 3s in
+		# _process_camp_guardian) is the primary "you always take dmg" element.
+		# Contact is secondary so a kiting player chips the guardian without
+		# getting shredded by contact + slam stacking.
+		enemy.contact_damage *= 0.5
 	enemy.defeated.connect(_on_enemy_defeated)
 	enemy.projectile_fired.connect(_on_enemy_projectile_fired)
 	enemy.spawn_requested.connect(_on_enemy_spawn_requested)

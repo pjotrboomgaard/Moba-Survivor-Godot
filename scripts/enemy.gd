@@ -160,13 +160,15 @@ var _stuck_time := 0.0
 ## - Takes reduced damage (damage resistance) so it is a real threat.
 ## - Does NOT chase the player far — it holds camp. If the player leaves the
 ##   leash radius the guardian loses aggro and stops.
+## - Contact damage is reduced (0.5x) since the slam pulse is the primary
+##   "always take dmg" source; contact is secondary.
 var is_camp_guardian := false
 var camp_guardian_home := Vector2.ZERO
 const CAMP_GUARDIAN_LEASH_RADIUS := 260.0
 var _camp_guardian_slaam_timer := 0.0
-const CAMP_GUARDIAN_SLAM_INTERVAL := 2.2
-const CAMP_GUARDIAN_SLAM_RADIUS := 150.0
-const CAMP_GUARDIAN_SLAM_DAMAGE := 24.0
+const CAMP_GUARDIAN_SLAM_INTERVAL := 3.0  # 3s (was 2.2s — too hot for wave 1)
+const CAMP_GUARDIAN_SLAM_RADIUS := 140.0
+const CAMP_GUARDIAN_SLAM_DAMAGE := 14.0  # 14 (was 24 — too brutal for wave 1)
 
 ## Terrain-hazard / lava-dunk state. Flying enemies skim over pools; grounded ones take
 ## the full dunk when a knockback arc drops them inside lava. Scramble slows the crawl
