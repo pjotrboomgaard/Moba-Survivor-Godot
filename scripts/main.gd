@@ -611,12 +611,20 @@ func _update_fog_visibility(delta: float) -> void:
 func _apply_fog_visibility(target: Node2D, from: Vector2) -> void:
 	var to := target.global_position
 	var dist := from.distance_to(to)
+	# Distance-only visibility: outside the vision radius a sprite fades out.
+	# Tree/rock occlusion (the old raycast against Obstacle.VISION_BLOCKER_LAYER)
+	# was disabled because it fully hid sprites whenever a tree or rock sat between
+	# the player and the target, which read as sprites "disappearing".
 	var visible_now := dist <= Player.VISION_RADIUS
-	if visible_now and dist > FOG_ALWAYS_VISIBLE_RANGE:
-		var space_state := target.get_world_2d().direct_space_state
-		var query := PhysicsRayQueryParameters2D.create(from, to, Obstacle.VISION_BLOCKER_LAYER)
-		visible_now = space_state.intersect_ray(query).is_empty()
-	target.modulate.a = 1.0 if visible_now else 0.0
+	# Soft fade instead of a hard on/off so sprites never vanish abruptly.
+	if visible_now:
+		target.modulate.a = 1.0
+	elif dist <= Player.VISION_RADIUS * 1.35:
+		# Grace band: fade linearly from 1.0 to 0.0 across the outer 35% ring.
+		var t := (dist - Player.VISION_RADIUS) / (Player.VISION_RADIUS * 0.35)
+		target.modulate.a = maxf(0.0, 1.0 - t)
+	else:
+		target.modulate.a = 0.0
 
 
 ## so this only ever matters in co-op, which is the point — dying isn't a full reset there

@@ -96,8 +96,11 @@ func _update_shadow_rotation() -> void:
 	_shadow.rotation = angle + PI / 2.0
 	var stretch := WorldClock.shadow_stretch
 	_shadow.scale = Vector2(1.0, 1.0 + stretch)
-	# Offset the shadow toward the sun direction so it reads as cast light.
-	_shadow.position = shadow_dir * (body_radius * 0.15) + Vector2(0.0, 0.0)
+	# Offset the shadow away from the sun (down-right) so it sits at the base of
+	# the object rather than centered on it. Bigger offset for rocks so the
+	# smaller shadow doesn't hide under the body.
+	var off := body_radius * (0.10 if _is_tree_shadow else 0.22)
+	_shadow.position = shadow_dir * off + Vector2(0.0, body_radius * 0.12)
 	_shadow.modulate = Color(0.0, 0.0, 0.0, WorldClock.shadow_alpha)
 
 
@@ -123,10 +126,12 @@ func _ensure_shadow(zoom: float, is_tree: bool) -> void:
 
 
 func _build_shadow_texture(zoom: float) -> void:
-	# Shape-fit the shadow: trees are broad ovals (canopy), rocks are rounder.
+	# Shape-fit the shadow: trees are broad ovals (canopy), rocks are smaller
+	# rounder blobs. Rocks get a shadow clearly smaller than the rock body so it
+	# reads as a cast shadow at the base rather than a slab surrounding it.
 	var radius_px := int(maxf(4.0, body_radius * zoom * 0.9))
-	var w := maxi(6, radius_px)
-	var h := maxi(4, int(radius_px * 0.55)) if _is_tree_shadow else maxi(4, int(radius_px * 0.7))
+	var w := maxi(6, int(radius_px * 0.78)) if _is_tree_shadow else maxi(5, int(radius_px * 0.45))
+	var h := maxi(4, int(w * 0.5)) if _is_tree_shadow else maxi(4, int(w * 0.62))
 	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
 	var center := Vector2(w * 0.5, h * 0.5)
 	for y in h:
