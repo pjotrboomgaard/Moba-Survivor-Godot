@@ -87,6 +87,13 @@ func _draw() -> void:
 		var is_tree := str(obs.sprite_id).contains("tree")
 		var color := TREE_COLOR if is_tree else ROCK_COLOR
 		draw_circle(point, 1.8, color)
+	# Teleporter pads: bright paired dots so the player can plan shortcut routes.
+	if arena_node != null and arena_node.get("teleporter_pads") != null:
+		for pad in arena_node.get("teleporter_pads"):
+			var pp := Vector2((pad as Dictionary).get("pos", Vector2.ZERO))
+			var pc: Color = (pad as Dictionary).get("color", Color("7ec8ff"))
+			draw_circle(_to_local(pp), 3.0, pc)
+			draw_circle(_to_local(pp), 3.0, Color(0.05, 0.05, 0.08, 1.0), false, 1.0)
 	# Side quests: gold, slightly bigger than terrain so the player can spot them.
 	for quest in get_tree().get_nodes_in_group("side_quest"):
 		if not is_instance_valid(quest):

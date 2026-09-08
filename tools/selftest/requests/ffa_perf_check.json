@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "comment": "FFA performance: 4 bots, fps probes at 5s/10s/15s/20s.",
+  "mode": "ffa",
+  "events": [
+    {"t": 5.0, "kind": "fps_probe", "label": "t5"},
+    {"t": 10.0, "kind": "fps_probe", "label": "t10"},
+    {"t": 15.0, "kind": "fps_probe", "label": "t15"},
+    {"t": 20.0, "kind": "fps_probe", "label": "t20"},
+    {"t": 20.5, "kind": "probe", "label": "ffa_state"},
+    {"t": 21.0, "kind": "report"}
+  ]
+}

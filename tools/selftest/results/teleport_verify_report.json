@@ -1,0 +1,169 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              72.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          9200.0,
+          7200.0
+        ]
+      },
+      "hero": "tobor",
+      "hp": 82.0,
+      "hp_frac": 1.0,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "pads_at_start",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 1.00613637037037,
+      "teleporters": [
+        [
+          -4008.0,
+          -3168.0
+        ],
+        [
+          4020.0,
+          3196.0
+        ],
+        [
+          4020.0,
+          -3140.0
+        ],
+        [
+          -3928.0,
+          3168.0
+        ],
+        [
+          -4048.0,
+          0.0
+        ],
+        [
+          4048.0,
+          0.0
+        ]
+      ]
+    }
+  ],
+  "elapsed": 2.01363636363636,
+  "enemies_spawned": 0,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [
+      "match was not FFA"
+    ],
+    "ffa": {
+      "all_bots": false,
+      "count": 1,
+      "enabled": false,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": false,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            72.0,
+            0.0
+          ],
+          "team": ""
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        9200.0,
+        7200.0
+      ]
+    },
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "FAIL_NOT_FFA",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "factory_start",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3899/factory_start_1.110_3899.png",
+      "t": 1.1102502962963
+    }
+  ]
+}

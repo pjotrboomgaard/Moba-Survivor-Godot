@@ -37,13 +37,11 @@ func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixel
 
 	sprite.texture = SpriteLibrary.texture_for(sprite_name)
 	var is_tree := sprite_name.contains("tree")
-	# Town buildings face a consistent, gentle angle (semi-iso look) instead of a
-	# random spin, so the town reads as deliberately placed. A small deterministic
-	# per-building wobble keeps the streets from looking perfectly grid-aligned.
+	# Town buildings are drawn straight (no tilt) so they read as placed houses
+	# rather than random spinning blocks. Each style has its own pixel art, so the
+	# variety comes from the art, not from rotation.
 	if sprite_name.begins_with("town_"):
-		var wobble := int((global_position.x + global_position.y) / 40.0) % 3
-		sprite.rotation = [0.12, -0.1, 0.0][wobble]
-		# Keep the collision shape centered on the body so rotation is purely visual.
+		sprite.rotation = 0.0
 		sprite.offset = Vector2(0.0, -lift_pixels * 0.6)
 		z_index = WorldClock.depth_z(global_position.y) + 4
 	var zoom := display_zoom(sprite_name, pixel_zoom, sprite.texture)

@@ -471,9 +471,9 @@ func _spawn_town_houses(arena: Arena, center: Vector2) -> void:
 		return
 	# A fixed, pleasant arrangement around the well so the town reads as placed,
 	# not random. Angles are deterministic so the layout is stable across runs.
-	var kinds: Array[String] = ["town_house", "town_shop", "town_church", "town_house", "town_well"]
-	var radii: Array[float] = [22.0, 26.0, 20.0, 22.0, 14.0]
-	var lifts: Array[float] = [12.0, 12.0, 16.0, 12.0, 6.0]
+	var kinds: Array[String] = ["town_house", "town_shop", "town_church", "town_house2", "town_well", "town_cottage", "town_house3"]
+	var radii: Array[float] = [22.0, 26.0, 20.0, 20.0, 14.0, 18.0, 24.0]
+	var lifts: Array[float] = [12.0, 12.0, 16.0, 10.0, 6.0, 8.0, 12.0]
 	for i in kinds.size():
 		var kind := kinds[i]
 		var angle := TAU * float(i) / float(kinds.size()) + 0.35

@@ -66,6 +66,17 @@ const TERRAIN_SPRITES := [
 	"town_shop",
 	"town_church",
 	"town_well",
+	"town_house2",
+	"town_house3",
+	"town_cottage",
+	"volcano_rock_fiery",
+	"volcano_obsidian",
+	"ice_snow_hill",
+	"ice_frost_rock",
+	"factory_mast",
+	"factory_tower",
+	"docks_pole",
+	"docks_barrel_stack",
 ]
 
 

@@ -1,0 +1,202 @@
+{
+  "effects": [
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 21.0,
+      "kind": "fps_probe",
+      "label": "t5",
+      "t": 5.04166666666666
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 21.0,
+      "kind": "fps_probe",
+      "label": "t10",
+      "t": 10.0333333333333
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 20.0,
+      "kind": "fps_probe",
+      "label": "t15",
+      "t": 15.014883
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 21.0,
+      "kind": "fps_probe",
+      "label": "t20",
+      "t": 20.0314814814815
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              69.0,
+              -6.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "tobor",
+      "hp": 26.8,
+      "hp_frac": 0.326829268292683,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "ffa_state",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 20.5129629629629,
+      "teleporters": []
+    }
+  ],
+  "elapsed": 21.0425925925925,
+  "enemies_spawned": 0,
+  "hero_position": "(69.00346, -5.99082)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [
+      "match was not FFA"
+    ],
+    "ffa": {
+      "all_bots": false,
+      "count": 1,
+      "enabled": false,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": false,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            69.0,
+            -6.0
+          ],
+          "team": ""
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.14
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.19
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.23
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 15.26
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 0.33,
+        "kills": 0,
+        "t": 20.27
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 0.158536585365854,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "FAIL_NOT_FFA",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": []
+}

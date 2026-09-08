@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "comment": "Town quest + biome props verification: spawn town quest, probe obstacle types, check FPS.",
+  "events": [
+    {"t": 1.0, "kind": "town_spawn", "art": "wolf"},
+    {"t": 1.5, "kind": "probe", "label": "town_spawned"},
+    {"t": 1.6, "kind": "snap", "label": "town_view"},
+    {"t": 2.5, "kind": "biome_probe", "label": "grass_biome"},
+    {"t": 3.0, "kind": "fps_probe", "label": "grass_fps"},
+    {"t": 3.5, "kind": "report"}
+  ]
+}

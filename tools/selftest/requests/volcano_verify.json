@@ -1,0 +1,9 @@
+{
+  "hero": "tobor",
+  "comment": "Volcano biome verification: lava tint + props.",
+  "events": [
+    {"t": 1.0, "kind": "biome_probe", "label": "volcano_props"},
+    {"t": 1.5, "kind": "snap", "label": "volcano_view"},
+    {"t": 2.0, "kind": "report"}
+  ]
+}

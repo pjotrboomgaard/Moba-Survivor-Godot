@@ -187,6 +187,14 @@ const LAVA_SCRAMBLE_SPEED_MULT := 0.45
 const KNOCKBACK_FLIGHT_THRESHOLD := 60.0
 var _target_refresh_timer := 0.0
 const TARGET_REFRESH_INTERVAL := 0.4
+## FFA performance cull: when no living player is within FAR_CULL_RADIUS, the enemy
+## skips expensive AI (target find, separation, behaviour dispatch) and just idles in
+## place. Refreshed on FAR_CULL_CHECK_INTERVAL so the per-frame cost is a single
+## squared-distance check instead of a full player-group scan + AI dispatch.
+const FAR_CULL_RADIUS := 2200.0
+const FAR_CULL_CHECK_INTERVAL := 0.5
+var _far_cull_timer := 0.0
+var _near_player := false
 
 
 func _ready() -> void:
@@ -407,6 +415,20 @@ func _physics_process(delta: float) -> void:
 			# the player can choose to kill it small or let it grow into a real problem.
 			_process_wander(delta)
 			return
+	# FFA performance cull: when no living player is within FAR_CULL_RADIUS and this
+	# enemy is not a boss/camp guardian/charger (which need to keep their patterns),
+	# skip the full AI block and just idle in place. Refreshed on a timer so the
+	# squared-distance scan runs at most FAR_CULL_CHECK_INTERVAL times per second
+	# per enemy instead of every physics frame.
+	_far_cull_timer -= delta
+	if _far_cull_timer <= 0.0:
+		_far_cull_timer = FAR_CULL_CHECK_INTERVAL
+		_near_player = _any_player_within_far_cull()
+	if not _near_player and not is_boss and not is_camp_guardian and dash_interval <= 0.0 and teleport_interval <= 0.0:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
 	_target_refresh_timer -= delta
 	if _target_refresh_timer <= 0.0:
 		_target_refresh_timer = TARGET_REFRESH_INTERVAL
@@ -1483,6 +1505,21 @@ func _any_living_player_in_crater() -> bool:
 func _any_player_cloaked() -> bool:
 	for candidate in get_tree().get_nodes_in_group("players"):
 		if candidate is Player and (candidate as Player).is_phase_cloaked():
+			return true
+	return false
+
+
+## Cheap squared-distance check used by the far-cull. No group allocation, no
+## behaviour dispatch — just a fast scan of living, un-cloaked, non-boss players.
+func _any_player_within_far_cull() -> bool:
+	var r2 := FAR_CULL_RADIUS * FAR_CULL_RADIUS
+	for candidate in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(candidate) or not candidate is Player:
+			continue
+		var p := candidate as Player
+		if not p.active or p.is_phase_cloaked() or p.in_boss_form:
+			continue
+		if global_position.distance_squared_to(p.global_position) <= r2:
 			return true
 	return false
 

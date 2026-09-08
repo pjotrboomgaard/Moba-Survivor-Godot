@@ -542,7 +542,11 @@ func _desired_live() -> int:
 	elif pressure_hp < 0.28:
 		floor_n = maxi(6, floor_n - 4)
 	# Cap climbs from wave 1 so every stage stays busy, not just the late run.
+	# FFA has 4 players each running their own AI + wave director, so cap lower
+	# to avoid lag from too many enemies simultaneously.
 	var live_cap := mini(55 + int(float(wave) * 4.0), 190)
+	if GameRuntime.is_ffa():
+		live_cap = mini(live_cap, 70)
 	return clampi(floor_n, 6, live_cap)
 
 

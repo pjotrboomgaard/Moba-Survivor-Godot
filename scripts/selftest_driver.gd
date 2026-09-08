@@ -2,6 +2,7 @@ class_name SelfTestDriver
 extends Node
 
 const UpgradeCatalog := preload("res://scripts/upgrade_catalog.gd")
+const SideQuestScript := preload("res://scripts/side_quest.gd")
 
 ## Filesystem-driven self-test runner: reads a JSON request from user://selftest_request.json,
 ## autonomously plays the game (spawn enemies, walk, cast abilities at aim points), captures
@@ -16,6 +17,9 @@ var request_path := "user://selftest_request.json"
 
 var _events: Array[Dictionary] = []
 var _elapsed := 0.0
+var _frame_count := 0
+var _fps_window_start := 0.0
+var _last_fps := 0.0
 var _host_main: Node = null
 var _player: Player = null
 var _enemies: Array[Node] = []
@@ -32,6 +36,7 @@ var _survival := false
 var _ffa := false
 var _time_scale := 1.0
 var _build := ""
+var _biome := -1
 var _survival_duration := 1100.0
 var _until_wave := 20
 var _danger_hp := 0.42
@@ -105,6 +110,7 @@ static func from_request(path: String = "user://selftest_request.json") -> SelfT
 		driver._recover_hp = float((parsed as Dictionary).get("recover_hp", 0.56))
 	elif str((parsed as Dictionary).get("mode", "")) == "ffa":
 		driver._ffa = true
+	driver._biome = int((parsed as Dictionary).get("biome", -1))
 	# Build strategy: which upgrade path the bot should favour when offered a
 	# choice. "tank" (survival), "tempo" (attack speed + crits), "ranged"
 	# (reach/volley/splash), or "" = random. Drives build diversity across runs.
@@ -128,6 +134,14 @@ func _ready() -> void:
 	if not GameRuntime.is_ffa():
 		GameRuntime.fill_cpu_allies = false
 	GameRuntime.biome_locked = false
+	if _biome >= 0:
+		GameRuntime.set_biome(_biome, true)
+		# Rebuild the arena so obstacles/props match the requested biome.
+		# The arena was already dressed in _ready() before the driver attached.
+		if _host_main != null and _host_main.get("arena") != null:
+			var arena: Variant = _host_main.get("arena")
+			if arena != null and arena is Arena:
+				(arena as Arena).dress_from_runtime_biome()
 	if _host_main == null:
 		push_warning("[SelfTestDriver] No parent; shutting down")
 		queue_free()
@@ -277,6 +291,12 @@ func _process(delta: float) -> void:
 	if get_tree().paused:
 		_resolve_paused_offers()
 		return
+	# Track frames over a 1s window for a meaningful FPS sample.
+	_frame_count += 1
+	if _elapsed - _fps_window_start >= 1.0:
+		_last_fps = float(_frame_count) / maxf(0.001, _elapsed - _fps_window_start)
+		_frame_count = 0
+		_fps_window_start = _elapsed
 	_elapsed += delta
 	if _elapsed - _debug_last_tick >= 5.0:
 		print("[std] tick t=%.1f wave=%d beaten=%d hp=%.2f xp=%d/%d lv=%d" % [
@@ -327,6 +347,10 @@ func _process(delta: float) -> void:
 				await _screenshot(str(event.get("label", "snap")))
 			"probe":
 				_record_probe(str(event.get("label", "probe")))
+			"fps_probe":
+				_record_fps(str(event.get("label", "fps")))
+			"biome_probe":
+				_record_biome(str(event.get("label", "biome")))
 			"sound_probe":
 				_record_sound_probe(str(event.get("label", "")), str(event.get("ability_id", "")))
 			"wait":
@@ -376,6 +400,11 @@ func _process(delta: float) -> void:
 				# Directly fire one of the boss attacks (slam/cross/volley) to verify
 				# they run without error and set their cooldowns.
 				_bossform_fire_attack(str(event.get("which", "slam")))
+			"town_spawn":
+				# Force a town quest for the local player at the top-left corner.
+				_spawn_town_quest(str(event.get("art", "wolf")))
+			"teleporter_probe":
+				_record_teleporters(str(event.get("label", "teleporters")))
 			"report":
 				_finish_and_quit()
 
@@ -446,6 +475,71 @@ func _record_probe(label: String) -> void:
 		"hp_frac": _hp_frac(),
 		"abilities": (_player.known_abilities.duplicate() if _player.known_abilities else []),
 		"ffa": _ffa_roster(),
+		"teleporters": _teleporter_pads(),
+	})
+
+
+func _teleporter_pads() -> Array:
+	var host_main: Variant = get_tree().get_first_node_in_group("main") if _host_main == null else _host_main
+	if host_main == null:
+		return []
+	var arena: Variant = host_main.get("arena")
+	if arena == null or not (arena is Arena):
+		return []
+	var pads: Array = []
+	for entry in (arena as Arena).teleporter_pads:
+		var p: Vector2 = entry["pos"]
+		pads.append([snappedf(p.x, 1.0), snappedf(p.y, 1.0)])
+	return pads
+
+
+func _record_fps(label: String) -> void:
+	_active_effects.append({
+		"kind": "fps_probe",
+		"label": label,
+		"t": _elapsed,
+		"fps": snappedf(_last_fps, 1.0),
+		"enemies_alive": _enemies.filter(func(e): return is_instance_valid(e) and not (e.get("health") == null or e.health.is_dead)).size(),
+		"enemies_total": _enemies.size(),
+	})
+
+
+func _record_biome(label: String) -> void:
+	var host_main: Variant = get_tree().get_first_node_in_group("main") if _host_main == null else _host_main
+	var arena: Variant = host_main.get("arena") if host_main != null else null
+	var obstacles_info: Array = []
+	if arena != null and arena is Arena:
+		var seen: Dictionary = {}
+		for obs in (arena as Arena).obstacles:
+			if is_instance_valid(obs):
+				var sid := obs.sprite_id
+				seen[sid] = int(seen.get(sid, 0)) + 1
+		for sid in seen.keys():
+			obstacles_info.append({"id": str(sid), "count": int(seen[sid])})
+	_active_effects.append({
+		"kind": "biome_probe",
+		"label": label,
+		"t": _elapsed,
+		"biome_id": GameRuntime.biome_id,
+		"biome_name": GameRuntime.biome_name(),
+		"obstacles": obstacles_info,
+	})
+
+
+func _record_teleporters(label: String) -> void:
+	var host_main: Variant = get_tree().get_first_node_in_group("main") if _host_main == null else _host_main
+	var arena: Variant = host_main.get("arena") if host_main != null else null
+	var pads: Array = []
+	if arena != null and arena is Arena:
+		for entry in (arena as Arena).teleporter_pads:
+			var p: Vector2 = entry["pos"]
+			pads.append([snappedf(p.x, 1.0), snappedf(p.y, 1.0)])
+	_active_effects.append({
+		"kind": "teleporter_probe",
+		"label": label,
+		"t": _elapsed,
+		"count": pads.size(),
+		"pads": pads,
 	})
 
 
@@ -529,6 +623,24 @@ func _bossform_fire_attack(which: String) -> void:
 		"cross_cd_after": _player._boss_cross_cd,
 		"volley_cd_after": _player._boss_volley_cd,
 	})
+
+
+## Force-spawn a town side-quest for the local player so we can verify the
+## town cluster art + quest flow without waiting for the director's random roll.
+func _spawn_town_quest(art: String) -> void:
+	if _host_main == null:
+		_active_effects.append({"kind": "town_spawn", "error": "no host", "t": _elapsed})
+		return
+	var peer_id := _player.owner_peer_id if _player else 0
+	var spec := {"id": "town_%s" % art, "mode": "town", "art": art, "stand": 4.0,
+		"title": "Befriend the %s" % art, "gold": 40, "xp": 25, "minion_count": 1}
+	var quest = SideQuestScript.new()
+	quest.name = "SideQuest_TownTest"
+	quest.configure(peer_id, spec)
+	var host: Node = _host_main.actors if _host_main.get("actors") != null else _host_main
+	host.add_child(quest)
+	quest.begin(_host_main)
+	_active_effects.append({"kind": "town_spawn", "art": art, "t": _elapsed, "ok": true})
 
 
 func _ffa_roster() -> Dictionary:

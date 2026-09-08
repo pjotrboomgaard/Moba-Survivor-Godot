@@ -1,0 +1,11 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "biome": 3,
+  "comment": "Factory teleporter verification: pads exist, teleporting between partners works with no cooldown, and the probe records all pad positions.",
+  "events": [
+    {"t": 1.0, "kind": "probe", "label": "pads_at_start"},
+    {"t": 1.1, "kind": "snap", "label": "factory_start"},
+    {"t": 2.0, "kind": "report"}
+  ]
+}

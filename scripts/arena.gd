@@ -17,6 +17,7 @@ func set_crater_unlocked(unlocked: bool) -> void:
 
 ## Single active arena lives under main. Players / enemies resolve it through this so
 ## nobody needs to hard-wire the path (and so the offline smoke harness can find it).
+const TeleportRingScript := preload("res://scripts/teleport_ring.gd")
 static func arena_root(node: Node) -> Arena:
 	if node == null:
 		return null
@@ -128,6 +129,9 @@ const BIOME_LANDMARKS: Array[Array] = [
 
 ## Live landmark instances the current world spawned. Emptied and rebuilt on set_world.
 var landmarks: Array[ArenaLandmark] = []
+## Teleporter pads (factory biome only). Each entry is a Dictionary with "pos" (Vector2),
+## "partner" (index of partner pad), "color" (Color for glow).
+var teleporter_pads: Array[Dictionary] = []
 
 var _world_id: int = World.IRON_FOUNDRY
 
@@ -471,6 +475,12 @@ func _saved_obstacle_spec(sprite_id: String) -> Dictionary:
 			return {"sprite": sprite_id, "radius": 28.0, "lift": 8.0}
 		"town_house":
 			return {"sprite": sprite_id, "radius": 22.0, "lift": 12.0}
+		"town_house2":
+			return {"sprite": sprite_id, "radius": 20.0, "lift": 10.0}
+		"town_house3":
+			return {"sprite": sprite_id, "radius": 24.0, "lift": 12.0}
+		"town_cottage":
+			return {"sprite": sprite_id, "radius": 18.0, "lift": 8.0}
 		"town_shop":
 			return {"sprite": sprite_id, "radius": 26.0, "lift": 12.0}
 		"town_church":
@@ -983,6 +993,96 @@ func _build_field() -> void:
 	add_child(shop_stand)
 	# Solid void for the water / lava / pit between pads so bodies can't leave the pads.
 	_build_void_bodies()
+	_spawn_teleporters()
+
+
+## Factory biome: scatter paired teleport pads so the player can shortcut across the
+## large map. Stepping on a pad instantly moves you to its partner — no cooldown.
+func _spawn_teleporters() -> void:
+	teleporter_pads.clear()
+	if GameRuntime.biome_id != 3:
+		return
+	var half := playfield_size() * 0.5
+	# Six pads in three pairs placed at opposite corners of walkable floor.
+	var raw_positions: Array[Vector2] = [
+		half * Vector2(-0.88, -0.88),
+		half * Vector2(0.88, 0.88),
+		half * Vector2(0.88, -0.88),
+		half * Vector2(-0.88, 0.88),
+		half * Vector2(-0.88, 0.0),
+		half * Vector2(0.88, 0.0),
+	]
+	var colors: Array[Color] = [
+		Color("7ec8ff"),
+		Color("7ec8ff"),
+		Color("ff8ac8"),
+		Color("ff8ac8"),
+		Color("b0ff7e"),
+		Color("b0ff7e"),
+	]
+	for i in raw_positions.size():
+		var pos := free_position_near(raw_positions[i], 60.0)
+		teleporter_pads.append({"pos": pos, "partner": i ^ 1, "color": colors[i]})
+		var pad := Area2D.new()
+		pad.name = "TeleporterPad_%d" % i
+		var shape := CircleShape2D.new()
+		shape.radius = 34.0
+		var collider := CollisionShape2D.new()
+		collider.shape = shape
+		pad.add_child(collider)
+		pad.collision_layer = 0
+		pad.collision_mask = 1 << 0
+		var glow := Sprite2D.new()
+		glow.name = "Glow"
+		glow.texture = _teleporter_pad_texture(colors[i])
+		glow.z_index = 2
+		pad.add_child(glow)
+		pad.global_position = pos
+		add_child(pad)
+		pad.body_entered.connect(_on_teleporter_body_entered.bind(i))
+
+
+func _teleporter_pad_texture(color: Color) -> Texture2D:
+	var size := 48
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var center := Vector2(size * 0.5, size * 0.5)
+	for y in size:
+		for x in size:
+			var d := Vector2(x - center.x, y - center.y).length() / (size * 0.5)
+			var alpha := 0.0
+			if d < 0.62:
+				alpha = 0.9
+			elif d < 0.8:
+				alpha = 0.45
+			elif d < 1.0:
+				alpha = 0.18
+			if alpha > 0.0:
+				img.set_pixel(x, y, Color(color.r, color.g, color.b, alpha))
+	return ImageTexture.create_from_image(img)
+
+
+func _on_teleporter_body_entered(body: Node2D, pad_index: int) -> void:
+	if pad_index >= teleporter_pads.size():
+		return
+	var entry: Dictionary = teleporter_pads[pad_index]
+	var partner: int = int(entry.get("partner", -1))
+	if partner < 0 or partner >= teleporter_pads.size():
+		return
+	if not body is CharacterBody2D:
+		return
+	if "active" in body and not (body as CharacterBody2D).active:
+		return
+	var target := Vector2(float(teleporter_pads[partner]["pos"].x), float(teleporter_pads[partner]["pos"].y))
+	body.global_position = target
+	var color: Color = entry.get("color", Color("7ec8ff"))
+	if not GameRuntime.is_dedicated_server():
+		_spawn_teleport_ring(target, color)
+
+
+func _spawn_teleport_ring(pos: Vector2, color: Color) -> void:
+	var ring := TeleportRingScript.new(color)
+	ring.global_position = pos
+	add_child(ring)
 
 
 func _spawn_world_features() -> void:
@@ -1190,21 +1290,33 @@ func _random_scatter_type(rng: RandomNumberGenerator) -> Dictionary:
 	pool.append_array(OBSTACLE_TYPES)
 	match GameRuntime.biome_id:
 		1:
-			pool.append({"sprite": "lava_chunk", "radius": 16.0, "lift": 8.0})
+			# Volcano: fiery rocks + obsidian shards instead of plain boulders
+			pool.append({"sprite": "volcano_rock_fiery", "radius": 18.0, "lift": 4.0})
+			pool.append({"sprite": "volcano_obsidian", "radius": 16.0, "lift": 4.0})
 			pool.append({"sprite": "lava_chunk", "radius": 16.0, "lift": 8.0})
 		2:
-			pool.append({"sprite": "ice_crystal", "radius": 14.0, "lift": 16.0})
+			# Ice: snow hills + frost-covered rocks instead of plain crystals
+			pool.append({"sprite": "ice_snow_hill", "radius": 20.0, "lift": 3.0})
+			pool.append({"sprite": "ice_frost_rock", "radius": 16.0, "lift": 4.0})
 			pool.append({"sprite": "ice_crystal", "radius": 14.0, "lift": 16.0})
 		3:
+			# Factory: utility masts, towers, crates, barrels — industrial clutter
+			pool.append({"sprite": "factory_mast", "radius": 14.0, "lift": 6.0})
+			pool.append({"sprite": "factory_tower", "radius": 16.0, "lift": 6.0})
 			pool.append({"sprite": "crate_box", "radius": 18.0, "lift": 8.0})
 			pool.append({"sprite": "barrel_keg", "radius": 16.0, "lift": 8.0})
 			pool.append({"sprite": "vent_cap", "radius": 16.0, "lift": 6.0})
 		4:
+			# Docks: wooden poles, barrel stacks, crates, town buildings
+			pool.append({"sprite": "docks_pole", "radius": 12.0, "lift": 10.0})
+			pool.append({"sprite": "docks_barrel_stack", "radius": 16.0, "lift": 8.0})
 			pool.append({"sprite": "bollard", "radius": 10.0, "lift": 20.0})
-			pool.append({"sprite": "barrel_keg", "radius": 16.0, "lift": 8.0})
 			pool.append({"sprite": "crate_box", "radius": 18.0, "lift": 8.0})
 			# Town landmarks — distinct buildings for the dockside town feel.
 			pool.append({"sprite": "town_house", "radius": 22.0, "lift": 12.0})
+			pool.append({"sprite": "town_house2", "radius": 20.0, "lift": 10.0})
+			pool.append({"sprite": "town_house3", "radius": 24.0, "lift": 12.0})
+			pool.append({"sprite": "town_cottage", "radius": 18.0, "lift": 8.0})
 			pool.append({"sprite": "town_shop", "radius": 26.0, "lift": 12.0})
 			pool.append({"sprite": "town_church", "radius": 20.0, "lift": 16.0})
 			pool.append({"sprite": "town_well", "radius": 14.0, "lift": 6.0})
@@ -1214,13 +1326,13 @@ func _random_scatter_type(rng: RandomNumberGenerator) -> Dictionary:
 func _ground_cover_sprites() -> Array[String]:
 	match GameRuntime.biome_id:
 		1:
-			return ["grass_tuft", "grass_wild", "lava_chunk", "grass_tuft", "rock_small"]
+			return ["grass_tuft", "grass_wild", "volcano_rock_fiery", "volcano_obsidian", "lava_chunk"]
 		2:
-			return ["ice_crystal", "grass_bloom", "grass_flower", "grass_tuft", "ice_crystal"]
+			return ["ice_snow_hill", "grass_bloom", "ice_frost_rock", "grass_flower", "ice_crystal"]
 		3:
-			return ["crate_box", "barrel_keg", "vent_cap", "rock_small", "barrel_keg"]
+			return ["crate_box", "barrel_keg", "vent_cap", "factory_mast", "factory_tower"]
 		4:
-			return ["bollard", "grass_tuft", "barrel_keg", "flower_patch", "crate_box", "town_house", "town_well"]
+			return ["bollard", "grass_tuft", "barrel_keg", "flower_patch", "docks_pole", "docks_barrel_stack", "town_house", "town_well", "town_house2", "town_cottage"]
 		_:
 			return ["grass_tuft", "grass_tuft", "grass_wild", "grass_flower", "grass_bloom", "flower_patch", "grass_long"]
 
@@ -1935,7 +2047,8 @@ func _void_tile_tint() -> Color:
 	# Keep void quieter than heroes/enemies so units pop. No chroma boosts.
 	match GameRuntime.biome_id:
 		1:
-			return Color(0.42, 0.40, 0.38, 1.0)
+			# Volcano lava: push it clearly red/orange so it reads as molten, not grey.
+			return Color(0.86, 0.34, 0.20, 1.0)
 		2:
 			return Color(0.70, 0.74, 0.78, 1.0)
 		3:

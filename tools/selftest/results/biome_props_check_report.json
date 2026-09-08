@@ -1,0 +1,94 @@
+{
+  "effects": [
+    {
+      "biome_id": 1,
+      "biome_name": "Vulkaan",
+      "kind": "biome_probe",
+      "label": "biome_probe",
+      "obstacles": [
+        {
+          "count": 172,
+          "id": "lava_chunk"
+        },
+        {
+          "count": 54,
+          "id": "spire"
+        },
+        {
+          "count": 70,
+          "id": "boulder"
+        },
+        {
+          "count": 125,
+          "id": "rock_small"
+        },
+        {
+          "count": 61,
+          "id": "rock_large"
+        },
+        {
+          "count": 100,
+          "id": "grass_tuft"
+        },
+        {
+          "count": 49,
+          "id": "grass_wild"
+        },
+        {
+          "count": 8,
+          "id": "grass_bloom"
+        },
+        {
+          "count": 4,
+          "id": "flower_patch"
+        },
+        {
+          "count": 4,
+          "id": "tree_oak"
+        }
+      ],
+      "t": 1.01201366666667
+    }
+  ],
+  "elapsed": 2.01116666666667,
+  "enemies_spawned": 0,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "biome_view",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4390/biome_view_1.507_4389.png",
+      "t": 1.50720466666667
+    }
+  ]
+}

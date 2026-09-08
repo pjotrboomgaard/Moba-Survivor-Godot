@@ -1,0 +1,9 @@
+{
+  "hero": "tobor",
+  "comment": "Biome props verification: check each biome has themed obstacles.",
+  "events": [
+    {"t": 1.0, "kind": "biome_probe", "label": "biome_probe"},
+    {"t": 1.5, "kind": "snap", "label": "biome_view"},
+    {"t": 2.0, "kind": "report"}
+  ]
+}
