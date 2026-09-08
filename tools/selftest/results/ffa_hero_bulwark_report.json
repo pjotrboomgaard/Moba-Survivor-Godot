@@ -6,18 +6,18 @@
       "list": [
         {
           "cooldown": 0.0,
-          "effect_id": "pulse_wipe",
-          "fill": 0.0,
-          "hint": "Grove Bell",
-          "pos": "(0.0, -1176.0)",
-          "ready": true
-        },
-        {
-          "cooldown": 0.0,
           "effect_id": "heal_all",
           "fill": 0.0,
           "hint": "Wild Spring",
           "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
           "ready": true
         },
         {
@@ -30,28 +30,36 @@
         },
         {
           "cooldown": 0.0,
-          "effect_id": "phase_cloak",
+          "effect_id": "pulse_wipe",
           "fill": 0.0,
-          "hint": "Whispering Thicket",
-          "pos": "(-1764.0, 0.0)",
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
           "ready": true
         }
       ],
-      "t": 1.00197366666667
+      "t": 1.02712060606061
     },
     {
       "abilities": [
         {
           "id": "bulwark_fissure",
-          "rank": 4
+          "rank": 1
         },
         {
           "id": "bulwark_heavyweight",
-          "rank": 1
+          "rank": 4
         },
         {
           "id": "bulwark_shockwave_strike",
-          "rank": 1
+          "rank": 2
         },
         {
           "id": "bulwark_echo_slam",
@@ -59,7 +67,7 @@
         }
       ],
       "cds": [
-        12.7893333333333,
+        0.0,
         0.0,
         0.0,
         0.0
@@ -78,23 +86,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -3039.0,
-              -2042.0
+              -2916.0,
+              -2004.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              3259.0,
-              -1780.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -102,12 +97,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -3045.0,
-              2065.0
+              3321.0,
+              -2065.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -115,10 +110,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -2860.0,
+              2029.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              3165.0,
-              2373.0
+              3298.0,
+              2143.0
             ],
             "team": "3"
           }
@@ -139,21 +147,21 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.21040577777778
+      "t": 1.23469636363636
     },
     {
       "abilities": [
         {
           "id": "bulwark_fissure",
-          "rank": 4
+          "rank": 1
         },
         {
           "id": "bulwark_heavyweight",
-          "rank": 1
+          "rank": 4
         },
         {
           "id": "bulwark_shockwave_strike",
-          "rank": 1
+          "rank": 2
         },
         {
           "id": "bulwark_echo_slam",
@@ -161,10 +169,10 @@
         }
       ],
       "cds": [
-        2.9824653333331,
-        6.70999999999994,
-        3.41266666666646,
-        151.41666666665
+        6.35599999999971,
+        8.22666666666661,
+        4.51351066666649,
+        150.666666666649
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -180,23 +188,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2343.0,
-              -1264.0
+              -2918.0,
+              -2142.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              2376.0,
-              -2117.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -204,12 +199,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -3130.0,
-              1570.0
+              2826.0,
+              -2172.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -217,10 +212,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -4065.0,
+              1923.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              -1657.0,
-              2776.0
+              2453.0,
+              2147.0
             ],
             "team": "3"
           }
@@ -232,8 +240,8 @@
         ]
       },
       "hero": "bulwark",
-      "hp": 274.5,
-      "hp_frac": 0.860501567398118,
+      "hp": 293.24,
+      "hp_frac": 0.919247648902821,
       "hp_max": 319.0,
       "kind": "probe",
       "label": "ffa_mid",
@@ -241,21 +249,21 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.0246586666667
+      "t": 24.0215226666667
     },
     {
       "abilities": [
         {
           "id": "bulwark_fissure",
-          "rank": 4
+          "rank": 1
         },
         {
           "id": "bulwark_heavyweight",
-          "rank": 1
+          "rank": 4
         },
         {
           "id": "bulwark_shockwave_strike",
-          "rank": 1
+          "rank": 2
         },
         {
           "id": "bulwark_echo_slam",
@@ -263,10 +271,10 @@
         }
       ],
       "cds": [
-        7.09470133333315,
+        13.4893333333333,
         0.0,
         0.0,
-        127.933333333298
+        127.183333333298
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -282,23 +290,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -1716.0,
-              -653.0
+              -937.0,
+              -692.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              2575.0,
-              -1871.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -306,12 +301,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -594.0,
-              303.0
+              2727.0,
+              -1634.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -319,10 +314,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -326.0,
+              -198.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              -368.0,
-              193.0
+              270.0,
+              187.0
             ],
             "team": "3"
           }
@@ -334,8 +342,8 @@
         ]
       },
       "hero": "bulwark",
-      "hp": 255.399999999999,
-      "hp_frac": 0.800626959247647,
+      "hp": 214.28,
+      "hp_frac": 0.671724137931034,
       "hp_max": 319.0,
       "kind": "probe",
       "label": "ffa_end",
@@ -343,63 +351,65 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.50269
+      "t": 47.5084633333336
     }
   ],
-  "elapsed": 48.0166666666667,
+  "elapsed": 48.001666666667,
   "enemies_spawned": 0,
-  "hero_position": "(-1715.55, -652.3058)",
+  "hero_position": "(-926.8008, -640.5573)",
   "player_class": "bulwark",
   "results": {
     "alive": true,
     "beaten_wave": 0,
+    "build": "",
     "cast_count": 11,
     "casts": [
       {
-        "ability_id": "bulwark_fissure",
-        "t": 0.0
-      },
-      {
-        "ability_id": "bulwark_heavyweight",
-        "t": 2.62115926984127
-      },
-      {
-        "ability_id": "bulwark_shockwave_strike",
-        "t": 2.62115926984127
-      },
-      {
         "ability_id": "bulwark_echo_slam",
-        "t": 2.62115926984127
+        "t": 1.87341015151515
+      },
+      {
+        "ability_id": "bulwark_fissure",
+        "t": 2.508887
       },
       {
         "ability_id": "bulwark_heavyweight",
-        "t": 11.9918886666667
-      },
-      {
-        "ability_id": "bulwark_fissure",
-        "t": 13.9767313333334
+        "t": 4.13496933333333
       },
       {
         "ability_id": "bulwark_shockwave_strike",
-        "t": 14.9451486666667
+        "t": 4.26496933333333
       },
       {
         "ability_id": "bulwark_heavyweight",
-        "t": 21.302136
+        "t": 13.5057079523809
       },
       {
         "ability_id": "bulwark_fissure",
-        "t": 26.940405
+        "t": 16.4617420952381
       },
       {
         "ability_id": "bulwark_shockwave_strike",
-        "t": 27.412829
+        "t": 16.6531111428571
+      },
+      {
+        "ability_id": "bulwark_heavyweight",
+        "t": 22.8666666666667
+      },
+      {
+        "ability_id": "bulwark_shockwave_strike",
+        "t": 28.5198163333334
       },
       {
         "ability_id": "bulwark_fissure",
-        "t": 42.7724946666667
+        "t": 31.0500000000001
+      },
+      {
+        "ability_id": "bulwark_fissure",
+        "t": 47.0623522222225
       }
     ],
+    "creep_kills": 128,
     "died": false,
     "errors": [],
     "ffa": {
@@ -415,23 +425,10 @@
           "local": true,
           "peer": 1,
           "pos": [
-            -1716.0,
-            -652.0
+            -927.0,
+            -641.0
           ],
           "team": "0"
-        },
-        {
-          "alive": true,
-          "class": "arclight",
-          "cpu": true,
-          "kills": 0,
-          "local": false,
-          "peer": 101,
-          "pos": [
-            2566.0,
-            -1836.0
-          ],
-          "team": "1"
         },
         {
           "alive": true,
@@ -439,12 +436,12 @@
           "cpu": true,
           "kills": 0,
           "local": false,
-          "peer": 102,
+          "peer": 101,
           "pos": [
-            -555.0,
-            262.0
+            2727.0,
+            -1634.0
           ],
-          "team": "2"
+          "team": "1"
         },
         {
           "alive": true,
@@ -452,10 +449,23 @@
           "cpu": true,
           "kills": 0,
           "local": false,
+          "peer": 102,
+          "pos": [
+            -284.0,
+            -193.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
           "peer": 103,
           "pos": [
-            -340.0,
-            253.0
+            270.0,
+            186.0
           ],
           "team": "3"
         }
@@ -466,7 +476,7 @@
         5600.0
       ]
     },
-    "gold": 486,
+    "gold": 704,
     "hero_kills": 0,
     "hp_samples": [
       {
@@ -480,88 +490,110 @@
       {
         "alive": true,
         "class": "bulwark",
-        "gold": 18,
+        "gold": 114,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.16
+        "t": 5.15
       },
       {
         "alive": true,
         "class": "bulwark",
-        "gold": 54,
-        "hp": 0.99,
+        "gold": 144,
+        "hp": 0.9,
         "kills": 0,
         "t": 10.17
       },
       {
         "alive": true,
         "class": "bulwark",
-        "gold": 106,
-        "hp": 1.0,
+        "gold": 247,
+        "hp": 0.94,
         "kills": 0,
-        "t": 15.19
+        "t": 15.17
       },
       {
         "alive": true,
         "class": "bulwark",
-        "gold": 148,
+        "gold": 299,
         "hp": 0.92,
         "kills": 0,
-        "t": 20.21
+        "t": 20.2
       },
       {
         "alive": true,
         "class": "bulwark",
-        "gold": 258,
+        "gold": 353,
+        "hp": 0.9,
+        "kills": 0,
+        "t": 25.22
+      },
+      {
+        "alive": true,
+        "class": "bulwark",
+        "gold": 493,
         "hp": 0.91,
         "kills": 0,
-        "t": 25.26
+        "t": 30.24
       },
       {
         "alive": true,
         "class": "bulwark",
-        "gold": 348,
-        "hp": 0.91,
-        "kills": 0,
-        "t": 30.32
-      },
-      {
-        "alive": true,
-        "class": "bulwark",
-        "gold": 348,
-        "hp": 0.87,
-        "kills": 0,
-        "t": 35.36
-      },
-      {
-        "alive": true,
-        "class": "bulwark",
-        "gold": 364,
-        "hp": 0.85,
-        "kills": 0,
-        "t": 40.37
-      },
-      {
-        "alive": true,
-        "class": "bulwark",
-        "gold": 486,
+        "gold": 619,
         "hp": 0.83,
         "kills": 0,
-        "t": 45.39
+        "t": 35.24
+      },
+      {
+        "alive": true,
+        "class": "bulwark",
+        "gold": 650,
+        "hp": 0.78,
+        "kills": 0,
+        "t": 40.27
+      },
+      {
+        "alive": true,
+        "class": "bulwark",
+        "gold": 704,
+        "hp": 0.67,
+        "kills": 0,
+        "t": 45.28
       }
     ],
     "landmark_saves": 0,
-    "level": 6,
+    "level": 9,
+    "level_upgrades": {
+      "2": [
+        "heavy"
+      ],
+      "3": [
+        "gun_drone"
+      ],
+      "5": [
+        "scholar"
+      ],
+      "7": [
+        "scholar"
+      ]
+    },
     "max_hp": 1.0,
-    "min_hp": 0.790909090909089,
+    "min_hp": 0.671724137931034,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
+    "taken_upgrades": [
+      "heavy",
+      "gun_drone",
+      "scholar",
+      "scholar"
+    ],
     "until_wave": 20,
     "verdict": "PASS_OK",
     "wave": 1,
-    "xp": 216
+    "xp": 177
   },
   "shots": []
 }

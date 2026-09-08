@@ -61,10 +61,12 @@ func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixel
 		# Below landmark pads (z 2) so tufts/flowers never paint over shrines.
 		z_index = 1
 	elif is_tree:
-		# Negative bias so the tall canopy never paints over a unit at the same y.
-		# Trees still sort correctly relative to each other and relative to units
-		# that are well behind them (y difference > 80 px).
-		z_index = WorldClock.depth_z(global_position.y, -80)
+		# Pure painter's algorithm by base y: a unit standing *behind* the tree
+		# (smaller y) renders in front of it? No — larger y renders on top, so a
+		# unit with a larger y (in front of the tree) paints over the canopy, and
+		# a unit with a smaller y (behind) is covered. This matches the requested
+		# front/behind rule without a magic bias that mis-sorted the canopy.
+		z_index = WorldClock.depth_z(global_position.y)
 	else:
 		z_index = 8
 	if is_tree:

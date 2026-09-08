@@ -107,6 +107,13 @@ func _draw() -> void:
 		if not is_instance_valid(player_node):
 			continue
 		var player := player_node as Player
+		if player == null:
+			# Story NPCs (rescue/dance) also live in the "players" group but are not
+			# Player nodes; draw them as a distinct accent marker instead of crashing.
+			var npc_point := _to_local((player_node as Node2D).global_position)
+			draw_circle(npc_point, 2.4, Color(1.0, 0.85, 0.3, 1.0))
+			draw_circle(npc_point, 2.4, Color(0.3, 0.2, 0.0, 1.0), false, 1.0)
+			continue
 		if not player.active:
 			continue
 		var point := _to_local(player.global_position)

@@ -6,18 +6,18 @@
       "list": [
         {
           "cooldown": 0.0,
-          "effect_id": "pulse_wipe",
-          "fill": 0.0,
-          "hint": "Grove Bell",
-          "pos": "(0.0, -1176.0)",
-          "ready": true
-        },
-        {
-          "cooldown": 0.0,
           "effect_id": "heal_all",
           "fill": 0.0,
           "hint": "Wild Spring",
           "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
           "ready": true
         },
         {
@@ -30,20 +30,28 @@
         },
         {
           "cooldown": 0.0,
-          "effect_id": "phase_cloak",
+          "effect_id": "pulse_wipe",
           "fill": 0.0,
-          "hint": "Whispering Thicket",
-          "pos": "(-1764.0, 0.0)",
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
           "ready": true
         }
       ],
-      "t": 1.00337766666667
+      "t": 1.019676
     },
     {
       "abilities": [
         {
           "id": "ember_entangle",
-          "rank": 3
+          "rank": 1
         },
         {
           "id": "ember_firebomb",
@@ -59,10 +67,10 @@
         }
       ],
       "cds": [
-        32.9723333333334,
         0.0,
         0.0,
-        188.936666666666
+        0.0,
+        0.0
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -78,23 +86,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2889.0,
-              -2259.0
+              -2953.0,
+              -2186.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              2907.0,
-              -2052.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -102,12 +97,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -2945.0,
-              2001.0
+              3199.0,
+              -2089.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -115,10 +110,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -2858.0,
+              2052.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              2905.0,
-              2020.0
+              3233.0,
+              2148.0
             ],
             "team": "3"
           }
@@ -139,13 +147,13 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.20545624242424
+      "t": 1.22078457142857
     },
     {
       "abilities": [
         {
           "id": "ember_entangle",
-          "rank": 3
+          "rank": 1
         },
         {
           "id": "ember_firebomb",
@@ -161,10 +169,10 @@
         }
       ],
       "cds": [
-        10.1390000000007,
-        14.2116666666666,
-        44.6566666666676,
-        166.103333333314
+        19.8390000000008,
+        1.51166666666632,
+        47.4566666666675,
+        176.136666666656
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -180,23 +188,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2080.0,
-              -699.0
+              -2696.0,
+              -1809.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              2707.0,
-              -1638.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -204,12 +199,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -2360.0,
-              1910.0
+              3352.0,
+              -1943.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -217,10 +212,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -2404.0,
+              587.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              413.0,
-              928.0
+              2532.0,
+              -151.0
             ],
             "team": "3"
           }
@@ -232,22 +240,22 @@
         ]
       },
       "hero": "ember",
-      "hp": 242.5,
+      "hp": 217.5,
       "hp_frac": 1.0,
-      "hp_max": 242.5,
+      "hp_max": 217.5,
       "kind": "probe",
       "label": "ffa_mid",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.0411206666667
+      "t": 24.0069014814814
     },
     {
       "abilities": [
         {
           "id": "ember_entangle",
-          "rank": 3
+          "rank": 1
         },
         {
           "id": "ember_firebomb",
@@ -263,10 +271,10 @@
         }
       ],
       "cds": [
-        19.2340066666673,
-        7.82833333333296,
-        21.1900000000023,
-        142.636666666629
+        31.0056666666668,
+        0.0,
+        23.9566666666688,
+        152.636666666637
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -275,30 +283,17 @@
         "enabled": true,
         "heroes": [
           {
-            "alive": false,
+            "alive": true,
             "class": "ember",
             "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              -157.0,
-              14.0
+              -285.0,
+              -315.0
             ],
             "team": "0"
-          },
-          {
-            "alive": false,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              3196.0,
-              -1359.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -306,23 +301,36 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 101,
+            "pos": [
+              2387.0,
+              -581.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 102,
             "pos": [
-              -1169.0,
-              604.0
+              199.0,
+              -480.0
             ],
             "team": "2"
           },
           {
             "alive": true,
-            "class": "warden",
+            "class": "tobor",
             "cpu": true,
             "kills": 1,
             "local": false,
             "peer": 103,
             "pos": [
-              -332.0,
-              74.0
+              1462.0,
+              -37.0
             ],
             "team": "3"
           }
@@ -334,57 +342,55 @@
         ]
       },
       "hero": "ember",
-      "hp": 0.0,
-      "hp_frac": 0.0,
-      "hp_max": 242.5,
+      "hp": 197.225000000001,
+      "hp_frac": 0.906781609195405,
+      "hp_max": 217.5,
       "kind": "probe",
       "label": "ffa_end",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.5102803333335
+      "t": 47.5048832727273
     }
   ],
-  "elapsed": 48.0032473333335,
+  "elapsed": 48.0056408484849,
   "enemies_spawned": 0,
-  "hero_position": "(-157.2657, 14.20081)",
+  "hero_position": "(-278.6834, -310.187)",
   "player_class": "ember",
   "results": {
-    "alive": false,
+    "alive": true,
     "beaten_wave": 0,
-    "cast_count": 7,
+    "build": "",
+    "cast_count": 6,
     "casts": [
       {
-        "ability_id": "ember_unbreakable",
-        "t": 0.0
-      },
-      {
         "ability_id": "ember_entangle",
-        "t": 0.0
+        "t": 9.74781733333333
       },
       {
         "ability_id": "ember_firebomb",
-        "t": 7.24728900000009
+        "t": 10.0048423333333
       },
       {
         "ability_id": "ember_healing_wave",
-        "t": 7.24728900000009
+        "t": 10.0048423333333
+      },
+      {
+        "ability_id": "ember_unbreakable",
+        "t": 10.0048423333333
       },
       {
         "ability_id": "ember_firebomb",
-        "t": 22.7183513333334
+        "t": 25.4801259999999
       },
       {
         "ability_id": "ember_entangle",
-        "t": 35.6649550000001
-      },
-      {
-        "ability_id": "ember_firebomb",
-        "t": 39.8201913333334
+        "t": 44.4011111111111
       }
     ],
-    "died": true,
+    "creep_kills": 52,
+    "died": false,
     "errors": [],
     "ffa": {
       "all_bots": true,
@@ -392,30 +398,17 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": false,
+          "alive": true,
           "class": "ember",
           "cpu": true,
           "kills": 0,
           "local": true,
           "peer": 1,
           "pos": [
-            -157.0,
-            14.0
+            -279.0,
+            -310.0
           ],
           "team": "0"
-        },
-        {
-          "alive": false,
-          "class": "arclight",
-          "cpu": true,
-          "kills": 0,
-          "local": false,
-          "peer": 101,
-          "pos": [
-            3196.0,
-            -1359.0
-          ],
-          "team": "1"
         },
         {
           "alive": true,
@@ -423,23 +416,36 @@
           "cpu": true,
           "kills": 0,
           "local": false,
+          "peer": 101,
+          "pos": [
+            2310.0,
+            -534.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": false,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
           "peer": 102,
           "pos": [
-            -1169.0,
-            604.0
+            199.0,
+            -480.0
           ],
           "team": "2"
         },
         {
           "alive": true,
-          "class": "warden",
+          "class": "tobor",
           "cpu": true,
           "kills": 1,
           "local": false,
           "peer": 103,
           "pos": [
-            -319.0,
-            82.0
+            1474.0,
+            -11.0
           ],
           "team": "3"
         }
@@ -450,13 +456,13 @@
         5600.0
       ]
     },
-    "gold": 151,
+    "gold": 455,
     "hero_kills": 0,
     "hp_samples": [
       {
         "alive": true,
         "class": "ember",
-        "gold": 6,
+        "gold": 0,
         "hp": 1.0,
         "kills": 0,
         "t": 0.15
@@ -464,88 +470,110 @@
       {
         "alive": true,
         "class": "ember",
-        "gold": 14,
+        "gold": 4,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.15
+        "t": 5.16
       },
       {
         "alive": true,
         "class": "ember",
-        "gold": 50,
+        "gold": 40,
         "hp": 1.0,
         "kills": 0,
-        "t": 10.17
+        "t": 10.21
       },
       {
         "alive": true,
         "class": "ember",
-        "gold": 74,
+        "gold": 58,
         "hp": 1.0,
         "kills": 0,
-        "t": 15.23
+        "t": 15.21
       },
       {
         "alive": true,
         "class": "ember",
-        "gold": 88,
+        "gold": 168,
+        "hp": 0.92,
+        "kills": 0,
+        "t": 20.22
+      },
+      {
+        "alive": true,
+        "class": "ember",
+        "gold": 246,
+        "hp": 0.97,
+        "kills": 0,
+        "t": 25.24
+      },
+      {
+        "alive": true,
+        "class": "ember",
+        "gold": 321,
+        "hp": 0.84,
+        "kills": 0,
+        "t": 30.27
+      },
+      {
+        "alive": true,
+        "class": "ember",
+        "gold": 353,
         "hp": 1.0,
         "kills": 0,
-        "t": 20.27
+        "t": 35.29
       },
       {
         "alive": true,
         "class": "ember",
-        "gold": 135,
+        "gold": 353,
         "hp": 1.0,
         "kills": 0,
-        "t": 25.31
+        "t": 40.3
       },
       {
         "alive": true,
         "class": "ember",
-        "gold": 153,
-        "hp": 0.98,
+        "gold": 413,
+        "hp": 1.0,
         "kills": 0,
-        "t": 30.33
-      },
-      {
-        "alive": true,
-        "class": "ember",
-        "gold": 187,
-        "hp": 0.96,
-        "kills": 0,
-        "t": 35.36
-      },
-      {
-        "alive": true,
-        "class": "ember",
-        "gold": 299,
-        "hp": 0.21,
-        "kills": 0,
-        "t": 40.37
-      },
-      {
-        "alive": false,
-        "class": "ember",
-        "gold": 151,
-        "hp": 0.0,
-        "kills": 0,
-        "t": 45.38
+        "t": 45.32
       }
     ],
     "landmark_saves": 0,
     "level": 5,
+    "level_upgrades": {
+      "2": [
+        "haste"
+      ],
+      "3": [
+        "volley"
+      ],
+      "4": [
+        "metronome"
+      ],
+      "5": [
+        "exp_well"
+      ]
+    },
     "max_hp": 1.0,
-    "min_hp": 0.0,
+    "min_hp": 0.793234329501925,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
+    "taken_upgrades": [
+      "haste",
+      "volley",
+      "metronome",
+      "exp_well"
+    ],
     "until_wave": 20,
-    "verdict": "WARN_DEAD",
+    "verdict": "PASS_OK",
     "wave": 1,
-    "xp": 11
+    "xp": 66
   },
   "shots": []
 }

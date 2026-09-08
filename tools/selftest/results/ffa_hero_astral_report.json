@@ -45,24 +45,24 @@
           "ready": true
         }
       ],
-      "t": 1.007728
+      "t": 1.02827461952862
     },
     {
       "abilities": [
         {
-          "id": "volt_gust",
+          "id": "astral_ghastly_touch",
           "rank": 1
         },
         {
-          "id": "volt_plasma_bolt",
+          "id": "astral_moonfall",
           "rank": 1
         },
         {
-          "id": "volt_wind_shield",
+          "id": "astral_essence_link",
           "rank": 1
         },
         {
-          "id": "volt_typhoon",
+          "id": "astral_as_one",
           "rank": 1
         }
       ],
@@ -80,14 +80,14 @@
         "heroes": [
           {
             "alive": true,
-            "class": "volt",
+            "class": "astral",
             "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              -2886.0,
-              -1979.0
+              -2918.0,
+              -2193.0
             ],
             "team": "0"
           },
@@ -99,8 +99,8 @@
             "local": false,
             "peer": 101,
             "pos": [
-              3308.0,
-              -2029.0
+              3149.0,
+              -1968.0
             ],
             "team": "1"
           },
@@ -112,8 +112,8 @@
             "local": false,
             "peer": 102,
             "pos": [
-              -2900.0,
-              1970.0
+              -2868.0,
+              2138.0
             ],
             "team": "2"
           },
@@ -125,8 +125,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              3374.0,
-              2106.0
+              3147.0,
+              2244.0
             ],
             "team": "3"
           }
@@ -137,42 +137,42 @@
           5600.0
         ]
       },
-      "hero": "volt",
-      "hp": 159.5,
+      "hero": "astral",
+      "hp": 181.25,
       "hp_frac": 1.0,
-      "hp_max": 159.5,
+      "hp_max": 181.25,
       "kind": "probe",
       "label": "ffa_start",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.21606133333333
+      "t": 1.23865433333333
     },
     {
       "abilities": [
         {
-          "id": "volt_gust",
+          "id": "astral_ghastly_touch",
           "rank": 1
         },
         {
-          "id": "volt_plasma_bolt",
+          "id": "astral_moonfall",
           "rank": 1
         },
         {
-          "id": "volt_wind_shield",
+          "id": "astral_essence_link",
           "rank": 1
         },
         {
-          "id": "volt_typhoon",
+          "id": "astral_as_one",
           "rank": 1
         }
       ],
       "cds": [
-        8.58666666666713,
-        12.3611666666665,
-        25.1600000000012,
-        184.826666666649
+        11.6905000000005,
+        20.5433333333341,
+        43.5833333333341,
+        222.419999999989
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -182,14 +182,14 @@
         "heroes": [
           {
             "alive": true,
-            "class": "volt",
+            "class": "astral",
             "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              -1669.0,
-              -875.0
+              -2203.0,
+              -1181.0
             ],
             "team": "0"
           },
@@ -201,8 +201,8 @@
             "local": false,
             "peer": 101,
             "pos": [
-              3058.0,
-              -1264.0
+              2715.0,
+              -981.0
             ],
             "team": "1"
           },
@@ -214,8 +214,8 @@
             "local": false,
             "peer": 102,
             "pos": [
-              -909.0,
-              2776.0
+              -2919.0,
+              1195.0
             ],
             "team": "2"
           },
@@ -227,8 +227,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              1266.0,
-              1729.0
+              1203.0,
+              1526.0
             ],
             "team": "3"
           }
@@ -239,42 +239,42 @@
           5600.0
         ]
       },
-      "hero": "volt",
-      "hp": 68.78,
-      "hp_frac": 0.431222570532915,
-      "hp_max": 159.5,
+      "hero": "astral",
+      "hp": 181.25,
+      "hp_frac": 1.0,
+      "hp_max": 181.25,
       "kind": "probe",
       "label": "ffa_mid",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.0261904761905
+      "t": 24.0370849047619
     },
     {
       "abilities": [
         {
-          "id": "volt_gust",
+          "id": "astral_ghastly_touch",
           "rank": 1
         },
         {
-          "id": "volt_plasma_bolt",
+          "id": "astral_moonfall",
           "rank": 1
         },
         {
-          "id": "volt_wind_shield",
+          "id": "astral_essence_link",
           "rank": 1
         },
         {
-          "id": "volt_typhoon",
+          "id": "astral_as_one",
           "rank": 1
         }
       ],
       "cds": [
-        0.0,
-        0.0,
-        1.6433333333347,
-        161.309999999963
+        21.8238333333338,
+        31.6433333333335,
+        20.1166666666688,
+        198.953333333304
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -283,15 +283,15 @@
         "enabled": true,
         "heroes": [
           {
-            "alive": false,
-            "class": "volt",
+            "alive": true,
+            "class": "astral",
             "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              -1794.0,
-              -417.0
+              -110.0,
+              -136.0
             ],
             "team": "0"
           },
@@ -303,8 +303,8 @@
             "local": false,
             "peer": 101,
             "pos": [
-              2902.0,
-              -399.0
+              2249.0,
+              -807.0
             ],
             "team": "1"
           },
@@ -316,8 +316,8 @@
             "local": false,
             "peer": 102,
             "pos": [
-              130.0,
-              -3.0
+              251.0,
+              -69.0
             ],
             "team": "2"
           },
@@ -329,8 +329,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              367.0,
-              110.0
+              272.0,
+              -164.0
             ],
             "team": "3"
           }
@@ -341,52 +341,56 @@
           5600.0
         ]
       },
-      "hero": "volt",
-      "hp": 0.0,
-      "hp_frac": 0.0,
-      "hp_max": 159.5,
+      "hero": "astral",
+      "hp": 13.5931944444461,
+      "hp_frac": 0.0749969348659093,
+      "hp_max": 181.25,
       "kind": "probe",
       "label": "ffa_end",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.5406520000003
+      "t": 47.5116666666667
     }
   ],
-  "elapsed": 48.0034280000003,
+  "elapsed": 48.0076190476191,
   "enemies_spawned": 0,
-  "hero_position": "(-1793.632, -417.0436)",
-  "player_class": "volt",
+  "hero_position": "(-11.6831, -69.05176)",
+  "player_class": "astral",
   "results": {
-    "alive": false,
+    "alive": true,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 5,
+    "cast_count": 6,
     "casts": [
       {
-        "ability_id": "volt_typhoon",
-        "t": 1.46606133333333
+        "ability_id": "astral_ghastly_touch",
+        "t": 6.27215562962963
       },
       {
-        "ability_id": "volt_gust",
-        "t": 1.87230533333333
+        "ability_id": "astral_moonfall",
+        "t": 9.97399066666665
       },
       {
-        "ability_id": "volt_plasma_bolt",
-        "t": 2.257007
+        "ability_id": "astral_essence_link",
+        "t": 9.97399066666665
       },
       {
-        "ability_id": "volt_wind_shield",
-        "t": 2.521893
+        "ability_id": "astral_as_one",
+        "t": 9.97399066666665
       },
       {
-        "ability_id": "volt_plasma_bolt",
-        "t": 19.3174233333334
+        "ability_id": "astral_ghastly_touch",
+        "t": 39.8447263333333
+      },
+      {
+        "ability_id": "astral_moonfall",
+        "t": 44.5488724444445
       }
     ],
-    "creep_kills": 19,
-    "died": true,
+    "creep_kills": 40,
+    "died": false,
     "errors": [],
     "ffa": {
       "all_bots": true,
@@ -394,15 +398,15 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": false,
-          "class": "volt",
+          "alive": true,
+          "class": "astral",
           "cpu": true,
           "kills": 0,
           "local": true,
           "peer": 1,
           "pos": [
-            -1794.0,
-            -417.0
+            -12.0,
+            -69.0
           ],
           "team": "0"
         },
@@ -414,8 +418,8 @@
           "local": false,
           "peer": 101,
           "pos": [
-            2922.0,
-            -440.0
+            2194.0,
+            -741.0
           ],
           "team": "1"
         },
@@ -427,8 +431,8 @@
           "local": false,
           "peer": 102,
           "pos": [
-            130.0,
-            -3.0
+            251.0,
+            -69.0
           ],
           "team": "2"
         },
@@ -440,8 +444,8 @@
           "local": false,
           "peer": 103,
           "pos": [
-            383.0,
-            101.0
+            279.0,
+            -143.0
           ],
           "team": "3"
         }
@@ -452,99 +456,105 @@
         5600.0
       ]
     },
-    "gold": 82,
+    "gold": 366,
     "hero_kills": 0,
     "hp_samples": [
       {
         "alive": true,
-        "class": "volt",
+        "class": "astral",
         "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 0.15
+        "t": 0.14
       },
       {
         "alive": true,
-        "class": "volt",
-        "gold": 0,
+        "class": "astral",
+        "gold": 90,
+        "hp": 0.93,
+        "kills": 0,
+        "t": 5.16
+      },
+      {
+        "alive": true,
+        "class": "astral",
+        "gold": 126,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.17
+        "t": 10.18
       },
       {
         "alive": true,
-        "class": "volt",
-        "gold": 6,
+        "class": "astral",
+        "gold": 158,
         "hp": 1.0,
-        "kills": 0,
-        "t": 10.21
-      },
-      {
-        "alive": true,
-        "class": "volt",
-        "gold": 18,
-        "hp": 0.95,
         "kills": 0,
         "t": 15.23
       },
       {
         "alive": true,
-        "class": "volt",
-        "gold": 94,
-        "hp": 0.53,
+        "class": "astral",
+        "gold": 186,
+        "hp": 0.98,
         "kills": 0,
-        "t": 20.28
+        "t": 20.24
       },
       {
         "alive": true,
-        "class": "volt",
-        "gold": 140,
-        "hp": 0.34,
+        "class": "astral",
+        "gold": 206,
+        "hp": 1.0,
         "kills": 0,
-        "t": 25.31
+        "t": 25.27
       },
       {
         "alive": true,
-        "class": "volt",
-        "gold": 164,
-        "hp": 0.04,
+        "class": "astral",
+        "gold": 220,
+        "hp": 0.94,
         "kills": 0,
-        "t": 30.33
+        "t": 30.31
       },
       {
-        "alive": false,
-        "class": "volt",
-        "gold": 82,
-        "hp": 0.0,
+        "alive": true,
+        "class": "astral",
+        "gold": 250,
+        "hp": 1.0,
         "kills": 0,
-        "t": 35.35
+        "t": 35.32
       },
       {
-        "alive": false,
-        "class": "volt",
-        "gold": 82,
-        "hp": 0.0,
+        "alive": true,
+        "class": "astral",
+        "gold": 307,
+        "hp": 1.0,
         "kills": 0,
-        "t": 40.37
+        "t": 40.36
       },
       {
-        "alive": false,
-        "class": "volt",
-        "gold": 82,
-        "hp": 0.0,
+        "alive": true,
+        "class": "astral",
+        "gold": 366,
+        "hp": 0.7,
         "kills": 0,
-        "t": 45.4
+        "t": 45.37
       }
     ],
     "landmark_saves": 0,
-    "level": 2,
+    "level": 4,
     "level_upgrades": {
       "2": [
-        "extra_bolt"
+        "keen_eye"
+      ],
+      "3": [
+        "lash"
+      ],
+      "4": [
+        "split_shot"
       ]
     },
     "max_hp": 1.0,
-    "min_hp": 0.0,
+    "min_hp": 0.0638245210728057,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 0,
@@ -552,12 +562,14 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "extra_bolt"
+      "keen_eye",
+      "lash",
+      "split_shot"
     ],
     "until_wave": 20,
-    "verdict": "WARN_DEAD",
+    "verdict": "PASS_OK",
     "wave": 1,
-    "xp": 86
+    "xp": 40
   },
   "shots": []
 }

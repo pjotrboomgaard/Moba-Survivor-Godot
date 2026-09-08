@@ -6,18 +6,18 @@
       "list": [
         {
           "cooldown": 0.0,
-          "effect_id": "pulse_wipe",
-          "fill": 0.0,
-          "hint": "Grove Bell",
-          "pos": "(0.0, -1176.0)",
-          "ready": true
-        },
-        {
-          "cooldown": 0.0,
           "effect_id": "heal_all",
           "fill": 0.0,
           "hint": "Wild Spring",
           "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
           "ready": true
         },
         {
@@ -30,20 +30,28 @@
         },
         {
           "cooldown": 0.0,
-          "effect_id": "phase_cloak",
+          "effect_id": "pulse_wipe",
           "fill": 0.0,
-          "hint": "Whispering Thicket",
-          "pos": "(-1764.0, 0.0)",
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
           "ready": true
         }
       ],
-      "t": 1.000847
+      "t": 1.03060244444444
     },
     {
       "abilities": [
         {
           "id": "pyra_sticky_bomb",
-          "rank": 4
+          "rank": 1
         },
         {
           "id": "pyra_boom_dust",
@@ -55,14 +63,14 @@
         },
         {
           "id": "pyra_air_strike",
-          "rank": 1
+          "rank": 2
         }
       ],
       "cds": [
-        20.5096666666667,
         0.0,
         0.0,
-        267.616666666668
+        0.0,
+        268.55
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -78,23 +86,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2790.0,
-              -1871.0
+              -3161.0,
+              -2098.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              2968.0,
-              -1904.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -102,12 +97,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -2902.0,
-              1978.0
+              3314.0,
+              -2050.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -115,10 +110,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -2991.0,
+              1922.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              3216.0,
-              2379.0
+              3129.0,
+              2229.0
             ],
             "team": "3"
           }
@@ -138,14 +146,14 @@
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
-      "summons": 1,
-      "t": 1.20968566666667
+      "summons": 0,
+      "t": 1.20893966666667
     },
     {
       "abilities": [
         {
           "id": "pyra_sticky_bomb",
-          "rank": 4
+          "rank": 1
         },
         {
           "id": "pyra_boom_dust",
@@ -157,14 +165,14 @@
         },
         {
           "id": "pyra_air_strike",
-          "rank": 1
+          "rank": 2
         }
       ],
       "cds": [
-        18.4486436666668,
-        32.4600000000012,
-        79.2400000000012,
-        244.816666666669
+        20.7096666666667,
+        37.0766666666676,
+        83.4233333333343,
+        245.71666666667
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -180,23 +188,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2490.0,
-              -1336.0
+              -2754.0,
+              -1935.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              2655.0,
-              -1301.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -204,12 +199,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -2795.0,
-              1246.0
+              3431.0,
+              -2116.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -217,10 +212,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -1299.0,
+              -1535.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              -1569.0,
-              2535.0
+              1911.0,
+              2506.0
             ],
             "team": "3"
           }
@@ -232,8 +240,8 @@
         ]
       },
       "hero": "pyra",
-      "hp": 153.2,
-      "hp_frac": 0.960501567398119,
+      "hp": 141.86,
+      "hp_frac": 0.889404388714733,
       "hp_max": 159.5,
       "kind": "probe",
       "label": "ffa_mid",
@@ -241,13 +249,13 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.0125763333334
+      "t": 24.0394473333333
     },
     {
       "abilities": [
         {
           "id": "pyra_sticky_bomb",
-          "rank": 4
+          "rank": 1
         },
         {
           "id": "pyra_boom_dust",
@@ -259,14 +267,14 @@
         },
         {
           "id": "pyra_air_strike",
-          "rank": 1
+          "rank": 2
         }
       ],
       "cds": [
-        11.0237333333331,
-        8.96000000000179,
-        55.7400000000025,
-        221.316666666651
+        0.0,
+        13.5933333333354,
+        59.9400000000023,
+        222.233333333318
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -282,47 +290,47 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -695.0,
-              336.0
+              275.0,
+              -150.0
             ],
             "team": "0"
           },
           {
             "alive": true,
-            "class": "arclight",
+            "class": "bulwark",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              2445.0,
-              -382.0
+              3134.0,
+              -1532.0
             ],
             "team": "1"
           },
           {
             "alive": false,
-            "class": "bulwark",
+            "class": "warden",
             "cpu": true,
-            "kills": 0,
+            "kills": 1,
             "local": false,
             "peer": 102,
             "pos": [
-              -429.0,
-              80.0
+              -304.0,
+              -50.0
             ],
             "team": "2"
           },
           {
-            "alive": true,
-            "class": "warden",
+            "alive": false,
+            "class": "tobor",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              -823.0,
-              348.0
+              -392.0,
+              38.0
             ],
             "team": "3"
           }
@@ -334,52 +342,54 @@
         ]
       },
       "hero": "pyra",
-      "hp": 46.1433333333335,
-      "hp_frac": 0.289299895506793,
+      "hp": 141.86,
+      "hp_frac": 0.889404388714733,
       "hp_max": 159.5,
       "kind": "probe",
       "label": "ffa_end",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
-      "summons": 1,
-      "t": 47.5092592592593
+      "summons": 0,
+      "t": 47.5275336666668
     }
   ],
-  "elapsed": 48.0086739595959,
+  "elapsed": 48.0186766666668,
   "enemies_spawned": 0,
-  "hero_position": "(-781.7976, 352.913)",
+  "hero_position": "(276.0196, -192.5826)",
   "player_class": "pyra",
   "results": {
     "alive": true,
     "beaten_wave": 0,
+    "build": "",
     "cast_count": 6,
     "casts": [
       {
         "ability_id": "pyra_sticky_bomb",
-        "t": 0.0
+        "t": 1.34374811111111
       },
       {
-        "ability_id": "pyra_air_strike",
-        "t": 0.608149555555556
+        "ability_id": "pyra_sticky_bomb",
+        "t": 1.57393566666667
       },
       {
         "ability_id": "pyra_boom_dust",
-        "t": 2.69814814814814
+        "t": 7.31666666666667
       },
       {
         "ability_id": "pyra_bombardment",
-        "t": 3.39034271428571
+        "t": 7.58939393939394
       },
       {
         "ability_id": "pyra_sticky_bomb",
-        "t": 21.6599256666667
+        "t": 23.0166666666667
       },
       {
         "ability_id": "pyra_sticky_bomb",
-        "t": 42.9104826666666
+        "t": 47.6142003333335
       }
     ],
+    "creep_kills": 99,
     "died": false,
     "errors": [],
     "ffa": {
@@ -395,47 +405,47 @@
           "local": true,
           "peer": 1,
           "pos": [
-            -782.0,
-            353.0
+            276.0,
+            -193.0
           ],
           "team": "0"
         },
         {
           "alive": true,
-          "class": "arclight",
+          "class": "bulwark",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 101,
           "pos": [
-            2442.0,
-            -380.0
+            3133.0,
+            -1534.0
           ],
           "team": "1"
         },
         {
           "alive": false,
-          "class": "bulwark",
+          "class": "warden",
           "cpu": true,
-          "kills": 0,
+          "kills": 1,
           "local": false,
           "peer": 102,
           "pos": [
-            -429.0,
-            80.0
+            -304.0,
+            -50.0
           ],
           "team": "2"
         },
         {
-          "alive": true,
-          "class": "warden",
+          "alive": false,
+          "class": "tobor",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 103,
           "pos": [
-            -914.0,
-            403.0
+            -392.0,
+            38.0
           ],
           "team": "3"
         }
@@ -446,7 +456,7 @@
         5600.0
       ]
     },
-    "gold": 991,
+    "gold": 608,
     "hero_kills": 1,
     "hp_samples": [
       {
@@ -460,15 +470,15 @@
       {
         "alive": true,
         "class": "pyra",
-        "gold": 16,
+        "gold": 6,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.16
+        "t": 5.17
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 46,
+        "gold": 6,
         "hp": 1.0,
         "kills": 0,
         "t": 10.17
@@ -476,72 +486,98 @@
       {
         "alive": true,
         "class": "pyra",
-        "gold": 52,
-        "hp": 0.96,
+        "gold": 235,
+        "hp": 0.93,
         "kills": 0,
         "t": 15.19
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 96,
-        "hp": 0.96,
+        "gold": 338,
+        "hp": 0.93,
         "kills": 0,
-        "t": 20.22
+        "t": 20.19
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 136,
-        "hp": 0.96,
-        "kills": 0,
-        "t": 25.24
-      },
-      {
-        "alive": true,
-        "class": "pyra",
-        "gold": 182,
+        "gold": 393,
         "hp": 0.89,
         "kills": 0,
-        "t": 30.25
+        "t": 25.21
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 190,
-        "hp": 1.0,
+        "gold": 527,
+        "hp": 0.89,
         "kills": 0,
-        "t": 35.25
+        "t": 30.23
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 280,
-        "hp": 1.0,
+        "gold": 541,
+        "hp": 0.89,
         "kills": 0,
-        "t": 40.26
+        "t": 35.27
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 298,
-        "hp": 0.98,
+        "gold": 541,
+        "hp": 0.89,
         "kills": 0,
-        "t": 45.27
+        "t": 40.3
+      },
+      {
+        "alive": true,
+        "class": "pyra",
+        "gold": 1470,
+        "hp": 0.89,
+        "kills": 1,
+        "t": 45.3
       }
     ],
     "landmark_saves": 0,
-    "level": 6,
+    "level": 7,
+    "level_upgrades": {
+      "2": [
+        "depth"
+      ],
+      "4": [
+        "havoc"
+      ],
+      "5": [
+        "exp_well"
+      ],
+      "6": [
+        "volt"
+      ],
+      "7": [
+        "shield_drone"
+      ]
+    },
     "max_hp": 1.0,
-    "min_hp": 0.289299895506793,
+    "min_hp": 0.889404388714733,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
+    "taken_upgrades": [
+      "depth",
+      "havoc",
+      "exp_well",
+      "volt",
+      "shield_drone"
+    ],
     "until_wave": 20,
     "verdict": "PASS_KILLS",
     "wave": 1,
-    "xp": 125
+    "xp": 62
   },
   "shots": []
 }

@@ -6,18 +6,18 @@
       "list": [
         {
           "cooldown": 0.0,
-          "effect_id": "pulse_wipe",
-          "fill": 0.0,
-          "hint": "Grove Bell",
-          "pos": "(0.0, -1176.0)",
-          "ready": true
-        },
-        {
-          "cooldown": 0.0,
           "effect_id": "heal_all",
           "fill": 0.0,
           "hint": "Wild Spring",
           "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
           "ready": true
         },
         {
@@ -30,20 +30,28 @@
         },
         {
           "cooldown": 0.0,
-          "effect_id": "phase_cloak",
+          "effect_id": "pulse_wipe",
           "fill": 0.0,
-          "hint": "Whispering Thicket",
-          "pos": "(-1764.0, 0.0)",
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
           "ready": true
         }
       ],
-      "t": 1.00171133333333
+      "t": 1.043677
     },
     {
       "abilities": [
         {
           "id": "arclight_blast_of_lightning",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "arclight_chain_lightning",
@@ -59,10 +67,10 @@
         }
       ],
       "cds": [
-        20.5096666666667,
-        37.2166666666667,
-        9.35326666666661,
-        190.816666666666
+        0.0,
+        0.0,
+        0.0,
+        191.616666666666
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -78,23 +86,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2929.0,
-              -2022.0
+              -3073.0,
+              -2178.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              3080.0,
-              -1994.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -102,12 +97,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -2919.0,
-              2008.0
+              3107.0,
+              -2085.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -115,10 +110,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -2980.0,
+              1967.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              3176.0,
-              2221.0
+              3059.0,
+              2081.0
             ],
             "team": "3"
           }
@@ -139,13 +147,13 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.20171133333333
+      "t": 1.214561
     },
     {
       "abilities": [
         {
           "id": "arclight_blast_of_lightning",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "arclight_chain_lightning",
@@ -161,10 +169,10 @@
         }
       ],
       "cds": [
-        18.4486436666668,
-        14.4166666666679,
-        0.419933333333229,
-        168.016666666648
+        1.67633333333328,
+        18.7833333333344,
+        1.86993333333323,
+        168.783333333315
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -180,23 +188,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -260.0,
-              1141.0
+              -2895.0,
+              -2233.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              -200.0,
-              809.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -204,12 +199,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -2260.0,
-              1314.0
+              3026.0,
+              -1915.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -217,10 +212,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -3165.0,
+              2695.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              1627.0,
-              2490.0
+              1491.0,
+              -776.0
             ],
             "team": "3"
           }
@@ -232,8 +240,8 @@
         ]
       },
       "hero": "arclight",
-      "hp": 145.0,
-      "hp_frac": 1.0,
+      "hp": 124.6,
+      "hp_frac": 0.859310344827586,
       "hp_max": 145.0,
       "kind": "probe",
       "label": "ffa_mid",
@@ -241,13 +249,13 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.001282666666
+      "t": 24.0464209999999
     },
     {
       "abilities": [
         {
           "id": "arclight_blast_of_lightning",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "arclight_chain_lightning",
@@ -264,9 +272,9 @@
       ],
       "cds": [
         0.0,
-        0.0,
-        0.0,
-        144.516666666629
+        33.7000000000003,
+        3.81993333333322,
+        145.283333333296
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -275,30 +283,17 @@
         "enabled": true,
         "heroes": [
           {
-            "alive": false,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": true,
-            "peer": 1,
-            "pos": [
-              847.0,
-              611.0
-            ],
-            "team": "0"
-          },
-          {
             "alive": true,
             "class": "arclight",
             "cpu": true,
             "kills": 1,
-            "local": false,
-            "peer": 101,
+            "local": true,
+            "peer": 1,
             "pos": [
-              -58.0,
-              -18.0
+              -304.0,
+              112.0
             ],
-            "team": "1"
+            "team": "0"
           },
           {
             "alive": true,
@@ -306,23 +301,36 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 101,
+            "pos": [
+              3435.0,
+              -1227.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 102,
             "pos": [
-              -1502.0,
-              754.0
+              -1228.0,
+              577.0
             ],
             "team": "2"
           },
           {
             "alive": false,
-            "class": "warden",
+            "class": "tobor",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              1022.0,
-              -5.0
+              -464.0,
+              122.0
             ],
             "team": "3"
           }
@@ -334,8 +342,8 @@
         ]
       },
       "hero": "arclight",
-      "hp": 0.0,
-      "hp_frac": 0.0,
+      "hp": 138.91,
+      "hp_frac": 0.958,
       "hp_max": 145.0,
       "kind": "probe",
       "label": "ffa_end",
@@ -343,120 +351,170 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.5079686666647
+      "t": 47.5346061428575
     }
   ],
-  "elapsed": 48.0079686666646,
+  "elapsed": 48.0069768888892,
   "enemies_spawned": 0,
-  "hero_position": "(847.3895, 611.4016)",
+  "hero_position": "(-328.2811, 138.8206)",
   "player_class": "arclight",
   "results": {
-    "alive": false,
+    "alive": true,
     "beaten_wave": 0,
-    "cast_count": 25,
+    "build": "",
+    "cast_count": 37,
     "casts": [
       {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 0.790598
+      },
+      {
         "ability_id": "arclight_blast_of_lightning",
-        "t": 0.0
+        "t": 4.001178
       },
       {
         "ability_id": "arclight_chain_lightning",
-        "t": 0.0
+        "t": 4.38333333333333
       },
       {
         "ability_id": "arclight_static_bolt",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
-      },
-      {
-        "ability_id": "arclight_thundergods_wrath",
-        "t": 0.0
+        "t": 4.806609
       },
       {
         "ability_id": "arclight_static_bolt",
-        "t": 13.8767203333333
+        "t": 15.3427260740741
       },
       {
         "ability_id": "arclight_blast_of_lightning",
-        "t": 21.7090909090904
+        "t": 25.6795342222222
       },
       {
         "ability_id": "arclight_static_bolt",
-        "t": 24.426282666666
+        "t": 25.8781453333333
       },
       {
         "ability_id": "arclight_static_bolt",
-        "t": 34.9735519393927
+        "t": 40.7752610000002
+      },
+      {
+        "ability_id": "arclight_chain_lightning",
+        "t": 42.7907320000002
       }
     ],
-    "died": true,
+    "creep_kills": 65,
+    "died": false,
     "errors": [],
     "ffa": {
       "all_bots": true,
@@ -464,30 +522,17 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": false,
-          "class": "arclight",
-          "cpu": true,
-          "kills": 0,
-          "local": true,
-          "peer": 1,
-          "pos": [
-            847.0,
-            611.0
-          ],
-          "team": "0"
-        },
-        {
           "alive": true,
           "class": "arclight",
           "cpu": true,
           "kills": 1,
-          "local": false,
-          "peer": 101,
+          "local": true,
+          "peer": 1,
           "pos": [
-            -78.0,
-            -13.0
+            -328.0,
+            139.0
           ],
-          "team": "1"
+          "team": "0"
         },
         {
           "alive": true,
@@ -495,23 +540,36 @@
           "cpu": true,
           "kills": 0,
           "local": false,
+          "peer": 101,
+          "pos": [
+            3435.0,
+            -1227.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
           "peer": 102,
           "pos": [
-            -1410.0,
-            709.0
+            -1108.0,
+            522.0
           ],
           "team": "2"
         },
         {
           "alive": false,
-          "class": "warden",
+          "class": "tobor",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 103,
           "pos": [
-            1022.0,
-            -5.0
+            -464.0,
+            122.0
           ],
           "team": "3"
         }
@@ -522,21 +580,21 @@
         5600.0
       ]
     },
-    "gold": 167,
-    "hero_kills": 0,
+    "gold": 560,
+    "hero_kills": 1,
     "hp_samples": [
       {
         "alive": true,
         "class": "arclight",
-        "gold": 218,
+        "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 0.15
+        "t": 0.14
       },
       {
         "alive": true,
         "class": "arclight",
-        "gold": 218,
+        "gold": 282,
         "hp": 1.0,
         "kills": 0,
         "t": 5.15
@@ -544,80 +602,98 @@
       {
         "alive": true,
         "class": "arclight",
-        "gold": 224,
+        "gold": 306,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.18
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 318,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 15.2
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 342,
         "hp": 0.95,
         "kills": 0,
-        "t": 10.17
+        "t": 20.22
       },
       {
         "alive": true,
         "class": "arclight",
-        "gold": 224,
+        "gold": 390,
         "hp": 1.0,
         "kills": 0,
-        "t": 15.18
+        "t": 25.23
       },
       {
         "alive": true,
         "class": "arclight",
-        "gold": 224,
+        "gold": 473,
         "hp": 1.0,
         "kills": 0,
-        "t": 20.18
+        "t": 30.23
       },
       {
         "alive": true,
         "class": "arclight",
-        "gold": 278,
+        "gold": 496,
         "hp": 1.0,
         "kills": 0,
-        "t": 25.19
+        "t": 35.28
       },
       {
         "alive": true,
         "class": "arclight",
-        "gold": 278,
+        "gold": 547,
         "hp": 1.0,
         "kills": 0,
-        "t": 30.2
+        "t": 40.31
       },
       {
-        "alive": false,
+        "alive": true,
         "class": "arclight",
-        "gold": 167,
-        "hp": 0.0,
+        "gold": 599,
+        "hp": 0.96,
         "kills": 0,
-        "t": 35.2
-      },
-      {
-        "alive": false,
-        "class": "arclight",
-        "gold": 167,
-        "hp": 0.0,
-        "kills": 0,
-        "t": 40.21
-      },
-      {
-        "alive": false,
-        "class": "arclight",
-        "gold": 167,
-        "hp": 0.0,
-        "kills": 0,
-        "t": 45.22
+        "t": 45.33
       }
     ],
     "landmark_saves": 0,
-    "level": 3,
+    "level": 4,
+    "level_upgrades": {
+      "2": [
+        "push_drone"
+      ],
+      "3": [
+        "gold_vein"
+      ],
+      "4": [
+        "ember_sprite"
+      ]
+    },
     "max_hp": 1.0,
-    "min_hp": 0.0,
+    "min_hp": 0.817931034482759,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
+    "taken_upgrades": [
+      "push_drone",
+      "gold_vein",
+      "ember_sprite"
+    ],
     "until_wave": 20,
-    "verdict": "WARN_DEAD",
+    "verdict": "PASS_KILLS",
     "wave": 1,
-    "xp": 97
+    "xp": 109
   },
   "shots": []
 }

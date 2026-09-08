@@ -6,18 +6,18 @@
       "list": [
         {
           "cooldown": 0.0,
-          "effect_id": "pulse_wipe",
-          "fill": 0.0,
-          "hint": "Grove Bell",
-          "pos": "(0.0, -1176.0)",
-          "ready": true
-        },
-        {
-          "cooldown": 0.0,
           "effect_id": "heal_all",
           "fill": 0.0,
           "hint": "Wild Spring",
           "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
           "ready": true
         },
         {
@@ -30,55 +30,554 @@
         },
         {
           "cooldown": 0.0,
-          "effect_id": "phase_cloak",
+          "effect_id": "pulse_wipe",
           "fill": 0.0,
-          "hint": "Whispering Thicket",
-          "pos": "(-1764.0, 0.0)",
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
           "ready": true
         }
       ],
-      "t": 1.00036733333333
+      "t": 1.00944125925926
+    },
+    {
+      "abilities": [
+        {
+          "id": "nebula_arcane_bolt",
+          "rank": 2
+        },
+        {
+          "id": "nebula_curse_of_ages",
+          "rank": 1
+        },
+        {
+          "id": "nebula_time_shift",
+          "rank": 1
+        },
+        {
+          "id": "nebula_chronofield",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "nebula",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2887.0,
+              -1985.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3208.0,
+              -2126.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -2944.0,
+              2211.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              3105.0,
+              2219.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "nebula",
+      "hp": 174.0,
+      "hp_frac": 1.0,
+      "hp_max": 174.0,
+      "kind": "probe",
+      "label": "ffa_start",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 1.22575757575758
+    },
+    {
+      "abilities": [
+        {
+          "id": "nebula_arcane_bolt",
+          "rank": 2
+        },
+        {
+          "id": "nebula_curse_of_ages",
+          "rank": 1
+        },
+        {
+          "id": "nebula_time_shift",
+          "rank": 1
+        },
+        {
+          "id": "nebula_chronofield",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        15.4773333333335,
+        24.7633333333345,
+        9.07400000000046,
+        208.149999999982
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "nebula",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -1739.0,
+              -898.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2284.0,
+              -2126.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -1278.0,
+              708.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              4135.0,
+              1897.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "nebula",
+      "hp": 166.8,
+      "hp_frac": 0.958620689655172,
+      "hp_max": 174.0,
+      "kind": "probe",
+      "label": "ffa_mid",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 24.0119756666667
+    },
+    {
+      "abilities": [
+        {
+          "id": "nebula_arcane_bolt",
+          "rank": 2
+        },
+        {
+          "id": "nebula_curse_of_ages",
+          "rank": 1
+        },
+        {
+          "id": "nebula_time_shift",
+          "rank": 1
+        },
+        {
+          "id": "nebula_chronofield",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        9.75359933333312,
+        1.26333333333467,
+        20.1073333333339,
+        184.649999999964
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": false,
+            "class": "nebula",
+            "cpu": true,
+            "kills": 1,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              23.0,
+              30.0
+            ],
+            "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2010.0,
+              -1342.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              25.0,
+              371.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              321.0,
+              -87.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "nebula",
+      "hp": 0.0,
+      "hp_frac": 0.0,
+      "hp_max": 174.0,
+      "kind": "probe",
+      "label": "ffa_end",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 47.5137387878792
     }
   ],
-  "elapsed": 48.007924999998,
+  "elapsed": 48.041516565657,
   "enemies_spawned": 0,
-  "hero_position": "(0.0, 0.0)",
-  "player_class": "",
+  "hero_position": "(23.45366, 30.03282)",
+  "player_class": "nebula",
   "results": {
     "alive": false,
     "beaten_wave": 0,
-    "cast_count": 0,
-    "casts": [],
-    "died": false,
-    "errors": [
-      "ffa roster count=0 want 4"
+    "build": "",
+    "cast_count": 7,
+    "casts": [
+      {
+        "ability_id": "nebula_chronofield",
+        "t": 1.72904966666667
+      },
+      {
+        "ability_id": "nebula_arcane_bolt",
+        "t": 2.24660328571429
+      },
+      {
+        "ability_id": "nebula_curse_of_ages",
+        "t": 2.643652
+      },
+      {
+        "ability_id": "nebula_time_shift",
+        "t": 2.774902
+      },
+      {
+        "ability_id": "nebula_arcane_bolt",
+        "t": 20.8820127460318
+      },
+      {
+        "ability_id": "nebula_time_shift",
+        "t": 37.3468146666669
+      },
+      {
+        "ability_id": "nebula_arcane_bolt",
+        "t": 39.4766453636366
+      }
     ],
+    "creep_kills": 65,
+    "died": true,
+    "errors": [],
     "ffa": {
       "all_bots": true,
-      "count": 0,
+      "count": 4,
       "enabled": true,
-      "heroes": [],
+      "heroes": [
+        {
+          "alive": false,
+          "class": "nebula",
+          "cpu": true,
+          "kills": 1,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            23.0,
+            30.0
+          ],
+          "team": "0"
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            1924.0,
+            -1301.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": false,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            25.0,
+            371.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            370.0,
+            -136.0
+          ],
+          "team": "3"
+        }
+      ],
       "kills_to_win": 15,
       "map": [
         8400.0,
         5600.0
       ]
     },
-    "gold": 0,
-    "hero_kills": 0,
-    "hp_samples": [],
+    "gold": 534,
+    "hero_kills": 1,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 18,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 100,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.19
+      },
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 232,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 15.22
+      },
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 290,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 20.26
+      },
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 410,
+        "hp": 0.88,
+        "kills": 0,
+        "t": 25.31
+      },
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 480,
+        "hp": 0.77,
+        "kills": 0,
+        "t": 30.34
+      },
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 480,
+        "hp": 0.77,
+        "kills": 0,
+        "t": 35.37
+      },
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 480,
+        "hp": 0.74,
+        "kills": 0,
+        "t": 40.41
+      },
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 1045,
+        "hp": 0.01,
+        "kills": 1,
+        "t": 45.43
+      }
+    ],
     "landmark_saves": 0,
-    "level": 0,
-    "max_hp": 0.0,
-    "min_hp": 1.0,
+    "level": 6,
+    "level_upgrades": {
+      "2": [
+        "sweep"
+      ],
+      "3": [
+        "heartbeat"
+      ],
+      "4": [
+        "boots"
+      ],
+      "5": [
+        "choir"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 0.0,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
+    "taken_upgrades": [
+      "sweep",
+      "heartbeat",
+      "boots",
+      "choir"
+    ],
     "until_wave": 20,
-    "verdict": "FAIL_NO_ROSTER",
-    "wave": 0,
-    "xp": 0
+    "verdict": "PASS_KILLS",
+    "wave": 1,
+    "xp": 62
   },
   "shots": []
 }

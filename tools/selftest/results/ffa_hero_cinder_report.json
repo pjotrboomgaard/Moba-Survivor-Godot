@@ -6,18 +6,18 @@
       "list": [
         {
           "cooldown": 0.0,
-          "effect_id": "pulse_wipe",
-          "fill": 0.0,
-          "hint": "Grove Bell",
-          "pos": "(0.0, -1176.0)",
-          "ready": true
-        },
-        {
-          "cooldown": 0.0,
           "effect_id": "heal_all",
           "fill": 0.0,
           "hint": "Wild Spring",
           "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
           "ready": true
         },
         {
@@ -30,20 +30,28 @@
         },
         {
           "cooldown": 0.0,
-          "effect_id": "phase_cloak",
+          "effect_id": "pulse_wipe",
           "fill": 0.0,
-          "hint": "Whispering Thicket",
-          "pos": "(-1764.0, 0.0)",
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
           "ready": true
         }
       ],
-      "t": 1.00516122222222
+      "t": 1.03217951515152
     },
     {
       "abilities": [
         {
           "id": "cinder_dragon_fire",
-          "rank": 3
+          "rank": 1
         },
         {
           "id": "cinder_fiery_assault",
@@ -59,10 +67,10 @@
         }
       ],
       "cds": [
-        20.5096666666667,
-        44.8966666666667,
-        27.7526666666667,
-        83.2966666666667
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -78,23 +86,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -3069.0,
-              -1914.0
+              -2881.0,
+              -1974.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              2976.0,
-              -1895.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -102,12 +97,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -2825.0,
-              1979.0
+              3311.0,
+              -2024.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -115,10 +110,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -2865.0,
+              2130.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              3158.0,
-              2372.0
+              3385.0,
+              2089.0
             ],
             "team": "3"
           }
@@ -139,13 +147,13 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.20479655555555
+      "t": 1.23933133333333
     },
     {
       "abilities": [
         {
           "id": "cinder_dragon_fire",
-          "rank": 3
+          "rank": 1
         },
         {
           "id": "cinder_fiery_assault",
@@ -161,10 +169,10 @@
         }
       ],
       "cds": [
-        18.4486436666668,
-        22.096666666668,
-        4.95266666666701,
-        60.496666666668
+        21.2263333333334,
+        24.3133333333346,
+        7.43600000000034,
+        61.7800000000013
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -180,23 +188,10 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2897.0,
-              290.0
+              -2319.0,
+              -1453.0
             ],
             "team": "0"
-          },
-          {
-            "alive": true,
-            "class": "arclight",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
-            "peer": 101,
-            "pos": [
-              2760.0,
-              -1974.0
-            ],
-            "team": "1"
           },
           {
             "alive": true,
@@ -204,12 +199,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
+            "peer": 101,
             "pos": [
-              -2738.0,
-              1379.0
+              2220.0,
+              -2101.0
             ],
-            "team": "2"
+            "team": "1"
           },
           {
             "alive": true,
@@ -217,10 +212,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
+            "peer": 102,
+            "pos": [
+              -2535.0,
+              2776.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
             "peer": 103,
             "pos": [
-              -1531.0,
-              2253.0
+              1937.0,
+              2048.0
             ],
             "team": "3"
           }
@@ -232,8 +240,8 @@
         ]
       },
       "hero": "cinder",
-      "hp": 126.6,
-      "hp_frac": 0.970114942528736,
+      "hp": 15.66,
+      "hp_frac": 0.12,
       "hp_max": 130.5,
       "kind": "probe",
       "label": "ffa_mid",
@@ -241,13 +249,13 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.0013716666667
+      "t": 24.0540932222222
     },
     {
       "abilities": [
         {
           "id": "cinder_dragon_fire",
-          "rank": 3
+          "rank": 1
         },
         {
           "id": "cinder_fiery_assault",
@@ -264,9 +272,9 @@
       ],
       "cds": [
         0.0,
+        0.846666666668001,
         0.0,
-        10.9193333333338,
-        36.963333333336
+        38.313333333336
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -275,54 +283,54 @@
         "enabled": true,
         "heroes": [
           {
-            "alive": true,
+            "alive": false,
             "class": "cinder",
             "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              -918.0,
-              -14.0
+              -2305.0,
+              -1461.0
             ],
             "team": "0"
           },
           {
             "alive": true,
-            "class": "arclight",
+            "class": "bulwark",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              3901.0,
-              155.0
+              1865.0,
+              -1431.0
             ],
             "team": "1"
           },
           {
             "alive": false,
-            "class": "bulwark",
+            "class": "warden",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 102,
             "pos": [
-              -326.0,
-              98.0
+              -100.0,
+              144.0
             ],
             "team": "2"
           },
           {
             "alive": true,
-            "class": "warden",
+            "class": "tobor",
             "cpu": true,
             "kills": 1,
             "local": false,
             "peer": 103,
             "pos": [
-              -339.0,
-              33.0
+              19.0,
+              221.0
             ],
             "team": "3"
           }
@@ -334,8 +342,8 @@
         ]
       },
       "hero": "cinder",
-      "hp": 101.8,
-      "hp_frac": 0.780076628352491,
+      "hp": 0.0,
+      "hp_frac": 0.0,
       "hp_max": 130.5,
       "kind": "probe",
       "label": "ffa_end",
@@ -343,48 +351,42 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.538028
+      "t": 47.5268338888892
     }
   ],
-  "elapsed": 48.0344896666667,
+  "elapsed": 48.0007227777781,
   "enemies_spawned": 0,
-  "hero_position": "(-1068.338, -47.031)",
+  "hero_position": "(-2305.128, -1460.688)",
   "player_class": "cinder",
   "results": {
-    "alive": true,
+    "alive": false,
     "beaten_wave": 0,
-    "cast_count": 7,
+    "build": "",
+    "cast_count": 5,
     "casts": [
       {
+        "ability_id": "cinder_pillar_of_flame",
+        "t": 1.32266466666667
+      },
+      {
         "ability_id": "cinder_dragon_fire",
-        "t": 0.0
+        "t": 1.85698466666667
       },
       {
         "ability_id": "cinder_fiery_assault",
-        "t": 0.0
+        "t": 2.27916666666667
       },
       {
         "ability_id": "cinder_whirling_flame",
-        "t": 0.0
-      },
-      {
-        "ability_id": "cinder_pillar_of_flame",
-        "t": 0.0
+        "t": 2.54453811111111
       },
       {
         "ability_id": "cinder_dragon_fire",
-        "t": 21.7107633333334
-      },
-      {
-        "ability_id": "cinder_whirling_flame",
-        "t": 29.5085830000001
-      },
-      {
-        "ability_id": "cinder_dragon_fire",
-        "t": 47.538028
+        "t": 23.5541666666667
       }
     ],
-    "died": false,
+    "creep_kills": 15,
+    "died": true,
     "errors": [],
     "ffa": {
       "all_bots": true,
@@ -392,54 +394,54 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": true,
+          "alive": false,
           "class": "cinder",
           "cpu": true,
           "kills": 0,
           "local": true,
           "peer": 1,
           "pos": [
-            -1068.0,
-            -47.0
+            -2305.0,
+            -1461.0
           ],
           "team": "0"
         },
         {
           "alive": true,
-          "class": "arclight",
+          "class": "bulwark",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 101,
           "pos": [
-            3955.0,
-            207.0
+            1865.0,
+            -1429.0
           ],
           "team": "1"
         },
         {
           "alive": false,
-          "class": "bulwark",
+          "class": "warden",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 102,
           "pos": [
-            -326.0,
-            98.0
+            -100.0,
+            144.0
           ],
           "team": "2"
         },
         {
           "alive": true,
-          "class": "warden",
+          "class": "tobor",
           "cpu": true,
           "kills": 1,
           "local": false,
           "peer": 103,
           "pos": [
-            -332.0,
-            79.0
+            108.0,
+            145.0
           ],
           "team": "3"
         }
@@ -450,102 +452,116 @@
         5600.0
       ]
     },
-    "gold": 274,
+    "gold": 118,
     "hero_kills": 0,
     "hp_samples": [
       {
         "alive": true,
         "class": "cinder",
-        "gold": 6,
+        "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 0.15
+        "t": 0.14
       },
       {
         "alive": true,
         "class": "cinder",
-        "gold": 12,
-        "hp": 1.0,
+        "gold": 0,
+        "hp": 0.91,
         "kills": 0,
-        "t": 5.16
+        "t": 5.17
       },
       {
         "alive": true,
         "class": "cinder",
-        "gold": 30,
-        "hp": 0.95,
+        "gold": 0,
+        "hp": 0.91,
         "kills": 0,
-        "t": 10.17
+        "t": 10.2
       },
       {
         "alive": true,
         "class": "cinder",
-        "gold": 56,
-        "hp": 0.97,
+        "gold": 127,
+        "hp": 0.91,
         "kills": 0,
-        "t": 15.18
+        "t": 15.21
       },
       {
         "alive": true,
         "class": "cinder",
-        "gold": 82,
-        "hp": 0.97,
+        "gold": 140,
+        "hp": 0.54,
         "kills": 0,
-        "t": 20.22
+        "t": 20.25
       },
       {
-        "alive": true,
+        "alive": false,
         "class": "cinder",
-        "gold": 110,
-        "hp": 0.97,
+        "gold": 118,
+        "hp": 0.0,
         "kills": 0,
-        "t": 25.25
+        "t": 25.27
       },
       {
-        "alive": true,
+        "alive": false,
         "class": "cinder",
-        "gold": 136,
-        "hp": 0.93,
+        "gold": 118,
+        "hp": 0.0,
         "kills": 0,
-        "t": 30.26
+        "t": 30.31
       },
       {
-        "alive": true,
+        "alive": false,
         "class": "cinder",
-        "gold": 178,
-        "hp": 0.83,
+        "gold": 118,
+        "hp": 0.0,
         "kills": 0,
-        "t": 35.32
+        "t": 35.31
       },
       {
-        "alive": true,
+        "alive": false,
         "class": "cinder",
-        "gold": 192,
-        "hp": 0.78,
+        "gold": 118,
+        "hp": 0.0,
         "kills": 0,
-        "t": 40.33
+        "t": 40.34
       },
       {
-        "alive": true,
+        "alive": false,
         "class": "cinder",
-        "gold": 222,
-        "hp": 0.78,
+        "gold": 118,
+        "hp": 0.0,
         "kills": 0,
-        "t": 45.37
+        "t": 45.35
       }
     ],
     "landmark_saves": 0,
-    "level": 4,
+    "level": 3,
+    "level_upgrades": {
+      "2": [
+        "gale_push"
+      ],
+      "3": [
+        "ember_sprite"
+      ]
+    },
     "max_hp": 1.0,
-    "min_hp": 0.616091954022989,
+    "min_hp": 0.0,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
+    "taken_upgrades": [
+      "gale_push",
+      "ember_sprite"
+    ],
     "until_wave": 20,
-    "verdict": "PASS_OK",
+    "verdict": "WARN_DEAD",
     "wave": 1,
-    "xp": 137
+    "xp": 40
   },
   "shots": []
 }
