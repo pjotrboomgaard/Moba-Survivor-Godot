@@ -62,19 +62,16 @@ func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixel
 		# but they cast a rotating canopy shadow that follows the sun and fits the trunk.
 		collision_layer |= VISION_BLOCKER_LAYER
 		_ensure_shadow(zoom, is_tree)
-		if WorldClock.shadow_alpha > 0.0:
-			set_process(true)
-		else:
-			set_process(false)
+		# Always keep processing so the shadow appears the moment the sun
+		# alpha becomes positive (obstacles can spawn before the first
+		# WorldClock.tick() in some launch paths).
+		set_process(true)
 	else:
 		# Small non-tree objects (rocks, crates, etc.) get a rotating ground shadow
 		# that fits their footprint and swings with the sun.
 		if not decorative and body_radius >= 1.0:
 			_ensure_shadow(zoom, is_tree)
-			if WorldClock.shadow_alpha > 0.0:
-				set_process(true)
-			else:
-				set_process(false)
+			set_process(true)
 	queue_redraw()
 
 
@@ -114,7 +111,10 @@ func _ensure_shadow(zoom: float, is_tree: bool) -> void:
 		return
 	_shadow = Sprite2D.new()
 	_shadow.name = "Shadow"
-	_shadow.z_as_relative = false
+	# Keep the shadow one unit below the obstacle sprite but still above the
+	# arena ground so it is actually visible (absolute -1 was hidden behind the
+	# ground layer).
+	_shadow.z_as_relative = true
 	_shadow.z_index = -1
 	_is_tree_shadow = is_tree
 	_build_shadow_texture(zoom)
@@ -140,7 +140,7 @@ func _build_shadow_texture(zoom: float) -> void:
 				alpha = 1.0
 			elif d < 1.0:
 				alpha = 1.0 - (d - 0.6) / 0.4
-			img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.5))
+			img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.85))
 	_shadow_img = img
 	_shadow.texture = ImageTexture.create_from_image(img)
 
@@ -196,7 +196,7 @@ func _ensure_small_shadow(zoom: float, lift_pixels: float) -> void:
 				alpha = 1.0
 			elif d < w * 0.5:
 				alpha = 1.0 - (d - w * 0.35) / (w * 0.15)
-			img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.45))
+			img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.75))
 	_shadow.texture = ImageTexture.create_from_image(img)
 	_shadow.position = Vector2(0.0, lift_pixels * 0.35)
 	_shadow.modulate = Color(0.0, 0.0, 0.0, 0.22)

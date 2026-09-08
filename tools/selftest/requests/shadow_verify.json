@@ -1,0 +1,9 @@
+{
+	"hero": "tobor",
+	"comment": "Shadow verify: wait 8s for obstacles to spawn, snap a screenshot, then report.",
+	"events": [
+		{"t": 3.0, "kind": "snap", "label": "shadow_check_early"},
+		{"t": 8.0, "kind": "snap", "label": "shadow_check_late"},
+		{"t": 10.0, "kind": "report"}
+	]
+}
