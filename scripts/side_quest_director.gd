@@ -42,6 +42,9 @@ const POOL: Array[Dictionary] = [
 	{"id": "dance_mimic", "mode": "dance", "art": "marked", "title": "Mirror the dancer", "gold": 90, "xp": 65},
 	{"id": "dance_circle", "mode": "dance", "art": "marked", "title": "Dance the circle", "gold": 85, "xp": 60},
 	{"id": "dance_giggle", "mode": "dance", "art": "marked", "title": "Giggle-run with the sprite", "gold": 95, "xp": 70, "buff": {"damage_dealt_mult": 1.15}, "buff_time": 12.0},
+	{"id": "town_wolf", "mode": "town", "art": "wolf", "title": "Befriend the wolf pup", "gold": 50, "xp": 40, "minion_count": 1},
+	{"id": "town_raven", "mode": "town", "art": "raven", "title": "Recruit the raven", "gold": 50, "xp": 40, "minion_count": 1},
+	{"id": "town_fox", "mode": "town", "art": "fox", "title": "Adopt the lone fox", "gold": 60, "xp": 45, "minion_count": 1},
 ]
 
 ## Biome (GameRuntime.biome_id) -> per-quest-mode weight. 1.0 = neutral, >1 boosts,
