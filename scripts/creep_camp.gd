@@ -55,6 +55,19 @@ func _process(delta: float) -> void:
 		_spawn_timer = 0.0
 		_respawn_camps()
 
+
+## Public: return the positions of camps that still have living elites
+## (i.e. camps worth fighting). Used by the selftest bot to seek camps.
+func active_camp_positions() -> Array[Vector2]:
+	if not _enabled:
+		return []
+	var out: Array[Vector2] = []
+	for i in _camp_positions.size():
+		var alive := int(_camp_alive_counts.get(i, 0))
+		if alive > 0 and alive < MAX_ALIVE_PER_CAMP:
+			out.append(_camp_positions[i])
+	return out
+
 func _build_camp_positions() -> Array[Vector2]:
 	var half: Vector2 = _arena.half_extents()
 	if half.x < 80.0 or half.y < 80.0:

@@ -822,6 +822,16 @@ func _tick_survival(delta: float) -> void:
 				# Original safe-window quest seeking (no enemies nearby).
 				_walk_target = quest_target.global_position
 				_walk_deadline = _elapsed + 12.0
+			elif not in_quest_focus and frac > 0.55 and nearest_d > 120.0:
+				# Camp-seeking: when safe, no quest, and enemies are far, walk to the
+				# nearest creep camp. Camps hold 2-4x HP elites = big XP chunks.
+				var camp_pos := _nearest_camp_pos()
+				if camp_pos != Vector2.INF:
+					_walk_target = camp_pos
+					_walk_deadline = _elapsed + 14.0
+				else:
+					_walk_target = _fight_near_heal(heal, foe, wave)
+					_walk_deadline = _elapsed + 2.0
 			else:
 				_walk_target = _fight_near_heal(heal, foe, wave)
 				_walk_deadline = _elapsed + 2.0
@@ -986,6 +996,27 @@ func _nearest_quest() -> Node2D:
 			best_d = d
 			best = q
 	return best
+
+
+## Find the nearest creep camp with living elites. Returns a Vector2 position
+## or null. Camps hold 3 tough elites (2-4x HP) — clearing them is the
+## highest-XP-per-second activity, so the bot targets them when safe.
+func _nearest_camp_pos() -> Vector2:
+	if _player == null or _host_main == null:
+		return Vector2.INF
+	var camp: Variant = _host_main.get("_creep_camp")
+	if camp == null or not camp.has_method("active_camp_positions"):
+		return Vector2.INF
+	var positions: Array = camp.active_camp_positions()
+	var best_pos := Vector2.INF
+	var best_d := INF
+	for pos in positions:
+		var p: Vector2 = pos
+		var d := _player.global_position.distance_to(p)
+		if d < best_d:
+			best_d = d
+			best_pos = p
+	return best_pos
 
 
 func _arena() -> Arena:
