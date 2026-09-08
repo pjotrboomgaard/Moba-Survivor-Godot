@@ -58,6 +58,13 @@ var _landmark_kite_until := 0.0
 var _last_lm_effect := ""
 var _quest_seen: Dictionary = {}
 var _quest_last_count := 0
+## Quest-priority window: when a quest is active the bot periodically switches
+## from fighting to quest-seeking for up to this many seconds, so it actually
+## completes quests instead of ignoring them while enemies are nearby.
+var _quest_focus_until := 0.0
+var _quest_last_switch_t := 0.0
+const QUEST_FOCUS_WINDOW := 9.0    # seconds to spend on a quest when it's time
+const QUEST_CHECK_INTERVAL := 22.0 # seconds between forced quest-priority switches
 
 
 static func from_request(path: String = "user://selftest_request.json") -> SelfTestDriver:
@@ -783,8 +790,21 @@ func _tick_survival(delta: float) -> void:
 			_walk_target = _kite_boss(foe)
 			_walk_deadline = _elapsed + 2.0
 		else:
+			# Quest-priority: periodically switch to quest-seeking so the bot actually
+			# completes quests instead of fighting forever. When a quest is active and
+			# the player is safe enough, spend up to QUEST_FOCUS_WINDOW seconds on it.
 			var quest_target := _nearest_quest()
-			if quest_target != null and frac > 0.45 and nearest_d > 250.0:
+			var in_quest_focus := _elapsed < _quest_focus_until
+			if not in_quest_focus and quest_target != null and frac > 0.45 and (_elapsed - _quest_last_switch_t) >= QUEST_CHECK_INTERVAL:
+				# Time to switch to quest focus.
+				_quest_focus_until = _elapsed + QUEST_FOCUS_WINDOW
+				_quest_last_switch_t = _elapsed
+				in_quest_focus = true
+			if in_quest_focus and quest_target != null and frac > 0.40:
+				_walk_target = quest_target.global_position
+				_walk_deadline = _elapsed + QUEST_FOCUS_WINDOW
+			elif not in_quest_focus and quest_target != null and frac > 0.45 and nearest_d > 250.0:
+				# Original safe-window quest seeking (no enemies nearby).
 				_walk_target = quest_target.global_position
 				_walk_deadline = _elapsed + 12.0
 			else:
@@ -911,9 +931,9 @@ func _track_side_quests() -> void:
 			kind = str(q.get_kind())
 		elif q.has_method("kind"):
 			kind = str(q.kind)
+		# Count distinct quest types seen (not frame-by-frame occurrences).
 		if not _quest_seen.has(kind):
-			_quest_seen[kind] = 0
-		_quest_seen[kind] += 1
+			_quest_seen[kind] = 1
 	_quest_last_count = active_n
 
 
