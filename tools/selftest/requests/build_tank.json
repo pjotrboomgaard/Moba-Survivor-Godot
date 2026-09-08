@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "build": "tank",
+  "time_scale": 2.0,
+  "until_wave": 12,
+  "duration": 300,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Tank/survival build: Tobor (healer/tank). Lightning 2x speed. Bot should stack HP + damage-reduction upgrades.",
+  "events": []
+}

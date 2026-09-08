@@ -1,6 +1,8 @@
 class_name SelfTestDriver
 extends Node
 
+const UpgradeCatalog := preload("res://scripts/upgrade_catalog.gd")
+
 ## Filesystem-driven self-test runner: reads a JSON request from user://selftest_request.json,
 ## autonomously plays the game (spawn enemies, walk, cast abilities at aim points), captures
 ## screenshots at requested times, then writes user://selftest_report.json and quits.
@@ -28,6 +30,8 @@ var _errors: Array[String] = []
 var _expected_casts: Array[String] = []
 var _survival := false
 var _ffa := false
+var _time_scale := 1.0
+var _build := ""
 var _survival_duration := 1100.0
 var _until_wave := 20
 var _danger_hp := 0.42
@@ -90,6 +94,9 @@ static func from_request(path: String = "user://selftest_request.json") -> SelfT
 	var hero_req := str((parsed as Dictionary).get("hero", ""))
 	if not hero_req.is_empty():
 		driver._requested_hero = hero_req
+	# Lightning mode: run the whole simulation at 2x (or whatever) so a full
+	# run finishes in half the wall-clock time. 1.0 = normal speed.
+	driver._time_scale = float((parsed as Dictionary).get("time_scale", 1.0))
 	if str((parsed as Dictionary).get("mode", "")) == "solo_survival":
 		driver._survival = true
 		driver._survival_duration = float((parsed as Dictionary).get("duration", 1100.0))
@@ -98,6 +105,10 @@ static func from_request(path: String = "user://selftest_request.json") -> SelfT
 		driver._recover_hp = float((parsed as Dictionary).get("recover_hp", 0.56))
 	elif str((parsed as Dictionary).get("mode", "")) == "ffa":
 		driver._ffa = true
+	# Build strategy: which upgrade path the bot should favour when offered a
+	# choice. "tank" (survival), "tempo" (attack speed + crits), "ranged"
+	# (reach/volley/splash), or "" = random. Drives build diversity across runs.
+	driver._build = str((parsed as Dictionary).get("build", ""))
 	return driver
 
 
@@ -108,6 +119,10 @@ func _ready() -> void:
 	# Self-tests need audible/audio-observable behavior regardless of the user's saved
 	# prefs: SFX must be on so sound_probe entries can see a player firing.
 	AudioService.sfx_enabled = true
+	# Lightning mode: speed up the whole game simulation so tests finish faster.
+	if _time_scale > 1.0:
+		Engine.time_scale = _time_scale
+		print("[SelfTestDriver] lightning mode: Engine.time_scale=%s" % str(_time_scale))
 	# Solo kit-dry must not spawn CPU allies. FFA already spawned its four-bot roster
 	# before this driver attaches — leave fill_cpu_allies alone so wave scaling stays FFA.
 	if not GameRuntime.is_ffa():
@@ -1173,6 +1188,50 @@ func _flush_confirm_taps() -> void:
 	_confirm_due = keep
 
 
+func _pick_upgrade_by_build(offered: Array) -> String:
+	"""Pick the offered upgrade whose path best matches the chosen build.
+
+	Build strategies:
+	  tank   — survival: max HP, damage reduction, sustain
+	  tempo  — attack speed + crits: rapid fire, fast cooldowns
+	  ranged — range/volley/splash/drone: hit more, from further
+	  crit   — crit-focused: crit chance, crit damage, tempo support
+	  ""     — no preference: take the first offer (old behaviour)
+
+	Returns the upgrade_id to apply. Falls back to offered[0].
+	"""
+	var build_map := {
+		"tank": "tank,power,volley",
+		"tempo": "tempo,crit,volley",
+		"ranged": "power,splash,volley,drone",
+		"crit": "crit,tempo,power",
+	}
+	if not _build or _build not in build_map:
+		return str(offered[0])
+	var wanted: Array = build_map[_build].split(",")
+	for upg in offered:
+		var uid := str(upg)
+		var plain := uid.substr(8) if uid.begins_with("ability:") else uid
+		var path := str(UpgradeCatalog.info(plain).get("path", ""))
+		if path in wanted:
+			return uid
+	var best := ""
+	var best_rank := -1
+	for upg in offered:
+		var uid2 := str(upg)
+		var plain2 := uid2.substr(8) if uid2.begins_with("ability:") else uid2
+		var rarity := str(UpgradeCatalog.rarity_of(plain2))
+		var rank := 0
+		if rarity == "rare":
+			rank = 1
+		elif rarity == "legendary":
+			rank = 2
+		if rank > best_rank:
+			best_rank = rank
+			best = uid2
+	return best if best != "" else str(offered[0])
+
+
 func _resolve_paused_offers() -> void:
 	if _host_main == null or _player == null:
 		get_tree().paused = false
@@ -1182,7 +1241,10 @@ func _resolve_paused_offers() -> void:
 	if stats is Dictionary:
 		var offered: Array = (stats as Dictionary).get(peer_id, [])
 		if offered.size() > 0 and _host_main.has_method("_apply_upgrade_choice"):
-			_host_main._apply_upgrade_choice(peer_id, str(offered[0]))
+			# Build-strategy upgrade picker: favour the offered upgrade whose path
+			# matches the chosen build (tank / tempo / ranged / crit) so different
+			# runs produce visibly different builds. Falls back to the first offer.
+			_host_main._apply_upgrade_choice(peer_id, _pick_upgrade_by_build(offered))
 			return
 	var abils: Variant = _host_main.get("pending_ability_offers")
 	if abils is Dictionary:
@@ -1246,6 +1308,9 @@ func _finish_and_quit() -> void:
 			"hero_kills": _player.hero_kills if _player != null else 0,
 			"quests_seen": _quest_seen.duplicate(),
 			"quest_types": _quest_seen.size(),
+			"taken_upgrades": (_player.taken_upgrades if _player != null else []),
+			"level_upgrades": (_player.level_upgrades if _player != null else {}),
+			"build": _build,
 			"alive": _player != null and _player.active and (_player.health == null or not _player.health.is_dead),
 			"ffa": roster,
 		},
@@ -1254,6 +1319,8 @@ func _finish_and_quit() -> void:
 	file.store_string(JSON.stringify(report, "  "))
 	file.close()
 	print("[SelfTestDriver] report → %s verdict=%s min_hp=%.2f late=%.2f saves=%d casts=%d buys=%d beaten=%d gold=%d lv=%d kills=%d" % [report_out, _verdict, _min_hp_frac, _min_hp_late, _landmark_saves, _casts.size(), _shop_buys.size(), _beaten_wave, _player.gold if _player != null else 0, _player.level if _player != null else 0, _player.hero_kills if _player != null else 0])
+	# Reset time scale so it doesn't affect any subsequent manual session.
+	Engine.time_scale = 1.0
 	get_tree().quit(0)
 
 
