@@ -1,6 +1,9 @@
 class_name Player
 extends CharacterBody2D
 
+const WorldClock := preload("res://scripts/world_clock.gd")
+const UpgradeCatalog := preload("res://scripts/upgrade_catalog.gd")
+
 signal player_died(peer_id: int)
 signal xp_changed(current_xp: int, xp_required: int, level: int)
 signal gold_changed(gold: int)
@@ -42,6 +45,9 @@ const OBSTACLE_LAYER := 16
 @onready var camera: Camera2D = $Camera2D
 @onready var sprite: Sprite2D = $Sprite
 @onready var shop_hint: Node2D = get_node_or_null("ShopHint")
+
+## Fog-of-war vision radius for the local player's RTS veil -- see FogOfWar.
+const VISION_RADIUS := 700.0
 
 var class_id := PlayerClass.DEFAULT_CLASS_ID
 var weapon_kind: PlayerClass.Weapon = PlayerClass.Weapon.CHAIN_BOLT
@@ -87,10 +93,20 @@ var current_xp := 0
 var level := 1
 ## First level is a handful of grunt orbs; later levels stretch so wave 20 still has picks left.
 const BASE_XP_REQUIRED := 70
-const XP_GROWTH := 1.32
+const XP_GROWTH := 1.16
 var xp_required := BASE_XP_REQUIRED
 var gold := 0
 var gold_multiplier := 1.0
+var taken_upgrades: Array[String] = []
+var extra_shots := 0
+var extra_projectiles := 0
+var double_blast_chance := 0.0
+var crit_chance := 0.0
+var crit_mult := 2.0
+var xp_gain_mult := 1.0
+var pulse_interval := 0.0
+var pulse_timer := 0.0
+var pulse_radius := 160.0
 var last_death_gold_lost := 0
 var shop_stacks: Dictionary = {}
 var _tobor_walk_phase := 0.0
@@ -191,6 +207,8 @@ var attack_charge := 0.0
 var _shot_charge := 0.0
 var _charge_lock_impact := Vector2.ZERO
 var _charge_firing := false
+var _attack_held_prev := false
+var charge_rate_mult := 1.0
 
 
 func _ready() -> void:
@@ -330,12 +348,17 @@ func _facing_texture() -> Texture2D:
 
 
 func _apply_locomotion() -> void:
-	z_index = 32 if _jump_t >= 0.0 else (26 if hovering else 20)
+	_refresh_sort_z()
 	_normal_collision_mask = WORLD_LAYER | ENEMY_LAYER
 	if _jump_t < 0.0 and not hovering:
 		_normal_collision_mask |= OBSTACLE_LAYER
 	if sprint_timer <= 0.0:
 		collision_mask = _normal_collision_mask
+
+
+func _refresh_sort_z() -> void:
+	z_as_relative = false
+	z_index = WorldClock.depth_z(global_position.y, 40 if _jump_t >= 0.0 else (8 if hovering else 2))
 
 
 ## Dedicated front/back/left/right sprites. No spin, no flip_h.
@@ -623,6 +646,7 @@ func _physics_process(delta: float) -> void:
 		_update_tobor_visual(delta, to_net)
 		_update_hover_visual(delta)
 		_refresh_secondary_bar()
+		_refresh_sort_z()
 		return
 
 	if not active or movement_locked:
@@ -689,6 +713,8 @@ func _physics_process(delta: float) -> void:
 		speed *= WATER_CROSSING_SPEED_MULT
 	velocity = move_input * speed + knockback_velocity
 	move_and_slide()
+	_refresh_sort_z()
+	_tick_pulse_blast(delta)
 	knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, PLAYER_KNOCKBACK_DECAY * delta)
 	_update_tobor_visual(delta, move_input)
 	_update_hover_visual(delta)
@@ -708,6 +734,7 @@ func _reset_attack_charge() -> void:
 	attack_charge = 0.0
 	_shot_charge = 0.0
 	_charge_firing = false
+	_attack_held_prev = false
 
 
 func _charge_t() -> float:
@@ -723,21 +750,26 @@ func _charge_size_mult(t: float = -1.0) -> float:
 func _charge_damage_mult(t: float = -1.0) -> float:
 	if t < 0.0:
 		t = _shot_charge
-	return lerpf(1.0, PlayerClass.ATTACK_CHARGE_DAMAGE, t)
+	# Early tap is a weak poke; waiting for a full auto-charge is the real hit.
+	return lerpf(0.42, PlayerClass.ATTACK_CHARGE_DAMAGE, t)
 
 
 func _update_attack_charge(delta: float, held: bool) -> void:
+	# Every hero auto-charges their own weapon. Press to fire at the current
+	# charge; a quick tap is weak, a full bar is the big hit. No hold-to-windup.
+	# If the attack key is held continuously (bot / long hold), auto-fire once the
+	# charge is full so the player keeps attacking instead of waiting for a re-press.
 	if _charge_firing:
+		_attack_held_prev = held
 		return
 	if attack_cooldown > 0.0:
-		if not held:
-			attack_charge = 0.0
+		_attack_held_prev = held
 		return
-	if held:
-		attack_charge = minf(PlayerClass.ATTACK_CHARGE_MAX, attack_charge + delta)
-		if attack_charge >= PlayerClass.ATTACK_CHARGE_MAX:
-			_release_charged_attack()
-	elif attack_charge > 0.0:
+	attack_charge = minf(PlayerClass.ATTACK_CHARGE_MAX, attack_charge + delta * charge_rate_mult)
+	var pressed := held and not _attack_held_prev
+	var full_charge_auto_fire := held and attack_charge >= PlayerClass.ATTACK_CHARGE_MAX
+	_attack_held_prev = held
+	if pressed or full_charge_auto_fire:
 		_release_charged_attack()
 
 
@@ -792,6 +824,8 @@ func _charge_preview_radius(t: float) -> float:
 
 
 func _weapon_hit(target: Node2D, base_damage: float) -> void:
+	var crit := crit_chance > 0.0 and randf() < crit_chance
+	var damage := base_damage * (crit_mult if crit else 1.0)
 	if target is Player and GameRuntime.is_ffa():
 		var rival := target as Player
 		if rival.is_pvp_protected() or rival.team_id == team_id:
@@ -799,10 +833,12 @@ func _weapon_hit(target: Node2D, base_damage: float) -> void:
 		var taken := maxf(rival.health.damage_taken_multiplier, 0.05)
 		var amount := rival.health.max_health / (GameRuntime.FFA_PVP_SHOTS_TO_KILL * taken)
 		amount *= _charge_damage_mult()
+		if crit:
+			amount *= crit_mult
 		rival.health.take_damage(amount, self)
 		return
 	var tap := PlayerClass.SHARED_WEAPON_TAP
-	var ratio := base_damage / maxf(weapon_damage, 1.0)
+	var ratio := damage / maxf(weapon_damage, 1.0)
 	_damage_enemy(target, tap * ratio * _charge_damage_mult())
 
 
@@ -890,7 +926,7 @@ func _start_jump() -> void:
 	_jump_t = 0.0
 	_jump_cooldown = 0.28
 	collision_mask = WORLD_LAYER
-	z_index = 32
+	_apply_locomotion()
 
 
 func _finish_jump() -> void:
@@ -1716,8 +1752,7 @@ func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2)
 	sum.explosion_radius = float(data.get("explosion_radius", 70.0))
 	sum.arm_delay = float(data.get("arm_delay", 1.15))
 	sum.boss_damage_mult = float(data.get("boss_damage_mult", 4.5))
-	# Repair Pulse merge: mines heal the caster on detonation.
-	sum.heal_on_explode = float(data.get("heal", 0.0))
+	sum.heal_on_explode = 0.0
 	sum.owner_player = self
 	# Mines crawl toward the nearest enemy instead of sitting still.
 	sum.seek_speed = float(data.get("seek_speed", 0.0))
@@ -2570,7 +2605,7 @@ func _emit_ability_cast(points: PackedVector2Array) -> void:
 
 
 ## Shared "the ability's primary hit landed on this enemy" handling: base damage plus
-## whatever on-hit modifiers the ability carries (slow/stun/mark/lifesteal).
+## whatever on-hit modifiers the ability carries (slow/stun/mark/poison).
 func _apply_ability_hit(target: Node2D, data: Dictionary, values: Dictionary) -> void:
 	_damage_enemy(target, values.power)
 	if data.has("stun_on_hit") and target.has_method("apply_slow"):
@@ -2590,8 +2625,6 @@ func _apply_ability_hit(target: Node2D, data: Dictionary, values: Dictionary) ->
 		var poison: Dictionary = data.poison_on_hit
 		var dps := float(poison.get("dps", poison.get("power", 8.0)))
 		target.apply_poison(dps, float(poison.get("duration", 3.5)), self)
-	if data.has("lifesteal_pct"):
-		health.heal(values.power * float(data.lifesteal_pct))
 
 
 func _nearest_enemy_in_range(range_limit: float) -> Node2D:
@@ -3525,6 +3558,13 @@ func _spawn_support_wall(points: PackedVector2Array) -> void:
 
 
 func _perform_attack() -> void:
+	_fire_weapon_once()
+	if double_blast_chance > 0.0 and randf() < double_blast_chance:
+		_fire_weapon_once()
+	_spawn_extra_projectiles()
+
+
+func _fire_weapon_once() -> void:
 	match weapon_kind:
 		PlayerClass.Weapon.CHAIN_BOLT:
 			_cast_chain_bolt()
@@ -3536,6 +3576,39 @@ func _perform_attack() -> void:
 			_cast_frost_shard()
 		PlayerClass.Weapon.ENERGY_BLAST:
 			_cast_energy_blast()
+
+
+func _spawn_extra_projectiles() -> void:
+	var extra := extra_projectiles
+	if extra <= 0:
+		extra = extra_shots
+	if extra <= 0:
+		return
+	var parent := get_parent()
+	if parent == null or not parent.has_method("spawn_player_projectile"):
+		return
+	for index in extra:
+		var spread := 0.0 if extra == 1 else lerpf(-0.28, 0.28, float(index) / float(extra - 1))
+		var direction := facing_direction.rotated(spread)
+		if direction.length_squared() <= 0.0001:
+			direction = Vector2.RIGHT
+		parent.call("spawn_player_projectile", global_position, direction.normalized(), self)
+
+
+func _tick_pulse_blast(delta: float) -> void:
+	if pulse_interval <= 0.0:
+		return
+	pulse_timer += delta
+	if pulse_timer < pulse_interval:
+		return
+	pulse_timer = 0.0
+	for target in _pvp_hosts_in_radius(global_position, pulse_radius):
+		_weapon_hit(target, weapon_damage)
+	staff_cast.emit(class_id, PackedVector2Array([
+		global_position,
+		global_position,
+		Vector2(pulse_radius, 0.0),
+	]))
 
 
 func _cast_chain_bolt() -> void:
@@ -3799,8 +3872,6 @@ func _damage_enemy(target: Node2D, amount: float) -> void:
 	var ability_damage_mult := float(ability_buff_stats.get("damage_dealt_mult", 1.0))
 	var dealt := amount * damage_dealt_multiplier * ability_damage_mult * resistance
 	target_health.take_damage(dealt, self)
-	if lifesteal_ratio > 0.0:
-		health.heal(dealt * lifesteal_ratio)
 	if hit_slow_factor < 1.0 and target.has_method("apply_slow"):
 		target.apply_slow(hit_slow_factor, hit_slow_duration)
 	if knockback_strength > 0.0 and target.has_method("apply_knockback"):
@@ -3854,7 +3925,6 @@ func _apply_shop_item(item_id: String) -> void:
 	var item := ShopCatalog.by_id(item_id)
 	var extra := stacks_of(item_id) > 1
 	thorns_ratio += _shop_stat(item, "thorns_ratio", extra)
-	lifesteal_ratio += _shop_stat(item, "lifesteal_ratio", extra)
 	health_regen_per_second += _shop_stat(item, "health_regen_per_second", extra)
 	resistance_pierce += _shop_stat(item, "resistance_pierce", extra)
 	ember_damage_per_second += _shop_stat(item, "ember_damage_per_second", extra)
@@ -3874,7 +3944,10 @@ func _apply_shop_item(item_id: String) -> void:
 			grab_radius += float(item.get("grab_radius_step", grab * 0.22))
 	if item.has("hit_slow_factor"):
 		hit_slow_factor = minf(hit_slow_factor, float(item.hit_slow_factor))
-		hit_slow_duration = maxf(hit_slow_duration, float(item.get("hit_slow_duration", 1.0)))
+		if extra:
+			hit_slow_duration += float(item.get("hit_slow_duration_step", 0.25))
+		else:
+			hit_slow_duration = maxf(hit_slow_duration, float(item.get("hit_slow_duration", 0.8)))
 	if item_id == ShopCatalog.ACTIVE_ITEM_ID:
 		sprint_cooldown = 0.0
 	_apply_sprite()
@@ -3919,11 +3992,14 @@ func refresh_wave_items() -> void:
 func add_xp(amount: int) -> void:
 	if simulation_mode == SimulationMode.PROXY or amount <= 0:
 		return
+	amount = int(round(float(amount) * xp_gain_mult))
+	if amount <= 0:
+		return
 	current_xp += amount
 	while current_xp >= xp_required:
 		current_xp -= xp_required
 		level += 1
-		xp_required = roundi(xp_required * XP_GROWTH)
+		xp_required = roundi(xp_required * (1.12 if level >= 7 else XP_GROWTH))
 		xp_changed.emit(current_xp, xp_required, level)
 		level_reached.emit(level)
 	xp_changed.emit(current_xp, xp_required, level)
@@ -3936,7 +4012,7 @@ func dev_add_levels(count: int) -> void:
 		return
 	for _index in count:
 		level += 1
-		xp_required = roundi(xp_required * XP_GROWTH)
+		xp_required = roundi(xp_required * (1.12 if level >= 7 else XP_GROWTH))
 		xp_changed.emit(current_xp, xp_required, level)
 		level_reached.emit(level)
 
@@ -3948,32 +4024,128 @@ func set_invulnerable(value: bool) -> void:
 func apply_upgrade(upgrade_id: String) -> void:
 	if simulation_mode == SimulationMode.PROXY:
 		return
+	if UpgradeCatalog.is_ability_token(upgrade_id):
+		_apply_ability_token(UpgradeCatalog.ability_id_from(upgrade_id))
+		taken_upgrades.append(upgrade_id)
+		return
+	taken_upgrades.append(upgrade_id)
 	match upgrade_id:
-		"rapid", "rime": attack_interval = maxf(0.18, attack_interval * 0.82)
-		"heavy": weapon_damage += 8.0
-		"chain": chain_count += 1
-		"volt": chain_range += 40.0
-		"blast": blast_radius += 10.0
-		"aftershock": blast_pulses += 1
-		"boots": movement_speed += 35.0
+		"rapid", "rime":
+			attack_interval = maxf(0.18, attack_interval * 0.82)
+		"haste":
+			attack_interval = maxf(0.18, attack_interval * 0.88)
+		"overclock":
+			attack_interval = maxf(0.14, attack_interval * 0.68)
+		"bullet_time":
+			attack_interval = maxf(0.12, attack_interval * 0.55)
+		"heavy":
+			weapon_damage += 8.0
+		"havoc":
+			weapon_damage += 16.0
+		"titan_shell":
+			weapon_damage += 30.0
+		"blast":
+			blast_radius += 10.0
+		"nova_core":
+			blast_radius += 28.0
+		"world_cracker":
+			blast_radius += 48.0
+			blast_pulses += 1
+		"aftershock":
+			blast_pulses += 1
+		"double_tap":
+			double_blast_chance += 0.25
+		"echo_shot":
+			double_blast_chance += 0.45
+		"extra_bolt":
+			extra_projectiles += 1
+		"split_shot":
+			extra_projectiles += 2
+		"volley":
+			extra_projectiles += 4
+		"keen_eye":
+			crit_chance += 0.12
+		"lucky_strike":
+			crit_chance += 0.18
+		"headhunter":
+			crit_chance += 0.22
+			crit_mult = maxf(crit_mult, 2.6)
+		"vitality":
+			_add_max_health(25.0)
 		"plating":
-			base_damage_taken_multiplier = maxf(0.35, base_damage_taken_multiplier - 0.08)
-			health.damage_taken_multiplier = base_damage_taken_multiplier * _ability_damage_taken_factor
-		"reach": attack_range += 35.0
-		"sweep": cone_half_angle_degrees += PlayerClass.SWEEP_DEGREES
-		"flow": support_heal_per_second += 1.5
-		"choir": support_damage_bonus += 0.06
-		"lash": attack_range += 60.0
+			_add_damage_reduction(0.08)
+		"ironhide":
+			_add_max_health(40.0)
+			_add_damage_reduction(0.06)
+		"fortress":
+			_add_max_health(70.0)
+			_add_damage_reduction(0.12)
+		"chain":
+			chain_count += 1
+		"volt":
+			chain_range += 40.0
+		"boots":
+			movement_speed += 35.0
+		"reach":
+			attack_range += 35.0
+		"sweep":
+			cone_half_angle_degrees += PlayerClass.SWEEP_DEGREES
+		"flow":
+			support_heal_per_second += 1.5
+		"choir":
+			support_damage_bonus += 0.06
+		"lash":
+			attack_range += 60.0
 		"depth":
 			frost_slow_factor = maxf(0.25, frost_slow_factor - 0.08)
 			frost_slow_duration += 0.5
-		"shatter": frost_burst_radius += 35.0
-		"vitality":
-			health.max_health += 25.0
-			health.current_health = minf(health.max_health, health.current_health + 25.0)
-			health.health_changed.emit(health.current_health, health.max_health)
-		"gun_drone", "push_drone", "ember_sprite", "heat_gust", "thorn_sprite", "vine_tether", "spark_sprite", "gale_push":
+		"shatter":
+			frost_burst_radius += 35.0
+		"scholar":
+			xp_gain_mult += 0.2
+		"exp_well":
+			xp_gain_mult += 0.4
+		"gold_vein":
+			gold_multiplier += 0.25
+		"metronome":
+			_set_pulse_interval(20.0)
+		"heartbeat":
+			_set_pulse_interval(12.0)
+			pulse_radius = maxf(pulse_radius, 220.0)
+		"supernova":
+			_set_pulse_interval(8.0)
+			pulse_radius = maxf(pulse_radius, 300.0)
+		"gun_drone", "push_drone", "ember_sprite", "heat_gust", "thorn_sprite", "vine_tether", "spark_sprite", "gale_push", "frost_drone", "laser_drone", "shield_drone":
 			_add_companion(upgrade_id)
+		"swarm_drones":
+			_add_companion("gun_drone")
+			_add_companion("gun_drone")
+
+
+func _apply_ability_token(ability_id: String) -> void:
+	for entry in known_abilities:
+		if entry.id == ability_id:
+			upgrade_ability(ability_id)
+			return
+	if known_abilities.size() < PlayerClass.MAX_KNOWN_ABILITIES:
+		learn_ability(ability_id)
+	else:
+		apply_fallback_bonus()
+
+
+func _add_max_health(amount: float) -> void:
+	health.max_health += amount
+	health.current_health = minf(health.max_health, health.current_health + amount)
+	health.health_changed.emit(health.current_health, health.max_health)
+
+
+func _add_damage_reduction(amount: float) -> void:
+	base_damage_taken_multiplier = maxf(0.35, base_damage_taken_multiplier - amount)
+	health.damage_taken_multiplier = base_damage_taken_multiplier * _ability_damage_taken_factor
+
+
+func _set_pulse_interval(seconds: float) -> void:
+	pulse_interval = seconds if pulse_interval <= 0.0 else minf(pulse_interval, seconds)
 
 
 func _add_companion(upgrade_id: String) -> void:

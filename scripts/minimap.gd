@@ -16,6 +16,9 @@ const LANDMARK_HEAL := Color("7fd88a")
 const LANDMARK_FREEZE := Color("7db8ff")
 const ENEMY_COLOR := Color("ff5d5d")
 const BOSS_COLOR := Color("ff2a2a")
+const QUEST_COLOR := Color("c9a84e")
+const TREE_COLOR := Color(0.42, 0.52, 0.42, 0.55)
+const ROCK_COLOR := Color(0.52, 0.50, 0.48, 0.45)
 const BACKGROUND_COLOR := Color(0.06, 0.09, 0.14, 0.78)
 const BORDER_COLOR := Color(0.55, 0.72, 0.86, 0.6)
 
@@ -45,6 +48,22 @@ func _draw() -> void:
 				color = LANDMARK_FREEZE
 		draw_circle(point, 3.5, color)
 		draw_circle(point, 3.5, Color(0.05, 0.05, 0.08, 1.0), false, 1.0)
+	# Trees and rocks: subtle, low-saturation dots so the map reads as terrain without
+	# competing with the bright enemy/player markers.
+	for obs in get_tree().get_nodes_in_group("obstacles"):
+		if not is_instance_valid(obs):
+			continue
+		var point := _to_local(obs.global_position)
+		var is_tree := str(obs.sprite_id).contains("tree")
+		var color := TREE_COLOR if is_tree else ROCK_COLOR
+		draw_circle(point, 1.8, color)
+	# Side quests: gold, slightly bigger than terrain so the player can spot them.
+	for quest in get_tree().get_nodes_in_group("side_quest"):
+		if not is_instance_valid(quest):
+			continue
+		var qp := _to_local(quest.global_position)
+		draw_circle(qp, 3.0, QUEST_COLOR)
+		draw_circle(qp, 3.0, Color(0.15, 0.12, 0.0, 1.0), false, 1.0)
 	for enemy_node in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(enemy_node):
 			continue

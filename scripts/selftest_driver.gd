@@ -56,6 +56,8 @@ var _want_shop := false
 var _heal_commit := false
 var _landmark_kite_until := 0.0
 var _last_lm_effect := ""
+var _quest_seen: Dictionary = {}
+var _quest_last_count := 0
 
 
 static func from_request(path: String = "user://selftest_request.json") -> SelfTestDriver:
@@ -683,6 +685,7 @@ func _tick_survival(delta: float) -> void:
 			"gold": _player.gold,
 		})
 	_maybe_snap_wave(wave)
+	_track_side_quests()
 	_want_shop = _shop_buys.size() < 8 and not _preferred_affordable_item().is_empty()
 	var in_break := false
 	if _host_main.get("wave_director") != null:
@@ -780,8 +783,13 @@ func _tick_survival(delta: float) -> void:
 			_walk_target = _kite_boss(foe)
 			_walk_deadline = _elapsed + 2.0
 		else:
-			_walk_target = _fight_near_heal(heal, foe, wave)
-			_walk_deadline = _elapsed + 2.0
+			var quest_target := _nearest_quest()
+			if quest_target != null and frac > 0.45 and nearest_d > 250.0:
+				_walk_target = quest_target
+				_walk_deadline = _elapsed + 12.0
+			else:
+				_walk_target = _fight_near_heal(heal, foe, wave)
+				_walk_deadline = _elapsed + 2.0
 	if _in_lava():
 		_holding_landmark = false
 		_walk_target = _lava_escape()
@@ -889,6 +897,26 @@ func _peel_near_heal(heal: ArenaLandmark, foe: Node2D) -> Vector2:
 	return candidate
 
 
+func _track_side_quests() -> void:
+	if get_tree() == null:
+		return
+	var quests := get_tree().get_nodes_in_group("side_quest")
+	var active_n := 0
+	for q in quests:
+		if not is_instance_valid(q):
+			continue
+		active_n += 1
+		var kind := "unknown"
+		if q.has_method("get_kind"):
+			kind = str(q.get_kind())
+		elif q.has_method("kind"):
+			kind = str(q.kind)
+		if not _quest_seen.has(kind):
+			_quest_seen[kind] = 0
+		_quest_seen[kind] += 1
+	_quest_last_count = active_n
+
+
 func _nearest_orb() -> Node2D:
 	if _player == null or get_tree() == null:
 		return null
@@ -901,6 +929,27 @@ func _nearest_orb() -> Node2D:
 		if d < best_d:
 			best_d = d
 			best = node as Node2D
+	return best
+
+
+## Nearest active side-quest target to walk toward (its seek position is updated by the
+## quest each frame; for chase/kill modes that tracks the moving target).
+func _nearest_quest() -> Node2D:
+	if _player == null or get_tree() == null:
+		return null
+	var best: Node2D = null
+	var best_d := INF
+	for node in get_tree().get_nodes_in_group("side_quest"):
+		if not is_instance_valid(node) or not node is Node2D:
+			continue
+		var q := node as Node2D
+		var target_pos := q.global_position
+		if q.has_method("get_seek_position"):
+			target_pos = q.get_seek_position()
+		var d := _player.global_position.distance_to(target_pos)
+		if d < best_d:
+			best_d = d
+			best = q
 	return best
 
 
@@ -1034,17 +1083,31 @@ func _overlay_combat_hold() -> void:
 			or (nearest < 160.0 and not boss_near)
 		)
 	)
+	# Keep the weapon aimed at the nearest enemy so auto-attacks actually land.
+	# The survival driver's `aim_world_position` defaults to the player's last command
+	# aim, which in headless mode can be far away or stale.
+	var aim_point := _player.aim_world_position
+	var enemies := _alive_enemies()
+	if not enemies.is_empty():
+		var best_d := INF
+		for enemy in enemies:
+			var d := _player.global_position.distance_to(enemy.global_position)
+			if d < best_d:
+				best_d = d
+				aim_point = enemy.global_position
 	if _holding_landmark:
 		# Plant so the pad's stand-still check (velocity < 8) can fire. Basic attack is a
 		# stationary hitscan/AOE for every weapon kind (no self-movement), so it's safe to
 		# keep firing while filling — only move_input and ability_slots stay zeroed, since
 		# some ability kits do include a self-dash that would break the stand-still check.
-		_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, true, false, [false, false, false, false], false)
+		_player.set_authority_command(Vector2.ZERO, aim_point, true, false, [false, false, false, false], false)
 	elif _walk_target == null:
 		var strafe := Vector2.RIGHT.rotated(_elapsed * 1.85) * 0.85
-		_player.set_authority_command(strafe, _player.aim_world_position, true, use_dash, _player.command_ability_slots, clustered)
+		_player.set_authority_command(strafe, aim_point, true, use_dash, _player.command_ability_slots, clustered)
 	else:
-		_player.set_authority_command(_player.command_move, _player.aim_world_position, true, use_dash, _player.command_ability_slots, clustered)
+		_player.set_authority_command(_player.command_move, aim_point, true, use_dash, _player.command_ability_slots, clustered)
+	# Ensure the offline local player keeps auto-attacking toward the nearest enemy.
+	_player.command_attack = true
 
 
 func _ability_id_at(slot: int) -> String:
@@ -1161,6 +1224,8 @@ func _finish_and_quit() -> void:
 			"level": _player.level if _player != null else 0,
 			"xp": _player.current_xp if _player != null else 0,
 			"hero_kills": _player.hero_kills if _player != null else 0,
+			"quests_seen": _quest_seen.duplicate(),
+			"quest_types": _quest_seen.size(),
 			"alive": _player != null and _player.active and (_player.health == null or not _player.health.is_dead),
 			"ffa": roster,
 		},

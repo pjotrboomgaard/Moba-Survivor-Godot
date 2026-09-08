@@ -1,6 +1,8 @@
 extends Node2D
 class_name WorldEditor
 
+const WorldClock := preload("res://scripts/world_clock.gd")
+
 ## Manual world/level editor. Its own scene (arena + free camera) so the user can
 ## place/erase trees, rocks, grass and landmarks, pan/zoom, and save/load a level.
 ##
@@ -227,6 +229,7 @@ func _zoom(delta: float) -> void:
 # ---------------- Input ----------------
 
 func _process(delta: float) -> void:
+	WorldClock.tick(delta)
 	_wasd_move(delta)
 	if _paint_enabled and _painting:
 		_paint_tick()

@@ -295,14 +295,16 @@ func _draw_tagged_cone(center: Vector2, radius: float, facing: Vector2, half_ang
 
 func _draw_basic_wedge(center: Vector2, radius: float, facing: Vector2, half_angle: float, alpha: float) -> void:
 	# A near-zero radius/half_angle collapses every arc point onto `center`, degenerating
-	# the fan polygon below to a sliver with near-duplicate vertices. That alone did NOT
-	# stop the real "Invalid polygon data, triangulation failed" spam seen in a live FFA
-	# run (arclight's chain-lightning VFX, every frame it drew a wedge) -- a plain range
-	# check like `radius < 1.0` silently passes NaN through (IEEE754: any comparison with
-	# NaN is false), and NaN/inf vertex coordinates are exactly what "invalid polygon
-	# data" means. is_finite() catches that; the range checks still catch the merely-tiny
-	# (finite but degenerate) case.
-	if not (is_finite(radius) and is_finite(half_angle)) or radius < 1.0 or half_angle < 0.01:
+	# the fan polygon below to a sliver with near-duplicate vertices. Checking only
+	# radius/half_angle for finiteness did NOT fully stop the real "Invalid polygon data,
+	# triangulation failed" spam seen in live FFA runs (arclight's chain-lightning VFX) --
+	# a second run after that fix still hit it, because `center` itself (the caster's or
+	# target's world position, computed upstream) can also carry a NaN coordinate, and
+	# `center + Vector2.from_angle(angle) * radius` propagates that into every arc point
+	# regardless of how clean radius/half_angle are. A plain range check like `radius < 1.0`
+	# also silently passes NaN through either way (IEEE754: any comparison with NaN is
+	# false), so is_finite() is what actually matters here, on all three inputs.
+	if not (is_finite(radius) and is_finite(half_angle) and is_finite(center.x) and is_finite(center.y)) or radius < 1.0 or half_angle < 0.01:
 		return
 	var color := main_color
 	color.a *= alpha * 0.5

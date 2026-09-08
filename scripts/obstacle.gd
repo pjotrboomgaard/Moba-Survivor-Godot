@@ -1,6 +1,8 @@
 class_name Obstacle
 extends StaticBody2D
 
+const WorldClock := preload("res://scripts/world_clock.gd")
+
 ## A rock the party and the horde both have to walk around. The sprite is lifted
 ## above its collision circle so the rock reads as sticking up out of the grass.
 
@@ -15,6 +17,8 @@ const VISION_BLOCKER_LAYER := 32
 
 var body_radius := 30.0
 var sprite_id := ""
+var _shadow: Sprite2D = null
+var _shadow_rev := -1
 
 
 func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixels: float) -> void:
@@ -41,17 +45,25 @@ func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixel
 		sprite.offset = Vector2(0.0, -lift_pixels)
 	z_as_relative = false
 	if sprite != null:
-		sprite.z_as_relative = false
+		sprite.z_as_relative = true
 	if is_floor_cover(sprite_name):
 		z_index = 1
 	elif decorative:
 		# Below landmark pads (z 2) so tufts/flowers never paint over shrines.
 		z_index = 1
+	elif is_tree:
+		z_index = WorldClock.depth_z(global_position.y)
 	else:
-		z_index = 12 if is_tree else 8
+		z_index = 8
 	if is_tree:
 		# Trees hide units behind them via LOS raycasts. They do not cast 2D-light umbras.
 		collision_layer |= VISION_BLOCKER_LAYER
+		set_process(false)
+	else:
+		# Small non-tree objects (rocks, crates, etc.) get a subtle ground shadow.
+		if not decorative and body_radius >= 1.0:
+			_ensure_small_shadow(zoom, lift_pixels)
+		set_process(false)
 	queue_redraw()
 
 
@@ -84,6 +96,33 @@ static func display_zoom(sprite_name: String, pixel_zoom: float, texture: Textur
 
 static func is_floor_cover(sprite_name: String) -> bool:
 	return sprite_name == "grass_lush" or sprite_name == "grass_meadow" or sprite_name == "dirt_tile"
+
+
+func _ensure_small_shadow(zoom: float, lift_pixels: float) -> void:
+	if _shadow != null:
+		return
+	_shadow = Sprite2D.new()
+	_shadow.name = "Shadow"
+	_shadow.z_as_relative = false
+	_shadow.z_index = -1
+	var radius_px := int(maxf(4.0, body_radius * zoom * 0.85))
+	var w := maxi(4, radius_px)
+	var h := maxi(2, int(radius_px * 0.5))
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	var center := Vector2(w * 0.5, h * 0.5)
+	for y in h:
+		for x in w:
+			var d := Vector2(x - center.x, y - center.y).length()
+			var alpha := 0.0
+			if d < w * 0.35:
+				alpha = 1.0
+			elif d < w * 0.5:
+				alpha = 1.0 - (d - w * 0.35) / (w * 0.15)
+			img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.45))
+	_shadow.texture = ImageTexture.create_from_image(img)
+	_shadow.position = Vector2(0.0, lift_pixels * 0.35)
+	_shadow.modulate = Color(0.0, 0.0, 0.0, 0.22)
+	add_child(_shadow)
 
 
 func has_sprite() -> bool:

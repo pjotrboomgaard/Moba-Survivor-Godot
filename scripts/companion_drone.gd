@@ -12,6 +12,9 @@ enum Kind {
 	GALE,
 	VINE,
 	HEAT,
+	FROST,
+	LASER,
+	SHIELD,
 }
 
 const KIND_FOR_UPGRADE := {
@@ -23,6 +26,9 @@ const KIND_FOR_UPGRADE := {
 	"gale_push": Kind.GALE,
 	"vine_tether": Kind.VINE,
 	"heat_gust": Kind.HEAT,
+	"frost_drone": Kind.FROST,
+	"laser_drone": Kind.LASER,
+	"shield_drone": Kind.SHIELD,
 }
 
 var kind: Kind = Kind.GUN
@@ -58,14 +64,21 @@ func _fire() -> void:
 	var interval := maxf(0.28, 0.72 - 0.08 * float(rank - 1))
 	var power := (7.0 + 3.0 * float(rank)) * (owner_player.damage_dealt_multiplier if owner_player != null else 1.0)
 	match kind:
-		Kind.GUN, Kind.EMBER, Kind.THORN, Kind.SPARK:
-			var target := _nearest_enemy(260.0 + 20.0 * float(rank))
+		Kind.GUN, Kind.EMBER, Kind.THORN, Kind.SPARK, Kind.FROST, Kind.LASER:
+			var reach := 360.0 + 28.0 * float(rank) if kind == Kind.LASER else 260.0 + 20.0 * float(rank)
+			var target := _nearest_enemy(reach)
 			if target == null:
 				return
-			_cooldown = interval
-			owner_player._damage_enemy(target, power)
+			_cooldown = interval * (0.72 if kind == Kind.LASER else 1.0)
+			owner_player._damage_enemy(target, power * (1.15 if kind == Kind.LASER else 1.0))
 			if kind == Kind.SPARK and target.has_method("apply_slow"):
 				target.apply_slow(0.85, 0.4)
+			if kind == Kind.FROST and target.has_method("apply_slow"):
+				target.apply_slow(0.62, 0.85)
+		Kind.SHIELD:
+			_cooldown = interval + 1.15
+			if owner_player.health != null and owner_player.health.has_method("add_shield"):
+				owner_player.health.add_shield(10.0 + 4.0 * float(rank), 2.4)
 		Kind.PUSH, Kind.GALE, Kind.HEAT:
 			_cooldown = interval + 0.35
 			for enemy in owner_player._enemies_in_radius(global_position, 70.0 + 8.0 * float(rank)):
@@ -116,5 +129,11 @@ func _fill() -> Color:
 			return Color("6aa83c")
 		Kind.SPARK, Kind.GALE:
 			return Color("7fd4ff")
+		Kind.FROST:
+			return Color("a8e6ff")
+		Kind.LASER:
+			return Color("ff4a4a")
+		Kind.SHIELD:
+			return Color("6aa8ff")
 		_:
 			return Color("ffe08c")

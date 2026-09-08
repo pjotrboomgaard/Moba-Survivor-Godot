@@ -1,12 +1,15 @@
 class_name Enemy
 extends CharacterBody2D
 
+const WorldClock := preload("res://scripts/world_clock.gd")
+
 signal defeated(enemy: Enemy)
 signal projectile_fired(origin: Vector2, direction: Vector2, damage: float, speed: float, sprite_name: String)
 signal spawn_requested(type_id: String, origin: Vector2, count: int)
 signal exploded(origin: Vector2, radius: float, damage: float)
 signal arena_hazard_requested(spec: Dictionary)
 signal boss_phase_changed(phase: int)
+signal boss_death(enemy: Enemy)
 
 const _MinionCorpse := preload("res://scripts/minion_corpse.gd")
 
@@ -149,6 +152,7 @@ var pattern_cooldown := 1.1
 var slam_shots_left := 0
 var slam_shot_gap := 0.0
 var _base_projectile_count := 1
+var _stuck_time := 0.0
 
 ## Terrain-hazard / lava-dunk state. Flying enemies skim over pools; grounded ones take
 ## the full dunk when a knockback arc drops them inside lava. Scramble slows the crawl
@@ -219,6 +223,11 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 	charge_duration = float(EnemyType.field(type_id, "charge_duration"))
 	dash_interval = float(EnemyType.field(type_id, "dash_interval"))
 	dash_timer = dash_interval * 0.5
+	if is_boss:
+		dash_interval *= 0.55
+		charge_windup *= 0.7
+		dash_timer = dash_interval * 0.35
+	z_as_relative = false
 	teleport_interval = float(EnemyType.field(type_id, "teleport_interval"))
 	teleport_range = float(EnemyType.field(type_id, "teleport_range"))
 	_teleport_timer = teleport_interval * 0.5
@@ -341,8 +350,10 @@ func damage_multiplier_for(damage_type: int) -> float:
 func _physics_process(delta: float) -> void:
 	if stealth_alpha < 1.0:
 		modulate.a = 1.0 if winding_up else stealth_alpha
+	z_index = WorldClock.depth_z(global_position.y, 2)
 	if not server_authoritative:
 		global_position = global_position.lerp(network_target_position, clampf(delta * 12.0, 0.0, 1.0))
+		z_index = WorldClock.depth_z(global_position.y, 2)
 		if aura_radius > 0.0 or winding_up or is_boss:
 			aura_pulse += delta
 			queue_redraw()
@@ -476,13 +487,50 @@ func _move(direction_velocity: Vector2, allow_crater_inward: bool = false) -> vo
 	var dir := direction_velocity
 	if scrambling_out > 0.0:
 		dir *= LAVA_SCRAMBLE_SPEED_MULT
+	# Night creeps move faster.
+	dir *= WorldClock.night_speed_mult
 	dir = _deflect_from_ffa_crater(dir, allow_crater_inward)
 	velocity = dir + _separation_offset()
+	var before := global_position
 	if flying:
 		global_position += velocity * get_physics_process_delta_time()
 	else:
 		move_and_slide()
+		_unstick_from_props(dir, before)
+	z_index = WorldClock.depth_z(global_position.y, 2)
 	_eject_from_ffa_crater()
+
+
+func _unstick_from_props(desired: Vector2, before: Vector2) -> void:
+	if flying or is_boss:
+		_stuck_time = 0.0
+		return
+	var want := desired.length() * get_physics_process_delta_time()
+	if want < 6.0:
+		_stuck_time = 0.0
+		return
+	var moved := global_position.distance_to(before)
+	if moved > want * 0.18:
+		_stuck_time = 0.0
+		return
+	_stuck_time += get_physics_process_delta_time()
+	var side := desired.orthogonal().normalized()
+	if get_slide_collision_count() > 0:
+		var hit := get_slide_collision(0)
+		if hit != null:
+			side = hit.get_normal().orthogonal()
+	velocity = side * maxf(desired.length(), movement_speed * 0.85)
+	move_and_slide()
+	if _stuck_time < 0.22:
+		return
+	_stuck_time = 0.0
+	var arena := Arena.arena_root(self)
+	if arena == null:
+		return
+	var nudge := global_position + side * (body_radius + 22.0)
+	if desired.length_squared() > 1.0:
+		nudge += desired.normalized() * 18.0
+	global_position = arena.free_position_near(nudge, body_radius)
 
 
 func _deflect_from_ffa_crater(dir: Vector2, allow_crater_inward: bool = false) -> Vector2:
@@ -660,7 +708,7 @@ func _process_boss_dash(delta: float) -> bool:
 	dash_timer -= delta
 	if dash_timer <= 0.0:
 		winding_up = true
-		charge_state_timer = charge_windup
+		charge_state_timer = charge_windup / WorldClock.night_attack_mult
 		velocity = Vector2.ZERO
 		queue_redraw()
 		SoundDirector.play("charge", global_position)
@@ -1003,7 +1051,7 @@ func _try_contact_damage() -> bool:
 	if target_health == null:
 		return false
 	target_health.take_damage(contact_damage, self)
-	attack_cooldown = attack_interval
+	attack_cooldown = attack_interval / WorldClock.night_attack_mult
 	return true
 
 
@@ -1021,7 +1069,7 @@ func _hold_preferred_distance() -> void:
 func _fire_projectile() -> void:
 	if attack_cooldown > 0.0 or projectile_damage <= 0.0:
 		return
-	attack_cooldown = attack_interval
+	attack_cooldown = attack_interval / WorldClock.night_attack_mult
 	# _begin_boss_pattern's strike/slam damage already gets SOLO_BOSS_HAZARD_DAMAGE_MULT, but
 	# this plain per-attack_interval volley didn't — for a ranged boss like Stormcaller (7
 	# projectiles every 0.9s) that's the actual continuous damage source, not the patterns,
@@ -1376,7 +1424,7 @@ func _attack_target() -> void:
 		if _solo_boss_fight():
 			dmg *= SOLO_BOSS_HAZARD_DAMAGE_MULT
 		target_health.take_damage(dmg, self)
-		attack_cooldown = attack_interval
+		attack_cooldown = attack_interval / WorldClock.night_attack_mult
 
 
 func _on_damaged(amount: float) -> void:
@@ -1397,19 +1445,43 @@ func _on_died() -> void:
 	if not death_spawn_id.is_empty() and death_spawn_count > 0:
 		spawn_requested.emit(death_spawn_id, global_position, death_spawn_count)
 	defeated.emit(self)
-	if not is_boss:
-		var parent := get_parent()
-		if parent != null:
-			var corpse: Node2D = _MinionCorpse.new()
-			corpse.setup_from(self)
-			parent.add_child(corpse)
-		queue_free()
-		return
+	# Pop visual: scale up briefly, then shrink to 0, with a white flash on death.
+	# Bigger enemies (bosses) get a larger, longer pop.
+	var base_scale := scale
+	var pop_scale: Vector2
+	var pop_up_time: float
+	var pop_down_time: float
+	# Pop scales with the enemy's body size: tiny grunts snap fast, elites pop bigger, bosses biggest.
+	var size_mult := clampf(body_radius / 17.0, 0.6, 2.5)
+	if is_boss:
+		pop_scale = base_scale * (1.4 + 0.2 * size_mult)
+		pop_up_time = 0.08
+		pop_down_time = 0.25
+	else:
+		pop_scale = base_scale * (1.15 + 0.25 * size_mult)
+		pop_up_time = 0.04 + 0.02 * size_mult
+		pop_down_time = 0.12 + 0.06 * size_mult
+	var flash_time := 0.04
 	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(self, "scale", Vector2.ZERO, 0.12)
-	tween.tween_property(self, "modulate:a", 0.0, 0.12)
-	tween.chain().tween_callback(queue_free)
+	# Step 1: scale up (pop) + white flash in parallel.
+	tween.tween_property(self, "scale", pop_scale, pop_up_time)
+	tween.parallel().tween_property(self, "modulate", Color(1.5, 1.5, 1.5, 1.0), flash_time)
+	# Step 2: shrink to zero + modulate back to white in parallel.
+	tween.tween_property(self, "scale", base_scale * 0.0, pop_down_time)
+	tween.parallel().tween_property(self, "modulate", Color(1.0, 1.0, 1.0, 1.0), flash_time + 0.02)
+	# Final callback: restore base scale so the corpse captures full-size art, then free.
+	tween.chain().tween_callback(func() -> void:
+		if not is_boss:
+			scale = base_scale
+			var parent := get_parent()
+			if parent != null:
+				var corpse: Node2D = _MinionCorpse.new()
+				corpse.setup_from(self)
+				parent.add_child(corpse)
+		if is_boss:
+			boss_death.emit(self)
+		queue_free()
+	)
 
 
 func _draw() -> void:

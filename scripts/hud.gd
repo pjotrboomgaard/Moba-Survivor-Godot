@@ -1,6 +1,8 @@
 class_name GameHUD
 extends CanvasLayer
 
+const UpgradeCatalog := preload("res://scripts/upgrade_catalog.gd")
+
 signal upgrade_chosen(upgrade_id: String)
 signal ability_chosen(ability_id: String)
 signal shop_item_chosen(item_id: String)
@@ -68,6 +70,7 @@ const UPGRADE_ICON_MAX_WIDTH := 28
 @onready var stats_text: Label = $StatsPanel/StatsLayout/StatsText
 
 var bound_player: Player
+var quest_label: Label
 var offered_upgrade_ids: Array[String] = []
 var offer_kind := "stat"
 var pauses_game := false
@@ -197,6 +200,7 @@ func _ready() -> void:
 	_build_item_icon_bar()
 	_build_aim_reticle()
 	_build_ffa_overlay()
+	_build_side_quest_label()
 	class_label.visible = false
 	health_bar.visible = false
 	health_label.visible = false
@@ -369,6 +373,11 @@ func _process(delta: float) -> void:
 	_refresh_secondary_slot()
 	_refresh_aim_reticle()
 	_refresh_hotkey_overlays()
+	# Quest toast fade-out
+	if _quest_toast != null and _quest_toast.visible:
+		_quest_toast_timer -= delta
+		if _quest_toast_timer <= 0.0:
+			_quest_toast.visible = false
 
 
 ## Hold SHIFT to see it — a live readout of the bound player's current combat stats,
@@ -390,8 +399,6 @@ func _build_stats_text() -> String:
 		lines.append("Arc: %d°" % int(bound_player.cone_half_angle_degrees * 2.0))
 	if bound_player.health.damage_taken_multiplier < 1.0:
 		lines.append("Damage taken: x%.2f" % bound_player.health.damage_taken_multiplier)
-	if bound_player.lifesteal_ratio > 0.0:
-		lines.append("Lifesteal: %d%%" % roundi(bound_player.lifesteal_ratio * 100.0))
 	if bound_player.thorns_ratio > 0.0:
 		lines.append("Thorns: %d%%" % roundi(bound_player.thorns_ratio * 100.0))
 	if bound_player.health_regen_per_second > 0.0:
@@ -1321,6 +1328,52 @@ func _build_ffa_overlay() -> void:
 	ffa_scoreboard.add_child(ffa_row_box)
 
 
+var _quest_toast: Label = null
+var _quest_toast_timer := 0.0
+
+
+func _build_side_quest_label() -> void:
+	quest_label = Label.new()
+	quest_label.name = "QuestLabel"
+	quest_label.visible = false
+	quest_label.position = Vector2(290, 14)
+	quest_label.size = Vector2(620, 32)
+	quest_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	quest_label.add_theme_font_size_override("font_size", 16)
+	quest_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.42, 1.0))
+	quest_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.92))
+	quest_label.add_theme_constant_override("shadow_outline_size", 4)
+	add_child(quest_label)
+	# Quest spawn toast: appears at the top-center of the screen when a new quest starts.
+	_quest_toast = Label.new()
+	_quest_toast.name = "QuestToast"
+	_quest_toast.visible = false
+	_quest_toast.position = Vector2(300, 60)
+	_quest_toast.size = Vector2(460, 28)
+	_quest_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_quest_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_quest_toast.add_theme_font_size_override("font_size", 15)
+	_quest_toast.add_theme_color_override("font_color", Color(0.55, 1.0, 0.75, 1.0))
+	_quest_toast.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.95))
+	_quest_toast.add_theme_constant_override("shadow_outline_size", 3)
+	add_child(_quest_toast)
+
+
+func set_side_quest_text(text: String) -> void:
+	if quest_label == null:
+		return
+	quest_label.text = text
+	quest_label.visible = not text.is_empty()
+
+
+func show_quest_toast(text: String) -> void:
+	if _quest_toast == null:
+		return
+	_quest_toast.text = text
+	_quest_toast.visible = true
+	_quest_toast_timer = 4.0
+
+
 func _hero_portrait(class_id: String) -> Texture2D:
 	if class_id == "tobor":
 		return SpriteLibrary.compose_tobor({})
@@ -1427,17 +1480,16 @@ func _on_xp_changed(current_xp: int, required_xp: int, next_level: int) -> void:
 func show_upgrade_ids(player: Player, upgrade_ids: Array[String], pause_game: bool) -> void:
 	bound_player = player
 	offered_upgrade_ids = upgrade_ids.duplicate()
-	offer_kind = "stat"
+	offer_kind = "mixed"
 	pauses_game = pause_game
-	offer_title_label.text = "PICK  1  2  3  4"
+	offer_title_label.text = "PICK 1 2 3 4"
 	for index in choice_buttons.size():
 		if index >= offered_upgrade_ids.size():
 			choice_buttons[index].visible = false
 			continue
-		var upgrade := PlayerClass.upgrade_info(offered_upgrade_ids[index])
+		var token := offered_upgrade_ids[index]
 		choice_buttons[index].visible = true
-		choice_buttons[index].text = "[%d]  %s\n%s" % [index + 1, upgrade.name, upgrade.description]
-		choice_buttons[index].icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(offered_upgrade_ids[index])
+		_style_choice_button(choice_buttons[index], index, token, player)
 	upgrade_panel.visible = true
 	InputService.block_ability_slots = true
 	AudioService.play("level_up")
@@ -1467,6 +1519,7 @@ func show_ability_offer(player: Player, ability_ids: Array[String], pause_game: 
 		var ability_name := str(info.get("name", ability_id))
 		var verb := "Upgrade" if current_rank > 0 else "Learn"
 		choice_buttons[index].visible = true
+		_clear_choice_rarity(choice_buttons[index])
 		choice_buttons[index].text = "[%d]  %s %s" % [index + 1, verb, ability_name]
 		choice_buttons[index].icon = null if GameRuntime.is_classic() else SpriteLibrary.texture_for(ability_id)
 	upgrade_panel.visible = true
@@ -1481,17 +1534,67 @@ func _on_upgrade_selected(index: int) -> void:
 		return
 	AudioService.play("ui_click")
 	var chosen_id := offered_upgrade_ids[index]
-	var chosen_kind := offer_kind
 	upgrade_panel.visible = false
 	offered_upgrade_ids.clear()
 	InputService.block_ability_slots = false
 	if pauses_game:
 		get_tree().paused = false
 	pauses_game = false
-	if chosen_kind == "ability":
+	if UpgradeCatalog.is_ability_token(chosen_id):
+		ability_chosen.emit(UpgradeCatalog.ability_id_from(chosen_id))
+		upgrade_chosen.emit(chosen_id)
+	elif offer_kind == "ability":
 		ability_chosen.emit(chosen_id)
 	else:
 		upgrade_chosen.emit(chosen_id)
+
+
+func _style_choice_button(button: Button, index: int, token: String, player: Player) -> void:
+	_clear_choice_rarity(button)
+	if UpgradeCatalog.is_ability_token(token):
+		var ability_id := UpgradeCatalog.ability_id_from(token)
+		var current_rank := 0
+		for entry in player.known_abilities:
+			if entry.id == ability_id:
+				current_rank = int(entry.rank)
+				break
+		var info := PlayerClass.ability_info(ability_id)
+		var ability_name := str(info.get("name", ability_id))
+		var verb := "Upgrade" if current_rank > 0 else "Learn"
+		button.text = "[%d]  %s %s" % [index + 1, verb, ability_name]
+		var icon := SpriteLibrary.texture_for(ability_id)
+		if icon == null:
+			icon = UpgradeCatalog.texture(ability_id)
+		button.icon = null if GameRuntime.is_classic() else icon
+		return
+	var upgrade := PlayerClass.upgrade_info(token)
+	var rarity := UpgradeCatalog.rarity_of(token)
+	var prefix := ""
+	if rarity == "rare":
+		prefix = "RARE "
+		_apply_choice_rarity(button, Color("ffe14a"))
+	elif rarity == "legendary":
+		prefix = "LEGENDARY "
+		_apply_choice_rarity(button, Color("c45ec8"))
+	button.text = "[%d]  %s%s\n%s" % [index + 1, prefix, str(upgrade.get("name", token)), str(upgrade.get("description", ""))]
+	var tex := UpgradeCatalog.texture(token)
+	if tex == null:
+		tex = SpriteLibrary.texture_for(token)
+	button.icon = null if GameRuntime.is_classic() else tex
+
+
+func _apply_choice_rarity(button: Button, color: Color) -> void:
+	button.add_theme_color_override("font_color", color)
+	button.add_theme_color_override("font_hover_color", color)
+	button.add_theme_color_override("font_pressed_color", color)
+	button.add_theme_color_override("font_focus_color", color)
+
+
+func _clear_choice_rarity(button: Button) -> void:
+	button.remove_theme_color_override("font_color")
+	button.remove_theme_color_override("font_hover_color")
+	button.remove_theme_color_override("font_pressed_color")
+	button.remove_theme_color_override("font_focus_color")
 
 
 class AimReticle extends Control:

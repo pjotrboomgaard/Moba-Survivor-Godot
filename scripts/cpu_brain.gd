@@ -18,6 +18,7 @@ const FFA_COMMIT_RANGE := 1600.0
 const FFA_LANDMARK_HOLD := 120.0
 
 static var _hold_left: Dictionary = {}
+static var _charge_shot_armed: Dictionary = {}
 
 enum FfaTactic {
 	HUNTER,
@@ -138,24 +139,19 @@ static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dict
 	return _apply_ffa_dodge(player, result, delta)
 
 
-static func _want_attack_hold(player: Player, delta: float) -> bool:
+static func _want_attack_hold(player: Player, _delta: float) -> bool:
 	if player.attack_cooldown > 0.05:
 		return false
 	if bool(player.get("_charge_firing")):
 		return false
 	var id := player.get_instance_id()
-	if not _hold_left.has(id):
-		var roll := randf()
-		if roll < 0.42:
-			_hold_left[id] = 0.06
-		elif roll < 0.82:
-			_hold_left[id] = randf_range(0.7, 1.6)
-		else:
-			_hold_left[id] = PlayerClass.ATTACK_CHARGE_MAX
-	_hold_left[id] = float(_hold_left[id]) - delta
-	if float(_hold_left[id]) <= 0.0:
-		_hold_left.erase(id)
+	var t := float(player.attack_charge) / maxf(0.05, PlayerClass.ATTACK_CHARGE_MAX)
+	if t < 0.88:
+		_charge_shot_armed.erase(id)
 		return false
+	if bool(_charge_shot_armed.get(id, false)):
+		return false
+	_charge_shot_armed[id] = true
 	return true
 
 

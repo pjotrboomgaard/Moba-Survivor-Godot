@@ -178,15 +178,6 @@ func _explode() -> void:
 	vfx.chain_color = Color("ff5a1e")
 	vfx.points = PackedVector2Array([global_position, Vector2(maxf(explosion_radius, trigger_radius), 0.0)])
 	get_tree().current_scene.add_child(vfx)
-	# Repair Pulse merge: heal the caster (or the nearest ally) for heal_on_explode.
-	if heal_on_explode > 0.0:
-		var target_to_heal: Node = owner_player if owner_player != null else self
-		if target_to_heal.has_method("heal"):
-			target_to_heal.heal(heal_on_explode)
-		else:
-			var hc := target_to_heal.get_node_or_null("HealthComponent") if target_to_heal is Node else null
-			if hc != null and hc.has_method("heal"):
-				hc.heal(heal_on_explode)
 	var blast := explosion_radius if explosion_radius > 0.0 else trigger_radius
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(enemy) or not enemy is Node2D:

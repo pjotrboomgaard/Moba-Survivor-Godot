@@ -404,8 +404,6 @@ func rebuild() -> void:
 
 
 func _apply_editor_level_if_any() -> void:
-	if not GameRuntime.use_editor_level:
-		return
 	var path := GameRuntime.editor_level_path()
 	if not FileAccess.file_exists(path):
 		return
@@ -1132,6 +1130,8 @@ func _add_obstacle(world_position: Vector2, type_data: Dictionary) -> void:
 	obstacle.global_position = world_position
 	add_child(obstacle)
 	obstacle.configure(str(type_data.sprite), float(type_data.radius), PIXEL_ZOOM, float(type_data.lift))
+	obstacle.add_to_group("obstacles")
+	obstacle.add_to_group("obstacle_" + str(type_data.sprite))
 	register_obstacle(obstacle)
 
 

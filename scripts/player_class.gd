@@ -1,6 +1,8 @@
 class_name PlayerClass
 extends RefCounted
 
+const UpgradeCatalog := preload("res://scripts/upgrade_catalog.gd")
+
 enum Weapon {
 	CHAIN_BOLT,
 	CONE_SLAM,
@@ -711,7 +713,7 @@ const BLAST_RADIUS := 30.0
 const BLAST_AFTERSHOCK_DAMAGE := 0.55
 ## PvE tap damage shared by every hero so charge buildup hits the same numbers.
 const SHARED_WEAPON_TAP := 18.0
-## Hold primary up to this long. Tap is 1x; a full hold is ATTACK_CHARGE_DAMAGE and ATTACK_CHARGE_SIZE.
+## Auto-charge fills for this long. Tap anytime: early shots are weak, a full bar is ATTACK_CHARGE_DAMAGE / SIZE.
 const ATTACK_CHARGE_MAX := 3.0
 const ATTACK_CHARGE_DAMAGE := 7.0
 const ATTACK_CHARGE_SIZE := 4.0
@@ -861,13 +863,13 @@ const ABILITIES: Dictionary = {
 	},
 	"tobor_spider_mines": {
 		"name": "Spider Mines", "archetype": Archetype.SUMMON_SPIRIT,
-		"description": "Plants proximity mines that arm after a short delay, then crawl toward the nearest enemy. On detonation they deal {power} damage in a wide blast — far more against bosses — and heal you for {heal} Health.",
+		"description": "Plants proximity mines that arm after a short delay, then crawl toward the nearest enemy. On detonation they deal {power} damage in a wide blast — far more against bosses.",
 		"cooldown_base": 11.0, "cooldown_per_rank": -0.9, "cooldown_min": 6.5,
 		"power_base": 42.0, "power_per_rank": 10.0, "range": 1200.0,
 		"duration_base": 36.0, "duration_per_rank": 2.0, "summon_count": 3,
 		"mine_count": 3, "scatter_radius": 78.0, "trigger_radius": 28.0,
 		"explosion_radius": 100.0, "arm_delay": 1.15, "boss_damage_mult": 4.5,
-		"heal": 18.0, "seek_speed": 80.0, "seek_range": 260.0,
+		"seek_speed": 80.0, "seek_range": 260.0,
 	},
 	"tobor_steam_turret": {
 		"name": "Steam Turret", "archetype": Archetype.SUMMON_SPIRIT,
@@ -1019,9 +1021,10 @@ const ABILITIES: Dictionary = {
 	},
 	"arclight_volt_siphon": {
 		"name": "Volt Siphon", "archetype": Archetype.NUKE_BOLT,
-		"description": "Drains current from every enemy within {range} range, dealing {power} Magic damage and healing you for {lifesteal_pct} of the damage dealt.",
+		"description": "Drains current from every enemy within {range} range, dealing {power} Magic damage and slowing them.",
 		"cooldown_base": 6.0, "cooldown_per_rank": -0.6, "cooldown_min": 3.4,
-		"power_base": 30.0, "power_per_rank": 8.0, "range": 560.0, "lifesteal_pct": 0.5,
+		"power_base": 30.0, "power_per_rank": 8.0, "range": 560.0,
+		"slow_on_hit": {"factor": 0.55, "duration": 2.2},
 	},
 	"arclight_track": {
 		"name": "Track", "archetype": Archetype.NUKE_BOLT,
@@ -1159,10 +1162,11 @@ const ABILITIES: Dictionary = {
 		"duration_base": 18.0, "duration_per_rank": 1.0, "summon_count": 1,
 	},
 	"warden_life_drain": {
-		"name": "Life Drain", "archetype": Archetype.NUKE_BOLT,
-		"description": "Channels the old rite at a target within {range} range, siphoning {power} Health from an enemy into yourself. Restores {lifesteal_pct} of the damage dealt.",
+		"name": "Wither Bolt", "archetype": Archetype.NUKE_BOLT,
+		"description": "Channels the old rite at a target within {range} range, dealing {power} Magic damage and marking them for extra damage.",
 		"cooldown_base": 45.0, "cooldown_per_rank": -3.8, "cooldown_min": 27.0,
-		"power_base": 130.0, "power_per_rank": 33.0, "range": 560.0, "lifesteal_pct": 1.0,
+		"power_base": 130.0, "power_per_rank": 33.0, "range": 560.0,
+		"mark_on_hit": {"bonus_pct": 0.18, "duration": 5.0},
 	},
 	"warden_vine_lash": {
 		"name": "Vine Lash", "archetype": Archetype.NUKE_BOLT,
@@ -1233,9 +1237,10 @@ const ABILITIES: Dictionary = {
 	},
 	"warden_vital_drain": {
 		"name": "Vital Drain", "archetype": Archetype.NUKE_BOLT,
-		"description": "Siphons vitality from every foe within {range} range, dealing {power} Magic damage and healing you for {lifesteal_pct} of the damage dealt.",
+		"description": "Siphons vitality from every foe within {range} range, dealing {power} Magic damage and slowing them.",
 		"cooldown_base": 6.5, "cooldown_per_rank": -0.6, "cooldown_min": 3.8,
-		"power_base": 20.0, "power_per_rank": 5.0, "range": 480.0, "lifesteal_pct": 0.6,
+		"power_base": 20.0, "power_per_rank": 5.0, "range": 480.0,
+		"slow_on_hit": {"factor": 0.6, "duration": 2.0},
 	},
 	"warden_bramble_wall": {
 		"name": "Bramble Wall", "archetype": Archetype.PUSH_PULL_BURST,
@@ -1616,10 +1621,9 @@ const ABILITIES: Dictionary = {
 	},
 	"ember_phoenix_dash": {
 		"name": "Phoenix Dash", "archetype": Archetype.DASH_STRIKE,
-		"description": "Bursts forward {dash_distance} units like a rising phoenix, dealing {power} Magic damage in the path and healing you {lifesteal_pct} of damage dealt.",
+		"description": "Bursts forward {dash_distance} units like a rising phoenix, dealing {power} Magic damage in the path.",
 		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.2,
 		"power_base": 30.0, "power_per_rank": 8.0, "dash_distance": 300.0, "radius": 60.0,
-		"lifesteal_pct": 0.4,
 	},
 	"ember_heat_vent": {
 		"name": "Heat Vent", "archetype": Archetype.PUSH_PULL_BURST,
@@ -1792,9 +1796,9 @@ const ABILITIES: Dictionary = {
 	},
 	"willow_vital_strike": {
 		"name": "Vital Strike", "archetype": Archetype.NUKE_BOLT,
-		"description": "Lances clean through a target within {range} range, dealing {power} Physical damage and healing you {lifesteal_pct} of the damage dealt.",
+		"description": "Lances clean through a target within {range} range, dealing {power} Physical damage.",
 		"cooldown_base": 6.5, "cooldown_per_rank": -0.6, "cooldown_min": 3.6,
-		"power_base": 38.0, "power_per_rank": 10.0, "range": 560.0, "lifesteal_pct": 0.5,
+		"power_base": 38.0, "power_per_rank": 10.0, "range": 560.0,
 	},
 	"willow_briar_wall": {
 		"name": "Briar Wall", "archetype": Archetype.ZONE_CHANNEL,
@@ -2031,9 +2035,10 @@ const ABILITIES: Dictionary = {
 	},
 	"volt_static_drain": {
 		"name": "Static Drain", "archetype": Archetype.NUKE_BOLT,
-		"description": "Leeches the current out of every enemy within {range} range, dealing {power} Magic damage and healing you {lifesteal_pct} of the damage dealt.",
+		"description": "Leeches the current out of every enemy within {range} range, dealing {power} Magic damage and slowing them.",
 		"cooldown_base": 8.5, "cooldown_per_rank": -0.8, "cooldown_min": 4.8,
-		"power_base": 32.0, "power_per_rank": 9.0, "range": 560.0, "lifesteal_pct": 0.4,
+		"power_base": 32.0, "power_per_rank": 9.0, "range": 560.0,
+		"slow_on_hit": {"factor": 0.5, "duration": 2.4},
 	},
 	"volt_repulsor_blast": {
 		"name": "Repulsor Blast", "archetype": Archetype.PUSH_PULL_BURST,
@@ -2194,9 +2199,9 @@ const ABILITIES: Dictionary = {
 	},
 	"astral_ghastly_touch": {
 		"name": "Ghastly Touch", "archetype": Archetype.NUKE_BOLT,
-		"description": "A single luminous tap that takes its due with interest — deals {power} Magic damage up to {range} range and heals you {lifesteal_pct} of the damage dealt.",
+		"description": "A single luminous tap that takes its due with interest — deals {power} Magic damage up to {range} range.",
 		"cooldown_base": 9.5, "cooldown_per_rank": -0.9, "cooldown_min": 5.5,
-		"power_base": 30.0, "power_per_rank": 8.0, "range": 520.0, "lifesteal_pct": 0.5,
+		"power_base": 30.0, "power_per_rank": 8.0, "range": 520.0,
 	},
 	"astral_wisp_nova": {
 		"name": "Wisp Nova", "archetype": Archetype.BLINK,
@@ -2335,7 +2340,27 @@ static func sanitize_id(class_id: String) -> String:
 	return class_id if is_valid_id(class_id) else DEFAULT_CLASS_ID
 
 
-static func random_upgrade_ids(class_id: String, amount: int = 3) -> Array[String]:
+static func random_upgrade_ids(class_id: String, amount: int = 4, known: Array = [], level: int = 1) -> Array[String]:
+	var known_entries: Array[Dictionary] = []
+	var offer_level := level
+	for entry in known:
+		if entry is Dictionary:
+			known_entries.append(entry)
+	if known_entries.is_empty():
+		var tree := Engine.get_main_loop() as SceneTree
+		if tree != null:
+			var matches: Array[Player] = []
+			for node in tree.get_nodes_in_group("players"):
+				if node is Player and str((node as Player).class_id) == class_id:
+					matches.append(node as Player)
+			if matches.size() == 1:
+				known_entries = matches[0].known_abilities.duplicate()
+				offer_level = matches[0].level
+	var ability_ids := ability_offer_ids(class_id, known_entries, 6)
+	var class_upgrades: Array = by_id(class_id).get("upgrades", [])
+	var mixed := UpgradeCatalog.mixed_offer(ability_ids, class_upgrades, offer_level, amount)
+	if not mixed.is_empty():
+		return mixed
 	var pool: Array[String] = []
 	for upgrade_id in by_id(class_id).upgrades:
 		pool.append(upgrade_id)
@@ -2344,7 +2369,21 @@ static func random_upgrade_ids(class_id: String, amount: int = 3) -> Array[Strin
 
 
 static func upgrade_info(upgrade_id: String) -> Dictionary:
-	return UPGRADES.get(upgrade_id, {"name": upgrade_id, "description": ""})
+	if UpgradeCatalog.is_ability_token(upgrade_id):
+		var ability_id := UpgradeCatalog.ability_id_from(upgrade_id)
+		var ability := ability_info(ability_id)
+		return {
+			"name": str(ability.get("name", ability_id)),
+			"description": str(ability.get("description", "")),
+			"rarity": "common",
+		}
+	if UpgradeCatalog.DEFS.has(upgrade_id):
+		return UpgradeCatalog.info(upgrade_id)
+	var fallback: Dictionary = UPGRADES.get(upgrade_id, {"name": upgrade_id, "description": ""})
+	if not fallback.has("rarity"):
+		fallback = fallback.duplicate()
+		fallback["rarity"] = "common"
+	return fallback
 
 
 static func ability_pool_for(class_id: String) -> Array[String]:
@@ -2495,8 +2534,6 @@ static func _modifier_description(data: Dictionary) -> String:
 		parts.append("Slows by %d%% for %.1fs" % [int((1.0 - float(data.slow_on_hit.factor)) * 100.0), float(data.slow_on_hit.duration)])
 	if data.has("mark_on_hit"):
 		parts.append("Marks for +%d%% damage taken for %.1fs" % [int(float(data.mark_on_hit.bonus_pct) * 100.0), float(data.mark_on_hit.duration)])
-	if data.has("lifesteal_pct"):
-		parts.append("Heals you for %d%% of the damage dealt" % int(float(data.lifesteal_pct) * 100.0))
 	if data.has("poison_on_hit"):
 		parts.append("Poisons for %.1fs" % float(data.poison_on_hit.get("duration", 3.5)))
 	return "  ".join(parts)

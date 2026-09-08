@@ -816,7 +816,7 @@ static func boss_for_wave(wave: int) -> String:
 			unlocked.append(boss_id)
 	if unlocked.is_empty():
 		return BOSS_ROTATION[0]
-	return unlocked[(int(wave) / 5 - 1) % unlocked.size()]
+	return unlocked[(int(wave) / WaveDirector.BOSS_WAVE_INTERVAL - 1) % unlocked.size()]
 
 
 static func damage_multiplier(type_id: String, damage_type: int) -> float:

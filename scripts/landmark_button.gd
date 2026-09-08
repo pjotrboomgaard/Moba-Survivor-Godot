@@ -40,9 +40,8 @@ func configure(sprite_id: String, effect: StringName, radius: float, seconds: fl
 	effect_arg = arg
 	_hint = hint_text
 	if sprite != null:
-		sprite.texture = SpriteLibrary.texture_for(sprite_name)
-		sprite.scale = Vector2(PIXEL_ZOOM, PIXEL_ZOOM)
-		sprite.offset = Vector2(0.0, -14.0)
+		sprite.texture = null
+		sprite.visible = false
 	if zone != null:
 		var shape := CircleShape2D.new()
 		shape.radius = STAND_RADIUS
@@ -135,12 +134,8 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, BODY_RADIUS + 18.0, -PI / 2.0, -PI / 2.0 + TAU * _fill, 48, Color("fff0a0"), 8.0, true)
 	elif _fill >= 1.0:
 		draw_arc(Vector2.ZERO, BODY_RADIUS + 18.0, 0.0, TAU, 48, Color("fff0a0"), 8.0, true)
-	# Fallback colored blob when the pixel sprite is missing.
-	if sprite != null and sprite.texture == null:
-		draw_circle(Vector2.ZERO, BODY_RADIUS, accent)
-	# Dim the sprite itself while recharging so the spent state reads at a glance.
 	if sprite != null:
-		sprite.modulate = Color(1.0, 1.0, 1.0, 0.45) if _cooldown > 0.0 else Color.WHITE
+		sprite.visible = false
 
 
 func _compose_hint() -> String:

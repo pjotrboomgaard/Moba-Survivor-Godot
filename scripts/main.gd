@@ -1,5 +1,10 @@
 extends Node2D
 
+const WorldClock := preload("res://scripts/world_clock.gd")
+const UpgradeCatalog := preload("res://scripts/upgrade_catalog.gd")
+const RunSave := preload("res://scripts/run_save.gd")
+const SideQuestDirector := preload("res://scripts/side_quest_director.gd")
+
 @export var max_enemies := 110
 @export var spawn_distance_min := 760.0
 @export var spawn_distance_max := 1120.0
@@ -8,6 +13,8 @@ extends Node2D
 
 @onready var arena: Node2D = $Arena
 @onready var actors: Node2D = $Actors
+@onready var fog_modulate: CanvasModulate = $FogModulate
+@onready var fog_of_war: FogOfWar = $FogOfWar
 @onready var wave_director: WaveDirector = $WaveDirector
 @onready var hud: GameHUD = $HUD
 @onready var world_flash: Node2D = get_node_or_null("WorldFlash")
@@ -32,6 +39,8 @@ var queued_upgrade_choices: Dictionary = {}
 ## Level-ups alternate: even count so far -> an ability choice (learn new or rank up known),
 ## odd count so far -> the classic flat stat-upgrade choice. Incremented on every resolution.
 var offer_turn_index: Dictionary = {}
+var _taken_upgrades: Array[String] = []
+var _run_restore_applied := false
 var registered_remote_peers: Dictionary = {}
 var next_entity_id := 1
 var snapshot_accumulator := 0.0
@@ -56,6 +65,7 @@ var _crater_snapshot_sent: Dictionary = {}
 var ready_for_next_wave: Dictionary = {}
 ## peer_id of the downed player -> seconds a stationary teammate has stood next to them.
 var revive_progress: Dictionary = {}
+var _side_quest_director: SideQuestDirector = null
 
 const REVIVE_RADIUS := 60.0
 const REVIVE_DURATION := 5.0
@@ -105,6 +115,16 @@ const MISSION_WARP_FADE_OUT := 0.9
 var team_wave_directors: Dictionary = {}  # team_id -> WaveDirector
 var _ffa_respawn_in: Dictionary = {}
 var _ffa_shop_timer := 0.0
+## Fog-of-war LOS recheck cadence -- see _update_fog_visibility(). Raycasts are cheap
+## individually so a plain periodic full pass (not per-frame, not round-robin) is plenty;
+## this is nowhere near the O(enemies^2)-per-frame territory the separation-offset fix
+## (scripts/enemy.gd) had to solve.
+const FOG_VISIBILITY_INTERVAL := 0.15
+## A target within this range of the local player is always visible regardless of trees
+## between you -- otherwise standing right next to someone with a sapling between your feet
+## would absurdly hide them at melee range.
+const FOG_ALWAYS_VISIBLE_RANGE := 110.0
+var _fog_visibility_timer := 0.0
 var _ffa_status_timer := 0.0
 var _ffa_elapsed := 0.0
 var _ffa_bounty_timer := 0.0
@@ -116,11 +136,14 @@ var _ffa_world_wave := 1
 
 func _ready() -> void:
 	randomize()
+	if fog_modulate != null:
+		fog_modulate.color = Color(1.0, 1.0, 1.0, 1.0)
 	NetworkService.peer_left.connect(_on_peer_left)
 	if arena is Arena:
 		# Bind before dress so a rebuild's landmarks_changed reconnects us.
 		(arena as Arena).landmarks_changed.connect(_bind_landmarks)
-		GameRuntime.reset_biome_for_new_run()
+		if not GameRuntime.return_to_world_editor:
+			GameRuntime.reset_biome_for_new_run()
 		(arena as Arena).dress_from_runtime_biome()
 		_bind_landmarks()
 	hud.upgrade_chosen.connect(_on_local_upgrade_chosen)
@@ -148,11 +171,13 @@ func _ready() -> void:
 			RiftClashManager.reset_match()
 		_create_player(1, Player.SimulationMode.OFFLINE, true, GameRuntime.active_class_id())
 		_spawn_cpu_allies()
+		_try_restore_pending_run()
 		if GameRuntime.is_ffa() and GameRuntime.ffa_all_bots:
 			_convert_local_to_ffa_bot()
 		_spawn_initial_wave()
 		if GameRuntime.is_ffa():
 			_maintain_ffa_bounties()
+		_start_side_quests()
 		# Self-test harness: only boot when explicitly requested via --selftest CLI flag
 		# AND a request file exists. This prevents stale user://selftest_request.json
 		# from hijacking normal play sessions.
@@ -161,7 +186,9 @@ func _ready() -> void:
 	elif GameRuntime.is_server():
 		if GameRuntime.mode == GameRuntime.RuntimeMode.HOST:
 			_create_player(1, Player.SimulationMode.AUTHORITY, true, GameRuntime.active_class_id())
+			_try_restore_pending_run()
 			_spawn_initial_wave()
+			_start_side_quests()
 		if GameRuntime.is_dedicated_server():
 			hud.visible = false
 	elif GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
@@ -170,6 +197,9 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	WorldClock.tick(delta)
+	if fog_modulate != null and not GameRuntime.is_classic():
+		fog_modulate.color = WorldClock.ambient
 	if GameRuntime.is_server():
 		_update_host_input()
 		wave_director.report_enemy_count(_living_enemy_count())
@@ -196,12 +226,23 @@ func _physics_process(delta: float) -> void:
 			_send_local_input()
 	if not GameRuntime.is_dedicated_server() and not GameRuntime.is_classic():
 		_update_shop_stand_proximity()
+		_update_fog_visibility(delta)
+		if fog_of_war != null:
+			var trees := PackedVector2Array()
+			if arena is Arena:
+				trees = (arena as Arena).vision_tree_positions()
+			fog_of_war.follow_player(_local_player(), trees)
 	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT:
 		_update_revives(delta)
 		_tick_ffa(delta)
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if GameRuntime.return_to_world_editor and event is InputEventKey:
+		var key := event as InputEventKey
+		if key.pressed and not key.echo and key.keycode == KEY_F6:
+			_on_leave_requested()
+			return
 	if game_over and event.is_action_pressed("restart") and GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 		get_parent().call_deferred("restart_game")
 	if event.is_action_pressed("interact_shop") and _near_shop_stand and not game_over:
@@ -540,7 +581,42 @@ func _update_shop_stand_proximity() -> void:
 			hud.close_shop()
 
 
-## Solo has nobody to revive it (the loop below only ever finds the downed player itself),
+## Fog-of-war: hides enemies and hostile players outside vision range, or with a tree
+## between you (Obstacle.VISION_BLOCKER_LAYER). The FogOfWar overlay dims the map
+## outside the circle; this is what actually conceals a target. Visual-only for this
+## client's screen -- bots still aggro through trees.
+func _update_fog_visibility(delta: float) -> void:
+	_fog_visibility_timer -= delta
+	if _fog_visibility_timer > 0.0:
+		return
+	_fog_visibility_timer = FOG_VISIBILITY_INTERVAL
+	var local_player := _local_player()
+	if local_player == null or not is_instance_valid(local_player):
+		return
+	var from := local_player.global_position
+	for enemy in enemies.values():
+		if is_instance_valid(enemy):
+			_apply_fog_visibility(enemy as Node2D, from)
+	for peer_id in players.keys():
+		var other := players[peer_id] as Player
+		if other == null or not is_instance_valid(other) or other == local_player:
+			continue
+		if other.team_id == local_player.team_id:
+			continue
+		_apply_fog_visibility(other, from)
+
+
+func _apply_fog_visibility(target: Node2D, from: Vector2) -> void:
+	var to := target.global_position
+	var dist := from.distance_to(to)
+	var visible_now := dist <= Player.VISION_RADIUS
+	if visible_now and dist > FOG_ALWAYS_VISIBLE_RANGE:
+		var space_state := target.get_world_2d().direct_space_state
+		var query := PhysicsRayQueryParameters2D.create(from, to, Obstacle.VISION_BLOCKER_LAYER)
+		visible_now = space_state.intersect_ray(query).is_empty()
+	target.modulate.a = 1.0 if visible_now else 0.0
+
+
 ## so this only ever matters in co-op, which is the point — dying isn't a full reset there
 ## as long as someone can reach you and hold position.
 func _update_revives(delta: float) -> void:
@@ -866,6 +942,104 @@ func _spawn_initial_wave() -> void:
 	wave_director.start(players.size(), GameRuntime.is_classic())
 
 
+func _try_restore_pending_run() -> void:
+	var pending: Dictionary = GameRuntime.pending_run_save.duplicate(true)
+	GameRuntime.pending_run_save = {}
+	if pending.is_empty() and get_parent() != null:
+		var raw: Variant = get_parent().get("_pending_run_save")
+		if raw is Dictionary and not (raw as Dictionary).is_empty():
+			pending = (raw as Dictionary).duplicate(true)
+			get_parent().set("_pending_run_save", {})
+	if pending.is_empty():
+		return
+	GameRuntime.start_wave = maxi(1, int(pending.get("wave", GameRuntime.start_wave)))
+	restore_run(pending)
+
+
+func restore_run(data: Dictionary) -> void:
+	if data.is_empty() or _run_restore_applied:
+		return
+	_run_restore_applied = true
+	var wave := maxi(1, int(data.get("wave", GameRuntime.start_wave)))
+	GameRuntime.start_wave = wave
+	current_wave = wave
+	if data.has("biome_id") and not GameRuntime.return_to_world_editor:
+		GameRuntime.biome_id = int(data.get("biome_id", GameRuntime.biome_id))
+	var player := _local_player()
+	if player == null:
+		return
+	_taken_upgrades.clear()
+	for raw_upgrade in data.get("taken_upgrades", []):
+		var upgrade_id := str(raw_upgrade)
+		if upgrade_id.is_empty():
+			continue
+		player.apply_upgrade(upgrade_id)
+		_taken_upgrades.append(upgrade_id)
+	player.gold = int(data.get("gold", player.gold))
+	player.gold_changed.emit(player.gold)
+	player.current_xp = int(data.get("xp", player.current_xp))
+	player.level = int(data.get("level", player.level))
+	player.xp_required = int(data.get("xp_required", player.xp_required))
+	player.xp_changed.emit(player.current_xp, player.xp_required, player.level)
+	var abilities: Array[Dictionary] = []
+	for raw_ability in data.get("known_abilities", []):
+		if raw_ability is Dictionary:
+			abilities.append(raw_ability)
+	if not abilities.is_empty():
+		player.known_abilities = abilities
+		while player.ability_cooldowns.size() < player.known_abilities.size():
+			player.ability_cooldowns.append(0.0)
+	var stacks: Variant = data.get("shop_stacks", {})
+	if stacks is Dictionary:
+		for item_id in (stacks as Dictionary).keys():
+			var count := int((stacks as Dictionary)[item_id])
+			for _i in count:
+				player.shop_stacks[str(item_id)] = player.stacks_of(str(item_id)) + 1
+				player._apply_shop_item(str(item_id))
+	player.health.max_health = float(data.get("max_health", player.health.max_health))
+	player.health.current_health = float(data.get("health", player.health.current_health))
+	player.health.health_changed.emit(player.health.current_health, player.health.max_health)
+	var pos: Variant = data.get("position", null)
+	if pos is Dictionary:
+		player.global_position = Vector2(float(pos.get("x", player.global_position.x)), float(pos.get("y", player.global_position.y)))
+	elif pos is Vector2:
+		player.global_position = pos
+	elif pos is Array and (pos as Array).size() >= 2:
+		player.global_position = Vector2(float(pos[0]), float(pos[1]))
+
+
+func capture_run() -> Dictionary:
+	var player := _local_player()
+	if player == null:
+		return {}
+	return {
+		"wave": maxi(1, current_wave),
+		"biome_id": GameRuntime.biome_id,
+		"class_id": player.class_id,
+		"gold": player.gold,
+		"xp": player.current_xp,
+		"level": player.level,
+		"xp_required": player.xp_required,
+		"health": player.health.current_health,
+		"max_health": player.health.max_health,
+		"known_abilities": player.known_abilities.duplicate(true),
+		"shop_stacks": player.shop_stacks.duplicate(true),
+		"taken_upgrades": player.taken_upgrades.duplicate() if not player.taken_upgrades.is_empty() else _taken_upgrades.duplicate(),
+		"position": {"x": player.global_position.x, "y": player.global_position.y},
+	}
+
+
+func _persist_run_save() -> void:
+	if game_over or GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
+		return
+	if GameRuntime.is_ffa() or GameRuntime.return_to_world_editor:
+		return
+	var data := capture_run()
+	if data.is_empty():
+		return
+	RunSave.write_dict(data)
+
+
 func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> void:
 	# Direct call in team mode from `_on_team_wave_started` filters by team; the co-op
 	# director signal doesn't know which corner the wave belongs to, so it must skip.
@@ -891,6 +1065,7 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 		if wave > 0 and wave % WaveDirector.BOSS_WAVE_INTERVAL == 0:
 			_shake_cameras(16.0, 0.6)
 			_play_world_flash(false)
+	_persist_run_save()
 	if GameRuntime.is_rift_clash() and SteamService.is_available():
 		var my_team := ""
 		for peer_id in players.keys():
@@ -1108,6 +1283,7 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 		enemy.arena_hazard_requested.connect(_on_arena_hazard_requested)
 	if enemy.is_boss:
 		enemy.boss_phase_changed.connect(_on_boss_phase_changed)
+		enemy.boss_death.connect(_on_boss_death)
 	enemies[entity_id] = enemy
 	return enemy
 
@@ -1220,6 +1396,16 @@ func _on_boss_phase_changed(phase: int) -> void:
 			client_announce_boss_phase.rpc_id(peer_id, phase, boss_name)
 
 
+func _on_boss_death(enemy: Enemy) -> void:
+	# Dramatic screen shake on boss death.
+	if not GameRuntime.is_dedicated_server():
+		_shake_cameras(24.0, 0.9)
+		_play_sound("explosion")
+		if GameRuntime.is_server():
+			for peer_id in registered_remote_peers.keys():
+				client_play_sound.rpc_id(peer_id, "explosion")
+
+
 func _shake_cameras(amplitude: float, duration: float) -> void:
 	if GameRuntime.is_dedicated_server():
 		return
@@ -1260,6 +1446,15 @@ func _spawn_enemy_projectile(origin: Vector2, direction: Vector2, damage: float,
 	projectile.configure(direction, damage, speed, true, cosmetic, sprite_name)
 	if not GameRuntime.is_dedicated_server():
 		SoundDirector.play("enemy_shoot", origin)
+
+
+func spawn_player_projectile(origin: Vector2, direction: Vector2, source: Player) -> void:
+	if source == null:
+		return
+	var projectile := projectile_scene.instantiate() as SurvivorProjectile
+	projectile.global_position = origin
+	actors.add_child(projectile)
+	projectile.configure(direction, source.weapon_damage, 520.0, false, false, "spark")
 
 
 func _spawn_xp_orb(position: Vector2, value: int) -> XPOrb:
@@ -1843,6 +2038,7 @@ func _on_player_died(_peer_id: int) -> void:
 		_check_team_eliminations()
 	if _all_players_dead():
 		game_over = true
+		RunSave.clear()
 		wave_director.stop()
 		if GameRuntime.is_rift_clash():
 			_resolve_rift_clash_match()
@@ -1903,6 +2099,7 @@ func client_rift_clash_resolved(placements: Array) -> void:
 	if game_over:
 		return
 	game_over = true
+	RunSave.clear()
 	var local_peer_id := multiplayer.get_unique_id()
 	for entry in placements:
 		if local_peer_id in (entry.get("players", []) as Array):
@@ -1951,8 +2148,7 @@ func _on_player_level_reached(_level: int, peer_id: int) -> void:
 	_offer_next_upgrade(peer_id)
 
 
-## Level-ups (and the every-3-waves draft) alternate tracks per peer: even turn index so far
-## offers a hero ability (learn new / rank up known), odd index offers the classic stat pick.
+## Mixed ability + stat choices from UpgradeCatalog.
 func _offer_next_upgrade(peer_id: int) -> void:
 	if pending_upgrades.has(peer_id) or pending_ability_offers.has(peer_id):
 		return
@@ -1961,11 +2157,21 @@ func _offer_next_upgrade(peer_id: int) -> void:
 	var leveled_player := players.get(peer_id) as Player
 	if leveled_player == null:
 		return
-	var turn := int(offer_turn_index.get(peer_id, 0))
-	if turn % 2 == 0 and not PlayerClass.ability_offer_ids(leveled_player.class_id, leveled_player.known_abilities).is_empty():
-		_offer_ability_turn(peer_id, leveled_player)
+	var upgrade_ids := PlayerClass.random_upgrade_ids(
+		leveled_player.class_id, 4, leveled_player.known_abilities, leveled_player.level
+	)
+	if upgrade_ids.is_empty():
+		leveled_player.apply_fallback_bonus()
+		_advance_offer(peer_id)
+		return
+	pending_upgrades[peer_id] = upgrade_ids
+	if leveled_player.is_cpu() or _selftest_active():
+		_apply_upgrade_choice(peer_id, str(upgrade_ids[0]))
+		return
+	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
+		hud.show_upgrade_ids(players[peer_id], upgrade_ids, GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 	else:
-		_offer_stat_turn(peer_id, leveled_player)
+		client_offer_upgrades.rpc_id(peer_id, upgrade_ids)
 
 
 func _offer_stat_turn(peer_id: int, leveled_player: Player) -> void:
@@ -2009,12 +2215,30 @@ func _on_local_upgrade_chosen(upgrade_id: String) -> void:
 			_apply_upgrade_choice(local_player.owner_peer_id, upgrade_id)
 
 
-func _apply_upgrade_choice(peer_id: int, upgrade_id: String) -> void:
+func _matching_pending_upgrade(peer_id: int, upgrade_id: String) -> String:
 	var offered: Array = pending_upgrades.get(peer_id, [])
+	if upgrade_id in offered:
+		return upgrade_id
+	var ability_id := UpgradeCatalog.ability_id_from(upgrade_id)
+	var prefixed := "ability:" + ability_id
+	if prefixed in offered:
+		return prefixed
+	if ability_id in offered:
+		return ability_id
+	return ""
+
+
+func _apply_upgrade_choice(peer_id: int, upgrade_id: String) -> void:
+	var token := _matching_pending_upgrade(peer_id, upgrade_id)
 	var player := players.get(peer_id) as Player
-	if player == null or upgrade_id not in offered:
+	if player == null or token.is_empty():
 		return
-	player.apply_upgrade(upgrade_id)
+	if UpgradeCatalog.is_ability_token(token):
+		_learn_or_rank_ability(player, UpgradeCatalog.ability_id_from(token))
+	else:
+		player.apply_upgrade(token)
+		if token not in _taken_upgrades:
+			_taken_upgrades.append(token)
 	pending_upgrades.erase(peer_id)
 	_advance_offer(peer_id)
 
@@ -2024,7 +2248,12 @@ func _on_local_ability_chosen(ability_id: String) -> void:
 		server_choose_ability.rpc_id(1, ability_id)
 	else:
 		var local_player := _local_player()
-		if local_player != null:
+		if local_player == null:
+			return
+		var token := _matching_pending_upgrade(local_player.owner_peer_id, ability_id)
+		if not token.is_empty():
+			_apply_upgrade_choice(local_player.owner_peer_id, token)
+		else:
 			_apply_ability_choice(local_player.owner_peer_id, ability_id)
 
 
@@ -2033,6 +2262,12 @@ func _apply_ability_choice(peer_id: int, ability_id: String) -> void:
 	var player := players.get(peer_id) as Player
 	if player == null or ability_id not in offered:
 		return
+	_learn_or_rank_ability(player, ability_id)
+	pending_ability_offers.erase(peer_id)
+	_advance_offer(peer_id)
+
+
+func _learn_or_rank_ability(player: Player, ability_id: String) -> void:
 	var already_known := false
 	for entry in player.known_abilities:
 		if entry.id == ability_id:
@@ -2042,8 +2277,6 @@ func _apply_ability_choice(peer_id: int, ability_id: String) -> void:
 		player.upgrade_ability(ability_id)
 	else:
 		player.learn_ability(ability_id)
-	pending_ability_offers.erase(peer_id)
-	_advance_offer(peer_id)
 
 
 func _advance_offer(peer_id: int) -> void:
@@ -2055,11 +2288,20 @@ func _advance_offer(peer_id: int) -> void:
 func _on_restart_requested() -> void:
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 		get_tree().paused = false
+		if GameRuntime.return_to_world_editor:
+			get_tree().reload_current_scene()
+			return
 		get_parent().call_deferred("restart_game")
 
 
 func _on_leave_requested() -> void:
+	if not game_over:
+		_persist_run_save()
 	get_tree().paused = false
+	if GameRuntime.return_to_world_editor:
+		GameRuntime.return_to_world_editor = false
+		get_tree().change_scene_to_file("res://scenes/world_editor/world_editor.tscn")
+		return
 	get_parent().call_deferred("leave_game")
 
 
@@ -2664,6 +2906,28 @@ func _ffa_bounty_count() -> int:
 	return n
 
 
+func _start_side_quests() -> void:
+	if _side_quest_director != null:
+		return
+	_side_quest_director = SideQuestDirector.new()
+	_side_quest_director.name = "SideQuestDirector"
+	add_child(_side_quest_director)
+	_side_quest_director.setup(self)
+
+
+var _last_side_quest_text := ""
+
+
+func _refresh_side_quest_hud() -> void:
+	if hud == null or _side_quest_director == null:
+		return
+	var text := _side_quest_director.hud_text_for_local()
+	if not text.is_empty() and _last_side_quest_text.is_empty():
+		hud.show_quest_toast("New side quest: %s" % text)
+	_last_side_quest_text = text
+	hud.set_side_quest_text(text)
+
+
 func _maintain_ffa_bounties() -> void:
 	if game_over or enemies.size() >= _enemy_cap():
 		return
@@ -2707,6 +2971,7 @@ func _finish_ffa_match() -> void:
 	if game_over:
 		return
 	game_over = true
+	RunSave.clear()
 	wave_director.stop()
 	for director in team_wave_directors.values():
 		if director is WaveDirector:

@@ -256,7 +256,7 @@ const AMBUSH_BUDGET_SCALE := 0.8
 const AMBUSH_FIRST_GROUP_SCALE := 0.6
 const WAVE_TIMEOUT_SECONDS := 120.0
 const ELITE_WAVE_INTERVAL := 8
-const BOSS_WAVE_INTERVAL := 5
+const BOSS_WAVE_INTERVAL := 7
 ## Enemies start noticeably tankier now (2.4x the old wave-1 health) and keep climbing faster
 ## than before, so the run keeps escalating rather than plateauing once players out-level it.
 const BASE_HEALTH_MULTIPLIER := 2.8
@@ -645,41 +645,51 @@ func _tougher_reinforcement_type(target_wave: int) -> String:
 
 ## Returns {name, archetype, modifier, debut} for any wave number.
 func theme_for_wave(target_wave: int) -> Dictionary:
+	var plan: Dictionary = {}
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0 and BIOME_THEMES.has(GameRuntime.biome_id):
 		if target_wave <= 1:
-			return {
+			plan = {
 				"name": "First Contact",
 				"archetype": Archetype.STANDARD,
 				"modifier": Modifier.NONE,
 				"debut": "",
 			}
-		var block: Array = BIOME_THEMES[GameRuntime.biome_id]
-		if not block.is_empty():
-			var themed: Dictionary = block[(target_wave - 1) % block.size()]
-			return {
-				"name": str(themed.name),
-				"archetype": themed.get("archetype", Archetype.STANDARD) as Archetype,
-				"modifier": themed.get("modifier", Modifier.NONE) as Modifier,
-				"debut": EnemyType.fit_to_biome(str(themed.get("debut", ""))),
-			}
-
-	if target_wave <= SCRIPTED_WAVES.size():
+		else:
+			var block: Array = BIOME_THEMES[GameRuntime.biome_id]
+			if not block.is_empty():
+				var themed: Dictionary = block[(target_wave - 1) % block.size()]
+				plan = {
+					"name": str(themed.name),
+					"archetype": themed.get("archetype", Archetype.STANDARD) as Archetype,
+					"modifier": themed.get("modifier", Modifier.NONE) as Modifier,
+					"debut": EnemyType.fit_to_biome(str(themed.get("debut", ""))),
+				}
+	if plan.is_empty() and target_wave <= SCRIPTED_WAVES.size():
 		var scripted: Dictionary = SCRIPTED_WAVES[target_wave - 1]
-		return {
+		plan = {
 			"name": str(scripted.name),
 			"archetype": scripted.get("archetype", Archetype.STANDARD) as Archetype,
 			"modifier": scripted.get("modifier", Modifier.NONE) as Modifier,
 			"debut": str(scripted.get("debut", "")),
 		}
+	if plan.is_empty():
+		var improvised := _improvised_archetype(target_wave)
+		var names: Array = IMPROVISED_NAMES[improvised]
+		plan = {
+			"name": str(names[target_wave % names.size()]),
+			"archetype": improvised,
+			"modifier": _improvised_modifier(target_wave),
+			"debut": "",
+		}
+	return _apply_boss_cadence(plan, target_wave)
 
-	var improvised := _improvised_archetype(target_wave)
-	var names: Array = IMPROVISED_NAMES[improvised]
-	return {
-		"name": str(names[target_wave % names.size()]),
-		"archetype": improvised,
-		"modifier": _improvised_modifier(target_wave),
-		"debut": "",
-	}
+
+func _apply_boss_cadence(plan: Dictionary, target_wave: int) -> Dictionary:
+	if target_wave > 0 and target_wave % BOSS_WAVE_INTERVAL == 0:
+		plan["archetype"] = Archetype.BOSS
+	elif int(plan.get("archetype", Archetype.STANDARD)) == Archetype.BOSS:
+		plan["archetype"] = Archetype.STANDARD
+	return plan
 
 
 func _improvised_archetype(target_wave: int) -> Archetype:
