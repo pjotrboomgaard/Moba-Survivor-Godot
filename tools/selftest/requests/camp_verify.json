@@ -9,9 +9,9 @@
   "recover_hp": 0.56,
   "comment": "Verify new camp system: 3 unique camps, tanky camp guardians, undodgeable slam, no-chase, 2-min respawn. Bot should seek camps and take some damage from guardians.",
   "events": [
-    {"at": 10, "snap": "camp_early"},
-    {"at": 60, "snap": "camp_mid"},
-    {"at": 120, "snap": "camp_late"},
-    {"at": 180, "snap": "camp_end"}
+    {"kind": "snap", "label": "camp_early", "t": 10},
+    {"kind": "snap", "label": "camp_mid", "t": 60},
+    {"kind": "snap", "label": "camp_late", "t": 120},
+    {"kind": "snap", "label": "camp_end", "t": 180}
   ]
 }

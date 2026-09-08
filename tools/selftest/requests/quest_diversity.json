@@ -7,12 +7,12 @@
   "build": "tempo",
   "danger_hp": 0.42,
   "recover_hp": 0.56,
-  "comment": "Quest diversity check: run longer to see multiple quest types including dance/rescue. 420s real time at 1.5x = 630s game time.",
+  "comment": "Quest diversity check: run longer to see multiple quest types including dance/rescue.",
   "events": [
-    {"t": 10, "snap": "quest_start"},
-    {"t": 120, "snap": "quest_mid1"},
-    {"t": 240, "snap": "quest_mid2"},
-    {"t": 360, "snap": "quest_mid3"},
-    {"t": 410, "snap": "quest_end"}
+    {"kind": "snap", "label": "quest_start", "t": 10},
+    {"kind": "snap", "label": "quest_mid1", "t": 120},
+    {"kind": "snap", "label": "quest_mid2", "t": 240},
+    {"kind": "snap", "label": "quest_mid3", "t": 360},
+    {"kind": "snap", "label": "quest_end", "t": 410}
   ]
 }
