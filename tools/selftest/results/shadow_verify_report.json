@@ -4,10 +4,10 @@
       "hp": 1.0,
       "kind": "landmark_save",
       "saves": 1,
-      "t": 0.724315666666666
+      "t": 0.749490333333333
     }
   ],
-  "elapsed": 10.0227596666666,
+  "elapsed": 10.001656,
   "enemies_spawned": 0,
   "hero_position": "(72.0, 0.0)",
   "player_class": "tobor",
@@ -21,7 +21,7 @@
     "died": false,
     "errors": [],
     "ffa": {},
-    "gold": 16,
+    "gold": 12,
     "hero_kills": 0,
     "hp_samples": [],
     "landmark_saves": 1,
@@ -44,13 +44,13 @@
   "shots": [
     {
       "label": "shadow_check_early",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5648/shadow_check_early_3.015_5648.png",
-      "t": 3.01530207407407
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5731/shadow_check_early_3.002_5730.png",
+      "t": 3.00192637662338
     },
     {
       "label": "shadow_check_late",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10633/shadow_check_late_8.004_10633.png",
-      "t": 8.00416666666665
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10731/shadow_check_late_8.007_10731.png",
+      "t": 8.00694366666665
     }
   ]
 }

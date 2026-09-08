@@ -13,11 +13,32 @@ func _ready() -> void:
 	layer = 10
 	if overlay != null:
 		overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	visible = not GameRuntime.is_classic() and not GameRuntime.is_dedicated_server()
+	# Vision-hiding is permanently disabled per the player's request: the hero and
+	# every enemy must stay fully visible at all times and at any zoom. Keep the
+	# node around (so the overlay can be re-enabled later) but keep it invisible.
+	_hiding_disabled = true
+	visible = false
+	if overlay != null:
+		overlay.visible = false
 
+
+## Hiding (vision/fog-of-war) has been intentionally disabled per the player's
+## request: the hero and every enemy must stay fully visible at all times, at any
+## zoom. This forces the overlay off and short-circuits follow_player below so the
+## darkening shader is never re-enabled each frame.
+var _hiding_disabled := false
+
+func set_overlay_visible(enabled: bool) -> void:
+	if not enabled:
+		_hiding_disabled = true
+	if overlay != null:
+		overlay.visible = enabled
 
 func follow_player(player: Node2D, tree_world: PackedVector2Array = PackedVector2Array()) -> void:
 	if overlay == null:
+		return
+	if _hiding_disabled:
+		overlay.visible = false
 		return
 	if not visible or player == null or not is_instance_valid(player):
 		overlay.visible = false

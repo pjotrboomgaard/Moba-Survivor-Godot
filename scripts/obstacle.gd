@@ -117,7 +117,9 @@ func _update_shadow_rotation() -> void:
 	# Trees: the shadow center slides along shadow_dir in proportion to how
 	# low the sun is (high stretch = low sun = long shadow that reaches far).
 	# Rocks keep a small fixed base offset so their blob stays under the rock.
-	var off := body_radius * (0.5 + stretch * 1.4) if _is_tree_shadow else body_radius * 0.22
+	# Trees: the shadow slides along shadow_dir in proportion to how low the sun
+	# is, but is capped so it never drifts far from the trunk and look detached.
+	var off := minf(body_radius * (0.35 + stretch * 0.9), body_radius * 1.4) if _is_tree_shadow else body_radius * 0.22
 	_shadow.position = shadow_dir * off + Vector2(0.0, body_radius * 0.10)
 	if _is_tree_shadow:
 		# Flatten the tree silhouette perpendicular to the fall direction so

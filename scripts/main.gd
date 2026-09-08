@@ -233,15 +233,13 @@ func _physics_process(delta: float) -> void:
 			_send_local_input()
 	if not GameRuntime.is_dedicated_server() and not GameRuntime.is_classic():
 		_update_shop_stand_proximity()
-		# During self-test runs we disable all vision hiding (fog-of-war) so the
-		# bot and screenshots always see every sprite. No hiding "as an idea".
-		if not _selftest_active():
-			_update_fog_visibility(delta)
-			if fog_of_war != null:
-				var trees := PackedVector2Array()
-				if arena is Arena:
-					trees = (arena as Arena).vision_tree_positions()
-				fog_of_war.follow_player(_local_player(), trees)
+		# Vision-hiding disabled entirely (per user request): neither the dark
+		# fog-of-war overlay nor the per-sprite distance fade runs. The hero and
+		# every enemy stay fully visible everywhere on the map at all times.
+		if fog_of_war != null:
+			fog_of_war.visible = false
+			if fog_of_war.has_method("set_overlay_visible"):
+				fog_of_war.set_overlay_visible(false)
 	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT:
 		_update_revives(delta)
 		_tick_ffa(delta)
@@ -593,54 +591,18 @@ func _update_shop_stand_proximity() -> void:
 
 ## Fog-of-war: hides enemies and hostile players outside vision range, or with a tree
 ## between you (Obstacle.VISION_BLOCKER_LAYER). The FogOfWar overlay dims the map
-## outside the circle; this is what actually conceals a target. Visual-only for this
-## client's screen -- bots still aggro through trees.
+## so this only ever matters in co-op, which is the point — dying isn't a full reset there
+## as long as someone can reach you and hold position.
+## Hiding of enemies/hero by distance or trees has been intentionally disabled.
+## This is a no-op that forces full visibility so no sprite ever vanishes.
 func _update_fog_visibility(delta: float) -> void:
-	_fog_visibility_timer -= delta
-	if _fog_visibility_timer > 0.0:
-		return
-	_fog_visibility_timer = FOG_VISIBILITY_INTERVAL
-	var local_player := _local_player()
-	if local_player == null or not is_instance_valid(local_player):
-		return
-	var from := local_player.global_position
-	for enemy in enemies.values():
-		if is_instance_valid(enemy):
-			_apply_fog_visibility(enemy as Node2D, from)
-	for peer_id in players.keys():
-		var other := players[peer_id] as Player
-		if other == null or not is_instance_valid(other) or other == local_player:
-			continue
-		if other.team_id == local_player.team_id:
-			continue
-		_apply_fog_visibility(other, from)
+	pass
 
 
 func _apply_fog_visibility(target: Node2D, from: Vector2) -> void:
-	var to := target.global_position
-	var dist := from.distance_to(to)
-	# Distance-only visibility: outside the vision radius a sprite fades out.
-	# Tree/rock occlusion (the old raycast against Obstacle.VISION_BLOCKER_LAYER)
-	# was disabled because it fully hid sprites whenever a tree or rock sat between
-	# the player and the target, which read as sprites "disappearing".
-	#
-	# The user zooms out to ~0.5 for a wide overview, so a 700px hard fade ring
-	# made half the on-screen enemies invisible. Raise the fully-visible radius to
-	# cover the zoomed-out screen (~1900 world units half-width) and keep a soft
-	# outer grace band so sprites never vanish abruptly.
-	var full_radius := 1900.0
-	var visible_now := dist <= full_radius
-	if visible_now:
-		target.modulate.a = 1.0
-	elif dist <= full_radius * 1.25:
-		var t := (dist - full_radius) / (full_radius * 0.25)
-		target.modulate.a = maxf(0.0, 1.0 - t)
-	else:
-		target.modulate.a = 0.0
+	target.modulate.a = 1.0
 
 
-## so this only ever matters in co-op, which is the point — dying isn't a full reset there
-## as long as someone can reach you and hold position.
 func _update_revives(delta: float) -> void:
 	if GameRuntime.is_ffa():
 		return
