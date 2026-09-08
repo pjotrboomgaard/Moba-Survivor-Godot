@@ -269,9 +269,9 @@ const HEALTH_GROWTH_PER_WAVE := 0.22
 ## wave 15-20 — enemies survive longer *and* hit harder *and* there are more of them, all
 ## three axes growing at once. Eased to 1.12 so enemies are still tankier solo than in co-op,
 ## just without stacking a third compounding multiplier as hard on the late-wave spike.
-const SOLO_HEALTH_PRESSURE := 1.15
-const SOLO_BUDGET_PRESSURE := 1.12
-const SOLO_DAMAGE_PRESSURE := 1.35
+const SOLO_HEALTH_PRESSURE := 0.85
+const SOLO_BUDGET_PRESSURE := 0.90
+const SOLO_DAMAGE_PRESSURE := 1.05
 const SOLO_PRESSURE_FROM_WAVE := 2
 ## FFA: each "team" is a single hero fighting 3 rivals, so enemies get an extra 25%
 ## health bump and a 15% budget bump on top of the base curve to keep the challenge.
