@@ -33,15 +33,14 @@ func configure(main: Node, owner_peer_id: int, spawn_pos: Vector2) -> void:
 	global_position = spawn_pos
 
 
-## Set the minion's lifetime in seconds (town pets outlast the default 30s reward).
-func set_lifetime(seconds: float) -> void:
-	_life = seconds
-
-
 ## Override the minion's remaining lifetime (town pets stick around longer than
 ## the default 30s dance-reward minions).
 func set_lifetime(seconds: float) -> void:
 	_life = seconds
+## Town minions join the owner's team: they can attack enemy heroes and other
+## friendly minions. Toggle per-minion so the default dance-reward minions keep
+## the legacy enemies-only behaviour.
+var can_attack_heroes := false
 
 
 func _build_sprite() -> void:
@@ -111,18 +110,50 @@ func _nearest_enemy() -> Node2D:
 	var best: Node2D = null
 	var best_d := INF
 	var enemies: Dictionary = _main.get("enemies")
-	if enemies == null:
-		return null
-	for e in enemies.values():
-		if not is_instance_valid(e) or not (e is Node2D):
-			continue
-		var enemy := e
-		if enemy.is_boss:
-			continue
-		var d := global_position.distance_to(enemy.global_position)
-		if d < best_d:
-			best_d = d
-			best = enemy
+	if enemies != null:
+		for e in enemies.values():
+			if not is_instance_valid(e) or not (e is Node2D):
+				continue
+			var enemy := e
+			if enemy.is_boss:
+				continue
+			var d := global_position.distance_to(enemy.global_position)
+			if d < best_d:
+				best_d = d
+				best = enemy
+	# Town minions can also target enemy heroes and other friendly minions.
+	if can_attack_heroes:
+		var owner := _owner_player()
+		for candidate in get_tree().get_nodes_in_group("players"):
+			if not is_instance_valid(candidate) or not (candidate is Node2D):
+				continue
+			var p := candidate as Node2D
+			if owner != null and p == owner:
+				continue
+			var p_health: Node = p.get_node_or_null("HealthComponent")
+			if p_health == null:
+				continue
+			var is_dead: bool = bool(p_health.get("is_dead"))
+			if is_dead:
+				continue
+			var d := global_position.distance_to(p.global_position)
+			if d < best_d:
+				best_d = d
+				best = p
+		# Also target other teams' friendly minions.
+		for candidate in get_tree().get_nodes_in_group("friendly_minion"):
+			if not is_instance_valid(candidate) or not (candidate is Node2D):
+				continue
+			var m := candidate as Node2D
+			if m == self:
+				continue
+			var m_owner_id: Variant = m.get("_owner_peer_id")
+			if m_owner_id != null and int(m_owner_id) == _owner_peer_id:
+				continue  # don't fight our own team's minions
+			var d := global_position.distance_to(m.global_position)
+			if d < best_d:
+				best_d = d
+				best = m
 	return best
 
 

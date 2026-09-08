@@ -484,6 +484,10 @@ func _spawn_town_minion(player: Node2D) -> void:
 	# Give the minion a longer lifetime than the dance reward (town pets stick around).
 	if minion.has_method("set_lifetime"):
 		minion.set_lifetime(90.0)
+	# Town pets join the party: they can attack enemy heroes and other friendly
+	# minions so the owner has a real combat companion, not just a creep-farm helper.
+	if minion.has_method("can_attack_heroes"):
+		minion.can_attack_heroes = true
 	if main.has_method("_landmark_flash"):
 		var art := str(spec.get("art", "wolf"))
 		main._landmark_flash("%s joined your party!" % art.capitalize(), Color("9fd4ff"))
