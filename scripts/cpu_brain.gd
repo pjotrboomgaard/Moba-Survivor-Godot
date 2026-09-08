@@ -301,6 +301,12 @@ static func _pick_hunt_target(player: Player, tactic: int) -> Player:
 			pool.append(rival)
 	if pool.is_empty():
 		return null
+	# BULLY and AMBUSHER: if a rival is fighting at a camp, target them —
+	# they're locked into camp guardians and vulnerable to ambush.
+	var camp_victim := _rival_at_camp(pool)
+	if camp_victim != null and (tactic == FfaTactic.BULLY or tactic == FfaTactic.AMBUSHER):
+		return camp_victim
+
 	if tactic == FfaTactic.BULLY:
 		var weakest: Player = pool[0]
 		var worst := 2.0
@@ -330,6 +336,37 @@ static func _pick_hunt_target(player: Player, tactic: int) -> Player:
 			best_dist = dist
 			nearest = rival
 	return nearest
+
+
+## Return the first rival in `pool` that is standing near a camp guardian
+## (within the guardian's leash radius). Camps are high-value but risky,
+## so a rival locked into one is a prime PvP target.
+static func _rival_at_camp(pool: Array[Player]) -> Player:
+	var camp: Variant = _get_camp_spawner()
+	if camp == null or not (camp as Node).has_method("active_camp_positions"):
+		return null
+	var positions: Array = (camp as Node).active_camp_positions()
+	if positions.is_empty():
+		return null
+	# Camp guardian leash radius (see enemy.gd).
+	var leash := 300.0
+	for rival in pool:
+		for pos in positions:
+			if rival.global_position.distance_to(pos as Vector2) <= leash:
+				return rival
+	return null
+
+
+static func _get_camp_spawner() -> Node:
+	var tree := Engine.get_main_loop()
+	if tree is SceneTree:
+		for node in (tree as SceneTree).root.get_children():
+			if node.get("actors") != null:
+				# Look for the creep camp child.
+				for child in (node as Node).get_children():
+					if child.has_method("active_camp_positions"):
+						return child
+	return null
 
 
 static func _desired_move(player: Player, enemy: Node2D, ally: Player, distance: float) -> Vector2:

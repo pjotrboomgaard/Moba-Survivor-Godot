@@ -45,7 +45,7 @@
           "ready": true
         }
       ],
-      "t": 0.808201666666667
+      "t": 0.832992666666667
     },
     {
       "abilities": [
@@ -86,8 +86,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2920.0,
-              -2007.0
+              -2927.0,
+              -2003.0
             ],
             "team": "0"
           },
@@ -99,8 +99,8 @@
             "local": false,
             "peer": 101,
             "pos": [
-              3180.0,
-              -1984.0
+              3289.0,
+              -2083.0
             ],
             "team": "1"
           },
@@ -112,8 +112,8 @@
             "local": false,
             "peer": 102,
             "pos": [
-              -2970.0,
-              2040.0
+              -3104.0,
+              2065.0
             ],
             "team": "2"
           },
@@ -125,8 +125,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              3139.0,
-              2039.0
+              3251.0,
+              2019.0
             ],
             "team": "3"
           }
@@ -147,7 +147,7 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 0.927460666666667
+      "t": 0.914599666666667
     },
     {
       "abilities": [
@@ -169,10 +169,10 @@
         }
       ],
       "cds": [
-        18.1013333333337,
-        11.4266666666665,
-        13.12,
-        185.466666666661
+        18.2513333333337,
+        11.4433333333332,
+        13.27,
+        185.483333333328
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -188,8 +188,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2068.0,
-              -1138.0
+              -1993.0,
+              -1186.0
             ],
             "team": "0"
           },
@@ -201,8 +201,8 @@
             "local": false,
             "peer": 101,
             "pos": [
-              2137.0,
-              -672.0
+              2769.0,
+              -1020.0
             ],
             "team": "1"
           },
@@ -214,8 +214,8 @@
             "local": false,
             "peer": 102,
             "pos": [
-              -1514.0,
-              1120.0
+              -2437.0,
+              800.0
             ],
             "team": "2"
           },
@@ -227,8 +227,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              2149.0,
-              1476.0
+              2692.0,
+              1165.0
             ],
             "team": "3"
           }
@@ -249,7 +249,7 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 1,
-      "t": 8.02943366666665
+      "t": 8.00814319047618
     },
     {
       "abilities": [
@@ -271,9 +271,9 @@
         }
       ],
       "cds": [
-        10.1013333333335,
+        10.2346666666669,
         3.42666666666635,
-        5.11999999999977,
+        5.2533333333331,
         177.466666666655
       ],
       "enemies_alive": 0,
@@ -290,8 +290,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2839.0,
-              -1295.0
+              -2428.0,
+              -1512.0
             ],
             "team": "0"
           },
@@ -303,8 +303,8 @@
             "local": false,
             "peer": 101,
             "pos": [
-              1638.0,
-              174.0
+              2747.0,
+              -578.0
             ],
             "team": "1"
           },
@@ -316,8 +316,8 @@
             "local": false,
             "peer": 102,
             "pos": [
-              -1466.0,
-              435.0
+              -1711.0,
+              -767.0
             ],
             "team": "2"
           },
@@ -329,8 +329,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              1028.0,
-              1021.0
+              1748.0,
+              734.0
             ],
             "team": "3"
           }
@@ -351,12 +351,12 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 1,
-      "t": 16.0314313333333
+      "t": 16.0197229494949
     }
   ],
-  "elapsed": 16.2120673333333,
+  "elapsed": 16.25,
   "enemies_spawned": 0,
-  "hero_position": "(-2835.593, -1263.378)",
+  "hero_position": "(-2375.073, -1536.484)",
   "player_class": "tobor",
   "results": {
     "alive": true,
@@ -366,19 +366,19 @@
     "casts": [
       {
         "ability_id": "tobor_energy_field",
-        "t": 1.48204388888889
+        "t": 1.48262666666667
       },
       {
         "ability_id": "tobor_spider_mines",
-        "t": 2.25592566666667
+        "t": 2.27011166666667
       },
       {
         "ability_id": "tobor_steam_turret",
-        "t": 2.38310466666667
+        "t": 2.52105057575758
       },
       {
         "ability_id": "tobor_steam_keg",
-        "t": 2.466438
+        "t": 2.56271724242424
       }
     ],
     "died": false,
@@ -396,8 +396,8 @@
           "local": true,
           "peer": 1,
           "pos": [
-            -2836.0,
-            -1263.0
+            -2375.0,
+            -1536.0
           ],
           "team": "0"
         },
@@ -409,8 +409,8 @@
           "local": false,
           "peer": 101,
           "pos": [
-            1610.0,
-            171.0
+            2801.0,
+            -614.0
           ],
           "team": "1"
         },
@@ -422,8 +422,8 @@
           "local": false,
           "peer": 102,
           "pos": [
-            -1466.0,
-            414.0
+            -1662.0,
+            -748.0
           ],
           "team": "2"
         },
@@ -435,8 +435,8 @@
           "local": false,
           "peer": 103,
           "pos": [
-            1010.0,
-            987.0
+            1707.0,
+            713.0
           ],
           "team": "3"
         }
@@ -447,7 +447,7 @@
         5600.0
       ]
     },
-    "gold": 154,
+    "gold": 60,
     "hero_kills": 0,
     "hp_samples": [
       {
@@ -456,7 +456,7 @@
         "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 0.15
+        "t": 0.14
       },
       {
         "alive": true,
@@ -464,20 +464,20 @@
         "gold": 12,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.17
+        "t": 5.18
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 38,
+        "gold": 42,
         "hp": 1.0,
         "kills": 0,
-        "t": 10.21
+        "t": 10.19
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 150,
+        "gold": 60,
         "hp": 1.0,
         "kills": 0,
         "t": 15.22
@@ -487,7 +487,7 @@
     "level": 2,
     "level_upgrades": {
       "2": [
-        "keen_eye"
+        "double_tap"
       ]
     },
     "max_hp": 1.0,
@@ -499,28 +499,28 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "keen_eye"
+      "double_tap"
     ],
     "until_wave": 20,
     "verdict": "PASS_OK",
     "wave": 1,
-    "xp": 65
+    "xp": 35
   },
   "shots": [
     {
       "label": "ffa_t0",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3404/ffa_t0_1.005_3404.png",
-      "t": 1.00482066666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3395/ffa_t0_1.035_3395.png",
+      "t": 1.03533566666667
     },
     {
       "label": "ffa_t8",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10521/ffa_t8_8.116_10520.png",
-      "t": 8.11610033333332
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10511/ffa_t8_8.137_10511.png",
+      "t": 8.13671461904761
     },
     {
       "label": "ffa_t16",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_18537/ffa_t16_16.121_18537.png",
-      "t": 16.1214133333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_18483/ffa_t16_16.109_18483.png",
+      "t": 16.1086118383838
     }
   ]
 }
