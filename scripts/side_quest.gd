@@ -437,12 +437,12 @@ func _tick_rescue(delta: float, player: Node2D) -> void:
 ## The player "befriends" it by staying nearby for a few seconds. On completion the
 ## animal joins as a persistent friendly minion that fights for the player.
 ## This is distinct from dance (mirror moves) and rescue (save an NPC from creeps):
-## here there are no hostiles — it's a peaceful "adopt the pet" interaction.
+## here there are no hostiles - it is a peaceful "adopt the pet" interaction.
 func _spawn_town(origin: Vector2) -> void:
 	# Spawn the town animal as a marker sprite the player must approach.
 	var art := str(spec.get("art", "wolf"))
 	_town_sprite = _spawn_sprite(art, origin, 4.6)
-	_town_stand := 0.0
+	_town_stand = 0.0
 	_town_stand_need = float(spec.get("stand", 4.0))
 	seek_position = origin
 	if _main != null and _main.has_method("_landmark_flash"):

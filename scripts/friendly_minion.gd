@@ -33,6 +33,11 @@ func configure(main: Node, owner_peer_id: int, spawn_pos: Vector2) -> void:
 	global_position = spawn_pos
 
 
+## Set the minion's lifetime in seconds (town pets outlast the default 30s reward).
+func set_lifetime(seconds: float) -> void:
+	_life = seconds
+
+
 ## Override the minion's remaining lifetime (town pets stick around longer than
 ## the default 30s dance-reward minions).
 func set_lifetime(seconds: float) -> void:

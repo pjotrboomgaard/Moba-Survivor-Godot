@@ -51,13 +51,13 @@ const POOL: Array[Dictionary] = [
 ## <1 suppresses. Grass (id 0) falls through to _DEFAULT_WEIGHTS (all 1.0).
 const _BIOME_MODE_WEIGHTS: Dictionary = {
 	# Volcano: favor smashing and shard-collecting (lava/volcanic theme)
-	1: {"smash": 2.0, "collect": 1.6, "chase": 1.0, "stand": 0.7, "visit": 0.7, "kill": 1.2, "rescue": 0.8, "dance": 0.6},
+	1: {"smash": 2.0, "collect": 1.6, "chase": 1.0, "stand": 0.7, "visit": 0.7, "kill": 1.2, "rescue": 0.8, "dance": 0.6, "town": 0.9},
 	# Ice: favor standing-still and chase quests (frozen theme)
-	2: {"stand": 2.0, "chase": 1.6, "collect": 0.8, "smash": 0.8, "visit": 0.9, "kill": 1.0, "rescue": 0.9, "dance": 0.8},
+	2: {"stand": 2.0, "chase": 1.6, "collect": 0.8, "smash": 0.8, "visit": 0.9, "kill": 1.0, "rescue": 0.9, "dance": 0.8, "town": 1.0},
 	# Factory: favor collect and smash (industrial theme)
-	3: {"collect": 2.0, "smash": 1.6, "kill": 1.1, "chase": 0.8, "stand": 0.9, "visit": 0.9, "rescue": 0.8, "dance": 0.8},
+	3: {"collect": 2.0, "smash": 1.6, "kill": 1.1, "chase": 0.8, "stand": 0.9, "visit": 0.9, "rescue": 0.8, "dance": 0.8, "town": 0.8},
 	# Docks: favor visit and rescue (port theme)
-	4: {"visit": 2.0, "rescue": 1.8, "collect": 1.0, "kill": 1.0, "chase": 0.8, "smash": 0.8, "stand": 0.8, "dance": 0.8},
+	4: {"visit": 2.0, "rescue": 1.8, "collect": 1.0, "kill": 1.0, "chase": 0.8, "smash": 0.8, "stand": 0.8, "dance": 0.8, "town": 1.1},
 }
 const _DEFAULT_MODE_WEIGHT: float = 1.0
 

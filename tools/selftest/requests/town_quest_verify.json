@@ -1,0 +1,17 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 2,
+  "duration": 35,
+  "time_scale": 1.5,
+  "build": "tank",
+  "comment": "Verify town quest: befriend wolf/raven/fox -> minion joins.",
+  "events": [
+    {"kind": "snap", "label": "town_start", "t": 2.0},
+    {"kind": "walk_to", "at": [0, 0], "timeout": 10.0, "t": 3.0},
+    {"kind": "snap", "label": "town_approach", "t": 15.0},
+    {"kind": "probe", "label": "town_probe", "t": 20.0},
+    {"kind": "snap", "label": "town_minion", "t": 30.0},
+    {"kind": "report", "t": 35.0}
+  ]
+}
