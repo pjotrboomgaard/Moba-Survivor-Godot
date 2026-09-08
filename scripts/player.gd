@@ -201,6 +201,7 @@ var cpu_smoothed_move := Vector2.ZERO
 var _ffa_think_timer := 0.0
 var _ffa_last_think := {}
 var hero_kills := 0
+var creep_kills := 0
 var pvp_invuln_timer := 0.0
 var knockback_velocity := Vector2.ZERO
 var ffa_respawn_left := 0.0
@@ -807,6 +808,10 @@ func _charge_aim_point() -> Vector2:
 	var primary := _find_primary_pvp_target()
 	if primary != null:
 		return primary.global_position
+	if weapon_kind == PlayerClass.Weapon.ENERGY_BLAST:
+		var blast_target := _find_primary_target()
+		if blast_target != null:
+			return blast_target.global_position
 	var reach := minf(attack_range, 280.0)
 	if weapon_kind == PlayerClass.Weapon.ENERGY_BLAST:
 		reach = minf(attack_range, 280.0)

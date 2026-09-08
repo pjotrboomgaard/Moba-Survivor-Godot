@@ -61,7 +61,10 @@ func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixel
 		# Below landmark pads (z 2) so tufts/flowers never paint over shrines.
 		z_index = 1
 	elif is_tree:
-		z_index = WorldClock.depth_z(global_position.y)
+		# Negative bias so the tall canopy never paints over a unit at the same y.
+		# Trees still sort correctly relative to each other and relative to units
+		# that are well behind them (y difference > 80 px).
+		z_index = WorldClock.depth_z(global_position.y, -80)
 	else:
 		z_index = 8
 	if is_tree:
@@ -103,10 +106,11 @@ func _update_shadow_rotation() -> void:
 	_shadow.rotation = angle + PI / 2.0
 	var stretch := WorldClock.shadow_stretch
 	_shadow.scale = Vector2(1.0, 1.0 + stretch)
-	# Offset the shadow away from the sun (down-right) so it sits at the base of
-	# the object rather than centered on it. Bigger offset for rocks so the
-	# smaller shadow doesn't hide under the body.
-	var off := body_radius * (0.10 if _is_tree_shadow else 0.22)
+	# The tree shadow's canopy center moves along the shadow direction in
+	# proportion to the sun's stretch: at dawn/dusk (high stretch) the shadow
+	# reaches far to the side, at noon (low stretch) it stays short and close.
+	# Rocks keep a fixed small base offset.
+	var off := body_radius * (0.5 + stretch * 1.2) if _is_tree_shadow else body_radius * 0.22
 	_shadow.position = shadow_dir * off + Vector2(0.0, body_radius * 0.12)
 	_shadow.modulate = Color(0.0, 0.0, 0.0, WorldClock.shadow_alpha)
 
@@ -133,28 +137,58 @@ func _ensure_shadow(zoom: float, is_tree: bool) -> void:
 
 
 func _build_shadow_texture(zoom: float) -> void:
-	# Shape-fit the shadow: trees are broad ovals (canopy), rocks are smaller
-	# rounder blobs. Rocks get a shadow clearly smaller than the rock body so it
-	# reads as a cast shadow at the base rather than a slab surrounding it.
+	# Shape-fit the shadow: trees are broad elongated silhouettes with a canopy
+	# bulge and a thin trunk tail; rocks are smaller rounder blobs. The tree
+	# shadow tapers from a wide canopy end (y=0) to a thin trunk point (y=h-1),
+	# so when rotated to point away from the sun, the trunk end sits near the
+	# tree base and the canopy end swings far out.
 	var radius_px := int(maxf(4.0, body_radius * zoom * 0.9))
-	var w := maxi(6, int(radius_px * 0.78)) if _is_tree_shadow else maxi(5, int(radius_px * 0.45))
-	var h := maxi(4, int(w * 0.5)) if _is_tree_shadow else maxi(4, int(w * 0.62))
-	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
-	var center := Vector2(w * 0.5, h * 0.5)
-	for y in h:
-		for x in w:
-			var px := Vector2(x - center.x, y - center.y)
-			# Elliptical falloff so the shadow fits the footprint shape.
-			var nd := Vector2(px.x / (w * 0.5), px.y / (h * 0.5))
-			var d := nd.length()
-			var alpha := 0.0
-			if d < 0.6:
-				alpha = 1.0
-			elif d < 1.0:
-				alpha = 1.0 - (d - 0.6) / 0.4
-			img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.85))
-	_shadow_img = img
-	_shadow.texture = ImageTexture.create_from_image(img)
+	if _is_tree_shadow:
+		# Wide canopy blob with an elongated trunk tail.
+		var w := maxi(8, int(radius_px * 1.6))
+		var h := maxi(6, int(radius_px * 1.0))
+		var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+		var cx := float(w) * 0.5
+		for y in h:
+			# Taper: wide at canopy end (y=0), thin at trunk end (y=h-1).
+			var t := float(y) / float(h)  # 0 = canopy, 1 = trunk
+			var half_w := (w * 0.5) * (1.0 - t * 0.85)
+			# Canopy bulge: slightly wider around the top 40% for a rounded canopy.
+			if t < 0.4:
+				half_w *= 1.15
+			for x in w:
+				var dx := absf(float(x) - cx)
+				var alpha := 0.0
+				if dx < half_w * 0.7:
+					alpha = 1.0
+				elif dx < half_w:
+					alpha = 1.0 - (dx - half_w * 0.7) / (half_w * 0.3)
+				# Vertical falloff at the trunk tip.
+				if t > 0.85:
+					alpha *= (1.0 - t) / 0.15
+				if alpha > 0.0:
+					img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.85))
+		_shadow_img = img
+		_shadow.texture = ImageTexture.create_from_image(img)
+	else:
+		# Rocks: small rounder blobs, clearly smaller than the rock body.
+		var w := maxi(5, int(radius_px * 0.45))
+		var h := maxi(4, int(w * 0.62))
+		var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+		var center := Vector2(w * 0.5, h * 0.5)
+		for y in h:
+			for x in w:
+				var px := Vector2(x - center.x, y - center.y)
+				var nd := Vector2(px.x / (w * 0.5), px.y / (h * 0.5))
+				var d := nd.length()
+				var alpha := 0.0
+				if d < 0.6:
+					alpha = 1.0
+				elif d < 1.0:
+					alpha = 1.0 - (d - 0.6) / 0.4
+				img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.85))
+		_shadow_img = img
+		_shadow.texture = ImageTexture.create_from_image(img)
 
 
 func is_vision_blocker() -> bool:

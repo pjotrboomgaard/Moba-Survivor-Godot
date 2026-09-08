@@ -158,9 +158,9 @@ func _outskirts_origin() -> Vector2:
 		base = rcm.team_anchor(slot)
 	var away := base
 	if away.length() < 80.0:
-		away = Vector2.RIGHT.rotated(float(slot) * TAU * 0.25 + 0.4) * 900.0
+		away = Vector2.RIGHT.rotated(float(slot) * TAU * 0.25 + 0.4) * 700.0
 	else:
-		away = away * 1.18
+		away = away * 0.95
 	away += Vector2.RIGHT.rotated(randf() * TAU) * randf_range(80.0, 220.0)
 	if arena != null:
 		if arena.crater_contains(away, 48.0):

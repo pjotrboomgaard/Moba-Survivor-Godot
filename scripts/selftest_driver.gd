@@ -67,8 +67,8 @@ var _quest_last_count := 0
 ## completes quests instead of ignoring them while enemies are nearby.
 var _quest_focus_until := 0.0
 var _quest_last_switch_t := 0.0
-const QUEST_FOCUS_WINDOW := 9.0    # seconds to spend on a quest when it's time
-const QUEST_CHECK_INTERVAL := 22.0 # seconds between forced quest-priority switches
+const QUEST_FOCUS_WINDOW := 14.0   # seconds to spend on a quest when it's time
+const QUEST_CHECK_INTERVAL := 15.0 # seconds between forced quest-priority switches
 
 
 static func from_request(path: String = "user://selftest_request.json") -> SelfTestDriver:
@@ -1337,6 +1337,7 @@ func _finish_and_quit() -> void:
 			"level": _player.level if _player != null else 0,
 			"xp": _player.current_xp if _player != null else 0,
 			"hero_kills": _player.hero_kills if _player != null else 0,
+			"creep_kills": _player.creep_kills if _player != null else 0,
 			"quests_seen": _quest_seen.duplicate(),
 			"quest_types": _quest_seen.size(),
 			"taken_upgrades": (_player.taken_upgrades if _player != null else []),
@@ -1349,7 +1350,7 @@ func _finish_and_quit() -> void:
 	var file := FileAccess.open(report_out, FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "  "))
 	file.close()
-	print("[SelfTestDriver] report → %s verdict=%s min_hp=%.2f late=%.2f saves=%d casts=%d buys=%d beaten=%d gold=%d lv=%d kills=%d" % [report_out, _verdict, _min_hp_frac, _min_hp_late, _landmark_saves, _casts.size(), _shop_buys.size(), _beaten_wave, _player.gold if _player != null else 0, _player.level if _player != null else 0, _player.hero_kills if _player != null else 0])
+	print("[SelfTestDriver] report → %s verdict=%s min_hp=%.2f late=%.2f saves=%d casts=%d buys=%d beaten=%d gold=%d lv=%d creep_kills=%d" % [report_out, _verdict, _min_hp_frac, _min_hp_late, _landmark_saves, _casts.size(), _shop_buys.size(), _beaten_wave, _player.gold if _player != null else 0, _player.level if _player != null else 0, _player.creep_kills if _player != null else 0])
 	# Reset time scale so it doesn't affect any subsequent manual session.
 	Engine.time_scale = 1.0
 	get_tree().quit(0)

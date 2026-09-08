@@ -115,6 +115,10 @@ func _draw() -> void:
 			color = RiftClashManager.team_color(player.team_id)
 		draw_circle(point, PLAYER_RADIUS, color)
 		draw_circle(point, PLAYER_RADIUS, Color.BLACK, false, 1.0)
+	# Camera viewport overlay: the portion of the world currently visible in the main
+	# camera, drawn as a translucent white rect + brighter border so the player can
+	# see "how much of the map am I actually looking at right now".
+	_draw_camera_viewport_overlay()
 	draw_rect(rect, BORDER_COLOR, false, 2.0)
 
 
@@ -124,3 +128,50 @@ func _to_local(world_position: Vector2) -> Vector2:
 		clampf(normalized.x * size.x, 0.0, size.x),
 		clampf(normalized.y * size.y, 0.0, size.y)
 	)
+
+# Draws a semi-transparent white rectangle showing the area currently visible
+# in the main camera viewport. Updated every frame via _process -> queue_redraw().
+func _draw_camera_viewport_overlay() -> void:
+	var local_player := get_tree().get_first_node_in_group("players")
+	if local_player == null or not is_instance_valid(local_player):
+		return
+	var camera := local_player.get_node_or_null("Camera2D")
+	if camera == null or not (camera is Camera2D):
+		return
+	var cam := camera as Camera2D
+	if not cam.enabled:
+		return
+
+	# Compute the camera's visible world-space area.
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+	var half_world_size: Vector2 = viewport_size / (cam.zoom * 2.0)
+	# The Camera2D is a child of the player and tracks it, so the player's
+	# global_position IS the camera's world center.
+	var world_center: Vector2 = (local_player as Node2D).global_position
+	# World rect: from top-left corner to bottom-right corner.
+	var world_tl: Vector2 = world_center - half_world_size
+	var world_br: Vector2 = world_center + half_world_size
+
+	# Transform world corners into minimap-local coordinates.
+	var local_tl := _to_local(world_tl)
+	var local_br := _to_local(world_br)
+	var local_rect := Rect2(Vector2(
+		minf(local_tl.x, local_br.x),
+		minf(local_tl.y, local_br.y)
+	), Vector2(
+		absf(local_br.x - local_tl.x),
+		absf(local_br.y - local_tl.y)
+	))
+
+	# Clamp to the minimap bounds so we don't draw outside (Godot 4 has no
+	# Rect2.intersect that returns a Rect2, so clamp manually).
+	var clamped_x := clampf(local_rect.position.x, 0.0, size.x)
+	var clamped_y := clampf(local_rect.position.y, 0.0, size.y)
+	var clamped_right := clampf(local_rect.end.x, 0.0, size.x)
+	var clamped_bottom := clampf(local_rect.end.y, 0.0, size.y)
+	if clamped_right <= clamped_x or clamped_bottom <= clamped_y:
+		return
+	local_rect = Rect2(Vector2(clamped_x, clamped_y), Vector2(clamped_right - clamped_x, clamped_bottom - clamped_y))
+
+	draw_rect(local_rect, Color(1, 1, 1, 0.15), true)
+	draw_rect(local_rect, Color(1, 1, 1, 0.4), false, 1.5)

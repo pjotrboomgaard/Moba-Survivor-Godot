@@ -5,6 +5,7 @@ const UpgradeCatalog := preload("res://scripts/upgrade_catalog.gd")
 const RunSave := preload("res://scripts/run_save.gd")
 const SideQuestDirector := preload("res://scripts/side_quest_director.gd")
 const CreepCampScript := preload("res://scripts/creep_camp.gd")
+const _CorpseScript := preload("res://scripts/corpse.gd")
 
 @export var max_enemies := 110
 ## Spawn ring relative to the player. At the default zoom of 0.5 the viewport
@@ -1300,7 +1301,8 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 	if camp_guardian:
 		enemy.is_camp_guardian = true
 		enemy.camp_guardian_home = enemy.global_position
-		enemy.health.damage_taken_multiplier = 0.6  # tanky: takes 60% of normal damage
+		enemy.health.damage_taken_multiplier = 0.85  # moderately tanky
+		enemy.health.max_health *= 2.0  # 2x HP makes them clearly tanky
 		# Contact damage is halved — the undodgeable slam pulse (14 dmg / 3s in
 		# _process_camp_guardian) is the primary "you always take dmg" element.
 		# Contact is secondary so a kiting player chips the guardian without
@@ -1506,20 +1508,49 @@ func _spawn_xp_orb(position: Vector2, value: int) -> XPOrb:
 func _on_enemy_defeated(enemy: Enemy) -> void:
 	enemies.erase(enemy.network_id)
 	_spawn_xp_orb(enemy.global_position, enemy.xp_value)
+	_spawn_corpse(enemy)
 	if GameRuntime.is_ffa() and enemy.health.last_damage_source is Player:
 		var creep_killer := enemy.health.last_damage_source as Player
 		creep_killer.add_gold(maxi(1, int(round(float(enemy.gold_value) * 1.5))))
+		creep_killer.creep_kills += 1
 	elif GameRuntime.is_rift_clash() and enemy.health.last_damage_source is Player:
 		var killer := enemy.health.last_damage_source as Player
+		killer.creep_kills += 1
 		if killer.team_id != "":
 			_award_gold_to_team(killer.team_id, enemy.gold_value)
 	else:
 		_award_gold(enemy.gold_value)
+		if enemy.health.last_damage_source is Player:
+			var solo_killer := enemy.health.last_damage_source as Player
+			solo_killer.creep_kills += 1
 	if not _is_tiny_fodder(enemy):
 		_play_sound("enemy_death")
 		if GameRuntime.is_server():
 			for peer_id in registered_remote_peers.keys():
 				client_play_sound.rpc_id(peer_id, "enemy_death")
+
+
+## Drop a tiny flattened corpse at the kill site. Purely cosmetic; skipped on a
+## dedicated server (no rendering), when the enemy has no sprite texture yet, or
+## when the live corpse cap is already reached.
+func _spawn_corpse(enemy: Enemy) -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	var sprite_node := enemy.get("sprite") as Sprite2D
+	var texture: Texture2D = null
+	if sprite_node != null and is_instance_valid(sprite_node):
+		texture = sprite_node.texture
+	if texture == null:
+		texture = SpriteLibrary.texture_for(enemy.type_id)
+	if texture == null:
+		return
+	if get_tree().get_nodes_in_group("corpses").size() >= 60:
+		return
+	var corpse: Node2D = _CorpseScript.new()
+	corpse.global_position = enemy.global_position
+	var base_scale := sprite_node.scale if sprite_node != null and is_instance_valid(sprite_node) else Vector2.ONE
+	corpse.configure(texture, base_scale, enemy.fill_color)
+	actors.add_child(corpse)
 
 
 ## Landmark effects run on the session authority: dedicated/listen server, or OFFLINE solo.
