@@ -61,6 +61,9 @@ var _dance_match_window := 2.0
 var _dancer: Node2D = null
 var _dance_footprints: Array[Node2D] = []
 var _footprint_deadline: Array[float] = []
+var _town_sprite: Node2D = null
+var _town_stand := 0.0
+var _town_stand_need := 4.0
 
 
 func configure(owner_id: int, next_spec: Dictionary) -> void:
@@ -96,6 +99,8 @@ func begin(main: Node) -> void:
 			_spawn_rescue(origin)
 		"dance":
 			_spawn_dance(origin)
+		"town":
+			_spawn_town(origin)
 		_:
 			_spawn_cluster(origin)
 	_refresh_hud_line()
@@ -132,6 +137,8 @@ func _process(delta: float) -> void:
 			_tick_rescue(delta, player)
 		"dance":
 			_tick_dance(delta, player)
+		"town":
+			_tick_town(delta, player)
 
 
 func _owner() -> Node2D:
@@ -426,6 +433,62 @@ func _tick_rescue(delta: float, player: Node2D) -> void:
 		_finish()
 
 
+## Town mode: a neutral town animal (wolf/raven/fox) sits at a small gathering spot.
+## The player "befriends" it by staying nearby for a few seconds. On completion the
+## animal joins as a persistent friendly minion that fights for the player.
+## This is distinct from dance (mirror moves) and rescue (save an NPC from creeps):
+## here there are no hostiles — it's a peaceful "adopt the pet" interaction.
+func _spawn_town(origin: Vector2) -> void:
+	# Spawn the town animal as a marker sprite the player must approach.
+	var art := str(spec.get("art", "wolf"))
+	_town_sprite = _spawn_sprite(art, origin, 4.6)
+	_town_stand := 0.0
+	_town_stand_need = float(spec.get("stand", 4.0))
+	seek_position = origin
+	if _main != null and _main.has_method("_landmark_flash"):
+		_main._landmark_flash("Befriend the %s" % art, Color("9fd4ff"))
+
+
+func _tick_town(delta: float, player: Node2D) -> void:
+	if _town_sprite == null or not is_instance_valid(_town_sprite):
+		_finish()
+		return
+	seek_position = _town_sprite.global_position
+	var center := _town_sprite.global_position
+	var dist := player.global_position.distance_to(center)
+	if dist <= 70.0:
+		_town_stand += delta
+		# Visual: the animal brightens as the player gets closer to befriending it.
+		var progress := clampf(_town_stand / _town_stand_need, 0.0, 1.0)
+		_town_sprite.modulate = _town_sprite.modulate.lerp(Color(0.7, 0.9, 1.2, 1.0), 0.1)
+		if _town_stand >= _town_stand_need:
+			_spawn_town_minion(player)
+			_finish()
+	else:
+		# Drift away if the player leaves — slow decay.
+		_town_stand = maxf(0.0, _town_stand - delta * 0.5)
+
+
+## Reward: the town animal permanently joins the player as a friendly minion.
+func _spawn_town_minion(player: Node2D) -> void:
+	var main := _main
+	if main == null or main.get("actors") == null:
+		return
+	var actors: Node = main.get("actors")
+	var MinionScript: Variant = load("res://scripts/friendly_minion.gd")
+	var minion: Node2D = MinionScript.new()
+	actors.add_child(minion)
+	minion.global_position = _town_sprite.global_position if is_instance_valid(_town_sprite) else player.global_position
+	if minion.has_method("configure"):
+		minion.configure(main, player.owner_peer_id, minion.global_position)
+	# Give the minion a longer lifetime than the dance reward (town pets stick around).
+	if minion.has_method("set_lifetime"):
+		minion.set_lifetime(90.0)
+	if main.has_method("_landmark_flash"):
+		var art := str(spec.get("art", "wolf"))
+		main._landmark_flash("%s joined your party!" % art.capitalize(), Color("9fd4ff"))
+
+
 ## Dance mode: a dancer NPC performs a sequence of quick directional moves. The player must
 ## follow the dancer's movement pattern for the duration. Touching the footprints the dancer
 ## leaves behind counts as matching the move. Reward: a wave of friendly minions.
@@ -533,6 +596,9 @@ func _refresh_hud_line() -> void:
 			hud_line = "%s  (%d creeps)" % [title, alive]
 		"dance":
 			hud_line = "%s  %d/%d moves" % [title, _have, _need]
+		"town":
+			var remain := maxf(0.0, _town_stand_need - _town_stand)
+			hud_line = "%s  %.1fs" % [title, remain]
 		_:
 			hud_line = title
 	if _main != null and _main.has_method("_refresh_side_quest_hud"):
