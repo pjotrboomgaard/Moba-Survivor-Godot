@@ -1,5 +1,7 @@
 extends Node
 
+const RunSave := preload("res://scripts/run_save.gd")
+
 const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 
 @onready var backdrop: ColorRect = $StatusLayer/Backdrop
@@ -50,8 +52,11 @@ var loadout_slots: Array[Button] = []
 @onready var ability_hero_header: Label = $StatusLayer/AbilityPanel/Margin/Layout/HeroHeader
 @onready var ability_hero_blurb: Label = $StatusLayer/AbilityPanel/Margin/Layout/HeroBlurb
 @onready var ability_list: VBoxContainer = $StatusLayer/AbilityPanel/Margin/Layout/AbilityScroll/AbilityList
+var ability_hover_icon: TextureRect = null
+var ability_hover_body: RichTextLabel = null
 
 var _ability_panel_hero_id: String = ""
+var _pending_run_save: Dictionary = {}
 var roster_info_button: Button = null
 var _shown_kit_ids: Array[String] = []
 
@@ -165,6 +170,7 @@ func _ready() -> void:
 	_build_class_selection()
 	_refresh_game_mode()
 	solo_button.pressed.connect(_on_solo_pressed)
+	_sync_continue_button()
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
 	address_input.text_submitted.connect(_on_address_submitted)
@@ -422,7 +428,8 @@ func _apply_tobor_theme() -> void:
 	title_label.add_theme_font_override("font", preload("res://assets/fonts/Barlow-SemiBold.ttf"))
 	title_label.add_theme_font_size_override("font_size", 40)
 	title_label.add_theme_color_override("font_color", Color("ff7a2e"))
-	subtitle_label.add_theme_color_override("font_color", Color("f5c542"))
+	if subtitle_label != null:
+		subtitle_label.visible = false
 	mode_row.visible = true
 	class_label.text = "Hero"
 	lobby_title_label.text = "Lobby"
@@ -445,6 +452,7 @@ func _hero_backdrop() -> TextureRect:
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(art)
 	layer.move_child(art, backdrop.get_index() + 1)
+	_raise_ability_hover()
 	return art
 
 
@@ -455,6 +463,7 @@ func _apply_hero_backdrop() -> void:
 	art.offset_right = -518.0
 	art.texture = SpriteLibrary.menu_backdrop_for(PlayerProfile.selected_class_id)
 	art.visible = true
+	_raise_ability_hover()
 
 
 var selected_world: int = 0
@@ -826,6 +835,8 @@ func _format_ability_tooltip(ability_id: String) -> String:
 	var stat_line: Array[String] = []
 	if float(values_r1.get("cooldown", 0.0)) > 0.0:
 		stat_line.append("[b]Cooldown:[/b] %s s" % _rank_slash_list(ability_id, "cooldown", 1))
+	if float(values_r1.get("power", 0.0)) > 0.0:
+		stat_line.append("[b]Power:[/b] %s" % _rank_slash_list(ability_id, "power", 0))
 	if float(values_r1.get("radius", 0.0)) > 0.0:
 		stat_line.append("[b]Radius:[/b] %s" % _rank_slash_list(ability_id, "radius", 0))
 	if float(values_r1.get("range", 0.0)) > 0.0:
@@ -1011,40 +1022,105 @@ func _layout_ability_hover_panel() -> void:
 	ability_panel.anchor_top = 0.0
 	ability_panel.anchor_right = 0.0
 	ability_panel.anchor_bottom = 0.0
-	ability_panel.offset_left = 28.0
-	ability_panel.offset_top = 96.0
-	ability_panel.offset_right = 500.0
-	ability_panel.offset_bottom = 420.0
+	ability_panel.offset_left = 36.0
+	ability_panel.offset_top = 72.0
+	ability_panel.offset_right = 520.0
+	ability_panel.offset_bottom = 520.0
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.045, 0.06, 0.88)
-	style.border_color = Color(0.95, 0.62, 0.22, 0.85)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
+	style.bg_color = Color(0.05, 0.04, 0.03, 0.55)
+	style.border_color = Color(1.0, 0.72, 0.28, 0.9)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	style.content_margin_left = 18
+	style.content_margin_right = 18
+	style.content_margin_top = 16
+	style.content_margin_bottom = 16
 	ability_panel.add_theme_stylebox_override("panel", style)
+	var layout := ability_panel.get_node_or_null("Margin/Layout") as VBoxContainer
+	if layout != null:
+		ability_hover_icon = layout.get_node_or_null("AbilityHoverIcon") as TextureRect
+		if ability_hover_icon == null:
+			ability_hover_icon = TextureRect.new()
+			ability_hover_icon.name = "AbilityHoverIcon"
+			layout.add_child(ability_hover_icon)
+			layout.move_child(ability_hover_icon, 0)
+		ability_hover_icon.custom_minimum_size = Vector2(64, 64)
+		ability_hover_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		ability_hover_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		ability_hover_icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		ability_hover_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		ability_hover_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ability_hover_icon.visible = false
+		ability_hover_body = layout.get_node_or_null("AbilityHoverBody") as RichTextLabel
+		if ability_hover_body == null:
+			ability_hover_body = RichTextLabel.new()
+			ability_hover_body.name = "AbilityHoverBody"
+			layout.add_child(ability_hover_body)
+			var blurb_index := ability_hero_blurb.get_index() if ability_hero_blurb != null else 2
+			layout.move_child(ability_hover_body, blurb_index + 1)
+		ability_hover_body.bbcode_enabled = true
+		ability_hover_body.fit_content = true
+		ability_hover_body.scroll_active = false
+		ability_hover_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ability_hover_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		ability_hover_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ability_hover_body.add_theme_color_override("default_color", Color("f4f0e6"))
+		ability_hover_body.add_theme_font_size_override("normal_font_size", 16)
+	if ability_hero_header != null:
+		ability_hero_header.add_theme_font_size_override("font_size", 28)
+		ability_hero_header.add_theme_color_override("font_color", Color("ffe08c"))
+		ability_hero_header.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		ability_hero_header.add_theme_constant_override("outline_size", 8)
+		ability_hero_header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if ability_hero_blurb != null:
+		ability_hero_blurb.visible = false
 		ability_hero_blurb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ability_hero_blurb.add_theme_font_size_override("font_size", 18)
+		ability_hero_blurb.add_theme_font_size_override("font_size", 20)
+		ability_hero_blurb.add_theme_color_override("font_color", Color("f4f0e6"))
+		ability_hero_blurb.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		ability_hero_blurb.add_theme_constant_override("outline_size", 6)
 	var scroll := ability_panel.get_node_or_null("Margin/Layout/AbilityScroll") as Control
 	if scroll != null:
 		scroll.visible = false
 	var divider := ability_panel.get_node_or_null("Margin/Layout/Divider") as Control
 	if divider != null:
 		divider.visible = false
+	_raise_ability_hover()
+
+
+func _raise_ability_hover() -> void:
+	if ability_panel == null:
+		return
+	var layer := $StatusLayer as CanvasLayer
+	if layer == null:
+		return
+	layer.move_child(ability_panel, layer.get_child_count() - 1)
+	if lobby_panel != null and lobby_panel.get_parent() == layer:
+		layer.move_child(lobby_panel, layer.get_child_count() - 1)
 
 
 func _show_ability_hover(ability_id: String) -> void:
-	if ability_panel == null or ability_hero_header == null or ability_hero_blurb == null:
+	if ability_panel == null or ability_hero_header == null:
 		return
 	var text := _ability_tooltip(ability_id)
 	var lines := text.split("\n")
 	ability_hero_header.text = str(lines[0]) if lines.size() > 0 else ability_id
-	ability_hero_blurb.text = "\n".join(PackedStringArray(lines.slice(1))) if lines.size() > 1 else ""
+	if ability_hover_icon != null:
+		ability_hover_icon.texture = SpriteLibrary.texture_for(ability_id)
+		ability_hover_icon.visible = true
+	if ability_hover_body != null:
+		ability_hover_body.text = _format_ability_tooltip(ability_id)
+	elif ability_hero_blurb != null:
+		ability_hero_blurb.visible = true
+		ability_hero_blurb.text = _format_ability_tooltip(ability_id).replace("[b]", "").replace("[/b]", "").replace("[color=9fb3d1]", "").replace("[/color]", "")
 	ability_panel.visible = true
 
 
 func _hide_ability_hover() -> void:
 	if ability_panel != null:
 		ability_panel.visible = false
+	if ability_hover_icon != null:
+		ability_hover_icon.visible = false
 
 
 func _ability_tooltip(ability_id: String) -> String:
@@ -1054,7 +1130,7 @@ func _ability_tooltip(ability_id: String) -> String:
 	var lines: Array[String] = []
 	var tag := "ULT" if float(info.get("cooldown_base", 0.0)) >= 14.0 else str(PlayerClass.ARCHETYPE_NAMES.get(int(info.get("archetype", 0)), "Ability"))
 	lines.append("%s  ·  %s" % [str(info.get("name", ability_id)).to_upper(), tag])
-	lines.append(str(info.get("description", "")))
+	lines.append(_substitute_placeholders(str(info.get("description", "")), ability_id, info))
 	var values := PlayerClass.ability_values(ability_id, 1)
 	var stats: Array[String] = []
 	if values.has("cooldown"):
@@ -1076,7 +1152,8 @@ func _ability_tooltip(ability_id: String) -> String:
 
 func _refresh_header_detail(hero_id: String) -> void:
 	var selected := PlayerClass.by_id(hero_id)
-	subtitle_label.text = str(selected.role).to_upper()
+	if subtitle_label != null:
+		subtitle_label.visible = false
 	class_description.text = "%s\n%s" % [str(selected.description), _stat_summary(selected)]
 
 
@@ -1104,6 +1181,8 @@ func _decorate_slot_button(button: Button) -> void:
 
 func _on_solo_pressed() -> void:
 	AudioService.play("ui_click")
+	RunSave.clear()
+	_pending_run_save = {}
 	if _play_mode == 1:
 		GameRuntime.fill_cpu_allies = true
 		GameRuntime.ffa_all_bots = false
@@ -1113,7 +1192,82 @@ func _on_solo_pressed() -> void:
 		GameRuntime.ffa_all_bots = false
 		GameRuntime.set_team_mode(GameRuntime.TeamMode.NONE)
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
-	_lock_biome_to_selected_hero()
+	GameRuntime.start_wave = 1
+	GameRuntime.pending_run_save = {}
+	GameRuntime.biome_locked = false
+	_open_game()
+
+
+func _play_row() -> HBoxContainer:
+	if solo_button == null:
+		return null
+	var parent := solo_button.get_parent()
+	if parent is HBoxContainer and parent.name == "PlayRow":
+		return parent as HBoxContainer
+	return parent.get_node_or_null("PlayRow") as HBoxContainer if parent != null else null
+
+
+func _sync_continue_button() -> void:
+	if solo_button == null:
+		return
+	var row := _play_row()
+	var existing := row.get_node_or_null("ContinueButton") as Button if row != null else null
+	if not RunSave.has_save():
+		if existing != null:
+			existing.queue_free()
+		return
+	if existing != null:
+		existing.visible = true
+		return
+	_install_continue_button()
+
+
+func _install_continue_button() -> void:
+	if solo_button == null or not RunSave.has_save():
+		return
+	var parent := solo_button.get_parent()
+	if parent == null:
+		return
+	var row := _play_row()
+	if row == null:
+		row = HBoxContainer.new()
+		row.name = "PlayRow"
+		row.custom_minimum_size = Vector2(0, 48)
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", 8)
+		var solo_index := solo_button.get_index()
+		parent.add_child(row)
+		parent.move_child(row, solo_index)
+		parent.remove_child(solo_button)
+		row.add_child(solo_button)
+		solo_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if row.get_node_or_null("ContinueButton") != null:
+		return
+	var continue_button := Button.new()
+	continue_button.name = "ContinueButton"
+	continue_button.text = "CONTINUE"
+	continue_button.custom_minimum_size = Vector2(0, 48)
+	continue_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(continue_button)
+	continue_button.pressed.connect(_on_continue_pressed)
+
+
+func _on_continue_pressed() -> void:
+	AudioService.play("ui_click")
+	var data := RunSave.read_dict()
+	if data.is_empty():
+		return
+	GameRuntime.start_wave = int(data.get("wave", 1))
+	PlayerProfile.selected_class_id = str(data.get("class_id", PlayerProfile.selected_class_id))
+	_pending_run_save = data
+	GameRuntime.pending_run_save = data.duplicate(true)
+	GameRuntime.fill_cpu_allies = false
+	GameRuntime.ffa_all_bots = false
+	GameRuntime.set_team_mode(GameRuntime.TeamMode.NONE)
+	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
+	GameRuntime.biome_locked = false
+	if data.has("biome_id"):
+		GameRuntime.set_biome(int(data.get("biome_id", 0)), false)
 	_open_game()
 
 
@@ -1562,9 +1716,14 @@ func _open_game() -> void:
 		return
 	_leave_network_lobby()
 	game_loaded = true
+	GameRuntime.use_editor_level = true
 	GameRuntime.reset_biome_for_new_run()
 	var game := GAME_SCENE.instantiate()
 	add_child(game)
+	if not _pending_run_save.is_empty():
+		if game.has_method("restore_run"):
+			game.call("restore_run", _pending_run_save)
+		_pending_run_save = {}
 	lobby_panel.visible = false
 	backdrop.visible = false
 	status_label.visible = false
@@ -1648,6 +1807,7 @@ func _show_lobby(message: String) -> void:
 	roster_label.visible = false
 	waiting_label.visible = false
 	_refresh_game_mode()
+	_sync_continue_button()
 
 
 func _set_lobby_enabled(enabled: bool) -> void:

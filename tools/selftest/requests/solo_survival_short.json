@@ -1,0 +1,10 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 8,
+  "duration": 180,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Short survival probe for overnight loop: reach wave 8 with upgrades, boss, landmarks, shop.",
+  "events": []
+}

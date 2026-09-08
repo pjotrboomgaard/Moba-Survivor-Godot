@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/world_editor.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/arena/arena.tscn" id="2_arena"]
 
-[node name="WorldEditor" type="Node2D"]
+[node name="WorldEditor" type="Node2D" groups=["world_editor"]]
 script = ExtResource("1_script")
 
 [node name="Arena" parent="." instance=ExtResource("2_arena")]

@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/fog_of_war.gd" id="1_script"]
+[ext_resource type="Shader" path="res://shaders/fog_of_war.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="FogMaterial"]
+shader = ExtResource("2_shader")
+shader_parameter/viewport_size = Vector2(1280, 720)
+shader_parameter/vision_center_px = Vector2(640, 360)
+shader_parameter/vision_radius_px = 420.0
+shader_parameter/softness_px = 110.0
+shader_parameter/fog_color = Color(0.06, 0.07, 0.09, 0.34)
+
+[node name="FogOfWar" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_script")
+
+[node name="Overlay" type="ColorRect" parent="."]
+material = SubResource("FogMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)

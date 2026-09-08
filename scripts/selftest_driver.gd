@@ -785,7 +785,7 @@ func _tick_survival(delta: float) -> void:
 		else:
 			var quest_target := _nearest_quest()
 			if quest_target != null and frac > 0.45 and nearest_d > 250.0:
-				_walk_target = quest_target
+				_walk_target = quest_target.global_position
 				_walk_deadline = _elapsed + 12.0
 			else:
 				_walk_target = _fight_near_heal(heal, foe, wave)

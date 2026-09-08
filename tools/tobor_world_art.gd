@@ -1833,6 +1833,168 @@ const _DOCKS_DIRT := [
 ]
 
 
+## Town building rows + palettes (docks biome). Baked as plain town_*.png by
+## tools/generate_town.py and placed directly by the arena; these rows exist so the
+## forge can also bake tw_docks_town_* variants. Muted earth tones, 1-2px outlines.
+const _TOWN_HOUSE_PALETTE := {
+	"o": "201812", "w": "8a6a48", "s": "6e5338", "r": "5a3a26", "R": "462c1c",
+	"d": "3a2a1c", "l": "d8c9a0", "g": "2a2620", "t": "4a3420", "h": "3a4a2a",
+}
+const _TOWN_HOUSE_ROWS := [
+	"................................",
+	"................................",
+	"................oo..............",
+	"..............oorroo............",
+	"............oorrrroo............",
+	"..........oRRrrrrrooo.........",
+	".........oRRrrrrrrroo.........",
+	"........oRRrrrrrrrrroo........",
+	".......oRRrrrrrrrrrrroo.......",
+	"......oRRRRrrrrrrrrRRoo.......",
+	".......ooooooooooooooooo......",
+	".......owwwwwwwwwwwwwwo.......",
+	".......owwwowwwoowwwwo........",
+	".......owwwolwwlwwolwwwo......",
+	".......owwwolwwlwwolwwwo......",
+	".......owwwolwwlwwolwwwo......",
+	".......ooooooooooooooooo......",
+	".......owwwwwwwwwwwwwwo.......",
+	".......owwwwwdwwwwdwwwo.......",
+	".......owwwwwdwwwwdwwwo.......",
+	".......owwwwwddddwwwwwo.......",
+	".......owwwwwdwwwwdwwwo.......",
+	".......owwwwwdwwwwdwwwo.......",
+	".......ooooooooooooooooo......",
+	"......ottttttttttttttttto.....",
+	".....ohhhtttttttttttthho......",
+	"......ohhhtttttttthhho........",
+	".......ohhtttttthhho...........",
+	".......oohhtthhoo.............",
+	"........ooooooo.................",
+	"................................",
+	"................................",
+]
+const _TOWN_SHOP_PALETTE := {
+	"o": "1a1410", "w": "9a7a54", "s": "7a5e3e", "a": "c43018", "A": "8a2414",
+	"r": "5a3a26", "R": "462c1c", "d": "3a2a1c", "l": "d8c9a0", "g": "2a2620",
+	"t": "4a3420", "T": "3a2a1a", "e": "c9a227",
+}
+const _TOWN_SHOP_ROWS := [
+	"....................................",
+	"....................................",
+	"....................................",
+	"...............ooo..................",
+	".............oorrooo................",
+	"...........oRRrrrrroo...............",
+	".........oRRrrrrrrrrroo.............",
+	"........oRRrrrrrrrrRRRoo............",
+	".......oooooooooooooooooo...........",
+	".......owwwwwwwwwwwwwwwwo...........",
+	".......owwwwwwwwwwwwwwwwo...........",
+	".......owaawaawaawaawaao...........",
+	".......owAaAaAaAaAaAaAao............",
+	".......owwwwwwwwwwwwwwwwo...........",
+	".......owlwwglwwlwwglwwwo...........",
+	".......owlwwglwwlwwglwwwo...........",
+	".......owlwwglwwlwwglwwwo...........",
+	".......oooooooooooooooooo...........",
+	".......owwwwwwwwwwowwwwwwwo.........",
+	".......owwwwwwwwwodwwwwwwwwo........",
+	".......owwwwwwwwwodwwwwwwwwo........",
+	".......owwwwwwdwwodwwwwwwwwo........",
+	".......owwwwwwdwwodwwwwwwwwo........",
+	".......owwwwwwddddwwwwwwwwwwo.......",
+	".......owwwwwwddddwwwwwwwwwwo.......",
+	".......owwwwwwwwwwwwwwwwwwwwo.......",
+	"......ottttttttttttttttttttto......",
+	".....oTTTTTTTTTTTTTTTTTTTTTTTo......",
+	".....oTttttttttttttttttttttTTo......",
+	"......oTTTTTTTTTTTTTTTTTTTTTo......",
+	".......oooooooooooooooooooo........",
+	"....................................",
+]
+const _TOWN_CHURCH_PALETTE := {
+	"o": "1c1a18", "w": "b8a88c", "s": "93846a", "r": "4a4a52", "R": "383840",
+	"t": "5a4a3a", "l": "d8d2c0", "g": "2a2620", "c": "d8c88c", "d": "3a2a1c",
+	"h": "3a4a2a",
+}
+const _TOWN_CHURCH_ROWS := [
+	"..............................",
+	"..............................",
+	"................cc............",
+	"................cc............",
+	"..............ccccc...........",
+	"................cc............",
+	"................cc............",
+	"............ooooooooo.........",
+	"............orrRRroo..........",
+	"..........oRRrrrrrrRoo........",
+	"........oRRrrrrrrrrRoo........",
+	".......oooooooooooooo.........",
+	".......owwlllwwwwwwwwo........",
+	".......owwlllwwwwwwwwo........",
+	".......owwwwwwwwwwwwwo........",
+	".......owwwwwwwwwwwwwo........",
+	"......owwwwwwowwwwowwwwo......",
+	"......owwwwwolwwolwwwwwo......",
+	"......owwwwwolwwolwwwwwo......",
+	"......owwwwwolwwolwwwwwo......",
+	".......owwwwwwwwwwwwwo........",
+	".......owwwwwwwwwwwwwo........",
+	".......owwwwwwwwwwwwwo........",
+	".......owwwwwwwwwwwwwo........",
+	".......owwwwwwwwwwwwwo........",
+	".......owwwwwwwwwwwwwo........",
+	".......owwwwddwwwwwwwo........",
+	".......owwwwddwwwwwwwo........",
+	".......owwwwddddwwwwwo........",
+	".......owwwwddddwwwwwo........",
+	".......owwwwwwwwwwwwwo........",
+	".......owwwwwwwwwwwwwo........",
+	".......oooooooooooooo.........",
+	"......ohhhhhhhhhhhhhho........",
+	".....ohhhhhhhhhhhhhhhho.......",
+	"......ohhhhhhhhhhhhhho........",
+	".......oohhhhhhhhhoo..........",
+	"........ooooooooooo...........",
+	"..............................",
+	"..............................",
+]
+const _TOWN_WELL_PALETTE := {
+	"o": "1a1610", "w": "8a7a64", "s": "6a5c48", "W": "a89878", "r": "4a3a28",
+	"R": "3a2c1c", "l": "2a3440", "L": "3a4a58", "b": "5a3a20", "B": "3a2414",
+}
+const _TOWN_WELL_ROWS := [
+	"............................",
+	"............................",
+	"............rrrrrr..........",
+	"...........rrRRRRrr.........",
+	"..........rRRRRRRRRr........",
+	"........ooooooooooooo.......",
+	".......owWwwwwwWWWWwo.......",
+	"......owWWwwwwwWwwwwwo......",
+	"......oWWwwllllllwwWo.......",
+	"......owwwlLlllllllwwwo.....",
+	"......owwwlLlllllllwwwo.....",
+	"......owwwlllllllllwwwo.....",
+	"......owwwwwllllwwwwwo......",
+	".......owwwwwwwwwwwwwo......",
+	".......ossssssssssssswo.....",
+	"......ossoWWWWWWWWWWso......",
+	"......osWWwwwwwwwwwwso......",
+	"......oswwwsswwwwsswwso.....",
+	"......osswWWWWWWWWWWsso.....",
+	"......ossoWWWWWWWWWWso......",
+	".......ossssssssssssswo.....",
+	"........ooooooooooooo.......",
+	"............bbbb..........",
+	"...........bBBBb..........",
+	"...........BBBBb..........",
+	"...........bBBBb..........",
+	"............................",
+	"............................",
+]
+
 static func all_sprites() -> Dictionary:
 	var sprites: Dictionary = {}
 	_collect(sprites, ENEMY_ROWS, ENEMY_PALETTES)
@@ -1921,6 +2083,16 @@ static func all_sprites() -> Dictionary:
 		sprites["%s_rock_jagged" % biome] = {"rows": TERRAIN_ROWS.rock_jagged, "palette": _tone_terrain(BIOME_ROCK_PALETTES[biome])}
 		sprites["%s_boulder" % biome] = {"rows": TERRAIN_ROWS.boulder, "palette": _tone_terrain(BIOME_ROCK_PALETTES[biome])}
 		sprites["%s_spire" % biome] = {"rows": TERRAIN_ROWS.spire, "palette": _tone_terrain(BIOME_ROCK_PALETTES[biome])}
+	# Town buildings: shared across all biomes (not biome-toned). These are baked
+	# pixel-art PNGs in assets/sprites/ (see tools/generate_town.py) — they are NOT
+	# rows/palette here; this just registers the sprite ids so the forge bakes the
+	# tw_<biome>_town_* variants if desired. The arena places the base town_*.png
+	# directly for the docks biome.
+		if biome == "docks":
+			sprites["town_house"] = {"rows": _TOWN_HOUSE_ROWS, "palette": _TOWN_HOUSE_PALETTE}
+			sprites["town_shop"] = {"rows": _TOWN_SHOP_ROWS, "palette": _TOWN_SHOP_PALETTE}
+			sprites["town_church"] = {"rows": _TOWN_CHURCH_ROWS, "palette": _TOWN_CHURCH_PALETTE}
+			sprites["town_well"] = {"rows": _TOWN_WELL_ROWS, "palette": _TOWN_WELL_PALETTE}
 	return sprites
 
 

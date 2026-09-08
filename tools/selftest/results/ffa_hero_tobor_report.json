@@ -37,13 +37,13 @@
           "ready": true
         }
       ],
-      "t": 1.00529557575757
+      "t": 1.007236
     },
     {
       "abilities": [
         {
           "id": "tobor_steam_keg",
-          "rank": 4
+          "rank": 3
         },
         {
           "id": "tobor_spider_mines",
@@ -59,8 +59,8 @@
         }
       ],
       "cds": [
-        0.0,
-        0.0,
+        23.3180000000001,
+        16.7766666666667,
         0.0,
         190.816666666666
       ],
@@ -78,8 +78,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2923.0,
-              -1962.0
+              -3147.0,
+              -2017.0
             ],
             "team": "0"
           },
@@ -91,8 +91,8 @@
             "local": false,
             "peer": 101,
             "pos": [
-              3127.0,
-              -2014.0
+              3215.0,
+              -1955.0
             ],
             "team": "1"
           },
@@ -104,8 +104,8 @@
             "local": false,
             "peer": 102,
             "pos": [
-              -2913.0,
-              2018.0
+              -2901.0,
+              2020.0
             ],
             "team": "2"
           },
@@ -117,8 +117,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              3207.0,
-              2224.0
+              3054.0,
+              2048.0
             ],
             "team": "3"
           }
@@ -138,14 +138,14 @@
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
-      "summons": 0,
-      "t": 1.20529557575757
+      "summons": 3,
+      "t": 1.207236
     },
     {
       "abilities": [
         {
           "id": "tobor_steam_keg",
-          "rank": 4
+          "rank": 3
         },
         {
           "id": "tobor_spider_mines",
@@ -161,9 +161,9 @@
         }
       ],
       "cds": [
-        10.6513333333335,
-        3.97666666666635,
-        5.66999999999976,
+        0.518000000000096,
+        11.1433333333332,
+        17.2033333333334,
         168.016666666648
       ],
       "enemies_alive": 0,
@@ -180,8 +180,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -530.0,
-              488.0
+              -1514.0,
+              -1670.0
             ],
             "team": "0"
           },
@@ -193,8 +193,8 @@
             "local": false,
             "peer": 101,
             "pos": [
-              1519.0,
-              -1268.0
+              1265.0,
+              -1084.0
             ],
             "team": "1"
           },
@@ -206,8 +206,8 @@
             "local": false,
             "peer": 102,
             "pos": [
-              -2621.0,
-              1161.0
+              -2375.0,
+              1721.0
             ],
             "team": "2"
           },
@@ -219,8 +219,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              1256.0,
-              1067.0
+              920.0,
+              1558.0
             ],
             "team": "3"
           }
@@ -232,22 +232,22 @@
         ]
       },
       "hero": "tobor",
-      "hp": 118.9,
-      "hp_frac": 1.0,
+      "hp": 112.0,
+      "hp_frac": 0.941968040370059,
       "hp_max": 118.9,
       "kind": "probe",
       "label": "ffa_mid",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
-      "summons": 1,
-      "t": 24.0073056666659
+      "summons": 2,
+      "t": 24.0067486666659
     },
     {
       "abilities": [
         {
           "id": "tobor_steam_keg",
-          "rank": 4
+          "rank": 3
         },
         {
           "id": "tobor_spider_mines",
@@ -263,9 +263,9 @@
         }
       ],
       "cds": [
-        11.9512480000001,
-        15.9433333333334,
-        9.90333333333318,
+        0.175818666666694,
+        10.2099999999998,
+        12.57,
         144.516666666629
       ],
       "enemies_alive": 0,
@@ -278,12 +278,12 @@
             "alive": true,
             "class": "tobor",
             "cpu": true,
-            "kills": 1,
+            "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              546.0,
-              -260.0
+              -788.0,
+              -517.0
             ],
             "team": "0"
           },
@@ -295,8 +295,8 @@
             "local": false,
             "peer": 101,
             "pos": [
-              432.0,
-              -278.0
+              2538.0,
+              -1148.0
             ],
             "team": "1"
           },
@@ -308,21 +308,21 @@
             "local": false,
             "peer": 102,
             "pos": [
-              -1613.0,
-              191.0
+              -2395.0,
+              1626.0
             ],
             "team": "2"
           },
           {
-            "alive": false,
+            "alive": true,
             "class": "warden",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              722.0,
-              154.0
+              -855.0,
+              -556.0
             ],
             "team": "3"
           }
@@ -334,26 +334,26 @@
         ]
       },
       "hero": "tobor",
-      "hp": 118.9,
-      "hp_frac": 1.0,
+      "hp": 24.3666666666668,
+      "hp_frac": 0.204934118306701,
       "hp_max": 118.9,
       "kind": "probe",
       "label": "ffa_end",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
-      "summons": 3,
-      "t": 47.5060649999979
+      "summons": 1,
+      "t": 47.505812333331
     }
   ],
-  "elapsed": 48.0060649999979,
+  "elapsed": 48.0090909090886,
   "enemies_spawned": 0,
-  "hero_position": "(581.7382, -262.1363)",
+  "hero_position": "(-864.0505, -558.5022)",
   "player_class": "tobor",
   "results": {
-    "alive": true,
+    "alive": false,
     "beaten_wave": 0,
-    "cast_count": 8,
+    "cast_count": 9,
     "casts": [
       {
         "ability_id": "tobor_energy_field",
@@ -361,34 +361,38 @@
       },
       {
         "ability_id": "tobor_spider_mines",
-        "t": 10.815639
-      },
-      {
-        "ability_id": "tobor_steam_turret",
-        "t": 10.9489723333334
+        "t": 0.815569333333333
       },
       {
         "ability_id": "tobor_steam_keg",
-        "t": 10.965639
-      },
-      {
-        "ability_id": "tobor_spider_mines",
-        "t": 27.9823056666657
+        "t": 0.823902666666666
       },
       {
         "ability_id": "tobor_steam_turret",
-        "t": 38.6823056666651
-      },
-      {
-        "ability_id": "tobor_steam_keg",
-        "t": 38.6989723333318
+        "t": 3.74893733333332
       },
       {
         "ability_id": "tobor_spider_mines",
-        "t": 46.281064999998
+        "t": 17.9819803333329
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 22.481810666666
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 25.0817486666658
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 40.5477753333315
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 41.3477753333314
       }
     ],
-    "died": false,
+    "died": true,
     "errors": [],
     "ffa": {
       "all_bots": true,
@@ -396,15 +400,15 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": true,
+          "alive": false,
           "class": "tobor",
           "cpu": true,
-          "kills": 1,
+          "kills": 0,
           "local": true,
           "peer": 1,
           "pos": [
-            582.0,
-            -262.0
+            -864.0,
+            -559.0
           ],
           "team": "0"
         },
@@ -416,8 +420,8 @@
           "local": false,
           "peer": 101,
           "pos": [
-            386.0,
-            -302.0
+            2551.0,
+            -1148.0
           ],
           "team": "1"
         },
@@ -429,21 +433,21 @@
           "local": false,
           "peer": 102,
           "pos": [
-            -1613.0,
-            191.0
+            -2365.0,
+            1625.0
           ],
           "team": "2"
         },
         {
-          "alive": false,
+          "alive": true,
           "class": "warden",
           "cpu": true,
-          "kills": 0,
+          "kills": 1,
           "local": false,
           "peer": 103,
           "pos": [
-            722.0,
-            154.0
+            -887.0,
+            -577.0
           ],
           "team": "3"
         }
@@ -454,8 +458,8 @@
         5600.0
       ]
     },
-    "gold": 826,
-    "hero_kills": 1,
+    "gold": 103,
+    "hero_kills": 0,
     "hp_samples": [
       {
         "alive": true,
@@ -476,10 +480,18 @@
       {
         "alive": true,
         "class": "tobor",
-        "gold": 36,
+        "gold": 42,
+        "hp": 0.93,
+        "kills": 0,
+        "t": 10.16
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 54,
         "hp": 1.0,
         "kills": 0,
-        "t": 10.15
+        "t": 15.17
       },
       {
         "alive": true,
@@ -487,28 +499,20 @@
         "gold": 70,
         "hp": 1.0,
         "kills": 0,
-        "t": 15.16
-      },
-      {
-        "alive": true,
-        "class": "tobor",
-        "gold": 109,
-        "hp": 1.0,
-        "kills": 0,
         "t": 20.17
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 113,
-        "hp": 1.0,
+        "gold": 115,
+        "hp": 0.94,
         "kills": 0,
-        "t": 25.17
+        "t": 25.18
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 170,
+        "gold": 122,
         "hp": 1.0,
         "kills": 0,
         "t": 30.18
@@ -516,40 +520,40 @@
       {
         "alive": true,
         "class": "tobor",
-        "gold": 197,
-        "hp": 1.0,
+        "gold": 136,
+        "hp": 0.94,
         "kills": 0,
         "t": 35.19
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 770,
-        "hp": 0.85,
-        "kills": 1,
+        "gold": 138,
+        "hp": 0.94,
+        "kills": 0,
         "t": 40.2
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 818,
-        "hp": 0.94,
-        "kills": 1,
+        "gold": 183,
+        "hp": 0.84,
+        "kills": 0,
         "t": 45.21
       }
     ],
     "landmark_saves": 0,
-    "level": 6,
+    "level": 4,
     "max_hp": 1.0,
-    "min_hp": 0.707389963554808,
+    "min_hp": 0.0,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "shop_buy_count": 0,
     "shop_buys": [],
     "until_wave": 20,
-    "verdict": "PASS_KILLS",
+    "verdict": "WARN_DEAD",
     "wave": 1,
-    "xp": 14
+    "xp": 98
   },
   "shots": []
 }

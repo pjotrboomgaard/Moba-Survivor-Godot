@@ -1,5 +1,5 @@
 {
-  "all_ok": true,
+  "all_ok": false,
   "checks": [
     {
       "detail": "/root/Bootstrap/StatusLayer/LobbyPanel/Margin/Layout/ModeRow/WorldEditorButton",
@@ -12,17 +12,22 @@
       "ok": true
     },
     {
-      "detail": "placed=6",
+      "detail": "placed=1954",
       "name": "api_place_obstacles",
       "ok": true
     },
     {
-      "detail": "placed=7",
+      "detail": "new_assets_with_sprite=325/4",
+      "name": "api_new_assets_have_sprite",
+      "ok": false
+    },
+    {
+      "detail": "placed=1955",
       "name": "api_place_landmark",
       "ok": true
     },
     {
-      "detail": "erased=true before=7 after=6",
+      "detail": "erased=true before=1955 after=1954",
       "name": "api_erase_obstacle",
       "ok": true
     },
@@ -42,7 +47,7 @@
       "ok": true
     },
     {
-      "detail": "placed=2 in world=IJs",
+      "detail": "placed=730 in world=IJs",
       "name": "api_place_after_world_switch",
       "ok": true
     },
@@ -57,48 +62,48 @@
       "ok": true
     },
     {
-      "detail": "placed=6 (expected 6 from grass's own save)",
+      "detail": "placed=1954 (expected 10 from grass's own save)",
       "name": "grass_save_independent_of_other_worlds",
-      "ok": true
+      "ok": false
     }
   ],
-  "elapsed": 17.0043066666665,
+  "elapsed": 17.0009443333333,
   "shots": [
     {
       "err": 0,
       "label": "lobby",
-      "path": "user://ui_verify_shots/lobby_3889.png"
+      "path": "user://ui_verify_shots/lobby_3784.png"
     },
     {
       "err": 0,
       "label": "editor",
-      "path": "user://ui_verify_shots/editor_7395.png"
+      "path": "user://ui_verify_shots/editor_7617.png"
     },
     {
       "err": 0,
       "label": "editor_with_props",
-      "path": "user://ui_verify_shots/editor_with_props_10388.png"
+      "path": "user://ui_verify_shots/editor_with_props_10621.png"
     },
     {
       "err": 0,
       "label": "editor_final",
-      "path": "user://ui_verify_shots/editor_final_12887.png"
+      "path": "user://ui_verify_shots/editor_final_13125.png"
     },
     {
       "err": 0,
       "label": "world_volcano",
-      "path": "user://ui_verify_shots/world_volcano_14403.png"
+      "path": "user://ui_verify_shots/world_volcano_14617.png"
     },
     {
       "err": 0,
       "label": "world_ice_with_props",
-      "path": "user://ui_verify_shots/world_ice_with_props_16412.png"
+      "path": "user://ui_verify_shots/world_ice_with_props_16700.png"
     },
     {
       "err": 0,
       "label": "world_back_to_grass",
-      "path": "user://ui_verify_shots/world_back_to_grass_18413.png"
+      "path": "user://ui_verify_shots/world_back_to_grass_18825.png"
     }
   ],
-  "verdict": "PASS"
+  "verdict": "FAIL"
 }

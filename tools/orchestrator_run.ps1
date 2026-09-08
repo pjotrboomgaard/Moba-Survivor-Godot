@@ -13,7 +13,7 @@ $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $ResultsDir  = Join-Path $ProjectRoot "tools\selftest\results"
 if (-not (Test-Path $ResultsDir)) { New-Item -ItemType Directory -Path $ResultsDir -Force | Out-Null }
 
-$checks = @()
+$global:OrchChecks = @()
 
 function Run-Check {
     param([string]$Name, [scriptblock]$Block)
@@ -21,7 +21,7 @@ function Run-Check {
     Write-Host ">>> $Name" -ForegroundColor Cyan
     & $Block
     $exit = $LASTEXITCODE
-    $checks += @{ name = $Name; exit_code = $exit; passed = ($exit -eq 0) }
+    $global:OrchChecks += @{ name = $Name; exit_code = $exit; passed = ($exit -eq 0) }
     if ($exit -eq 0) {
         Write-Host "    PASS" -ForegroundColor Green
     } else {
@@ -98,15 +98,16 @@ Run-Check "parse_asset_pipeline" {
 # ---------------------------------------------------------------------------
 # 6. Summary JSON
 # ---------------------------------------------------------------------------
-$allPassed = -not ($checks | Where-Object { -not $_.passed })
-$summary = [ordered]@{
-    timestamp    = (Get-Date).ToString("o")
-    project      = $ProjectRoot
-    all_passed   = $allPassed
-    checks       = $checks
+$allPassed = -not ($global:OrchChecks | Where-Object { -not $_.passed })
+$checksArr = @($global:OrchChecks | ForEach-Object { [pscustomobject]@{ name = $_.name; exit_code = $_.exit_code; passed = $_.passed } })
+$summary = [pscustomobject]@{
+    timestamp  = (Get-Date).ToString("o")
+    project    = $ProjectRoot
+    all_passed = $allPassed
+    checks     = $checksArr
 }
 $summaryPath = Join-Path $ResultsDir "orchestrator_summary.json"
-$summary | ConvertTo-Json -Depth 5 | Set-Content $summaryPath
+$summary | ConvertTo-Json -Depth 5 | Set-Content -Path $summaryPath -Encoding utf8
 Write-Host ""
 Write-Host "Summary -> $summaryPath"
 
@@ -119,7 +120,7 @@ Write-Host "  ORCHESTRATOR RESULTS" -NoNewline
 Write-Host "  ========================================"
 Write-Host ("  {0,-30} {1,-8} {2}" -f "Check", "Status", "Exit")
 Write-Host "  ----------------------------------------"
-foreach ($c in $checks) {
+foreach ($c in $global:OrchChecks) {
     $status = if ($c.passed) { "PASS" } else { "FAIL" }
     $color  = if ($c.passed) { "Green" } else { "Red" }
     Write-Host ("  {0,-30} {1,-8} {2}" -f $c.name, $status, $c.exit_code) -ForegroundColor $color

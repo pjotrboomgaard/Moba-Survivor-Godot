@@ -124,11 +124,12 @@ func _api_place_all() -> void:
 		Vector2(120.0, 120.0), Vector2(240.0, 160.0), Vector2(-160.0, 100.0),
 		Vector2(0.0, 300.0), Vector2(200.0, -140.0), Vector2(-220.0, -180.0),
 		Vector2(320.0, 260.0), Vector2(-320.0, 260.0), Vector2(320.0, -260.0), Vector2(-320.0, -260.0),
+		Vector2(80.0, -320.0), Vector2(-80.0, -320.0), Vector2(400.0, 40.0),
 	]
 	var sprites := [
 		"tree_oak", "tree_pine", "tree_dead", "rock_small", "grass_bush", "grass_mushroom",
-		# New reference-sourced pixel-art assets (tools/asset_pipeline.gd + tools/asset_recolor.gd):
 		"tree_willow", "rock_jagged", "grass_wild", "flower_patch",
+		"tree_round", "tree_fir", "tree_maple",
 	]
 	for i in sprites.size():
 		ed.place_at(positions[i], sprites[i])

@@ -40,6 +40,8 @@ var game_mode: GameMode = GameMode.PJOTR
 var difficulty: Difficulty = Difficulty.NORMAL
 ## Debug aid: skip ahead so late waves and bosses can be reached without a full run.
 var start_wave := 1
+## Continue-run payload filled before Main loads; consumed in Main._ready.
+var pending_run_save: Dictionary = {}
 var server_address := "127.0.0.1"
 var server_port := DEFAULT_PORT
 var max_players := DEFAULT_MAX_PLAYERS
@@ -52,6 +54,10 @@ var biome_id := 0
 ## When true, wave progression and new runs keep the chosen biome (F1 / --biome=).
 var biome_locked := false
 var biome_from_cli := false
+## Playtest from the world editor: keep the dressed biome and return to the editor on leave.
+var return_to_world_editor := false
+## When true, Arena replaces auto-scatter with the saved editor layout for this biome.
+var use_editor_level := false
 ## Offline co-op stand-ins: spawn the other three playable heroes as CPU allies.
 var fill_cpu_allies := false
 ## FFA / Rift Clash split. NONE until a lobby or the FFA simulate button sets it.
@@ -93,8 +99,8 @@ const BIOME_ALIASES := {
 }
 
 
-## One biome every five waves so a 20-wave run walks grass → volcano → ice → factory.
-const BIOME_CYCLE_WAVES := 5
+## One biome every seven waves so a run walks grass → volcano → ice → factory → docks.
+const BIOME_CYCLE_WAVES := 7
 
 
 func biome_for_wave(wave: int) -> int:
@@ -132,6 +138,9 @@ func set_biome_for_wave(wave: int) -> void:
 func reset_biome_for_new_run() -> void:
 	if biome_from_cli:
 		return
+	# World-editor playtest keeps the dressed biome. Menu PLAY must cycle worlds.
+	if return_to_world_editor:
+		return
 	biome_locked = false
 	set_biome_for_wave(start_wave)
 
@@ -139,6 +148,13 @@ func reset_biome_for_new_run() -> void:
 func biome_key() -> String:
 	var index := clampi(biome_id, 0, BIOME_KEYS.size() - 1)
 	return str(BIOME_KEYS[index])
+
+
+func editor_level_path() -> String:
+	var key := biome_key()
+	if key.is_empty():
+		return "user://world_editor_level.json"
+	return "user://world_editor_level_%s.json" % key
 
 
 func _ready() -> void:

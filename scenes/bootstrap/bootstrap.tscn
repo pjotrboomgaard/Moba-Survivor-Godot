@@ -60,18 +60,25 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 14
 
 [node name="LobbyPanel" type="PanelContainer" parent="StatusLayer"]
-offset_left = 700.0
-offset_top = 8.0
-offset_right = 1272.0
-offset_bottom = 712.0
-clip_contents = false
+anchors_preset = 11
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -508.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 0
+grow_vertical = 2
+clip_contents = true
 
 [node name="Margin" type="MarginContainer" parent="StatusLayer/LobbyPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
 
 [node name="Layout" type="VBoxContainer" parent="StatusLayer/LobbyPanel/Margin"]
 layout_mode = 2
@@ -85,17 +92,19 @@ text = "TOBOR"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.77, 0.26, 1)
-text = "GLASS CANNON"
+text = ""
 horizontal_alignment = 1
 
 [node name="ModeRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
-theme_override_constants/separation = 8
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
 
 [node name="SoloToggle" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
-custom_minimum_size = Vector2(168, 40)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -103,7 +112,7 @@ button_pressed = true
 text = "SOLO"
 
 [node name="CoopToggle" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
-custom_minimum_size = Vector2(168, 40)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -111,8 +120,9 @@ text = "CO-OP"
 
 [node name="ToborWorldButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ModeRow"]
 visible = false
-custom_minimum_size = Vector2(168, 58)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
+size_flags_horizontal = 3
 toggle_mode = true
 text = "TOBOR WORLD
 Cone-bot arena"
@@ -153,19 +163,22 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="InviteButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow"]
-custom_minimum_size = Vector2(180, 44)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+size_flags_horizontal = 3
 text = "INVITE FRIENDS"
 
 [node name="LeaveLobbyButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow"]
-custom_minimum_size = Vector2(180, 44)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+size_flags_horizontal = 3
 text = "LEAVE LOBBY"
 
 [node name="CancelCreateButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/LobbyActionRow"]
 visible = false
-custom_minimum_size = Vector2(180, 44)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+size_flags_horizontal = 3
 text = "CANCEL"
 
 [node name="StartGameButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
@@ -183,7 +196,7 @@ horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="SpacerTop" type="Control" parent="StatusLayer/LobbyPanel/Margin/Layout"]
-custom_minimum_size = Vector2(0, 8)
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
 
 [node name="DifficultyLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
@@ -193,29 +206,34 @@ text = "Difficulty"
 
 [node name="DifficultyRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
-theme_override_constants/separation = 8
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
 
 [node name="EasyButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow"]
-custom_minimum_size = Vector2(147, 44)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
+size_flags_horizontal = 3
 toggle_mode = true
 text = "EASY"
 
 [node name="NormalButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow"]
-custom_minimum_size = Vector2(147, 44)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
+size_flags_horizontal = 3
 toggle_mode = true
 text = "NORMAL"
 
 [node name="HardButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow"]
-custom_minimum_size = Vector2(147, 44)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
+size_flags_horizontal = 3
 toggle_mode = true
 text = "HARD"
 
 [node name="BrutalButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/DifficultyRow"]
-custom_minimum_size = Vector2(147, 44)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
+size_flags_horizontal = 3
 toggle_mode = true
 text = "BRUTAL"
 
@@ -228,31 +246,36 @@ text = "Hero"
 [node name="ClassGrid" type="GridContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 visible = false
 layout_mode = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
 columns = 2
 
 [node name="ClassButton0" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
-custom_minimum_size = Vector2(266, 48)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+size_flags_horizontal = 3
 toggle_mode = true
 text = "CLASS 1"
 
 [node name="ClassButton1" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
-custom_minimum_size = Vector2(266, 48)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+size_flags_horizontal = 3
 toggle_mode = true
 text = "CLASS 2"
 
 [node name="ClassButton2" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
-custom_minimum_size = Vector2(266, 48)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+size_flags_horizontal = 3
 toggle_mode = true
 text = "CLASS 3"
 
 [node name="ClassButton3" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/ClassGrid"]
-custom_minimum_size = Vector2(266, 48)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+size_flags_horizontal = 3
 toggle_mode = true
 text = "CLASS 4"
 
@@ -308,12 +331,19 @@ layout_mode = 2
 text = "JOIN"
 
 [node name="StatusLabel" type="Label" parent="StatusLayer"]
-offset_left = 700.0
-offset_top = 640.0
-offset_right = 1260.0
-offset_bottom = 680.0
+visible = false
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -508.0
+offset_top = -36.0
+offset_right = -16.0
+offset_bottom = -8.0
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Pick a hero"
 horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 3

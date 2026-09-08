@@ -97,10 +97,12 @@ const CLASSIC_TERRAIN := [
 	"grass_tile", "grass_tuft", "grass_long", "grass_flower", "grass_bloom",
 	"grass_lush", "grass_meadow", "dirt_tile",
 	"tree_oak", "tree_pine", "tree_dead", "tree_pipe", "tree_piling",
+	"tree_round", "tree_fir", "tree_palm", "tree_cypress", "tree_maple",
 	"rock_small", "rock_large", "boulder", "spire", "void_tile",
+	"rock_jagged", "grass_wild", "flower_patch",
 ]
-## Kenney Tiny Town bushes/pads only. Trees and rocks are SpriteArt so they
-## stay transparent pixel props instead of grass-backed town tiles.
+## Kenney Tiny Town bushes/pads/willow stay as imported PNGs. Other trees and
+## rocks are SpriteArt so they stay transparent pixel props.
 const IMPORTED_TERRAIN := [
 	"grass_bush", "grass_mushroom", "landmark_pad",
 ]

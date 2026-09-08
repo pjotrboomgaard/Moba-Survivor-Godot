@@ -504,16 +504,16 @@ func _test_wave_archetypes() -> void:
 	add_child(director)
 	director.set_player_count(1)
 
-	_check(director.theme_for_wave(5).archetype == WaveDirector.Archetype.BOSS, "Wave 5 must be a boss wave")
-	_check(director.theme_for_wave(10).archetype == WaveDirector.Archetype.BOSS, "Wave 10 must be a boss wave")
-	_check(director.theme_for_wave(15).archetype == WaveDirector.Archetype.BOSS, "Wave 15 must be a boss wave")
-	_check(director.theme_for_wave(20).archetype == WaveDirector.Archetype.BOSS, "Wave 20 must be a boss wave")
-	_check(director.theme_for_wave(25).archetype == WaveDirector.Archetype.BOSS, "Wave 25 must stay a boss wave")
-	_check(director.theme_for_wave(55).archetype == WaveDirector.Archetype.BOSS, "Improvised fifth waves must stay boss waves")
-	_check(director.theme_for_wave(56).archetype == WaveDirector.Archetype.ELITE, "Improvised eighth waves must be elite waves")
+	_check(director.theme_for_wave(7).archetype == WaveDirector.Archetype.BOSS, "Wave 7 must be a boss wave")
+	_check(director.theme_for_wave(14).archetype == WaveDirector.Archetype.BOSS, "Wave 14 must be a boss wave")
+	_check(director.theme_for_wave(21).archetype == WaveDirector.Archetype.BOSS, "Wave 21 must be a boss wave")
+	_check(director.theme_for_wave(28).archetype == WaveDirector.Archetype.BOSS, "Wave 28 must be a boss wave")
+	_check(director.theme_for_wave(35).archetype == WaveDirector.Archetype.BOSS, "Wave 35 must stay a boss wave")
+	_check(director.theme_for_wave(56).archetype == WaveDirector.Archetype.BOSS, "Improvised seventh waves must stay boss waves")
+	_check(director.theme_for_wave(96).archetype == WaveDirector.Archetype.ELITE, "Improvised eighth waves must be elite waves")
 	_check(director.theme_for_wave(1).archetype == WaveDirector.Archetype.STANDARD, "The first wave must stay standard")
 
-	var boss_groups := director.plan_wave(5, WaveDirector.Archetype.BOSS)
+	var boss_groups := director.plan_wave(7, WaveDirector.Archetype.BOSS)
 	var boss_count := 0
 	var add_count := 0
 	for group in boss_groups:
@@ -523,9 +523,9 @@ func _test_wave_archetypes() -> void:
 			add_count += int(group.count)
 	_check(boss_count == 1, "A boss wave must contain exactly one boss, got %d" % boss_count)
 	_check(add_count == 0, "A boss fight must be solo until the boss dies, got %d adds" % add_count)
-	_check(EnemyType.boss_for_wave(5) == "ravager", "Wave 5 should send the Ravager")
-	_check(EnemyType.boss_for_wave(10) == "stormcaller", "Wave 10 should send the Stormcaller")
-	_check(EnemyType.boss_for_wave(15) == "ravager", "Odd boss waves should rotate back to the Ravager")
+	_check(EnemyType.boss_for_wave(7) == "ravager", "Wave 7 should send the Ravager")
+	_check(EnemyType.boss_for_wave(14) == "stormcaller", "Wave 14 should send the Stormcaller")
+	_check(EnemyType.boss_for_wave(21) == "ravager", "Odd boss waves should rotate back to the Ravager")
 
 	var air_groups := director.plan_wave(9, WaveDirector.Archetype.AIR_ASSAULT)
 	_check(not air_groups.is_empty(), "An air assault must send something")
@@ -544,13 +544,13 @@ func _test_wave_archetypes() -> void:
 	var early_air := director.plan_wave(2, WaveDirector.Archetype.AIR_ASSAULT)
 	_check(not early_air.is_empty(), "An archetype without unlocked types must fall back, not send nothing")
 
-	var bosses_before_five := 0
-	for target_wave in range(1, 5):
+	var bosses_before_seven := 0
+	for target_wave in range(1, 7):
 		var theme := director.theme_for_wave(target_wave)
 		for group in director.plan_wave(target_wave, theme.archetype, theme.modifier, theme.debut):
 			if EnemyType.is_boss(str(group.type_id)):
-				bosses_before_five += 1
-	_check(bosses_before_five == 0, "No boss may appear before wave 5")
+				bosses_before_seven += 1
+	_check(bosses_before_seven == 0, "No boss may appear before wave 7")
 
 	director.free()
 
@@ -1064,7 +1064,7 @@ func _test_shop_items_are_not_level_up_stats() -> void:
 	_check(player.health_regen_per_second > 0.0, "Vleugels must grant regen")
 	_check(player.jetpack_slam > 0.0, "Jetpack must grant a landing slam")
 	_check(player.knockback_strength > 0.0, "Kanonnen must grant knockback")
-	_check(player.lifesteal_ratio > 0.0, "Tentakels must grant lifesteal")
+	_check(player.hit_slow_factor < 1.0, "Grippers must slow on hit")
 	_check(player.skate_speed_bonus > 0.0, "Skateboard must grant a speed boost")
 	_check(player.grab_radius > 0.0, "Mech-armen must grab")
 	_cleanup([player])
@@ -1097,7 +1097,7 @@ func _test_item_effects() -> void:
 	loaded.buy("armen")
 	_check(loaded.knockback_strength > 0.0, "Kanonnen did not apply knockback")
 	loaded.buy("benen")
-	_check(is_equal_approx(loaded.lifesteal_ratio, 0.08), "Tentakels lifesteal amount is wrong")
+	_check(is_equal_approx(loaded.hit_slow_factor, 0.75), "Grippers slow amount is wrong")
 	loaded.buy("hoverboard")
 	_check(loaded.skate_speed_bonus > 0.0, "Skateboard must add move speed")
 	for item in ShopCatalog.ITEMS:

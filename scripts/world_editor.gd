@@ -51,6 +51,10 @@ const OBSTACLE_SPEC := {
 	"barrel_keg": {"radius": 16.0, "lift": 8.0},
 	"bollard": {"radius": 10.0, "lift": 20.0},
 	"vent_cap": {"radius": 16.0, "lift": 6.0},
+	"town_house": {"radius": 22.0, "lift": 12.0},
+	"town_shop": {"radius": 26.0, "lift": 12.0},
+	"town_church": {"radius": 20.0, "lift": 16.0},
+	"town_well": {"radius": 14.0, "lift": 6.0},
 }
 
 const TREES := [
@@ -80,6 +84,7 @@ const ASSET_LABELS := {
 	"ice_geyser": "Geyser", "ice_fall": "Ice fall", "aurora_spire": "Aurora",
 	"factory_stack": "Smokestack", "spark_coil": "Spark coil", "warning_lamp": "Lamp",
 	"docks_wave": "Waves", "lighthouse": "Lighthouse", "dock_lantern": "Lantern",
+	"town_house": "House", "town_shop": "Shop", "town_church": "Church", "town_well": "Well",
 	"landmark": "Landmark", "erase": "Erase",
 }
 
@@ -1019,7 +1024,7 @@ static func world_kit(biome_id: int) -> Dictionary:
 				"name": "Docks",
 				"trees": ["tree_piling", "tree_palm"],
 				"ground": ["bollard", "barrel_keg", "grass_tuft", "flower_patch", "grass_lush", "grass_meadow", "dirt_tile"],
-				"theme": ["bollard", "barrel_keg"],
+				"theme": ["bollard", "barrel_keg", "town_house", "town_shop", "town_church", "town_well"],
 				"anim": ["docks_wave", "lighthouse", "dock_lantern"],
 			}
 		_:

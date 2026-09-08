@@ -469,6 +469,14 @@ func _saved_obstacle_spec(sprite_id: String) -> Dictionary:
 			return {"sprite": sprite_id, "radius": 44.0, "lift": 5.0}
 		"spire":
 			return {"sprite": sprite_id, "radius": 28.0, "lift": 8.0}
+		"town_house":
+			return {"sprite": sprite_id, "radius": 22.0, "lift": 12.0}
+		"town_shop":
+			return {"sprite": sprite_id, "radius": 26.0, "lift": 12.0}
+		"town_church":
+			return {"sprite": sprite_id, "radius": 20.0, "lift": 16.0}
+		"town_well":
+			return {"sprite": sprite_id, "radius": 14.0, "lift": 6.0}
 		_:
 			return {"sprite": sprite_id, "radius": 18.0, "lift": 3.0}
 
@@ -1192,6 +1200,11 @@ func _random_scatter_type(rng: RandomNumberGenerator) -> Dictionary:
 			pool.append({"sprite": "bollard", "radius": 10.0, "lift": 20.0})
 			pool.append({"sprite": "barrel_keg", "radius": 16.0, "lift": 8.0})
 			pool.append({"sprite": "crate_box", "radius": 18.0, "lift": 8.0})
+			# Town landmarks — distinct buildings for the dockside town feel.
+			pool.append({"sprite": "town_house", "radius": 22.0, "lift": 12.0})
+			pool.append({"sprite": "town_shop", "radius": 26.0, "lift": 12.0})
+			pool.append({"sprite": "town_church", "radius": 20.0, "lift": 16.0})
+			pool.append({"sprite": "town_well", "radius": 14.0, "lift": 6.0})
 	return pool[rng.randi() % pool.size()]
 
 
@@ -1204,7 +1217,7 @@ func _ground_cover_sprites() -> Array[String]:
 		3:
 			return ["crate_box", "barrel_keg", "vent_cap", "rock_small", "barrel_keg"]
 		4:
-			return ["bollard", "grass_tuft", "barrel_keg", "flower_patch", "crate_box"]
+			return ["bollard", "grass_tuft", "barrel_keg", "flower_patch", "crate_box", "town_house", "town_well"]
 		_:
 			return ["grass_tuft", "grass_tuft", "grass_wild", "grass_flower", "grass_bloom", "flower_patch", "grass_long"]
 

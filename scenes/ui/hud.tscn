@@ -5,6 +5,7 @@
 
 [node name="HUD" type="CanvasLayer"]
 process_mode = 3
+layer = 20
 script = ExtResource("1_hud")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
