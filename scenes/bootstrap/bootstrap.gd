@@ -39,6 +39,7 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var waiting_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/WaitingLabel
 @onready var sfx_toggle: CheckButton = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow/SfxToggle
 @onready var music_toggle: CheckButton = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow/MusicToggle
+@onready var resolution_option: OptionButton = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow/ResolutionOption
 
 # --- Overhaul UI (built programmatically in _ready, parented into the existing Layout) ---
 var world_row: HFlowContainer = null
@@ -182,6 +183,7 @@ func _ready() -> void:
 	sfx_toggle.toggled.connect(_on_sfx_toggled)
 	music_toggle.toggled.connect(_on_music_toggled)
 	_sync_audio_toggles()
+	_build_resolution_options()
 	_build_world_editor_button()
 	if ability_panel != null:
 		ability_panel.visible = false
@@ -283,7 +285,10 @@ func _constrain_lobby_layout() -> void:
 	lobby_panel.anchor_top = 0.0
 	lobby_panel.anchor_right = 1.0
 	lobby_panel.anchor_bottom = 1.0
-	lobby_panel.offset_left = -508.0
+	# Panel width scales with the window so it fills proportionally at any resolution.
+	var vp_w := get_viewport().get_visible_rect().size.x
+	var panel_w := clampi(int(vp_w * 0.40), 480, 1000)
+	lobby_panel.offset_left = -float(panel_w)
 	lobby_panel.offset_top = 10.0
 	lobby_panel.offset_right = -10.0
 	lobby_panel.offset_bottom = -10.0
@@ -447,7 +452,7 @@ func _hero_backdrop() -> TextureRect:
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
 	art.offset_left = 0.0
 	art.offset_top = 0.0
-	art.offset_right = -518.0
+	art.offset_right = -_backdrop_right_offset()
 	art.offset_bottom = 0.0
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -457,11 +462,16 @@ func _hero_backdrop() -> TextureRect:
 	return art
 
 
+func _backdrop_right_offset() -> float:
+	var vp_w := get_viewport().get_visible_rect().size.x
+	return float(clampi(int(vp_w * 0.36), 500, 1000))
+
+
 func _apply_hero_backdrop() -> void:
 	var art := _hero_backdrop()
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	art.offset_right = -518.0
+	art.offset_right = -_backdrop_right_offset()
 	art.texture = SpriteLibrary.menu_backdrop_for(PlayerProfile.selected_class_id)
 	art.visible = true
 	_raise_ability_hover()
@@ -720,6 +730,56 @@ func _sync_audio_toggles() -> void:
 	sfx_toggle.button_pressed = AudioService.sfx_enabled
 	music_toggle.button_pressed = AudioService.music_enabled
 	_updating_audio_ui = false
+
+
+## ---------------------------------------------------------------------------
+## Resolution options (main menu)
+## ---------------------------------------------------------------------------
+const MENU_RESOLUTIONS: Array[Vector2] = [
+	Vector2(1920, 1080),
+	Vector2(2880, 1800),
+	Vector2(3840, 2160),
+]
+const _MENU_FULLWIDTH := -1
+
+func _build_resolution_options() -> void:
+	resolution_option.clear()
+	for size in MENU_RESOLUTIONS:
+		resolution_option.add_item("%dx%d" % [int(size.x), int(size.y)])
+	resolution_option.add_item("FULLSCREEN")
+	resolution_option.set_item_metadata(resolution_option.item_count - 1, _MENU_FULLWIDTH)
+	resolution_option.item_selected.connect(_on_menu_resolution_selected)
+	_sync_menu_resolution_option()
+
+
+func _sync_menu_resolution_option() -> void:
+	var window_size := DisplayServer.window_get_size()
+	var mode := DisplayServer.window_get_mode()
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		resolution_option.select(resolution_option.item_count - 1)
+		return
+	var best_index := 0
+	var best_dist := INF
+	for index in MENU_RESOLUTIONS.size():
+		var dist := absf(int(MENU_RESOLUTIONS[index].x) - int(window_size.x))
+		if dist < best_dist:
+			best_dist = dist
+			best_index = index
+	resolution_option.select(best_index)
+
+
+func _on_menu_resolution_selected(index: int) -> void:
+	AudioService.play("ui_click")
+	if resolution_option.get_item_metadata(index) == _MENU_FULLWIDTH:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		_sync_menu_resolution_option()
+		return
+	var size := MENU_RESOLUTIONS[index]
+	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN \
+		or DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(size)
+	_sync_menu_resolution_option()
 
 
 func _on_sfx_toggled(pressed: bool) -> void:
