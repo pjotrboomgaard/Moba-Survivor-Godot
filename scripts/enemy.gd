@@ -212,7 +212,7 @@ const TARGET_REFRESH_INTERVAL := 0.4
 ## skips expensive AI (target find, separation, behaviour dispatch) and just idles in
 ## place. Refreshed on FAR_CULL_CHECK_INTERVAL so the per-frame cost is a single
 ## squared-distance check instead of a full player-group scan + AI dispatch.
-const FAR_CULL_RADIUS := 1400.0
+const FAR_CULL_RADIUS := 1800.0
 const FAR_CULL_CHECK_INTERVAL := 0.5
 var _far_cull_timer := 0.0
 var _near_player := false
