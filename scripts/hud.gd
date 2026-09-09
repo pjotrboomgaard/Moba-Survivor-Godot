@@ -1985,8 +1985,6 @@ class AimReticle:
 		_cursor_accent = accent
 		var img := _render_reticle_image()
 		var tex := ImageTexture.create_from_image(img)
-		if _cursor_tex != null and is_instance_valid(_cursor_tex):
-			_cursor_tex.queue_free()
 		_cursor_tex = tex
 		# Hotspot at the reticle center (24,24) so the crosshair lines up with the pointer.
 		Input.set_custom_mouse_cursor(_cursor_tex, Input.CURSOR_ARROW, Vector2(24.0, 24.0))
