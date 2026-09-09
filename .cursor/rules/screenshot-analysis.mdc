@@ -1,0 +1,32 @@
+---
+description: Rigorously analyze self-test screenshots before declaring any change correct
+alwaysApply: true
+---
+
+# Analyze self-test screenshots carefully before claiming success
+
+Every self-test that captures screenshots must have its screenshots inspected and
+reasoned about before the task is marked done. A passing report or a screenshot that
+"looks roughly right" is not enough.
+
+## How to verify a screenshot
+
+1. **Open and actually look at the image.** Use the Read tool on the `.png` output,
+   not just the JSON report.
+2. **State what you see, not what you expect.** Describe the concrete elements
+   present (positions, sizes, colors, text, sprites) rather than assuming the code
+   produced the intended result.
+3. **When ambiguous, re-analyze.** If the screenshot does not make the outcome
+   unambiguous, re-open and re-examine it before concluding. Do not guess.
+4. **Judge "correct vs wrong" explicitly.** For each check, decide whether the
+   observed state is the intended one, and say which is more likely if two readings
+   are plausible. If it might be wrong, treat it as wrong and investigate.
+5. **Compare to intent.** Check the actual on-screen result against the requirement
+   (layout, proportion, position, size, visibility, motion) — not just against "no
+   crash."
+
+## Scope
+
+This applies to every feature, UI change, art/asset change, and balance tweak verified
+via the self-test harness. Never report a change as complete on the basis of a report
+JSON alone.

@@ -97,6 +97,10 @@ var active := true
 ## the mission-warp beat in main.gd so the player stands still behind the black screen
 ## instead of wandering off while the arena rebuilds underneath them.
 var movement_locked := false
+## Base camera zoom captured on _ready so boss-form revert can restore the
+## resolution-appropriate zoom (set on the Camera2D in the scene) instead of
+## a hardcoded value.
+var _base_camera_zoom := Vector2.ONE
 var facing_direction := Vector2.RIGHT
 var aim_world_position := Vector2.RIGHT * 100.0
 var current_xp := 0
@@ -251,6 +255,8 @@ var charge_rate_mult := 1.0
 
 
 func _ready() -> void:
+	if camera != null:
+		_base_camera_zoom = camera.zoom
 	health.died.connect(_on_died)
 	health.damaged.connect(_on_damaged)
 	world_health_bar.bind_health(health)
@@ -390,9 +396,11 @@ func revert_boss_form() -> void:
 		sprite.modulate = Color.WHITE
 		if world_health_bar != null:
 			world_health_bar.set_identity_color(Color(str(class_data.get("health_bar_color", class_data.accent_color))))
-	# Restore camera zoom.
+	# Restore camera zoom to the resolution-appropriate base zoom (set on the
+	# Camera2D in the scene), not a hardcoded 1.0 which is too close at the
+	# new 2880x1800 default.
 	if camera != null and is_local_player:
-		camera.zoom = Vector2(1.0, 1.0)
+		camera.zoom = _base_camera_zoom
 	boss_form_type_id = ""
 	queue_redraw()
 

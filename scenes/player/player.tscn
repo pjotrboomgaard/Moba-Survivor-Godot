@@ -57,7 +57,8 @@ text = "▼"
 horizontal_alignment = 1
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(1.48, 1.48)
+zoom = Vector2(0.6667, 0.6667)
+enabled = true
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 limit_left = -1200
