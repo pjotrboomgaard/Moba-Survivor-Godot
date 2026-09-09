@@ -379,20 +379,31 @@ func _process(delta: float) -> void:
 
 ## Hides obstacle sprites (and their shadows) that are outside the camera viewport.
 ## Only affects visibility, not collision — physics still works on hidden rocks.
+## Uses the first camera from the "players" group; falls back to the world origin.
+var _cached_cull_cam: Node2D = null
+var _cull_cam_dirty := true
+
 func _cull_offscreen_sprites() -> void:
-	var camera: Node = get_tree().get_first_node_in_group("players")
-	if camera == null:
+	if _cull_cam_dirty:
+		_cull_cam_dirty = false
+		_cached_cull_cam = null
+		for p in get_tree().get_nodes_in_group("players"):
+			if not is_instance_valid(p) or not p is Node2D:
+				continue
+			var cam: Node = (p as Node2D).get_node_or_null("Camera2D")
+			if cam != null and cam is Camera2D and (cam as Camera2D).enabled:
+				_cached_cull_cam = p as Node2D
+				break
+	if _cached_cull_cam == null:
 		return
-	var player := camera as Player
-	if player == null or not is_instance_valid(player):
+	var cam: Node = _cached_cull_cam.get_node_or_null("Camera2D")
+	if cam == null or not (cam is Camera2D) or not (cam as Camera2D).enabled:
 		return
-	var cam: Camera2D = player.get_node_or_null("Camera2D")
-	if cam == null or not cam.enabled:
-		return
-	var cam_pos: Vector2 = cam.get_global_position()
+	var cam_node := cam as Camera2D
+	var cam_pos: Vector2 = cam_node.get_global_position()
 	var vp_size: Vector2 = get_viewport().get_visible_rect().size
-	var zoom: Vector2 = cam.zoom
-	# Half-extent in world units, with a 60px margin so sprites near the edge stay visible.
+	var zoom: Vector2 = cam_node.zoom
+	# Half-extent in world units, with a 80px margin so sprites near the edge stay visible.
 	var half_w: float = (vp_size.x * 0.5 / maxf(0.1, zoom.x)) + 80.0
 	var half_h: float = (vp_size.y * 0.5 / maxf(0.1, zoom.y)) + 80.0
 	var cull_rect := Rect2(
