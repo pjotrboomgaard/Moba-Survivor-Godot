@@ -24,36 +24,47 @@ func _ready() -> void:
 	_print("[ui-verify] driver ready, booting lobby + editor")
 	# 1. capture the lobby (World Editor button visible in ModeRow).
 	_steps.append({"t": 2.0, "kind": "shot", "label": "lobby"})
-	# 2. press the World Editor button programmatically (scene change to editor).
-	_steps.append({"t": 3.5, "kind": "press_editor"})
-	# 3. capture the editor (empty, toolbar visible).
-	_steps.append({"t": 5.5, "kind": "shot", "label": "editor"})
-	# 4. exercise placement through the editor API.
-	_steps.append({"t": 6.5, "kind": "api_place_all"})
-	# 5. capture with props placed.
-	_steps.append({"t": 8.5, "kind": "shot", "label": "editor_with_props"})
-	# 6. erase one node.
-	_steps.append({"t": 9.0, "kind": "api_erase_one"})
-	# 7. save the level.
-	_steps.append({"t": 9.5, "kind": "api_save"})
-	# 8. final shot of the grass world.
-	_steps.append({"t": 11.0, "kind": "shot", "label": "editor_final"})
-	# 9. switch to volcano, confirm the biome name actually changed, screenshot it.
-	_steps.append({"t": 11.5, "kind": "api_switch_world", "dir": 1, "expect": "Vulkaan"})
-	_steps.append({"t": 12.5, "kind": "shot", "label": "world_volcano"})
-	# 10. switch again to ice, place a couple of props there too (proves placement still
-	#     works after a world swap, and that ice's own save file is independent).
-	_steps.append({"t": 13.0, "kind": "api_switch_world", "dir": 1, "expect": "IJs"})
-	_steps.append({"t": 14.0, "kind": "api_place_in_new_world"})
-	_steps.append({"t": 14.5, "kind": "shot", "label": "world_ice_with_props"})
-	_steps.append({"t": 15.0, "kind": "api_save"})
-	# 11. switch back to grass (2 steps back: ice -> volcano -> grass) and confirm the
-	#     ORIGINAL grass save (from step 7) is still there untouched, independent of the
-	#     other worlds' saves.
-	_steps.append({"t": 15.5, "kind": "api_switch_world", "dir": -2, "expect": "Gras"})
-	_steps.append({"t": 16.0, "kind": "check_grass_restored"})
-	_steps.append({"t": 16.5, "kind": "shot", "label": "world_back_to_grass"})
-	_steps.append({"t": 17.0, "kind": "finish"})
+	# 2. hover the LMB button to confirm it shows an info panel.
+	_steps.append({"t": 2.5, "kind": "hover_lmb"})
+	_steps.append({"t": 4.0, "kind": "shot", "label": "lmb_hover"})
+	# 3. hover the RMB button.
+	_steps.append({"t": 4.5, "kind": "hover_rmb"})
+	_steps.append({"t": 6.0, "kind": "shot", "label": "rmb_hover"})
+	# 4. hover ability archetypes BEFORE pressing the editor (scene changes after this).
+	_steps.append({"t": 6.5, "kind": "hover_ability", "hero": "arclight", "slot": 0})
+	_steps.append({"t": 8.5, "kind": "shot", "label": "ability_preview_nuke"})
+	_steps.append({"t": 9.0, "kind": "hover_ability", "hero": "arclight", "slot": 2})
+	_steps.append({"t": 11.0, "kind": "shot", "label": "ability_preview_radius"})
+	# 5. hover a SUMMON_SPIRIT ability (Tobor's Steam Keg) to verify summon rendering.
+	_steps.append({"t": 11.5, "kind": "hover_ability", "hero": "tobor", "slot": 1})
+	_steps.append({"t": 13.5, "kind": "shot", "label": "ability_preview_summon"})
+	# 6. press the World Editor button programmatically (scene change to editor).
+	_steps.append({"t": 14.0, "kind": "press_editor"})
+	# 7. capture the editor (empty, toolbar visible).
+	_steps.append({"t": 16.0, "kind": "shot", "label": "editor"})
+	# 8. exercise placement through the editor API.
+	_steps.append({"t": 17.0, "kind": "api_place_all"})
+	# 9. capture with props placed.
+	_steps.append({"t": 19.0, "kind": "shot", "label": "editor_with_props"})
+	# 10. erase one node.
+	_steps.append({"t": 19.5, "kind": "api_erase_one"})
+	# 11. save the level.
+	_steps.append({"t": 20.0, "kind": "api_save"})
+	# 12. final shot of the grass world.
+	_steps.append({"t": 21.5, "kind": "shot", "label": "editor_final"})
+	# 13. switch to volcano, confirm the biome name actually changed, screenshot it.
+	_steps.append({"t": 22.0, "kind": "api_switch_world", "dir": 1, "expect": "Vulkaan"})
+	_steps.append({"t": 23.0, "kind": "shot", "label": "world_volcano"})
+	# 14. switch again to ice, place a couple of props there too.
+	_steps.append({"t": 23.5, "kind": "api_switch_world", "dir": 1, "expect": "IJs"})
+	_steps.append({"t": 24.5, "kind": "api_place_in_new_world"})
+	_steps.append({"t": 25.0, "kind": "shot", "label": "world_ice_with_props"})
+	_steps.append({"t": 25.5, "kind": "api_save"})
+	# 15. switch back to grass (2 steps back) and confirm the grass save is independent.
+	_steps.append({"t": 26.0, "kind": "api_switch_world", "dir": -2, "expect": "Gras"})
+	_steps.append({"t": 26.5, "kind": "check_grass_restored"})
+	_steps.append({"t": 27.0, "kind": "shot", "label": "world_back_to_grass"})
+	_steps.append({"t": 27.5, "kind": "finish"})
 	_steps.sort_custom(func(a, b): return float(a.t) < float(b.t))
 
 
@@ -68,6 +79,12 @@ func _run_step(step: Dictionary) -> void:
 	match str(step.kind):
 		"shot":
 			_screenshot(str(step.label))
+		"hover_ability":
+			_hover_ability(str(step.get("hero", "")), int(step.get("slot", 0)))
+		"hover_lmb":
+			_hover_lmb()
+		"hover_rmb":
+			_hover_rmb()
 		"press_editor":
 			_press_editor_button()
 		"api_place_all":
@@ -84,6 +101,65 @@ func _run_step(step: Dictionary) -> void:
 			_check_grass_restored()
 		"finish":
 			_finish()
+
+
+## Trigger the ability hover preview for a hero's ability, so the
+## auto-cast SubViewport simulation runs and can be captured in a screenshot.
+func _hover_ability(hero_hint: String = "", slot: int = 0) -> void:
+	# The bootstrap scene is the current scene's root.
+	var bootstrap := get_tree().current_scene
+	if bootstrap == null:
+		_check("hover_bootstrap_found", false, "current_scene not found")
+		return
+	var hero_id := hero_hint
+	if hero_id.is_empty():
+		# Fall back to first hero.
+		var ids: Array = PlayerClass.playable_ids()
+		hero_id = str(ids[0])
+	var kit: Array = PlayerClass.kit_ability_ids(hero_id)
+	if slot >= kit.size():
+		slot = 0
+	var ability_id: String = str(kit[slot]) if slot < kit.size() else ""
+	if ability_id.is_empty():
+		_check("hover_ability_found", false, "no ability id for " + hero_id + " slot " + str(slot))
+		return
+	_check("hover_ability_found", true, "hero=" + hero_id + " slot=" + str(slot) + " ability=" + ability_id)
+	# has_method() can miss underscore-prefixed GDScript methods; use call() with a null check.
+	bootstrap.call("_show_ability_hover", ability_id)
+	_check("hover_ability_called", true, "called _show_ability_hover for " + ability_id)
+	_print("[ui-verify] hovered ability " + ability_id + " for " + hero_id)
+
+
+func _hover_lmb() -> void:
+	var bootstrap := get_tree().current_scene
+	if bootstrap == null:
+		_check("hover_lmb_bootstrap", false, "current_scene not found")
+		return
+	var hero_id := PlayerProfile.selected_class_id
+	if bootstrap.has_method("_show_lmb_hover"):
+		bootstrap._show_lmb_hover(hero_id)
+		_check("hover_lmb", true, "hero=" + hero_id)
+		_print("[ui-verify] hovered LMB for " + hero_id)
+	else:
+		_check("hover_lmb_method", false, "no _show_lmb_hover method")
+
+
+func _hover_rmb() -> void:
+	var bootstrap := get_tree().current_scene
+	if bootstrap == null:
+		_check("hover_rmb_bootstrap", false, "current_scene not found")
+		return
+	var hero_id := PlayerProfile.selected_class_id
+	var secondary_id := str(PlayerClass.by_id(hero_id).get("secondary", ""))
+	if secondary_id.is_empty() or not PlayerClass.ABILITIES.has(secondary_id):
+		_check("hover_rmb_no_secondary", true, "hero=" + hero_id + " has no secondary (expected)")
+		return
+	if bootstrap.has_method("_show_ability_hover"):
+		bootstrap._show_ability_hover(secondary_id)
+		_check("hover_rmb", true, "hero=" + hero_id + " secondary=" + secondary_id)
+		_print("[ui-verify] hovered RMB (" + secondary_id + ") for " + hero_id)
+	else:
+		_check("hover_rmb_method", false, "no _show_ability_hover method")
 
 
 func _press_editor_button() -> void:

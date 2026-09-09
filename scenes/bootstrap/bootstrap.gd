@@ -1,6 +1,7 @@
 extends Node
 
 const RunSave := preload("res://scripts/run_save.gd")
+const AbilityPreviewScript := preload("res://scenes/bootstrap/ability_preview.gd")
 
 const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 
@@ -47,6 +48,8 @@ var loadout_panel: VBoxContainer = null
 var loadout_row: HBoxContainer = null
 var ability_pool: GridContainer = null
 var loadout_slots: Array[Button] = []
+var lmb_slot_button: Button = null
+var rmb_slot_button: Button = null
 
 # --- HoN-style ability description panel (lives in bootstrap.tscn) ---
 @onready var ability_panel: PanelContainer = $StatusLayer/AbilityPanel
@@ -55,6 +58,7 @@ var loadout_slots: Array[Button] = []
 @onready var ability_list: VBoxContainer = $StatusLayer/AbilityPanel/Margin/Layout/AbilityScroll/AbilityList
 var ability_hover_icon: TextureRect = null
 var ability_hover_body: RichTextLabel = null
+var ability_preview: Node = null
 
 var _ability_panel_hero_id: String = ""
 var _pending_run_save: Dictionary = {}
@@ -66,6 +70,8 @@ var class_buttons: Array[Button] = []
 var world_buttons: Array[Button] = []
 var _hero_group: ButtonGroup = null
 var _rebuilding_cards := false
+var _hero_hover_anim: Dictionary = {}
+var _hero_hover_walk: Dictionary = {}
 var _world_by_id_runtime: Dictionary = {}
 var WORLD_ORDER: Array = []
 ## Steam init is async (see SteamService.INIT_TIMEOUT_SECONDS); Host must not be clickable
@@ -266,6 +272,27 @@ func _build_overhaul_ui() -> void:
 	loadout_row.add_theme_constant_override("separation", 8)
 	loadout_panel.add_child(loadout_row)
 	loadout_slots = []
+	# LMB/RMB buttons first (same size as Q/E/D/R).
+	var lmb_b := Button.new()
+	lmb_b.name = "LmbSlot"
+	lmb_b.toggle_mode = false
+	lmb_b.custom_minimum_size = Vector2(72, 72)
+	lmb_b.disabled = false
+	lmb_b.focus_mode = Control.FOCUS_NONE
+	lmb_b.mouse_entered.connect(_on_lmb_hover)
+	lmb_b.mouse_exited.connect(_on_ability_slot_unhover)
+	loadout_row.add_child(lmb_b)
+	var rmb_b := Button.new()
+	rmb_b.name = "RmbSlot"
+	rmb_b.toggle_mode = false
+	rmb_b.custom_minimum_size = Vector2(72, 72)
+	rmb_b.disabled = false
+	rmb_b.focus_mode = Control.FOCUS_NONE
+	rmb_b.mouse_entered.connect(_on_rmb_hover)
+	rmb_b.mouse_exited.connect(_on_ability_slot_unhover)
+	loadout_row.add_child(rmb_b)
+	lmb_slot_button = lmb_b
+	rmb_slot_button = rmb_b
 	for slot_index in 4:
 		var b := Button.new()
 		b.name = "Slot%d" % (slot_index + 1)
@@ -369,6 +396,7 @@ func _sync_steam_display_name() -> void:
 
 
 func _process(delta: float) -> void:
+	_process_hero_hover_walk(delta)
 	if _waiting_steam_operation:
 		_steam_operation_elapsed += delta
 		if _steam_operation_elapsed >= STEAM_OPERATION_TIMEOUT:
@@ -452,7 +480,7 @@ func _hero_backdrop() -> TextureRect:
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
 	art.offset_left = 0.0
 	art.offset_top = 0.0
-	art.offset_right = -_backdrop_right_offset()
+	art.offset_right = 0.0
 	art.offset_bottom = 0.0
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -471,7 +499,7 @@ func _apply_hero_backdrop() -> void:
 	var art := _hero_backdrop()
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	art.offset_right = -_backdrop_right_offset()
+	art.offset_right = 0.0
 	art.texture = SpriteLibrary.menu_backdrop_for(PlayerProfile.selected_class_id)
 	art.visible = true
 	_raise_ability_hover()
@@ -536,6 +564,8 @@ func _rebuild_hero_cards() -> void:
 		button.text = "%s\n%s" % [str(class_data.name).to_upper(), str(class_data.role).to_upper()]
 		button.add_theme_color_override("font_color", Color(str(class_data.accent_color)))
 		button.toggled.connect(_on_class_toggled.bind(hero_id))
+		if _is_hero_unlocked(hero_id):
+			_bind_hero_hover_animation(button, hero_id)
 		class_grid.add_child(button)
 		class_buttons.append(button)
 		_style_hero_card(button, class_data)
@@ -558,6 +588,70 @@ func _style_hero_card(button: Button, class_data: Dictionary) -> void:
 		button.text = "%s\nLOCKED %d/%d" % [str(class_data.name).to_upper(), shards, needed]
 		button.modulate = Color(0.55, 0.55, 0.6, 1.0)
 		button.tooltip_text = "Clear waves solo to unlock %s (%s)." % [str(class_data.name), world_name(int(class_data.get("world", 0)))]
+
+
+func _bind_hero_hover_animation(button: Button, hero_id: String) -> void:
+	# Build the walk-in-place frame set: front, right, back, left facings.
+	# Each facing falls back to the front sprite when the directional PNG is absent.
+	var frames: Array[Texture2D] = []
+	var front := SpriteLibrary.texture_for(hero_id)
+	for facing_name in ["", "right", "back", "left"]:
+		var tex: Texture2D = front
+		if facing_name != "":
+			var dir_tex := SpriteLibrary.texture_for("%s_%s" % [hero_id, facing_name])
+			if dir_tex != null:
+				tex = dir_tex
+		frames.append(tex)
+	var walk: Dictionary = {
+		"frames": frames,
+		"frame": 0,
+		"t": 0.0,
+		"interval": 0.28,
+		"base_icon": front,
+		"active": false,
+	}
+	_hero_hover_walk[button] = walk
+	button.mouse_entered.connect(_on_hero_card_hover.bind(button, true))
+	button.mouse_exited.connect(_on_hero_card_hover.bind(button, false))
+
+
+func _process_hero_hover_walk(delta: float) -> void:
+	if _hero_hover_walk.is_empty():
+		return
+	for button in _hero_hover_walk.keys():
+		var walk: Dictionary = _hero_hover_walk[button]
+		# Animate ONLY on hover — not when selected (user request: static when selected).
+		if not bool(walk.get("active", false)):
+			continue
+		var t: float = float(walk["t"]) + delta
+		if t >= float(walk["interval"]):
+			t = 0.0
+			var next_frame: int = int(walk["frame"]) + 1
+			var frames: Array = walk["frames"]
+			if next_frame >= frames.size():
+				if int(walk["frame"]) == 0:
+					next_frame = 1
+				else:
+					next_frame = 0
+			walk["frame"] = next_frame
+			(button as Button).icon = frames[next_frame]
+		walk["t"] = t
+	for key in _hero_hover_walk.keys():
+		if not is_instance_valid(key):
+			_hero_hover_walk.erase(key)
+
+
+func _on_hero_card_hover(button: Button, entering: bool) -> void:
+	var walk: Dictionary = _hero_hover_walk.get(button, {})
+	if walk.is_empty():
+		return
+	walk["active"] = entering
+	walk["t"] = 0.0
+	walk["frame"] = 0
+	if entering:
+		(button as Button).icon = (walk["frames"] as Array)[0]
+	else:
+		(button as Button).icon = walk["base_icon"]
 
 
 func _on_world_tab_toggled(is_pressed: bool, world: int) -> void:
@@ -842,6 +936,19 @@ func _populate_ability_panel(hero_id: String) -> void:
 	ability_hero_blurb.text = str(hero_data.get("description", ""))
 	for child in ability_list.get_children():
 		child.queue_free()
+	# LMB/RMB tooltip row (shown above the ability cards).
+	var lmb_rmb_label := Label.new()
+	lmb_rmb_label.name = "LmbRmbTooltip"
+	lmb_rmb_label.add_theme_font_size_override("font_size", 13)
+	lmb_rmb_label.add_theme_color_override("font_color", Color(0.55, 0.65, 0.80, 1.0))
+	lmb_rmb_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var weapon_name := str(hero_data.get("weapon_name", "Primary Attack"))
+	var secondary_id := str(hero_data.get("secondary", ""))
+	var secondary_display := secondary_id
+	if not secondary_id.is_empty() and PlayerClass.ABILITIES.has(secondary_id):
+		secondary_display = str(PlayerClass.ABILITIES[secondary_id].get("name", secondary_id))
+	lmb_rmb_label.text = "LMB — %s    RMB — %s" % [weapon_name, secondary_display]
+	ability_list.add_child(lmb_rmb_label)
 	var kit: Array = _get_loadout_for(hero_id)
 	for slot_index in mini(kit.size(), 4):
 		var ability_id := String(kit[slot_index])
@@ -896,6 +1003,65 @@ func _build_ability_card(ability_id: String, hotkey: String) -> Control:
 	body.add_theme_color_override("default_color", Color(0.86, 0.90, 0.96, 1.0))
 	body.add_theme_font_size_override("normal_font_size", 13)
 	body.text = _format_ability_tooltip(ability_id)
+	vbox.add_child(body)
+	return card
+
+
+## Builds a simple "attack" card for LMB/RMB — shows weapon name, damage, and
+## cooldown in the same visual style as the ability cards.
+func _build_attack_card(hero_id: String, weapon_name: String, damage: int, cooldown: float, range_px: int) -> Control:
+	var card := PanelContainer.new()
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.05, 0.06, 0.09, 0.85)
+	style.border_color = Color(0.18, 0.22, 0.30, 1.0)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	style.content_margin_left = 12
+	style.content_margin_right = 12
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
+	card.add_theme_stylebox_override("panel", style)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+	card.add_child(vbox)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 8)
+	vbox.add_child(head)
+	# Use the hero's front sprite as the icon.
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(36, 36)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = SpriteLibrary.texture_for(hero_id)
+	head.add_child(icon)
+	var title_label := Label.new()
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_label.text = weapon_name
+	title_label.add_theme_font_size_override("font_size", 16)
+	title_label.add_theme_color_override("font_color", Color(0.85, 0.90, 1.0, 1.0))
+	head.add_child(title_label)
+	var tag := Label.new()
+	tag.text = "[LMB]"
+	tag.add_theme_font_size_override("font_size", 14)
+	tag.add_theme_color_override("font_color", Color(0.6, 0.68, 0.8, 1.0))
+	head.add_child(tag)
+	# Description line.
+	var body := Label.new()
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.add_theme_font_size_override("font_size", 13)
+	body.add_theme_color_override("font_color", Color(0.80, 0.85, 0.92, 1.0))
+	var desc: String = ""
+	if damage > 0:
+		desc = "Deals %d damage every %.1fs" % [damage, cooldown]
+		if range_px > 150:
+			desc += " at range (%d px)" % range_px
+		else:
+			desc += " (melee)"
+	else:
+		desc = "No secondary attack for this hero."
+	body.text = desc
 	vbox.add_child(body)
 	return card
 
@@ -1036,6 +1202,58 @@ func _refresh_loadout_panel() -> void:
 		return
 	var hero_id := PlayerProfile.selected_class_id
 	_shown_kit_ids = _hero_ability_ids(hero_id)
+	var hero_data := PlayerClass.by_id(hero_id)
+	var weapon_name := str(hero_data.get("weapon_name", "Primary Attack"))
+	var secondary_id := str(hero_data.get("secondary", ""))
+	# LMB button: primary weapon icon.
+	if lmb_slot_button != null:
+		lmb_slot_button.disabled = false
+		lmb_slot_button.text = ""
+		lmb_slot_button.icon = SpriteLibrary.texture_for(hero_id)
+		lmb_slot_button.expand_icon = false
+		lmb_slot_button.add_theme_constant_override("icon_max_width", 52)
+		lmb_slot_button.add_theme_constant_override("icon_max_height", 52)
+		var lmb_tag := lmb_slot_button.get_node_or_null("SlotTag") as Label
+		if lmb_tag == null:
+			var t := Label.new()
+			t.name = "SlotTag"
+			t.position = Vector2(2, 2)
+			t.add_theme_font_size_override("font_size", 9)
+			t.add_theme_color_override("font_color", Color("f5c542"))
+			t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			lmb_slot_button.add_child(t)
+			lmb_tag = t
+		lmb_tag.text = "LMB"
+		lmb_slot_button.tooltip_text = "%s: %s" % [weapon_name, _lmb_tooltip(hero_id)]
+	# RMB button: secondary ability icon.
+	if rmb_slot_button != null:
+		if not secondary_id.is_empty() and PlayerClass.ABILITIES.has(secondary_id):
+			rmb_slot_button.disabled = false
+			rmb_slot_button.text = ""
+			rmb_slot_button.icon = SpriteLibrary.texture_for(secondary_id)
+			rmb_slot_button.expand_icon = false
+			rmb_slot_button.add_theme_constant_override("icon_max_width", 52)
+			rmb_slot_button.add_theme_constant_override("icon_max_height", 52)
+			var rmb_tag := rmb_slot_button.get_node_or_null("SlotTag") as Label
+			if rmb_tag == null:
+				var t := Label.new()
+				t.name = "SlotTag"
+				t.position = Vector2(2, 2)
+				t.add_theme_font_size_override("font_size", 9)
+				t.add_theme_color_override("font_color", Color("f5c542"))
+				t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				rmb_slot_button.add_child(t)
+				rmb_tag = t
+			rmb_tag.text = "RMB"
+			rmb_slot_button.tooltip_text = _ability_tooltip(secondary_id)
+		else:
+			rmb_slot_button.disabled = true
+			rmb_slot_button.text = ""
+			rmb_slot_button.icon = null
+			rmb_slot_button.tooltip_text = "No secondary ability"
+			var rmb_tag2 := rmb_slot_button.get_node_or_null("SlotTag") as Label
+			if rmb_tag2 != null:
+				rmb_tag2.text = "RMB"
 	var slot_names := ["Q", "E", "D", "R"]
 	for slot_index in loadout_slots.size():
 		var button := loadout_slots[slot_index] as Button
@@ -1092,6 +1310,40 @@ func _on_ability_slot_unhover() -> void:
 	_hide_ability_hover()
 
 
+func _on_lmb_hover() -> void:
+	var hero_id := PlayerProfile.selected_class_id
+	_show_lmb_hover(hero_id)
+
+
+func _on_rmb_hover() -> void:
+	var hero_id := PlayerProfile.selected_class_id
+	var secondary_id := str(PlayerClass.by_id(hero_id).get("secondary", ""))
+	if secondary_id.is_empty() or not PlayerClass.ABILITIES.has(secondary_id):
+		# No secondary: show a small "no secondary" panel instead of hiding.
+		ability_hero_header.text = "RMB  ·  NO SECONDARY"
+		if ability_hover_body != null:
+			ability_hover_body.text = "This hero has no secondary ability."
+		if ability_preview != null:
+			ability_preview.visible = false
+		ability_panel.visible = true
+		_raise_ability_hover()
+		return
+	_show_ability_hover(secondary_id)
+
+
+func _lmb_tooltip(hero_id: String) -> String:
+	var hero_data := PlayerClass.by_id(hero_id)
+	var dmg := int(hero_data.get("weapon_damage", 0))
+	var cd := float(hero_data.get("attack_interval", 0))
+	var rng := int(hero_data.get("attack_range", 0))
+	var text := "Deals %d damage every %.1fs" % [dmg, cd]
+	if rng > 150:
+		text += " at range (%d px)" % rng
+	else:
+		text += " (melee)"
+	return text
+
+
 func _layout_ability_hover_panel() -> void:
 	if ability_panel == null:
 		return
@@ -1105,7 +1357,7 @@ func _layout_ability_hover_panel() -> void:
 	ability_panel.offset_left = 36.0
 	ability_panel.offset_top = 72.0
 	ability_panel.offset_right = 520.0
-	ability_panel.offset_bottom = 520.0
+	ability_panel.offset_bottom = 620.0
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.05, 0.04, 0.03, 0.55)
 	style.border_color = Color(1.0, 0.72, 0.28, 0.9)
@@ -1143,9 +1395,21 @@ func _layout_ability_hover_panel() -> void:
 		ability_hover_body.scroll_active = false
 		ability_hover_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ability_hover_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		ability_hover_body.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		ability_hover_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		ability_hover_body.add_theme_color_override("default_color", Color("f4f0e6"))
 		ability_hover_body.add_theme_font_size_override("normal_font_size", 16)
+		# Simulated ability preview: loops the ability's effect hitting 3 creeps.
+		var preview_node := layout.get_node_or_null("AbilityPreview")
+		if preview_node == null:
+			preview_node = AbilityPreviewScript.new()
+		ability_preview = preview_node as Node
+		ability_preview.name = "AbilityPreview"
+		ability_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		ability_preview.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		if ability_preview.get_parent() != layout:
+			layout.add_child(ability_preview)
+		layout.move_child(ability_preview, layout.get_child_count() - 1)
 	if ability_hero_header != null:
 		ability_hero_header.add_theme_font_size_override("font_size", 28)
 		ability_hero_header.add_theme_color_override("font_color", Color("ffe08c"))
@@ -1179,6 +1443,29 @@ func _raise_ability_hover() -> void:
 		layer.move_child(lobby_panel, layer.get_child_count() - 1)
 
 
+## Shows a simple hover panel for the LMB weapon (no preview animation, just stats).
+func _show_lmb_hover(hero_id: String) -> void:
+	if ability_panel == null or ability_hero_header == null:
+		return
+	var hero_data := PlayerClass.by_id(hero_id)
+	var weapon_name := str(hero_data.get("weapon_name", "Primary Attack"))
+	ability_hero_header.text = "%s  ·  LMB" % weapon_name.to_upper()
+	if ability_hover_body != null:
+		var dmg := int(hero_data.get("weapon_damage", 0))
+		var cd := float(hero_data.get("attack_interval", 0))
+		var rng := int(hero_data.get("attack_range", 0))
+		var desc := "Deals [b]%d[/b] damage every [b]%.1f[/b]s" % [dmg, cd]
+		if rng > 150:
+			desc += " at [b]%d[/b] range" % rng
+		ability_hover_body.text = desc
+	elif ability_hero_blurb != null:
+		ability_hero_blurb.visible = true
+		ability_hero_blurb.text = "%s — primary attack" % weapon_name
+	if ability_preview != null:
+		ability_preview.visible = false
+	ability_panel.visible = true
+
+
 func _show_ability_hover(ability_id: String) -> void:
 	if ability_panel == null or ability_hero_header == null:
 		return
@@ -1193,6 +1480,9 @@ func _show_ability_hover(ability_id: String) -> void:
 	elif ability_hero_blurb != null:
 		ability_hero_blurb.visible = true
 		ability_hero_blurb.text = _format_ability_tooltip(ability_id).replace("[b]", "").replace("[/b]", "").replace("[color=9fb3d1]", "").replace("[/color]", "")
+	if ability_preview != null:
+		ability_preview.configure(ability_id)
+		ability_preview.visible = true
 	ability_panel.visible = true
 
 
@@ -1201,6 +1491,9 @@ func _hide_ability_hover() -> void:
 		ability_panel.visible = false
 	if ability_hover_icon != null:
 		ability_hover_icon.visible = false
+	if ability_preview != null:
+		ability_preview.deactivate()
+		ability_preview.visible = false
 
 
 func _ability_tooltip(ability_id: String) -> String:
