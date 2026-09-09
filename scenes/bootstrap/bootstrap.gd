@@ -285,9 +285,9 @@ func _constrain_lobby_layout() -> void:
 	lobby_panel.anchor_top = 0.0
 	lobby_panel.anchor_right = 1.0
 	lobby_panel.anchor_bottom = 1.0
-	# Panel width scales with the window so it fills proportionally at any resolution.
-	var vp_w := get_viewport().get_visible_rect().size.x
-	var panel_w := clampi(int(vp_w * 0.40), 480, 1000)
+	# Panel width scales with the design viewport (1280 base) so it fills proportionally
+	# at any window resolution; buttons scale up with the canvas_items stretch mode.
+	var panel_w := 700
 	lobby_panel.offset_left = -float(panel_w)
 	lobby_panel.offset_top = 10.0
 	lobby_panel.offset_right = -10.0
