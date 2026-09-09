@@ -43,9 +43,137 @@
           "hint": "Grove Bell",
           "pos": "(0.0, 0.0)",
           "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
         }
       ],
-      "t": 1.01235664454064
+      "t": 1.00618045454545
     },
     {
       "abilities": [
@@ -70,7 +198,7 @@
         0.0,
         0.0,
         0.0,
-        138.254999999999
+        0.0
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -86,10 +214,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -3032.0,
-              -1918.0
+              -3160.0,
+              -2038.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3070.0,
+              -2011.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -97,12 +238,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3278.0,
-              -2084.0
+              -2905.0,
+              2037.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -110,23 +251,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2862.0,
-              2032.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              3173.0,
-              2242.0
+              3268.0,
+              2209.0
             ],
             "team": "3"
           }
@@ -147,7 +275,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.22068997787398
+      "t": 1.206208,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -169,10 +298,10 @@
         }
       ],
       "cds": [
-        10.1013333333335,
-        20.8266666666669,
-        14.7200000000001,
-        115.454999999992
+        5.71800000000008,
+        6.97666666666678,
+        1.53666666666645,
+        118.671666666658
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -188,10 +317,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -1928.0,
-              -1411.0
+              -3304.0,
+              -2776.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              657.0,
+              -1140.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -199,12 +341,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3130.0,
-              -2091.0
+              -1551.0,
+              650.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -212,23 +354,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -1770.0,
-              2776.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              1875.0,
-              1683.0
+              2426.0,
+              2776.0
             ],
             "team": "3"
           }
@@ -240,8 +369,8 @@
         ]
       },
       "hero": "warden",
-      "hp": 203.0,
-      "hp_frac": 1.0,
+      "hp": 195.15,
+      "hp_frac": 0.961330049261084,
       "hp_max": 203.0,
       "kind": "probe",
       "label": "ffa_mid",
@@ -249,7 +378,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 4,
-      "t": 24.0166666666666
+      "t": 24.0028704848481,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -271,10 +401,10 @@
         }
       ],
       "cds": [
-        18.334666666667,
-        0.0,
-        13.0866666666667,
-        91.9549999999929
+        6.46800000000008,
+        21.6100000000002,
+        15.5033333333335,
+        95.1716666666594
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -283,54 +413,54 @@
         "enabled": true,
         "heroes": [
           {
-            "alive": false,
+            "alive": true,
             "class": "warden",
             "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              136.0,
-              218.0
+              -384.0,
+              -512.0
             ],
             "team": "0"
           },
           {
-            "alive": true,
-            "class": "bulwark",
+            "alive": false,
+            "class": "arclight",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              2933.0,
-              -1624.0
+              117.0,
+              -57.0
             ],
             "team": "1"
           },
           {
             "alive": false,
-            "class": "warden",
+            "class": "bulwark",
             "cpu": true,
             "kills": 1,
             "local": false,
             "peer": 102,
             "pos": [
-              39.0,
-              138.0
+              3.0,
+              -189.0
             ],
             "team": "2"
           },
           {
             "alive": true,
-            "class": "tobor",
+            "class": "warden",
             "cpu": true,
             "kills": 1,
             "local": false,
             "peer": 103,
             "pos": [
-              48.0,
-              236.0
+              -410.0,
+              -579.0
             ],
             "team": "3"
           }
@@ -342,51 +472,64 @@
         ]
       },
       "hero": "warden",
-      "hp": 0.0,
-      "hp_frac": 0.0,
-      "hp_max": 203.0,
+      "hp": 228.0,
+      "hp_frac": 1.0,
+      "hp_max": 228.0,
       "kind": "probe",
       "label": "ffa_end",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 4,
-      "t": 47.5194406666668
+      "t": 47.5032433333324,
+      "teleporters": []
     }
   ],
-  "elapsed": 48.0399713809525,
+  "elapsed": 48.0101629999991,
   "enemies_spawned": 0,
-  "hero_position": "(136.0836, 217.9108)",
+  "hero_position": "(-422.1101, -532.5676)",
   "player_class": "warden",
   "results": {
-    "alive": false,
+    "alive": true,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 5,
+    "cast_count": 8,
     "casts": [
       {
+        "ability_id": "warden_life_drain",
+        "t": 3.21587499999999
+      },
+      {
         "ability_id": "warden_tongue_tied",
-        "t": 9.85242266666664
+        "t": 5.48229766666671
       },
       {
         "ability_id": "warden_thorn_volley",
-        "t": 19.8380296666666
+        "t": 6.01523942424248
       },
       {
         "ability_id": "warden_voodoo_wards",
-        "t": 19.9843847777777
+        "t": 6.81569766666673
+      },
+      {
+        "ability_id": "warden_voodoo_wards",
+        "t": 25.5490523333329
       },
       {
         "ability_id": "warden_tongue_tied",
-        "t": 41.6105196666667
+        "t": 29.7314018095232
+      },
+      {
+        "ability_id": "warden_thorn_volley",
+        "t": 44.1476925555546
       },
       {
         "ability_id": "warden_voodoo_wards",
-        "t": 41.8508423333334
+        "t": 44.2822293333323
       }
     ],
-    "creep_kills": 19,
-    "died": true,
+    "creep_kills": 32,
+    "died": false,
     "errors": [],
     "ffa": {
       "all_bots": true,
@@ -394,30 +537,43 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": false,
+          "alive": true,
           "class": "warden",
           "cpu": true,
-          "kills": 0,
+          "kills": 1,
           "local": true,
           "peer": 1,
           "pos": [
-            136.0,
-            218.0
+            -422.0,
+            -533.0
           ],
           "team": "0"
         },
         {
-          "alive": true,
-          "class": "bulwark",
+          "alive": false,
+          "class": "arclight",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 101,
           "pos": [
-            2931.0,
-            -1559.0
+            117.0,
+            -57.0
           ],
           "team": "1"
+        },
+        {
+          "alive": false,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            3.0,
+            -189.0
+          ],
+          "team": "2"
         },
         {
           "alive": false,
@@ -425,23 +581,10 @@
           "cpu": true,
           "kills": 1,
           "local": false,
-          "peer": 102,
-          "pos": [
-            39.0,
-            138.0
-          ],
-          "team": "2"
-        },
-        {
-          "alive": true,
-          "class": "tobor",
-          "cpu": true,
-          "kills": 1,
-          "local": false,
           "peer": 103,
           "pos": [
-            165.0,
-            189.0
+            -411.0,
+            -608.0
           ],
           "team": "3"
         }
@@ -452,8 +595,8 @@
         5600.0
       ]
     },
-    "gold": 102,
-    "hero_kills": 0,
+    "gold": 825,
+    "hero_kills": 1,
     "hp_samples": [
       {
         "alive": true,
@@ -461,93 +604,102 @@
         "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 0.14
+        "t": 0.15
       },
       {
         "alive": true,
         "class": "warden",
-        "gold": 4,
+        "gold": 6,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.17
+        "t": 5.15
       },
       {
         "alive": true,
         "class": "warden",
-        "gold": 26,
+        "gold": 135,
         "hp": 1.0,
         "kills": 0,
-        "t": 10.17
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "warden",
-        "gold": 54,
+        "gold": 151,
         "hp": 1.0,
         "kills": 0,
-        "t": 15.21
+        "t": 15.16
       },
       {
         "alive": true,
         "class": "warden",
-        "gold": 88,
+        "gold": 172,
         "hp": 1.0,
         "kills": 0,
-        "t": 20.23
+        "t": 20.17
       },
       {
         "alive": true,
         "class": "warden",
-        "gold": 159,
-        "hp": 1.0,
+        "gold": 202,
+        "hp": 0.94,
         "kills": 0,
-        "t": 25.26
+        "t": 25.17
       },
       {
         "alive": true,
         "class": "warden",
-        "gold": 192,
-        "hp": 1.0,
+        "gold": 297,
+        "hp": 0.96,
         "kills": 0,
-        "t": 30.29
+        "t": 30.18
       },
       {
         "alive": true,
         "class": "warden",
-        "gold": 196,
+        "gold": 382,
         "hp": 1.0,
         "kills": 0,
-        "t": 35.31
+        "t": 35.18
       },
       {
         "alive": true,
         "class": "warden",
-        "gold": 200,
+        "gold": 418,
         "hp": 1.0,
         "kills": 0,
-        "t": 40.31
+        "t": 40.18
       },
       {
-        "alive": false,
+        "alive": true,
         "class": "warden",
-        "gold": 102,
-        "hp": 0.0,
+        "gold": 441,
+        "hp": 1.0,
         "kills": 0,
-        "t": 45.32
+        "t": 45.19
       }
     ],
     "landmark_saves": 0,
-    "level": 3,
+    "level": 6,
     "level_upgrades": {
       "2": [
-        "double_tap"
+        "echo_shot"
       ],
       "3": [
-        "metronome"
+        "choir"
+      ],
+      "4": [
+        "gun_drone"
+      ],
+      "5": [
+        "vitality"
+      ],
+      "6": [
+        "rapid"
       ]
     },
     "max_hp": 1.0,
-    "min_hp": 0.0,
+    "min_hp": 0.855911330049265,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 0,
@@ -555,13 +707,16 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "double_tap",
-      "metronome"
+      "echo_shot",
+      "choir",
+      "gun_drone",
+      "vitality",
+      "rapid"
     ],
     "until_wave": 20,
-    "verdict": "WARN_DEAD",
+    "verdict": "PASS_KILLS",
     "wave": 1,
-    "xp": 99
+    "xp": 53
   },
   "shots": []
 }

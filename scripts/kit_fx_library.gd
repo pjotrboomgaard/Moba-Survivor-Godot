@@ -52,6 +52,58 @@ const KIT_VISUALS: Dictionary = {
 		"draw_mode": "hex_field",
 		"lifetime": 0.9,
 	},
+	# ── Pyra — Blast-Step (teleport secondary) ─────────────────────────────
+	"pyra_blast_jump": {
+		"primary_color": "ff8a5c",
+		"secondary_color": "ffd36b",
+		"pulse_count": 2,
+		"ribbon_count": 3,
+		"style": "fire",
+		"lifetime": 0.42,
+	},
+	# ── Ember — Cinder Veil (phase + heal) ─────────────────────────────────
+	"ember_cinder_veil": {
+		"primary_color": "ffb46b",
+		"secondary_color": "8cff4a",
+		"pulse_count": 3,
+		"ribbon_count": 4,
+		"style": "fire",
+		"lifetime": 0.55,
+	},
+	# ── Volt — Windstep (dash) ──────────────────────────────────────────────
+	"volt_windstep": {
+		"primary_color": "b0e8ff",
+		"secondary_color": "7af0ff",
+		"pulse_count": 2,
+		"ribbon_count": 4,
+		"style": "storm",
+		"lifetime": 0.38,
+	},
+	"volt_gale_gust": {
+		"primary_color": "b0e8ff",
+		"secondary_color": "7af0ff",
+		"pulse_count": 2,
+		"ribbon_count": 3,
+		"style": "storm",
+		"lifetime": 0.35,
+	},
+	"willow_windstep": {
+		"primary_color": "d4ff8f",
+		"secondary_color": "b8ff6b",
+		"pulse_count": 2,
+		"ribbon_count": 4,
+		"style": "nature",
+		"lifetime": 0.38,
+	},
+	# ── Nebula — Time Skip (teleport-forward) ───────────────────────────────
+	"nebula_time_skip": {
+		"primary_color": "cbb0ff",
+		"secondary_color": "b48cff",
+		"pulse_count": 3,
+		"ribbon_count": 5,
+		"style": "arcane",
+		"lifetime": 0.5,
+	},
 	# ── Arclight (Joule / Thunderbringer) ────────────────────────────────────
 	"arclight_blast_of_lightning": {
 		"primary_color": "fff8a8",
@@ -79,6 +131,14 @@ const KIT_VISUALS: Dictionary = {
 		"style": "storm",
 		"draw_mode": "storm_pillar",
 		"lifetime": 0.7,
+	},
+	"arclight_ball_lightning": {
+		"primary_color": "fff8a8",
+		"secondary_color": "7af0ff",
+		"pulse_count": 1,
+		"ribbon_count": 3,
+		"style": "storm",
+		"lifetime": 0.38,
 	},
 	# ── Bulwark (Tremor / Behemoth) ──────────────────────────────────────────
 	"bulwark_fissure": {
@@ -173,6 +233,14 @@ const KIT_VISUALS: Dictionary = {
 		"draw_mode": "ice_cone",
 		"lifetime": 0.7,
 	},
+	"frostbinder_rime_barrage": {
+		"primary_color": "a8dcff",
+		"secondary_color": "dbe9ff",
+		"pulse_count": 2,
+		"ribbon_count": 4,
+		"style": "ice",
+		"lifetime": 0.4,
+	},
 	# ── Cinder (Blaze / Pyro) ────────────────────────────────────────────────
 	"cinder_dragon_fire": {
 		"primary_color": "ffb347",
@@ -201,6 +269,14 @@ const KIT_VISUALS: Dictionary = {
 		"draw_mode": "flame_pillar",
 		"lifetime": 0.8,
 	},
+	"cinder_whirling_flame": {
+		"primary_color": "ffb347",
+		"secondary_color": "ffd36b",
+		"pulse_count": 2,
+		"ribbon_count": 4,
+		"style": "fire",
+		"lifetime": 0.4,
+	},
 	# ── Pyra (Barrage / Bombardier) ──────────────────────────────────────────
 	"pyra_sticky_bomb": {
 		"primary_color": "ff8a5c",
@@ -228,6 +304,14 @@ const KIT_VISUALS: Dictionary = {
 		"style": "fire",
 		"draw_mode": "air_strike",
 		"lifetime": 0.65,
+	},
+	"pyra_molten_charge": {
+		"primary_color": "ff8a5c",
+		"secondary_color": "ffd36b",
+		"pulse_count": 2,
+		"ribbon_count": 3,
+		"style": "fire",
+		"lifetime": 0.38,
 	},
 	# ── Slag (Vulcan / Magmus) ───────────────────────────────────────────────
 	"slag_steam_bath": {
@@ -340,6 +424,14 @@ const KIT_VISUALS: Dictionary = {
 		"draw_mode": "toxic_bloom",
 		"lifetime": 0.75,
 	},
+	"thorn_bramble_dash": {
+		"primary_color": "7dff3a",
+		"secondary_color": "c8ff6a",
+		"pulse_count": 2,
+		"ribbon_count": 4,
+		"style": "nature",
+		"lifetime": 0.38,
+	},
 	# ── Willow (Flick / Forsaken Archer) ─────────────────────────────────────
 	"willow_swift_strike": {
 		"primary_color": "d4ff8f",
@@ -393,7 +485,6 @@ const KIT_VISUALS: Dictionary = {
 		"pulse_count": 2,
 		"ribbon_count": 3,
 		"style": "nature",
-		"draw_mode": "vine_lash",
 		"lifetime": 0.35,
 	},
 	"stump_overgrowth": {
@@ -488,6 +579,14 @@ const KIT_VISUALS: Dictionary = {
 		"style": "arcane",
 		"draw_mode": "orbit_rings",
 		"lifetime": 0.4,
+	},
+	"nebula_time_shift_blink": {
+		"primary_color": "cbb0ff",
+		"secondary_color": "b48cff",
+		"pulse_count": 3,
+		"ribbon_count": 5,
+		"style": "arcane",
+		"lifetime": 0.45,
 	},
 	"nebula_arcane_bolt": {
 		"primary_color": "cbb0ff",
@@ -609,24 +708,6 @@ const KIT_VISUALS: Dictionary = {
 		"draw_mode": "air_strike",
 		"lifetime": 0.55,
 	},
-	"cinder_whirling_flame": {
-		"primary_color": "ffb347",
-		"secondary_color": "ff8a3d",
-		"pulse_count": 2,
-		"ribbon_count": 3,
-		"style": "fire",
-		"draw_mode": "fire_petals",
-		"lifetime": 0.4,
-	},
-	"slag_lava_surge": {
-		"primary_color": "ff6b2a",
-		"secondary_color": "ffc46b",
-		"pulse_count": 2,
-		"ribbon_count": 3,
-		"style": "fire",
-		"draw_mode": "fire_petals",
-		"lifetime": 0.4,
-	},
 	"ember_storm_cloud": {
 		"primary_color": "ffb46b",
 		"secondary_color": "8cff4a",
@@ -671,6 +752,33 @@ const KIT_VISUALS: Dictionary = {
 		"style": "ice",
 		"draw_mode": "shard_burst",
 		"lifetime": 0.55,
+	},
+	# Dash/blink archetypes → themed TELEPORT blink (vanish ring, motion streak, appear ring)
+	# (Duplicates at original hero sections above keep their themed colors; only new
+	#  dash abilities are listed here.)
+	"ember_phoenix_dash": {
+		"primary_color": "ffb46b",
+		"secondary_color": "ffd36b",
+		"pulse_count": 3,
+		"ribbon_count": 4,
+		"style": "fire",
+		"lifetime": 0.42,
+	},
+	"volt_lightning_lunge": {
+		"primary_color": "b0e8ff",
+		"secondary_color": "7af0ff",
+		"pulse_count": 2,
+		"ribbon_count": 3,
+		"style": "storm",
+		"lifetime": 0.38,
+	},
+	"rime_cold_rush": {
+		"primary_color": "cfe8ff",
+		"secondary_color": "a8dcff",
+		"pulse_count": 3,
+		"ribbon_count": 4,
+		"style": "ice",
+		"lifetime": 0.4,
 	},
 }
 

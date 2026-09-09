@@ -1,0 +1,17 @@
+{
+  "hero": "cinder",
+  "biome": 0,
+  "comment": "Perf probe in grass world (biome 0): boot, sample FPS + node breakdown while the player walks around to exercise culling. Diagnoses the object-count bottleneck that makes world 1 sluggish.",
+  "events": [
+    {"t": 1.0, "kind": "probe", "label": "boot"},
+    {"t": 2.0, "kind": "fps_probe", "label": "idle_start"},
+    {"t": 2.5, "kind": "walk_to", "at": [400, -100], "timeout": 4.0},
+    {"t": 5.0, "kind": "fps_probe", "label": "walking_1"},
+    {"t": 6.0, "kind": "walk_to", "at": [-500, 300], "timeout": 4.0},
+    {"t": 8.5, "kind": "fps_probe", "label": "walking_2"},
+    {"t": 9.0, "kind": "snap", "label": "grass_walk"},
+    {"t": 12.0, "kind": "walk_stop"},
+    {"t": 14.0, "kind": "fps_probe", "label": "idle_end"},
+    {"t": 15.0, "kind": "report"}
+  ]
+}

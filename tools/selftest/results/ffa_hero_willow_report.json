@@ -43,9 +43,137 @@
           "hint": "Grove Bell",
           "pos": "(0.0, 0.0)",
           "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
         }
       ],
-      "t": 1.008281
+      "t": 1.00029033333333
     },
     {
       "abilities": [
@@ -67,10 +195,10 @@
         }
       ],
       "cds": [
-        27.9833333333333,
         0.0,
         0.0,
-        191.349999999999
+        0.0,
+        0.0
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -86,10 +214,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -3492.0,
-              -2104.0
+              -2885.0,
+              -1972.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3133.0,
+              -1944.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -97,12 +238,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3314.0,
-              -2048.0
+              -2927.0,
+              2145.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -110,23 +251,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2897.0,
-              2170.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              3227.0,
-              2244.0
+              3245.0,
+              2218.0
             ],
             "team": "3"
           }
@@ -147,7 +275,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.21585675757576
+      "t": 1.20056893939394,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -169,10 +298,10 @@
         }
       ],
       "cds": [
-        5.18333333333363,
-        14.4106666666667,
-        15.6166666666679,
-        168.549999999981
+        6.11666666666696,
+        15.3440000000001,
+        16.5500000000012,
+        169.483333333315
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -188,10 +317,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -1803.0,
-              -1393.0
+              -1109.0,
+              -992.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              1749.0,
+              459.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -199,12 +341,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3794.0,
-              -1409.0
+              -1078.0,
+              1032.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -212,23 +354,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2828.0,
-              1101.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              1166.0,
-              1993.0
+              613.0,
+              2142.0
             ],
             "team": "3"
           }
@@ -240,8 +369,8 @@
         ]
       },
       "hero": "willow",
-      "hp": 7.06999999999998,
-      "hp_frac": 0.0513248638838474,
+      "hp": 113.33,
+      "hp_frac": 0.822722323049002,
       "hp_max": 137.75,
       "kind": "probe",
       "label": "ffa_mid",
@@ -249,7 +378,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.0
+      "t": 24.0092446878305,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -271,10 +401,10 @@
         }
       ],
       "cds": [
+        10.7333333333338,
         0.0,
         0.0,
-        0.0,
-        145.033333333296
+        145.983333333297
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -290,23 +420,36 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -1804.0,
-              -1394.0
+              -33.0,
+              11.0
             ],
             "team": "0"
           },
           {
             "alive": true,
-            "class": "bulwark",
+            "class": "arclight",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              3095.0,
-              -1166.0
+              1108.0,
+              40.0
             ],
             "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              318.0,
+              207.0
+            ],
+            "team": "2"
           },
           {
             "alive": false,
@@ -314,23 +457,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              321.0,
-              -91.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 1,
-            "local": false,
             "peer": 103,
             "pos": [
-              332.0,
-              -71.0
+              -62.0,
+              320.0
             ],
             "team": "3"
           }
@@ -351,41 +481,46 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.5194639865321
+      "t": 47.5063308484843,
+      "teleporters": []
     }
   ],
-  "elapsed": 48.0295649966331,
+  "elapsed": 48.0028469999994,
   "enemies_spawned": 0,
-  "hero_position": "(-1803.847, -1393.965)",
+  "hero_position": "(-32.54112, 10.62213)",
   "player_class": "willow",
   "results": {
     "alive": false,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 5,
+    "cast_count": 6,
     "casts": [
       {
         "ability_id": "willow_wall_of_roots",
-        "t": 0.540966444444445
+        "t": 1.47543318181818
       },
       {
         "ability_id": "willow_swift_strike",
-        "t": 1.04994766666667
+        "t": 2.013013
       },
       {
         "ability_id": "willow_forsaken_shot",
-        "t": 1.21585675757576
+        "t": 2.141806
       },
       {
         "ability_id": "willow_volley",
-        "t": 1.21585675757576
+        "t": 2.141806
       },
       {
         "ability_id": "willow_forsaken_shot",
-        "t": 19.7728127777778
+        "t": 20.7475509999998
+      },
+      {
+        "ability_id": "willow_swift_strike",
+        "t": 30.1248612222218
       }
     ],
-    "creep_kills": 10,
+    "creep_kills": 32,
     "died": true,
     "errors": [],
     "ffa": {
@@ -401,23 +536,36 @@
           "local": true,
           "peer": 1,
           "pos": [
-            -1804.0,
-            -1394.0
+            -33.0,
+            11.0
           ],
           "team": "0"
         },
         {
           "alive": true,
-          "class": "bulwark",
+          "class": "arclight",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 101,
           "pos": [
-            3088.0,
-            -1172.0
+            974.0,
+            59.0
           ],
           "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            328.0,
+            178.0
+          ],
+          "team": "2"
         },
         {
           "alive": false,
@@ -425,23 +573,10 @@
           "cpu": true,
           "kills": 0,
           "local": false,
-          "peer": 102,
-          "pos": [
-            321.0,
-            -91.0
-          ],
-          "team": "2"
-        },
-        {
-          "alive": true,
-          "class": "tobor",
-          "cpu": true,
-          "kills": 1,
-          "local": false,
           "peer": 103,
           "pos": [
-            332.0,
-            -79.0
+            -62.0,
+            320.0
           ],
           "team": "3"
         }
@@ -452,7 +587,7 @@
         5600.0
       ]
     },
-    "gold": 44,
+    "gold": 100,
     "hero_kills": 0,
     "hp_samples": [
       {
@@ -466,79 +601,92 @@
       {
         "alive": true,
         "class": "willow",
-        "gold": 12,
+        "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.19
+        "t": 5.15
       },
       {
         "alive": true,
         "class": "willow",
-        "gold": 12,
-        "hp": 0.91,
+        "gold": 48,
+        "hp": 1.0,
         "kills": 0,
-        "t": 10.24
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "willow",
-        "gold": 32,
-        "hp": 0.91,
+        "gold": 60,
+        "hp": 0.89,
         "kills": 0,
-        "t": 15.26
+        "t": 15.16
       },
       {
         "alive": true,
         "class": "willow",
-        "gold": 56,
-        "hp": 0.4,
+        "gold": 90,
+        "hp": 0.82,
         "kills": 0,
-        "t": 20.3
+        "t": 20.16
+      },
+      {
+        "alive": true,
+        "class": "willow",
+        "gold": 108,
+        "hp": 0.82,
+        "kills": 0,
+        "t": 25.17
+      },
+      {
+        "alive": true,
+        "class": "willow",
+        "gold": 155,
+        "hp": 0.82,
+        "kills": 0,
+        "t": 30.18
+      },
+      {
+        "alive": true,
+        "class": "willow",
+        "gold": 198,
+        "hp": 0.1,
+        "kills": 0,
+        "t": 35.19
       },
       {
         "alive": false,
         "class": "willow",
-        "gold": 44,
+        "gold": 100,
         "hp": 0.0,
         "kills": 0,
-        "t": 25.32
+        "t": 40.19
       },
       {
         "alive": false,
         "class": "willow",
-        "gold": 44,
+        "gold": 100,
         "hp": 0.0,
         "kills": 0,
-        "t": 30.33
-      },
-      {
-        "alive": false,
-        "class": "willow",
-        "gold": 44,
-        "hp": 0.0,
-        "kills": 0,
-        "t": 35.34
-      },
-      {
-        "alive": false,
-        "class": "willow",
-        "gold": 44,
-        "hp": 0.0,
-        "kills": 0,
-        "t": 40.35
-      },
-      {
-        "alive": false,
-        "class": "willow",
-        "gold": 44,
-        "hp": 0.0,
-        "kills": 0,
-        "t": 45.39
+        "t": 45.19
       }
     ],
     "landmark_saves": 0,
-    "level": 1,
-    "level_upgrades": {},
+    "level": 5,
+    "level_upgrades": {
+      "2": [
+        "vine_tether"
+      ],
+      "3": [
+        "vine_tether"
+      ],
+      "4": [
+        "lucky_strike"
+      ],
+      "5": [
+        "thorn_sprite"
+      ]
+    },
     "max_hp": 1.0,
     "min_hp": 0.0,
     "min_hp_late": 1.0,
@@ -547,11 +695,16 @@
     "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
-    "taken_upgrades": [],
+    "taken_upgrades": [
+      "vine_tether",
+      "vine_tether",
+      "lucky_strike",
+      "thorn_sprite"
+    ],
     "until_wave": 20,
     "verdict": "WARN_DEAD",
     "wave": 1,
-    "xp": 70
+    "xp": 22
   },
   "shots": []
 }

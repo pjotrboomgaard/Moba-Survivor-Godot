@@ -378,6 +378,9 @@ layout_mode = 2
 text = "MUSIC"
 button_pressed = true
 
+[node name="ResolutionOption" type="OptionButton" parent="EscapeMenu/EscapeLayout"]
+layout_mode = 2
+
 [node name="ResumeButton" type="Button" parent="EscapeMenu/EscapeLayout"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2

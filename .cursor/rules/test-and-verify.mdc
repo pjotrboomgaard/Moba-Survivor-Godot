@@ -1,38 +1,49 @@
 ---
-description: Every change must be tested and verified in the running game before it is considered done
+description: Every task must have every requirement verified via simulation + screenshots before being marked done
 alwaysApply: true
 ---
 
 # Test everything and verify it in-game
 
 A task is only "done" when it has actually run in the game and been confirmed working.
-Never report a change as complete on the basis of a code edit, a parse check, or a unit
-expectation alone.
+Never report a change as complete on the basis of a code edit, a parse check, a unit
+expectation, or a single screenshot that only checks part of the task.
 
-## What "verified in-game" means
+## HARD RULE — verify EVERY requirement of EVERY task
 
-For every gameplay, UI, asset, or script change:
+Every task is decomposed into explicit, checkable requirements. **All** of them must be
+verified with evidence before the task is marked done:
 
-1. **Drive it in the real game.** Use the self-test harness
-   (`powershell -ExecutionPolicy Bypass -File tools/selftest/run_selftest.ps1
+1. **Enumerate requirements first.** Before touching code, write out each concrete
+   requirement of the task (behaviors, edge cases, "on intended hero AND at least one
+   other hero", off-cases, visual checks). Treat this list as the acceptance test.
+2. **Verify each requirement by simulation + screenshot.** Drive the real game via the
+   self-test harness (`powershell -ExecutionPolicy Bypass -File tools/selftest/run_selftest.ps1
    -RequestPath tools/selftest/requests/<name>.json`, add `-Hero <id>` when a specific
-   hero is the subject). Add `--pjotr`/`-Classic` user args when the change is mode-specific.
-2. **Collect evidence, not assumptions.** Read the resulting
-   `tools/selftest/results/<name>_report.json` and the screenshots under
-   `tools/selftest/results/`. A passing report plus a matching screenshot is the
-   verification, not a claim that it "should work."
-3. **Assert concrete criteria, not just "no crash."** Each feature needs explicit
-   expected outcomes (e.g. "charged RMB deals >=2x damage vs a tap", "the charge bar is
-   visible and fills over the hold", "the town minion can hit an enemy hero", "the wall is
-   longer after a long hold"). Encode these as probe/`expected_*` entries in the request.
+   hero is the subject; add `--pjotr`/`-Classic` when mode-specific). Read the resulting
+   `tools/selftest/results/<name>_report.json` AND open the screenshots with the Read
+   tool. A passing report alone is NOT verification — the screenshot must show the
+   specific expected outcome.
+3. **Assert concrete criteria, not just "no crash."** Encode expected outcomes as
+   probe / `expected_*` entries where possible, and visually confirm UI/art changes
+   (positions, sizes, colors, text, sprites, motion) in the screenshot.
 4. **Cover the failure edges.** Check the off cases too: cooldown still applies after
    release, CPUs are unaffected, non-target heroes don't break, and it works on the
    intended hero *and* at least one other hero.
 5. **If it can't be observed yet, build the observation first.** Missing a probe, a
    screenshot hook, a report field, or a test scene means the test environment is
    incomplete — add it so the behavior can be measured, then re-run.
-6. **Restart the running app** with `tools/restart_app.ps1` before ending the turn, so
+6. **Re-verify previously-completed tasks.** When a later change could affect an earlier
+   "done" task (shared code path, shared asset, shared scene), re-run its verification
+   before relying on it.
+7. **Restart the running app** with `tools/restart_app.ps1` before ending the turn, so
    the user sees the change in the live game.
+
+## No quick passes
+
+Marking a task done without per-requirement evidence is a failure of this rule. If a
+requirement cannot be verified, the task stays open (or is explicitly split) — it is not
+marked complete.
 
 ## When a verification fails
 
@@ -44,4 +55,5 @@ For every gameplay, UI, asset, or script change:
 ## Scope
 
 This applies to all feature work, balance tweaks, quest logic, upgrade paths, boss form,
-town quests, corpses, shadows, minimap, and any other system in this project.
+town quests, corpses, shadows, minimap, ability previews, and any other system in this
+project.

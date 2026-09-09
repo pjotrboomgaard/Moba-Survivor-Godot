@@ -1,0 +1,10 @@
+{
+  "hero": "cinder",
+  "biome": 0,
+  "comment": "Basic check: boot, probe at 1s, snap at 2s, report. Verifies game boots and renders.",
+  "events": [
+    {"t": 0.5, "kind": "probe", "label": "boot"},
+    {"t": 1.0, "kind": "snap", "label": "boot_snap"},
+    {"t": 1.5, "kind": "report"}
+  ]
+}

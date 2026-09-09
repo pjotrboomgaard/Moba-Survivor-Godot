@@ -43,15 +43,143 @@
           "hint": "Grove Bell",
           "pos": "(0.0, 0.0)",
           "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
         }
       ],
-      "t": 1.00944125925926
+      "t": 1.00144890909091
     },
     {
       "abilities": [
         {
           "id": "nebula_arcane_bolt",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "nebula_curse_of_ages",
@@ -86,10 +214,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2887.0,
-              -1985.0
+              -2894.0,
+              -1980.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3332.0,
+              -2000.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -97,12 +238,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3208.0,
-              -2126.0
+              -3008.0,
+              2126.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -110,23 +251,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2944.0,
-              2211.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              3105.0,
-              2219.0
+              3230.0,
+              2221.0
             ],
             "team": "3"
           }
@@ -147,13 +275,14 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.22575757575758
+      "t": 1.20068366666666,
+      "teleporters": []
     },
     {
       "abilities": [
         {
           "id": "nebula_arcane_bolt",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "nebula_curse_of_ages",
@@ -169,10 +298,10 @@
         }
       ],
       "cds": [
-        15.4773333333335,
-        24.7633333333345,
+        15.3440000000001,
+        24.6300000000012,
         9.07400000000046,
-        208.149999999982
+        208.016666666649
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -188,10 +317,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -1739.0,
-              -898.0
+              -1716.0,
+              -1713.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2132.0,
+              -32.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -199,12 +341,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              2284.0,
-              -2126.0
+              -957.0,
+              369.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -212,23 +354,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -1278.0,
-              708.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              4135.0,
-              1897.0
+              4012.0,
+              2776.0
             ],
             "team": "3"
           }
@@ -240,8 +369,8 @@
         ]
       },
       "hero": "nebula",
-      "hp": 166.8,
-      "hp_frac": 0.958620689655172,
+      "hp": 174.0,
+      "hp_frac": 1.0,
       "hp_max": 174.0,
       "kind": "probe",
       "label": "ffa_mid",
@@ -249,13 +378,14 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.0119756666667
+      "t": 24.0015943333331,
+      "teleporters": []
     },
     {
       "abilities": [
         {
           "id": "nebula_arcane_bolt",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "nebula_curse_of_ages",
@@ -271,10 +401,10 @@
         }
       ],
       "cds": [
-        9.75359933333312,
-        1.26333333333467,
-        20.1073333333339,
-        184.649999999964
+        10.5773333333332,
+        1.13000000000133,
+        0.0,
+        184.51666666663
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -283,17 +413,30 @@
         "enabled": true,
         "heroes": [
           {
-            "alive": false,
+            "alive": true,
             "class": "nebula",
             "cpu": true,
-            "kills": 1,
+            "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              23.0,
-              30.0
+              -374.0,
+              -708.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              1374.0,
+              -709.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -301,36 +444,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
-            "pos": [
-              2010.0,
-              -1342.0
-            ],
-            "team": "1"
-          },
-          {
-            "alive": false,
-            "class": "warden",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 102,
             "pos": [
-              25.0,
-              371.0
+              318.0,
+              -93.0
             ],
             "team": "2"
           },
           {
             "alive": true,
-            "class": "tobor",
+            "class": "warden",
             "cpu": true,
-            "kills": 1,
+            "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              321.0,
-              -87.0
+              536.0,
+              387.0
             ],
             "team": "3"
           }
@@ -342,8 +472,8 @@
         ]
       },
       "hero": "nebula",
-      "hp": 0.0,
-      "hp_frac": 0.0,
+      "hp": 155.6,
+      "hp_frac": 0.894252873563218,
       "hp_max": 174.0,
       "kind": "probe",
       "label": "ffa_end",
@@ -351,50 +481,47 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.5137387878792
+      "t": 47.5064823333325,
+      "teleporters": []
     }
   ],
-  "elapsed": 48.041516565657,
+  "elapsed": 48.0066976666659,
   "enemies_spawned": 0,
-  "hero_position": "(23.45366, 30.03282)",
+  "hero_position": "(-308.5869, -582.5574)",
   "player_class": "nebula",
   "results": {
-    "alive": false,
+    "alive": true,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 7,
+    "cast_count": 6,
     "casts": [
       {
         "ability_id": "nebula_chronofield",
-        "t": 1.72904966666667
+        "t": 1.609094
       },
       {
         "ability_id": "nebula_arcane_bolt",
-        "t": 2.24660328571429
+        "t": 2.14482699999999
       },
       {
         "ability_id": "nebula_curse_of_ages",
-        "t": 2.643652
+        "t": 2.53140188888888
       },
       {
         "ability_id": "nebula_time_shift",
-        "t": 2.774902
+        "t": 2.80124166666666
       },
       {
         "ability_id": "nebula_arcane_bolt",
-        "t": 20.8820127460318
-      },
-      {
-        "ability_id": "nebula_time_shift",
-        "t": 37.3468146666669
+        "t": 20.7473846666666
       },
       {
         "ability_id": "nebula_arcane_bolt",
-        "t": 39.4766453636366
+        "t": 39.4821753333327
       }
     ],
-    "creep_kills": 65,
-    "died": true,
+    "creep_kills": 84,
+    "died": false,
     "errors": [],
     "ffa": {
       "all_bots": true,
@@ -402,17 +529,30 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": false,
+          "alive": true,
           "class": "nebula",
           "cpu": true,
-          "kills": 1,
+          "kills": 0,
           "local": true,
           "peer": 1,
           "pos": [
-            23.0,
-            30.0
+            -309.0,
+            -583.0
           ],
           "team": "0"
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            1314.0,
+            -628.0
+          ],
+          "team": "1"
         },
         {
           "alive": true,
@@ -420,36 +560,23 @@
           "cpu": true,
           "kills": 0,
           "local": false,
-          "peer": 101,
-          "pos": [
-            1924.0,
-            -1301.0
-          ],
-          "team": "1"
-        },
-        {
-          "alive": false,
-          "class": "warden",
-          "cpu": true,
-          "kills": 0,
-          "local": false,
           "peer": 102,
           "pos": [
-            25.0,
-            371.0
+            306.0,
+            -69.0
           ],
           "team": "2"
         },
         {
           "alive": true,
-          "class": "tobor",
+          "class": "warden",
           "cpu": true,
-          "kills": 1,
+          "kills": 0,
           "local": false,
           "peer": 103,
           "pos": [
-            370.0,
-            -136.0
+            438.0,
+            303.0
           ],
           "team": "3"
         }
@@ -460,8 +587,8 @@
         5600.0
       ]
     },
-    "gold": 534,
-    "hero_kills": 1,
+    "gold": 723,
+    "hero_kills": 0,
     "hp_samples": [
       {
         "alive": true,
@@ -474,7 +601,7 @@
       {
         "alive": true,
         "class": "nebula",
-        "gold": 18,
+        "gold": 36,
         "hp": 1.0,
         "kills": 0,
         "t": 5.15
@@ -482,86 +609,95 @@
       {
         "alive": true,
         "class": "nebula",
-        "gold": 100,
-        "hp": 1.0,
-        "kills": 0,
-        "t": 10.19
-      },
-      {
-        "alive": true,
-        "class": "nebula",
         "gold": 232,
         "hp": 1.0,
         "kills": 0,
-        "t": 15.22
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "nebula",
-        "gold": 290,
+        "gold": 273,
         "hp": 1.0,
         "kills": 0,
-        "t": 20.26
+        "t": 15.16
       },
       {
         "alive": true,
         "class": "nebula",
-        "gold": 410,
-        "hp": 0.88,
+        "gold": 337,
+        "hp": 1.0,
         "kills": 0,
-        "t": 25.31
+        "t": 20.16
       },
       {
         "alive": true,
         "class": "nebula",
-        "gold": 480,
-        "hp": 0.77,
+        "gold": 375,
+        "hp": 1.0,
         "kills": 0,
-        "t": 30.34
+        "t": 25.17
       },
       {
         "alive": true,
         "class": "nebula",
-        "gold": 480,
-        "hp": 0.77,
+        "gold": 437,
+        "hp": 1.0,
         "kills": 0,
-        "t": 35.37
+        "t": 30.17
       },
       {
         "alive": true,
         "class": "nebula",
-        "gold": 480,
-        "hp": 0.74,
+        "gold": 498,
+        "hp": 0.89,
         "kills": 0,
-        "t": 40.41
+        "t": 35.18
       },
       {
         "alive": true,
         "class": "nebula",
-        "gold": 1045,
-        "hp": 0.01,
-        "kills": 1,
-        "t": 45.43
+        "gold": 619,
+        "hp": 0.89,
+        "kills": 0,
+        "t": 40.18
+      },
+      {
+        "alive": true,
+        "class": "nebula",
+        "gold": 679,
+        "hp": 0.89,
+        "kills": 0,
+        "t": 45.19
       }
     ],
     "landmark_saves": 0,
-    "level": 6,
+    "level": 8,
     "level_upgrades": {
       "2": [
-        "sweep"
+        "shield_drone"
       ],
       "3": [
-        "heartbeat"
+        "spark_sprite"
       ],
       "4": [
-        "boots"
+        "exp_well"
       ],
       "5": [
-        "choir"
+        "boots"
+      ],
+      "6": [
+        "nova_core"
+      ],
+      "7": [
+        "heavy"
+      ],
+      "8": [
+        "shield_drone"
       ]
     },
     "max_hp": 1.0,
-    "min_hp": 0.0,
+    "min_hp": 0.894252873563218,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 0,
@@ -569,15 +705,18 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "sweep",
-      "heartbeat",
+      "shield_drone",
+      "spark_sprite",
+      "exp_well",
       "boots",
-      "choir"
+      "nova_core",
+      "heavy",
+      "shield_drone"
     ],
     "until_wave": 20,
-    "verdict": "PASS_KILLS",
+    "verdict": "PASS_OK",
     "wave": 1,
-    "xp": 62
+    "xp": 49
   },
   "shots": []
 }

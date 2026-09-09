@@ -2,6 +2,46 @@
   "all_ok": false,
   "checks": [
     {
+      "detail": "hero=tobor",
+      "name": "hover_lmb",
+      "ok": true
+    },
+    {
+      "detail": "hero=tobor has no secondary (expected)",
+      "name": "hover_rmb_no_secondary",
+      "ok": true
+    },
+    {
+      "detail": "hero=arclight slot=0 ability=arclight_blast_of_lightning",
+      "name": "hover_ability_found",
+      "ok": true
+    },
+    {
+      "detail": "called _show_ability_hover for arclight_blast_of_lightning",
+      "name": "hover_ability_called",
+      "ok": true
+    },
+    {
+      "detail": "hero=arclight slot=2 ability=arclight_thundergods_wrath",
+      "name": "hover_ability_found",
+      "ok": true
+    },
+    {
+      "detail": "called _show_ability_hover for arclight_thundergods_wrath",
+      "name": "hover_ability_called",
+      "ok": true
+    },
+    {
+      "detail": "hero=tobor slot=1 ability=tobor_spider_mines",
+      "name": "hover_ability_found",
+      "ok": true
+    },
+    {
+      "detail": "called _show_ability_hover for tobor_spider_mines",
+      "name": "hover_ability_called",
+      "ok": true
+    },
+    {
       "detail": "/root/Bootstrap/StatusLayer/LobbyPanel/Margin/Layout/ModeRow/WorldEditorButton",
       "name": "editor_button_found",
       "ok": true
@@ -12,22 +52,22 @@
       "ok": true
     },
     {
-      "detail": "placed=1954",
+      "detail": "placed=993",
       "name": "api_place_obstacles",
       "ok": true
     },
     {
-      "detail": "new_assets_with_sprite=325/4",
+      "detail": "new_assets_with_sprite=54/4",
       "name": "api_new_assets_have_sprite",
       "ok": false
     },
     {
-      "detail": "placed=1955",
+      "detail": "placed=994",
       "name": "api_place_landmark",
       "ok": true
     },
     {
-      "detail": "erased=true before=1955 after=1954",
+      "detail": "erased=true before=994 after=993",
       "name": "api_erase_obstacle",
       "ok": true
     },
@@ -47,7 +87,7 @@
       "ok": true
     },
     {
-      "detail": "placed=730 in world=IJs",
+      "detail": "placed=1348 in world=IJs",
       "name": "api_place_after_world_switch",
       "ok": true
     },
@@ -62,47 +102,72 @@
       "ok": true
     },
     {
-      "detail": "placed=1954 (expected 10 from grass's own save)",
+      "detail": "placed=989 (expected 10 from grass's own save)",
       "name": "grass_save_independent_of_other_worlds",
       "ok": false
     }
   ],
-  "elapsed": 17.0009443333333,
+  "elapsed": 27.5038013333327,
   "shots": [
     {
       "err": 0,
       "label": "lobby",
-      "path": "user://ui_verify_shots/lobby_3784.png"
+      "path": "user://ui_verify_shots/lobby_4271.png"
+    },
+    {
+      "err": 0,
+      "label": "lmb_hover",
+      "path": "user://ui_verify_shots/lmb_hover_6287.png"
+    },
+    {
+      "err": 0,
+      "label": "rmb_hover",
+      "path": "user://ui_verify_shots/rmb_hover_8279.png"
+    },
+    {
+      "err": 0,
+      "label": "ability_preview_nuke",
+      "path": "user://ui_verify_shots/ability_preview_nuke_10779.png"
+    },
+    {
+      "err": 0,
+      "label": "ability_preview_radius",
+      "path": "user://ui_verify_shots/ability_preview_radius_13271.png"
+    },
+    {
+      "err": 0,
+      "label": "ability_preview_summon",
+      "path": "user://ui_verify_shots/ability_preview_summon_15787.png"
     },
     {
       "err": 0,
       "label": "editor",
-      "path": "user://ui_verify_shots/editor_7617.png"
+      "path": "user://ui_verify_shots/editor_18528.png"
     },
     {
       "err": 0,
       "label": "editor_with_props",
-      "path": "user://ui_verify_shots/editor_with_props_10621.png"
+      "path": "user://ui_verify_shots/editor_with_props_21503.png"
     },
     {
       "err": 0,
       "label": "editor_final",
-      "path": "user://ui_verify_shots/editor_final_13125.png"
+      "path": "user://ui_verify_shots/editor_final_24004.png"
     },
     {
       "err": 0,
       "label": "world_volcano",
-      "path": "user://ui_verify_shots/world_volcano_14617.png"
+      "path": "user://ui_verify_shots/world_volcano_25812.png"
     },
     {
       "err": 0,
       "label": "world_ice_with_props",
-      "path": "user://ui_verify_shots/world_ice_with_props_16700.png"
+      "path": "user://ui_verify_shots/world_ice_with_props_28670.png"
     },
     {
       "err": 0,
       "label": "world_back_to_grass",
-      "path": "user://ui_verify_shots/world_back_to_grass_18825.png"
+      "path": "user://ui_verify_shots/world_back_to_grass_30687.png"
     }
   ],
   "verdict": "FAIL"

@@ -43,9 +43,137 @@
           "hint": "Grove Bell",
           "pos": "(0.0, 0.0)",
           "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
         }
       ],
-      "t": 1.03060244444444
+      "t": 1.00227272727273
     },
     {
       "abilities": [
@@ -63,14 +191,14 @@
         },
         {
           "id": "pyra_air_strike",
-          "rank": 2
+          "rank": 1
         }
       ],
       "cds": [
         0.0,
         0.0,
         0.0,
-        268.55
+        0.0
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -86,10 +214,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -3161.0,
-              -2098.0
+              -2892.0,
+              -1979.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3324.0,
+              -1988.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -97,12 +238,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3314.0,
-              -2050.0
+              -2960.0,
+              1972.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -110,23 +251,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2991.0,
-              1922.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              3129.0,
-              2229.0
+              3065.0,
+              2011.0
             ],
             "team": "3"
           }
@@ -147,7 +275,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.20893966666667
+      "t": 1.20227272727273,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -165,14 +294,14 @@
         },
         {
           "id": "pyra_air_strike",
-          "rank": 2
+          "rank": 1
         }
       ],
       "cds": [
-        20.7096666666667,
-        37.0766666666676,
-        83.4233333333343,
-        245.71666666667
+        21.4096666666667,
+        46.3100000000004,
+        92.5233333333338,
+        246.283333333337
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -188,10 +317,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2754.0,
-              -1935.0
+              -67.0,
+              -701.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2445.0,
+              -984.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -199,12 +341,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3431.0,
-              -2116.0
+              -3367.0,
+              870.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -212,23 +354,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -1299.0,
-              -1535.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              1911.0,
-              2506.0
+              -2486.0,
+              2173.0
             ],
             "team": "3"
           }
@@ -240,16 +369,17 @@
         ]
       },
       "hero": "pyra",
-      "hp": 141.86,
-      "hp_frac": 0.889404388714733,
+      "hp": 159.5,
+      "hp_frac": 1.0,
       "hp_max": 159.5,
       "kind": "probe",
       "label": "ffa_mid",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
-      "summons": 0,
-      "t": 24.0394473333333
+      "summons": 1,
+      "t": 24.0012869999999,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -267,14 +397,14 @@
         },
         {
           "id": "pyra_air_strike",
-          "rank": 2
+          "rank": 1
         }
       ],
       "cds": [
         0.0,
-        13.5933333333354,
-        59.9400000000023,
-        222.233333333318
+        22.8100000000018,
+        69.0233333333351,
+        222.783333333319
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -283,17 +413,30 @@
         "enabled": true,
         "heroes": [
           {
-            "alive": true,
+            "alive": false,
             "class": "pyra",
             "cpu": true,
-            "kills": 1,
+            "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              275.0,
-              -150.0
+              -736.0,
+              222.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2458.0,
+              -183.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -301,36 +444,23 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
-            "pos": [
-              3134.0,
-              -1532.0
-            ],
-            "team": "1"
-          },
-          {
-            "alive": false,
-            "class": "warden",
-            "cpu": true,
-            "kills": 1,
-            "local": false,
             "peer": 102,
             "pos": [
-              -304.0,
-              -50.0
+              -1912.0,
+              77.0
             ],
             "team": "2"
           },
           {
-            "alive": false,
-            "class": "tobor",
+            "alive": true,
+            "class": "warden",
             "cpu": true,
-            "kills": 0,
+            "kills": 1,
             "local": false,
             "peer": 103,
             "pos": [
-              -392.0,
-              38.0
+              -336.0,
+              51.0
             ],
             "team": "3"
           }
@@ -342,55 +472,52 @@
         ]
       },
       "hero": "pyra",
-      "hp": 141.86,
-      "hp_frac": 0.889404388714733,
-      "hp_max": 159.5,
+      "hp": 0.0,
+      "hp_frac": 0.0,
+      "hp_max": 184.5,
       "kind": "probe",
       "label": "ffa_end",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.5275336666668
+      "t": 47.5024349090911,
+      "teleporters": []
     }
   ],
-  "elapsed": 48.0186766666668,
+  "elapsed": 48.0000293468015,
   "enemies_spawned": 0,
-  "hero_position": "(276.0196, -192.5826)",
+  "hero_position": "(-736.0664, 221.5013)",
   "player_class": "pyra",
   "results": {
-    "alive": true,
+    "alive": false,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 6,
+    "cast_count": 5,
     "casts": [
       {
         "ability_id": "pyra_sticky_bomb",
-        "t": 1.34374811111111
+        "t": 2.010776
       },
       {
         "ability_id": "pyra_sticky_bomb",
-        "t": 1.57393566666667
+        "t": 2.085754
       },
       {
         "ability_id": "pyra_boom_dust",
-        "t": 7.31666666666667
+        "t": 16.5487992857143
       },
       {
         "ability_id": "pyra_bombardment",
-        "t": 7.58939393939394
+        "t": 16.6797222222223
       },
       {
         "ability_id": "pyra_sticky_bomb",
-        "t": 23.0166666666667
-      },
-      {
-        "ability_id": "pyra_sticky_bomb",
-        "t": 47.6142003333335
+        "t": 23.7120714848484
       }
     ],
-    "creep_kills": 99,
-    "died": false,
+    "creep_kills": 39,
+    "died": true,
     "errors": [],
     "ffa": {
       "all_bots": true,
@@ -398,17 +525,30 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": true,
+          "alive": false,
           "class": "pyra",
           "cpu": true,
-          "kills": 1,
+          "kills": 0,
           "local": true,
           "peer": 1,
           "pos": [
-            276.0,
-            -193.0
+            -736.0,
+            222.0
           ],
           "team": "0"
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            2412.0,
+            -262.0
+          ],
+          "team": "1"
         },
         {
           "alive": true,
@@ -416,36 +556,23 @@
           "cpu": true,
           "kills": 0,
           "local": false,
-          "peer": 101,
-          "pos": [
-            3133.0,
-            -1534.0
-          ],
-          "team": "1"
-        },
-        {
-          "alive": false,
-          "class": "warden",
-          "cpu": true,
-          "kills": 1,
-          "local": false,
           "peer": 102,
           "pos": [
-            -304.0,
-            -50.0
+            -1911.0,
+            71.0
           ],
           "team": "2"
         },
         {
-          "alive": false,
-          "class": "tobor",
+          "alive": true,
+          "class": "warden",
           "cpu": true,
-          "kills": 0,
+          "kills": 1,
           "local": false,
           "peer": 103,
           "pos": [
-            -392.0,
-            38.0
+            -341.0,
+            47.0
           ],
           "team": "3"
         }
@@ -456,8 +583,8 @@
         5600.0
       ]
     },
-    "gold": 608,
-    "hero_kills": 1,
+    "gold": 196,
+    "hero_kills": 0,
     "hp_samples": [
       {
         "alive": true,
@@ -470,97 +597,97 @@
       {
         "alive": true,
         "class": "pyra",
-        "gold": 6,
+        "gold": 66,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.17
+        "t": 5.15
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 6,
+        "gold": 135,
         "hp": 1.0,
         "kills": 0,
-        "t": 10.17
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 235,
-        "hp": 0.93,
+        "gold": 139,
+        "hp": 1.0,
         "kills": 0,
-        "t": 15.19
+        "t": 15.16
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 338,
-        "hp": 0.93,
+        "gold": 208,
+        "hp": 1.0,
         "kills": 0,
-        "t": 20.19
+        "t": 20.16
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 393,
-        "hp": 0.89,
+        "gold": 268,
+        "hp": 1.0,
         "kills": 0,
-        "t": 25.21
+        "t": 25.16
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 527,
-        "hp": 0.89,
+        "gold": 331,
+        "hp": 1.0,
         "kills": 0,
-        "t": 30.23
+        "t": 30.17
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 541,
-        "hp": 0.89,
+        "gold": 331,
+        "hp": 1.0,
         "kills": 0,
-        "t": 35.27
+        "t": 35.17
       },
       {
         "alive": true,
         "class": "pyra",
-        "gold": 541,
-        "hp": 0.89,
+        "gold": 381,
+        "hp": 0.36,
         "kills": 0,
-        "t": 40.3
+        "t": 40.17
       },
       {
-        "alive": true,
+        "alive": false,
         "class": "pyra",
-        "gold": 1470,
-        "hp": 0.89,
-        "kills": 1,
-        "t": 45.3
+        "gold": 196,
+        "hp": 0.0,
+        "kills": 0,
+        "t": 45.18
       }
     ],
     "landmark_saves": 0,
-    "level": 7,
+    "level": 6,
     "level_upgrades": {
       "2": [
-        "depth"
+        "ember_sprite"
+      ],
+      "3": [
+        "rapid"
       ],
       "4": [
-        "havoc"
+        "heat_gust"
       ],
       "5": [
-        "exp_well"
+        "ember_sprite"
       ],
       "6": [
-        "volt"
-      ],
-      "7": [
-        "shield_drone"
+        "vitality"
       ]
     },
     "max_hp": 1.0,
-    "min_hp": 0.889404388714733,
+    "min_hp": 0.0,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 0,
@@ -568,16 +695,16 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "depth",
-      "havoc",
-      "exp_well",
-      "volt",
-      "shield_drone"
+      "ember_sprite",
+      "rapid",
+      "heat_gust",
+      "ember_sprite",
+      "vitality"
     ],
     "until_wave": 20,
-    "verdict": "PASS_KILLS",
+    "verdict": "WARN_DEAD",
     "wave": 1,
-    "xp": 62
+    "xp": 11
   },
   "shots": []
 }

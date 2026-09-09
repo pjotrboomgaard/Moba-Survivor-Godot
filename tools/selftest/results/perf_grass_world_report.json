@@ -1,0 +1,141 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "cinder_dragon_fire",
+          "rank": 1
+        },
+        {
+          "id": "cinder_fiery_assault",
+          "rank": 1
+        },
+        {
+          "id": "cinder_whirling_flame",
+          "rank": 1
+        },
+        {
+          "id": "cinder_pillar_of_flame",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              72.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "cinder",
+      "hp": 90.0,
+      "hp_frac": 1.0,
+      "hp_max": 90.0,
+      "kind": "probe",
+      "label": "boot",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 1.00022833333333,
+      "teleporters": []
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 96.0,
+      "kind": "fps_probe",
+      "label": "t2",
+      "t": 2.0009859090909
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 120.0,
+      "kind": "fps_probe",
+      "label": "t5",
+      "t": 5.00325863636368
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 120.0,
+      "kind": "fps_probe",
+      "label": "t8",
+      "t": 8.00451133333351
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 120.0,
+      "kind": "fps_probe",
+      "label": "t12",
+      "t": 12.0032393333333
+    }
+  ],
+  "elapsed": 15.0032393333331,
+  "enemies_spawned": 0,
+  "hero_position": "(859.4376, 361.8236)",
+  "player_class": "cinder",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "grass_world",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11224/grass_world_8.504_11224.png",
+      "t": 8.50440433333348
+    }
+  ]
+}

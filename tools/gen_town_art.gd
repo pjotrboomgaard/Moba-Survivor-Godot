@@ -59,40 +59,52 @@ func _init() -> void:
 
 
 func _write(id: String, rows: Array) -> void:
-	var size := rows.size()
-	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var height := rows.size()
+	var width := 0
+	for y in height:
+		width = maxi(width, str(rows[y]).length())
+	var img := Image.create(width, height, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
-	for y in size:
-		var row: String = rows[y]
+	for y in height:
+		var row: String = str(rows[y])
 		for x in row.length():
 			var ch: String = row[x]
 			if ch == ".":
 				continue
 			var key: String = ch
+			if not PAL.has(key):
+				continue
 			img.set_pixel(x, y, Color(str(PAL[key])))
 	var path := "%s/%s.png" % [OUT, id]
 	img.save_png(path)
-	print("Wrote %s (%dx%d)" % [path, size, size])
+	print("Wrote %s (%dx%d)" % [path, width, height])
 
 
-## House: warm timber front, terracotta gabled roof, chimney, door + window.
+## House: warm timber front, terracotta gabled roof, chimney, two-story with door + windows.
+## 32px grid -> ~128px at PIXEL_ZOOM 4, roughly 2x tree height with more detail.
 const _S_HOUSE := [
-	"..................",
-	"..........OO......",
-	"..........Oo......",
-	"......rrrrrrrr....",
-	".....rrrrrrrrr...",
-	"....rrrrrrrrrr..",
-	"...rrrrrrrrrrrr.",
-	"..rrrrrrrrrrrrr.",
-	".wwwwwwwwwwwwww.",
-	".weeewwwwwweeew.",
-	".weeewwwwwweeew.",
-	".wwwwwwwwwwwwww.",
-	".wddwwwwwwwwwwd.",
-	".wDDwwwwwwwwwwd.",
-	".wwwwwwwwwwwwww.",
-	".wwwwwwwwwwwwww.",
+	"........OOO.......",
+	"........OOo.......",
+	"........OOO.......",
+	".......OOO......",
+	".....rrrrrrrr.....",
+	"....rrrrrrrrrr....",
+	"...rrrrrrrrrrrr...",
+	"..rrrrrrrrrrrrrr..",
+	".rrrrrrrrrrrrrrrr.",
+	".wwwwwwwwwwwwwwww.",
+	".weeeewwwweeeewww.",
+	".weeeewwwweeeewww.",
+	".wwwwwwwwwwwwwwww.",
+	".wwwwwwwwwwwwwwww.",
+	".wwwwwwwwwwwwwwww.",
+	".weeeewwwweeeewww.",
+	".weeeewwwweeeewww.",
+	".wwwwwwwwwwwwwwww.",
+	".wddwwwwwwwwwwwwd.",
+	".wDDwwwwwwwwwwwwd.",
+	".wwwwwwwwwwwwwwww.",
+	".WWWWWWWWWWWWWWWW.",
 ]
 
 ## Shop: wide cream front, red/cream striped awning, sign, door.
@@ -164,62 +176,76 @@ const _SPRITES := {
 }
 
 ## Extra house variants for a more varied streetscape.
-## House2: grey stone, cobalt roof, arched door.
+## House2: grey stone, cobalt roof, arched door, two-story.
 const _S_HOUSE2 := [
-	"..................",
-	".........oo.......",
-	"........oo........",
-	"......cccccc......",
-	".....ccccccc......",
-	"....ccccccccc.....",
-	"...cccccccccC.....",
-	"..gggggggggggC....",
-	".gggggggggggggC...",
-	".ggeeggggggeegC...",
-	".ggeeggggggeegC...",
-	".ggggggggggggg....",
-	".gddgggggggggd....",
-	".gDDeeggddggd....",
-	".ggggggggggggg....",
-	".GGGGGGGGGGGGG....",
+	"........OOO.......",
+	"........OOo.......",
+	"........OOO.......",
+	".......OOO......",
+	".....cccccccc.....",
+	"....cccccccccc....",
+	"...cccccccccccc...",
+	"..cccccccccccccc..",
+	".cccccccccccccccc.",
+	".gggggggggggggggg.",
+	".geeeegggggeeeegg.",
+	".geeeegggggeeeegg.",
+	".gggggggggggggggg.",
+	".gggggggggggggggg.",
+	".gggggggggggggggg.",
+	".geeeegggggeeeegg.",
+	".geeeegggggeeeegg.",
+	".gggggggggggggggg.",
+	".gddgggggggggggdg.",
+	".gDDeeggddggDDeeg.",
+	".gggggggggggggggg.",
+	".GGGGGGGGGGGGGGGG.",
 ]
 
-## House3: brown timber, brown gable, two windows, big door.
+## House3: brown timber, brown gable, two windows, big door, two-story.
 const _S_HOUSE3 := [
-	"..................",
-	".........o........",
-	"........oO........",
-	"......ppppppp.....",
+	"........OOO.......",
+	"........OOo.......",
+	"........OOO.......",
+	".......OOO......",
 	".....pppppppp.....",
-	"....ppppppppp.....",
-	"...pppppppppP.....",
-	"..wwwwwwwwwWP.....",
-	".weeeewwwwWwP.....",
-	".weeeewwwwWwP.....",
-	".wwwwwwwwwwwW.....",
+	"....pppppppppp....",
+	"...pppppppppppp...",
+	"..pppppppppppppp..",
+	".pppppppppppppppp.",
+	".wwwwwwwwwwwwwwww.",
+	".weeeewwwwwweeeew.",
+	".weeeewwwwwweeeew.",
+	".wwwwwwwwwwwwwwww.",
+	".wwwwwwwwwwwwwwww.",
+	".wwwwwwwwwwwwwwww.",
+	".weeeewwwwwweeeew.",
+	".weeeewwwwwweeeew.",
+	".wwwwwwwwwwwwwwww.",
+	".wddwwwwwwwwwwwwd.",
+	".wDDeeggddggDDeew.",
+	".wwwwwwwwwwwwwwww.",
+	".WWWWWWWWWWWWWWWW.",
+]
+
+## Cottage: small, low, thatched feel, single window, rounded, taller two-story.
+const _S_COTTAGE := [
+	"....OOOOOOO.......",
+	"....OOOOOOO.......",
+	"....OOOOOOO.......",
+	"...ppppppppp......",
+	"..ppppppppppp.....",
+	".ppppppppppppp....",
 	".wwwwwwwwwwww.....",
-	".wddddwwwwwwd.....",
-	".wDDeeDwwwwdd.....",
+	".weeeewwwwwww.....",
+	".weeeewwwwwww.....",
+	".wwwwwwwwwwww.....",
+	".wwwwwwwwwwww.....",
+	".weeeewwwwwww.....",
+	".weeeewwwwwww.....",
+	".wdwwwwwwwwww.....",
+	".wDDwwwwwwwwd.....",
 	".wwwwwwwwwwww.....",
 	".WWWWWWWWWWWW.....",
-]
-
-## Cottage: small, low, thatched feel, single window, rounded.
-const _S_COTTAGE := [
-	"................",
-	"....pppppp......",
-	"...pppppppp.....",
-	"..pppppppppP....",
-	".wwwwwwwwwW.....",
-	".weeeewwwW......",
-	".weeeewwwW......",
-	".wwwwwwwwwW.....",
-	".wdwwwwwwww.....",
-	".wDDwwwwwwd.....",
-	".wwwwwwwwww.....",
-	".wwwwwwwwW......",
-	".WWWWWWWWW......",
-	".WWW..WWW.......",
-	".WW....WW.......",
-	"................",
+	".WWWWWWWWWWWW.....",
 ]

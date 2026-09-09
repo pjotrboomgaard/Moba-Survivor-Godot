@@ -1,0 +1,204 @@
+{
+  "effects": [
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 1,
+      "t": 0.749999999999999
+    },
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 2,
+      "t": 0.749999999999999
+    },
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 3,
+      "t": 0.749999999999999
+    },
+    {
+      "abilities": [
+        {
+          "id": "cinder_dragon_fire",
+          "rank": 1
+        },
+        {
+          "id": "cinder_fiery_assault",
+          "rank": 1
+        },
+        {
+          "id": "cinder_whirling_flame",
+          "rank": 1
+        },
+        {
+          "id": "cinder_pillar_of_flame",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              72.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "cinder",
+      "hp": 90.0,
+      "hp_frac": 1.0,
+      "hp_max": 90.0,
+      "kind": "probe",
+      "label": "boot",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 1.00740306060606,
+      "teleporters": []
+    },
+    {
+      "camera_found": true,
+      "camera_zoom": [
+        0.0,
+        0.0
+      ],
+      "kind": "resolution_probe",
+      "label": "before_2880",
+      "t": 2.00794557575757,
+      "viewport_size": [
+        1280,
+        720
+      ],
+      "window_mode": 0,
+      "window_size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "command": "resolution:1920x1080",
+      "kind": "dev_command",
+      "t": 3.00203557575757
+    },
+    {
+      "camera_found": true,
+      "camera_zoom": [
+        0.0,
+        0.0
+      ],
+      "kind": "resolution_probe",
+      "label": "after_1080p",
+      "t": 4.50000000000001,
+      "viewport_size": [
+        1280,
+        720
+      ],
+      "window_mode": 0,
+      "window_size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "command": "resolution:2880x1800",
+      "kind": "dev_command",
+      "t": 6.50507533333342
+    },
+    {
+      "camera_found": true,
+      "camera_zoom": [
+        0.0,
+        0.0
+      ],
+      "kind": "resolution_probe",
+      "label": "after_2880",
+      "t": 8.00524933333347,
+      "viewport_size": [
+        1280,
+        800
+      ],
+      "window_mode": 0,
+      "window_size": [
+        2880,
+        1800
+      ]
+    }
+  ],
+  "elapsed": 10.0053186666667,
+  "enemies_spawned": 0,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "cinder",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 3,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "boot_view",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3870/boot_view_1.501_3870.png",
+      "t": 1.50075757575757
+    },
+    {
+      "label": "1080p_view",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7378/1080p_view_5.005_7378.png",
+      "t": 5.00486833333336
+    },
+    {
+      "label": "2880_view",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10879/2880_view_8.505_10879.png",
+      "t": 8.50530733333344
+    }
+  ]
+}

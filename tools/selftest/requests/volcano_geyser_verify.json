@@ -1,0 +1,25 @@
+{
+  "hero": "willow",
+  "mode": "ffa",
+  "biome": 1,
+  "comment": "Verify volcano geyser enhancement: red screen tint, fire impacts, central eruption animation. Geyser interval 6s; geyser #1 ~6s, #2 ~12s. Force 5 levels. Spawn 4 grunts at t=2. primary_hold t=3-11 aims at grunts via _nearest_enemy, should kill them. Cast swift_strike at t=11 to verify TELEPORT style fires without script errors. Snap geyser phases at 4.8/6.2/10.8/12.2. time_scale 1.0 so snaps land on real-time windows.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 0.5, "kind": "snap", "label": "start_volcano"},
+    {"t": 0.6, "kind": "biome_probe", "label": "biome_check"},
+    {"t": 1.0, "kind": "force_level", "levels": 5},
+    {"t": 2.0, "kind": "spawn", "at": [200.0, 0.0], "type": "grunt"},
+    {"t": 2.2, "kind": "spawn", "at": [160.0, 80.0], "type": "grunt"},
+    {"t": 2.4, "kind": "spawn", "at": [200.0, -80.0], "type": "grunt"},
+    {"t": 2.6, "kind": "spawn", "at": [240.0, 0.0], "type": "grunt"},
+    {"t": 3.0, "kind": "primary_hold", "duration": 8.0},
+    {"t": 4.8, "kind": "snap", "label": "geyser1_telegraph"},
+    {"t": 6.2, "kind": "snap", "label": "geyser1_active"},
+    {"t": 10.8, "kind": "snap", "label": "geyser2_telegraph"},
+    {"t": 11.0, "kind": "cast", "slot": 0},
+    {"t": 12.2, "kind": "snap", "label": "geyser2_active"},
+    {"t": 13.5, "kind": "snap", "label": "geyser2_after"},
+    {"t": 14.0, "kind": "probe", "label": "geyser_probe"},
+    {"t": 14.5, "kind": "report"}
+  ]
+}

@@ -13,8 +13,29 @@ const PIXEL_ZOOM := 6.0
 const BODY_RADIUS := 32.0
 const STAND_RADIUS := 140.0
 const HINT_RADIUS := 280.0
-const COOLDOWN_SECONDS := 20.0
 const PAD_TILE := 16.0
+
+## Per-effect cooldowns (seconds). Each landmark effect has a distinct, longer
+## cooldown so they alternate rather than all becoming ready at the same time.
+const EFFECT_COOLDOWNS: Dictionary = {
+	"pulse_wipe": 90.0,
+	"heal_all": 75.0,
+	"freeze_time": 80.0,
+	"phase_cloak": 65.0,
+	"battle_frenzy": 70.0,
+	"summon_minion": 85.0,
+	"gold_rain": 100.0,
+	"xp_boost": 88.0,
+	"shield_all": 95.0,
+	"speed_boost": 60.0,
+	"damage_boost": 82.0,
+	"revive_all": 120.0,
+}
+const COOLDOWN_DEFAULT := 90.0
+
+## Return the cooldown for this landmark's effect (per-effect, so they alternate).
+func _cooldown_seconds() -> float:
+	return float(EFFECT_COOLDOWNS.get(str(effect_id), COOLDOWN_DEFAULT))
 
 @export var effect_id: StringName = "pulse_wipe"
 @export var effect_radius := 700.0
@@ -127,7 +148,7 @@ func _process(delta: float) -> void:
 			_fill = clampf(_accum / stand_seconds, 0.0, 1.0)
 			if _accum >= stand_seconds:
 				_ready_to_fire = false
-				_cooldown = COOLDOWN_SECONDS
+				_cooldown = _cooldown_seconds()
 				_accum = 0.0
 				_fill = 0.0
 				_reset_after_cooldown()
@@ -158,7 +179,7 @@ func _update_hint() -> void:
 
 
 func _reset_after_cooldown() -> void:
-	await get_tree().create_timer(COOLDOWN_SECONDS).timeout
+	await get_tree().create_timer(_cooldown_seconds()).timeout
 	if is_inside_tree():
 		reset()
 
@@ -175,7 +196,7 @@ func _draw() -> void:
 	var pulse_t := fmod(_anim, 3.0) / 3.0
 	draw_arc(Vector2.ZERO, BODY_RADIUS + 24.0 + pulse_t * 56.0, 0.0, TAU, 12, Color(accent, (1.0 - pulse_t) * 0.45), 3.0, false)
 	if _cooldown > 0.0:
-		var cd_frac := 1.0 - (_cooldown / COOLDOWN_SECONDS)
+		var cd_frac := 1.0 - (_cooldown / _cooldown_seconds())
 		draw_arc(Vector2.ZERO, BODY_RADIUS + 18.0, -PI / 2.0, -PI / 2.0 + TAU * cd_frac, 16, Color(accent, 0.5), 6.0, false)
 	elif _fill > 0.001 and _fill < 1.0:
 		draw_arc(Vector2.ZERO, BODY_RADIUS + 18.0, -PI / 2.0, -PI / 2.0 + TAU * _fill, 16, Color("fff0a0"), 8.0, false)

@@ -2303,7 +2303,7 @@ func _cast_ability_willow_swift_strike(data: Dictionary, values: Dictionary, _ra
 	for enemy in _enemies_in_radius(midpoint, hit_radius):
 		_apply_ability_hit(enemy, data, values)
 	global_position = destination
-	_emit_ability_cast(PackedVector2Array([origin, Vector2(strike_range, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([origin, destination, Vector2(48.0, 0.0)]))
 
 
 ## Stump's Nature's Rally: Keeper's rallying call for the whole party. Applies the buff to
@@ -2366,13 +2366,15 @@ func _cast_ability_nebula_time_shift(data: Dictionary, values: Dictionary, _rank
 	if direction.length_squared() <= 0.0:
 		direction = facing_direction
 	var burst_radius := maxf(float(values.get("radius", 140.0)), 120.0)
+	var origin := global_position
 	global_position += direction * float(values.get("dash_distance", 420.0))
 	# Swap the hit for a time-blast instead of standard blink damage.
 	for target in _enemies_in_radius(global_position, burst_radius):
 		_damage_enemy(target, values.power)
 		if target.has_method("apply_slow"):
 			target.apply_slow(0.45, 2.5)
-	_emit_ability_cast(PackedVector2Array([global_position, Vector2(burst_radius, 0.0)]))
+	# TELEPORT style: [origin, destination, Vector2(ring_radius, 0)]
+	_emit_ability_cast(PackedVector2Array([origin, global_position, Vector2(burst_radius * 0.6, 0.0)]))
 
 
 ## Astral's Essence Link: Empath's signature. Heals every ally in radius — and links them:
@@ -2807,9 +2809,11 @@ func _cast_ability_blink_strike(data: Dictionary, values: Dictionary) -> void:
 	var nearest := _nearest_enemy_in_range(reach)
 	if nearest == null:
 		return
-	global_position = nearest.global_position + (global_position - nearest.global_position).normalized() * 18.0
+	var origin := global_position
+	var landing := nearest.global_position + (global_position - nearest.global_position).normalized() * 18.0
+	global_position = landing
 	_apply_ability_hit(nearest, data, values)
-	_emit_ability_cast(PackedVector2Array([global_position + Vector2(0.0, -18.0), nearest.global_position]))
+	_emit_ability_cast(PackedVector2Array([origin, landing, Vector2(48.0, 0.0)]))
 
 
 ## Winter Wyvern's cold curse — self-centered ring that hits everything inside once and
@@ -2859,6 +2863,10 @@ func _emit_ability_cast(points: PackedVector2Array) -> void:
 				style = PlayerClass.EffectStyle.ARC
 			PlayerClass.Archetype.AOE_HEAL, PlayerClass.Archetype.BUFF_SELF:
 				style = PlayerClass.EffectStyle.WAVE
+			PlayerClass.Archetype.DASH_STRIKE, PlayerClass.Archetype.BLINK_STRIKE:
+				# Teleport/dash abilities get the themed blink visual: vanish ring at
+				# origin, motion streak along the travel path, appear ring at destination.
+				style = PlayerClass.EffectStyle.TELEPORT
 	ability_cast.emit(_casting_ability_id, style, points)
 
 
@@ -3155,7 +3163,8 @@ func _cast_ability_dash_strike(data: Dictionary, values: Dictionary) -> void:
 	for target in _enemies_in_radius(midpoint, hit_radius):
 		_apply_ability_hit(target, data, values)
 	global_position = destination
-	_emit_ability_cast(PackedVector2Array([origin, Vector2(values.dash_distance, 0.0)]))
+	# points: [origin, destination, Vector2(ring_radius, 0)] for the TELEPORT style.
+	_emit_ability_cast(PackedVector2Array([origin, destination, Vector2(float(values.radius) * 0.9, 0.0)]))
 	# Dragon Fire: the dash scorches a lingering trail of flame along the whole path.
 	if bool(data.get("fire_trail", false)):
 		_spawn_fire_trail(origin, destination, float(values.power) * 0.35)
@@ -3196,10 +3205,12 @@ func _cast_ability_blink(_data: Dictionary, values: Dictionary) -> void:
 	var direction := global_position.direction_to(aim_world_position)
 	if direction.length_squared() <= 0.0:
 		direction = facing_direction
+	var origin := global_position
 	global_position += direction * values.dash_distance
 	for target in _enemies_in_radius(global_position, values.radius):
 		_apply_ability_hit(target, _data, values)
-	_emit_ability_cast(PackedVector2Array([global_position, Vector2(values.radius, 0.0)]))
+	# points: [origin, destination, Vector2(ring_radius, 0)] for the TELEPORT style.
+	_emit_ability_cast(PackedVector2Array([origin, global_position, Vector2(float(values.radius) * 0.9, 0.0)]))
 
 
 func _cast_ability_self_heal(data: Dictionary, values: Dictionary) -> void:
@@ -3709,9 +3720,10 @@ func _cast_secondary_blast_jump() -> void:
 	for target in _pvp_hosts_in_radius(global_position, radius):
 		_damage_enemy(target, _sec_dmg() * 0.85)
 		_knock_away_from(target, global_position, 820.0 * _sec_radius_mult())
+	var origin := global_position
 	global_position += away * (210.0 * _sec_radius_mult())
 	apply_knockback(away * 380.0 * _sec_radius_mult())
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BLAST, PackedVector2Array([global_position, Vector2(radius, 0.0)]))
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.TELEPORT, PackedVector2Array([origin, global_position, Vector2(52.0, 0.0)]))
 
 
 func _cast_secondary_magma_armor() -> void:
@@ -3752,7 +3764,7 @@ func _cast_secondary_windstep() -> void:
 			target.apply_slow(0.4, 1.4 * _sec_effect_mult())
 	_secondary_move_mult = 1.22
 	_secondary_move_timer = 1.2 * _sec_effect_mult()
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BOLT, PackedVector2Array([from, global_position]))
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.TELEPORT, PackedVector2Array([from, global_position, Vector2(44.0, 0.0)]))
 
 
 func _cast_secondary_oak_bark() -> void:
@@ -3788,7 +3800,7 @@ func _cast_secondary_time_skip() -> void:
 		if target.has_method("apply_slow"):
 			target.apply_slow(0.35, 1.8 * _sec_effect_mult())
 	global_position += dir * (260.0 * _sec_radius_mult())
-	secondary_fx.emit(class_id, PlayerClass.EffectStyle.BURST, PackedVector2Array([origin, Vector2(radius, 0.0)]))
+	secondary_fx.emit(class_id, PlayerClass.EffectStyle.TELEPORT, PackedVector2Array([origin, global_position, Vector2(48.0, 0.0)]))
 
 
 func _cast_secondary_ward_light() -> void:

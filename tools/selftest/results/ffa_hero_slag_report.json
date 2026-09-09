@@ -43,19 +43,147 @@
           "hint": "Grove Bell",
           "pos": "(0.0, 0.0)",
           "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
         }
       ],
-      "t": 1.00552821212121
+      "t": 1.00425925396825
     },
     {
       "abilities": [
         {
           "id": "slag_boulder_hurl",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "slag_volcanic_touch",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "slag_steam_bath",
@@ -67,10 +195,10 @@
         }
       ],
       "cds": [
-        19.8768333333333,
         0.0,
         0.0,
-        229.599999999999
+        0.0,
+        229.216666666666
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -86,10 +214,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -3000.0,
-              -2184.0
+              -2940.0,
+              -1995.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3142.0,
+              -1941.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -97,12 +238,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3313.0,
-              -2034.0
+              -2904.0,
+              2040.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -110,23 +251,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2933.0,
-              1939.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              3381.0,
-              2067.0
+              3235.0,
+              2220.0
             ],
             "team": "3"
           }
@@ -147,17 +275,18 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.21764942424242
+      "t": 1.20029633333333,
+      "teleporters": []
     },
     {
       "abilities": [
         {
           "id": "slag_boulder_hurl",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "slag_volcanic_touch",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "slag_steam_bath",
@@ -169,10 +298,10 @@
         }
       ],
       "cds": [
-        16.5755243333335,
-        38.4000000000011,
-        19.0906666666678,
-        206.799999999981
+        19.1101666666667,
+        36.9500000000012,
+        17.6406666666678,
+        206.416666666648
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -188,10 +317,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2322.0,
-              -1396.0
+              -1418.0,
+              -2058.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              2482.0,
+              108.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -199,12 +341,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              2657.0,
-              -1921.0
+              -761.0,
+              1060.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -212,23 +354,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2808.0,
-              1863.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              1425.0,
-              1942.0
+              1683.0,
+              854.0
             ],
             "team": "3"
           }
@@ -240,8 +369,8 @@
         ]
       },
       "hero": "slag",
-      "hp": 191.42,
-      "hp_frac": 0.660068965517241,
+      "hp": 179.21,
+      "hp_frac": 0.617965517241379,
       "hp_max": 290.0,
       "kind": "probe",
       "label": "ffa_mid",
@@ -249,17 +378,18 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.020364
+      "t": 24.0031746031746,
+      "teleporters": []
     },
     {
       "abilities": [
         {
           "id": "slag_boulder_hurl",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "slag_volcanic_touch",
-          "rank": 2
+          "rank": 1
         },
         {
           "id": "slag_steam_bath",
@@ -271,10 +401,10 @@
         }
       ],
       "cds": [
-        13.9755243333334,
-        14.8833333333356,
-        33.6073333333336,
-        183.283333333296
+        0.0,
+        13.4500000000022,
+        0.0,
+        182.916666666629
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -290,47 +420,47 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -444.0,
-              -316.0
+              -491.0,
+              -827.0
             ],
             "team": "0"
           },
           {
             "alive": true,
-            "class": "bulwark",
+            "class": "arclight",
             "cpu": true,
-            "kills": 0,
+            "kills": 1,
             "local": false,
             "peer": 101,
             "pos": [
-              3009.0,
-              -1225.0
+              -38.0,
+              143.0
             ],
             "team": "1"
           },
           {
             "alive": false,
-            "class": "warden",
+            "class": "bulwark",
             "cpu": true,
-            "kills": 1,
+            "kills": 2,
             "local": false,
             "peer": 102,
             "pos": [
-              -471.0,
-              -256.0
+              -41.0,
+              -112.0
             ],
             "team": "2"
           },
           {
-            "alive": true,
-            "class": "tobor",
+            "alive": false,
+            "class": "warden",
             "cpu": true,
-            "kills": 1,
+            "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              -140.0,
-              -148.0
+              -21.0,
+              -57.0
             ],
             "team": "3"
           }
@@ -351,49 +481,42 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.5394444444448
+      "t": 47.5033063333333,
+      "teleporters": []
     }
   ],
-  "elapsed": 48.0388920000003,
+  "elapsed": 48.0060606060606,
   "enemies_spawned": 0,
-  "hero_position": "(-444.3339, -315.8452)",
+  "hero_position": "(-491.2597, -826.5348)",
   "player_class": "slag",
   "results": {
     "alive": false,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 7,
+    "cast_count": 5,
     "casts": [
       {
         "ability_id": "slag_eruption",
-        "t": 0.414690333333333
+        "t": 0.0
       },
       {
         "ability_id": "slag_boulder_hurl",
-        "t": 0.920679727272727
+        "t": 2.80234366666666
       },
       {
         "ability_id": "slag_volcanic_touch",
-        "t": 4.78181818181819
+        "t": 3.34876533333333
       },
       {
         "ability_id": "slag_steam_bath",
-        "t": 5.07348484848486
+        "t": 3.61505933333333
       },
       {
         "ability_id": "slag_boulder_hurl",
-        "t": 21.0906496666667
-      },
-      {
-        "ability_id": "slag_boulder_hurl",
-        "t": 42.0000000000001
-      },
-      {
-        "ability_id": "slag_steam_bath",
-        "t": 43.1000000000002
+        "t": 22.960606060606
       }
     ],
-    "creep_kills": 123,
+    "creep_kills": 87,
     "died": true,
     "errors": [],
     "ffa": {
@@ -409,47 +532,47 @@
           "local": true,
           "peer": 1,
           "pos": [
-            -444.0,
-            -316.0
+            -491.0,
+            -827.0
           ],
           "team": "0"
         },
         {
           "alive": true,
-          "class": "bulwark",
+          "class": "arclight",
           "cpu": true,
-          "kills": 0,
+          "kills": 1,
           "local": false,
           "peer": 101,
           "pos": [
-            3009.0,
-            -1225.0
+            40.0,
+            203.0
           ],
           "team": "1"
         },
         {
           "alive": false,
-          "class": "warden",
+          "class": "bulwark",
           "cpu": true,
-          "kills": 1,
+          "kills": 2,
           "local": false,
           "peer": 102,
           "pos": [
-            -471.0,
-            -256.0
+            -41.0,
+            -112.0
           ],
           "team": "2"
         },
         {
-          "alive": true,
-          "class": "tobor",
+          "alive": false,
+          "class": "warden",
           "cpu": true,
-          "kills": 1,
+          "kills": 0,
           "local": false,
           "peer": 103,
           "pos": [
-            -19.0,
-            -171.0
+            -21.0,
+            -57.0
           ],
           "team": "3"
         }
@@ -460,21 +583,21 @@
         5600.0
       ]
     },
-    "gold": 334,
+    "gold": 343,
     "hero_kills": 0,
     "hp_samples": [
       {
         "alive": true,
         "class": "slag",
-        "gold": 0,
+        "gold": 6,
         "hp": 1.0,
         "kills": 0,
-        "t": 0.14
+        "t": 0.15
       },
       {
         "alive": true,
         "class": "slag",
-        "gold": 104,
+        "gold": 154,
         "hp": 1.0,
         "kills": 0,
         "t": 5.16
@@ -482,85 +605,91 @@
       {
         "alive": true,
         "class": "slag",
-        "gold": 108,
-        "hp": 0.94,
+        "gold": 238,
+        "hp": 1.0,
         "kills": 0,
-        "t": 10.18
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "slag",
-        "gold": 202,
-        "hp": 0.89,
+        "gold": 258,
+        "hp": 0.98,
         "kills": 0,
-        "t": 15.19
+        "t": 15.16
       },
       {
         "alive": true,
         "class": "slag",
-        "gold": 299,
-        "hp": 0.74,
+        "gold": 306,
+        "hp": 0.62,
         "kills": 0,
-        "t": 20.19
+        "t": 20.17
       },
       {
         "alive": true,
         "class": "slag",
-        "gold": 441,
-        "hp": 0.64,
+        "gold": 466,
+        "hp": 0.58,
         "kills": 0,
-        "t": 25.21
+        "t": 25.18
       },
       {
         "alive": true,
         "class": "slag",
-        "gold": 514,
-        "hp": 0.56,
+        "gold": 496,
+        "hp": 0.5,
         "kills": 0,
-        "t": 30.21
+        "t": 30.18
       },
       {
         "alive": true,
         "class": "slag",
-        "gold": 565,
-        "hp": 0.52,
+        "gold": 637,
+        "hp": 0.34,
         "kills": 0,
-        "t": 35.23
-      },
-      {
-        "alive": true,
-        "class": "slag",
-        "gold": 617,
-        "hp": 0.52,
-        "kills": 0,
-        "t": 40.25
+        "t": 35.18
       },
       {
         "alive": false,
         "class": "slag",
-        "gold": 334,
+        "gold": 343,
         "hp": 0.0,
         "kills": 0,
-        "t": 45.28
+        "t": 40.19
+      },
+      {
+        "alive": false,
+        "class": "slag",
+        "gold": 343,
+        "hp": 0.0,
+        "kills": 0,
+        "t": 45.2
       }
     ],
     "landmark_saves": 0,
     "level": 8,
     "level_upgrades": {
+      "2": [
+        "plating"
+      ],
       "3": [
-        "rapid"
+        "sweep"
       ],
       "4": [
-        "split_shot"
+        "heat_gust"
       ],
       "5": [
-        "haste"
+        "ember_sprite"
       ],
       "6": [
-        "rapid"
+        "ember_sprite"
       ],
       "7": [
-        "laser_drone"
+        "ember_sprite"
+      ],
+      "8": [
+        "heavy"
       ]
     },
     "max_hp": 1.0,
@@ -572,16 +701,18 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "rapid",
-      "split_shot",
-      "haste",
-      "rapid",
-      "laser_drone"
+      "plating",
+      "sweep",
+      "heat_gust",
+      "ember_sprite",
+      "ember_sprite",
+      "ember_sprite",
+      "heavy"
     ],
     "until_wave": 20,
     "verdict": "WARN_DEAD",
     "wave": 1,
-    "xp": 47
+    "xp": 19
   },
   "shots": []
 }

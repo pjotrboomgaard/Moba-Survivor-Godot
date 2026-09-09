@@ -300,7 +300,7 @@ const TREE_SPACING := 118.0
 const LAYOUT_SEED := 20260819
 const OBSTACLE_COUNT := 90
 const ISLAND_OBSTACLE_COUNT := 70
-const DECAL_COUNT := 120
+const DECAL_COUNT := 800
 const WALL_MARGIN := 140.0
 const SPAWN_CLEARANCE := 210.0
 const OBSTACLE_SPACING := 96.0
@@ -314,6 +314,11 @@ var _water_drift_offset := Vector2.ZERO
 var _water_drift_timer := 0.0
 
 var obstacles: Array[Obstacle] = []
+## Static decorative props (grass tufts, flowers, small rocks) baked into a single
+## background texture instead of living Obstacle nodes. Each entry is
+## { "sprite": String, "pos": Vector2 }. Rebuilt on every rebuild(); the editor's
+## eraser clears this list so it stays in sync with the live props.
+var baked_props: Array = []
 ## Walkable pads for Pjotr biomes. Empty means the whole playfield is walkable
 ## (Pjotr grass meadow). Classic keeps the clean grid.
 var walk_pads: Array[Rect2] = []
@@ -383,7 +388,10 @@ func _process(delta: float) -> void:
 var _cached_cull_cam: Node2D = null
 var _cull_cam_dirty := true
 
-func _cull_offscreen_sprites() -> void:
+## Resolves the active player camera (first enabled Camera2D in the "players"
+## group). Cached until the players group changes. Shared by obstacle culling
+## and baked-decal culling so both agree on the same view rect.
+func _cull_camera() -> Camera2D:
 	if _cull_cam_dirty:
 		_cull_cam_dirty = false
 		_cached_cull_cam = null
@@ -395,11 +403,17 @@ func _cull_offscreen_sprites() -> void:
 				_cached_cull_cam = p as Node2D
 				break
 	if _cached_cull_cam == null:
-		return
+		return null
 	var cam: Node = _cached_cull_cam.get_node_or_null("Camera2D")
 	if cam == null or not (cam is Camera2D) or not (cam as Camera2D).enabled:
+		return null
+	return cam as Camera2D
+
+
+func _cull_offscreen_sprites() -> void:
+	var cam_node := _cull_camera()
+	if cam_node == null:
 		return
-	var cam_node := cam as Camera2D
 	var cam_pos: Vector2 = cam_node.get_global_position()
 	var vp_size: Vector2 = get_viewport().get_visible_rect().size
 	var zoom: Vector2 = cam_node.zoom
@@ -407,8 +421,13 @@ func _cull_offscreen_sprites() -> void:
 	# (trees, houses lifted above their collision base) are never culled before
 	# they visually enter the screen. Margin must exceed the tallest sprite's
 	# upward offset + half its size.
-	var half_w: float = (vp_size.x * 0.5 / maxf(0.1, zoom.x)) + 360.0
-	var half_h: float = (vp_size.y * 0.5 / maxf(0.1, zoom.y)) + 360.0
+	# A fixed 180 world-unit margin covers the tallest lifted sprites (trees,
+	# houses) and keeps them on-screen just before they visually enter the view.
+	# Keeping it independent of zoom means zooming out culls more obstacles,
+	# cutting live draw calls instead of piling them on the canvas.
+	var margin := 180.0
+	var half_w: float = (vp_size.x * 0.5 / maxf(0.1, zoom.x)) + margin
+	var half_h: float = (vp_size.y * 0.5 / maxf(0.1, zoom.y)) + margin
 	var cull_rect := Rect2(
 		cam_pos.x - half_w, cam_pos.y - half_h,
 		half_w * 2.0, half_h * 2.0
@@ -461,6 +480,7 @@ func rebuild() -> void:
 			continue
 		child.free()
 	obstacles.clear()
+	baked_props.clear()
 	walk_pads.clear()
 	void_rects.clear()
 	landmarks.clear()
@@ -490,6 +510,7 @@ func clear_editable_props() -> void:
 		if is_instance_valid(obstacle):
 			obstacle.free()
 	obstacles.clear()
+	baked_props.clear()
 	for landmark in landmarks.duplicate():
 		if is_instance_valid(landmark):
 			landmark.free()
@@ -526,6 +547,10 @@ func apply_saved_level(data: Dictionary) -> void:
 			String(entry.get("sprite", "")),
 			String(entry.get("hint", ""))
 		)
+	# clear_editable_props() wiped the procedurally-scattered ground cover
+	# (grass/flowers baked into the background). Re-scatter it so the meadow
+	# is preserved alongside the user-placed props.
+	_scatter_ground_cover()
 	landmarks_changed.emit()
 
 
@@ -666,6 +691,19 @@ func _spawn_landmarks() -> void:
 	for index in kit.size():
 		var spec: Array = kit[index]
 		if spec.size() < 6:
+			continue
+		# Remove the pulse_wipe (center wipe) from solo and FFA maps — it's too
+		# destructive for those modes and the user explicitly asked to remove it.
+		# Solo = not FFA (team_mode is NONE), so "not is_ffa()" covers both solo
+		# and co-op, but we only want to remove it from solo+FFA, not co-op.
+		# Since TeamMode only has NONE and FFA, "solo" == "not FFA".
+		if str(spec[1]) == "pulse_wipe" and GameRuntime.is_ffa():
+			continue
+		if str(spec[1]) == "pulse_wipe" and not GameRuntime.is_ffa() and not GameRuntime.is_classic():
+			# This is co-op — keep the wipe for co-op
+			pass
+		elif str(spec[1]) == "pulse_wipe" and not GameRuntime.is_ffa():
+			# Solo mode — remove the wipe
 			continue
 		var landmark := ArenaLandmark.new()
 		var preferred := spots[index] if index < spots.size() else _landmark_spot(float(spec[6]) if spec.size() > 6 else 0.0, float(spec[7]) if spec.size() > 7 else 0.42, placed)
@@ -1202,7 +1240,7 @@ func _spawn_docks_booby_traps() -> void:
 ## Volcano (biome 1): periodic lava geysers that erupt at random walkable spots.
 ## Factory (biome 3): periodic EMP bursts that slow nearby units and drain HP.
 var _biome_hazard_timer := 0.0
-const BIOME_HAZARD_INTERVAL_VOLCANO := 12.0
+const BIOME_HAZARD_INTERVAL_VOLCANO := 6.0
 const BIOME_HAZARD_INTERVAL_FACTORY := 16.0
 const GeyserRadius := 150.0
 const GeyserDamage := 12.0
@@ -1373,7 +1411,6 @@ func _fits_obstacle(candidate: Vector2) -> bool:
 		return false
 	if crater_feature_active() and crater_contains(candidate, 80.0):
 		return false
-		return false
 	if walk_pads.is_empty():
 		return true
 	for pad in walk_pads:
@@ -1407,7 +1444,33 @@ func _near_corner_spawn(candidate: Vector2, radius: float) -> bool:
 	return false
 
 
+## Sprites that block nothing and are purely cosmetic ground cover. These get baked
+## into the arena's single background texture instead of a live Obstacle node, which
+## removes thousands of StaticBody2D / CollisionShape2D / Sprite2D + shadow nodes in
+## the dense open-field worlds. Collision/interactable props stay as real nodes.
+## Trees are safe to bake too: their shadow uses the shared per-type silhouette
+## texture and trees are never glow-eligible, so no per-frame behaviour is lost.
+func _is_decorative_prop(sprite_id: String, radius: float) -> bool:
+	if radius > 0.0:
+		return false
+	if sprite_id.begins_with("tree"):
+		return true
+	if sprite_id.begins_with("grass") or sprite_id == "flower_patch" \
+			or sprite_id == "grass_lush" or sprite_id == "grass_meadow" \
+			or sprite_id == "dirt_tile":
+		return true
+	return false
+
+
 func _add_obstacle(world_position: Vector2, type_data: Dictionary) -> void:
+	var sprite_id := str(type_data.sprite)
+	var radius := float(type_data.radius)
+	# Bake pure decoration so a dense grass meadow doesn't carry thousands of
+	# per-frame nodes. The eraser in the world editor only targets collision props
+	# and features, so baked cover is safe to fold into the background.
+	if _is_decorative_prop(sprite_id, radius):
+		baked_props.append({"sprite": sprite_id, "pos": world_position})
+		return
 	var obstacle := OBSTACLE_SCENE.instantiate() as Obstacle
 	obstacle.global_position = world_position
 	add_child(obstacle)
@@ -1505,7 +1568,12 @@ func _ground_cover_sprites() -> Array[String]:
 		4:
 			return ["bollard", "grass_tuft", "barrel_keg", "flower_patch", "docks_pole", "docks_barrel_stack", "town_house", "town_well", "town_house2", "town_cottage"]
 		_:
-			return ["grass_tuft", "grass_tuft", "grass_wild", "grass_flower", "grass_bloom", "flower_patch", "grass_long"]
+			# Grass world: basic grass only. Flowers/bushes are placed manually
+			# via the world editor — no random scattering here.
+			return [
+				"grass_tuft", "grass_tuft", "grass_wild", "grass_wild",
+				"grass_long",
+			]
 
 
 func _cover_type(sprite_id: String) -> Dictionary:
@@ -1513,6 +1581,10 @@ func _cover_type(sprite_id: String) -> Dictionary:
 
 
 func _scatter_ground_cover() -> void:
+	# Grass world (biome 0): user places grass/flowers manually via world editor.
+	# No random scattering here.
+	if GameRuntime.biome_id == 0:
+		return
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _layout_seed() + 211
 	var kit := _ground_cover_sprites()
@@ -1538,6 +1610,10 @@ func _scatter_ground_cover() -> void:
 		var spacing := 22.0 if float(_cover_type(sprite_id).radius) < 1.0 else 48.0
 		if _try_place_obstacle(candidate, rng, _cover_type(sprite_id), spacing):
 			planted += 1
+	if planted > 0:
+		print("[ground_cover] planted ", planted, " of ", wanted, " (baked_props now ", baked_props.size(), ")")
+	else:
+		print("[ground_cover] planted 0 of ", wanted, " — checks failing. limit=", limit, " pads=", pads.size())
 
 
 ## Stuff extra boulders onto every walk pad so island worlds don't look empty.
@@ -2410,9 +2486,79 @@ func _draw_zone_cliff_border(world_rect: Rect2) -> void:
 
 
 func _draw_decals() -> void:
-	# Grass, flowers, and biome scatter are Obstacle nodes so the world editor
-	# can erase them one by one. Painted decals would sit under the eraser.
-	pass
+	# Baked ground cover paints in one pass. Even though there are no per-frame
+	# nodes, we still cull the draw calls to the camera view so a dense meadow
+	# doesn't rasterise 2,000+ textures every frame.
+	if baked_props.is_empty():
+		return
+	var drawn := 0
+	var cull := _baked_cull_rect()
+	# Draw shadows first so they sit under the sprite (the arena's own _draw
+	# layer is beneath all Node2D obstacles, so baked props share that plane).
+	for prop in baked_props:
+		var pos: Vector2 = prop.pos
+		if not cull.has_point(pos):
+			continue
+		var sprite_id := str(prop.sprite)
+		if sprite_id.contains("tree"):
+			_draw_baked_tree_shadow(pos, sprite_id)
+	for prop in baked_props:
+		var pos: Vector2 = prop.pos
+		if not cull.has_point(pos):
+			continue
+		_draw_one_decal(str(prop.sprite), pos)
+		drawn += 1
+	if drawn == 0 and baked_props.size() > 0:
+		print("[draw_decals] has ", baked_props.size(), " props but cull rect is empty. cull=", cull)
+
+
+## Camera-view rect (world space) with a small margin, used to skip draw calls for
+## baked props that are off-screen. Reuses the same camera resolution as obstacle culling.
+func _baked_cull_rect() -> Rect2:
+	var cam := _cull_camera()
+	if cam == null:
+		return Rect2(-1e9, -1e9, 2e9, 2e9)
+	var cam_pos: Vector2 = cam.get_global_position()
+	var vp: Vector2 = get_viewport().get_visible_rect().size
+	var zoom: Vector2 = cam.zoom
+	var margin := 200.0
+	var half_w := (vp.x * 0.5 / maxf(0.1, zoom.x)) + margin
+	var half_h := (vp.y * 0.5 / maxf(0.1, zoom.y)) + margin
+	return Rect2(cam_pos.x - half_w, cam_pos.y - half_h, half_w * 2.0, half_h * 2.0)
+
+
+## Baked tree shadow: a soft tapered ellipse on the ground, oriented by the sun
+## direction exactly like the live Obstacle tree shadow does. Drawn into the arena
+## background so a meadow full of trees doesn't need one Sprite2D per tree.
+func _draw_baked_tree_shadow(pos: Vector2, sprite_id: String) -> void:
+	var alpha := WorldClock.shadow_alpha
+	if alpha <= 0.0:
+		return
+	var dir := WorldClock.sun_dir
+	var shadow_dir := -dir
+	var angle := shadow_dir.angle() + PI / 2.0
+	var stretch := WorldClock.shadow_stretch
+	var length_factor := 0.55 + 0.35 * stretch
+	# Approximate the tree's on-screen height at its display zoom for a realistic
+	# footprint length. We draw an ellipse ~ (0.5–0.9 * tree_height) long.
+	var tex := SpriteLibrary.texture_for(sprite_id)
+	var native := 16.0
+	if tex != null:
+		native = float(maxi(1, tex.get_width()))
+	var zoom := Obstacle.tree_display_zoom(PIXEL_ZOOM, tex) if tex != null else Obstacle.tree_display_zoom(PIXEL_ZOOM, null)
+	var tree_h := native * 2.15 * zoom
+	var shadow_len := tree_h * length_factor
+	# Flatten perpendicular to the fall so it reads as lying on the grass.
+	var flatten := 0.62
+	var half_len := shadow_len * 0.5
+	var half_width := shadow_len * 0.5 * flatten
+	# Shift so the trunk end (local +Y) sits at the tree base.
+	var center := pos + shadow_dir * (shadow_len * 0.5)
+	draw_set_transform(center, angle, Vector2.ONE)
+	draw_circle(Vector2.ZERO, half_width, Color(0, 0, 0, alpha * 0.45))
+	# A second, slightly larger, fainter ellipse for a soft-edge look.
+	draw_circle(Vector2.ZERO, half_width * 1.25, Color(0, 0, 0, alpha * 0.18))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _draw_one_decal(sprite_name: String, spot: Vector2) -> void:

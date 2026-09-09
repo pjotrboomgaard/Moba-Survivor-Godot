@@ -34,6 +34,13 @@ const GLOW_AT_NIGHT_PREFIXES: Array[String] = [
 const GLOW_COMPENSATE := 1.15
 var _glow_at_night := false
 
+## Shared shadow textures keyed by sprite_id. Every tree of the same type uses
+## the same silhouette Image/Texture — built once, copied for all trees of that
+## type. This avoids re-running the O(pixels) silhouette extraction per obstacle.
+static var _shared_shadow_cache: Dictionary = {}
+## Shared rock/blob shadow textures keyed by an approximate radius bucket.
+static var _shared_rock_shadow_cache: Dictionary = {}
+
 
 func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixels: float) -> void:
 	sprite_id = sprite_name
@@ -211,42 +218,53 @@ func _ensure_shadow(zoom: float, is_tree: bool) -> void:
 func _build_shadow_texture(zoom: float) -> void:
 	# Shape-fit the shadow: trees derive their silhouette from the actual
 	# sprite texture (trunk-to-canopy pixels become a dark ground shape),
-	# rocks are smaller rounder blobs.
-	var radius_px := int(maxf(4.0, body_radius * zoom * 0.9))
+	# rocks are smaller rounder blobs. Both caches are shared across obstacles
+	# of the same type so the O(pixels) silhouette work only runs once.
 	if _is_tree_shadow:
-		# Build the shadow silhouette from the tree sprite's real pixels.
-		# The tree texture has the canopy at the top (low y) and the trunk
-		# at the bottom (high y). We convert every opaque pixel into a dark
-		# shadow pixel, producing a 1:1 silhouette. In _update_shadow_rotation
-		# the sprite is rotated so this silhouette "falls" away from the sun
-		# and squashed so it reads as a ground projection.
-		var tex := sprite.texture if sprite != null else null
-		var src := tex.get_image() if tex != null else null
-		if src == null:
-			# Fallback: generic tapered ellipse if the texture can't be read.
-			_src_to_fallback_tree_img(radius_px)
-		else:
-			_shadow_img = _silhouette_from_image(src)
+		var key := "tree:" + sprite_id
+		var cached: Image = _shared_shadow_cache.get(key) as Image
+		if cached == null:
+			var tex := sprite.texture if sprite != null else null
+			var src := tex.get_image() if tex != null else null
+			var radius_px := int(maxf(4.0, body_radius * zoom * 0.9))
+			if src == null:
+				# Build the generic fallback into a temp and store it so every
+				# tree of this type shares the same result.
+				_build_fallback_tree_img(radius_px)
+				cached = _shadow_img
+				_shadow_img = null
+			else:
+				cached = _silhouette_from_image(src)
+			_shared_shadow_cache[key] = cached
+		_shadow_img = cached
 		_shadow.texture = ImageTexture.create_from_image(_shadow_img)
 	else:
 		# Rocks: small rounder blobs that read as a cast shadow at the base.
-		var w := maxi(8, int(radius_px * 0.72))
-		var h := maxi(6, int(radius_px * 0.45))
-		var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
-		var center := Vector2(w * 0.5, h * 0.5)
-		for y in h:
-			for x in w:
-				var px := Vector2(x - center.x, y - center.y)
-				var nd := Vector2(px.x / (w * 0.5), px.y / (h * 0.5))
-				var d := nd.length()
-				var alpha := 0.0
-				if d < 0.55:
-					alpha = 1.0
-				elif d < 1.0:
-					alpha = 1.0 - (d - 0.55) / 0.45
-				img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.95))
-		_shadow_img = img
-		_shadow.texture = ImageTexture.create_from_image(img)
+		# Bucket the pixel size so similar rocks share a single texture.
+		var radius_px := int(maxf(4.0, body_radius * zoom * 0.9))
+		var bucket := int(radius_px / 2.0)
+		var key := "rock:%d" % bucket
+		var cached: Image = _shared_rock_shadow_cache.get(key) as Image
+		if cached == null:
+			var w := maxi(8, int(radius_px * 0.72))
+			var h := maxi(6, int(radius_px * 0.45))
+			var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+			var center := Vector2(w * 0.5, h * 0.5)
+			for y in h:
+				for x in w:
+					var px := Vector2(x - center.x, y - center.y)
+					var nd := Vector2(px.x / (w * 0.5), px.y / (h * 0.5))
+					var d := nd.length()
+					var alpha := 0.0
+					if d < 0.55:
+						alpha = 1.0
+					elif d < 1.0:
+						alpha = 1.0 - (d - 0.55) / 0.45
+					img.set_pixel(x, y, Color(0, 0, 0, alpha * 0.95))
+			cached = img
+			_shared_rock_shadow_cache[key] = cached
+		_shadow_img = cached
+		_shadow.texture = ImageTexture.create_from_image(_shadow_img)
 
 
 ## Derive a 1:1 dark silhouette from a source Image. Every pixel whose alpha
@@ -266,8 +284,8 @@ func _silhouette_from_image(src: Image) -> Image:
 
 
 ## Fallback generic tapered-ellipse tree shadow (used only if the sprite
-## texture can't be read via get_image()).
-func _src_to_fallback_tree_img(radius_px: int) -> void:
+## texture can't be read via get_image()). Builds the result into _shadow_img.
+func _build_fallback_tree_img(radius_px: int) -> void:
 	var w := maxi(8, int(radius_px * 1.6))
 	var h := maxi(6, int(radius_px * 1.0))
 	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)

@@ -2020,6 +2020,22 @@ func _play_secondary_fx(class_id: String, style: int, points: PackedVector2Array
 	effect.chain_color = Color(class_data.effect_secondary)
 	if style == PlayerClass.EffectStyle.BLAST or style == PlayerClass.EffectStyle.BURST:
 		effect.lifetime = 0.48
+	elif style == PlayerClass.EffectStyle.TELEPORT:
+		effect.lifetime = 0.42
+	# Per-hero themed colors for teleport blinks (falls back to class colors when absent).
+	var kit_style := KitFxLibrary.kit_visual("%s_%s" % [class_id, str(class_data.get("secondary", ""))])
+	if not kit_style.is_empty():
+		var primary := str(kit_style.get("primary_color", ""))
+		var secondary := str(kit_style.get("secondary_color", ""))
+		if primary != "":
+			effect.main_color = Color(primary)
+		if secondary != "":
+			effect.chain_color = Color(secondary)
+		effect.ribbon_count = int(kit_style.get("ribbon_count", effect.ribbon_count))
+		effect.pulse_count = int(kit_style.get("pulse_count", effect.pulse_count))
+		var style_tag := str(kit_style.get("style", ""))
+		if style_tag != "":
+			effect.style_tag = style_tag
 	effect.points = points
 	add_child(effect)
 	SoundDirector.play("cast_%s" % class_id, points[0] if points.size() > 0 else null)
@@ -2098,11 +2114,9 @@ const VECTOR_ONLY_KIT_IDS := {
 	"thorn_toxin_ward": PlayerClass.EffectStyle.BURST,
 	"thorn_toxicity": PlayerClass.EffectStyle.WAVE,
 	"thorn_poison_burst": PlayerClass.EffectStyle.BURST,
-	"willow_swift_strike": PlayerClass.EffectStyle.BOLT,
 	"willow_forsaken_shot": PlayerClass.EffectStyle.BOLT,
 	"willow_wall_of_roots": PlayerClass.EffectStyle.BURST,
 	"stump_natures_rally": PlayerClass.EffectStyle.BURST,
-	"stump_root_charge": PlayerClass.EffectStyle.WAVE,
 	"stump_overgrowth": PlayerClass.EffectStyle.BURST,
 	"sage_petal_dance": PlayerClass.EffectStyle.ARC,
 	"sage_volatile_pod": PlayerClass.EffectStyle.BLAST,
@@ -2124,12 +2138,11 @@ const VECTOR_ONLY_KIT_IDS := {
 	"arclight_electric_field": PlayerClass.EffectStyle.BURST,
 	"bulwark_enrage": PlayerClass.EffectStyle.WAVE,
 	"warden_cursed_ground": PlayerClass.EffectStyle.BURST,
-	"cinder_whirling_flame": PlayerClass.EffectStyle.WAVE,
+	"cinder_whirling_flame": PlayerClass.EffectStyle.TELEPORT,
 	"cinder_blazing_strike": PlayerClass.EffectStyle.BLAST,
 	"cinder_blazing_pillar": PlayerClass.EffectStyle.BURST,
 	"pyra_bombardment": PlayerClass.EffectStyle.BURST,
 	"slag_steam_bath": PlayerClass.EffectStyle.BURST,
-	"slag_lava_surge": PlayerClass.EffectStyle.WAVE,
 	"ember_healing_wave": PlayerClass.EffectStyle.WAVE,
 	"ember_storm_cloud": PlayerClass.EffectStyle.BURST,
 	"willow_volley": PlayerClass.EffectStyle.ARC,
@@ -2142,7 +2155,7 @@ const VECTOR_ONLY_KIT_IDS := {
 	"sage_nymphoras_kiss": PlayerClass.EffectStyle.BOLT,
 	"volt_wind_shield": PlayerClass.EffectStyle.BURST,
 	"volt_wind_control": PlayerClass.EffectStyle.WAVE,
-	"nebula_time_shift": PlayerClass.EffectStyle.WAVE,
+	"nebula_time_shift": PlayerClass.EffectStyle.TELEPORT,
 	"nebula_rewind": PlayerClass.EffectStyle.WAVE,
 	"nebula_chronosphere": PlayerClass.EffectStyle.BURST,
 	"astral_essence_link": PlayerClass.EffectStyle.BURST,
@@ -2151,6 +2164,19 @@ const VECTOR_ONLY_KIT_IDS := {
 	"astral_spirit_bond": PlayerClass.EffectStyle.WAVE,
 	"rime_glacier_blast": PlayerClass.EffectStyle.BURST,
 	"rime_absolute_zero": PlayerClass.EffectStyle.BURST,
+	# Dash/blink archetypes → themed TELEPORT blink (vanish ring, motion streak, appear ring)
+	"arclight_ball_lightning": PlayerClass.EffectStyle.TELEPORT,
+	"bulwark_iron_charge": PlayerClass.EffectStyle.TELEPORT,
+	"frostbinder_rime_barrage": PlayerClass.EffectStyle.TELEPORT,
+	"pyra_molten_charge": PlayerClass.EffectStyle.TELEPORT,
+	"slag_magma_charge": PlayerClass.EffectStyle.TELEPORT,
+	"ember_phoenix_dash": PlayerClass.EffectStyle.TELEPORT,
+	"thorn_bramble_dash": PlayerClass.EffectStyle.TELEPORT,
+	"willow_swift_strike": PlayerClass.EffectStyle.TELEPORT,
+	"stump_root_charge": PlayerClass.EffectStyle.TELEPORT,
+	"volt_lightning_lunge": PlayerClass.EffectStyle.TELEPORT,
+	"rime_cold_rush": PlayerClass.EffectStyle.TELEPORT,
+	"nebula_time_shift_blink": PlayerClass.EffectStyle.TELEPORT,
 }
 
 
@@ -2181,6 +2207,12 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 			flash.lifetime = 0.22
 		elif flash.style == PlayerClass.EffectStyle.BURST:
 			flash.lifetime = clampf(0.28 + (points[1].x if points.size() >= 2 else 80.0) / 1400.0, 0.28, 0.55)
+		elif flash.style == PlayerClass.EffectStyle.TELEPORT:
+			# Blink duration scales with the travel distance so long dashes feel weightier.
+			var dist := 0.0
+			if points.size() >= 2 and points[1] is Vector2:
+				dist = points[0].distance_to(points[1])
+			flash.lifetime = clampf(0.28 + dist / 1600.0, 0.28, 0.52)
 		else:
 			flash.lifetime = clampf(0.14 + (points[1].x if points.size() >= 2 else 80.0) / 900.0, 0.14, 0.42)
 		flash.points = points
@@ -2777,7 +2809,7 @@ func _apply_resolution_command(command: String) -> void:
 	var parts := command.trim_prefix("resolution:").split("x")
 	if parts.size() != 2:
 		return
-	_apply_resolution(int(parts[0]), int(parts[1]))
+	hud.apply_resolution(Vector2(int(parts[0]), int(parts[1])), false)
 
 
 ## Resizes the window and rescales the local player's camera zoom so the visible

@@ -21,6 +21,9 @@ enum EffectStyle {
 	BLAST,
 	## Directional wedge in the facing direction, not a full ring around the caster — Bulwark slam.
 	ARC,
+	## Blink/teleport: vanish ring at origin, streak of motion, and appear ring at destination.
+	## points = [origin, destination] (+ optional Vector2(radius, 0) on index 2 for the ring size).
+	TELEPORT,
 }
 
 enum DamageType {
@@ -246,7 +249,7 @@ const CLASSES: Array[Dictionary] = [
 		"counters": "Strong vs swarms  ·  Weak vs brutes",
 		"damage_type": DamageType.LIGHTNING,
 		"weapon": Weapon.CHAIN_BOLT,
-		"effect_style": EffectStyle.BLAST,
+		"effect_style": EffectStyle.BOLT,
 		"body_color": "c94a20",
 		"accent_color": "ffd36b",
 		"effect_color": "ffb347",
@@ -2312,7 +2315,7 @@ static func ids() -> Array[String]:
 
 
 static func playable_ids() -> Array[String]:
-	return ["tobor", "arclight", "bulwark", "warden"]
+	return ["tobor", "arclight", "bulwark", "warden", "cinder", "pyra", "slug", "ember", "thorn", "willow", "stump", "sage", "volt", "nebula", "astral", "rime"]
 
 
 static func cpu_ally_ids(human_class_id: String) -> Array[String]:

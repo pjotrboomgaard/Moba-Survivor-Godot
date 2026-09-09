@@ -301,6 +301,10 @@ size_flags_horizontal = 3
 text = "MUSIC"
 button_pressed = true
 
+[node name="ResolutionOption" type="OptionButton" parent="StatusLayer/LobbyPanel/Margin/Layout/AudioRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="SoloButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2

@@ -1,0 +1,335 @@
+{
+  "effects": [
+    {
+      "biome_id": 1,
+      "biome_name": "Vulkaan",
+      "kind": "biome_probe",
+      "label": "biome_check",
+      "obstacles": [
+        {
+          "count": 172,
+          "id": "lava_chunk"
+        },
+        {
+          "count": 54,
+          "id": "spire"
+        },
+        {
+          "count": 70,
+          "id": "boulder"
+        },
+        {
+          "count": 125,
+          "id": "rock_small"
+        },
+        {
+          "count": 61,
+          "id": "rock_large"
+        },
+        {
+          "count": 4,
+          "id": "tree_oak"
+        }
+      ],
+      "t": 0.616666666666667
+    },
+    {
+      "actual": 5,
+      "kind": "force_level",
+      "t": 1.00829866666667,
+      "target": 5
+    },
+    {
+      "abilities": [
+        {
+          "id": "willow_swift_strike",
+          "rank": 1
+        },
+        {
+          "id": "willow_forsaken_shot",
+          "rank": 1
+        },
+        {
+          "id": "willow_volley",
+          "rank": 1
+        },
+        {
+          "id": "willow_wall_of_roots",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        25.1000000000002,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": false,
+            "class": "willow",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              342.0,
+              -42.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              1292.0,
+              -478.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -1591.0,
+              612.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              278.0,
+              282.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          9600.0,
+          6800.0
+        ]
+      },
+      "hero": "willow",
+      "hp": 0.0,
+      "hp_frac": 0.0,
+      "hp_max": 137.75,
+      "kind": "probe",
+      "label": "geyser_probe",
+      "last_tapped": 0,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 14.0,
+      "teleporters": []
+    },
+    {
+      "enemies_alive": 70,
+      "kills_after": 10,
+      "kills_before": 0,
+      "kind": "primary_probe",
+      "label": "primary_hold",
+      "t": 14.4994599090909
+    }
+  ],
+  "elapsed": 14.5077932424242,
+  "enemies_spawned": 4,
+  "hero_position": "(341.9167, -42.20393)",
+  "player_class": "willow",
+  "results": {
+    "alive": false,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 1,
+    "casts": [
+      {
+        "ability_id": "willow_swift_strike",
+        "t": 11.0
+      }
+    ],
+    "creep_kills": 10,
+    "died": true,
+    "errors": [],
+    "ffa": {
+      "all_bots": false,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": false,
+          "class": "willow",
+          "cpu": false,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            342.0,
+            -42.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            1291.0,
+            -482.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -1619.0,
+            525.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            154.0,
+            206.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        9600.0,
+        6800.0
+      ]
+    },
+    "gold": 39,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "willow",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "willow",
+        "gold": 12,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "willow",
+        "gold": 72,
+        "hp": 0.05,
+        "kills": 0,
+        "t": 10.15
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 6,
+    "level_upgrades": {
+      "2": [
+        "vine_tether"
+      ],
+      "3": [
+        "thorn_sprite"
+      ],
+      "4": [
+        "vine_tether"
+      ],
+      "5": [
+        "vine_tether"
+      ],
+      "6": [
+        "rapid"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 0.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "vine_tether",
+      "thorn_sprite",
+      "vine_tether",
+      "vine_tether",
+      "rapid"
+    ],
+    "until_wave": 20,
+    "verdict": "WARN_DEAD",
+    "wave": 1,
+    "xp": 84
+  },
+  "shots": [
+    {
+      "label": "start_volcano",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3097/start_volcano_0.506_3097.png",
+      "t": 0.505939
+    },
+    {
+      "label": "geyser1_telegraph",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7388/geyser1_telegraph_4.805_7388.png",
+      "t": 4.80480800000003
+    },
+    {
+      "label": "geyser1_active",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8787/geyser1_active_6.205_8787.png",
+      "t": 6.20477200000007
+    },
+    {
+      "label": "geyser2_telegraph",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13380/geyser2_telegraph_10.800_13380.png",
+      "t": 10.8
+    },
+    {
+      "label": "geyser2_active",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_14788/geyser2_active_12.201_14788.png",
+      "t": 12.2012673333334
+    },
+    {
+      "label": "geyser2_after",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_16079/geyser2_after_13.502_16079.png",
+      "t": 13.5020891515152
+    }
+  ]
+}

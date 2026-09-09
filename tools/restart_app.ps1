@@ -6,8 +6,17 @@ param(
 	[switch]$Classic,
 	[switch]$ToborWorld,
 	[switch]$Ffa,
-	[switch]$FfaBots
+	[switch]$FfaBots,
+	[string]$SelftestRequestPath = ""
 )
+
+# If a selftest request path is given, stage it and run the selftest instead of the
+# normal game window.
+if (-not [string]::IsNullOrEmpty($SelftestRequestPath)) {
+	$SelftestRunner = Join-Path $PSScriptRoot "selftest\run_selftest.ps1"
+	& $SelftestRunner -RequestPath $SelftestRequestPath
+	exit $LASTEXITCODE
+}
 
 if (-not (Test-Path $GodotExe)) {
 	Write-Error "Godot executable not found: $GodotExe"

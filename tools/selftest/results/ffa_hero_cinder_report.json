@@ -43,9 +43,137 @@
           "hint": "Grove Bell",
           "pos": "(0.0, 0.0)",
           "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
         }
       ],
-      "t": 1.03217951515152
+      "t": 1.004215
     },
     {
       "abilities": [
@@ -86,10 +214,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2881.0,
-              -1974.0
+              -2887.0,
+              -1978.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3135.0,
+              -1943.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -97,12 +238,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3311.0,
-              -2024.0
+              -2964.0,
+              2134.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -110,23 +251,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2865.0,
-              2130.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              3385.0,
-              2089.0
+              3070.0,
+              2143.0
             ],
             "team": "3"
           }
@@ -147,7 +275,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.23933133333333
+      "t": 1.204215,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -169,10 +298,10 @@
         }
       ],
       "cds": [
-        21.2263333333334,
-        24.3133333333346,
-        7.43600000000034,
-        61.7800000000013
+        21.4096666666667,
+        24.4966666666679,
+        7.48600000000034,
+        61.9633333333346
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -188,10 +317,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2319.0,
-              -1453.0
+              -2400.0,
+              -1339.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              1957.0,
+              -906.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -199,12 +341,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              2220.0,
-              -2101.0
+              -505.0,
+              842.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -212,23 +354,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2535.0,
-              2776.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              1937.0,
-              2048.0
+              -328.0,
+              1077.0
             ],
             "team": "3"
           }
@@ -240,8 +369,8 @@
         ]
       },
       "hero": "cinder",
-      "hp": 15.66,
-      "hp_frac": 0.12,
+      "hp": 24.02,
+      "hp_frac": 0.184061302681992,
       "hp_max": 130.5,
       "kind": "probe",
       "label": "ffa_mid",
@@ -249,7 +378,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.0540932222222
+      "t": 24.0055555555554,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -272,9 +402,9 @@
       ],
       "cds": [
         0.0,
-        0.846666666668001,
+        0.996666666668001,
         0.0,
-        38.313333333336
+        38.463333333336
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -290,23 +420,36 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2305.0,
-              -1461.0
+              -2272.0,
+              -2404.0
             ],
             "team": "0"
           },
           {
             "alive": true,
-            "class": "bulwark",
+            "class": "arclight",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              1865.0,
-              -1431.0
+              3583.0,
+              -635.0
             ],
             "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              302.0,
+              -34.0
+            ],
+            "team": "2"
           },
           {
             "alive": false,
@@ -314,23 +457,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -100.0,
-              144.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 1,
-            "local": false,
             "peer": 103,
             "pos": [
-              19.0,
-              221.0
+              -112.0,
+              414.0
             ],
             "team": "3"
           }
@@ -351,12 +481,13 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.5268338888892
+      "t": 47.507426666666,
+      "teleporters": []
     }
   ],
-  "elapsed": 48.0007227777781,
+  "elapsed": 48.0051393333326,
   "enemies_spawned": 0,
-  "hero_position": "(-2305.128, -1460.688)",
+  "hero_position": "(-2272.34, -2403.614)",
   "player_class": "cinder",
   "results": {
     "alive": false,
@@ -366,26 +497,26 @@
     "casts": [
       {
         "ability_id": "cinder_pillar_of_flame",
-        "t": 1.32266466666667
+        "t": 1.48023890909091
       },
       {
         "ability_id": "cinder_dragon_fire",
-        "t": 1.85698466666667
+        "t": 2.00410354545454
       },
       {
         "ability_id": "cinder_fiery_assault",
-        "t": 2.27916666666667
+        "t": 2.41287381818182
       },
       {
         "ability_id": "cinder_whirling_flame",
-        "t": 2.54453811111111
+        "t": 2.54776481818182
       },
       {
         "ability_id": "cinder_dragon_fire",
-        "t": 23.5541666666667
+        "t": 23.7137606666665
       }
     ],
-    "creep_kills": 15,
+    "creep_kills": 20,
     "died": true,
     "errors": [],
     "ffa": {
@@ -401,23 +532,36 @@
           "local": true,
           "peer": 1,
           "pos": [
-            -2305.0,
-            -1461.0
+            -2272.0,
+            -2404.0
           ],
           "team": "0"
         },
         {
           "alive": true,
-          "class": "bulwark",
+          "class": "arclight",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 101,
           "pos": [
-            1865.0,
-            -1429.0
+            3567.0,
+            -747.0
           ],
           "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            304.0,
+            -45.0
+          ],
+          "team": "2"
         },
         {
           "alive": false,
@@ -425,23 +569,10 @@
           "cpu": true,
           "kills": 0,
           "local": false,
-          "peer": 102,
-          "pos": [
-            -100.0,
-            144.0
-          ],
-          "team": "2"
-        },
-        {
-          "alive": true,
-          "class": "tobor",
-          "cpu": true,
-          "kills": 1,
-          "local": false,
           "peer": 103,
           "pos": [
-            108.0,
-            145.0
+            -112.0,
+            414.0
           ],
           "team": "3"
         }
@@ -452,7 +583,7 @@
         5600.0
       ]
     },
-    "gold": 118,
+    "gold": 63,
     "hero_kills": 0,
     "hp_samples": [
       {
@@ -461,89 +592,89 @@
         "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 0.14
+        "t": 0.15
       },
       {
         "alive": true,
         "class": "cinder",
         "gold": 0,
-        "hp": 0.91,
+        "hp": 1.0,
         "kills": 0,
-        "t": 5.17
+        "t": 5.15
       },
       {
         "alive": true,
         "class": "cinder",
-        "gold": 0,
-        "hp": 0.91,
+        "gold": 18,
+        "hp": 0.85,
         "kills": 0,
-        "t": 10.2
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "cinder",
-        "gold": 127,
-        "hp": 0.91,
+        "gold": 30,
+        "hp": 0.76,
         "kills": 0,
-        "t": 15.21
+        "t": 15.16
       },
       {
         "alive": true,
         "class": "cinder",
-        "gold": 140,
-        "hp": 0.54,
+        "gold": 60,
+        "hp": 0.45,
         "kills": 0,
-        "t": 20.25
+        "t": 20.16
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 103,
+        "hp": 0.11,
+        "kills": 0,
+        "t": 25.17
+      },
+      {
+        "alive": true,
+        "class": "cinder",
+        "gold": 119,
+        "hp": 0.11,
+        "kills": 0,
+        "t": 30.17
       },
       {
         "alive": false,
         "class": "cinder",
-        "gold": 118,
+        "gold": 63,
         "hp": 0.0,
         "kills": 0,
-        "t": 25.27
+        "t": 35.17
       },
       {
         "alive": false,
         "class": "cinder",
-        "gold": 118,
+        "gold": 63,
         "hp": 0.0,
         "kills": 0,
-        "t": 30.31
+        "t": 40.18
       },
       {
         "alive": false,
         "class": "cinder",
-        "gold": 118,
+        "gold": 63,
         "hp": 0.0,
         "kills": 0,
-        "t": 35.31
-      },
-      {
-        "alive": false,
-        "class": "cinder",
-        "gold": 118,
-        "hp": 0.0,
-        "kills": 0,
-        "t": 40.34
-      },
-      {
-        "alive": false,
-        "class": "cinder",
-        "gold": 118,
-        "hp": 0.0,
-        "kills": 0,
-        "t": 45.35
+        "t": 45.18
       }
     ],
     "landmark_saves": 0,
     "level": 3,
     "level_upgrades": {
       "2": [
-        "gale_push"
+        "rapid"
       ],
       "3": [
-        "ember_sprite"
+        "chain"
       ]
     },
     "max_hp": 1.0,
@@ -555,13 +686,13 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "gale_push",
-      "ember_sprite"
+      "rapid",
+      "chain"
     ],
     "until_wave": 20,
     "verdict": "WARN_DEAD",
     "wave": 1,
-    "xp": 40
+    "xp": 99
   },
   "shots": []
 }

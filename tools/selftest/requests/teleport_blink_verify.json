@@ -1,0 +1,22 @@
+{
+  "hero": "willow",
+  "mode": "ffa",
+  "biome": 0,
+  "comment": "Verify TELEPORT blink style: RMB windstep (TELEPORT) + Q willow_swift_strike (DASH_STRIKE, TELEPORT). Assert secondary_probe fires, ability_cast fires, no script errors.",
+  "expected_casts": ["willow_swift_strike"],
+  "time_scale": 3.0,
+  "events": [
+    {"t": 0.5, "kind": "snap", "label": "start"},
+    {"t": 1.0, "kind": "spawn", "at": [400.0, 0.0], "type": "grunt"},
+    {"t": 1.5, "kind": "primary_hold", "duration": 2.0},
+    {"t": 4.0, "kind": "secondary_hold", "duration": 0.5},
+    {"t": 5.0, "kind": "secondary_probe", "label": "post_windstep"},
+    {"t": 5.5, "kind": "snap", "label": "after_rmb_windstep"},
+    {"t": 6.0, "kind": "aim", "at": [400.0, 0.0]},
+    {"t": 6.5, "kind": "cast", "slot": 0},
+    {"t": 6.7, "kind": "cast", "slot": 0},
+    {"t": 8.0, "kind": "snap", "label": "after_q_swift_strike"},
+    {"t": 9.0, "kind": "probe", "label": "blink_probe"},
+    {"t": 10.5, "kind": "report"}
+  ]
+}

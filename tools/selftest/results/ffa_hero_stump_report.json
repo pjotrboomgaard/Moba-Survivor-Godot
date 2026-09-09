@@ -43,9 +43,137 @@
           "hint": "Grove Bell",
           "pos": "(0.0, 0.0)",
           "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
         }
       ],
-      "t": 1.04242424242424
+      "t": 1.000544
     },
     {
       "abilities": [
@@ -70,7 +198,7 @@
         0.0,
         0.0,
         0.0,
-        176.256666666666
+        0.0
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -86,10 +214,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2972.0,
-              -2173.0
+              -2925.0,
+              -2000.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3311.0,
+              -1971.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -97,12 +238,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3202.0,
-              -2085.0
+              -2939.0,
+              2144.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -110,23 +251,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2883.0,
-              2152.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              3369.0,
-              2080.0
+              3081.0,
+              1984.0
             ],
             "team": "3"
           }
@@ -147,7 +275,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.21228956228956
+      "t": 1.20057966666666,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -169,10 +298,10 @@
         }
       ],
       "cds": [
-        31.1100000000013,
-        6.26800000000032,
-        15.6720000000011,
-        153.456666666648
+        32.4433333333345,
+        7.86800000000032,
+        14.3386666666677,
+        154.656666666649
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -188,10 +317,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2700.0,
-              -2339.0
+              -1785.0,
+              -2292.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3942.0,
+              -1064.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -199,12 +341,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3027.0,
-              -2369.0
+              -1239.0,
+              721.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -212,23 +354,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2743.0,
-              922.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              3000.0,
-              79.0
+              1047.0,
+              1982.0
             ],
             "team": "3"
           }
@@ -240,16 +369,17 @@
         ]
       },
       "hero": "stump",
-      "hp": 299.3992,
-      "hp_frac": 0.869083309143686,
-      "hp_max": 344.5,
+      "hp": 71.0471999999999,
+      "hp_frac": 0.233324137931034,
+      "hp_max": 304.5,
       "kind": "probe",
       "label": "ffa_mid",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.0019446666667
+      "t": 24.0030143333328,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -271,10 +401,10 @@
         }
       ],
       "cds": [
-        7.61000000000175,
-        27.0346666666668,
-        33.5053333333334,
-        129.95666666663
+        8.94333333333513,
+        0.0,
+        0.0,
+        131.15666666663
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -283,17 +413,30 @@
         "enabled": true,
         "heroes": [
           {
-            "alive": true,
+            "alive": false,
             "class": "stump",
             "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              -321.0,
-              -198.0
+              -1651.0,
+              -2334.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3511.0,
+              -1451.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -301,12 +444,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              2672.0,
-              -660.0
+              -1101.0,
+              41.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -314,23 +457,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -215.0,
-              -187.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              2697.0,
-              -318.0
+              -343.0,
+              7.0
             ],
             "team": "3"
           }
@@ -342,55 +472,48 @@
         ]
       },
       "hero": "stump",
-      "hp": 241.372,
-      "hp_frac": 0.700644412191581,
-      "hp_max": 344.5,
+      "hp": 0.0,
+      "hp_frac": 0.0,
+      "hp_max": 329.5,
       "kind": "probe",
       "label": "ffa_end",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.5134116666668
+      "t": 47.5000096666648,
+      "teleporters": []
     }
   ],
-  "elapsed": 48.0291666666668,
+  "elapsed": 48.0048763333315,
   "enemies_spawned": 0,
-  "hero_position": "(-283.7873, -187.5527)",
+  "hero_position": "(-1651.118, -2334.234)",
   "player_class": "stump",
   "results": {
-    "alive": true,
+    "alive": false,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 6,
+    "cast_count": 4,
     "casts": [
       {
         "ability_id": "stump_overgrowth",
-        "t": 0.784075666666667
+        "t": 2.01177964454064
       },
       {
         "ability_id": "stump_natures_rally",
-        "t": 1.33956228956229
+        "t": 2.675684
       },
       {
         "ability_id": "stump_root_charge",
-        "t": 1.72407407407407
+        "t": 3.34581366666667
       },
       {
         "ability_id": "stump_camouflage",
-        "t": 4.778267
-      },
-      {
-        "ability_id": "stump_root_charge",
-        "t": 45.9803030303032
-      },
-      {
-        "ability_id": "stump_camouflage",
-        "t": 46.1077790000001
+        "t": 3.47636490909091
       }
     ],
-    "creep_kills": 75,
-    "died": false,
+    "creep_kills": 39,
+    "died": true,
     "errors": [],
     "ffa": {
       "all_bots": true,
@@ -398,17 +521,30 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": true,
+          "alive": false,
           "class": "stump",
           "cpu": true,
           "kills": 0,
           "local": true,
           "peer": 1,
           "pos": [
-            -284.0,
-            -188.0
+            -1651.0,
+            -2334.0
           ],
           "team": "0"
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            3494.0,
+            -1412.0
+          ],
+          "team": "1"
         },
         {
           "alive": true,
@@ -416,12 +552,12 @@
           "cpu": true,
           "kills": 0,
           "local": false,
-          "peer": 101,
+          "peer": 102,
           "pos": [
-            2681.0,
-            -660.0
+            -1101.0,
+            40.0
           ],
-          "team": "1"
+          "team": "2"
         },
         {
           "alive": true,
@@ -429,23 +565,10 @@
           "cpu": true,
           "kills": 0,
           "local": false,
-          "peer": 102,
-          "pos": [
-            -131.0,
-            -181.0
-          ],
-          "team": "2"
-        },
-        {
-          "alive": true,
-          "class": "tobor",
-          "cpu": true,
-          "kills": 0,
-          "local": false,
           "peer": 103,
           "pos": [
-            2728.0,
-            -185.0
+            -337.0,
+            15.0
           ],
           "team": "3"
         }
@@ -456,7 +579,7 @@
         5600.0
       ]
     },
-    "gold": 516,
+    "gold": 144,
     "hero_kills": 0,
     "hp_samples": [
       {
@@ -465,102 +588,99 @@
         "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 0.14
+        "t": 0.15
       },
       {
         "alive": true,
         "class": "stump",
-        "gold": 6,
+        "gold": 24,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.16
+        "t": 5.15
       },
       {
         "alive": true,
         "class": "stump",
-        "gold": 18,
-        "hp": 0.94,
+        "gold": 110,
+        "hp": 0.98,
         "kills": 0,
-        "t": 10.17
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "stump",
-        "gold": 68,
-        "hp": 0.9,
-        "kills": 0,
-        "t": 15.21
-      },
-      {
-        "alive": true,
-        "class": "stump",
-        "gold": 190,
-        "hp": 0.85,
-        "kills": 0,
-        "t": 20.25
-      },
-      {
-        "alive": true,
-        "class": "stump",
-        "gold": 248,
+        "gold": 118,
         "hp": 0.87,
         "kills": 0,
-        "t": 25.26
+        "t": 15.16
       },
       {
         "alive": true,
         "class": "stump",
-        "gold": 299,
-        "hp": 0.78,
+        "gold": 134,
+        "hp": 0.51,
         "kills": 0,
-        "t": 30.28
+        "t": 20.17
       },
       {
         "alive": true,
         "class": "stump",
-        "gold": 446,
-        "hp": 0.73,
+        "gold": 256,
+        "hp": 0.19,
         "kills": 0,
-        "t": 35.31
+        "t": 25.18
       },
       {
-        "alive": true,
+        "alive": false,
         "class": "stump",
-        "gold": 486,
-        "hp": 0.7,
+        "gold": 144,
+        "hp": 0.0,
         "kills": 0,
-        "t": 40.33
+        "t": 30.18
       },
       {
-        "alive": true,
+        "alive": false,
         "class": "stump",
-        "gold": 486,
-        "hp": 0.7,
+        "gold": 144,
+        "hp": 0.0,
         "kills": 0,
-        "t": 45.35
+        "t": 35.18
+      },
+      {
+        "alive": false,
+        "class": "stump",
+        "gold": 144,
+        "hp": 0.0,
+        "kills": 0,
+        "t": 40.19
+      },
+      {
+        "alive": false,
+        "class": "stump",
+        "gold": 144,
+        "hp": 0.0,
+        "kills": 0,
+        "t": 45.19
       }
     ],
     "landmark_saves": 0,
-    "level": 6,
+    "level": 5,
     "level_upgrades": {
       "2": [
-        "depth"
+        "flow"
       ],
       "3": [
         "flow"
       ],
       "4": [
-        "ironhide"
+        "thorn_sprite"
       ],
       "5": [
-        "blast"
-      ],
-      "6": [
-        "shatter"
+        "vitality"
       ]
     },
     "max_hp": 1.0,
-    "min_hp": 0.700644412191581,
+    "min_hp": 0.0,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 0,
@@ -568,16 +688,15 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "depth",
       "flow",
-      "ironhide",
-      "blast",
-      "shatter"
+      "flow",
+      "thorn_sprite",
+      "vitality"
     ],
     "until_wave": 20,
-    "verdict": "PASS_OK",
+    "verdict": "WARN_DEAD",
     "wave": 1,
-    "xp": 74
+    "xp": 53
   },
   "shots": []
 }

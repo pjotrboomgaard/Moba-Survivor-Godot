@@ -43,9 +43,137 @@
           "hint": "Grove Bell",
           "pos": "(0.0, 0.0)",
           "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": true
         }
       ],
-      "t": 1.01666666666667
+      "t": 1.00776133333333
     },
     {
       "abilities": [
@@ -63,7 +191,7 @@
         },
         {
           "id": "sage_charm",
-          "rank": 3
+          "rank": 1
         }
       ],
       "cds": [
@@ -86,10 +214,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2914.0,
-              -2192.0
+              -2917.0,
+              -2190.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              3128.0,
+              -1946.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -97,12 +238,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3209.0,
-              -2126.0
+              -2911.0,
+              2121.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -110,23 +251,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -2996.0,
-              2226.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              3304.0,
-              2159.0
+              3062.0,
+              2020.0
             ],
             "team": "3"
           }
@@ -147,7 +275,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.225699
+      "t": 1.20776133333333,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -165,14 +294,14 @@
         },
         {
           "id": "sage_charm",
-          "rank": 3
+          "rank": 1
         }
       ],
       "cds": [
-        16.810000000001,
-        13.8743333333339,
-        32.0633333333341,
-        154.943333333322
+        20.5766666666675,
+        13.9076666666672,
+        32.0966666666675,
+        154.976666666656
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -188,10 +317,23 @@
             "local": true,
             "peer": 1,
             "pos": [
-              -2616.0,
-              -2752.0
+              -107.0,
+              -1883.0
             ],
             "team": "0"
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              1859.0,
+              22.0
+            ],
+            "team": "1"
           },
           {
             "alive": true,
@@ -199,12 +341,12 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 101,
+            "peer": 102,
             "pos": [
-              3770.0,
-              -2013.0
+              -1091.0,
+              661.0
             ],
-            "team": "1"
+            "team": "2"
           },
           {
             "alive": true,
@@ -212,23 +354,10 @@
             "cpu": true,
             "kills": 0,
             "local": false,
-            "peer": 102,
-            "pos": [
-              -4182.0,
-              1606.0
-            ],
-            "team": "2"
-          },
-          {
-            "alive": true,
-            "class": "tobor",
-            "cpu": true,
-            "kills": 0,
-            "local": false,
             "peer": 103,
             "pos": [
-              2248.0,
-              1936.0
+              -858.0,
+              2334.0
             ],
             "team": "3"
           }
@@ -249,7 +378,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 24.041298
+      "t": 24.003345151515,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -267,14 +397,14 @@
         },
         {
           "id": "sage_charm",
-          "rank": 3
+          "rank": 1
         }
       ],
       "cds": [
-        27.9933333333337,
         0.0,
-        8.58000000000134,
-        131.45999999997
+        18.3076666666672,
+        8.59666666666801,
+        131.476666666637
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -286,51 +416,51 @@
             "alive": true,
             "class": "sage",
             "cpu": true,
-            "kills": 0,
+            "kills": 2,
             "local": true,
             "peer": 1,
             "pos": [
-              -1960.0,
-              -2353.0
+              422.0,
+              92.0
             ],
             "team": "0"
           },
           {
             "alive": true,
-            "class": "bulwark",
+            "class": "arclight",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              3084.0,
-              -1618.0
+              1754.0,
+              302.0
             ],
             "team": "1"
           },
           {
-            "alive": true,
-            "class": "warden",
+            "alive": false,
+            "class": "bulwark",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 102,
             "pos": [
-              231.0,
-              -215.0
+              -222.0,
+              213.0
             ],
             "team": "2"
           },
           {
-            "alive": true,
-            "class": "tobor",
+            "alive": false,
+            "class": "warden",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              130.0,
-              -38.0
+              -291.0,
+              458.0
             ],
             "team": "3"
           }
@@ -342,8 +472,8 @@
         ]
       },
       "hero": "sage",
-      "hp": 156.095000000001,
-      "hp_frac": 0.828090185676398,
+      "hp": 135.607694444445,
+      "hp_frac": 0.719404214559388,
       "hp_max": 188.5,
       "kind": "probe",
       "label": "ffa_end",
@@ -351,12 +481,13 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 47.521141
+      "t": 47.5017631111108,
+      "teleporters": []
     }
   ],
-  "elapsed": 48.0,
+  "elapsed": 48.0023596666664,
   "enemies_spawned": 0,
-  "hero_position": "(-1956.036, -2357.314)",
+  "hero_position": "(383.1262, 55.75926)",
   "player_class": "sage",
   "results": {
     "alive": true,
@@ -366,26 +497,26 @@
     "casts": [
       {
         "ability_id": "sage_petal_dance",
-        "t": 6.275
+        "t": 10.009446
       },
       {
         "ability_id": "sage_volatile_pod",
-        "t": 10.0095238095238
+        "t": 10.009446
       },
       {
         "ability_id": "sage_grace",
-        "t": 10.0095238095238
+        "t": 10.009446
       },
       {
         "ability_id": "sage_charm",
-        "t": 10.0095238095238
+        "t": 10.009446
       },
       {
-        "ability_id": "sage_petal_dance",
-        "t": 40.9458434848485
+        "ability_id": "sage_volatile_pod",
+        "t": 37.9119043333328
       }
     ],
-    "creep_kills": 63,
+    "creep_kills": 36,
     "died": false,
     "errors": [],
     "ffa": {
@@ -397,51 +528,51 @@
           "alive": true,
           "class": "sage",
           "cpu": true,
-          "kills": 0,
+          "kills": 2,
           "local": true,
           "peer": 1,
           "pos": [
-            -1956.0,
-            -2357.0
+            383.0,
+            56.0
           ],
           "team": "0"
         },
         {
           "alive": true,
-          "class": "bulwark",
+          "class": "arclight",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 101,
           "pos": [
-            3084.0,
-            -1618.0
+            1668.0,
+            316.0
           ],
           "team": "1"
         },
         {
-          "alive": true,
-          "class": "warden",
+          "alive": false,
+          "class": "bulwark",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 102,
           "pos": [
-            173.0,
-            -273.0
+            -222.0,
+            213.0
           ],
           "team": "2"
         },
         {
-          "alive": true,
-          "class": "tobor",
+          "alive": false,
+          "class": "warden",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 103,
           "pos": [
-            129.0,
-            -38.0
+            -291.0,
+            458.0
           ],
           "team": "3"
         }
@@ -452,8 +583,8 @@
         5600.0
       ]
     },
-    "gold": 329,
-    "hero_kills": 0,
+    "gold": 484,
+    "hero_kills": 2,
     "hp_samples": [
       {
         "alive": true,
@@ -469,82 +600,97 @@
         "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.17
+        "t": 5.15
       },
       {
         "alive": true,
         "class": "sage",
-        "gold": 70,
+        "gold": 12,
         "hp": 1.0,
         "kills": 0,
-        "t": 10.21
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "sage",
-        "gold": 120,
+        "gold": 36,
         "hp": 1.0,
         "kills": 0,
-        "t": 15.22
+        "t": 15.16
       },
       {
         "alive": true,
         "class": "sage",
-        "gold": 159,
-        "hp": 0.96,
-        "kills": 0,
-        "t": 20.23
-      },
-      {
-        "alive": true,
-        "class": "sage",
-        "gold": 199,
+        "gold": 46,
         "hp": 1.0,
         "kills": 0,
-        "t": 25.23
+        "t": 20.17
       },
       {
         "alive": true,
         "class": "sage",
-        "gold": 214,
-        "hp": 0.98,
+        "gold": 46,
+        "hp": 1.0,
         "kills": 0,
-        "t": 30.27
+        "t": 25.17
       },
       {
         "alive": true,
         "class": "sage",
-        "gold": 255,
-        "hp": 0.96,
+        "gold": 109,
+        "hp": 0.89,
         "kills": 0,
-        "t": 35.3
+        "t": 30.17
       },
       {
         "alive": true,
         "class": "sage",
-        "gold": 268,
-        "hp": 0.86,
+        "gold": 128,
+        "hp": 1.0,
         "kills": 0,
-        "t": 40.34
+        "t": 35.18
       },
       {
         "alive": true,
         "class": "sage",
-        "gold": 305,
-        "hp": 0.94,
+        "gold": 225,
+        "hp": 0.41,
         "kills": 0,
-        "t": 45.38
+        "t": 40.18
+      },
+      {
+        "alive": true,
+        "class": "sage",
+        "gold": 1711,
+        "hp": 0.69,
+        "kills": 2,
+        "t": 45.19
       }
     ],
     "landmark_saves": 0,
-    "level": 4,
+    "level": 7,
     "level_upgrades": {
+      "2": [
+        "heartbeat"
+      ],
       "3": [
-        "push_drone"
+        "boots"
+      ],
+      "4": [
+        "boots"
+      ],
+      "5": [
+        "thorn_sprite"
+      ],
+      "6": [
+        "vine_tether"
+      ],
+      "7": [
+        "flow"
       ]
     },
     "max_hp": 1.0,
-    "min_hp": 0.798514588859422,
+    "min_hp": 0.408324049513706,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 0,
@@ -552,12 +698,17 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "push_drone"
+      "heartbeat",
+      "boots",
+      "boots",
+      "thorn_sprite",
+      "vine_tether",
+      "flow"
     ],
     "until_wave": 20,
-    "verdict": "PASS_OK",
+    "verdict": "PASS_KILLS",
     "wave": 1,
-    "xp": 110
+    "xp": 52
   },
   "shots": []
 }

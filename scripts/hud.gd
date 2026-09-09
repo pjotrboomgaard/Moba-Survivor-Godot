@@ -162,6 +162,7 @@ const SECONDARY_NAMES := {
 
 
 func _ready() -> void:
+	add_to_group("hud")
 	for index in choice_buttons.size():
 		var choice_button := choice_buttons[index]
 		choice_button.pressed.connect(_on_upgrade_selected.bind(index))
@@ -947,9 +948,11 @@ func _refresh_bossform_ability_icons() -> void:
 
 
 func _build_aim_reticle() -> void:
-	# The reticle is now a native custom mouse cursor (see AimReticle.bake_cursor).
-	# No Control node is created — the engine blits the cursor texture itself.
+	# Screen-space reticle on its own CanvasLayer so it always renders on top and
+	# is not affected by world camera zoom / canvas_items stretch quirks.
 	aim_reticle = AimReticle.new()
+	var reticle := aim_reticle as AimReticle
+	reticle.add_to_tree(self)
 
 
 func _refresh_aim_reticle() -> void:
@@ -957,21 +960,33 @@ func _refresh_aim_reticle() -> void:
 	var show := bound_player != null and bound_player.is_local_player and not menus_open
 	if aim_reticle != null:
 		var reticle := aim_reticle as AimReticle
-		if bound_player != null:
+		reticle.set_visible(show)
+		if bound_player != null and show:
 			reticle.accent = bound_player.accent_color
 			var charging: bool = bool(bound_player.get("_charge_firing"))
 			var charge_t: float = bound_player._shot_charge if charging else bound_player._charge_t()
 			reticle.charge_t = charge_t
-			reticle.show_charge = show and (charge_t > 0.0 or charging)
+			reticle.show_charge = charge_t > 0.0 or charging
 		# Re-bake the cursor texture only when the quantized charge step or accent
 		# actually changed (bake_cursor is a no-op otherwise).
 		if show:
 			reticle.bake_cursor()
-		else:
-			# Hide the custom cursor and fall back to the system arrow when the
-			# reticle is not shown (menus open, game over, etc.).
-			Input.set_custom_mouse_cursor(null)
+		# Follow the mouse every frame — cheap single CanvasItem position update.
+		# The HUD is a CanvasLayer (stretched viewport), so convert the window-space
+		# mouse into this layer's canvas coords so the reticle tracks the pointer.
+		reticle.update_position(_mouse_canvas_position())
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN if show else Input.MOUSE_MODE_VISIBLE
+
+
+## Mouse position in this CanvasLayer's canvas coordinates. DisplayServer gives us the
+## window (OS) pixel position; the HUD layer draws in the stretched-viewport space, so
+## scale by the ratio of the layer's canvas size to the window size. Under
+## canvas_items stretch the HUD canvas is the design viewport (e.g. 1280x720).
+func _mouse_canvas_position() -> Vector2:
+	# get_mouse_position() already returns the pointer in the viewport's canvas
+	# coordinates, which is exactly the space this stretched HUD CanvasLayer draws
+	# in. No window-to-canvas scaling needed under canvas_items stretch.
+	return get_viewport().get_mouse_position()
 
 
 func _exit_tree() -> void:
@@ -1651,7 +1666,11 @@ func _is_window_fullscreen() -> bool:
 		or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
 
 
-## Applies the chosen resolution while keeping the visible world area constant.
+## Applies the chosen resolution. With canvas_items stretch the design viewport
+## (1280×720) is constant — the engine scales the stretched canvas to fill the
+## window, so neither the HUD nor the camera need any adjustment. We simply
+## resize the window (or go fullscreen) and the visible world area stays
+## identical because the camera zoom is unchanged.
 func apply_resolution(size: Vector2, fullscreen: bool) -> void:
 	if fullscreen:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
@@ -1659,34 +1678,6 @@ func apply_resolution(size: Vector2, fullscreen: bool) -> void:
 		if _is_window_fullscreen():
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 		DisplayServer.window_set_size(size)
-
-	# Keep the same visible world area: scale every live player camera's zoom by
-	# (new_width / old_width). The HUD is on a stretched CanvasLayer so it scales
-	# on its own and needs no adjustment.
-	var old_width := maxf(1.0, float(get_viewport().get_visible_rect().size.x))
-	var new_width := float(size.x) if not fullscreen else old_width
-	if fullscreen:
-		var screen_size := DisplayServer.window_get_size()
-		new_width = maxf(1.0, screen_size.x)
-	var ratio := new_width / old_width
-	if absf(ratio - 1.0) < 0.0001:
-		return
-	# Wait one frame so the viewport has picked up the new size before we read
-	# the cameras (cameras are children of the player CharacterBody2D nodes).
-	await get_tree().process_frame
-	var players_group: Array = get_tree().get_nodes_in_group("players")
-	for node in players_group:
-		if not node is Player or not is_instance_valid(node):
-			continue
-		var player := node as Player
-		if player.camera == null or not player.is_local_player:
-			continue
-		var old_zoom: Vector2 = player.camera.zoom
-		var new_zoom := old_zoom * ratio
-		player.camera.zoom = Vector2(maxf(0.05, new_zoom.x), maxf(0.05, new_zoom.y))
-	# Sync the project-setting viewport size so the next launch also starts at
-	# the chosen resolution (best effort — project settings are read-only at
-	# runtime, but we can at least keep the picker state consistent).
 	_sync_resolution_option()
 
 
@@ -2065,21 +2056,44 @@ func _clear_choice_rarity(button: Button) -> void:
 
 
 class AimReticle:
-	## Native custom mouse cursor. Instead of a Control that redraws its full canvas
-	## every frame (expensive under canvas_items stretch), we pre-render the reticle
-	## once to a Texture2D and hand it to Input.set_custom_mouse_cursor(). The engine
-	## blits it natively at the OS cursor position — zero per-frame game work.
-	##
-	## charge_t / show_charge are still tracked so a charge indicator bar can be
-	## composited in when the player is charging; the cursor texture is re-baked
-	## only when the charge state actually changes.
+	## Screen-space reticle drawn on a dedicated CanvasLayer. Instead of relying on
+	## Input.set_custom_mouse_cursor (unreliable under the mobile renderer + canvas_items
+	## stretch), we draw the reticle in world-independent canvas coordinates at the mouse
+	## position. Only one small CanvasItem redraws; the texture is re-baked only when the
+	## charge state actually changes (quantized to 24 steps).
 	var accent := Color(0.95, 0.95, 0.98, 0.95)
 	var charge_t := 0.0
 	var show_charge := false
+	var layer: CanvasLayer
+	var _sprite: Sprite2D
 	var _cursor_tex: Texture2D = null
 	## Quantized step that triggers a re-bake. 0..24 maps to 0..1.0 charge.
 	var _cursor_step := -1
 	var _cursor_accent: Color = Color.BLACK
+
+	func _init() -> void:
+		layer = CanvasLayer.new()
+		layer.name = "AimReticleLayer"
+		layer.layer = 100
+		_sprite = Sprite2D.new()
+		_sprite.name = "ReticleSprite"
+		_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_sprite.position = Vector2.ZERO
+		layer.add_child(_sprite)
+
+	func add_to_tree(host: Node) -> void:
+		host.add_child(layer)
+
+	func update_position(mouse_canvas_pos: Vector2) -> void:
+		if _sprite == null:
+			return
+		# mouse_canvas_pos is already in the stretched viewport's canvas coords,
+		# so the CanvasLayer blits the reticle exactly under the pointer.
+		_sprite.position = mouse_canvas_pos
+
+	func set_visible(visible: bool) -> void:
+		if layer != null:
+			layer.visible = visible
 
 	func bake_cursor() -> void:
 		# Quantize charge to 24 visible steps so we only re-bake the texture when
@@ -2094,8 +2108,10 @@ class AimReticle:
 		var img := _render_reticle_image()
 		var tex := ImageTexture.create_from_image(img)
 		_cursor_tex = tex
-		# Hotspot at the reticle center (24,24) so the crosshair lines up with the pointer.
-		Input.set_custom_mouse_cursor(_cursor_tex, Input.CURSOR_ARROW, Vector2(24.0, 24.0))
+		_sprite.texture = tex
+		# Center the sprite on the mouse: offset by half the texture size so the
+		# reticle's visual center (24,24 in the 48x64 image) aligns with the pointer.
+		_sprite.centered = true
 
 
 	## Renders the reticle to a 48×64 RGBA image (transparent background).

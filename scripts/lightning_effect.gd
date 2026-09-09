@@ -88,6 +88,12 @@ func _draw() -> void:
 			var half_angle := deg_to_rad(points[1].y if points[1].y > 0.0 else PlayerClass.CONE_HALF_ANGLE_DEGREES)
 			var facing := (points[2] - points[0]) if points.size() >= 3 else Vector2.RIGHT
 			_draw_arc_wedge(points[0], radius, facing, half_angle, effect_alpha)
+		PlayerClass.EffectStyle.TELEPORT:
+			# points: [origin, destination], optional Vector2(radius, 0) at index 2.
+			var origin := points[0]
+			var dest := points[1]
+			var ring_r := points[2].x if points.size() >= 3 else 48.0
+			_draw_teleport(origin, dest, ring_r, effect_alpha)
 		_:
 			for segment_index in range(points.size() - 1):
 				var color := main_color if segment_index == 0 else chain_color
@@ -258,6 +264,80 @@ func _draw_default_shatter(from: Vector2, impact: Vector2, shatter_r: float, alp
 	var impact_color := chain_color
 	impact_color.a *= alpha * 0.55
 	draw_circle(impact, shatter_r * 0.22, impact_color)
+
+
+## Blink/teleport visual: a vanish ring at the origin that shrinks and fades,
+## a short streak of motion between the two points, and an appear ring at the
+## destination that grows and fades. Themed per hero via the class's main/chain
+## colors and style_tag (the same palette the rest of the kit already uses).
+func _draw_teleport(origin: Vector2, dest: Vector2, ring_r: float, alpha: float) -> void:
+	var t := clampf(elapsed / maxf(lifetime, 0.001), 0.0, 1.0)
+	var dir := dest - origin
+	var len := dir.length()
+	var steps := 14
+	# Vanish ring at origin: expands quickly then fades out in the first half.
+	# Flavor per style_tag: fire gets flickering petals, storm gets arc flicker,
+	# arcane gets orbiting ticks, nature gets a vine ring, steam a gear tick.
+	var vanish_t := clampf(t / 0.4, 0.0, 1.0)
+	var vanish_alpha := alpha * (1.0 - vanish_t)
+	var vanish_r := ring_r * (0.35 + vanish_t * 0.85)
+	var vanish_col := main_color
+	vanish_col.a *= vanish_alpha
+	if style_tag == "fire" or style_tag == "steam":
+		for p in range(6):
+			var a := TAU * float(p) / 6.0 + vanish_t * 2.0
+			var flicker := 0.7 + 0.3 * _noise(p + int(vanish_t * 10.0))
+			var r0 := vanish_r * 0.45
+			var r1 := vanish_r * (0.8 + 0.2 * flicker)
+			var c0 := origin + Vector2.from_angle(a) * r0
+			var c1 := origin + Vector2.from_angle(a + 0.22) * r1
+			draw_line(c0, c1, vanish_col, 3.0)
+	elif style_tag == "storm":
+		for p in range(4):
+			var a := TAU * float(p) / 4.0 + vanish_t * 3.5
+			var flick := 0.6 + 0.4 * _noise(p + 40)
+			var c0 := origin + Vector2.from_angle(a) * (vanish_r * 0.3)
+			var c1 := origin + Vector2.from_angle(a + 0.15) * (vanish_r * flick)
+			draw_line(c0, c1, vanish_col, 2.6)
+	elif style_tag == "arcane":
+		for p in range(8):
+			var a := TAU * float(p) / 8.0 + vanish_t * 1.5
+			var c0 := origin + Vector2.from_angle(a) * (vanish_r * 0.55)
+			var c1 := origin + Vector2.from_angle(a) * (vanish_r * 0.85)
+			draw_line(c0, c1, vanish_col, 2.0)
+	elif style_tag == "nature":
+		draw_arc(origin, vanish_r, 0.0, TAU, steps, vanish_col, 2.2)
+		draw_arc(origin, vanish_r * 0.55, TAU * 0.15, TAU * 0.85, 10, vanish_col, 1.4)
+	else:
+		draw_arc(origin, vanish_r, 0.0, TAU, steps, vanish_col, 2.4)
+	# Core spark at origin that collapses into the player.
+	var spark_col := main_color
+	spark_col.a *= vanish_alpha * 0.5
+	draw_circle(origin, ring_r * 0.18 * (1.0 - vanish_t), spark_col)
+	# Motion streak: a few fading segments tracing the travel path.
+	var streak_count := maxi(3, int(ceil(len / 46.0)))
+	for i in streak_count:
+		var s := float(i) / float(streak_count)
+		var seg_t := clampf((t - s * 0.5) / 0.5, 0.0, 1.0)
+		if seg_t <= 0.0:
+			continue
+		var from := origin + dir * s
+		var to := origin + dir * (s + 0.12)
+		var col := chain_color
+		col.a *= alpha * 0.6 * (1.0 - absf(seg_t - 0.5) * 1.2)
+		if col.a > 0.0:
+			_draw_styled_line(from, to, col, 2.6, i, 1.0)
+	# Appear ring at destination: grows and fades in the second half.
+	var appear_t := clampf((t - 0.45) / 0.55, 0.0, 1.0)
+	var appear_alpha := alpha * appear_t * (1.0 - appear_t * 0.35)
+	if appear_alpha > 0.01:
+		var appear_r := ring_r * (0.2 + appear_t * 0.95)
+		var appear_col := main_color
+		appear_col.a *= appear_alpha
+		draw_arc(dest, appear_r, 0.0, TAU, steps, appear_col, 3.0)
+		var inner := chain_color
+		inner.a *= appear_alpha * 0.5
+		draw_arc(dest, appear_r * 0.6, 0.0, TAU, steps, inner, 1.6)
 
 
 func _draw_arc_wedge(center: Vector2, radius: float, facing: Vector2, half_angle: float, alpha: float) -> void:

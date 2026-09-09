@@ -977,13 +977,14 @@ func _begin_boss_pattern() -> void:
 			_emit_cross_lines(strike_damage)
 			pattern_cooldown = 2.05 - 0.2 * float(boss_phase - 1)
 		"storm":
-			# Storm already stacks a full slam volley on top of cross lines, so it doesn't
-			# also need more slam shots than the plain "slam" pattern gets — doubling both
-			# axes at once was stacking too many simultaneous hazards for one solo target
-			# to have any dodge lane through.
+			# Storm keeps its signature stack (slam volley + cross lines), but the cross
+			# lines are trimmed down: only the two base lines (toward + perpendicular, no
+			# diagonals at phase 3+) and a capped length so the screen isn't wallpapered.
+			# The full slam volley on top of four screen-filling 7200-unit diagonals left
+			# no dodge lane for one solo target.
 			slam_shots_left = 1 + boss_phase
 			slam_shot_gap = 0.0
-			_emit_cross_lines(strike_damage)
+			_emit_cross_lines(strike_damage, true)
 			pattern_cooldown = 1.7
 		"volley":
 			projectile_count = _base_projectile_count + boss_phase * 3
@@ -1087,18 +1088,22 @@ func _emit_player_slam() -> void:
 		})
 
 
-func _emit_cross_lines(strike_damage: float) -> void:
+func _emit_cross_lines(strike_damage: float, trimmed := false) -> void:
 	var toward := 0.0 if target == null else global_position.direction_to(target.global_position).angle()
 	var angles: Array[float] = [toward, toward + PI * 0.5]
-	if boss_phase >= 3:
+	if boss_phase >= 3 and not trimmed:
 		angles.append(toward + PI * 0.25)
 		angles.append(toward - PI * 0.25)
+	# 7200 units spanned the entire arena and, combined with the slam volley stacked on
+	# top by the "storm" pattern, left nothing to dodge into. The capped length keeps the
+	# cross lines clearly visible without filling the screen.
+	var line_length := 2400.0 if trimmed else 7200.0
 	for angle in angles:
 		_emit_hazard({
 			"kind": "line",
 			"origin": global_position,
 			"angle": angle,
-			"length": 7200.0,
+			"length": line_length,
 			"width": 74.0 + 8.0 * float(boss_phase),
 			"telegraph": 0.95,
 			"active": 0.32,
@@ -1616,7 +1621,14 @@ func _any_player_within_far_cull() -> bool:
 		if not is_instance_valid(candidate) or not candidate is Player:
 			continue
 		var p := candidate as Player
-		if not p.active or p.is_phase_cloaked() or p.in_boss_form:
+		# In FFA, a dead player still counts for culling so enemies remain visible
+		# on screen during the respawn countdown.
+		if not p.active:
+			if GameRuntime.is_ffa():
+				if global_position.distance_squared_to(p.global_position) <= r2:
+					return true
+			continue
+		if p.is_phase_cloaked() or p.in_boss_form:
 			continue
 		if global_position.distance_squared_to(p.global_position) <= r2:
 			return true

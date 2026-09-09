@@ -129,9 +129,18 @@ func _ready() -> void:
 	if _time_scale > 1.0:
 		Engine.time_scale = _time_scale
 		print("[SelfTestDriver] lightning mode: Engine.time_scale=%s" % str(_time_scale))
-	# Solo kit-dry must not spawn CPU allies. FFA already spawned its four-bot roster
-	# before this driver attaches — leave fill_cpu_allies alone so wave scaling stays FFA.
-	if not GameRuntime.is_ffa():
+	# Solo kit-dry must not spawn CPU allies. FFA needs a 4-player roster — but if
+	# GameRuntime hasn't switched to FFA yet (driver boots before main.gd's OFFLINE
+	# block finishes), force-fill the 3 CPU bots ourselves so _score_ffa sees all 4.
+	if not GameRuntime.is_ffa() and _ffa:
+		GameRuntime.team_mode = GameRuntime.TeamMode.FFA
+		GameRuntime.fill_cpu_allies = true
+		# Spawn the 3 CPU rivals directly (main.gd already spawned the local player).
+		var cpu_peer := 101
+		for _index in 3:
+			_host_main._create_player(cpu_peer, Player.SimulationMode.CPU, false, GameRuntime.ffa_class_for_peer(cpu_peer))
+			cpu_peer += 1
+	elif not GameRuntime.is_ffa():
 		GameRuntime.fill_cpu_allies = false
 	GameRuntime.biome_locked = false
 	if _biome >= 0:
@@ -273,6 +282,11 @@ func _physics_process(_delta: float) -> void:
 		var sep_calls := int(sep_stats.get("calls", 0))
 		var sep_candidates := int(sep_stats.get("candidates", 0))
 		var sep_avg := (float(sep_candidates) / float(sep_calls)) if sep_calls > 0 else 0.0
+		# TEMP: node-type breakdown to find the per-world object-count bottleneck.
+		var by_type := {}
+		for n in get_tree().root.get_children():
+			_count_nodes_by_type(n, by_type)
+		print("[nodebreakdown] ", by_type)
 		print("[perf] t=%.1f fps=%d proc_ms=%.2f phys_ms=%.2f objects=%d nodes=%d enemies=%d sep_calls=%d sep_avg=%.1f paused=%s" % [
 			_elapsed,
 			Engine.get_frames_per_second(),
@@ -286,6 +300,14 @@ func _physics_process(_delta: float) -> void:
 			str(get_tree().paused),
 		])
 		_debug_last_phys = _elapsed
+
+## TEMP: count live nodes grouped by class name to find object-count hotspots.
+func _count_nodes_by_type(node: Node, by_type: Dictionary) -> void:
+	var key := node.get_class()
+	by_type[key] = int(by_type.get(key, 0)) + 1
+	for child in node.get_children():
+		_count_nodes_by_type(child, by_type)
+
 
 func _process(delta: float) -> void:
 	if get_tree().paused:
@@ -790,16 +812,17 @@ func _pick_upgrade_index(index: int) -> void:
 ## that a resolution change rescaled the camera to keep the visible world area
 ## constant.
 func _record_resolution_probe(label: String) -> void:
-	var cam: Camera2D = null
-	var vp := get_viewport()
-	if vp != null:
-		cam = vp.get_camera_2d()
+	var cam: Camera2D = _player.camera if _player != null and _player.camera != null else null
+	if cam == null:
+		var vp := get_viewport()
+		if vp != null:
+			cam = vp.get_camera_2d()
 	var window_size := DisplayServer.window_get_size()
 	var window_mode := DisplayServer.window_get_mode()
 	var vp_size := Vector2.ZERO
-	var zoom := Vector2.ZERO
-	if vp != null:
-		vp_size = vp.get_visible_rect().size
+	var zoom := Vector2.ONE
+	if get_viewport() != null:
+		vp_size = get_viewport().get_visible_rect().size
 	if cam != null:
 		zoom = cam.zoom
 	_active_effects.append({
@@ -810,6 +833,7 @@ func _record_resolution_probe(label: String) -> void:
 		"window_mode": int(window_mode),
 		"viewport_size": [int(vp_size.x), int(vp_size.y)],
 		"camera_zoom": [snappedf(zoom.x, 3), snappedf(zoom.y, 3)],
+		"camera_found": cam != null,
 	})
 
 
@@ -1838,12 +1862,13 @@ func _score_ffa() -> void:
 		_errors.append("local class=%s want %s" % [_player.class_id, _requested_hero])
 		return
 	var kills := int(_player.hero_kills)
+	var creep_kills := int(_player.creep_kills)
 	var gold := int(_player.gold)
 	var alive := _player.active and (_player.health == null or not _player.health.is_dead)
 	var casts := _casts.size()
-	if casts <= 0 and gold < 10 and kills <= 0:
+	if casts <= 0 and gold < 10 and kills <= 0 and creep_kills <= 0:
 		_verdict = "FAIL_IDLE"
-		_errors.append("never fought: casts=0 gold=%d kills=%d" % [gold, kills])
+		_errors.append("never fought: casts=0 gold=%d kills=%d creep_kills=%d" % [gold, kills, creep_kills])
 		return
 	if not alive and kills <= 0:
 		_verdict = "WARN_DEAD"
