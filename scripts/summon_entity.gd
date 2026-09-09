@@ -7,6 +7,14 @@ extends Node2D
 
 signal expired(entity: SummonEntity)
 
+## Turrets (SUMMON_SPIRIT anchors like the Steam Turret) are now damageable + targetable:
+## they carry a HealthComponent so creeps can hunt and destroy them like any other unit.
+## Only summons flagged as a turret get real HP; mines/traps (trigger_radius > 0) stay
+## indestructible (they detonate on contact instead of being chewed up).
+const TURRET_BASE_HEALTH := 220.0
+var is_turret := false
+var health: HealthComponent
+
 @export var lifetime: float = 12.0
 ## Per-bolt damage scaled down so the turret reads as "chips health away constantly",
 ## not as a secondary nuke. The hero's own cadence does the heavy lifting.
@@ -18,6 +26,7 @@ signal expired(entity: SummonEntity)
 
 var ability_id: String = ""
 var owner_peer_id: int = 0
+## Taunt weight the enemy targeting system reads when turrets become targetable.
 var owner_damage_type: int = 0
 var tint: Color = Color.WHITE
 var time_left: float = 0.0
@@ -40,6 +49,9 @@ var owner_player: Player = null
 ## fully still — still a trap, just not a completely static one. 0 = no seeking.
 var seek_speed: float = 0.0
 var seek_range: float = 260.0
+## Taunt weight the enemy targeting system reads when turrets become targetable — turrets
+## are disposable (low weight) so they only ever pull aggro when they're the closest target.
+var taunt_weight: float = 0.6
 var _exploded := false
 var _arm_timer: float = 0.0
 
@@ -69,6 +81,55 @@ func setup(p_ability_id: String, p_owner_peer_id: int, p_power: float, p_lifetim
 		sprite.texture = texture
 		var body := _body_modulate()
 		sprite.modulate = Color(body.r, body.g, body.b, 0.0)
+	_setup_turret_health()
+
+
+func _is_turret_ability() -> bool:
+	# Turret-style anchored summons (Steam Turret, Toxin Ward, Sapling Turret, ...). Mines
+	# have a trigger_radius and detonate on contact, so they stay indestructible.
+	return trigger_radius <= 0.0
+
+
+func _setup_turret_health() -> void:
+	# Only anchored, non-mine summons become damageable/targetable units.
+	var turret := _is_turret_ability()
+	if not turret:
+		return
+	is_turret = true
+	health = HealthComponent.new()
+	health.name = "HealthComponent"
+	health.max_health = TURRET_BASE_HEALTH
+	health.current_health = TURRET_BASE_HEALTH
+	health.health_changed.connect(_on_health_changed)
+	health.died.connect(_on_died)
+	add_child(health)
+	# Register as a targetable unit so Enemy's _find_nearest_player() can see it.
+	add_to_group("turrets")
+
+
+func _on_died() -> void:
+	if _exploded:
+		return
+	_exploded = true
+	# Turret is destroyed — pop it like a killed unit instead of a silent expire.
+	var sprite := _sprite_node()
+	if sprite != null:
+		var tween := create_tween()
+		tween.tween_property(sprite, "scale", sprite.scale * 1.4, 0.05)
+		tween.parallel().tween_property(sprite, "modulate", Color(1.4, 1.4, 1.0, 1.0), 0.05)
+		tween.tween_property(sprite, "scale", Vector2(0.0, 0.0), 0.14)
+		tween.tween_property(sprite, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.14)
+	expired.emit(self)
+	queue_free()
+
+
+func _on_health_changed(current: float, max_hp: float) -> void:
+	# Subtle damage tint so a turret about to break reads clearly.
+	var frac := clampf(current / maxf(1.0, max_hp), 0.0, 1.0)
+	if frac < 0.5 and frac > 0.0:
+		modulate = Color(1.0, 0.85, 0.7, 1.0)
+	elif frac >= 0.5:
+		modulate = Color.WHITE
 
 
 var _deploy_timer: float = 0.0
@@ -101,10 +162,12 @@ func _process(delta: float) -> void:
 				_seek_toward_nearest(delta)
 			_check_mine_trigger()
 	elif _deploy_timer <= 0.0:
-		attack_timer -= delta
-		if attack_timer <= 0.0:
-			attack_timer = attack_interval
-			_strike_nearest()
+		# A destroyed turret is offline — it no longer fires at enemies.
+		if not (is_turret and health != null and health.is_dead):
+			attack_timer -= delta
+			if attack_timer <= 0.0:
+				attack_timer = attack_interval
+				_strike_nearest()
 	_update_muzzle_glow()
 
 
@@ -113,10 +176,20 @@ func _is_mine() -> bool:
 
 
 func _check_mine_trigger() -> void:
+	# Early-out: if the nearest enemy is farther than the max possible reach
+	# (trigger_radius + largest body_radius), skip the full scan.
+	# In practice most mines have a small trigger_radius so this rarely saves
+	# much, but it avoids the sqrt in distance_to for the common "no one near" case.
+	var max_reach_sq := (trigger_radius + 40.0) * (trigger_radius + 40.0)
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
-		if global_position.distance_to((enemy as Node2D).global_position) > _overlap_reach(enemy as Node2D):
+		var n := enemy as Node2D
+		var dist_sq := global_position.distance_squared_to(n.global_position)
+		if dist_sq > max_reach_sq:
+			continue
+		# Close enough — do the precise check with body radius.
+		if global_position.distance_to(n.global_position) > _overlap_reach(n as Node2D):
 			continue
 		_explode()
 		return

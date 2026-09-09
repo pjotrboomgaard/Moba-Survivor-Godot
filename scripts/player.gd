@@ -72,10 +72,11 @@ var secondary_cooldown_max := PlayerClass.SECONDARY_COOLDOWN
 var secondary_charge := 0.0
 ## Seconds of hold needed to reach a fully-boosted secondary.
 const SECONDARY_CHARGE_MAX := 1.4
-## Maximum damage multiplier at full charge (1.0 tap -> 2.0 fully charged).
-const SECONDARY_CHARGE_DAMAGE_MULT_MAX := 2.0
-## Maximum radius/area multiplier at full charge.
-const SECONDARY_CHARGE_RADIUS_MULT_MAX := 1.5
+## Maximum damage multiplier at full charge (1.0 tap -> 3.0 fully charged).
+## Base is strong by default; holding 3x longer gives 3x damage.
+const SECONDARY_CHARGE_DAMAGE_MULT_MAX := 3.0
+## Maximum radius/area multiplier at full charge (1.0 tap -> 3.0 fully charged).
+const SECONDARY_CHARGE_RADIUS_MULT_MAX := 3.0
 var command_secondary := false
 var _secondary_was_held := false
 var _drawing_wall := false
@@ -976,21 +977,20 @@ func _charge_damage_mult(t: float = -1.0) -> float:
 
 
 func _update_attack_charge(delta: float, held: bool) -> void:
-	# Every hero auto-charges their own weapon. Press to fire at the current
-	# charge; a quick tap is weak, a full bar is the big hit. No hold-to-windup.
-	# If the attack key is held continuously (bot / long hold), auto-fire once the
-	# charge is full so the player keeps attacking instead of waiting for a re-press.
+	# Auto-charge LMB: the charge builds continuously between shots (no hold needed).
+	# A full auto-charge delivers the biggest damage + the biggest hit radius. A quick
+	# tap mid-charge is still strong — the base multiplier at 0 charge is not a "weak
+	# poke", so not waiting for a full charge is never punishing.
 	if _charge_firing:
 		_attack_held_prev = held
 		return
 	if attack_cooldown > 0.0:
 		_attack_held_prev = held
 		return
+	# Charge builds on its own, capped at the hero's max.
 	attack_charge = minf(PlayerClass.ATTACK_CHARGE_MAX, attack_charge + delta * charge_rate_mult)
-	var pressed := held and not _attack_held_prev
-	var full_charge_auto_fire := held and attack_charge >= PlayerClass.ATTACK_CHARGE_MAX
 	_attack_held_prev = held
-	if pressed or full_charge_auto_fire:
+	if held:
 		_release_charged_attack()
 
 
@@ -1693,7 +1693,15 @@ var active_summons: Array[SummonEntity] = []
 
 ## Wrench's Spider Mines — proximity satchel charges planted on the field that detonate when
 ## an enemy steps inside their trigger radius. Long-lived field control; capped like summons.
-const WRENCH_MAX_MINES := 4
+## (Removed the hard total cap — Tobor can keep laying mines indefinitely; the ability
+## cooldown is the only pacing gate. The constant is kept at a high number so the
+## `clampi` call still works but never bites.)
+const WRENCH_MAX_MINES := 999
+
+## Turrets (Steam Turret) are now damageable and targetable, so a full field of them is a
+## real resource. We still keep a soft cap on simultaneous turrets to avoid perf issues,
+## but it's much higher than before so Tobor can stack several at once.
+const MAX_ACTIVE_TURRETS := 12
 
 
 func _cast_ability_summon_spirit(data: Dictionary, values: Dictionary) -> void:
@@ -1738,7 +1746,10 @@ func _spawn_summon(data: Dictionary, values: Dictionary, position: Vector2) -> v
 	get_tree().current_scene.add_child(sum)
 	active_summons.append(sum)
 	# Enforce the cap: expire the oldest one if the caster already has a full set out.
-	while active_summons.size() > MAX_ACTIVE_SUMMONS:
+	# Turret-style summons get a much higher ceiling (MAX_ACTIVE_TURRETS) so Tobor can
+	# build up a battery of turrets; other summons keep the shared MAX_ACTIVE_SUMMONS.
+	var cap := MAX_ACTIVE_TURRETS if sum.is_turret else MAX_ACTIVE_SUMMONS
+	while active_summons.size() > cap:
 		var oldest: SummonEntity = active_summons.pop_front()
 		if is_instance_valid(oldest):
 			oldest.queue_free()
@@ -1999,7 +2010,9 @@ func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2)
 	get_tree().current_scene.add_child(sum)
 	SoundDirector.play_ability("tobor_spider_mines", global_position)
 	active_summons.append(sum)
-	while active_summons.size() > MAX_ACTIVE_SUMMONS:
+	# No hard cap on total active mines — the ability cooldown is the only pacing gate.
+	# WRENCH_MAX_MINES is now a very high number so this effectively never trims.
+	while active_summons.size() > WRENCH_MAX_MINES:
 		var oldest: SummonEntity = active_summons.pop_front()
 		if is_instance_valid(oldest):
 			oldest.queue_free()
@@ -2988,7 +3001,9 @@ func _tick_energy_field_rim(field: Dictionary) -> void:
 		if not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
 		var dist := center.distance_to((enemy as Node2D).global_position)
-		var on_rim := dist >= inner
+		# Only shock enemies actually ON the visible rim ring (between inner and outer),
+		# not enemies lingering just outside the field boundary.
+		var on_rim := dist >= inner and dist <= outer
 		var id := (enemy as Node).get_instance_id()
 		var was_on_rim := bool(seen.get(id, false))
 		if on_rim:
@@ -4652,8 +4667,73 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, BODY_RADIUS, accent_color, false, 3.0)
 		draw_line(facing_direction * 20.0, facing_direction * 30.0, accent_color, 4.0)
 		draw_circle(facing_direction * 32.0, 4.5, accent_color)
+	if is_local_player and attack_charge > 0.05:
+		_draw_charge_damage_indicator()
+	if is_local_player and secondary_charge > 0.02 and not _drawing_wall:
+		_draw_secondary_charge_indicator()
 	if aim_indicator_visible and is_local_player and not _pending_ability_id.is_empty():
 		_draw_aim_indicator()
+
+
+## LMB charge indicator: shows the growing damage number above the hero while the
+## auto-charge is in progress. No bar under the attack arrow — just the number,
+## scaling from base weapon damage up to the full charge value.
+func _draw_charge_damage_indicator() -> void:
+	var t := _charge_t()
+	# Estimated damage this shot would deal at the current charge level.
+	var est_damage := weapon_damage * _charge_damage_mult(t)
+	# Color shifts from white -> accent -> hot yellow as charge builds.
+	var col := Color(1.0, 1.0, 1.0, 0.75).lerp(Color(accent_color.r, accent_color.g, accent_color.b, 0.95), t)
+	if t > 0.85:
+		col = Color(1.0, 0.92, 0.55, 1.0)
+	var scale := 1.0 + t * 0.45
+	var font := ThemeDB.fallback_font
+	var font_size := int(round(13.0 * scale))
+	var txt := "%d" % int(roundi(est_damage))
+	var text_w := font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var pos := Vector2(-text_w * 0.5, -34.0 - t * 6.0)
+	# Subtle shadow for readability.
+	draw_string(font, pos + Vector2(1, 1), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(0.0, 0.0, 0.0, 0.6))
+	draw_string(font, pos, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, col)
+
+
+## RMB charge indicator: while the secondary is winding up, draw a pulsing ring that
+## grows with the charge and a small multiplier readout, so the player can see the
+## effect scaling live. Teleport/dash-type secondaries additionally draw an outward
+## arrow showing the reach expanding as the charge builds.
+func _draw_secondary_charge_indicator() -> void:
+	var t := _secondary_charge_t()
+	if t <= 0.02:
+		return
+	var radius := PlayerClass.SECONDARY_RADIUS * _sec_radius_mult()
+	var pulse := 0.7 + 0.3 * sin(Time.get_ticks_msec() * 0.009)
+	# Growing charge ring around the hero, scaling up to the full charged radius.
+	var ring_col := Color(accent_color.r, accent_color.g, accent_color.b, 0.75 * pulse)
+	if t > 0.85:
+		ring_col = Color(1.0, 0.92, 0.5, 0.95)
+	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 64, ring_col, 2.4, true)
+	draw_arc(Vector2.ZERO, radius * 0.62, 0.0, TAU, 48, Color(ring_col.r, ring_col.g, ring_col.b, 0.35 * pulse), 1.4, true)
+	# Multiplier readout (x1.0 -> x3.0) so the "bigger effect" is legible at a glance.
+	var dmg_mult := lerpf(1.0, SECONDARY_CHARGE_DAMAGE_MULT_MAX, t)
+	var font := ThemeDB.fallback_font
+	var font_size := int(round(12.0 + t * 5.0))
+	var txt := "x%.1f" % dmg_mult
+	var text_w := font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var pos := Vector2(-text_w * 0.5, -radius - 10.0)
+	draw_string(font, pos + Vector2(1, 1), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(0.0, 0.0, 0.0, 0.6))
+	draw_string(font, pos, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, ring_col)
+	# Teleport / dash / move-flavoured secondaries: outward reach arrow.
+	match secondary_kind:
+		"blast_jump", "windstep", "gale_gust", "time_skip", "ward_light":
+			var dir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
+			var reach := radius * 1.2
+			var tip := dir * reach
+			var tail := dir * 16.0
+			draw_line(tail, tip, Color(1.0, 1.0, 0.95, 0.9), 2.6, true)
+			var left := tip - dir * 11.0 + dir.orthogonal() * 6.0
+			var right := tip - dir * 11.0 - dir.orthogonal() * 6.0
+			draw_line(tip, left, Color(1.0, 1.0, 0.95, 0.9), 2.6, true)
+			draw_line(tip, right, Color(1.0, 1.0, 0.95, 0.9), 2.6, true)
 
 
 ## Aim-helper overlay while an ability is armed: a thin circle at the actual cast area and

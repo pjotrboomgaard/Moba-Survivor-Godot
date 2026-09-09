@@ -114,6 +114,16 @@ var network_id := 0
 var server_authoritative := true
 var target: Node2D
 var attack_cooldown := 0.0
+## Contact-attack throttle: how long since this enemy last struck a player via the active
+## melee-range contact attack (_contact_attack_player). Distinct from attack_cooldown,
+## which gates the ranged/projectile + _attack_target() strikes; a creeping melee enemy
+## that's standing on a stationary player needs its own cooldown so it deals damage on a
+## per-second cadence instead of once-per-frame. Task 1.
+var _player_attack_cooldown := 0.0
+## Melee range for the active contact attack: contact_damage lands when the enemy's body
+## is within this many px of a player, even if the player isn't moving. ~12px past the
+## body so "touching" reads as attacking. Task 1.
+const CONTACT_ATTACK_RANGE_BUFFER := 12.0
 var network_target_position := Vector2.ZERO
 var slow_factor := 1.0
 var slow_timer := 0.0
@@ -127,6 +137,12 @@ var _poison_tick_accum := 0.0
 ## Electrocute overlay while caught in Energy Field (or similar shock slows).
 var shocked_timer := 0.0
 const POISON_TICK := 0.4
+## Retaliation: when a creep is hit, it becomes briefly enraged (faster + harder hits).
+## This makes "creeps fight back" — the more you poke them, the more they fight.
+var retaliation_timer := 0.0
+const RETALIATION_DURATION := 2.5
+const RETALIATION_SPEED_MULT := 1.35
+const RETALIATION_DAMAGE_MULT := 1.5
 var wander_timer := 0.0
 var wander_direction := Vector2.ZERO
 var aura_pulse := 0.0
@@ -164,11 +180,16 @@ var _stuck_time := 0.0
 ##   "always take dmg" source; contact is secondary.
 var is_camp_guardian := false
 var camp_guardian_home := Vector2.ZERO
-const CAMP_GUARDIAN_LEASH_RADIUS := 260.0
+const CAMP_GUARDIAN_LEASH_RADIUS := 280.0
 var _camp_guardian_slaam_timer := 0.0
 const CAMP_GUARDIAN_SLAM_INTERVAL := 3.0  # 3s (was 2.2s — too hot for wave 1)
 const CAMP_GUARDIAN_SLAM_RADIUS := 140.0
 const CAMP_GUARDIAN_SLAM_DAMAGE := 14.0  # 14 (was 24 — too brutal for wave 1)
+const CAMP_GUARDIAN_AGGRO_RADIUS := 300.0
+## Aggressive in-leash speed multiplier: guardians move faster when aggroed so a
+## player standing in the camp is hard to disengage from (Task 2: "camps should be
+## difficult"). 1.05x over the base 0.85 → effective ~0.89x of movement_speed.
+const CAMP_GUARDIAN_AGGR_SPEED_MULT := 1.05
 
 ## Terrain-hazard / lava-dunk state. Flying enemies skim over pools; grounded ones take
 ## the full dunk when a knockback arc drops them inside lava. Scramble slows the crawl
@@ -195,6 +216,14 @@ const FAR_CULL_RADIUS := 2200.0
 const FAR_CULL_CHECK_INTERVAL := 0.5
 var _far_cull_timer := 0.0
 var _near_player := false
+
+## Viewport culling: enemies far outside the camera viewport are not rendered.
+## This saves both draw calls and CanvasItem overhead for off-screen enemies.
+## Checked at 2 Hz (cheap squared-distance to camera center) so the toggle
+## only flips when the camera actually moves past the threshold.
+const VIEWPORT_CULL_RADIUS := 2600.0
+const VIEWPORT_CULL_CHECK_INTERVAL := 0.5
+var _viewport_cull_timer := 0.0
 
 
 func _ready() -> void:
@@ -371,6 +400,25 @@ func damage_multiplier_for(damage_type: int) -> float:
 	return EnemyType.damage_multiplier(type_id, damage_type)
 
 
+## Lightweight movement path used while _in_far_mode is active. Physics is disabled
+## in far mode, so this direct-position walk is the only movement that runs. Runs at
+## render-frame cadence; it only does a single nearest-player lookup and a position
+## add, so hundreds of far enemies stay cheap.
+func _process(_delta: float) -> void:
+	if not _in_far_mode:
+		return
+	var far_target := _find_nearest_player()
+	if far_target == null:
+		return
+	var target_pos: Vector2 = (far_target as Node2D).global_position
+	# Exit far mode once close enough that the full AI / physics path should engage.
+	if global_position.distance_squared_to(target_pos) <= FAR_CULL_RADIUS * FAR_CULL_RADIUS:
+		_exit_far_mode()
+		return
+	var dir := global_position.direction_to(target_pos)
+	global_position += dir * movement_speed * 0.85 * _delta
+
+
 func _physics_process(delta: float) -> void:
 	if stealth_alpha < 1.0:
 		modulate.a = 1.0 if winding_up else stealth_alpha
@@ -405,9 +453,16 @@ func _physics_process(delta: float) -> void:
 	_update_poison(delta)
 	_update_shock(delta)
 	_update_vulnerability(delta)
+	# Retaliation timer ticks down regardless of the far-cull gate.
+	if retaliation_timer > 0.0:
+		retaliation_timer = maxf(0.0, retaliation_timer - delta)
+		if retaliation_timer <= 0.0:
+			modulate = Color.WHITE
+			queue_redraw()
 	if speed_ramp > 0.0:
 		movement_speed = minf(speed_cap, movement_speed + speed_ramp * delta)
 	attack_cooldown = maxf(0.0, attack_cooldown - delta)
+	_player_attack_cooldown = maxf(0.0, _player_attack_cooldown - delta)
 	if growth_aggro_seconds > 0.0:
 		_update_growth(delta)
 		if _is_still_growing():
@@ -424,11 +479,23 @@ func _physics_process(delta: float) -> void:
 	if _far_cull_timer <= 0.0:
 		_far_cull_timer = FAR_CULL_CHECK_INTERVAL
 		_near_player = _any_player_within_far_cull()
+	# Far-enemy lightweight mode: when no living player is within FAR_CULL_RADIUS and
+	# this enemy is not a boss/camp guardian/charger (which need to keep their patterns),
+	# hide the sprite, skip collision, and just walk straight toward the nearest player.
+	# No separation, no obstacle avoidance, no AI — pure position tracking. This lets
+	# hundreds of enemies exist off-screen at near-zero cost.
 	if not _near_player and not is_boss and not is_camp_guardian and dash_interval <= 0.0 and teleport_interval <= 0.0:
-		velocity = Vector2.ZERO
-		move_and_slide()
+		_enter_far_mode()
 		return
+	_exit_far_mode()
 
+	# Task 1: active contact attack. Runs for every enemy (grunts, camp guardians,
+	# chargers, bosses...) whenever a player is actually within melee range, on a
+	# per-enemy ~1s cadence. Placed after the far-cull gate so no player-group scan
+	# happens when no one is near. Also fires when `target` is a *different* (closer)
+	# player, which is what makes a player standing in a camp take real damage even
+	# when the guardian's aggro is on an FFA rival (Task 2).
+	_contact_attack_player()
 	_target_refresh_timer -= delta
 	if _target_refresh_timer <= 0.0:
 		_target_refresh_timer = TARGET_REFRESH_INTERVAL
@@ -535,6 +602,9 @@ func _move(direction_velocity: Vector2, allow_crater_inward: bool = false) -> vo
 		dir *= LAVA_SCRAMBLE_SPEED_MULT
 	# Night creeps move faster.
 	dir *= WorldClock.night_speed_mult
+	# Retaliation: when recently hit, move faster to fight back.
+	if retaliation_timer > 0.0:
+		dir *= RETALIATION_SPEED_MULT
 	dir = _deflect_from_ffa_crater(dir, allow_crater_inward)
 	velocity = dir + _separation_offset()
 	var before := global_position
@@ -638,24 +708,6 @@ func _rebuild_separation_grid() -> void:
 		Enemy._separation_grid[key] = bucket
 
 
-## TEMP PERF INSTRUMENTATION (perf/ffa-lag-fix): counts how many candidate enemies each
-## _separation_offset() call actually has to examine (the 3x3 neighbourhood's combined
-## bucket size) versus the old code's fixed cost of `enemies.size()` (the whole pool) on
-## every single call. Read + reset via Enemy.consume_separation_stats() — see
-## selftest_driver.gd's periodic [perf] print. Remove alongside the rest of the temp
-## instrumentation once the FFA lag investigation is done.
-static var _sep_sample_calls := 0
-static var _sep_sample_candidates := 0
-
-
-static func consume_separation_stats() -> Dictionary:
-	var calls := Enemy._sep_sample_calls
-	var candidates := Enemy._sep_sample_candidates
-	Enemy._sep_sample_calls = 0
-	Enemy._sep_sample_candidates = 0
-	return {"calls": calls, "candidates": candidates}
-
-
 func _separation_offset() -> Vector2:
 	if separation_weight <= 0.0:
 		return Vector2.ZERO
@@ -663,26 +715,37 @@ func _separation_offset() -> Vector2:
 	var push := Vector2.ZERO
 	var range_sq := SEPARATION_RANGE * SEPARATION_RANGE
 	var base_cell := _separation_cell(global_position)
-	var scanned := 0
 	# SEPARATION_CELL_SIZE >= SEPARATION_RANGE guarantees every enemy within range sits in
 	# this 3x3 neighbourhood around our own cell — see the constant's comment above.
+	# `get(key)` without a default avoids allocating an empty Array on every
+	# missing-cell lookup (the previous `.get(key, [])` built a new Array per
+	# empty cell, 9 times per enemy per physics frame).
 	for dx in range(-1, 2):
 		for dy in range(-1, 2):
-			var bucket: Array = Enemy._separation_grid.get(Vector2i(base_cell.x + dx, base_cell.y + dy), [])
-			scanned += bucket.size()
+			var bucket_raw = Enemy._separation_grid.get(Vector2i(base_cell.x + dx, base_cell.y + dy))
+			if bucket_raw == null:
+				continue
+			var bucket: Array = bucket_raw
 			for candidate in bucket:
 				if candidate == self or not is_instance_valid(candidate):
 					continue
-				var offset: Vector2 = global_position - (candidate as Node2D).global_position
+				var cand_node: Node2D = candidate as Node2D
+				if cand_node == null:
+					continue
+				var offset: Vector2 = global_position - cand_node.global_position
 				var distance_sq := offset.length_squared()
 				if distance_sq <= 0.01 or distance_sq > range_sq:
 					continue
 				push += offset.normalized() * (1.0 - sqrt(distance_sq) / SEPARATION_RANGE)
-	Enemy._sep_sample_calls += 1
-	Enemy._sep_sample_candidates += scanned
 	if push == Vector2.ZERO:
 		return Vector2.ZERO
 	return push.limit_length(2.0) * SEPARATION_STRENGTH / maxf(0.3, separation_weight)
+
+
+## No-op stub kept so selftest_driver.gd's periodic [perf] print doesn't crash
+## after the temp instrumentation was removed.
+static func consume_separation_stats() -> Dictionary:
+	return {"calls": 0, "candidates": 0}
 
 
 func _process_wander(delta: float) -> void:
@@ -736,17 +799,23 @@ func _process_camp_guardian(delta: float) -> void:
 	if _camp_guardian_slaam_timer <= 0.0:
 		_camp_guardian_slaam_timer = CAMP_GUARDIAN_SLAM_INTERVAL
 		_emit_camp_guardian_slaam()
-	# Camp guardian behaviour: within leash range, advance to attack range and
-	# hit the target. Out of leash, hold still (does not chase far away).
+	# Task 2 — camp aggro. The guardian actively hunts the `target` it's leashed to:
+	# it closes the gap faster than a normal melee creep (CAMP_GUARDIAN_AGGR_SPEED_MULT)
+	# and stops at the *contact* range (body_radius + buffer) instead of the old
+	# attack_distance, so the Task-1 contact attack actually connects. Damage to the
+	# player it's inside of is applied by _contact_attack_player() (runs every frame in
+	# _physics_process and hits *any* player in range — including a different FFA rival
+	# than this guardian's aggro target), so we deliberately do NOT also call
+	# _attack_target() here, which would double-hit the same player. Past the leash it
+	# still gives up (kiting away disengages) — the leash is kept on purpose so a player
+	# can disengage from a camp they're losing.
 	var dist := global_position.distance_to(target.global_position)
 	if dist <= CAMP_GUARDIAN_LEASH_RADIUS:
-		# Within leash: close the gap if out of attack range, otherwise attack.
-		if dist > attack_distance:
-			velocity = global_position.direction_to(target.global_position) * movement_speed * 0.85
+		var contact_stop := attack_distance + body_radius
+		if dist > contact_stop:
+			velocity = global_position.direction_to(target.global_position) * movement_speed * 0.85 * CAMP_GUARDIAN_AGGR_SPEED_MULT
 		else:
 			velocity = Vector2.ZERO
-			# Attack with contact damage (reduced by guardian damage_taken_multiplier).
-			_attack_target()
 		# Visual: face the target.
 		queue_redraw()
 	else:
@@ -940,6 +1009,18 @@ func _pick_boss_pattern() -> String:
 	var pool: Array[String] = ["slam", "slam", "dash"]
 	if type_id == "stormcaller":
 		pool = ["slam", "slam", "volley"]
+	elif type_id == "magma_golem":
+		# Magma Golem: heavy slam + fire bloom + dash (no ranged projectile of its own).
+		pool = ["slam", "slam", "dash"]
+	elif type_id == "frost_titan":
+		# Frost Titan: kites at range with frost volleys, occasional dash to reposition.
+		pool = ["slam", "volley", "volley"]
+	elif type_id == "scrap_colossus":
+		# Scrap Colossus: tanky ranged, scrap-bolt volleys + cross lines.
+		pool = ["slam", "volley", "cross"]
+	elif type_id == "dock_warden":
+		# Dock Warden: fast melee/dash + occasional shockwave from the docks.
+		pool = ["dash", "slam", "slam"]
 	if boss_phase >= 2:
 		pool.append("shockwave")
 		pool.append("cross")
@@ -1482,6 +1563,24 @@ func _find_nearest_player() -> Node2D:
 		if score < best_score:
 			nearest = player
 			best_score = score
+	# Turrets are damageable targetable units — creeps will prefer them over the player
+	# when they're closer, so a lone turret can pull aggro and buy time.
+	for candidate in get_tree().get_nodes_in_group("turrets"):
+		if not is_instance_valid(candidate) or not candidate is Node2D:
+			continue
+		var turret := candidate as Node2D
+		var turret_health: HealthComponent = turret.get("health") as HealthComponent
+		if turret_health == null or turret_health.is_dead:
+			continue
+		if crater_block and turret.global_position.length() < crater:
+			continue
+		# Turrets have a taunt_weight property (0.6 by default) — lower than a player
+		# (1.0) so a turret only pulls aggro when it's actually closer than the player.
+		var turret_weight: float = float(turret.get("taunt_weight")) if "taunt_weight" in turret else 0.6
+		var score: float = global_position.distance_squared_to(turret.global_position) * turret_weight
+		if score < best_score:
+			nearest = turret
+			best_score = score
 	return nearest
 
 
@@ -1524,6 +1623,73 @@ func _any_player_within_far_cull() -> bool:
 	return false
 
 
+## Enters lightweight "far" mode: the sprite is hidden so it stops costing draw
+## calls / canvas items, and physics collision is disabled so move_and_slide and
+## separation are not run while the enemy simply walks toward the player.
+var _in_far_mode := false
+func _enter_far_mode() -> void:
+	if _in_far_mode:
+		return
+	_in_far_mode = true
+	if sprite != null:
+		sprite.visible = false
+	set_physics_process(false)
+
+
+## Returns the enemy to full rendering + physics once it comes within cull range.
+func _exit_far_mode() -> void:
+	if not _in_far_mode:
+		return
+	_in_far_mode = false
+	if sprite != null:
+		sprite.visible = true
+	set_physics_process(true)
+
+
+## Task 1 — active contact attack. Unlike _attack_target (which only strikes `target`, the
+## single nearest player, when it's in melee range and the enemy is idle), this deals
+## contact_damage to *any* living player whose body sits within body_radius + buffer, on a
+## per-enemy cooldown. That matters in two places:
+##   1. A stationary player standing next to a creep is actually hit on a ~1s cadence, not
+##      only when the creep happens to walk into it.
+##   2. Camp guardians (Task 2) whose AI `target` is a *closer* FFA rival still chip the
+##      player physically standing in the camp, so "standing in a camp = meaningful damage
+##      over time" holds even when the guardian is focused elsewhere.
+## Only runs when server_authoritative (damage is server-side) and when a player is actually
+## near (gated by the far-cull _near_player check in _physics_process).
+func _contact_attack_player() -> void:
+	if not server_authoritative or contact_damage <= 0.0 or _player_attack_cooldown > 0.0:
+		return
+	var range_sq := (body_radius + CONTACT_ATTACK_RANGE_BUFFER) * (body_radius + CONTACT_ATTACK_RANGE_BUFFER)
+	var struck := false
+	for candidate in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(candidate) or not candidate is Player:
+			continue
+		var player := candidate as Player
+		if not player.active or player.in_boss_form:
+			continue
+		var player_health: HealthComponent = player.get_node_or_null("HealthComponent") as HealthComponent
+		if player_health == null or player_health.is_dead:
+			continue
+		if global_position.distance_squared_to(player.global_position) > range_sq:
+			continue
+		var dmg := contact_damage
+		if _solo_boss_fight():
+			dmg *= SOLO_BOSS_HAZARD_DAMAGE_MULT
+		if retaliation_timer > 0.0:
+			dmg *= RETALIATION_DAMAGE_MULT
+		if is_camp_guardian:
+			# Log so the camp-aggro contact hit is verifiable in the game log (Task 2).
+			print("[CampGuardian] aggro contact hit ", type_id, " -> ", player.class_id, " for ", str(dmg))
+		player_health.take_damage(dmg, self)
+		struck = true
+	if struck:
+		_player_attack_cooldown = 1.0 / WorldClock.night_attack_mult
+		# Visual lunge only when we actually hit, so the tick reads as a deliberate strike.
+		if not is_boss:
+			_play_melee_dash()
+
+
 func _attack_target() -> void:
 	if attack_cooldown > 0.0 or target == null or contact_damage <= 0.0:
 		return
@@ -1535,8 +1701,14 @@ func _attack_target() -> void:
 		var dmg := contact_damage
 		if _solo_boss_fight():
 			dmg *= SOLO_BOSS_HAZARD_DAMAGE_MULT
+		if retaliation_timer > 0.0:
+			dmg *= RETALIATION_DAMAGE_MULT
 		target_health.take_damage(dmg, self)
-		attack_cooldown = attack_interval / WorldClock.night_attack_mult
+		# Retaliating creeps attack faster while enraged.
+		var interval := attack_interval / WorldClock.night_attack_mult
+		if retaliation_timer > 0.0:
+			interval /= 1.5
+		attack_cooldown = interval
 		# Visual: a quick lunge toward the target to telegraph the hit.
 		if not is_boss:
 			_play_melee_dash()
@@ -1564,6 +1736,11 @@ func _play_melee_dash() -> void:
 
 func _on_damaged(amount: float) -> void:
 	SoundDirector.play("hit", global_position)
+	# Retaliation: when hit, the creep becomes briefly enraged (faster, harder hits).
+	if not is_boss and server_authoritative:
+		retaliation_timer = RETALIATION_DURATION
+		# Red-tint the creep while retaliating so the player sees the "fighting back" state.
+		modulate = Color(1.4, 0.85, 0.85, 1.0)
 	var tween := create_tween()
 	tween.tween_property(self, "modulate", Color(1.7, 1.7, 1.7, 1.0), 0.04)
 	tween.tween_property(self, "modulate", Color.WHITE, 0.1)

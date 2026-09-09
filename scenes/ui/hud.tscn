@@ -309,7 +309,7 @@ columns = 3
 [node name="ShopContinue" type="Button" parent="ShopPanel/ShopLayout"]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
-text = "START NEXT WAVE"
+text = "CLOSE SHOP"
 
 [node name="UpgradePanel" type="PanelContainer" parent="."]
 visible = false
@@ -444,3 +444,9 @@ custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "+500 GOLD"
+
+[node name="SkipWaveButton" type="Button" parent="DevPanel/DevLayout/DevButtons"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "SKIP WAVE"

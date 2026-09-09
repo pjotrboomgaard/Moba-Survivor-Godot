@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/arena/arena.tscn" id="2_arena"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="4_hud"]
 [ext_resource type="Script" path="res://scripts/world_flash.gd" id="5_flash"]
 [ext_resource type="PackedScene" path="res://scenes/effects/fog_of_war.tscn" id="6_fog"]
+[ext_resource type="Script" path="res://scripts/ghost_wave_system.gd" id="7_ghosts"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -25,5 +26,8 @@ z_index = 20
 script = ExtResource("3_waves")
 
 [node name="FogOfWar" parent="." instance=ExtResource("6_fog")]
+
+[node name="GhostWaveSystem" type="Node2D" parent="."]
+script = ExtResource("7_ghosts")
 
 [node name="HUD" parent="." instance=ExtResource("4_hud")]

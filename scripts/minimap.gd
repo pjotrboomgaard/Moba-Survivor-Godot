@@ -15,17 +15,33 @@ const LANDMARK_WIPE := Color("f4c44a")
 const LANDMARK_HEAL := Color("7fd88a")
 const LANDMARK_FREEZE := Color("7db8ff")
 const ENEMY_COLOR := Color("ff5d5d")
+## Ghost trickle: dim amber dots showing enemies that are still off-screen (see ghost_wave_system.gd).
+## Drawn before real enemies so a real dot overwrites it cleanly on materialization.
+const GHOST_COLOR := Color("d99a3f", 0.85)
 const BOSS_COLOR := Color("ff2a2a")
 const QUEST_COLOR := Color("c9a84e")
 const TREE_COLOR := Color(0.42, 0.52, 0.42, 0.55)
 const ROCK_COLOR := Color(0.52, 0.50, 0.48, 0.45)
+
+## Cached obstacle list, rebuilt only when the "obstacles" group membership
+## changes. The minimap redraws every frame, so scanning ~200-500 obstacle nodes
+## via get_nodes_in_group() every frame is pure waste — the static world layout
+## only changes on rebuild / world-editor edits.
+static var _cached_obstacles: Array[Node2D] = []
+static var _cached_obstacles_key := -1
 const BACKGROUND_COLOR := Color(0.06, 0.09, 0.14, 0.78)
 const BORDER_COLOR := Color(0.55, 0.72, 0.86, 0.6)
 
 
-func _process(_delta: float) -> void:
+var _redraw_accum := 0.0
+const REDRAW_INTERVAL := 1.0 / 15.0
+
+func _process(delta: float) -> void:
 	if visible:
-		queue_redraw()
+		_redraw_accum += delta
+		if _redraw_accum >= REDRAW_INTERVAL:
+			_redraw_accum = 0.0
+			queue_redraw()
 
 
 func _draw() -> void:
@@ -79,12 +95,11 @@ func _draw() -> void:
 				var tl := _to_local(zr.position)
 				draw_rect(Rect2(tl, zr.size * scale), zcolor, true)
 	# Trees and rocks: subtle, low-saturation dots so the map reads as terrain without
-	# competing with the bright enemy/player markers.
-	for obs in get_tree().get_nodes_in_group("obstacles"):
-		if not is_instance_valid(obs):
-			continue
+	# competing with the bright enemy/player markers. Uses a cached obstacle list that is
+	# rebuilt only when the obstacle set changes, instead of scanning the group every frame.
+	for obs in _get_cached_obstacles():
 		var point := _to_local(obs.global_position)
-		var is_tree := str(obs.sprite_id).contains("tree")
+		var is_tree: bool = obs.sprite_id.contains("tree")
 		var color := TREE_COLOR if is_tree else ROCK_COLOR
 		draw_circle(point, 1.8, color)
 	# Teleporter pads: bright paired dots so the player can plan shortcut routes.
@@ -95,16 +110,30 @@ func _draw() -> void:
 			draw_circle(_to_local(pp), 3.0, pc)
 			draw_circle(_to_local(pp), 3.0, Color(0.05, 0.05, 0.08, 1.0), false, 1.0)
 	# Side quests: gold, slightly bigger than terrain so the player can spot them.
+	# Use the quest's *current target* (seek_position) rather than its static node
+	# origin, so moving targets (chase butterflies, kill-marks, moving markers)
+	# show where they actually are — not where the quest first spawned.
 	for quest in get_tree().get_nodes_in_group("side_quest"):
 		if not is_instance_valid(quest):
 			continue
-		var qp := _to_local(quest.global_position)
+		var quest_pos: Vector2 = quest.global_position
+		if quest.has_method("get_seek_position"):
+			var seek: Vector2 = quest.get_seek_position()
+			if seek.length() > 0.0:
+				quest_pos = seek
+		var qp := _to_local(quest_pos)
 		draw_circle(qp, 3.0, QUEST_COLOR)
 		draw_circle(qp, 3.0, Color(0.15, 0.12, 0.0, 1.0), false, 1.0)
+	# Ghost trickle (off-screen incoming enemies, see ghost_wave_system.gd): dim amber dots.
+	# The ghost system's records are plain dicts, so read them straight — no node lookup cost.
+	for ghost in _get_ghosts():
+		draw_circle(_to_local(ghost.get("pos", Vector2.ZERO)), 1.6, GHOST_COLOR)
 	for enemy_node in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(enemy_node):
 			continue
 		var enemy := enemy_node as Enemy
+		if enemy == null:
+			continue
 		var point := _to_local(enemy.global_position)
 		if enemy.is_boss:
 			draw_circle(point, BOSS_RADIUS, BOSS_COLOR)
@@ -189,3 +218,35 @@ func _draw_camera_viewport_overlay() -> void:
 
 	draw_rect(local_rect, Color(1, 1, 1, 0.15), true)
 	draw_rect(local_rect, Color(1, 1, 1, 0.4), false, 1.5)
+
+
+## Returns the ghost-wave records (off-screen incoming enemies) for drawing as
+## dim dots. Looks up the GhostWaves node by name so no signal plumbing is needed;
+## the lookup is cheap (one get_node_or_null per 15 Hz redraw).
+func _get_ghosts() -> Array:
+	var root := get_tree().root
+	var main_node := root.get_node_or_null("Main")
+	if main_node == null:
+		return []
+	var ghosts_node: Variant = main_node.get("_ghost_waves")
+	if ghosts_node == null or not (ghosts_node is Node):
+		return []
+	if not (ghosts_node as Node).has_method("get_ghosts"):
+		return []
+	var list: Variant = (ghosts_node as Node).get_ghosts()
+	return list if list is Array else []
+
+
+## Returns the cached obstacle list, rebuilding it only when the "obstacles" group
+## membership count changes. Avoids a per-frame get_nodes_in_group() scan (~200-500
+## nodes) while the minimap redraws 15-60 times per second.
+func _get_cached_obstacles() -> Array[Node2D]:
+	var group := get_tree().get_nodes_in_group("obstacles")
+	var count := group.size()
+	if _cached_obstacles_key != count or _cached_obstacles.is_empty() and count > 0:
+		_cached_obstacles.clear()
+		for obs in group:
+			if is_instance_valid(obs) and obs is Obstacle:
+				_cached_obstacles.append(obs as Obstacle)
+		_cached_obstacles_key = count
+	return _cached_obstacles

@@ -316,20 +316,33 @@ static func _pick_stat_for_rarity(class_upgrade_ids: Array, rarity: String, used
 	return ""
 
 
-## Every hero draws from the SAME generic stat pool — no hero-specific drones or
-## sprites. The upgrade list is fully shared across classes so a Bulwark player
-## never sees "Ember Sprite" or other hero-flavoured items. `class_upgrade_ids` is
-## kept for signature stability but intentionally ignored here.
+## Offer pool for a rarity. Stat slots are drawn from the hero's own authored
+## `class_upgrade_ids` list so Bulwark never sees "Cinder Sprite" and the like.
+## If the hero has no (or too few) upgrades of that rarity, fall back to the
+## shared generic pool of the same rarity so offers can still be filled.
 static func _pool_for(class_upgrade_ids: Array, rarity: String, level: int = 1) -> Array[String]:
-	# Generic pool: every hero draws from the same stat pool so no hero-specific
-	# drones/sprites surface. class_upgrade_ids and level are kept for signature
-	# stability but intentionally unused here.
+	var recognized_paths := ["farm", "pulse", "crit", "tempo", "power", "splash", "volley", "tank", "drone"]
 	var out: Array[String] = []
+	# 1) Hero-specific pool first.
+	var class_set: Dictionary = {}
+	for id in class_upgrade_ids:
+		class_set[str(id)] = true
+	for id in class_upgrade_ids:
+		var id_str := str(id)
+		if not DEFS.has(id_str):
+			continue
+		if str(DEFS[id_str].get("rarity", "common")) != rarity:
+			continue
+		var path := str(DEFS[id_str].get("path", ""))
+		if path in recognized_paths:
+			out.append(id_str)
+	if not out.is_empty():
+		return out
+	# 2) Fallback: shared pool of the same rarity for heroes with thin pools.
 	for id in DEFS.keys():
 		if str(DEFS[id].get("rarity", "common")) != rarity:
 			continue
-		# Only surface upgrades on a recognised build path so offers stay meaningful.
 		var path := str(DEFS[id].get("path", ""))
-		if path in ["farm", "pulse", "crit", "tempo", "power", "splash", "volley", "tank", "drone"]:
+		if path in recognized_paths:
 			out.append(str(id))
 	return out

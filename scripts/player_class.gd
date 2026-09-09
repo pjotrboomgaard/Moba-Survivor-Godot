@@ -716,7 +716,9 @@ const SHARED_WEAPON_TAP := 18.0
 ## Auto-charge fills for this long. Tap anytime: early shots are weak, a full bar is ATTACK_CHARGE_DAMAGE / SIZE.
 const ATTACK_CHARGE_MAX := 3.0
 const ATTACK_CHARGE_DAMAGE := 7.0
-const ATTACK_CHARGE_SIZE := 4.0
+## A full auto-charge blows the hit radius out to 6x base — the charged LMB should feel
+## like a clearly bigger area than a bare tap.
+const ATTACK_CHARGE_SIZE := 6.0
 const ATTACK_CHARGE_EXTRA_BOUNCES := 6
 const ATTACK_TAP_DELAY := 0.04
 const ATTACK_FULL_DELAY := 0.22

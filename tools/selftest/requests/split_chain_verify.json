@@ -1,0 +1,21 @@
+{
+  "hero": "arclight",
+  "biome": 1,
+  "comment": "Split chain: spawn a splitter with very low HP, let the player auto-attack kill it, then verify it splits into 2 splitter_small, which split into 4 splitter_tiny. Check alive counts at each stage.",
+  "events": [
+    {"t": 0.1, "kind": "biome_probe", "label": "start"},
+    {"t": 0.5, "kind": "spawn", "at": [100, 0], "type": "splitter", "hp_mult": 0.05, "spd_mult": 0.1},
+    {"t": 1.0, "kind": "aim", "at": [100, 0]},
+    {"t": 1.0, "kind": "snap", "label": "splitter_spawned"},
+    {"t": 1.5, "kind": "probe", "label": "before_kill"},
+    {"t": 1.5, "kind": "primary_hold", "duration": 3.0},
+    {"t": 5.0, "kind": "probe", "label": "after_split_small"},
+    {"t": 5.5, "kind": "snap", "label": "splitter_small_alive"},
+    {"t": 5.5, "kind": "primary_hold", "duration": 6.0},
+    {"t": 12.0, "kind": "probe", "label": "after_split_tiny"},
+    {"t": 12.5, "kind": "snap", "label": "splitter_tiny_alive"},
+    {"t": 16.0, "kind": "probe", "label": "final_state"},
+    {"t": 16.5, "kind": "snap", "label": "final_state_snap"},
+    {"t": 16.6, "kind": "report"}
+  ]
+}

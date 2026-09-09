@@ -1,0 +1,25 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 3,
+  "duration": 25,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Verify: (1) upgrade 1/2/3/4 key does not trigger ability, (2) B closes shop, (3) quest arrow + low-HP heal arrow render without crash.",
+  "events": [
+    { "t": 0.02, "kind": "spawn", "at": [220, 0], "type": "grunt" },
+    { "t": 0.02, "kind": "spawn", "at": [260, 40], "type": "grunt" },
+    { "t": 0.02, "kind": "spawn", "at": [200, -40], "type": "grunt" },
+    { "t": 0.05, "kind": "aim", "at": [220, 0] },
+    { "t": 0.1, "kind": "primary_hold", "duration": 1.5 },
+    { "t": 2.0, "kind": "snap", "label": "t2_battle" },
+    { "t": 3.0, "kind": "force_level", "levels": 2 },
+    { "t": 3.4, "kind": "snap", "label": "t3_upgrade_open" },
+    { "t": 3.6, "kind": "pick_upgrade", "index": 0 },
+    { "t": 3.9, "kind": "probe", "label": "after_pick_no_ability_cooldown" },
+    { "t": 4.5, "kind": "snap", "label": "t4_after_pick" },
+    { "t": 6.0, "kind": "set_hp", "fraction": 0.2 },
+    { "t": 7.0, "kind": "snap", "label": "t7_low_hp_heal_arrow" },
+    { "t": 9.0, "kind": "report" }
+  ]
+}

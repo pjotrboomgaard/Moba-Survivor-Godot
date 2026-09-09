@@ -1,0 +1,20 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 2,
+  "duration": 30,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Verify dev skip_wave: each press advances one wave; repeated presses reach the boss wave (wave 4 = The Ravager).",
+  "events": [
+    {"kind": "probe", "label": "wave_start", "t": 1.0},
+    {"kind": "skip_wave", "t": 2.0, "label": "skip1"},
+    {"kind": "probe", "label": "after_skip1", "t": 3.0},
+    {"kind": "skip_wave", "t": 4.0, "label": "skip2"},
+    {"kind": "probe", "label": "after_skip2", "t": 5.0},
+    {"kind": "skip_wave", "t": 6.0, "label": "skip3"},
+    {"kind": "probe", "label": "after_skip3", "t": 7.0},
+    {"kind": "snap", "label": "boss_wave", "t": 12.0},
+    {"kind": "report", "t": 20.0}
+  ]
+}

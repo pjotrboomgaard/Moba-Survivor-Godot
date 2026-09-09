@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "biome": 0,
+  "comment": "Tree shadow close-up: focus camera on a tree, snap close-ups to verify the ground shadow matches the tree silhouette and is anchored at the trunk base.",
+  "events": [
+    {"t": 3.0, "kind": "probe", "label": "start"},
+    {"t": 3.5, "kind": "focus_tree", "zoom": 3.0},
+    {"t": 4.0, "kind": "snap", "label": "tree_closeup"},
+    {"t": 4.5, "kind": "snap", "label": "tree_medium"},
+    {"t": 5.0, "kind": "report"}
+  ]
+}

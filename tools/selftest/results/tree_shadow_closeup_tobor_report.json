@@ -47,8 +47,8 @@
         ],
         "kills_to_win": 15,
         "map": [
-          9200.0,
-          7200.0
+          8400.0,
+          5600.0
         ]
       },
       "hero": "tobor",
@@ -56,43 +56,25 @@
       "hp_frac": 1.0,
       "hp_max": 82.0,
       "kind": "probe",
-      "label": "pads_at_start",
+      "label": "start",
       "last_tapped": -1,
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.00613637037037,
-      "teleporters": [
-        [
-          -4008.0,
-          -3168.0
-        ],
-        [
-          4020.0,
-          3196.0
-        ],
-        [
-          4020.0,
-          -3140.0
-        ],
-        [
-          -3928.0,
-          3168.0
-        ],
-        [
-          -4048.0,
-          0.0
-        ],
-        [
-          4048.0,
-          0.0
-        ]
-      ]
+      "t": 3.03333333333333,
+      "teleporters": []
+    },
+    {
+      "kind": "focus_tree",
+      "label": "",
+      "pos": "(1230.222, -867.5555)",
+      "t": 3.52261904761904,
+      "tree": "tree_oak"
     }
   ],
-  "elapsed": 2.01363636363636,
+  "elapsed": 5.01082933333333,
   "enemies_spawned": 0,
-  "hero_position": "(72.0, 0.0)",
+  "hero_position": "(1300.222, -847.5555)",
   "player_class": "tobor",
   "results": {
     "alive": true,
@@ -102,50 +84,15 @@
     "casts": [],
     "creep_kills": 0,
     "died": false,
-    "errors": [
-      "match was not FFA"
-    ],
-    "ffa": {
-      "all_bots": false,
-      "count": 1,
-      "enabled": false,
-      "heroes": [
-        {
-          "alive": true,
-          "class": "tobor",
-          "cpu": false,
-          "kills": 0,
-          "local": true,
-          "peer": 1,
-          "pos": [
-            72.0,
-            0.0
-          ],
-          "team": ""
-        }
-      ],
-      "kills_to_win": 15,
-      "map": [
-        9200.0,
-        7200.0
-      ]
-    },
+    "errors": [],
+    "ffa": {},
     "gold": 0,
     "hero_kills": 0,
-    "hp_samples": [
-      {
-        "alive": true,
-        "class": "tobor",
-        "gold": 0,
-        "hp": 1.0,
-        "kills": 0,
-        "t": 0.15
-      }
-    ],
+    "hp_samples": [],
     "landmark_saves": 0,
     "level": 1,
     "level_upgrades": {},
-    "max_hp": 1.0,
+    "max_hp": 0.0,
     "min_hp": 1.0,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
@@ -155,15 +102,20 @@
     "shop_buys": [],
     "taken_upgrades": [],
     "until_wave": 20,
-    "verdict": "FAIL_NOT_FFA",
+    "verdict": "",
     "wave": 1,
     "xp": 0
   },
   "shots": [
     {
-      "label": "factory_start",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3899/factory_start_1.110_3899.png",
-      "t": 1.1102502962963
+      "label": "tree_closeup",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7362/tree_closeup_4.002_7362.png",
+      "t": 4.00208333333333
+    },
+    {
+      "label": "tree_medium",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7863/tree_medium_4.517_7863.png",
+      "t": 4.51738033333333
     }
   ]
 }

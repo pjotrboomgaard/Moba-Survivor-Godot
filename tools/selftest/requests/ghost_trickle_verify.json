@@ -1,0 +1,14 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 1,
+  "duration": 30,
+  "comment": "Verify ghost trickle: enemies stream from map edges, minimap shows amber ghost dots, real enemies spawn off-screen. Also checks quest minimap uses seek_position.",
+  "events": [
+    { "t": 0.5, "kind": "snap", "label": "ghost_start" },
+    { "t": 5.0, "kind": "snap", "label": "ghost_5s" },
+    { "t": 15.0, "kind": "snap", "label": "ghost_15s" },
+    { "t": 25.0, "kind": "snap", "label": "ghost_25s" },
+    { "t": 29.5, "kind": "report" }
+  ]
+}

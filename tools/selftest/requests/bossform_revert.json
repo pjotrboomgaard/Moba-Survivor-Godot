@@ -1,0 +1,18 @@
+{
+  "hero": "arclight",
+  "comment": "Boss-form revert: grant form, register 3 hero kills, verify revert to normal hero.",
+  "events": [
+    {"t": 0.3, "kind": "spawn", "at": [100, 40], "type": "grunt"},
+    {"t": 0.3, "kind": "spawn", "at": [100, -40], "type": "grunt"},
+    {"t": 0.5, "kind": "bossform_grant", "boss": "brute"},
+    {"t": 0.7, "kind": "bossform_probe", "label": "after_grant"},
+    {"t": 1.0, "kind": "bossform_kill", "count": 1},
+    {"t": 1.2, "kind": "bossform_probe", "label": "after_kill_1"},
+    {"t": 1.5, "kind": "bossform_kill", "count": 2},
+    {"t": 1.7, "kind": "bossform_probe", "label": "after_kill_2"},
+    {"t": 2.0, "kind": "bossform_kill", "count": 3},
+    {"t": 2.2, "kind": "bossform_probe", "label": "after_kill_3_reverted"},
+    {"t": 2.5, "kind": "snap", "label": "reverted_hud"},
+    {"t": 3.0, "kind": "report"}
+  ]
+}

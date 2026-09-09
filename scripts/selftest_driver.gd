@@ -353,6 +353,10 @@ func _process(delta: float) -> void:
 				_record_biome(str(event.get("label", "biome")))
 			"sound_probe":
 				_record_sound_probe(str(event.get("label", "")), str(event.get("ability_id", "")))
+			"camera_zoom":
+				# Move the camera to a world position and set zoom so the next snap
+				# is a close-up (used for shadow / detail inspection).
+				_camera_focus(event)
 			"wait":
 				await get_tree().create_timer(float(event.get("duration", 0.5))).timeout
 			"effect_log":
@@ -383,6 +387,10 @@ func _process(delta: float) -> void:
 					_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, false, false, [false, false, false, false], false)
 			"landmarks":
 				_record_landmarks(str(event.get("label", "landmarks")))
+			"primary_hold":
+				# Hold LMB (basic attack) for `duration` seconds so the player auto-fires
+				# at the nearest enemy. Verifies weapon damage + projectile/impact.
+				_primary_hold(float(event.get("duration", 1.0)))
 			"secondary_hold":
 				# Hold RMB for `duration` seconds to wind up the charge, then release.
 				# Exercises the hold-to-charge RMB path end-to-end.
@@ -400,11 +408,30 @@ func _process(delta: float) -> void:
 				# Directly fire one of the boss attacks (slam/cross/volley) to verify
 				# they run without error and set their cooldowns.
 				_bossform_fire_attack(str(event.get("which", "slam")))
+			"bossform_kill":
+				# Simulate a hero kill while in boss form to test the revert threshold.
+				if _player != null and _player.in_boss_form:
+					var n := int(event.get("count", 1))
+					for _i in n:
+						if _player.boss_form_register_hero_kill():
+							_player.revert_boss_form()
+					if not _player.in_boss_form:
+						_active_effects.append({"kind": "bossform_kill", "reverted": true, "t": _elapsed})
 			"town_spawn":
 				# Force a town quest for the local player at the top-left corner.
 				_spawn_town_quest(str(event.get("art", "wolf")))
 			"teleporter_probe":
 				_record_teleporters(str(event.get("label", "teleporters")))
+			"focus_tree":
+				_focus_tree(event)
+			"force_level":
+				_force_level(int(event.get("levels", 1)))
+			"set_hp":
+				_set_hp_fraction(float(event.get("fraction", 0.5)))
+			"pick_upgrade":
+				_pick_upgrade_index(int(event.get("index", 0)))
+			"skip_wave":
+				_dev_skip_wave()
 			"report":
 				_finish_and_quit()
 
@@ -424,6 +451,61 @@ func _tick_walk() -> void:
 		_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, attack, false, [false, false, false, false], false)
 		return
 	_player.set_authority_command(offset.normalized(), _player.aim_world_position, attack, false, [false, false, false, false], false)
+
+
+## Move the 2D camera to a world position and set a zoom so the next snap is a
+## close-up. Used for shadow / detail inspection. `at` is a player-relative
+## offset by default; use "to" for absolute world coordinates.
+func _camera_focus(event: Dictionary) -> void:
+	var vp := get_viewport()
+	var cam := vp.get_camera_2d() if vp != null else null
+	if cam == null:
+		_active_effects.append({"kind": "camera_zoom", "t": _elapsed, "error": "no camera"})
+		return
+	var target := _player.global_position if _player != null else Vector2.ZERO
+	if event.has("to"):
+		var to_arr: Array = event.get("to")
+		target = Vector2(float(to_arr[0]), float(to_arr[1]))
+	elif event.has("at"):
+		var off: Array = event.get("at", [0.0, 0.0])
+		target = target + Vector2(float(off[0]), float(off[1]))
+	cam.global_position = target
+	cam.zoom = Vector2.ONE * float(event.get("zoom", 2.0))
+
+
+## Find a tree obstacle, park the player right next to it, and zoom the camera in for
+## a clean close-up of the tree + its ground shadow. Used for shadow-silhouette QA.
+func _focus_tree(event: Dictionary) -> void:
+	var arena: Variant = _host_main.get("arena") if _host_main != null else null
+	if arena == null or not (arena is Arena):
+		_active_effects.append({"kind": "focus_tree", "t": _elapsed, "error": "no arena"})
+		return
+	var tree: Obstacle = null
+	for obs in (arena as Arena).obstacles:
+		if obs == null or not is_instance_valid(obs):
+			continue
+		if str(obs.get("sprite_id")).contains("tree"):
+			tree = obs
+			break
+	if tree == null:
+		_active_effects.append({"kind": "focus_tree", "t": _elapsed, "error": "no tree obstacle"})
+		return
+	if _player != null:
+		_player.global_position = tree.global_position + Vector2(70.0, 20.0)
+		_player.set_authority_command(Vector2.ZERO, tree.global_position, false, false, [false, false, false, false], false)
+	var vp := get_viewport()
+	var cam := vp.get_camera_2d() if vp != null else null
+	if cam != null:
+		# Clear limits + smoothing so the camera sits exactly on the tree.
+		var cam2: Camera2D = cam
+		cam2.limit_left = -100000
+		cam2.limit_top = -100000
+		cam2.limit_right = 100000
+		cam2.limit_bottom = 100000
+		cam2.position_smoothing_enabled = false
+		cam2.global_position = tree.global_position + Vector2(30.0, 20.0)
+		cam2.zoom = Vector2.ONE * float(event.get("zoom", 3.0))
+	_active_effects.append({"kind": "focus_tree", "label": str(event.get("label", "")), "t": _elapsed, "tree": str(tree.get("sprite_id")), "pos": tree.global_position})
 
 
 ## Snapshot every active landmark's gameplay state so the test report can assert against it.
@@ -561,6 +643,34 @@ func _secondary_hold(duration: float) -> void:
 	_record_secondary_probe("post_release")
 
 
+## Hold LMB (basic attack) for `duration` seconds, keeping the aim pointed at the
+## nearest live enemy, so the weapon auto-fires and we can confirm it lands damage.
+func _primary_hold(duration: float) -> void:
+	if _player == null:
+		return
+	var aim := _player.global_position + Vector2(120.0, 0.0)
+	_player.aim_world_position = aim
+	var start_kills: int = _player.creep_kills if _player != null else 0
+	_player.set_authority_command(Vector2.ZERO, aim, true, false, [false, false, false, false], false)
+	var elapsed_held := 0.0
+	while elapsed_held < duration:
+		await get_tree().physics_frame
+		elapsed_held += get_process_delta_time()
+		var target := _nearest_enemy()
+		if target != null:
+			_player.aim_world_position = target.global_position
+	_player.set_authority_command(Vector2.ZERO, aim, false, false, [false, false, false, false], false)
+	var end_kills: int = _player.creep_kills
+	_active_effects.append({
+		"kind": "primary_probe",
+		"label": "primary_hold",
+		"t": _elapsed,
+		"kills_before": start_kills,
+		"kills_after": end_kills,
+		"enemies_alive": _alive_enemies().size(),
+	})
+
+
 ## Snapshot the secondary charge/cooldown state so a test report can assert on
 ## the hold-to-charge behaviour.
 func _record_secondary_probe(label: String) -> void:
@@ -598,6 +708,90 @@ func _record_bossform_probe(label: String) -> void:
 		"volley_cd": _player._boss_volley_cd,
 		"movement_speed": _player.movement_speed,
 		"weapon_damage": _player.weapon_damage,
+	})
+
+
+## Force the player to a given level by calling add_xp in a loop until the level
+## is reached. Used to verify level-up / upgrade offer flows without farming.
+func _force_level(target_level: int) -> void:
+	if _player == null:
+		_active_effects.append({"kind": "force_level", "error": "no player", "t": _elapsed})
+		return
+	# Safety cap to avoid runaway.
+	var guard := 0
+	while _player.level < target_level and guard < 100:
+		_player.add_xp(500)
+		guard += 1
+	_active_effects.append({
+		"kind": "force_level",
+		"target": target_level,
+		"actual": _player.level,
+		"t": _elapsed,
+	})
+
+
+## Set the player's health to a fraction (0.0-1.0) of max. Used to trigger low-HP
+## UI (e.g. heal arrow) in a deterministic way.
+func _set_hp_fraction(fraction: float) -> void:
+	if _player == null or _player.health == null:
+		_active_effects.append({"kind": "set_hp", "error": "no player/health", "t": _elapsed})
+		return
+	var max_hp := _player.health.max_health
+	_player.health.current_health = clampf(fraction, 0.0, 1.0) * max_hp
+	_player.health.health_changed.emit(_player.health.current_health, max_hp)
+	_active_effects.append({
+		"kind": "set_hp",
+		"fraction": fraction,
+		"actual": _player.health.current_health / max_hp,
+		"t": _elapsed,
+	})
+
+
+## Simulate the local player picking an upgrade by index. This exercises the same
+## path the HUD uses, so we can verify that picking an upgrade does NOT also
+## trigger an ability cast.
+func _pick_upgrade_index(index: int) -> void:
+	if _host_main == null:
+		_active_effects.append({"kind": "pick_upgrade", "error": "no host", "t": _elapsed})
+		return
+	if _player == null:
+		_active_effects.append({"kind": "pick_upgrade", "error": "no player", "t": _elapsed})
+		return
+	# Look up the pending upgrade id by index.
+	var pending: Array = _host_main.pending_upgrades.get(_player.owner_peer_id, [])
+	if index >= pending.size():
+		_active_effects.append({"kind": "pick_upgrade", "error": "index out of range", "index": index, "pending_size": pending.size(), "t": _elapsed})
+		return
+	var upgrade_id: String = str(pending[index])
+	var cooldowns_before := _player.ability_cooldowns.duplicate()
+	var pending_slot_before := _player._pending_ability_slot
+	_host_main._apply_upgrade_choice(_player.owner_peer_id, upgrade_id)
+	_active_effects.append({
+		"kind": "pick_upgrade",
+		"index": index,
+		"upgrade_id": upgrade_id,
+		"cooldowns_before": cooldowns_before,
+		"pending_slot_before": pending_slot_before,
+		"t": _elapsed,
+	})
+
+
+## Force the wave director to advance to the next wave immediately, then report the
+## resulting wave number. Used to verify the dev "SKIP WAVE" button path.
+func _dev_skip_wave() -> void:
+	if _host_main == null:
+		_active_effects.append({"kind": "skip_wave", "error": "no host", "t": _elapsed})
+		return
+	var wave_before := int(_host_main.get("current_wave"))
+	if _host_main.has_method("_dev_skip_wave"):
+		_host_main._dev_skip_wave()
+	var wave_after := int(_host_main.get("current_wave"))
+	_active_effects.append({
+		"kind": "skip_wave",
+		"wave_before": wave_before,
+		"wave_after": wave_after,
+		"advanced": wave_after > wave_before,
+		"t": _elapsed,
 	})
 
 

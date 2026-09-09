@@ -1,12 +1,12 @@
 ﻿{
-    "hero":  "tobor,arclight",
+    "hero":  "tobor,ember,bulwark",
     "class":  "arclight",
     "verdict":  "FAIL_WRONG_HERO",
     "kills":  "0",
-    "gold":  "561",
+    "gold":  "273",
     "casts":  "36",
-    "alive":  "True",
-    "min_hp":  "0.851034482758621",
+    "alive":  "False",
+    "min_hp":  "0.0",
     "roster":  "4",
     "exit":  0
 }

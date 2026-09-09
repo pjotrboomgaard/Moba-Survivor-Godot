@@ -62,6 +62,7 @@ const UPGRADE_ICON_MAX_WIDTH := 28
 @onready var dev_spawn_elite_button: Button = $DevPanel/DevLayout/DevButtons/SpawnEliteButton
 @onready var dev_invulnerable_button: Button = $DevPanel/DevLayout/DevButtons/InvulnerableButton
 @onready var dev_add_gold_button: Button = $DevPanel/DevLayout/DevButtons/AddGoldButton
+@onready var dev_skip_wave_button: Button = $DevPanel/DevLayout/DevButtons/SkipWaveButton
 @onready var codex_panel: PanelContainer = $CodexPanel
 @onready var codex_title: Label = $CodexPanel/CodexLayout/CodexTitle
 @onready var codex_scroll: ScrollContainer = $CodexPanel/CodexLayout/CodexScroll
@@ -110,6 +111,7 @@ var _shown_item_ids: Array[String] = []
 var _hud_wave := 1
 var _hotkeys_visible := false
 var secondary_hotkey_label: Label
+var _fps_counter: Label
 var _build_log_label: Label
 
 
@@ -185,6 +187,8 @@ func _ready() -> void:
 	dev_invulnerable_button.pressed.connect(_on_dev_button_pressed.bind("toggle_invulnerable"))
 	if dev_add_gold_button != null:
 		dev_add_gold_button.pressed.connect(_on_dev_button_pressed.bind("add_gold"))
+	if dev_skip_wave_button != null:
+		dev_skip_wave_button.pressed.connect(_on_dev_button_pressed.bind("skip_wave"))
 	next_wave_button.pressed.connect(_on_next_wave_pressed)
 	codex_title.text = "HOTKEYS  (TAB to close)"
 	codex_text.text = _build_help_text()
@@ -211,6 +215,7 @@ func _ready() -> void:
 	_set_world_wave(1)
 	upgrade_panel.visible = false
 	offered_upgrade_ids.clear()
+	_build_fps_counter()
 	if get_tree().paused:
 		get_tree().paused = false
 
@@ -219,18 +224,22 @@ func _unhandled_input(event: InputEvent) -> void:
 	if upgrade_panel.visible and event.is_pressed() and not event.is_echo():
 		if event.is_action_pressed("ability_1"):
 			get_viewport().set_input_as_handled()
+			Input.action_release("ability_1")
 			_on_upgrade_selected(0)
 			return
 		if event.is_action_pressed("ability_2"):
 			get_viewport().set_input_as_handled()
+			Input.action_release("ability_2")
 			_on_upgrade_selected(1)
 			return
 		if event.is_action_pressed("ability_3"):
 			get_viewport().set_input_as_handled()
+			Input.action_release("ability_3")
 			_on_upgrade_selected(2)
 			return
 		if event.is_action_pressed("ability_4"):
 			get_viewport().set_input_as_handled()
+			Input.action_release("ability_4")
 			_on_upgrade_selected(3)
 			return
 	if event.is_action_pressed("show_stats"):
@@ -371,6 +380,7 @@ func _process(delta: float) -> void:
 	_refresh_ability()
 	_refresh_ability_bar()
 	_refresh_ability_icons()
+	_refresh_fps_counter()
 	_refresh_item_icons()
 	_refresh_secondary_slot()
 	_refresh_aim_reticle()
@@ -381,6 +391,20 @@ func _process(delta: float) -> void:
 		_quest_toast_timer -= delta
 		if _quest_toast_timer <= 0.0:
 			_quest_toast.visible = false
+	# Quest direction arrow: fades out after a short window unless the player re-aims it
+	# by clicking the quest text.
+	var prev_quest_arrow := _quest_arrow_active
+	if _quest_arrow_active:
+		_quest_arrow_time_left -= delta
+		if _quest_arrow_time_left <= 0.0:
+			_quest_arrow_active = false
+			_quest_arrow_target = null
+	_refresh_quest_arrow()
+	# Low-HP heal arrow: shows a green arrow to the nearest heal landmark.
+	var prev_heal_arrow := _heal_arrow_active
+	_refresh_heal_arrow(delta)
+	if _arrow_overlay != null and (prev_quest_arrow != _quest_arrow_active or prev_heal_arrow != _heal_arrow_active or _quest_arrow_active or _heal_arrow_active):
+		_arrow_overlay.queue_redraw()
 
 
 ## Hold SHIFT to see it — a live readout of the bound player's current combat stats,
@@ -423,6 +447,7 @@ func _build_stats_text() -> String:
 	if bound_player.resistance_pierce > 0.0:
 		lines.append("Pierce: %d%%" % roundi(bound_player.resistance_pierce * 100.0))
 	lines.append("Gold: %d" % bound_player.gold)
+	lines.append("FPS: %d" % Engine.get_frames_per_second())
 	return "\n".join(lines)
 
 
@@ -784,7 +809,10 @@ func _refresh_item_icons() -> void:
 	for index in item_icon_slots.size():
 		if index >= ids.size():
 			break
-		(item_icon_slots[index].name as Label).text = _item_icon_caption(ids[index])
+		var caption := _item_icon_caption(ids[index])
+		var name_label := item_icon_slots[index].name as Label
+		if name_label.text != caption:
+			name_label.text = caption
 		var cd := _item_cooldown(ids[index])
 		_apply_kit_cooldown(item_icon_slots[index], cd.x, cd.y)
 
@@ -833,7 +861,8 @@ func _refresh_hotkey_overlays() -> void:
 		if hotkey == null:
 			continue
 		var bind := str(slot.get("bind", ""))
-		hotkey.text = bind
+		if hotkey.text != bind:
+			hotkey.text = bind
 		hotkey.visible = show and root != null and root.visible and not bind.is_empty()
 
 
@@ -900,8 +929,12 @@ func _refresh_bossform_ability_icons() -> void:
 		var ability: Dictionary = BOSSFORM_ABILITIES[slot]
 		var icon := nodes.icon as TextureRect
 		var name_label := nodes.name as Label
-		icon.texture = SpriteLibrary.texture_for(str(ability.icon))
-		name_label.text = _clip_label(str(ability.name))
+		var icon_id := str(ability.icon)
+		if icon.texture != SpriteLibrary.texture_for(icon_id):
+			icon.texture = SpriteLibrary.texture_for(icon_id)
+		var ability_caption := _clip_label(str(ability.name))
+		if name_label.text != ability_caption:
+			name_label.text = ability_caption
 		# Cooldowns come from the boss-form timers on the player.
 		var cd_key := "_boss_slam_cd" if slot == 0 else ("_boss_cross_cd" if slot == 1 else "_boss_volley_cd")
 		var remaining: float = float(bound_player.get(cd_key))
@@ -997,16 +1030,23 @@ func set_wave(wave: int, archetype_name: String = "") -> void:
 	pulse.tween_property(wave_label, "scale", Vector2.ONE, 0.18)
 
 
+var _last_boss_ref: Node = null
+
 func update_boss(boss: Enemy) -> void:
 	if boss == null or not is_instance_valid(boss):
 		boss_panel.visible = false
+		_last_boss_ref = null
 		return
 	boss_panel.visible = true
-	boss_name_label.text = str(EnemyType.by_id(boss.type_id).name).to_upper()
+	# Only rewrite the name / phase label when the boss instance changes;
+	# the health bar value changes every tick so it's always updated.
+	if _last_boss_ref != boss:
+		_last_boss_ref = boss
+		boss_name_label.text = str(EnemyType.by_id(boss.type_id).name).to_upper()
+		if boss_phase_label != null:
+			boss_phase_label.text = "PHASE %d / 3" % clampi(boss.boss_phase, 1, 3)
 	boss_bar.max_value = boss.health.max_health
 	boss_bar.value = boss.health.current_health
-	if boss_phase_label != null:
-		boss_phase_label.text = "PHASE %d / 3" % clampi(boss.boss_phase, 1, 3)
 
 
 func announce_wave(wave: int, theme_display_name: String, debut_type_id: String) -> void:
@@ -1339,7 +1379,12 @@ func _build_ffa_overlay() -> void:
 	rift_banner = Label.new()
 	rift_banner.name = "RiftBanner"
 	rift_banner.visible = false
-	rift_banner.position = Vector2(12, 8)
+	# Main HUD "score" (world/wave readout, top-left) sits at y=8. Stack the
+	# FFA kill leaderboard directly underneath it in the top-left corner.
+	const MAIN_BOARD_TOP := 8
+	const MAIN_BOARD_HEIGHT := 40
+	const FFA_BOARD_TOP := MAIN_BOARD_TOP + MAIN_BOARD_HEIGHT
+	rift_banner.position = Vector2(12, FFA_BOARD_TOP + 28)
 	rift_banner.add_theme_font_size_override("font_size", 16)
 	rift_banner.add_theme_color_override("font_shadow_color", Color.BLACK)
 	rift_banner.add_theme_constant_override("shadow_size", 3)
@@ -1348,14 +1393,14 @@ func _build_ffa_overlay() -> void:
 	ffa_board_bg.name = "FfaBoardBg"
 	ffa_board_bg.visible = false
 	ffa_board_bg.color = Color(0.04, 0.05, 0.08, 0.72)
-	ffa_board_bg.position = Vector2(8, 8)
+	ffa_board_bg.position = Vector2(8, FFA_BOARD_TOP)
 	ffa_board_bg.size = Vector2(268, 152)
 	add_child(ffa_board_bg)
 	ffa_scoreboard = VBoxContainer.new()
 	ffa_scoreboard.name = "FfaScoreboard"
 	ffa_scoreboard.visible = false
 	ffa_scoreboard.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ffa_scoreboard.position = Vector2(12, 10)
+	ffa_scoreboard.position = Vector2(12, FFA_BOARD_TOP + 2)
 	ffa_scoreboard.size = Vector2(260, 148)
 	ffa_scoreboard.add_theme_constant_override("separation", 2)
 	add_child(ffa_scoreboard)
@@ -1374,13 +1419,33 @@ var _quest_toast: Label = null
 var _quest_toast_timer := 0.0
 
 
+## Arrows drawn every frame in screen space: a quest arrow (gold) that points at the
+## active side quest, and a heal arrow (green) that appears when HP drops below
+## LOW_HP_HEAL_THRESHOLD and points at the nearest heal_all landmark.
+var _arrow_overlay: Control = null
+var _quest_arrow_active := false
+var _quest_arrow_time_left := 0.0
+var _quest_arrow_target: Node2D = null
+var _heal_arrow_active := false
+var _heal_arrow_target: Node2D = null
+## Cached heal-landmark lookup result. Re-scanning the "landmarks" group every frame
+## is wasted work when the set of landmarks is static; refresh on a slow timer instead.
+var _heal_landmark_cache_timer := 0.0
+const _HEAL_LANDMARK_CACHE_INTERVAL := 0.5
+const QUEST_ARROW_DURATION := 8.0
+const LOW_HP_HEAL_THRESHOLD := 0.35
+
 func _build_side_quest_label() -> void:
 	quest_label = Label.new()
 	quest_label.name = "QuestLabel"
 	quest_label.visible = false
 	quest_label.position = Vector2(290, 14)
 	quest_label.size = Vector2(620, 68)
-	quest_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Mouse-enabled so the player can click the quest text to re-aim the arrow.
+	quest_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	quest_label.mouse_entered.connect(_on_quest_label_mouse_entered)
+	quest_label.mouse_exited.connect(_on_quest_label_mouse_exited)
+	quest_label.gui_input.connect(_on_quest_label_gui_input)
 	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	quest_label.add_theme_font_size_override("font_size", 15)
 	quest_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.42, 1.0))
@@ -1400,6 +1465,88 @@ func _build_side_quest_label() -> void:
 	_quest_toast.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.95))
 	_quest_toast.add_theme_constant_override("shadow_outline_size", 3)
 	add_child(_quest_toast)
+	# Screen-space overlay used to draw the quest / heal direction arrows.
+	_arrow_overlay = Control.new()
+	_arrow_overlay.name = "ArrowOverlay"
+	_arrow_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_arrow_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_arrow_overlay.draw.connect(_draw_arrow_overlay)
+	add_child(_arrow_overlay)
+
+
+func _on_quest_label_mouse_entered() -> void:
+	if quest_label != null:
+		quest_label.modulate = Color(1.08, 1.08, 1.08, 1.0)
+		_update_quest_label_cursor()
+
+
+func _on_quest_label_mouse_exited() -> void:
+	if quest_label != null:
+		quest_label.modulate = Color.WHITE
+		_update_quest_label_cursor()
+
+
+func _update_quest_label_cursor() -> void:
+	var vp := get_viewport()
+	if vp == null:
+		return
+	vp.gui.set_input_on_drag(false)
+	# Simplest hover hint: brighten slightly; no OS cursor swap needed for a Label.
+
+
+func _on_quest_label_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and (event.button_index == MOUSE_BUTTON_LEFT or event.button_index == MOUSE_BUTTON_RIGHT):
+		# Clicking the quest text re-aims the arrow for a fresh duration.
+		_rearm_quest_arrow()
+
+
+## Called by the quest system / HUD when a new quest becomes visible: restart the arrow
+## timer and pin the arrow to the first active quest node if one is found.
+func rearm_quest_arrow() -> void:
+	_rearm_quest_arrow()
+
+
+func _rearm_quest_arrow() -> void:
+	_quest_arrow_active = true
+	_quest_arrow_time_left = QUEST_ARROW_DURATION
+	_ensure_quest_arrow_target()
+	if _arrow_overlay != null:
+		_arrow_overlay.queue_redraw()
+
+
+func _ensure_quest_arrow_target() -> void:
+	# Side quests live in group "side_quest" (see side_quest.gd / minimap.gd).
+	var group: Array = get_tree().get_nodes_in_group("side_quest")
+	var best: Node2D = null
+	var best_dist := INF
+	if bound_player != null:
+		for node in group:
+			if not is_instance_valid(node) or not (node is Node2D):
+				continue
+			var n := node as Node2D
+			var d := bound_player.global_position.distance_to(n.global_position)
+			if d < best_dist:
+				best_dist = d
+				best = n
+	_quest_arrow_target = best
+
+
+func _find_nearest_heal_landmark() -> Node2D:
+	var best: Node2D = null
+	var best_dist := INF
+	if bound_player == null:
+		return null
+	for node in get_tree().get_nodes_in_group("landmarks"):
+		if not is_instance_valid(node) or not (node is ArenaLandmark):
+			continue
+		var landmark := node as ArenaLandmark
+		if str(landmark.effect_id) != "heal_all":
+			continue
+		var d := bound_player.global_position.distance_to(landmark.global_position)
+		if d < best_dist:
+			best_dist = d
+			best = landmark
+	return best
 
 
 func _build_build_log() -> void:
@@ -1440,11 +1587,42 @@ func _refresh_build_log() -> void:
 	_build_log_label.text = "  |  ".join(parts)
 
 
+func _build_fps_counter() -> void:
+	"""Creates a small always-visible FPS counter in the top-right corner."""
+	var fps := Label.new()
+	fps.name = "FpsCounter"
+	fps.visible = true
+	fps.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fps.position = Vector2(0, 0)
+	fps.add_theme_font_size_override("font_size", 11)
+	fps.add_theme_color_override("font_color", Color(0.6, 0.8, 0.6, 0.7))
+	fps.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	fps.add_theme_constant_override("shadow_outline_size", 2)
+	fps.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var vp := get_viewport().get_visible_rect().size
+	fps.position = Vector2(vp.x - 70, 4)
+	fps.size = Vector2(65, 16)
+	add_child(fps)
+	_fps_counter = fps
+
+
+func _refresh_fps_counter() -> void:
+	if _fps_counter == null:
+		return
+	var fps := int(Engine.get_frames_per_second())
+	_fps_counter.text = "%d FPS" % fps
+
+
 func set_side_quest_text(text: String) -> void:
 	if quest_label == null:
 		return
 	quest_label.text = text
 	quest_label.visible = not text.is_empty()
+	# Auto-aim the quest arrow whenever new quest text appears (first time / new quest).
+	if not text.is_empty() and bound_player != null:
+		_ensure_quest_arrow_target()
+		if _quest_arrow_target != null and not _quest_arrow_active:
+			_rearm_quest_arrow()
 
 
 func show_quest_toast(text: String) -> void:
@@ -1453,6 +1631,101 @@ func show_quest_toast(text: String) -> void:
 	_quest_toast.text = text
 	_quest_toast.visible = true
 	_quest_toast_timer = 4.0
+	# New quest: point the arrow at it for QUEST_ARROW_DURATION seconds.
+	_rearm_quest_arrow()
+
+
+## Refresh quest arrow target every frame (target may die / get replaced).
+func _refresh_quest_arrow() -> void:
+	if not _quest_arrow_active:
+		return
+	if _quest_arrow_target == null or not is_instance_valid(_quest_arrow_target):
+		_ensure_quest_arrow_target()
+		if _quest_arrow_target == null:
+			_quest_arrow_active = false
+			_quest_arrow_time_left = 0.0
+
+
+## Refresh low-HP heal arrow target. The landmark scan is throttled to
+## _HEAL_LANDMARK_CACHE_INTERVAL (0.5 s) because landmarks are static and the
+## result only needs to change when the player moves far enough that a different
+## landmark becomes nearest — a 500 ms refresh is imperceptible for an arrow that
+## just shows "there is a heal spot over there".
+func _refresh_heal_arrow(delta: float) -> void:
+	if bound_player == null or bound_player.health == null:
+		_heal_arrow_active = false
+		return
+	var hp_frac := bound_player.health.current_health / bound_player.health.max_health
+	if hp_frac < LOW_HP_HEAL_THRESHOLD:
+		_heal_landmark_cache_timer -= delta
+		if _heal_landmark_cache_timer <= 0.0:
+			_heal_landmark_cache_timer = _HEAL_LANDMARK_CACHE_INTERVAL
+			var landmark := _find_nearest_heal_landmark()
+			if landmark != null:
+				_heal_arrow_active = true
+				_heal_arrow_target = landmark
+			else:
+				_heal_arrow_active = false
+		# Keep the existing target visible between refreshes.
+	else:
+		_heal_arrow_active = false
+		_heal_landmark_cache_timer = 0.0
+
+
+## Draws direction arrows in screen space. Quest arrow (gold) points toward the active
+## side quest; heal arrow (green) points toward the nearest heal_all landmark when HP is low.
+func _draw_arrow_overlay() -> void:
+	if _arrow_overlay == null:
+		return
+	var vp := get_viewport()
+	if vp == null:
+		return
+	var cam := vp.get_camera_2d()
+	if cam == null:
+		return
+	var vp_size := vp.get_visible_rect().size
+	var center := vp_size * 0.5
+
+	if _quest_arrow_active and _quest_arrow_target != null and is_instance_valid(_quest_arrow_target):
+		_draw_direction_arrow(center, _quest_arrow_target, cam, Color(1.0, 0.88, 0.35, 0.9), "QUEST")
+	if _heal_arrow_active and _heal_arrow_target != null and is_instance_valid(_heal_arrow_target):
+		_draw_direction_arrow(center, _heal_arrow_target, cam, Color(0.35, 0.95, 0.5, 0.9), "HEAL")
+
+
+## Draws an arrow from screen-center toward a world-position target, clamped to the
+## viewport edge. Optionally shows a short label near the arrowhead.
+func _draw_direction_arrow(center: Vector2, target: Node2D, cam: Camera2D, color: Color, label: String) -> void:
+	# Convert world position to screen (canvas) coordinates.
+	var screen_pos := cam.get_canvas_transform() * target.global_position
+	var dir := screen_pos - center
+	if dir.length_squared() < 400.0:
+		return
+	dir = dir.normalized()
+	# Draw arrow at edge of viewport, pointing inward.
+	var half_w := center.x
+	var half_h := center.y
+	var t_x := half_w / absf(dir.x) if absf(dir.x) > 0.001 else INF
+	var t_y := half_h / absf(dir.y) if absf(dir.y) > 0.001 else INF
+	var t := minf(t_x, t_y) * 0.85
+	var end := center + dir * t
+	var start := end - dir * 34.0
+	# Arrow shaft
+	_arrow_overlay.draw_line(start, end, color, 3.0)
+	# Arrowhead
+	var perp := dir.orthogonal()
+	_arrow_overlay.draw_line(end, end - dir * 12.0 + perp * 7.0, color, 3.0)
+	_arrow_overlay.draw_line(end, end - dir * 12.0 - perp * 7.0, color, 3.0)
+	# Label
+	var label_pos := end - dir * 44.0
+	_arrow_overlay.draw_string(
+		ThemeDB.fallback_font,
+		label_pos,
+		label,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		-1.0,
+		13,
+		color
+	)
 
 
 func _hero_portrait(class_id: String) -> Texture2D:
@@ -1683,8 +1956,18 @@ class AimReticle extends Control:
 	var charge_t := 0.0
 	var show_charge := false
 
-	func _process(_delta: float) -> void:
-		queue_redraw()
+	## Throttle redraw to 30 Hz — the reticle only moves when the mouse moves,
+	## The reticle tracks the mouse, so it needs to redraw at the display refresh rate
+	## to feel responsive. 60 Hz is the sweet spot — imperceptibly smooth and cheap
+	## (just a few draw_arc calls). The old 30 Hz made the cursor feel "stuck".
+	var _reticle_redraw_accum := 0.0
+	const _RETICLE_REDRAW_INTERVAL := 1.0 / 60.0
+
+	func _process(delta: float) -> void:
+		_reticle_redraw_accum += delta
+		if _reticle_redraw_accum >= _RETICLE_REDRAW_INTERVAL:
+			_reticle_redraw_accum = 0.0
+			queue_redraw()
 
 	func _draw() -> void:
 		var p := get_local_mouse_position()

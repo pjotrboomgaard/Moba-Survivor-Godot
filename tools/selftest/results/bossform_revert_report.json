@@ -1,0 +1,166 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 2,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              72.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "hero": "arclight",
+      "hp": 220.0,
+      "hp_frac": 1.0,
+      "hp_max": 220.0,
+      "kind": "probe",
+      "label": "bossform_granted",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 0.518006,
+      "teleporters": []
+    },
+    {
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 44.7795139365079,
+      "cross_cd": 0.0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "label": "after_grant",
+      "movement_speed": 435.0,
+      "slam_cd": 0.0,
+      "t": 0.738492063492064,
+      "volley_cd": 0.0,
+      "weapon_damage": 32.4
+    },
+    {
+      "boss_form_hero_kills": 1,
+      "boss_form_timer": 44.2997946666667,
+      "cross_cd": 0.0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "label": "after_kill_1",
+      "movement_speed": 435.0,
+      "slam_cd": 0.0,
+      "t": 1.21821133333333,
+      "volley_cd": 0.0,
+      "weapon_damage": 32.4
+    },
+    {
+      "kind": "bossform_kill",
+      "reverted": true,
+      "t": 1.50430642857143
+    },
+    {
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 0.0,
+      "cross_cd": 0.0,
+      "in_boss_form": false,
+      "kind": "bossform_probe",
+      "label": "after_kill_2",
+      "movement_speed": 300.0,
+      "slam_cd": 0.0,
+      "t": 1.73887555555556,
+      "volley_cd": 0.0,
+      "weapon_damage": 18.0
+    },
+    {
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 0.0,
+      "cross_cd": 0.0,
+      "in_boss_form": false,
+      "kind": "bossform_probe",
+      "label": "after_kill_3_reverted",
+      "movement_speed": 300.0,
+      "slam_cd": 0.0,
+      "t": 2.21111111111111,
+      "volley_cd": 0.0,
+      "weapon_damage": 18.0
+    }
+  ],
+  "elapsed": 3.02354533333333,
+  "enemies_spawned": 2,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 8,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 20
+  },
+  "shots": [
+    {
+      "label": "reverted_hud",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5467/reverted_hud_2.542_5467.png",
+      "t": 2.54166666666667
+    }
+  ]
+}

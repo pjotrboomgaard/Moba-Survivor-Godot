@@ -164,6 +164,7 @@ func _ready() -> void:
 	hard_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.HARD))
 	brutal_button.pressed.connect(_on_difficulty_pressed.bind(GameRuntime.Difficulty.BRUTAL))
 	_refresh_difficulty()
+	_setup_menu_tooltips()
 	for slot_index in loadout_slots.size():
 		_decorate_slot_button(loadout_slots[slot_index] as Button)
 	_apply_tobor_theme()
@@ -291,8 +292,8 @@ func _constrain_lobby_layout() -> void:
 	lobby_panel.clip_contents = true
 	lobby_panel.size_flags_horizontal = Control.SIZE_SHRINK_END
 	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.05, 0.055, 0.07, 0.97)
-	panel_style.border_color = Color(0.32, 0.26, 0.16, 1.0)
+	panel_style.bg_color = Color(0.05, 0.055, 0.07, 0.0)
+	panel_style.border_color = Color(0.32, 0.26, 0.16, 0.0)
 	panel_style.set_border_width_all(1)
 	panel_style.set_corner_radius_all(4)
 	lobby_panel.add_theme_stylebox_override("panel", panel_style)
@@ -662,6 +663,25 @@ func _on_difficulty_pressed(next_difficulty: GameRuntime.Difficulty) -> void:
 	AudioService.play("ui_click")
 	GameRuntime.set_difficulty(next_difficulty)
 	_refresh_difficulty()
+
+
+## Hover explanations for the difficulty + game-mode rows. Godot's Button renders
+## `tooltip_text` natively when hovered, so this just fills each button's string.
+func _setup_menu_tooltips() -> void:
+	if easy_button != null:
+		easy_button.tooltip_text = "EASY — Fewer, weaker enemies with a gentler scaling curve and more starting resources. Best for learning the ropes."
+	if normal_button != null:
+		normal_button.tooltip_text = "NORMAL — The standard experience. Baseline enemy health, spawn counts, and difficulty scaling."
+	if hard_button != null:
+		hard_button.tooltip_text = "HARD — Tougher enemies (≈1.5× health) and a steeper difficulty ramp. Rewarding for confident players."
+	if brutal_button != null:
+		brutal_button.tooltip_text = "BRUTAL — Extreme run: ≈2.25× enemy health and aggressive scaling. High risk, high reward."
+	if solo_toggle != null:
+		solo_toggle.tooltip_text = "SOLO — Play alone or with a co-op friend; survive the enemy waves together."
+	if coop_toggle != null:
+		coop_toggle.tooltip_text = "CO-OP — Host or join a lobby and team up with up to 4 players against the waves."
+	if tobor_world_button != null:
+		tobor_world_button.tooltip_text = "FFA — 4 players fight each other; first to the kill target wins. Last one standing takes the crown."
 
 
 func _refresh_difficulty() -> void:

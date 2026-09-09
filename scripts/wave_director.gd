@@ -432,6 +432,15 @@ func skip_intermission() -> void:
 		_begin_next_wave()
 
 
+## Dev command: advance immediately to the next wave. Works both during the intermission
+## breather and while a wave is still spawning enemies — it cuts straight to the next one,
+## so pressing it repeatedly walks you to the boss wave without waiting out each timer.
+func force_next_wave() -> void:
+	if running:
+		intermission_timer = 0.0
+		_begin_next_wave()
+
+
 func _begin_next_wave() -> void:
 	wave += 1
 	wave_elapsed = 0.0
@@ -544,7 +553,7 @@ func _desired_live() -> int:
 	# Cap climbs from wave 1 so every stage stays busy, not just the late run.
 	# FFA has 4 players each running their own AI + wave director, so cap lower
 	# to avoid lag from too many enemies simultaneously.
-	var live_cap := mini(55 + int(float(wave) * 4.0), 190)
+	var live_cap := mini(40 + int(float(wave) * 3.0), 120)
 	if GameRuntime.is_ffa():
 		live_cap = mini(live_cap, 70)
 	return clampi(floor_n, 6, live_cap)

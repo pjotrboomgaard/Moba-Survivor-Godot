@@ -4,7 +4,7 @@
       "art": "wolf",
       "kind": "town_spawn",
       "ok": true,
-      "t": 1.03420604761905
+      "t": 1.02182566666667
     },
     {
       "abilities": [
@@ -67,7 +67,7 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 1.543344,
+      "t": 1.54583333333333,
       "teleporters": []
     },
     {
@@ -181,18 +181,18 @@
           "id": "town_house3"
         }
       ],
-      "t": 2.53479
+      "t": 2.53333333333333
     },
     {
       "enemies_alive": 0,
       "enemies_total": 0,
-      "fps": 19.0,
+      "fps": 20.0,
       "kind": "fps_probe",
       "label": "grass_fps",
-      "t": 3.01732062962963
+      "t": 3.01666666666667
     }
   ],
-  "elapsed": 3.50108633333333,
+  "elapsed": 3.54478433333333,
   "enemies_spawned": 0,
   "hero_position": "(72.0, 0.0)",
   "player_class": "tobor",
@@ -229,8 +229,8 @@
   "shots": [
     {
       "label": "town_view",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4652/town_view_1.638_4652.png",
-      "t": 1.638496
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4447/town_view_1.638_4447.png",
+      "t": 1.6375
     }
   ]
 }

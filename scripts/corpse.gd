@@ -61,10 +61,14 @@ func _build_corpse_image(src: Texture2D, tint: Color) -> ImageTexture:
 			if c.a < 0.1:
 				flat.set_pixel(x, y, Color(0, 0, 0, 0))
 				continue
-			# Desaturate + darken toward a cool grey, keep a hint of the tint.
+			# Desaturate + darken, but keep more of the original color for visual detail.
 			var grey: float = c.r * 0.3 + c.g * 0.59 + c.b * 0.11
-			var out := Color(grey, grey, grey + 0.05, c.a)
-			out = out.lerp(tint, 0.18)
+			# Blend: 60% desaturated grey, 40% original color → reads as "colored but dead".
+			var out := Color(c.r, c.g, c.b, c.a).lerp(Color(grey * 0.65, grey * 0.6, grey * 0.55, c.a), 0.5)
+			out = out.lerp(tint, 0.3)
+			# Slight darkening at the bottom (like blood pooling on the ground).
+			if y > new_h * 0.7:
+				out = out.lerp(Color(0.15, 0.05, 0.05, c.a), 0.25)
 			flat.set_pixel(x, y, out)
 	# Stamp two dead X-eyes in the upper-center third of the corpse.
 	var eye_y := maxi(1, new_h / 3)

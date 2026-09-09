@@ -22,10 +22,23 @@ var _shadow_rev := -1
 var _is_tree_shadow := false
 var _shadow_img: Image = null
 
+## Sprite ID prefixes that should stay bright and glow at night (counteracting the
+## dark blue ambient). Lava, fire, powerlines, and similar emissive assets.
+const GLOW_AT_NIGHT_PREFIXES: Array[String] = [
+	"lava", "fire", "flame", "ember", "magma", "furnace", "forge",
+	"powerline", "power", "cable", "wire", "neon", "sign",
+	"lamp", "light", "glow", "led", "spark", "circuit", "pipe",
+]
+## How strongly to counteract the night ambient. 1.0 = full counteract (stays at
+## day brightness), >1.0 = slightly brighter than day at night (true glow).
+const GLOW_COMPENSATE := 1.15
+var _glow_at_night := false
+
 
 func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixels: float) -> void:
 	sprite_id = sprite_name
 	body_radius = radius
+	_glow_at_night = _is_glow_eligible(sprite_name)
 	var circle := CircleShape2D.new()
 	circle.radius = maxf(0.1, radius)
 	collision.shape = circle
@@ -94,8 +107,32 @@ func _process(_delta: float) -> void:
 	if WorldClock.shadow_alpha <= 0.0:
 		set_process(false)
 		_update_shadow_rotation()
+		_refresh_glow()
 		return
 	_update_shadow()
+	_refresh_glow()
+
+
+## At night, the CanvasModulate darkens the whole scene with WorldClock.ambient
+## (a dark blue tint). Glow-eligible sprites (lava, fire, powerlines, etc.)
+## counteract this by boosting their own modulate so they stay bright — and even
+## glow slightly above day brightness. The ambient color is applied uniformly, so
+## dividing the sprite's modulate by ambient restores full brightness; multiplying
+## by GLOW_COMPENSATE on top makes them emit light relative to the dark surroundings.
+func _refresh_glow() -> void:
+	if sprite == null:
+		return
+	if not _glow_at_night:
+		sprite.modulate = Color.WHITE
+		return
+	if WorldClock.is_night and WorldClock.ambient != Color.WHITE:
+		# Counteract the ambient darkening + add a glow boost.
+		var r := GLOW_COMPENSATE / maxf(0.01, WorldClock.ambient.r)
+		var g := GLOW_COMPENSATE / maxf(0.01, WorldClock.ambient.g)
+		var b := GLOW_COMPENSATE / maxf(0.01, WorldClock.ambient.b)
+		sprite.modulate = Color(minf(r, 2.5), minf(g, 2.5), minf(b, 2.5), 1.0)
+	else:
+		sprite.modulate = Color.WHITE
 
 
 func _update_shadow_rotation() -> void:
@@ -108,25 +145,44 @@ func _update_shadow_rotation() -> void:
 	# is short. At dusk the sun is low in the west, shadow points east.
 	var shadow_dir := -dir
 	var angle := shadow_dir.angle()
-	# Texture is built with the canopy at the top (local -Y) and the trunk
-	# at the bottom (local +Y). Rotating by (angle + PI/2) makes local -Y
-	# (the canopy) align with shadow_dir, so the tree "falls" away from the
-	# sun with its trunk end anchored near the tree base.
-	_shadow.rotation = angle + PI / 2.0
-	var stretch := WorldClock.shadow_stretch
-	# Trees: the shadow center slides along shadow_dir in proportion to how
-	# low the sun is (high stretch = low sun = long shadow that reaches far).
-	# Rocks keep a small fixed base offset so their blob stays under the rock.
-	# Trees: the shadow slides along shadow_dir in proportion to how low the sun
-	# is, but is capped so it never drifts far from the trunk and look detached.
-	var off := minf(body_radius * (0.35 + stretch * 0.9), body_radius * 1.4) if _is_tree_shadow else body_radius * 0.22
-	_shadow.position = shadow_dir * off + Vector2(0.0, body_radius * 0.10)
 	if _is_tree_shadow:
-		# Flatten the tree silhouette perpendicular to the fall direction so
-		# it reads as a ground projection, not a floating tree. Local X is
-		# perpendicular to the fall (local -Y = shadow_dir) after rotation.
-		_shadow.scale = Vector2(0.45, 1.0)
+		# Ground projection of the tree's own silhouette.
+		#
+		# The shadow texture is a 1:1 copy of the tree: trunk at the texture
+		# bottom (local +Y), canopy at the top (local -Y). A real tree's shadow
+		# on the ground is NOT as long as the tree — it's the canopy's footprint
+		# lying flat, stretching with how low the sun is. So we:
+		#   1. rotate so the canopy end (local -Y) points away from the sun
+		#      (along shadow_dir), i.e. the tree "falls" that way with its trunk
+		#      base planted at the obstacle origin;
+		#   2. scale it down to a ground-appropriate length (not full tree
+		#      height) and flatten it perpendicular to the fall so it reads as a
+		#      projection lying on the grass;
+		#   3. place the trunk root (local +Y end) at the tree base so the
+		#      shadow grows out from the trunk instead of floating beside it.
+		_shadow.rotation = angle + PI / 2.0
+		var tree_scale := sprite.scale if sprite != null else Vector2.ONE
+		var stretch := WorldClock.shadow_stretch
+		# Shadow length = fraction of the on-screen tree height that grows when
+		# the sun drops. 0.55x at noon (short), up to ~0.9x at dawn/dusk.
+		var length_factor := 0.55 + 0.35 * stretch
+		# Flatten perpendicular to the fall (local X after rotation) so the
+		# canopy reads as lying on the ground rather than standing upright.
+		var flatten := 0.62
+		_shadow.scale = tree_scale * Vector2(flatten, length_factor)
+		# Anchor the trunk end at the tree base. The texture center is at the
+		# sprite origin; after rotation the trunk end sits `len/2` back along
+		# shadow_dir. Placing the sprite center `len/2` forward along shadow_dir
+		# makes the trunk root land exactly on the obstacle origin.
+		var tree_h := 0.0
+		if _shadow_img != null:
+			tree_h = _shadow_img.get_height() * tree_scale.y
+		var shadow_len := tree_h * length_factor
+		_shadow.position = shadow_dir * (shadow_len * 0.5)
 	else:
+		# Rocks keep a small fixed base offset so their blob stays under the rock.
+		var off := body_radius * 0.22
+		_shadow.position = shadow_dir * off
 		_shadow.scale = Vector2.ONE
 	_shadow.modulate = Color(0.0, 0.0, 0.0, WorldClock.shadow_alpha)
 
@@ -264,6 +320,14 @@ static func display_zoom(sprite_name: String, pixel_zoom: float, texture: Textur
 
 static func is_floor_cover(sprite_name: String) -> bool:
 	return sprite_name == "grass_lush" or sprite_name == "grass_meadow" or sprite_name == "dirt_tile"
+
+## True for sprite ids that represent emissive/glowing assets which should stay
+## bright (and glow) at night: lava, fire, powerlines, neon signs, etc.
+static func _is_glow_eligible(sprite_name: String) -> bool:
+	for prefix in GLOW_AT_NIGHT_PREFIXES:
+		if sprite_name.contains(prefix):
+			return true
+	return false
 
 
 func _ensure_small_shadow(zoom: float, lift_pixels: float) -> void:

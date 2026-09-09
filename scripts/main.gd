@@ -6,8 +6,9 @@ const RunSave := preload("res://scripts/run_save.gd")
 const SideQuestDirector := preload("res://scripts/side_quest_director.gd")
 const CreepCampScript := preload("res://scripts/creep_camp.gd")
 const _CorpseScript := preload("res://scripts/corpse.gd")
+const GhostWaveSystem := preload("res://scripts/ghost_wave_system.gd")
 
-@export var max_enemies := 110
+@export var max_enemies := 70
 ## Spawn ring relative to the player. At the default zoom of 0.5 the viewport
 ## spans ~2560px wide, so the screen edge is ~1280px from the player. Spawning
 ## beyond that guarantees enemies appear off-screen and walk in, instead of
@@ -24,6 +25,12 @@ const _CorpseScript := preload("res://scripts/corpse.gd")
 @onready var wave_director: WaveDirector = $WaveDirector
 @onready var hud: GameHUD = $HUD
 @onready var world_flash: Node2D = get_node_or_null("WorldFlash")
+@onready var ghost_wave_system: Node2D = $GhostWaveSystem
+## One-shot helper so the many `game_over = true` sites can flip the ghost trickle
+## off without every caller remembering to reach for the node.
+func _set_ghosts_game_over(dead: bool) -> void:
+	if ghost_wave_system != null:
+		(ghost_wave_system as Node).set_game_over(dead)
 
 var player_scene: PackedScene = preload("res://scenes/player/player.tscn")
 var enemy_scene: PackedScene = preload("res://scenes/enemy/enemy.tscn")
@@ -73,6 +80,7 @@ var ready_for_next_wave: Dictionary = {}
 var revive_progress: Dictionary = {}
 var _side_quest_director: Node = null
 var _creep_camp: Node = null
+var _ghost_waves: Node = null
 
 const REVIVE_RADIUS := 60.0
 const REVIVE_DURATION := 5.0
@@ -133,6 +141,12 @@ const FOG_VISIBILITY_INTERVAL := 0.15
 const FOG_ALWAYS_VISIBLE_RANGE := 110.0
 var _fog_visibility_timer := 0.0
 var _ffa_status_timer := 0.0
+## Throttle the per-frame enemy-pool scan (wave pressure + alive count) to 15 Hz.
+## The wave director only needs a "roughly right" count at this cadence — a
+## ±3-frame lag in detecting "all dead" is imperceptible.
+const WAVE_PRESSURE_INTERVAL := 1.0 / 15.0
+var _wave_pressure_timer := 0.0
+var _ffa_scoreboard_timer := 0.0
 var _ffa_elapsed := 0.0
 var _ffa_bounty_timer := 0.0
 const FFA_BOUNTY_CAP := 4
@@ -171,6 +185,11 @@ func _ready() -> void:
 	wave_director.group_ready.connect(_on_wave_group_ready)
 	wave_director.intermission_started.connect(_on_intermission_started)
 
+	# Ghost trickle: continuous stream of unrendered enemies from map edges that
+	# materialize into real enemies when they reach the player's screen.
+	if ghost_wave_system != null:
+		ghost_wave_system.bind(self)
+
 	_init_crater()
 
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
@@ -185,6 +204,7 @@ func _ready() -> void:
 		if GameRuntime.is_ffa():
 			_maintain_ffa_bounties()
 		_start_side_quests()
+		_start_ghost_waves()
 		# Self-test harness: only boot when explicitly requested via --selftest CLI flag
 		# AND a request file exists. This prevents stale user://selftest_request.json
 		# from hijacking normal play sessions.
@@ -196,6 +216,7 @@ func _ready() -> void:
 			_try_restore_pending_run()
 			_spawn_initial_wave()
 			_start_side_quests()
+			_start_ghost_waves()
 		if GameRuntime.is_dedicated_server():
 			hud.visible = false
 	elif GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
@@ -207,10 +228,17 @@ func _physics_process(delta: float) -> void:
 	WorldClock.tick(delta)
 	if fog_modulate != null and not GameRuntime.is_classic():
 		fog_modulate.color = WorldClock.ambient
+	# Throttle the O(enemies) wave-pressure scan to 15 Hz — the wave director only
+	# needs to know "are there any enemies alive?" at ~60 Hz for timing precision,
+	# but a 15 Hz cadence is more than enough for "wave cleared" detection.
+	_wave_pressure_timer += delta
+	var _do_pressure := _wave_pressure_timer >= WAVE_PRESSURE_INTERVAL
+	if _do_pressure:
+		_wave_pressure_timer = 0.0
 	if GameRuntime.is_server():
 		_update_host_input()
-		wave_director.report_enemy_count(_living_enemy_count())
-		_report_wave_pressure()
+		if _do_pressure:
+			_update_enemy_reports()
 		if not GameRuntime.is_dedicated_server():
 			hud.update_boss(_find_boss())
 		snapshot_accumulator += delta
@@ -222,8 +250,8 @@ func _physics_process(delta: float) -> void:
 				client_receive_snapshot.rpc_id(peer_id, snapshot)
 				_crater_snapshot_sent[peer_id] = snap_time
 	elif GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
-		wave_director.report_enemy_count(_living_enemy_count())
-		_report_wave_pressure()
+		if _do_pressure:
+			_update_enemy_reports()
 		if hud != null:
 			hud.update_boss(_find_boss())
 	elif GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
@@ -253,8 +281,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 	if game_over and event.is_action_pressed("restart") and GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 		get_parent().call_deferred("restart_game")
-	if event.is_action_pressed("interact_shop") and _near_shop_stand and not game_over:
-		if not hud.upgrade_panel.visible and not hud.escape_menu.visible and not hud.dev_panel.visible and not hud.codex_panel.visible:
+	if event.is_action_pressed("interact_shop") and not game_over:
+		# B toggles the shop: close it if it's already open (no need to be at the stand).
+		if hud.shop_panel.visible:
+			hud.close_shop()
+			hud.shop_closed.emit()
+		elif _near_shop_stand and not hud.upgrade_panel.visible and not hud.escape_menu.visible and not hud.dev_panel.visible and not hud.codex_panel.visible:
 			hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 			_cpu_auto_shop()
 
@@ -1203,19 +1235,60 @@ func _spawn_formation_near(focus: Variant, type_id: String, formation: int, coun
 		if enemies.size() >= _enemy_cap():
 			return
 		var offset := Vector2.ZERO
-		match formation:
-			EnemyType.Formation.PACK:
-				offset = pack_center + Vector2(randf_range(-110.0, 110.0), randf_range(-110.0, 110.0))
-			EnemyType.Formation.RING:
-				var ring_angle := base_angle + float(index) * TAU / float(maxi(1, count))
-				offset = Vector2.RIGHT.rotated(ring_angle) * dmin
-			EnemyType.Formation.LONE:
-				var lone_angle := randf_range(0.0, TAU)
-				offset = Vector2.RIGHT.rotated(lone_angle) * randf_range(dmax, dmax + 90.0)
-			_:
-				var scatter_angle := randf_range(0.0, TAU)
-				offset = Vector2.RIGHT.rotated(scatter_angle) * randf_range(dmin, dmax)
+		# Enemies spawn from the edges of the map (spread around the perimeter),
+		# not just off-screen around the player. This reads as "creeps coming from
+		# the map edges" and matches the minimap view. Close reinforcements still
+		# spawn near the player for pressure.
+		if close_spawn:
+			match formation:
+				EnemyType.Formation.PACK:
+					offset = pack_center + Vector2(randf_range(-110.0, 110.0), randf_range(-110.0, 110.0))
+				EnemyType.Formation.RING:
+					var ring_angle := base_angle + float(index) * TAU / float(maxi(1, count))
+					offset = Vector2.RIGHT.rotated(ring_angle) * dmin
+				EnemyType.Formation.LONE:
+					var lone_angle := randf_range(0.0, TAU)
+					offset = Vector2.RIGHT.rotated(lone_angle) * randf_range(dmax, dmax + 90.0)
+				_:
+					var scatter_angle := randf_range(0.0, TAU)
+					offset = Vector2.RIGHT.rotated(scatter_angle) * randf_range(dmin, dmax)
+		else:
+			# Spawn on the map perimeter: pick a random edge point, spread along it.
+			var edge_pos := _pick_map_edge_position(focus_position)
+			# Add a small local jitter so the pack is spread, not stacked.
+			offset = edge_pos + Vector2(randf_range(-90.0, 90.0), randf_range(-90.0, 90.0))
 		_spawn_enemy_at(focus_position + offset, type_id, health_multiplier, speed_multiplier, close_spawn)
+
+
+## Returns a world position on (or just inside) the map perimeter, spread around the
+## whole border. Used so enemies "come from the edges of the map" rather than popping
+## up in the void just off the player's screen. The result is clamped to the playfield
+## so it never spawns off-map.
+func _pick_map_edge_position(near: Vector2) -> Vector2:
+	var half := Vector2(2360.0, 1560.0)
+	if arena != null and arena.has_method("half_extents"):
+		half = (arena as Arena).half_extents() - Vector2(40.0, 40.0)
+	# Pick a random point on the rectangle perimeter.
+	var t := randf_range(0.0, 4.0)
+	var p := Vector2.ZERO
+	if t < 1.0:
+		# Top edge
+		p = Vector2(randf_range(-half.x, half.x), -half.y)
+	elif t < 2.0:
+		# Right edge
+		p = Vector2(half.x, randf_range(-half.y, half.y))
+	elif t < 3.0:
+		# Bottom edge
+		p = Vector2(randf_range(-half.x, half.x), half.y)
+	else:
+		# Left edge
+		p = Vector2(-half.x, randf_range(-half.y, half.y))
+	# Bias toward the side of the map that is farthest from the player so spawns
+	# are spread "from everywhere" rather than clustering on one side.
+	if p.distance_to(near) < half.length() * 0.5:
+		# Flip to the opposite region of the map.
+		p = Vector2(-p.x, -p.y)
+	return p
 
 
 ## Backwards-compat for summoners/dev tools: spawn relative to the first active player.
@@ -1286,6 +1359,8 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 		enemy.boss_phase_changed.connect(_on_boss_phase_changed)
 		enemy.boss_death.connect(_on_boss_death)
 	enemies[entity_id] = enemy
+	if enemy.is_boss:
+		_cached_boss = null
 	return enemy
 
 
@@ -1435,11 +1510,26 @@ func _shake_cameras(amplitude: float, duration: float) -> void:
 			(player as Player).shake_camera(amplitude, duration)
 
 
+var _cached_boss: Enemy = null
+
+## Boss identity only changes when a boss dies or spawns — both fire enemy_killed /
+## enemy_spawned — so we cache the lookup and re-scan the pool only on those events
+## instead of every physics frame (this ran in main.gd's hot _physics_process).
 func _find_boss() -> Enemy:
+	if _cached_boss != null and is_instance_valid(_cached_boss) and not _cached_boss.health.is_dead:
+		return _cached_boss
+	_cached_boss = null
 	for enemy in enemies.values():
 		if is_instance_valid(enemy) and (enemy as Enemy).is_boss and not (enemy as Enemy).health.is_dead:
-			return enemy as Enemy
+			_cached_boss = enemy as Enemy
+			return _cached_boss
 	return null
+
+
+## Boss identity only changes when a boss dies or spawns, so _find_boss caches its
+## pool scan and only re-runs on these events instead of every physics frame.
+func _on_boss_relevant_enemy_event(_enemy: Node) -> void:
+	_cached_boss = null
 
 
 func _ravager_alive() -> bool:
@@ -1493,6 +1583,8 @@ func _spawn_xp_orb(position: Vector2, value: int) -> XPOrb:
 
 func _on_enemy_defeated(enemy: Enemy) -> void:
 	enemies.erase(enemy.network_id)
+	if enemy.is_boss:
+		_cached_boss = null
 	_spawn_xp_orb(enemy.global_position, enemy.xp_value)
 	_spawn_corpse(enemy)
 	if GameRuntime.is_ffa() and enemy.health.last_damage_source is Player:
@@ -1817,7 +1909,7 @@ func _landmark_flash(text: String, color: Color) -> void:
 	if hud.has_method("flash_combat_text"):
 		hud.call("flash_combat_text", text, color)
 		return
-	var banner := hud.debut_banner
+	var banner: Label = hud.debut_banner
 	if banner == null:
 		banner = hud.theme_banner
 	if banner == null:
@@ -2088,6 +2180,7 @@ func _on_player_died(_peer_id: int) -> void:
 		_check_team_eliminations()
 	if _all_players_dead():
 		game_over = true
+		_set_ghosts_game_over(true)
 		RunSave.clear()
 		wave_director.stop()
 		if GameRuntime.is_rift_clash():
@@ -2149,6 +2242,7 @@ func client_rift_clash_resolved(placements: Array) -> void:
 	if game_over:
 		return
 	game_over = true
+	_set_ghosts_game_over(true)
 	RunSave.clear()
 	var local_peer_id := multiplayer.get_unique_id()
 	for entry in placements:
@@ -2387,6 +2481,8 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 				_play_world_flash()
 		"add_gold":
 			player.add_gold(500)
+		"skip_wave":
+			_dev_skip_wave()
 		_:
 			if command.begins_with("biome_") and GameRuntime.uses_biomes():
 				GameRuntime.set_biome(int(command.trim_prefix("biome_")))
@@ -2646,6 +2742,14 @@ func _dev_spawn_elite() -> void:
 	_spawn_enemy(offset, "brute", multiplier)
 
 
+## Dev command: jump straight to the next wave. Force-advances regardless of whether we're
+## mid-wave or in the intermission breather, so repeated presses walk to the boss wave.
+func _dev_skip_wave() -> void:
+	if game_over:
+		return
+	wave_director.force_next_wave()
+
+
 func _build_snapshot() -> Dictionary:
 	var player_states: Array[Dictionary] = []
 	var enemy_states: Array[Dictionary] = []
@@ -2771,19 +2875,39 @@ func _local_player() -> Player:
 	return null
 
 
-func _living_enemy_count() -> int:
-	var n := 0
+
+## Collapses the per-physics-frame `_living_enemy_count()` + `_report_wave_pressure()`
+## double-scan into a single O(enemies) pass. In co-op the two functions walked the
+## `enemies` dict twice per tick; now one shared loop covers both.
+func _update_enemy_reports() -> void:
+	if GameRuntime.is_rift_clash():
+		_report_wave_pressure_rift_clash()
+		return
+	# Co-op / solo path: one pass, collect both counts.
+	var alive_count := 0
+	var nearby_count := 0
+	var player := _first_active_player()
+	var origin: Vector2 = player.global_position if player != null else Vector2.ZERO
+	var radius_sq := 460.0 * 460.0
 	for enemy in enemies.values():
 		if not is_instance_valid(enemy):
 			continue
-		var health: Variant = (enemy as Node).get("health")
-		if health != null and bool(health.get("is_dead")):
+		var body := enemy as Enemy
+		if body.health == null or body.health.is_dead:
 			continue
-		n += 1
-	return n
+		alive_count += 1
+		if player != null:
+			var dist_sq := origin.distance_squared_to(body.global_position)
+			if dist_sq <= radius_sq:
+				nearby_count += 1
+	wave_director.report_enemy_count(alive_count)
+	var hp := 1.0
+	if player != null and player.health != null and player.health.max_health > 0.0:
+		hp = player.health.current_health / player.health.max_health
+	wave_director.report_pressure(hp, nearby_count)
 
 
-func _report_wave_pressure() -> void:
+func _report_wave_pressure_rift_clash() -> void:
 	if GameRuntime.is_rift_clash():
 		# FFA runs up to 4 independent WaveDirectors (see team_wave_directors), and this used
 		# to run one full O(enemies) scan of the shared pool per team for the alive count plus
@@ -2855,9 +2979,12 @@ func _selftest_active() -> bool:
 
 ## Attach the SelfTestDriver child only when a request file exists. Skipping the call
 ## entirely is the safety: no driver => no weirdness even if the request file lingers.
+const _SelfTestDriverScript := preload("res://scripts/selftest_driver.gd")
+
+
 func _right_selftest_boot() -> void:
 	print("[main.gd] SelfTestDriver boot check — request path exists: %s" % FileAccess.file_exists("user://selftest_request.json"))
-	var driver := SelfTestDriver.from_request()
+	var driver := _SelfTestDriverScript.from_request()
 	if driver == null:
 		return
 	add_child(driver)
@@ -2890,7 +3017,11 @@ func _tick_ffa(delta: float) -> void:
 	if _ffa_shop_timer >= FFA_CPU_SHOP_SECONDS:
 		_ffa_shop_timer = 0.0
 		_cpu_auto_shop(1, 450)
-	if hud != null:
+	# Scoreboard only changes on kill / respawn / respawn-timer — throttle to 5 Hz
+	# so the per-frame sort + dict allocation cost drops 12× in FFA.
+	_ffa_scoreboard_timer += delta
+	if hud != null and _ffa_scoreboard_timer >= 0.2:
+		_ffa_scoreboard_timer = 0.0
 		hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
 	if _ffa_status_timer >= 2.0:
 		_ffa_status_timer = 0.0
@@ -2979,6 +3110,18 @@ func _start_side_quests() -> void:
 	_creep_camp.start(self, arena)
 
 
+## Continuous "ghost trickle": lightweight enemy records that stream in from the
+## map perimeter toward players, visible as dots on the minimap, and materialize
+## into real enemies just off-screen when they reach the camera viewport.
+func _start_ghost_waves() -> void:
+	if _ghost_waves != null:
+		return
+	_ghost_waves = GhostWaveSystem.new()
+	_ghost_waves.name = "GhostWaves"
+	add_child(_ghost_waves)
+	_ghost_waves.bind(self)
+
+
 var _last_side_quest_text := ""
 
 
@@ -3035,6 +3178,7 @@ func _finish_ffa_match() -> void:
 	if game_over:
 		return
 	game_over = true
+	_set_ghosts_game_over(true)
 	RunSave.clear()
 	wave_director.stop()
 	for director in team_wave_directors.values():

@@ -1,0 +1,25 @@
+{
+  "hero": "willow",
+  "mode": "solo_survival",
+  "until_wave": 2,
+  "duration": 18,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Verify LMB hold-to-charge (damage indicator while charging) and RMB hold-charge (growing radius ring + reach arrow for windstep). Base strong; ~3x hold ~ 3x radius + 3x damage.",
+  "events": [
+    { "t": 0.02, "kind": "spawn", "at": [220, 0], "type": "grunt" },
+    { "t": 0.02, "kind": "spawn", "at": [260, 40], "type": "grunt" },
+    { "t": 0.02, "kind": "spawn", "at": [200, -40], "type": "grunt" },
+    { "t": 0.05, "kind": "aim", "at": [220, 0] },
+    { "t": 0.2, "kind": "primary_hold", "duration": 0.5 },
+    { "t": 0.4, "kind": "snap", "label": "lmb_charging_indicator" },
+    { "t": 1.2, "kind": "secondary_hold", "duration": 1.5 },
+    { "t": 1.6, "kind": "snap", "label": "rmb_charging_ring_low" },
+    { "t": 2.6, "kind": "snap", "label": "rmb_charging_ring_high" },
+    { "t": 4.0, "kind": "aim", "at": [260, 40] },
+    { "t": 4.2, "kind": "secondary_hold", "duration": 2.6 },
+    { "t": 6.0, "kind": "probe", "label": "after_rmb_cast" },
+    { "t": 7.5, "kind": "snap", "label": "t7_combat" },
+    { "t": 9.0, "kind": "report" }
+  ]
+}

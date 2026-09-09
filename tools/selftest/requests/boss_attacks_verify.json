@@ -1,0 +1,20 @@
+{
+  "hero": "arclight",
+  "biome": 1,
+  "comment": "Boss attacks: spawn 2 biome bosses, let them idle-attack for 16s, verify they fire projectiles (LMB) and melee/dash (RMB).",
+  "events": [
+    {"t": 0.1, "kind": "biome_probe", "label": "start"},
+    {"t": 0.2, "kind": "spawn", "at": [300, 0], "type": "magma_golem", "hp_mult": 1.0},
+    {"t": 0.2, "kind": "spawn", "at": [300, 200], "type": "frost_titan", "hp_mult": 1.0},
+    {"t": 3.0, "kind": "probe", "label": "bosses_moving"},
+    {"t": 3.1, "kind": "snap", "label": "bosses_moving"},
+    {"t": 8.0, "kind": "probe", "label": "bosses_attacking"},
+    {"t": 8.1, "kind": "snap", "label": "bosses_attacking"},
+    {"t": 12.0, "kind": "probe", "label": "bosses_mid"},
+    {"t": 12.1, "kind": "snap", "label": "bosses_mid"},
+    {"t": 16.0, "kind": "probe", "label": "bosses_final"},
+    {"t": 16.1, "kind": "snap", "label": "bosses_final"},
+    {"t": 16.2, "kind": "effect_log", "text": "Verifying: bosses fire projectiles + melee/dash attacks"},
+    {"t": 16.4, "kind": "report"}
+  ]
+}

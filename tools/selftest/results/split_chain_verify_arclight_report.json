@@ -1,0 +1,381 @@
+{
+  "effects": [
+    {
+      "biome_id": 1,
+      "biome_name": "Vulkaan",
+      "kind": "biome_probe",
+      "label": "start",
+      "obstacles": [
+        {
+          "count": 172,
+          "id": "lava_chunk"
+        },
+        {
+          "count": 54,
+          "id": "spire"
+        },
+        {
+          "count": 70,
+          "id": "boulder"
+        },
+        {
+          "count": 125,
+          "id": "rock_small"
+        },
+        {
+          "count": 61,
+          "id": "rock_large"
+        },
+        {
+          "count": 100,
+          "id": "grass_tuft"
+        },
+        {
+          "count": 49,
+          "id": "grass_wild"
+        },
+        {
+          "count": 8,
+          "id": "grass_bloom"
+        },
+        {
+          "count": 4,
+          "id": "flower_patch"
+        },
+        {
+          "count": 4,
+          "id": "tree_oak"
+        }
+      ],
+      "t": 0.15
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              72.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          9600.0,
+          6800.0
+        ]
+      },
+      "hero": "arclight",
+      "hp": 100.0,
+      "hp_frac": 1.0,
+      "hp_max": 100.0,
+      "kind": "probe",
+      "label": "before_kill",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 1.50993533333333,
+      "teleporters": []
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              72.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          9600.0,
+          6800.0
+        ]
+      },
+      "hero": "arclight",
+      "hp": 100.0,
+      "hp_frac": 1.0,
+      "hp_max": 100.0,
+      "kind": "probe",
+      "label": "after_split_small",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 5.00283866666668,
+      "teleporters": []
+    },
+    {
+      "enemies_alive": 24,
+      "kills_after": 4,
+      "kills_before": 0,
+      "kind": "primary_probe",
+      "label": "primary_hold",
+      "t": 5.41190476190478
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              24.0,
+              -3.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          9600.0,
+          6800.0
+        ]
+      },
+      "hero": "arclight",
+      "hp": 26.8,
+      "hp_frac": 0.268,
+      "hp_max": 100.0,
+      "kind": "probe",
+      "label": "after_split_tiny",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 12.0095956666666,
+      "teleporters": []
+    },
+    {
+      "enemies_alive": 37,
+      "kills_after": 8,
+      "kills_before": 4,
+      "kind": "primary_probe",
+      "label": "primary_hold",
+      "t": 13.1259259259258
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": false,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              2.0,
+              14.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          9600.0,
+          6800.0
+        ]
+      },
+      "hero": "arclight",
+      "hp": 0.0,
+      "hp_frac": 0.0,
+      "hp_max": 100.0,
+      "kind": "probe",
+      "label": "final_state",
+      "last_tapped": -1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "summons": 0,
+      "t": 16.0129629629628,
+      "teleporters": []
+    }
+  ],
+  "elapsed": 16.6092592592591,
+  "enemies_spawned": 1,
+  "hero_position": "(2.13563, 14.4992)",
+  "player_class": "arclight",
+  "results": {
+    "alive": false,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 8,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 14,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 78
+  },
+  "shots": [
+    {
+      "label": "splitter_spawned",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4257/splitter_spawned_1.006_4257.png",
+      "t": 1.00569354545455
+    },
+    {
+      "label": "splitter_small_alive",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8754/splitter_small_alive_5.506_8754.png",
+      "t": 5.50604222222224
+    },
+    {
+      "label": "splitter_tiny_alive",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_15775/splitter_tiny_alive_12.506_15775.png",
+      "t": 12.5060606060605
+    },
+    {
+      "label": "final_state_snap",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_19708/final_state_snap_16.506_19708.png",
+      "t": 16.5055555555554
+    }
+  ]
+}

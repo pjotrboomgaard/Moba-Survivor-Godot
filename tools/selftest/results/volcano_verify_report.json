@@ -1,56 +1,92 @@
 {
   "effects": [
     {
-      "biome_id": 1,
-      "biome_name": "Vulkaan",
+      "biome_id": 0,
+      "biome_name": "Gras",
       "kind": "biome_probe",
       "label": "volcano_props",
       "obstacles": [
         {
-          "count": 172,
-          "id": "lava_chunk"
-        },
-        {
-          "count": 54,
-          "id": "spire"
-        },
-        {
-          "count": 70,
+          "count": 69,
           "id": "boulder"
         },
         {
-          "count": 125,
+          "count": 72,
           "id": "rock_small"
         },
         {
-          "count": 61,
+          "count": 86,
+          "id": "spire"
+        },
+        {
+          "count": 72,
           "id": "rock_large"
         },
         {
-          "count": 100,
+          "count": 103,
+          "id": "grass_flower"
+        },
+        {
+          "count": 57,
+          "id": "grass_long"
+        },
+        {
+          "count": 730,
           "id": "grass_tuft"
         },
         {
-          "count": 49,
-          "id": "grass_wild"
-        },
-        {
-          "count": 8,
-          "id": "grass_bloom"
-        },
-        {
-          "count": 4,
+          "count": 391,
           "id": "flower_patch"
         },
         {
-          "count": 4,
+          "count": 50,
+          "id": "grass_wild"
+        },
+        {
+          "count": 383,
+          "id": "grass_bloom"
+        },
+        {
+          "count": 227,
           "id": "tree_oak"
+        },
+        {
+          "count": 18,
+          "id": "tree_pine"
+        },
+        {
+          "count": 218,
+          "id": "tree_fir"
+        },
+        {
+          "count": 10,
+          "id": "tree_maple"
+        },
+        {
+          "count": 23,
+          "id": "tree_cypress"
+        },
+        {
+          "count": 8,
+          "id": "tree_willow"
+        },
+        {
+          "count": 21,
+          "id": "grass_mushroom"
+        },
+        {
+          "count": 6,
+          "id": "rock_jagged"
+        },
+        {
+          "count": 9,
+          "id": "tree_palm"
         }
       ],
-      "t": 1.01
+      "t": 1.02222222222222
     }
   ],
-  "elapsed": 2.01080266666667,
+  "elapsed": 2.03979766666667,
   "enemies_spawned": 0,
   "hero_position": "(72.0, 0.0)",
   "player_class": "tobor",
@@ -87,8 +123,8 @@
   "shots": [
     {
       "label": "volcano_view",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4512/volcano_view_1.504_4511.png",
-      "t": 1.50383378787879
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4311/volcano_view_1.524_4311.png",
+      "t": 1.523645
     }
   ]
 }

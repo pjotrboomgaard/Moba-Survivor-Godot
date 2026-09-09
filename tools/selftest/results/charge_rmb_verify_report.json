@@ -61,11 +61,12 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 0.441666666666667
+      "t": 0.406941333333334,
+      "teleporters": []
     },
     {
       "charge_t": 0.0,
-      "enemies_alive": 16,
+      "enemies_alive": 15,
       "kind": "secondary_probe",
       "label": "pre_hold",
       "secondary_charge": 0.0,
@@ -73,17 +74,11 @@
       "secondary_cooldown": 0.0,
       "secondary_cooldown_max": 10.0,
       "secondary_kind": "volt_mend",
-      "t": 0.519689
-    },
-    {
-      "hp": 0.94,
-      "kind": "landmark_save",
-      "saves": 1,
-      "t": 0.747663777777778
+      "t": 0.501166333333334
     },
     {
       "charge_t": 0.55952380952381,
-      "enemies_alive": 10,
+      "enemies_alive": 15,
       "kind": "secondary_probe",
       "label": "mid_charge",
       "secondary_charge": 0.783333333333334,
@@ -91,11 +86,11 @@
       "secondary_cooldown": 0.0,
       "secondary_cooldown_max": 10.0,
       "secondary_kind": "volt_mend",
-      "t": 1.40159166666667
+      "t": 1.39
     },
     {
       "charge_t": 1.0,
-      "enemies_alive": 14,
+      "enemies_alive": 20,
       "kind": "secondary_probe",
       "label": "post_release",
       "secondary_charge": 1.4,
@@ -103,19 +98,19 @@
       "secondary_cooldown": 0.0,
       "secondary_cooldown_max": 10.0,
       "secondary_kind": "volt_mend",
-      "t": 2.230854
+      "t": 2.19377222222222
     },
     {
       "charge_t": 0.0,
-      "enemies_alive": 14,
+      "enemies_alive": 17,
       "kind": "secondary_probe",
       "label": "post_release",
       "secondary_charge": 0.0,
       "secondary_charge_max": 1.4,
-      "secondary_cooldown": 9.93333333333333,
+      "secondary_cooldown": 9.86666666666666,
       "secondary_cooldown_max": 10.0,
       "secondary_kind": "volt_mend",
-      "t": 2.305595
+      "t": 2.342485
     },
     {
       "abilities": [
@@ -156,8 +151,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              66.0,
-              0.0
+              50.0,
+              2.0
             ],
             "team": ""
           }
@@ -178,7 +173,8 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 2.528919
+      "t": 2.53125,
+      "teleporters": []
     },
     {
       "abilities": [
@@ -219,8 +215,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              66.0,
-              0.0
+              50.0,
+              2.0
             ],
             "team": ""
           }
@@ -241,11 +237,12 @@
       "pending_id": "",
       "pending_slot": -1,
       "summons": 0,
-      "t": 4.03722222222222
+      "t": 4.02371725925926,
+      "teleporters": []
     },
     {
       "charge_t": 0.0,
-      "enemies_alive": 41,
+      "enemies_alive": 36,
       "kind": "secondary_probe",
       "label": "cooldown_done",
       "secondary_charge": 0.0,
@@ -253,12 +250,12 @@
       "secondary_cooldown": 0.0,
       "secondary_cooldown_max": 10.0,
       "secondary_kind": "volt_mend",
-      "t": 12.5365006666667
+      "t": 12.5417966666667
     }
   ],
-  "elapsed": 13.0,
+  "elapsed": 13.0121212121212,
   "enemies_spawned": 3,
-  "hero_position": "(65.60301, 0.0)",
+  "hero_position": "(50.25257, 1.714661)",
   "player_class": "arclight",
   "results": {
     "alive": true,
@@ -266,20 +263,16 @@
     "build": "",
     "cast_count": 0,
     "casts": [],
-    "creep_kills": 0,
+    "creep_kills": 3,
     "died": false,
     "errors": [],
     "ffa": {},
-    "gold": 114,
+    "gold": 12,
     "hero_kills": 0,
     "hp_samples": [],
-    "landmark_saves": 1,
-    "level": 2,
-    "level_upgrades": {
-      "2": [
-        "flow"
-      ]
-    },
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
     "max_hp": 0.0,
     "min_hp": 1.0,
     "min_hp_late": 1.0,
@@ -288,19 +281,17 @@
     "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
-    "taken_upgrades": [
-      "flow"
-    ],
+    "taken_upgrades": [],
     "until_wave": 20,
     "verdict": "",
     "wave": 1,
-    "xp": 15
+    "xp": 30
   },
   "shots": [
     {
       "label": "after_charged_cast",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5731/after_charged_cast_3.000_5730.png",
-      "t": 3.0
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5797/after_charged_cast_3.010_5797.png",
+      "t": 3.01041666666667
     }
   ]
 }

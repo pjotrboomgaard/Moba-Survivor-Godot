@@ -298,9 +298,9 @@ const TREE_SPACING := 118.0
 ## Everything below is laid out from a fixed seed, so every peer in a session
 ## builds the exact same field without replicating a single byte.
 const LAYOUT_SEED := 20260819
-const OBSTACLE_COUNT := 220
-const ISLAND_OBSTACLE_COUNT := 160
-const DECAL_COUNT := 320
+const OBSTACLE_COUNT := 160
+const ISLAND_OBSTACLE_COUNT := 120
+const DECAL_COUNT := 200
 const WALL_MARGIN := 140.0
 const SPAWN_CLEARANCE := 210.0
 const OBSTACLE_SPACING := 96.0
@@ -351,6 +351,19 @@ const HAZARD_HOVER_REDUCTION := 0.8
 
 func _process(delta: float) -> void:
 	_update_water_drift(delta)
+	# Periodic biome hazards fire only when a biome is active.
+	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0:
+		var interval := 0.0
+		match GameRuntime.biome_id:
+			1:
+				interval = BIOME_HAZARD_INTERVAL_VOLCANO
+			3:
+				interval = BIOME_HAZARD_INTERVAL_FACTORY
+		if interval > 0.0:
+			_biome_hazard_timer -= delta
+			if _biome_hazard_timer <= 0.0:
+				_emit_biome_hazard()
+				_biome_hazard_timer = interval
 
 
 ## Steps the void tile's sampled UV one WATER_DRIFT_STEP along a fixed direction every
@@ -994,6 +1007,7 @@ func _build_field() -> void:
 	# Solid void for the water / lava / pit between pads so bodies can't leave the pads.
 	_build_void_bodies()
 	_spawn_teleporters()
+	_spawn_docks_booby_traps()
 
 
 ## Factory biome: scatter paired teleport pads so the player can shortcut across the
@@ -1083,6 +1097,108 @@ func _spawn_teleport_ring(pos: Vector2, color: Color) -> void:
 	var ring := TeleportRingScript.new(color)
 	ring.global_position = pos
 	add_child(ring)
+
+
+## Docks biome: place booby traps (cannons + spike plates) at fixed, seeded
+## positions so the layout is deterministic across clients.
+const _DOCKS_BOOMY_TRAP := preload("res://scripts/docks_booby_trap.gd")
+const _BIOME_HAZARD := preload("res://scripts/biome_hazard.gd")
+var _docks_booby_traps: Array[Node2D] = []
+
+func _spawn_docks_booby_traps() -> void:
+	for trap in _docks_booby_traps:
+		if is_instance_valid(trap):
+			trap.queue_free()
+	_docks_booby_traps.clear()
+	if GameRuntime.biome_id != 4:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _layout_seed() + 733
+	var half := playfield_size() * 0.5
+	# 3 cannons at fixed compass points
+	var cannon_positions: Array[Vector2] = [
+		half * Vector2(-0.72, -0.72),
+		half * Vector2(0.72, -0.72),
+		half * Vector2(0.72, 0.72),
+	]
+	for pos in cannon_positions:
+		var snap := _snap_feature_to_ground(pos)
+		var trap := _DOCKS_BOOMY_TRAP.new()
+		trap.global_position = snap
+		add_child(trap)
+		trap.configure_as_cannon()
+		_docks_booby_traps.append(trap)
+	# 4 spike plates at mid-map spots
+	var spike_positions: Array[Vector2] = [
+		half * Vector2(-0.35, 0.0),
+		half * Vector2(0.35, 0.0),
+		half * Vector2(0.0, -0.45),
+		half * Vector2(0.0, 0.45),
+	]
+	for pos in spike_positions:
+		var snap := _snap_feature_to_ground(pos)
+		var trap := _DOCKS_BOOMY_TRAP.new()
+		trap.global_position = snap
+		add_child(trap)
+		trap.configure_as_spike_plate()
+		_docks_booby_traps.append(trap)
+
+
+## Volcano (biome 1): periodic lava geysers that erupt at random walkable spots.
+## Factory (biome 3): periodic EMP bursts that slow nearby units and drain HP.
+var _biome_hazard_timer := 0.0
+const BIOME_HAZARD_INTERVAL_VOLCANO := 12.0
+const BIOME_HAZARD_INTERVAL_FACTORY := 16.0
+const GeyserRadius := 150.0
+const GeyserDamage := 12.0
+const EMP_RADIUS := 260.0
+const EMP_DAMAGE := 8.0
+const EMP_SLOW := 0.45
+const EMP_SLOW_DURATION := 2.5
+
+
+func _emit_biome_hazard() -> void:
+	var spot := _random_walkable_hazard_spot()
+	if spot == null:
+		return
+	if GameRuntime.biome_id == 1:
+		# Volcano geyser: telegraphed expanding circle that damages players AND enemies.
+		_emit_biome_hazard_hazard(spot, GeyserRadius, GeyserDamage, "ff5a1e", 1.6, 1.0)
+	elif GameRuntime.biome_id == 3:
+		# Factory EMP: telegraphed ring that slows and damages.
+		_emit_biome_hazard_hazard(spot, EMP_RADIUS, EMP_DAMAGE, "7ec8ff", 1.4, 0.9)
+
+
+func _emit_biome_hazard_hazard(origin: Vector2, radius: float, damage: float, color_hex: String, telegraph: float, active: float) -> void:
+	var hazard := _BIOME_HAZARD.new()
+	hazard.global_position = origin
+	hazard.configure(radius, damage, Color(color_hex), telegraph, active, GameRuntime.biome_id)
+	add_child(hazard)
+
+
+func _random_walkable_hazard_spot() -> Vector2:
+	# Pick a random spot on the playfield, prefer near where the action is (near a player).
+	var players := get_tree().get_nodes_in_group("players")
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var half := playfield_size() * 0.5
+	if not players.is_empty():
+		# 60% chance near a random active player, otherwise fully random.
+		if rng.randf() < 0.6:
+			var alive: Array = []
+			for p in players:
+				if is_instance_valid(p) and p.get("active") and not ((p.get("health") as HealthComponent).is_dead):
+					alive.append(p)
+			if alive.size() > 0:
+				var focus: Node2D = alive[rng.randi() % alive.size()]
+				var angle := rng.randf_range(0.0, TAU)
+				var dist := rng.randf_range(180.0, 420.0)
+				var spot: Vector2 = focus.global_position + Vector2.from_angle(angle) * dist
+				if _snap_feature_to_ground(spot) != null:
+					return spot
+	# Fully random fallback
+	var spot := Vector2(rng.randf_range(-half.x + 80.0, half.x - 80.0), rng.randf_range(-half.y + 80.0, half.y - 80.0))
+	return spot
 
 
 func _spawn_world_features() -> void:
@@ -1980,6 +2096,7 @@ func _draw() -> void:
 	_draw_crater()
 	_draw_decals()
 	_draw_hazards()
+	_draw_night_glow_overlays()
 	if GameRuntime.uses_biomes():
 		# Biome accent rims match the desaturated tiles in tobor_world_art.gd (roughly
 		# 30% gray mixed in) so the arena frame no longer pops against a muted floor.
@@ -2045,18 +2162,32 @@ func _draw_void_rect(world_rect: Rect2) -> void:
 
 func _void_tile_tint() -> Color:
 	# Keep void quieter than heroes/enemies so units pop. No chroma boosts.
+	# At night, lava/fire biomes compensate for the dark ambient so they stay
+	# bright and read as glowing rather than just darkened.
+	var night_boost := _night_glow_boost()
 	match GameRuntime.biome_id:
 		1:
 			# Volcano lava: push it clearly red/orange so it reads as molten, not grey.
-			return Color(0.86, 0.34, 0.20, 1.0)
+			return Color(0.86, 0.34, 0.20, 1.0) * night_boost
 		2:
 			return Color(0.70, 0.74, 0.78, 1.0)
 		3:
 			return Color(0.46, 0.46, 0.48, 1.0)
 		4:
-			return Color(0.66, 0.70, 0.74, 1.0)
+			# Factory: slight warm glow at night so powerlines read as energized.
+			return Color(0.66, 0.70, 0.74, 1.0) * night_boost
 		_:
 			return Color.WHITE
+
+
+## Returns a multiplier that compensates for the night ambient darkening on
+## emissive terrain (lava, factory powerlines). At night the CanvasModulate
+## applies a ~0.38-0.58 blue tint; this boost pushes those specific tiles back
+## to full brightness and slightly above, so they "glow" against the darkness.
+func _night_glow_boost() -> float:
+	if not WorldClock.is_night:
+		return 1.0
+	return 1.5
 
 
 func _draw_void_wash(world_rect: Rect2) -> void:
@@ -2130,15 +2261,18 @@ func _ground_tile_id() -> String:
 
 func _ground_tile_modulate() -> Color:
 	# Mute biome floors only. Props, enemies, and heroes stay full chroma.
+	# Volcano floor stays warmer/brighter at night so the lava world reads as alive.
+	var night_boost := _night_glow_boost()
 	match GameRuntime.biome_id:
 		1:
-			return Color(0.46, 0.44, 0.42)
+			return Color(0.46, 0.44, 0.42) * night_boost
 		2:
 			return Color(0.68, 0.72, 0.76)
 		3:
 			return Color(0.48, 0.48, 0.50)
 		4:
-			return Color(0.64, 0.68, 0.72)
+			# Factory floor: slight warm boost at night for powerline glow.
+			return Color(0.64, 0.68, 0.72) * night_boost
 		_:
 			return Color.WHITE
 
@@ -2175,6 +2309,10 @@ func _draw_zone_floors() -> void:
 			continue
 		var half := Vector2(float(zone.rx), float(zone.ry))
 		var world_rect := Rect2(zone.center - half, half * 2.0)
+		# Soft transition wash: a few slightly-larger bands with decreasing alpha
+		# outside the zone edge, so the seam into the base ground fades instead of
+		# reading as a hard pixel line. World-space draw calls (like _draw_pad_shores).
+		_draw_zone_soft_edges(world_rect)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(PIXEL_ZOOM, PIXEL_ZOOM))
 		draw_texture_rect(
 			tile,
@@ -2186,6 +2324,34 @@ func _draw_zone_floors() -> void:
 		var wash := _ground_desat_wash()
 		if wash.a > 0.0:
 			draw_rect(world_rect, wash, true)
+		# Cliff-edge border: the elevated zone reads as a raised rock terrace.
+		_draw_zone_cliff_border(world_rect)
+
+
+## Soft falloff band just outside each zone edge: 3 concentric, slightly larger
+## rects with decreasing alpha in a darkened base-ground tone, so the zone tile
+## blends into the surrounding floor instead of meeting it at a hard seam.
+func _draw_zone_soft_edges(world_rect: Rect2) -> void:
+	var base := _void_color().lightened(0.18)
+	for band in 3:
+		var grow := 4.0 + float(band) * 4.0
+		var alpha := 0.05 + float(band) * 0.05
+		draw_rect(world_rect.grow(-grow), Color(base, alpha), true)
+
+
+## Rocky cliff-edge border around a zone, matching the dirt/dirt-rock palette
+## (4a3a28 / 5c4a32 / 6b5a40 from SpriteArt's dirt_tile). Two nested rings of
+## decreasing width read as rock strata: a thick dark base ring and a thinner
+## lighter inner ring for a raised-terrace look.
+func _draw_zone_cliff_border(world_rect: Rect2) -> void:
+	var dark := Color("4a3a28")
+	var mid := Color("5c4a32")
+	var light := Color("6b5a40")
+	# Outer rock ring: ~14px of strata around the whole perimeter.
+	draw_rect(world_rect.grow(6.0), dark, false, 14.0)
+	# Inner lip: lighter ring on the inside edge for the "top of the cliff".
+	draw_rect(world_rect.grow(-8.0), mid, false, 6.0)
+	draw_rect(world_rect.grow(-14.0), light, false, 3.0)
 
 
 func _draw_decals() -> void:
@@ -2246,6 +2412,57 @@ func _hazard_tile(biome_kind: String) -> Texture2D:
 	if lava != null:
 		return lava
 	return SpriteLibrary.texture_for("void_tile")
+
+
+## At night the CanvasModulate darkens the whole scene with WorldClock.ambient
+## (a dark blue ~0.38-0.58). This overlay counteracts that darkening on the
+## lava/fire zones so they stay bright red and visibly glow at night — the
+## "lava should stay the same brightness" requirement.
+func _draw_night_glow_overlays() -> void:
+	if not WorldClock.is_night:
+		return
+	# Compensation factor: divide by ambient to restore day brightness.
+	# GLOW_BOOST pushes it slightly above day so the zone reads as glowing.
+	var ambient := WorldClock.ambient
+	var boost := 1.25
+	var r := minf(boost / maxf(0.01, ambient.r), 3.0)
+	var g := minf(boost / maxf(0.01, ambient.g), 3.0)
+	var b := minf(boost / maxf(0.01, ambient.b), 3.0)
+
+	# Lava zones: warm orange-red glow.
+	var lava_glow := Color(minf(r, 3.0), minf(g * 0.6, 3.0), minf(b * 0.3, 3.0), 0.35)
+	# Factory slag/powerlines: keep the colored lines glowing.
+	var factory_glow := Color(minf(r, 3.0), minf(g * 0.8, 3.0), minf(b * 0.5, 3.0), 0.25)
+
+	for zone in hazard_zones:
+		var kind := str(zone.get("biome_kind", "lava"))
+		var shape := str(zone.get("shape", "rect"))
+		var glow := factory_glow if kind == "factory_slag" else lava_glow
+		match shape:
+			"circle":
+				var c := Vector2(zone.get("center", Vector2.ZERO))
+				var rad := float(zone.get("radius", 0.0))
+				# Soft radial glow: concentric circles with decreasing alpha.
+				for band in 4:
+					var grow := rad * 0.15 * (band + 1)
+					var alpha := 0.22 - band * 0.05
+					draw_circle(c, rad + grow, Color(glow.r, glow.g, glow.b, maxf(0.0, alpha)))
+			"ring":
+				var c := Vector2(zone.get("center", Vector2.ZERO))
+				var inner := float(zone.get("inner_radius", 0.0))
+				var outer := float(zone.get("radius", 0.0))
+				for band in 3:
+					var grow := outer * 0.12 * (band + 1)
+					var alpha := 0.18 - band * 0.05
+					draw_arc(c, outer + grow, 0.0, TAU, 64, Color(glow.r, glow.g, glow.b, maxf(0.0, alpha)), 2.0)
+			_:
+				var rect: Rect2 = zone.get("rect", Rect2())
+				if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+					continue
+				for band in 3:
+					var grow := 8.0 + band * 8.0
+					var alpha := 0.20 - band * 0.06
+					draw_rect(rect.grow(grow), Color(glow.r, glow.g, glow.b, maxf(0.0, alpha)), true)
 
 
 func _draw_lava_rect(rect: Rect2, tile: Texture2D, rim: Color) -> void:

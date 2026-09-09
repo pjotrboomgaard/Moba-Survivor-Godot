@@ -308,14 +308,65 @@ const TYPES: Array[Dictionary] = [
 		"attack_distance": 42.0,
 		"xp_value": 20,
 		"gold_value": 7,
-		"death_spawn_id": "swarmling",
-		"death_spawn_count": 3,
+		"death_spawn_id": "splitter_small",
+		"death_spawn_count": 2,
+		"split_depth": 1,
 		"unlock_wave": 15,
 		"cost": 2.0,
 		"weight": 2.2,
 		"formation": Formation.SCATTERED,
 		"group_min": 2,
 		"group_max": 4,
+		"resistances": {
+			PlayerClass.DamageType.IMPACT: 1.3,
+		},
+	},
+	{
+		"id": "splitter_small",
+		"name": "Splitterling",
+		"fill_color": "8be88b",
+		"outline_color": "e0ffe0",
+		"radius": 14.0,
+		"max_health": 22.0,
+		"movement_speed": 120.0,
+		"contact_damage": 5.0,
+		"attack_interval": 0.9,
+		"attack_distance": 34.0,
+		"xp_value": 10,
+		"gold_value": 3,
+		"death_spawn_id": "splitter_tiny",
+		"death_spawn_count": 2,
+		"split_depth": 2,
+		"unlock_wave": 99,
+		"cost": 0.0,
+		"weight": 0.0,
+		"formation": Formation.SCATTERED,
+		"group_min": 2,
+		"group_max": 3,
+		"resistances": {
+			PlayerClass.DamageType.IMPACT: 1.3,
+		},
+	},
+	{
+		"id": "splitter_tiny",
+		"name": "Split Sprite",
+		"fill_color": "aef5ae",
+		"outline_color": "f0fff0",
+		"radius": 9.0,
+		"max_health": 10.0,
+		"movement_speed": 165.0,
+		"contact_damage": 3.0,
+		"attack_interval": 0.75,
+		"attack_distance": 26.0,
+		"xp_value": 4,
+		"gold_value": 1,
+		"split_depth": 3,
+		"unlock_wave": 99,
+		"cost": 0.0,
+		"weight": 0.0,
+		"formation": Formation.SCATTERED,
+		"group_min": 2,
+		"group_max": 2,
 		"resistances": {
 			PlayerClass.DamageType.IMPACT: 1.3,
 		},
@@ -583,9 +634,169 @@ const TYPES: Array[Dictionary] = [
 			PlayerClass.DamageType.FROST: 1.15,
 		},
 	},
+	{
+		"id": "magma_golem",
+		"name": "Magma Golem",
+		"fill_color": "ff5a1e",
+		"outline_color": "ffd08a",
+		"radius": 74.0,
+		"max_health": 1650.0,
+		"movement_speed": 78.0,
+		"contact_damage": 16.0,
+		"attack_interval": 1.05,
+		"attack_distance": 96.0,
+		"xp_value": 480,
+		"gold_value": 210,
+		"is_boss": true,
+		"world_exclusive": true,
+		"separation_weight": 2.2,
+		"explode_radius": 130.0,
+		"explode_damage": 14.0,
+		"charge_speed": 500.0,
+		"charge_windup": 0.55,
+		"charge_duration": 0.58,
+		"dash_interval": 3.6,
+		"unlock_wave": 5,
+		"cost": 12.0,
+		"weight": 0.0,
+		"formation": Formation.LONE,
+		"group_min": 1,
+		"group_max": 1,
+		"resistances": {
+			PlayerClass.DamageType.LIGHTNING: 0.55,
+			PlayerClass.DamageType.FROST: 0.65,
+			PlayerClass.DamageType.IMPACT: 1.25,
+		},
+	},
+	{
+		"id": "frost_titan",
+		"name": "Frost Titan",
+		"fill_color": "7adfff",
+		"outline_color": "e6faff",
+		"radius": 72.0,
+		"max_health": 1900.0,
+		"movement_speed": 70.0,
+		"contact_damage": 11.0,
+		"attack_interval": 0.95,
+		"attack_distance": 110.0,
+		"preferred_distance": 420.0,
+		"projectile_damage": 18.0,
+		"projectile_speed": 430.0,
+		"projectile_count": 5,
+		"projectile_sprite": "frost_shard",
+		"behaviour": Behaviour.RANGED,
+		"flying": false,
+		"xp_value": 520,
+		"gold_value": 230,
+		"is_boss": true,
+		"world_exclusive": true,
+		"separation_weight": 2.2,
+		"aura_radius": 300.0,
+		"aura_heal_per_second": 8.0,
+		"charge_speed": 520.0,
+		"charge_windup": 0.48,
+		"charge_duration": 0.55,
+		"dash_interval": 4.4,
+		"unlock_wave": 10,
+		"cost": 12.0,
+		"weight": 0.0,
+		"formation": Formation.LONE,
+		"group_min": 1,
+		"group_max": 1,
+		"resistances": {
+			PlayerClass.DamageType.NATURE: 0.6,
+			PlayerClass.DamageType.FROST: 1.4,
+			PlayerClass.DamageType.IMPACT: 0.75,
+		},
+	},
+	{
+		"id": "scrap_colossus",
+		"name": "Scrap Colossus",
+		"fill_color": "c0c8d4",
+		"outline_color": "fff09a",
+		"radius": 80.0,
+		"max_health": 2100.0,
+		"movement_speed": 66.0,
+		"contact_damage": 14.0,
+		"attack_interval": 0.9,
+		"attack_distance": 120.0,
+		"preferred_distance": 360.0,
+		"projectile_damage": 15.0,
+		"projectile_speed": 520.0,
+		"projectile_count": 4,
+		"projectile_sprite": "scrap_bolt",
+		"behaviour": Behaviour.RANGED,
+		"xp_value": 560,
+		"gold_value": 260,
+		"is_boss": true,
+		"world_exclusive": true,
+		"separation_weight": 2.4,
+		"charge_speed": 480.0,
+		"charge_windup": 0.5,
+		"charge_duration": 0.6,
+		"dash_interval": 4.8,
+		"unlock_wave": 10,
+		"cost": 12.0,
+		"weight": 0.0,
+		"formation": Formation.LONE,
+		"group_min": 1,
+		"group_max": 1,
+		"resistances": {
+			PlayerClass.DamageType.LIGHTNING: 0.6,
+			PlayerClass.DamageType.IMPACT: 0.5,
+			PlayerClass.DamageType.NATURE: 1.2,
+		},
+	},
+	{
+		"id": "dock_warden",
+		"name": "Dock Warden",
+		"fill_color": "3a9bc8",
+		"outline_color": "bfe8ff",
+		"radius": 66.0,
+		"max_health": 1350.0,
+		"movement_speed": 98.0,
+		"contact_damage": 13.0,
+		"attack_interval": 0.8,
+		"attack_distance": 90.0,
+		"xp_value": 440,
+		"gold_value": 220,
+		"is_boss": true,
+		"world_exclusive": true,
+		"separation_weight": 2.0,
+		"explode_radius": 110.0,
+		"explode_damage": 12.0,
+		"charge_speed": 580.0,
+		"charge_windup": 0.42,
+		"charge_duration": 0.5,
+		"dash_interval": 2.8,
+		"teleport_interval": 4.0,
+		"teleport_range": 180.0,
+		"unlock_wave": 5,
+		"cost": 12.0,
+		"weight": 0.0,
+		"formation": Formation.LONE,
+		"group_min": 1,
+		"group_max": 1,
+		"resistances": {
+			PlayerClass.DamageType.IMPACT: 0.65,
+			PlayerClass.DamageType.LIGHTNING: 1.15,
+			PlayerClass.DamageType.NATURE: 1.2,
+		},
+	},
 ]
 
+## Base rotation for grass (biome 0). Biome-specific bosses override via BOSS_ROTATION_BY_BIOME.
 const BOSS_ROTATION: Array[String] = ["ravager", "stormcaller"]
+
+## Per-biome boss rotation (biome_id -> rotation list). Grass falls back to BOSS_ROTATION.
+## Volcano (1): Magma Golem then Frost Titan. Ice (2): Frost Titan then Magma Golem.
+## Factory (3): Scrap Colossus then Dock Warden. Docks (4): Dock Warden then Scrap Colossus.
+const BOSS_ROTATION_BY_BIOME := {
+	1: ["magma_golem", "frost_titan"],
+	2: ["frost_titan", "magma_golem"],
+	3: ["scrap_colossus", "dock_warden"],
+	4: ["dock_warden", "scrap_colossus"],
+}
 
 ## Signature roster per biome when biomes are on and biome_id > 0 (grass uses the full table).
 ## Duplicates raise pick weight in spawnable_for_wave. Grunt/swarmling stay first so wave 1 is fair.
@@ -594,10 +805,10 @@ const BOSS_ROTATION: Array[String] = ["ravager", "stormcaller"]
 ## twice so it comes up about as often as the pool's more common entries — pool
 ## membership just gates *whether* a type can spawn, weight decides how often within that.
 const BIOME_POOLS := {
-	1: ["grunt", "swarmling", "charger", "bomber", "spitter", "lurker", "hexer", "charger", "splitter", "bomber", "cinderling", "cinderling"],
-	2: ["grunt", "swarmling", "lurker", "stalker", "spitter", "lurker", "stalker", "hexer", "brute", "summoner", "iceball", "iceball"],
-	3: ["grunt", "swarmling", "spitter", "brute", "sentinel", "splitter", "charger", "summoner", "sparkbot", "sparkbot"],
-	4: ["grunt", "swarmling", "spitter", "drifter", "bomber", "stalker", "lurker", "hexer", "ripcurrent", "ripcurrent"],
+	1: ["grunt", "swarmling", "charger", "bomber", "spitter", "lurker", "hexer", "charger", "splitter", "splitter_small", "splitter_tiny", "bomber", "cinderling", "cinderling"],
+	2: ["grunt", "swarmling", "lurker", "stalker", "spitter", "lurker", "stalker", "hexer", "brute", "summoner", "splitter", "splitter_small", "splitter_tiny", "iceball", "iceball"],
+	3: ["grunt", "swarmling", "spitter", "brute", "sentinel", "splitter", "splitter_small", "splitter_tiny", "charger", "summoner", "sparkbot", "sparkbot"],
+	4: ["grunt", "swarmling", "spitter", "drifter", "bomber", "stalker", "lurker", "hexer", "splitter", "splitter_small", "splitter_tiny", "ripcurrent", "ripcurrent"],
 }
 
 const BIOME_STANDINS := {
@@ -809,13 +1020,25 @@ static func fit_to_biome(type_id: String) -> String:
 	return str(pool[0])
 
 
+## Returns the boss rotation list for a given biome. Grass (biome 0) uses BOSS_ROTATION.
+static func boss_rotation_for_biome(biome_id: int) -> Array[String]:
+	var raw: Variant = BOSS_ROTATION_BY_BIOME.get(biome_id, [])
+	if raw is Array and (raw as Array).size() > 0:
+		var result: Array[String] = []
+		for id in raw:
+			result.append(str(id))
+		return result
+	return BOSS_ROTATION.duplicate()
+
+
 static func boss_for_wave(wave: int) -> String:
+	var rotation := boss_rotation_for_biome(GameRuntime.biome_id)
 	var unlocked: Array[String] = []
-	for boss_id in BOSS_ROTATION:
+	for boss_id in rotation:
 		if int(by_id(boss_id).unlock_wave) <= wave:
 			unlocked.append(boss_id)
 	if unlocked.is_empty():
-		return BOSS_ROTATION[0]
+		return rotation[0]
 	return unlocked[(int(wave) / WaveDirector.BOSS_WAVE_INTERVAL - 1) % unlocked.size()]
 
 

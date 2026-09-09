@@ -2633,6 +2633,8 @@ const ENEMY_PALETTES := {
 	"hexer": {"o": "0d4a44", "f": "3fd0c0", "l": "c2fff6", "e": "032420", "w": "ffffff"},
 	"sentinel": {"o": "3a4152", "f": "8f9bb3", "l": "dfe6f2", "e": "161a24", "w": "ffd166"},
 	"splitter": {"o": "1f5c1f", "f": "6fdc6f", "l": "d6ffd6", "e": "0a2a0a", "w": "ffffff"},
+	"splitter_small": {"o": "2a7a2a", "f": "8be88b", "l": "e0ffe0", "e": "0d3a0d", "w": "ffffff"},
+	"splitter_tiny": {"o": "3a9a3a", "f": "aef5ae", "l": "f0fff0", "e": "1a4a1a", "w": "ffffff"},
 	"charger": {"o": "6b2f05", "f": "ff7a29", "l": "ffd0a8", "e": "2a1000", "w": "ffffff"},
 	"summoner": {"o": "4a1a6b", "f": "c85cff", "l": "eccfff", "e": "1c0630", "w": "ffffff"},
 	"lurker": {"o": "241809", "f": "5a3d2b", "l": "8a6a4a", "e": "120c04", "w": "ffe066"},
@@ -2822,6 +2824,33 @@ const ENEMY_ROWS := {
 		"...oo.o..o.oo...",
 		"................",
 		"................",
+	],
+	## Splitterling: smaller version of the splitter (radius 14 vs 20).
+	## 12x12 grid, lighter green tint.
+	"splitter_small": [
+		"............",
+		"...oooooo...",
+		"..offffffo..",
+		".offfoofffo.",
+		".offeeffffo.",
+		".offffooffo.",
+		".offllofffo.",
+		".offffooffo.",
+		"..offffofo..",
+		"...ooooooo..",
+		"..o.o..o.o..",
+		"............",
+	],
+	## Split Sprite: tiniest version (radius 9 vs 20). 8x8 grid, lightest green.
+	"splitter_tiny": [
+		"........",
+		"..oooo..",
+		".offffo.",
+		"offeeffo",
+		"offlloff",
+		"offfffo.",
+		".ooooo..",
+		"o.o..o.o",
 	],
 	"lurker": [
 		"................",

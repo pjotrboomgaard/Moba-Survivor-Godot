@@ -49,16 +49,17 @@ if (Test-Path $ReportOut) { Remove-Item $ReportOut -Force }
 # tail it before the report check so the game has fully flushed/closed the report file.
 # `&` on the Godot launcher returns as soon as the wrapper detaches; use Wait-Process so
 # we actually block until the real windowed child exits (this is when the report exists).
-$godotArgs = @("--path", $ProjectRoot, "--selftest", "res://scenes/main/main.tscn")
+$godotArgs = @("--path", $ProjectRoot)
 if ($ExtraUserArgs -and $ExtraUserArgs.Count -gt 0) {
-    $godotArgs += "--"
     $godotArgs += $ExtraUserArgs
     Write-Host ("User args: {0}" -f ($ExtraUserArgs -join " "))
 }
-$godotProc = Start-Process -FilePath $GodotExe -ArgumentList $godotArgs -NoNewWindow -PassThru
-if (-not $godotProc.WaitForExit(1200000)) {
-    Write-Host "TIMEOUT: killing Godot after 20m"
-    Stop-Process -Id $godotProc.Id -Force -ErrorAction SilentlyContinue
+$godotArgs += @("--selftest", "res://scenes/main/main.tscn")
+# Use & call operator so args like `--ffa` pass through verbatim (Start-Process
+# mangles the `--` user-args separator). & blocks until Godot exits.
+& $GodotExe @godotArgs | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "TIMEOUT/FAIL: killing Godot"
     Get-Process -Name "Godot*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 }
 $logTail = Get-Content (Join-Path $UserDataDir "logs\godot.log") -Tail 80 -ErrorAction SilentlyContinue

@@ -1,0 +1,25 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 3,
+  "duration": 20,
+  "danger_hp": 0.5,
+  "recover_hp": 0.56,
+  "build": "tank",
+  "comment": "Verify upgrade offers are hero-specific. Force levels, inspect offered upgrade ids against tobor's allowed list.",
+  "events": [
+    { "t": 0.05, "kind": "spawn", "at": [200, 0], "type": "grunt" },
+    { "t": 0.05, "kind": "spawn", "at": [240, 40], "type": "grunt" },
+    { "t": 0.05, "kind": "spawn", "at": [180, -40], "type": "grunt" },
+    { "t": 0.05, "kind": "aim", "at": [200, 0] },
+    { "t": 0.1, "kind": "primary_hold", "duration": 1.5 },
+    { "t": 2.5, "kind": "force_level", "levels": 3 },
+    { "t": 3.0, "kind": "snap", "label": "t3_levelup_offers" },
+    { "t": 3.2, "kind": "pick_upgrade", "index": 0 },
+    { "t": 3.4, "kind": "pick_upgrade", "index": 0 },
+    { "t": 3.6, "kind": "pick_upgrade", "index": 0 },
+    { "t": 4.0, "kind": "probe", "label": "upgrades_taken" },
+    { "t": 5.0, "kind": "snap", "label": "t5_after" },
+    { "t": 7.0, "kind": "report" }
+  ]
+}

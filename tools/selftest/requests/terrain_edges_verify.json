@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 1,
+  "duration": 6,
+  "comment": "Verify terrain cliff-edge borders + soft edge blending render on the grass world zone floors without errors.",
+  "events": [
+    { "t": 0.5, "kind": "snap", "label": "terrain_zone_view" },
+    { "t": 4.0, "kind": "snap", "label": "terrain_zone_view_2" },
+    { "t": 5.5, "kind": "report" }
+  ]
+}

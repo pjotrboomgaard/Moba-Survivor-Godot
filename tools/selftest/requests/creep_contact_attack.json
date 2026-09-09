@@ -1,0 +1,18 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 1,
+  "duration": 20,
+  "time_scale": 1.0,
+  "comment": "Task 1 verify: a grunt standing next to the stationary player should deal contact damage on a ~1s cadence even though the player never moves. Set HP to a known fraction, spawn a grunt right on the player, wait, and probe HP drop.",
+  "events": [
+    {"t": 0.2, "kind": "teleport", "to": [0, 0]},
+    {"t": 0.3, "kind": "set_hp", "fraction": 1.0},
+    {"t": 0.35, "kind": "probe", "label": "hp_before"},
+    {"t": 0.4, "kind": "spawn", "at": [24, 0], "type": "grunt", "hp_mult": 50.0},
+    {"t": 4.0, "kind": "probe", "label": "hp_after_4s"},
+    {"t": 4.1, "kind": "snap", "label": "creep_contact"},
+    {"t": 8.0, "kind": "probe", "label": "hp_after_8s"},
+    {"t": 8.3, "kind": "report"}
+  ]
+}
