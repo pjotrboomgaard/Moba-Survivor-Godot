@@ -16,7 +16,7 @@ script = ExtResource("1_projectile")
 shape = SubResource("CircleShape_projectile")
 
 [node name="Sprite" type="Sprite2D" parent="."]
-texture_filter = 1
+texture_filter = 0
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 

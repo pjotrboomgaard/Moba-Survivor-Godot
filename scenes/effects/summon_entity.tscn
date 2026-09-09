@@ -11,5 +11,5 @@ color = Color(0, 0, 0, 0.35)
 polygon = PackedVector2Array(-9, 0, 9, 0, 12, 3, -12, 3)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture_filter = 1
+texture_filter = 0
 scale = Vector2(2, 2)

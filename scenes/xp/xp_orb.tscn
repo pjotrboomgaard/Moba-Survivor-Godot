@@ -14,4 +14,4 @@ script = ExtResource("1_xp")
 shape = SubResource("CircleShape_xp")
 
 [node name="Sprite" type="Sprite2D" parent="."]
-texture_filter = 1
+texture_filter = 0

@@ -18,7 +18,7 @@ script = ExtResource("1_player")
 shape = SubResource("CapsuleShape_player")
 
 [node name="Sprite" type="Sprite2D" parent="."]
-texture_filter = 1
+texture_filter = 0
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("2_health")

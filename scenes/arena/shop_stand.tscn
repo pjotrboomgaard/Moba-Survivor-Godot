@@ -7,7 +7,7 @@ z_index = 6
 script = ExtResource("1_shop_stand")
 
 [node name="Sprite" type="Sprite2D" parent="."]
-texture_filter = 1
+texture_filter = 0
 
 [node name="Title" type="Label" parent="."]
 offset_left = -90.0

@@ -403,9 +403,12 @@ func _cull_offscreen_sprites() -> void:
 	var cam_pos: Vector2 = cam_node.get_global_position()
 	var vp_size: Vector2 = get_viewport().get_visible_rect().size
 	var zoom: Vector2 = cam_node.zoom
-	# Half-extent in world units, with a 80px margin so sprites near the edge stay visible.
-	var half_w: float = (vp_size.x * 0.5 / maxf(0.1, zoom.x)) + 80.0
-	var half_h: float = (vp_size.y * 0.5 / maxf(0.1, zoom.y)) + 80.0
+	# Half-extent in world units. Add a generous margin so tall/offset sprites
+	# (trees, houses lifted above their collision base) are never culled before
+	# they visually enter the screen. Margin must exceed the tallest sprite's
+	# upward offset + half its size.
+	var half_w: float = (vp_size.x * 0.5 / maxf(0.1, zoom.x)) + 360.0
+	var half_h: float = (vp_size.y * 0.5 / maxf(0.1, zoom.y)) + 360.0
 	var cull_rect := Rect2(
 		cam_pos.x - half_w, cam_pos.y - half_h,
 		half_w * 2.0, half_h * 2.0
