@@ -298,9 +298,9 @@ const TREE_SPACING := 118.0
 ## Everything below is laid out from a fixed seed, so every peer in a session
 ## builds the exact same field without replicating a single byte.
 const LAYOUT_SEED := 20260819
-const OBSTACLE_COUNT := 160
-const ISLAND_OBSTACLE_COUNT := 120
-const DECAL_COUNT := 200
+const OBSTACLE_COUNT := 90
+const ISLAND_OBSTACLE_COUNT := 70
+const DECAL_COUNT := 120
 const WALL_MARGIN := 140.0
 const SPAWN_CLEARANCE := 210.0
 const OBSTACLE_SPACING := 96.0
@@ -349,6 +349,10 @@ const HAZARD_DUNK_SCRAMBLE := 2.5
 const HAZARD_HOVER_REDUCTION := 0.8
 
 
+## Throttle for viewport culling — we don't need to re-evaluate every frame.
+var _cull_timer := 0.0
+const CULL_INTERVAL := 0.25
+
 func _process(delta: float) -> void:
 	_update_water_drift(delta)
 	# Periodic biome hazards fire only when a biome is active.
@@ -364,6 +368,43 @@ func _process(delta: float) -> void:
 			if _biome_hazard_timer <= 0.0:
 				_emit_biome_hazard()
 				_biome_hazard_timer = interval
+	# Throttled viewport culling: hide obstacle + decal sprites that are far
+	# off-screen to cut per-frame draw calls. Runs at 4 Hz, cheap enough to not
+	# add CPU overhead.
+	_cull_timer += delta
+	if _cull_timer >= CULL_INTERVAL:
+		_cull_timer = 0.0
+		_cull_offscreen_sprites()
+
+
+## Hides obstacle sprites (and their shadows) that are outside the camera viewport.
+## Only affects visibility, not collision — physics still works on hidden rocks.
+func _cull_offscreen_sprites() -> void:
+	var camera: Node = get_tree().get_first_node_in_group("players")
+	if camera == null:
+		return
+	var player := camera as Player
+	if player == null or not is_instance_valid(player):
+		return
+	var cam: Camera2D = player.get_node_or_null("Camera2D")
+	if cam == null or not cam.enabled:
+		return
+	var cam_pos: Vector2 = cam.get_global_position()
+	var vp_size: Vector2 = get_viewport().get_visible_rect().size
+	var zoom: Vector2 = cam.zoom
+	# Half-extent in world units, with a 60px margin so sprites near the edge stay visible.
+	var half_w: float = (vp_size.x * 0.5 / maxf(0.1, zoom.x)) + 80.0
+	var half_h: float = (vp_size.y * 0.5 / maxf(0.1, zoom.y)) + 80.0
+	var cull_rect := Rect2(
+		cam_pos.x - half_w, cam_pos.y - half_h,
+		half_w * 2.0, half_h * 2.0
+	)
+	for obstacle in obstacles:
+		if not is_instance_valid(obstacle):
+			continue
+		var inside := cull_rect.has_point(obstacle.global_position)
+		if obstacle.visible != inside:
+			obstacle.visible = inside
 
 
 ## Steps the void tile's sampled UV one WATER_DRIFT_STEP along a fixed direction every
@@ -1290,7 +1331,7 @@ func _scatter_obstacles() -> void:
 	var limit := playfield_size() * 0.5 - Vector2(WALL_MARGIN, WALL_MARGIN)
 	var area_scale := (playfield_size().x + playfield_size().y) / (BASE_SIZE.x + BASE_SIZE.y)
 	var base_count := ISLAND_OBSTACLE_COUNT if not walk_pads.is_empty() else OBSTACLE_COUNT
-	var wanted := mini(220, int(round(float(base_count) * maxf(1.0, area_scale))))
+	var wanted := mini(140, int(round(float(base_count) * maxf(1.0, area_scale))))
 	# On island biomes, candidates must land inside a walk pad — sampling blindly
 	# across the whole playfield makes that a rare hit, so pick a pad first.
 	var usable_pads: Array[Rect2] = _rock_pads()
