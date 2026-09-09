@@ -101,7 +101,7 @@ var rift_banner: Label
 var ffa_scoreboard: VBoxContainer
 var ffa_row_box: VBoxContainer
 var ffa_board_bg: ColorRect
-var aim_reticle: Control
+var aim_reticle
 var ability_icon_row: VBoxContainer
 var ability_icon_slots: Array[Dictionary] = []
 var _shown_ability_ids: Array[String] = []
@@ -945,18 +945,15 @@ func _refresh_bossform_ability_icons() -> void:
 
 
 func _build_aim_reticle() -> void:
+	# The reticle is now a native custom mouse cursor (see AimReticle.bake_cursor).
+	# No Control node is created — the engine blits the cursor texture itself.
 	aim_reticle = AimReticle.new()
-	aim_reticle.name = "AimReticle"
-	aim_reticle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	aim_reticle.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(aim_reticle)
 
 
 func _refresh_aim_reticle() -> void:
 	var menus_open := shop_panel.visible or escape_menu.visible or upgrade_panel.visible or game_over_label.visible or codex_panel.visible
 	var show := bound_player != null and bound_player.is_local_player and not menus_open
 	if aim_reticle != null:
-		aim_reticle.visible = show
 		var reticle := aim_reticle as AimReticle
 		if bound_player != null:
 			reticle.accent = bound_player.accent_color
@@ -964,6 +961,14 @@ func _refresh_aim_reticle() -> void:
 			var charge_t: float = bound_player._shot_charge if charging else bound_player._charge_t()
 			reticle.charge_t = charge_t
 			reticle.show_charge = show and (charge_t > 0.0 or charging)
+		# Re-bake the cursor texture only when the quantized charge step or accent
+		# actually changed (bake_cursor is a no-op otherwise).
+		if show:
+			reticle.bake_cursor()
+		else:
+			# Hide the custom cursor and fall back to the system arrow when the
+			# reticle is not shown (menus open, game over, etc.).
+			Input.set_custom_mouse_cursor(null)
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN if show else Input.MOUSE_MODE_VISIBLE
 
 
@@ -1951,41 +1956,123 @@ func _clear_choice_rarity(button: Button) -> void:
 	button.remove_theme_color_override("font_focus_color")
 
 
-class AimReticle extends Control:
+class AimReticle:
+	## Native custom mouse cursor. Instead of a Control that redraws its full canvas
+	## every frame (expensive under canvas_items stretch), we pre-render the reticle
+	## once to a Texture2D and hand it to Input.set_custom_mouse_cursor(). The engine
+	## blits it natively at the OS cursor position — zero per-frame game work.
+	##
+	## charge_t / show_charge are still tracked so a charge indicator bar can be
+	## composited in when the player is charging; the cursor texture is re-baked
+	## only when the charge state actually changes.
 	var accent := Color(0.95, 0.95, 0.98, 0.95)
 	var charge_t := 0.0
 	var show_charge := false
+	var _cursor_tex: Texture2D = null
+	## Quantized step that triggers a re-bake. 0..24 maps to 0..1.0 charge.
+	var _cursor_step := -1
+	var _cursor_accent: Color = Color.BLACK
 
-	## Throttle redraw to 30 Hz — the reticle only moves when the mouse moves,
-	## The reticle tracks the mouse, so it needs to redraw at the display refresh rate
-	## to feel responsive. 60 Hz is the sweet spot — imperceptibly smooth and cheap
-	## (just a few draw_arc calls). The old 30 Hz made the cursor feel "stuck".
-	var _reticle_redraw_accum := 0.0
-	const _RETICLE_REDRAW_INTERVAL := 1.0 / 60.0
-
-	func _process(delta: float) -> void:
-		_reticle_redraw_accum += delta
-		if _reticle_redraw_accum >= _RETICLE_REDRAW_INTERVAL:
-			_reticle_redraw_accum = 0.0
-			queue_redraw()
-
-	func _draw() -> void:
-		var p := get_local_mouse_position()
-		var ring := accent
-		ring.a = 0.9
-		draw_arc(p, 11.0, 0.0, TAU, 28, ring, 1.6, true)
-		draw_arc(p, 3.2, 0.0, TAU, 16, Color(1.0, 1.0, 1.0, 0.85), 1.2, true)
-		var tick := Color(1.0, 1.0, 1.0, 0.8)
-		draw_line(p + Vector2(0.0, -15.0), p + Vector2(0.0, -7.0), tick, 1.4)
-		draw_line(p + Vector2(0.0, 7.0), p + Vector2(0.0, 15.0), tick, 1.4)
-		draw_line(p + Vector2(-15.0, 0.0), p + Vector2(-7.0, 0.0), tick, 1.4)
-		draw_line(p + Vector2(7.0, 0.0), p + Vector2(15.0, 0.0), tick, 1.4)
-		if not show_charge:
+	func bake_cursor() -> void:
+		# Quantize charge to 24 visible steps so we only re-bake the texture when
+		# the bar actually moves by a perceptible amount (avoids per-frame bakes).
+		var step := 0
+		if show_charge and charge_t > 0.0:
+			step = int(clampf(charge_t, 0.0, 1.0) * 24.0)
+		if step == _cursor_step and accent == _cursor_accent and _cursor_tex != null:
 			return
-		var bar_w := 28.0
-		var bar_h := 4.0
-		var origin := p + Vector2(-bar_w * 0.5, 18.0)
-		draw_rect(Rect2(origin, Vector2(bar_w, bar_h)), Color(0.05, 0.06, 0.08, 0.85))
-		var fill := accent
-		fill.a = 0.95
-		draw_rect(Rect2(origin + Vector2(1.0, 1.0), Vector2((bar_w - 2.0) * clampf(charge_t, 0.0, 1.0), bar_h - 2.0)), fill)
+		_cursor_step = step
+		_cursor_accent = accent
+		var img := _render_reticle_image()
+		var tex := ImageTexture.create_from_image(img)
+		if _cursor_tex != null and is_instance_valid(_cursor_tex):
+			_cursor_tex.queue_free()
+		_cursor_tex = tex
+		# Hotspot at the reticle center (24,24) so the crosshair lines up with the pointer.
+		Input.set_custom_mouse_cursor(_cursor_tex, Input.CURSOR_ARROW, Vector2(24.0, 24.0))
+
+
+	## Renders the reticle to a 48×64 RGBA image (transparent background).
+	func _render_reticle_image() -> Image:
+		var img := Image.create(48, 64, false, Image.FORMAT_RGBA8)
+		var c := Vector2(24.0, 24.0)  # reticle center in image space
+		var ring := accent
+		ring.a = 0.95
+		# Outer ring
+		_draw_circle_ring(img, c, 11.0, ring, 2.0)
+		# Inner dot
+		_fill_circle(img, c, 3.2, Color(1.0, 1.0, 1.0, 0.9))
+		# Cross ticks
+		var tick := Color(1.0, 1.0, 1.0, 0.85)
+		_draw_line_thick(img, c + Vector2(0.0, -15.0), c + Vector2(0.0, -7.0), tick, 2.0)
+		_draw_line_thick(img, c + Vector2(0.0, 7.0), c + Vector2(0.0, 15.0), tick, 2.0)
+		_draw_line_thick(img, c + Vector2(-15.0, 0.0), c + Vector2(-7.0, 0.0), tick, 2.0)
+		_draw_line_thick(img, c + Vector2(7.0, 0.0), c + Vector2(15.0, 0.0), tick, 2.0)
+		# Charge bar (below the reticle)
+		if show_charge and charge_t > 0.0:
+			var bar_w := 28.0
+			var bar_h := 4.0
+			var origin := c + Vector2(-bar_w * 0.5, 18.0)
+			_fill_rect(img, origin, Vector2(bar_w, bar_h), Color(0.05, 0.06, 0.08, 0.9))
+			var fill := accent
+			fill.a = 0.95
+			_fill_rect(img, origin + Vector2(1.0, 1.0), Vector2((bar_w - 2.0) * clampf(charge_t, 0.0, 1.0), bar_h - 2.0), fill)
+		return img
+
+
+	static func _draw_circle_ring(img: Image, center: Vector2, radius: float, color: Color, width: float) -> void:
+		var steps := 48
+		for i in steps:
+			var a := TAU * float(i) / float(steps)
+			var p := center + Vector2.from_angle(a) * radius
+			_fill_circle(img, p, width * 0.5, color)
+
+
+	static func _fill_circle(img: Image, center: Vector2, radius: float, color: Color) -> void:
+		var w := img.get_width()
+		var h := img.get_height()
+		var x0 := maxi(0, int(center.x - radius) - 1)
+		var x1 := mini(w, int(center.x + radius) + 2)
+		var y0 := maxi(0, int(center.y - radius) - 1)
+		var y1 := mini(h, int(center.y + radius) + 2)
+		var r2 := radius * radius
+		for py in range(y0, y1):
+			for px in range(x0, x1):
+				var d := Vector2(px - center.x, py - center.y).length_squared()
+				if d <= r2:
+					var prev := img.get_pixel(px, py)
+					var alpha := minf(1.0, color.a + prev.a)
+					img.set_pixel(px, py, Color(
+						minf(1.0, (color.r * color.a + prev.r * prev.a * (1.0 - color.a)) / maxf(0.001, alpha)),
+						minf(1.0, (color.g * color.a + prev.g * prev.a * (1.0 - color.a)) / maxf(0.001, alpha)),
+						minf(1.0, (color.b * color.a + prev.b * prev.a * (1.0 - color.a)) / maxf(0.001, alpha)),
+						alpha
+					))
+
+
+	static func _draw_line_thick(img: Image, a: Vector2, b: Vector2, color: Color, width: float) -> void:
+		var dist := a.distance_to(b)
+		var steps := int(ceilf(maxf(1.0, dist / 1.5)))
+		for i in steps + 1:
+			var t := float(i) / float(steps)
+			var p := a.lerp(b, t)
+			_fill_circle(img, p, width * 0.5, color)
+
+
+	static func _fill_rect(img: Image, pos: Vector2, size: Vector2, color: Color) -> void:
+		var w := img.get_width()
+		var h := img.get_height()
+		var x0 := maxi(0, int(pos.x))
+		var x1 := mini(w, int(pos.x + size.x))
+		var y0 := maxi(0, int(pos.y))
+		var y1 := mini(h, int(pos.y + size.y))
+		for py in range(y0, y1):
+			for px in range(x0, x1):
+				var prev := img.get_pixel(px, py)
+				var alpha := minf(1.0, color.a + prev.a * (1.0 - color.a))
+				img.set_pixel(px, py, Color(
+					minf(1.0, (color.r * color.a + prev.r * prev.a * (1.0 - color.a)) / maxf(0.001, alpha)),
+					minf(1.0, (color.g * color.a + prev.g * prev.a * (1.0 - color.a)) / maxf(0.001, alpha)),
+					minf(1.0, (color.b * color.a + prev.b * prev.a * (1.0 - color.a)) / maxf(0.001, alpha)),
+					alpha
+				))
