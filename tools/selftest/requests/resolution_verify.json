@@ -1,0 +1,17 @@
+{
+  "hero": "cinder",
+  "biome": 0,
+  "comment": "Verify in-game resolution change: HUD OptionButton exists, changing resolution keeps visible world area constant via camera zoom scaling (new_zoom = old_zoom * new_width/old_width).",
+  "events": [
+    {"kind": "probe", "label": "boot", "t": 1.0},
+    {"kind": "snap", "label": "boot_view", "t": 1.5},
+    {"kind": "resolution_probe", "label": "before_2880", "t": 2.0},
+    {"kind": "dev_command", "t": 3.0, "command": "resolution:1920x1080"},
+    {"kind": "resolution_probe", "label": "after_1080p", "t": 4.5},
+    {"kind": "snap", "label": "1080p_view", "t": 5.0},
+    {"kind": "dev_command", "t": 6.5, "command": "resolution:2880x1800"},
+    {"kind": "resolution_probe", "label": "after_2880", "t": 8.0},
+    {"kind": "snap", "label": "2880_view", "t": 8.5},
+    {"kind": "report", "t": 10.0}
+  ]
+}

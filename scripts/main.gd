@@ -501,6 +501,27 @@ func client_play_ability_effect(ability_id: String, effect_style: int, points: P
 	_play_ability_effect(ability_id, effect_style, points)
 
 
+## Dev-menu / self-test command: apply a resolution change (and keep the visible
+## world area constant by rescaling the local player's camera zoom) without going
+## through the HUD's OptionButton.
+func apply_resolution_test(width: int, height: int, fullscreen: bool = false) -> void:
+	if fullscreen:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	else:
+		DisplayServer.window_set_size(Vector2i(width, height))
+	var old_width := maxf(1.0, get_viewport().get_visible_rect().size.x)
+	var new_width := float(width) if not fullscreen else old_width
+	if fullscreen:
+		var screen := DisplayServer.window_get_size()
+		new_width = maxf(1.0, screen.x)
+	var ratio := new_width / old_width
+	if absf(ratio - 1.0) > 0.0001:
+		var player := _local_player()
+		if player != null and player.camera != null:
+			var old_zoom: Vector2 = player.camera.zoom
+			player.camera.zoom = Vector2(maxf(0.05, old_zoom.x * ratio), maxf(0.05, old_zoom.y * ratio))
+
+
 ## Dev-menu commands only ever apply to the sender's own player, and only in debug builds,
 ## so there is no way to use this to affect anyone else's run.
 @rpc("any_peer", "call_remote", "reliable")
@@ -2461,6 +2482,10 @@ func _on_local_dev_command(command: String) -> void:
 
 
 func _apply_dev_command(peer_id: int, command: String) -> void:
+	# Resolution changes affect the local window, not a specific player entity.
+	if command.begins_with("resolution:"):
+		_apply_resolution_command(command)
+		return
 	var player := players.get(peer_id) as Player
 	if player == null:
 		return
@@ -2484,7 +2509,9 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 		"skip_wave":
 			_dev_skip_wave()
 		_:
-			if command.begins_with("biome_") and GameRuntime.uses_biomes():
+			if command.begins_with("resolution:"):
+				_apply_resolution_command(command)
+			elif command.begins_with("biome_") and GameRuntime.uses_biomes():
 				GameRuntime.set_biome(int(command.trim_prefix("biome_")))
 				_play_world_flash()
 
@@ -2740,6 +2767,32 @@ func _dev_spawn_elite() -> void:
 	var offset := Vector2.RIGHT.rotated(randf_range(0.0, TAU)) * 260.0
 	var multiplier := wave_director.health_multiplier_for_wave(maxi(1, current_wave))
 	_spawn_enemy(offset, "brute", multiplier)
+
+
+## Self-test helper: "resolution:<w>x<h>" or "resolution:fullscreen".
+func _apply_resolution_command(command: String) -> void:
+	if command == "resolution:fullscreen":
+		hud.apply_resolution(Vector2.ZERO, true)
+		return
+	var parts := command.trim_prefix("resolution:").split("x")
+	if parts.size() != 2:
+		return
+	_apply_resolution(int(parts[0]), int(parts[1]))
+
+
+## Resizes the window and rescales the local player's camera zoom so the visible
+## world area stays constant. `ratio` = new_width / old_width, applied as
+## zoom *= ratio.
+func _apply_resolution(width: int, height: int) -> void:
+	var old_width := maxf(1.0, get_viewport().get_visible_rect().size.x)
+	DisplayServer.window_set_size(Vector2i(width, height))
+	var ratio := float(width) / old_width
+	if absf(ratio - 1.0) > 0.0001:
+		await get_tree().process_frame
+		var player := _local_player()
+		if player != null and player.camera != null:
+			var old_zoom: Vector2 = player.camera.zoom
+			player.camera.zoom = Vector2(maxf(0.05, old_zoom.x * ratio), maxf(0.05, old_zoom.y * ratio))
 
 
 ## Dev command: jump straight to the next wave. Force-advances regardless of whether we're

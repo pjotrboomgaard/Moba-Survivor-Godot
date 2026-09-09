@@ -432,6 +432,16 @@ func _process(delta: float) -> void:
 				_pick_upgrade_index(int(event.get("index", 0)))
 			"skip_wave":
 				_dev_skip_wave()
+			"dev_command":
+				# Forward a dev command to the host main (e.g. "resolution:1920x1080").
+				var cmd := str(event.get("command", ""))
+				if _host_main != null and _host_main.has_method("_apply_dev_command"):
+					var local: Node = _host_main._local_player()
+					var peer_id := int(local.owner_peer_id) if local else 0
+					_host_main._apply_dev_command(peer_id, cmd)
+				_active_effects.append({"kind": "dev_command", "command": cmd, "t": _elapsed})
+			"resolution_probe":
+				_record_resolution_probe(str(event.get("label", "resolution")))
 			"report":
 				_finish_and_quit()
 
@@ -773,6 +783,33 @@ func _pick_upgrade_index(index: int) -> void:
 		"cooldowns_before": cooldowns_before,
 		"pending_slot_before": pending_slot_before,
 		"t": _elapsed,
+	})
+
+
+## Snapshot window size, mode, and the local camera zoom so a test can verify
+## that a resolution change rescaled the camera to keep the visible world area
+## constant.
+func _record_resolution_probe(label: String) -> void:
+	var cam: Camera2D = null
+	var vp := get_viewport()
+	if vp != null:
+		cam = vp.get_camera_2d()
+	var window_size := DisplayServer.window_get_size()
+	var window_mode := DisplayServer.window_get_mode()
+	var vp_size := Vector2.ZERO
+	var zoom := Vector2.ZERO
+	if vp != null:
+		vp_size = vp.get_visible_rect().size
+	if cam != null:
+		zoom = cam.zoom
+	_active_effects.append({
+		"kind": "resolution_probe",
+		"label": label,
+		"t": _elapsed,
+		"window_size": [int(window_size.x), int(window_size.y)],
+		"window_mode": int(window_mode),
+		"viewport_size": [int(vp_size.x), int(vp_size.y)],
+		"camera_zoom": [snappedf(zoom.x, 3), snappedf(zoom.y, 3)],
 	})
 
 

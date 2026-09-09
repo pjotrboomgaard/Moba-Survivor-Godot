@@ -9,8 +9,8 @@ layer = 20
 script = ExtResource("1_hud")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
-offset_right = 1280.0
-offset_bottom = 720.0
+offset_right = 2880.0
+offset_bottom = 1800.0
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 24
@@ -59,26 +59,26 @@ text = "YOU FELL\nPress R to restart"
 horizontal_alignment = 1
 
 [node name="XPBar" type="ProgressBar" parent="."]
-offset_left = 440.0
-offset_top = 24.0
-offset_right = 840.0
-offset_bottom = 38.0
+offset_left = 990.0
+offset_top = 54.0
+offset_right = 1890.0
+offset_bottom = 85.5
 show_percentage = false
 
 [node name="LevelLabel" type="Label" parent="."]
-offset_left = 440.0
-offset_top = 42.0
-offset_right = 840.0
-offset_bottom = 64.0
+offset_left = 990.0
+offset_top = 94.50
+offset_right = 1890.0
+offset_bottom = 144.0
 text = "LVL 1   0 / 40 XP"
 horizontal_alignment = 1
 
 [node name="BossPanel" type="VBoxContainer" parent="."]
 visible = false
-offset_left = 340.0
-offset_top = 84.0
-offset_right = 940.0
-offset_bottom = 132.0
+offset_left = 765.0
+offset_top = 189.0
+offset_right = 2115.0
+offset_bottom = 297.0
 theme_override_constants/separation = 4
 
 [node name="BossName" type="Label" parent="BossPanel"]
@@ -94,20 +94,20 @@ layout_mode = 2
 show_percentage = false
 
 [node name="WaveLabel" type="Label" parent="."]
-offset_left = 1000.0
-offset_top = 48.0
-offset_right = 1252.0
-offset_bottom = 78.0
+offset_left = 2250.0
+offset_top = 108.0
+offset_right = 2817.0
+offset_bottom = 175.5
 theme_override_colors/font_color = Color(1, 0.78, 0.45, 1)
 theme_override_font_sizes/font_size = 19
 text = "WAVE 1"
 horizontal_alignment = 2
 
 [node name="ConnectionLabel" type="Label" parent="."]
-offset_left = 1000.0
-offset_top = 22.0
-offset_right = 1252.0
-offset_bottom = 48.0
+offset_left = 2250.0
+offset_top = 49.5
+offset_right = 2817.0
+offset_bottom = 108.0
 theme_override_colors/font_color = Color(0.72, 0.88, 1, 1)
 theme_override_font_sizes/font_size = 19
 text = "WORLD 1"
@@ -115,10 +115,10 @@ horizontal_alignment = 2
 
 [node name="GoldLabel" type="Label" parent="."]
 visible = false
-offset_left = 1000.0
-offset_top = 78.0
-offset_right = 1252.0
-offset_bottom = 104.0
+offset_left = 2250.0
+offset_top = 175.5
+offset_right = 2817.0
+offset_bottom = 234.0
 theme_override_colors/font_color = Color(1, 0.79, 0.24, 1)
 theme_override_font_sizes/font_size = 16
 text = "0 GOLD"
@@ -126,10 +126,10 @@ horizontal_alignment = 2
 
 [node name="ThemeBanner" type="Label" parent="."]
 visible = false
-offset_left = 240.0
-offset_top = 168.0
-offset_right = 1040.0
-offset_bottom = 220.0
+offset_left = 540.0
+offset_top = 378.0
+offset_right = 2340.0
+offset_bottom = 495.0
 theme_override_colors/font_color = Color(1, 0.86, 0.6, 1)
 theme_override_font_sizes/font_size = 30
 text = "WAVE 1"
@@ -137,10 +137,10 @@ horizontal_alignment = 1
 
 [node name="DebutBanner" type="Label" parent="."]
 visible = false
-offset_left = 240.0
-offset_top = 222.0
-offset_right = 1040.0
-offset_bottom = 254.0
+offset_left = 540.0
+offset_top = 499.5
+offset_right = 2340.0
+offset_bottom = 571.5
 theme_override_colors/font_color = Color(1, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 19
 text = "NEW ENEMY"
@@ -148,18 +148,18 @@ horizontal_alignment = 1
 
 [node name="MissionCardBg" type="ColorRect" parent="."]
 visible = false
-offset_left = 190.0
-offset_top = 270.0
-offset_right = 1090.0
-offset_bottom = 462.0
+offset_left = 427.5
+offset_top = 607.5
+offset_right = 2452.5
+offset_bottom = 1039.5
 color = Color(0.02, 0.03, 0.06, 0.62)
 
 [node name="MissionBanner" type="Label" parent="."]
 visible = false
-offset_left = 190.0
-offset_top = 294.0
-offset_right = 1090.0
-offset_bottom = 406.0
+offset_left = 427.5
+offset_top = 661.5
+offset_right = 2452.5
+offset_bottom = 913.5
 theme_override_colors/font_color = Color(0.6, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 42
 text = "MISSION 1"
@@ -169,10 +169,10 @@ autowrap_mode = 2
 
 [node name="MissionSubtitle" type="Label" parent="."]
 visible = false
-offset_left = 190.0
-offset_top = 412.0
-offset_right = 1090.0
-offset_bottom = 448.0
+offset_left = 427.5
+offset_top = 927.0
+offset_right = 2452.5
+offset_bottom = 1008.0
 theme_override_colors/font_color = Color(0.72, 0.82, 0.9, 1)
 theme_override_font_sizes/font_size = 20
 text = ""
@@ -180,20 +180,20 @@ horizontal_alignment = 1
 
 [node name="AbilityLabel" type="Label" parent="."]
 visible = false
-offset_left = 1000.0
-offset_top = 106.0
-offset_right = 1252.0
-offset_bottom = 132.0
+offset_left = 2250.0
+offset_top = 238.5
+offset_right = 2817.0
+offset_bottom = 297.0
 theme_override_colors/font_color = Color(0.58, 0.87, 1, 1)
 theme_override_font_sizes/font_size = 20
 text = "SPACE  SIREN"
 horizontal_alignment = 2
 
 [node name="AbilityBar" type="Label" parent="."]
-offset_left = 1000.0
-offset_top = 204.0
-offset_right = 1252.0
-offset_bottom = 320.0
+offset_left = 2250.0
+offset_top = 459.0
+offset_right = 2817.0
+offset_bottom = 720.0
 theme_override_colors/font_color = Color(0.85, 0.85, 0.92, 1)
 theme_override_font_sizes/font_size = 17
 text = ""
@@ -201,18 +201,18 @@ horizontal_alignment = 2
 
 [node name="NextWaveButton" type="Button" parent="."]
 visible = false
-offset_left = 1000.0
-offset_top = 138.0
-offset_right = 1252.0
-offset_bottom = 174.0
+offset_left = 2250.0
+offset_top = 310.5
+offset_right = 2817.0
+offset_bottom = 391.5
 text = "NEXT WAVE ▶"
 
 [node name="NextWaveTimer" type="Label" parent="."]
 visible = false
-offset_left = 1000.0
-offset_top = 176.0
-offset_right = 1252.0
-offset_bottom = 196.0
+offset_left = 2250.0
+offset_top = 396.0
+offset_right = 2817.0
+offset_bottom = 441.0
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 1)
 theme_override_font_sizes/font_size = 14
 text = "auto in 14s"
@@ -220,10 +220,10 @@ horizontal_alignment = 2
 
 [node name="StatsPanel" type="PanelContainer" parent="."]
 visible = false
-offset_left = 24.0
-offset_top = 140.0
-offset_right = 300.0
-offset_bottom = 380.0
+offset_left = 54.0
+offset_top = 315.0
+offset_right = 675.0
+offset_bottom = 855.0
 
 [node name="StatsLayout" type="VBoxContainer" parent="StatsPanel"]
 layout_mode = 2
@@ -241,10 +241,10 @@ theme_override_font_sizes/font_size = 14
 
 [node name="CodexPanel" type="PanelContainer" parent="."]
 visible = false
-offset_left = 140.0
-offset_top = 40.0
-offset_right = 1140.0
-offset_bottom = 680.0
+offset_left = 315.0
+offset_top = 90.0
+offset_right = 2565.0
+offset_bottom = 1530.0
 
 [node name="CodexLayout" type="VBoxContainer" parent="CodexPanel"]
 layout_mode = 2
@@ -270,18 +270,18 @@ fit_content = true
 scroll_active = false
 
 [node name="MiniMap" type="Control" parent="."]
-offset_left = 1050.0
-offset_top = 556.0
-offset_right = 1260.0
-offset_bottom = 696.0
+offset_left = 1575.0
+offset_top = 834.0
+offset_right = 1890.0
+offset_bottom = 1044.0
 script = ExtResource("2_minimap")
 
 [node name="ShopPanel" type="PanelContainer" parent="."]
 visible = false
-offset_left = 150.0
-offset_top = 105.0
-offset_right = 1130.0
-offset_bottom = 645.0
+offset_left = 337.5
+offset_top = 236.25
+offset_right = 2542.5
+offset_bottom = 1451.25
 
 [node name="ShopLayout" type="VBoxContainer" parent="ShopPanel"]
 layout_mode = 2
@@ -313,10 +313,10 @@ text = "CLOSE SHOP"
 
 [node name="UpgradePanel" type="PanelContainer" parent="."]
 visible = false
-offset_left = 48.0
-offset_top = 548.0
-offset_right = 1232.0
-offset_bottom = 708.0
+offset_left = 108.0
+offset_top = 1233.0
+offset_right = 2772.0
+offset_bottom = 1593.0
 
 [node name="Layout" type="VBoxContainer" parent="UpgradePanel"]
 layout_mode = 2
@@ -353,10 +353,10 @@ text = "UPGRADE 4"
 
 [node name="EscapeMenu" type="PanelContainer" parent="."]
 visible = false
-offset_left = 490.0
-offset_top = 200.0
-offset_right = 790.0
-offset_bottom = 560.0
+offset_left = 1102.5
+offset_top = 450.0
+offset_right = 1777.5
+offset_bottom = 1260.0
 
 [node name="EscapeLayout" type="VBoxContainer" parent="EscapeMenu"]
 layout_mode = 2
@@ -378,6 +378,9 @@ layout_mode = 2
 text = "MUSIC"
 button_pressed = true
 
+[node name="ResolutionOption" type="OptionButton" parent="EscapeMenu/EscapeLayout"]
+layout_mode = 2
+
 [node name="ResumeButton" type="Button" parent="EscapeMenu/EscapeLayout"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
@@ -395,10 +398,10 @@ text = "LEAVE TO LOBBY"
 
 [node name="DevPanel" type="PanelContainer" parent="."]
 visible = false
-offset_left = 280.0
-offset_top = 560.0
-offset_right = 1000.0
-offset_bottom = 760.0
+offset_left = 630.0
+offset_top = 1260.0
+offset_right = 2250.0
+offset_bottom = 1710.0
 
 [node name="DevLayout" type="VBoxContainer" parent="DevPanel"]
 layout_mode = 2

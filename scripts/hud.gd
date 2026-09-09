@@ -56,6 +56,7 @@ const UPGRADE_ICON_MAX_WIDTH := 28
 @onready var leave_button: Button = $EscapeMenu/EscapeLayout/LeaveButton
 @onready var sfx_toggle: CheckButton = $EscapeMenu/EscapeLayout/SfxToggle
 @onready var music_toggle: CheckButton = $EscapeMenu/EscapeLayout/MusicToggle
+@onready var resolution_option: OptionButton = $EscapeMenu/EscapeLayout/ResolutionOption
 @onready var dev_panel: PanelContainer = $DevPanel
 @onready var dev_add_xp_button: Button = $DevPanel/DevLayout/DevButtons/AddXPButton
 @onready var dev_add_levels_button: Button = $DevPanel/DevLayout/DevButtons/AddLevelsButton
@@ -180,6 +181,7 @@ func _ready() -> void:
 	leave_button.pressed.connect(_on_leave_pressed)
 	sfx_toggle.toggled.connect(_on_sfx_toggled)
 	music_toggle.toggled.connect(_on_music_toggled)
+	_build_resolution_option()
 	_sync_audio_toggles()
 	dev_add_xp_button.pressed.connect(_on_dev_button_pressed.bind("add_xp"))
 	dev_add_levels_button.pressed.connect(_on_dev_button_pressed.bind("add_5_levels"))
@@ -1590,6 +1592,112 @@ func _refresh_build_log() -> void:
 			names.append(str(uid))
 		parts.append("Lv%d: %s" % [lvl, ", ".join(names)])
 	_build_log_label.text = "  |  ".join(parts)
+
+
+## ---------------------------------------------------------------------------
+## Resolution (in-game) — keep the visible world area constant across sizes.
+##
+## The game renders at a fixed "base" window (2880x1800, matching
+## project.godot's default) and scales with the `canvas_items` stretch mode.
+## Changing the window size would therefore change how much *world* is visible
+## per pixel, so on every change we rescale every live player camera's zoom by
+## (new_width / old_width) to keep the visible world area identical. The HUD
+## (a CanvasLayer with the stretch viewport) is unaffected — it scales with the
+## viewport automatically.
+## ---------------------------------------------------------------------------
+const RESOLUTION_OPTIONS: Array[Vector2] = [
+	Vector2(1920, 1080),
+	Vector2(2880, 1800),
+	Vector2(3840, 2160),
+]
+## Sentinel width that means "use the OS's native fullscreen resolution".
+const _FULLSCREEN_SENTINEL_WIDTH := -1
+
+func _build_resolution_option() -> void:
+	resolution_option.clear()
+	for size in RESOLUTION_OPTIONS:
+		resolution_option.add_item("%dx%d" % [int(size.x), int(size.y)])
+	resolution_option.add_item("FULLSCREEN")
+	resolution_option.set_item_metadata(resolution_option.item_count - 1, _FULLSCREEN_SENTINEL_WIDTH)
+	resolution_option.item_selected.connect(_on_resolution_selected)
+	_sync_resolution_option()
+
+
+func _sync_resolution_option() -> void:
+	if resolution_option == null:
+		return
+	var window_size := DisplayServer.window_get_size()
+	var native_width := int(window_size.x)
+	# Find the matching preset, or fall back to the closest width.
+	var best_index := 0
+	var best_dist := INF
+	for index in RESOLUTION_OPTIONS.size():
+		var dist := absf(int(RESOLUTION_OPTIONS[index].x) - native_width)
+		if dist < best_dist:
+			best_dist = dist
+			best_index = index
+	# If we're already fullscreen (window size equals screen size and is not a preset),
+	# snap the picker to the Fullscreen row.
+	var screen_size := DisplayServer.window_get_size()
+	var is_fullscreen_mode := _is_window_fullscreen()
+	if is_fullscreen_mode and best_dist > 2:
+		best_index = resolution_option.item_count - 1
+	resolution_option.select(best_index)
+
+
+func _is_window_fullscreen() -> bool:
+	var mode := DisplayServer.window_get_mode()
+	return mode == DisplayServer.WINDOW_MODE_FULLSCREEN \
+		or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+
+
+## Applies the chosen resolution while keeping the visible world area constant.
+func apply_resolution(size: Vector2, fullscreen: bool) -> void:
+	if fullscreen:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	else:
+		if _is_window_fullscreen():
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		DisplayServer.window_set_size(size)
+
+	# Keep the same visible world area: scale every live player camera's zoom by
+	# (new_width / old_width). The HUD is on a stretched CanvasLayer so it scales
+	# on its own and needs no adjustment.
+	var old_width := maxf(1.0, float(get_viewport().get_visible_rect().size.x))
+	var new_width := float(size.x) if not fullscreen else old_width
+	if fullscreen:
+		var screen_size := DisplayServer.window_get_size()
+		new_width = maxf(1.0, screen_size.x)
+	var ratio := new_width / old_width
+	if absf(ratio - 1.0) < 0.0001:
+		return
+	# Wait one frame so the viewport has picked up the new size before we read
+	# the cameras (cameras are children of the player CharacterBody2D nodes).
+	await get_tree().process_frame
+	var players_group: Array = get_tree().get_nodes_in_group("players")
+	for node in players_group:
+		if not node is Player or not is_instance_valid(node):
+			continue
+		var player := node as Player
+		if player.camera == null or not player.is_local_player:
+			continue
+		var old_zoom: Vector2 = player.camera.zoom
+		var new_zoom := old_zoom * ratio
+		player.camera.zoom = Vector2(maxf(0.05, new_zoom.x), maxf(0.05, new_zoom.y))
+	# Sync the project-setting viewport size so the next launch also starts at
+	# the chosen resolution (best effort — project settings are read-only at
+	# runtime, but we can at least keep the picker state consistent).
+	_sync_resolution_option()
+
+
+func _on_resolution_selected(index: int) -> void:
+	AudioService.play("ui_click")
+	var metadata = resolution_option.get_item_metadata(index)
+	if metadata == _FULLSCREEN_SENTINEL_WIDTH:
+		apply_resolution(Vector2.ZERO, true)
+		return
+	var size: Vector2 = RESOLUTION_OPTIONS[index]
+	apply_resolution(size, false)
 
 
 func _build_fps_counter() -> void:
