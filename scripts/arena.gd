@@ -722,18 +722,10 @@ func _spawn_landmarks() -> void:
 		var spec: Array = kit[index]
 		if spec.size() < 6:
 			continue
-		# Remove the pulse_wipe (center wipe) from solo and FFA maps — it's too
-		# destructive for those modes and the user explicitly asked to remove it.
-		# Solo = not FFA (team_mode is NONE), so "not is_ffa()" covers both solo
-		# and co-op, but we only want to remove it from solo+FFA, not co-op.
-		# Since TeamMode only has NONE and FFA, "solo" == "not FFA".
-		if str(spec[1]) == "pulse_wipe" and GameRuntime.is_ffa():
-			continue
-		if str(spec[1]) == "pulse_wipe" and not GameRuntime.is_ffa() and not GameRuntime.is_classic():
-			# This is co-op — keep the wipe for co-op
-			pass
-		elif str(spec[1]) == "pulse_wipe" and not GameRuntime.is_ffa():
-			# Solo mode — remove the wipe
+		# Remove the pulse_wipe "center wipe" landmark from every mode except classic.
+		# The user explicitly asked for it to stop randomly appearing on the grass world
+		# (it read as an intrusive "wipe thing"). Classic keeps its original behavior.
+		if str(spec[1]) == "pulse_wipe" and not GameRuntime.is_classic():
 			continue
 		var landmark := ArenaLandmark.new()
 		var preferred := spots[index] if index < spots.size() else _landmark_spot(float(spec[6]) if spec.size() > 6 else 0.0, float(spec[7]) if spec.size() > 7 else 0.42, placed)

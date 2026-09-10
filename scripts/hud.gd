@@ -252,6 +252,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_released("show_stats"):
 		stats_panel.visible = false
 		return
+	# Hold TAB to see every ability's card in-game (name + description + rank).
+	if event.is_action_pressed("hold_abilities"):
+		_show_ability_hints(true)
+		return
+	if event.is_action_released("hold_abilities"):
+		_show_ability_hints(false)
+		return
 	if OS.is_debug_build() and event.is_action_pressed("dev_toggle"):
 		dev_panel.visible = not dev_panel.visible
 		return
@@ -406,7 +413,11 @@ func _process(delta: float) -> void:
 	# Low-HP heal arrow: shows a green arrow to the nearest heal landmark.
 	var prev_heal_arrow := _heal_arrow_active
 	_refresh_heal_arrow(delta)
-	if _arrow_overlay != null and (prev_quest_arrow != _quest_arrow_active or prev_heal_arrow != _heal_arrow_active or _quest_arrow_active or _heal_arrow_active):
+	# FFA player arrows move every frame (players walk), so redraw whenever in FFA.
+	var need_redraw := prev_quest_arrow != _quest_arrow_active or prev_heal_arrow != _heal_arrow_active or _quest_arrow_active or _heal_arrow_active
+	if GameRuntime.is_ffa():
+		need_redraw = true
+	if _arrow_overlay != null and need_redraw:
 		_arrow_overlay.queue_redraw()
 
 
@@ -451,7 +462,130 @@ func _build_stats_text() -> String:
 		lines.append("Pierce: %d%%" % roundi(bound_player.resistance_pierce * 100.0))
 	lines.append("Gold: %d" % bound_player.gold)
 	lines.append("FPS: %d" % Engine.get_frames_per_second())
+	# Abilities the hero currently owns, with rank.
+	var abil_parts: Array[String] = []
+	for entry in bound_player.known_abilities:
+		abil_parts.append("%s L%d" % [str(entry.id), int(entry.get("rank", 1))])
+	if not abil_parts.is_empty():
+		lines.append("Abilities: " + "  ".join(abil_parts))
+	# Owned items (from the shop), with stack counts.
+	var item_lines: Array[String] = []
+	for item_id in ShopCatalog.ids():
+		var stacks := bound_player.stacks_of(item_id)
+		if stacks > 0:
+			item_lines.append("  %s x%d" % [ShopCatalog.display_name(item_id, bound_player.class_id), stacks])
+	if item_lines.is_empty():
+		lines.append("Items: (none)")
+	else:
+		lines.append("Items:")
+		lines.append_array(item_lines)
+	# Applied upgrades / run bonuses (from the upgrade pool this run).
+	if _applied_upgrades.size() > 0:
+		lines.append("Upgrades this run: %d" % _applied_upgrades.size())
+		var up_lines: Array[String] = []
+		for up_id in _applied_upgrades:
+			var data := UpgradeCatalog.info(up_id)
+			up_lines.append("  " + str(data.get("name", up_id)))
+		lines.append_array(up_lines)
 	return "\n".join(lines)
+
+
+## Hold-TAB: pop up a compact card listing every owned ability's name + description so
+## the player can reference their kit without leaving the fight.
+var _ability_hint_panel: PanelContainer = null
+var _ability_hint_text: RichTextLabel = null
+var _ability_hint_visible := false
+
+func _show_ability_hints(on: bool) -> void:
+	_ensure_ability_hint_panel()
+	if _ability_hint_text == null or bound_player == null:
+		_ability_hint_visible = on
+		if _ability_hint_panel != null:
+			_ability_hint_panel.visible = on
+		return
+	_ability_hint_visible = on
+	_ability_hint_panel.visible = on
+	if not on:
+		return
+	var sb: Array[String] = []
+	for entry in bound_player.known_abilities:
+		var ability_id := str(entry.id)
+		var rank := int(entry.get("rank", 1))
+		var info := PlayerClass.ability_info(ability_id)
+		var name := str(info.get("name", ability_id))
+		var desc := str(info.get("description", ""))
+		# Substitute the {placeholder} tokens with rank-1 numbers so the card reads clean.
+		desc = _substitute_ability_placeholders(desc, ability_id)
+		var cooldown := float(PlayerClass.ability_values(ability_id, rank).get("cooldown", 0.0))
+		var cd_text := (" (CD %.0fs)" % cooldown) if cooldown > 0.0 else ""
+		sb.append("[b][color=ffd166]%s[/color][/b] [color=9fb3d1]rank %d%s[/color]" % [name, rank, cd_text])
+		sb.append("[color=f4f0e6]%s[/color]" % desc)
+		sb.append("")
+	_ability_hint_text.text = "\n".join(sb)
+
+
+func _substitute_ability_placeholders(template: String, ability_id: String) -> String:
+	if template.find("{") == -1:
+		return template
+	var regex := RegEx.new()
+	regex.compile("\\{([a-zA-Z_]+)\\}")
+	var rebuilt := ""
+	var last_end := 0
+	for m in regex.search_all(template):
+		rebuilt += template.substr(last_end, m.get_start() - last_end)
+		var key := m.get_string(1)
+		var values := PlayerClass.ability_values(ability_id, 1)
+		if values.has(key):
+			rebuilt += "%d" % int(float(values[key]))
+		last_end = m.get_end()
+	rebuilt += template.substr(last_end)
+	return rebuilt
+
+
+func _ensure_ability_hint_panel() -> void:
+	if _ability_hint_panel != null:
+		return
+	_ability_hint_panel = PanelContainer.new()
+	_ability_hint_panel.name = "AbilityHintPanel"
+	_ability_hint_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ability_hint_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_ability_hint_panel.anchor_left = 1.0
+	_ability_hint_panel.anchor_right = 1.0
+	_ability_hint_panel.offset_left = -360.0
+	_ability_hint_panel.offset_top = 210.0
+	_ability_hint_panel.offset_right = -20.0
+	_ability_hint_panel.offset_bottom = 640.0
+	_ability_hint_panel.visible = false
+	_ability_hint_text = RichTextLabel.new()
+	_ability_hint_text.bbcode_enabled = true
+	_ability_hint_text.fit_content = true
+	_ability_hint_text.scroll_active = true
+	_ability_hint_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_ability_hint_text.add_theme_color_override("default_color", Color("f4f0e6"))
+	_ability_hint_text.add_theme_font_size_override("normal_font_size", 14)
+	_ability_hint_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.04, 0.05, 0.08, 0.88)
+	bg.set_corner_radius_all(6)
+	bg.content_margin_left = 10.0
+	bg.content_margin_right = 10.0
+	bg.content_margin_top = 8.0
+	bg.content_margin_bottom = 8.0
+	_ability_hint_panel.add_theme_stylebox_override("panel", bg)
+	_ability_hint_panel.add_child(_ability_hint_text)
+	add_child(_ability_hint_panel)
+
+
+## Track the upgrades picked this run so the stats panel can list them on demand.
+var _applied_upgrades: Array[String] = []
+
+## Called by main.gd when a stat upgrade is chosen locally, so the hold-TAB / stats
+## panel can list every upgrade the player has taken this run.
+func record_upgrade(upgrade_id: String) -> void:
+	if upgrade_id.is_empty():
+		return
+	if not _applied_upgrades.has(upgrade_id):
+		_applied_upgrades.append(upgrade_id)
 
 
 func _refresh_dev_panel() -> void:
@@ -900,16 +1034,7 @@ func _refresh_ability_icons() -> void:
 			icon.texture = SpriteLibrary.texture_for(ability_id)
 			var info := PlayerClass.ability_info(ability_id)
 			name_label.text = _clip_label(str(info.get("name", ability_id)))
-		# Ability-unlock gating: a rank-0 slot is locked — gray it out and hide the
-		# cooldown bar so the player can tell at a glance which abilities still need
-		# to be unlocked via a level-up offer.
-		var locked: bool = int(entry.get("rank", 1)) < 1
-		if locked:
-			icon.modulate = Color(0.4, 0.4, 0.4, 0.55)
-			name_label.text = "LOCKED"
-			name_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75, 0.9))
-			_apply_kit_cooldown(nodes, 0.0, 1.0)
-			continue
+		# All abilities are learned from the start (no rank-0 lock state).
 		icon.modulate = Color.WHITE
 		name_label.add_theme_color_override("font_color", Color.WHITE)
 		var remaining: float = bound_player.ability_cooldowns[slot] if slot < bound_player.ability_cooldowns.size() else 0.0
@@ -1098,6 +1223,9 @@ func announce_wave(wave: int, theme_display_name: String, debut_type_id: String)
 		theme_banner.add_theme_color_override("font_color", Color("ff4a4a"))
 		_flash(theme_banner, 3.4)
 		AudioService.play("boss_alert")
+		# Boss approach: 5-4-3-2-1 fight countdown so the player knows the fight is
+		# imminent, on top of the alert stinger.
+		_run_wave_countdown()
 		pulse_danger(2.2)
 		debut_banner.visible = false
 		return
@@ -1106,12 +1234,28 @@ func announce_wave(wave: int, theme_display_name: String, debut_type_id: String)
 	theme_banner.text = "WAVE %d — %s" % [maxi(1, wave), theme_display_name.to_upper()]
 	_flash(theme_banner, 2.6)
 	AudioService.play("wave_start")
+	# 5-4-3-2-1 fight countdown SFX on every wave start (and boss approach, above).
+	_run_wave_countdown()
 	if debut_type_id.is_empty():
 		debut_banner.visible = false
 		return
 	debut_banner.text = "NEW ENEMY: %s" % str(EnemyType.by_id(debut_type_id).name).to_upper()
 	_flash(debut_banner, 3.2)
 	AudioService.play("scan")
+
+
+## 5-4-3-2-1 fight-countdown SFX + centre-screen numbers, one second per tick.
+## Uses the SFX stingers "countdown_tick" / "countdown_fight" and reuses the
+## big-centre FFA countdown label so the player reads both ears and eyes together.
+func _run_wave_countdown() -> void:
+	if GameRuntime.is_classic() or GameRuntime.is_dedicated_server():
+		return
+	for i in [5, 4, 3, 2, 1]:
+		await get_tree().create_timer(1.0).timeout
+		AudioService.play("countdown_tick")
+		ffa_countdown_tick(str(i), false)
+	await get_tree().create_timer(0.5).timeout
+	AudioService.play("countdown_fight")
 
 
 ## Drop-in beat: "MISSION N — LANDED ON <planet>". Fired on the very first wave and again
@@ -1162,7 +1306,19 @@ func announce_boss_defeated(_wave: int) -> void:
 		return
 	theme_banner.text = "BOSS DEFEATED — next world approaching"
 	_flash(theme_banner, 3.0)
-	AudioService.play("boss_alert")
+	# Dedicated boss-defeat stinger so the moment reads as an event in the ears,
+	# not just the banner + ring sweep.
+	AudioService.play("boss_defeat")
+
+
+## Boss-takeover banner: the killing hero inherits the boss's power for a short window.
+## `marquee` (first boss of a world) gets the bigger "YOU ARE THE BOSS" treatment.
+func announce_takeover(marquee: bool) -> void:
+	if GameRuntime.is_classic():
+		return
+	theme_banner.text = "YOU ARE THE BOSS!" if marquee else "BOSS TAKEN OVER"
+	theme_banner.add_theme_color_override("font_color", Color(1.0, 0.5, 0.2, 1.0))
+	_flash(theme_banner, 2.4)
 
 
 ## Brief, centered banner for the FFA opening sequence ("ALL HEROES — LANDING", "GO!").
@@ -1224,7 +1380,12 @@ func _play_countdown_punch(is_fight: bool) -> void:
 	tw.tween_interval(0.25)
 	tw.tween_property(_ffa_countdown_label, "modulate:a", 0.0, dur * 0.6)
 	tw.parallel().tween_property(_ffa_countdown_label, "scale", end_scale * 1.1, dur * 0.6)
-	AudioService.play("ui_click")
+	# 5-4-3-2-1 fight countdown stinger: a rising pitch for the ticking numbers, a
+	# triumphant "fight!" hit on the GO beat. UI bus so it's not camera-ducked.
+	if is_fight:
+		AudioService.play("countdown_fight")
+	else:
+		AudioService.play("countdown_tick")
 
 
 func announce_boss_phase(phase: int, boss_name: String) -> void:
@@ -1545,6 +1706,8 @@ var _quest_toast_timer := 0.0
 ## Arrows drawn every frame in screen space: a quest arrow (gold) that points at the
 ## active side quest, and a heal arrow (green) that appears when HP drops below
 ## LOW_HP_HEAL_THRESHOLD and points at the nearest heal_all landmark.
+## FFA: off-screen enemy players are always marked with a team-colored arrow on the
+## viewport edge so you know which direction they are in.
 var _arrow_overlay: Control = null
 var _quest_arrow_active := false
 var _quest_arrow_time_left := 0.0
@@ -1895,6 +2058,10 @@ func _draw_arrow_overlay() -> void:
 		_draw_direction_arrow(center, _quest_arrow_target, cam, Color(1.0, 0.88, 0.35, 0.9), "QUEST")
 	if _heal_arrow_active and _heal_arrow_target != null and is_instance_valid(_heal_arrow_target):
 		_draw_direction_arrow(center, _heal_arrow_target, cam, Color(0.35, 0.95, 0.5, 0.9), "HEAL")
+	# FFA: always show a team-colored arrow at the screen edge for every alive
+	# enemy player who is off-screen.
+	if GameRuntime.is_ffa() and bound_player != null and bound_player.is_local_player:
+		_draw_ffa_player_arrows(cam)
 
 
 ## Draws an arrow from screen-center toward a world-position target, clamped to the
@@ -1931,6 +2098,72 @@ func _draw_direction_arrow(center: Vector2, target: Node2D, cam: Camera2D, color
 		13,
 		color
 	)
+
+
+## FFA: draw a team-colored edge arrow for each alive enemy player who is off-screen.
+## The arrowhead is filled with that player's hero portrait so you can tell who is where.
+func _draw_ffa_player_arrows(cam: Camera2D) -> void:
+	if bound_player == null:
+		return
+	var root := get_tree().root
+	var main := root.get_node_or_null("Main")
+	if main == null or not main.has_method("get_players"):
+		return
+	var main_obj: Node = main
+	var players: Dictionary = main_obj.get("players") if "players" in main_obj else {}
+	var my_team := bound_player.team_id
+	for peer_id in players.keys():
+		var p := players.get(peer_id) as Player
+		if p == null:
+			continue
+		if not p.active:
+			continue
+		if p.team_id == my_team:
+			continue
+		# Skip if the player is already on-screen.
+		var screen_pos: Vector2 = cam.get_canvas_transform() * p.global_position
+		var vp_size := get_viewport().get_visible_rect().size
+		if screen_pos.x >= 0.0 and screen_pos.x <= vp_size.x and screen_pos.y >= 0.0 and screen_pos.y <= vp_size.y:
+			continue
+		var color: Color = RiftClashManager.team_color(p.team_id)
+		_draw_edge_player_arrow(cam, p, color)
+
+
+## Draws a single filled hero-portrait arrow at the viewport edge pointing at an
+## off-screen player, with a small direction indicator and team color.
+func _draw_edge_player_arrow(cam: Camera2D, target: Player, color: Color) -> void:
+	var vp := get_viewport()
+	var vp_size := vp.get_visible_rect().size
+	var center := vp_size * 0.5
+	var screen_pos := cam.get_canvas_transform() * target.global_position
+	var dir := screen_pos - center
+	if dir.length_squared() < 100.0:
+		return
+	dir = dir.normalized()
+	var half_w := center.x
+	var half_h := center.y
+	var t_x := half_w / absf(dir.x) if absf(dir.x) > 0.001 else INF
+	var t_y := half_h / absf(dir.y) if absf(dir.y) > 0.001 else INF
+	var t := minf(t_x, t_y) * 0.82
+	var end := center + dir * t
+	# Filled circle background tinted with the team color.
+	_arrow_overlay.draw_circle(end, 15.0, Color(color.r, color.g, color.b, 0.85))
+	# Directional wedge pointing outward (away from center) to show which way they are.
+	var perp := dir.orthogonal()
+	var tip := end + dir * 22.0
+	_arrow_overlay.draw_colored_polygon(PackedVector2Array([
+		end + perp * 9.0,
+		tip,
+		end - perp * 9.0,
+	]), Color("ffffff"))
+	# Hero portrait glyph in the center.
+	var tx := _hero_portrait(target.class_id)
+	if tx != null:
+		# Use draw_texture_rect scaled into a ~20px box centered on the arrow.
+		var rect := Rect2(end - Vector2(11, 11), Vector2(22, 22))
+		_arrow_overlay.draw_texture_rect(tx, rect, false, color)
+	# Thin outline ring.
+	_arrow_overlay.draw_arc(end, 15.0, 0.0, TAU, 32, Color(0, 0, 0, 0.6), 2.0)
 
 
 func _hero_portrait(class_id: String) -> Texture2D:

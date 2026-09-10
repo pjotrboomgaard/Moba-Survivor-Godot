@@ -495,6 +495,8 @@ func _process(delta: float) -> void:
 				_pick_unlock_ability()
 			"skip_wave":
 				_dev_skip_wave()
+			"boss_transition_probe":
+				_record_boss_transition_probe(str(event.get("label", "boss_transition")))
 			"dev_command":
 				# Forward a dev command to the host main (e.g. "resolution:1920x1080").
 				var cmd := str(event.get("command", ""))
@@ -999,6 +1001,25 @@ func _pick_unlock_ability() -> void:
 		"abilities_after": (_player.known_abilities.duplicate() if _player.known_abilities else []),
 		"t": _elapsed,
 	})
+
+
+## Snapshot the world transition state after a boss kill: which biome the game is in,
+## the wave, and whether the killer got the takeover buff (boss_form active + buffed stats).
+func _record_boss_transition_probe(label: String) -> void:
+	if _host_main == null:
+		_active_effects.append({"kind": "boss_transition_probe", "error": "no host", "t": _elapsed})
+		return
+	var info := {
+		"kind": "boss_transition_probe",
+		"label": label,
+		"biome_id": GameRuntime.biome_id,
+		"biome_name": GameRuntime.biome_name(),
+		"wave": _host_main.current_wave,
+		"killer_in_boss_form": _player.in_boss_form if _player != null else false,
+		"killer_damage_mult": _player.damage_dealt_multiplier if _player != null else 0.0,
+		"t": _elapsed,
+	}
+	_active_effects.append(info)
 
 
 ## Snapshot window size, mode, and the local camera zoom so a test can verify

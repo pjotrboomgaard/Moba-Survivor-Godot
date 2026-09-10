@@ -78,6 +78,9 @@ var _near_shop_stand := false
 const CRATER_UNLOCK_WAVE := 1
 var crater_unlocked := true
 var _crater_unlock_announced := true
+## Self-test hook: the last boss-defeat transition we played, so a probe can assert
+## that the ring + zoom actually ran without needing to simulate a full boss fight.
+var _last_boss_transition := {}
 ## Server-only tracking of landmark cool-downs by id, so one player can't spam the bell.
 var _landmark_last_trigger: Dictionary = {}
 const LANDMARK_GLOBAL_COOLDOWN := 16.0
@@ -163,6 +166,10 @@ const FFA_BOUNTY_CAP := 4
 const FFA_BOUNTY_TYPES := ["brute", "hexer", "lurker", "sentinel", "splitter", "bomber"]
 const FFA_CPU_SHOP_SECONDS := 12.0
 var _ffa_world_wave := 1
+## Which path last triggered the boss-defeat ring sweep — "boss_death" (a boss just
+## died) or "mission_warp" (the arena rebuilt for a new world). Drives the probe's
+## `source` field so a self-test can tell the two apart.
+var _last_boss_ring_source := "none"
 ## FFA opening sequence: all four heroes land in a circle at center, stand still for
 ## FFA_INTRO_HOLD (can't control), then auto-walk outward in their own directions for
 ## FFA_INTRO_WALK (camera follows each local player), stand still again, and only then
@@ -190,6 +197,7 @@ func _ready() -> void:
 		(arena as Arena).dress_from_runtime_biome()
 		_bind_landmarks()
 	hud.upgrade_chosen.connect(_on_local_upgrade_chosen)
+	hud.upgrade_chosen.connect(_hud_track_upgrade)
 	hud.ability_chosen.connect(_on_local_ability_chosen)
 	hud.shop_item_chosen.connect(_on_local_shop_item_chosen)
 	hud.shop_closed.connect(_on_local_shop_closed)
@@ -908,6 +916,7 @@ func _ensure_team_wave_director(team_id: String) -> void:
 	for peer_id in players.keys():
 		if RiftClashManager.team_of(int(peer_id)) == int(team_id):
 			members += 1
+	director.team_focus_position = RiftClashManager.team_anchor(team_id)
 	team_wave_directors[team_id] = director
 	# Defer the actual start until the FFA intro sequence (landing circle → walk-out)
 	# completes, so creeps don't spawn while the heroes are still landing.
@@ -980,13 +989,18 @@ func _maybe_advance_ffa_world(wave: int) -> void:
 
 func _on_team_wave_group_ready(
 		type_id: String, formation: int, count: int,
-		health_multiplier: float, speed_multiplier: float, team_id: String
+		health_multiplier: float, speed_multiplier: float, focus: Variant = null, team_id: String = ""
 ) -> void:
 	if game_over or players.is_empty():
 		return
 	if RiftClashManager.is_team_eliminated(team_id):
 		return
-	_spawn_team_formation(team_id, type_id, formation, count, health_multiplier, speed_multiplier)
+	if focus is Vector2 and (focus as Vector2).length_squared() > 0.0:
+		# FFA pressure pack targeted at this team's own spawn lane (main.gd set the focus
+		# position so "more creeps come toward the local player's side").
+		_spawn_formation_near(focus, type_id, formation, count, health_multiplier, speed_multiplier, false)
+	else:
+		_spawn_team_formation(team_id, type_id, formation, count, health_multiplier, speed_multiplier)
 
 
 func _spawn_initial_wave() -> void:
@@ -1176,13 +1190,17 @@ func _on_intermission_started(next_wave: int, seconds: float) -> void:
 	var world_changed := false
 	if GameRuntime.uses_biomes():
 		var previous_biome := GameRuntime.biome_id
-		GameRuntime.set_biome_for_wave(next_wave)
+		# A world transition only happens after 3 bosses have been defeated in the
+		# current world (i.e. every 15 waves). Bosses still spawn on every 5th wave;
+		# the world just stays put until the 3rd boss of that world drops.
+		if beaten > 0 and beaten % WaveDirector.WAVES_PER_WORLD == 0:
+			GameRuntime.set_biome_for_wave(next_wave)
 		world_changed = GameRuntime.biome_id != previous_biome
-	# A boss clear (wave % BOSS_WAVE_INTERVAL == 0) always lands on a fresh biome — both
-	# cycle every 5 waves off the same wave count — so the dramatic post-boss warp beat and
-	# the world-transition landing beat are always the same moment. Give it the full
-	# mission-warp beat instead of the quick world-flash used for a plain wave bump.
-	if beaten > 0 and beaten % WaveDirector.BOSS_WAVE_INTERVAL == 0 and not GameRuntime.is_classic():
+	# A boss clear (wave % BOSS_WAVE_INTERVAL == 0) lands on a fresh biome ONLY when
+	# the boss is the 3rd one of the world (the world-transition boss). The other two
+	# bosses in a world are smaller "world bosses" — they still get the ring sweep +
+	# takeover buff but no world warp.
+	if beaten > 0 and beaten % WaveDirector.WAVES_PER_WORLD == 0 and not GameRuntime.is_classic():
 		_play_mission_warp(next_wave)
 	elif world_changed:
 		# Defensive fallback for if BOSS_WAVE_INTERVAL and BIOME_CYCLE_WAVES ever diverge —
@@ -1216,11 +1234,16 @@ func _queue_wave_draft() -> void:
 		_offer_next_upgrade(peer_id)
 
 
-func _on_wave_group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float) -> void:
+func _on_wave_group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float, focus: Variant = null) -> void:
 	if game_over or players.is_empty():
 		return
 	var close := wave_director.take_close_spawn()
-	_spawn_formation(EnemyType.fit_to_biome(type_id), formation, count, health_multiplier, speed_multiplier, close)
+	if focus is Vector2 and (focus as Vector2).length_squared() > 0.0:
+		# A lane-targeted pack (FFA local-side pressure) spawns from the given corner
+		# instead of the map-edge random point.
+		_spawn_formation_near(focus, EnemyType.fit_to_biome(type_id), formation, count, health_multiplier, speed_multiplier, close)
+	else:
+		_spawn_formation(EnemyType.fit_to_biome(type_id), formation, count, health_multiplier, speed_multiplier, close)
 
 
 func _spawn_formation(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false) -> void:
@@ -1559,10 +1582,14 @@ func _on_boss_phase_changed(phase: int) -> void:
 
 
 func _on_boss_death(enemy: Enemy) -> void:
+	_last_boss_ring_source = "boss_death"
 	# Dramatic screen shake on boss death.
 	if not GameRuntime.is_dedicated_server():
 		_shake_cameras(24.0, 0.9)
 		_play_sound("explosion")
+		# Boss-defeat ring sweep + zoom-to-middle: a fire line sweeping across the map
+		# (old world outside, new world inside) as every camera pulls back to the centre.
+		_play_boss_ring(enemy.global_position)
 		if GameRuntime.is_server():
 			for peer_id in registered_remote_peers.keys():
 				client_play_sound.rpc_id(peer_id, "explosion")
@@ -1574,7 +1601,11 @@ func _on_boss_death(enemy: Enemy) -> void:
 	if not GameRuntime.is_dedicated_server() and enemy.health.last_damage_source is Player:
 		var boss_killer := enemy.health.last_damage_source as Player
 		if boss_killer != null and is_instance_valid(boss_killer):
+			# Every boss defeated grants the killer the boss form for a while.
 			boss_killer.grant_boss_form(enemy.type_id)
+			# The KILLING player "takes over" the boss role — a short, strong buff so
+			# the moment reads as a power shift, not just a payout.
+			_grant_boss_takeover(boss_killer, enemy)
 
 	# Boss-kill reward: a clear "boss defeated" payout on top of the XP orb + boss form.
 	# Everyone on the killing team/hero gets a bonus of gold + XP so the boss clear is a
@@ -1623,6 +1654,33 @@ func _grant_boss_kill_reward(enemy: Enemy) -> void:
 			if is_instance_valid(player) and not (player as Player).health.is_dead:
 				(player as Player).add_gold(bonus_gold)
 				(player as Player).add_xp(bonus_xp)
+
+
+## Boss "takeover": whoever lands the killing blow on the boss inherits its power for a
+## short window on top of the existing boss form. Big damage + damage-taken-reduction +
+## speed buff, then decays over time. The FIRST boss of each world (wave % 15 == 5)
+## gives the marquee takeover moment — bigger multiplier, longer duration.
+func _grant_boss_takeover(killer: Player, enemy: Enemy) -> void:
+	var is_first_of_world := (current_wave % WaveDirector.WAVES_PER_WORLD) == WaveDirector.BOSS_WAVE_INTERVAL
+	var dmg_mult := 1.9 if is_first_of_world else 1.4
+	var taken_mult := 0.55 if is_first_of_world else 0.75
+	var duration := 12.0 if is_first_of_world else 8.0
+	killer.damage_dealt_multiplier *= dmg_mult
+	killer.health.damage_taken_multiplier *= taken_mult
+	killer.movement_speed *= 1.15
+	# Play the takeover chime so the buff is felt in the ears too.
+	_play_sound("boss_takeover")
+	if hud != null:
+		hud.announce_takeover(is_first_of_world)
+	# Roll back after duration.
+	if not GameRuntime.is_dedicated_server():
+		get_tree().create_timer(duration).timeout.connect(func() -> void:
+			if not is_instance_valid(killer):
+				return
+			killer.damage_dealt_multiplier /= dmg_mult
+			killer.health.damage_taken_multiplier /= taken_mult
+			killer.movement_speed /= 1.15
+		)
 
 
 var _cached_boss: Enemy = null
@@ -2575,6 +2633,12 @@ func _matching_pending_upgrade(peer_id: int, upgrade_id: String) -> String:
 	return ""
 
 
+## Mirror a locally-chosen stat upgrade into the HUD so its stats panel can list it.
+func _hud_track_upgrade(upgrade_id: String) -> void:
+	if hud != null and hud.has_method("record_upgrade"):
+		hud.record_upgrade(upgrade_id)
+
+
 func _apply_upgrade_choice(peer_id: int, upgrade_id: String) -> void:
 	var token := _matching_pending_upgrade(peer_id, upgrade_id)
 	var player := players.get(peer_id) as Player
@@ -2709,6 +2773,82 @@ func _rebuild_arena() -> void:
 
 ## `on_landed` (if valid) runs right after the rebuild, while the screen is still white, so
 ## callers can reposition players / drop an arrival explosion before the reveal.
+## Boss-defeat "ring sweep" + zoom-to-middle beat.
+##
+## The ring is a big expanding circle drawn in the world: outside the ring still reads
+## as the OLD world (the arena art behind it), inside the ring the new world shows
+## through — so it reads as "fire sweeping across the map" from the boss's corpse.
+## Simultaneously every local player's camera zooms out to the map centre so the whole
+## transition frame is visible.
+func _play_boss_ring(center: Vector2) -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	_last_boss_transition = {
+		"center": center,
+		"biome_id": GameRuntime.biome_id,
+		"biome_name": GameRuntime.biome_name(),
+		"t": Time.get_ticks_msec(),
+		"source": "boss_death" if _last_boss_ring_source == "boss_death" else "mission_warp",
+	}
+	_zoom_cameras_to_center()
+	var ring := _BossRingSweep.new()
+	ring.global_position = center
+	add_child(ring)
+
+
+## Self-test probe hook: report the last boss-defeat ring/zoom transition that ran.
+func probe_boss_transition() -> Dictionary:
+	var out := _last_boss_transition.duplicate()
+	out["ring_live"] = _boss_ring_live_count()
+	out["camera_zoom"] = _local_camera_zoom_probe()
+	return out
+
+
+func _boss_ring_live_count() -> int:
+	var n := 0
+	for child in get_children():
+		if child is _BossRingSweep:
+			n += 1
+	return n
+
+
+func _local_camera_zoom_probe() -> Array:
+	var zooms := []
+	for peer_id in players.keys():
+		var player := players[peer_id] as Player
+		if player == null or not is_instance_valid(player) or not player.is_local_player:
+			continue
+		if player.camera == null:
+			continue
+		zooms.append([snappedf(player.camera.zoom.x, 3), snappedf(player.camera.zoom.y, 3)])
+	return zooms
+
+
+## Zoom every local player's camera out to a wide framing of the map centre for ~2.2s,
+## so the boss ring sweep and the world landing both read in a single wide shot.
+func _zoom_cameras_to_center() -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	var center := Vector2.ZERO
+	for peer_id in players.keys():
+		var player := players[peer_id] as Player
+		if player == null or not is_instance_valid(player) or not player.is_local_player:
+			continue
+		var cam := player.camera
+		if cam == null:
+			continue
+		var old_zoom := cam.zoom
+		var target_zoom := Vector2(0.42, 0.42)
+		var start_pos := cam.global_position
+		var tween := create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(cam, "zoom", target_zoom, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(cam, "global_position", center, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_interval(1.4)
+		tween.tween_property(cam, "zoom", old_zoom, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tween.tween_property(cam, "global_position", start_pos, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+
+
 func _play_world_flash(rebuild: bool = true, on_landed: Callable = Callable()) -> void:
 	if GameRuntime.is_dedicated_server() or world_flash == null:
 		if rebuild:
@@ -2740,6 +2880,7 @@ func _play_world_flash(rebuild: bool = true, on_landed: Callable = Callable()) -
 ## (see MISSION_WARP_SCREEN_HOLD), then fade back and hand control back. ~4 seconds total,
 ## versus the old ~1.6s fade-to-white-and-back that read as barely more than a wave bump.
 func _play_mission_warp(next_wave: int) -> void:
+	_last_boss_ring_source = "mission_warp"
 	var mission_number := _mission_number_for_wave(next_wave)
 	if GameRuntime.is_dedicated_server() or world_flash == null:
 		_rebuild_arena()
@@ -2755,6 +2896,10 @@ func _play_mission_warp(next_wave: int) -> void:
 	tween.tween_property(world_flash, "modulate:a", 1.0, MISSION_WARP_FADE_IN)
 	tween.tween_callback(_rebuild_arena)
 	tween.tween_callback(func() -> void: _trigger_world_landing(mission_number))
+	# Fire-sweep ring + zoom-to-middle during the world transition. The ring fires
+	# once the arena has been rebuilt to the new biome, so the inside of the ring
+	# already shows the new world while the outside still reads as the old one.
+	tween.tween_callback(_play_boss_ring)
 	tween.tween_interval(MISSION_WARP_SCREEN_HOLD)
 	tween.tween_callback(func() -> void: _shake_cameras(6.0, 0.25))
 	tween.tween_property(world_flash, "modulate:a", 0.0, MISSION_WARP_FADE_OUT)
@@ -3681,3 +3826,29 @@ func _ffa_scoreboard_rows() -> Array:
 
 func _all_players_dead() -> bool:
 	return not players.is_empty() and _first_active_player() == null
+
+
+class _BossRingSweep:
+	extends Node2D
+	## Fire-sweep ring for a boss defeat: a bright expanding band. The map behind the
+	## ring still reads as the OLD world; the region inside the ring is the NEW world,
+	## so the sweep reads as "fire crossing the map" toward the centre.
+	var _t := 0.0
+	const DURATION := 2.2
+	const MAX_RADIUS := 2200.0
+
+	func _process(delta: float) -> void:
+		_t += delta
+		queue_redraw()
+		if _t >= DURATION:
+			queue_free()
+
+	func _draw() -> void:
+		var p := clampf(_t / DURATION, 0.0, 1.0)
+		var r := p * MAX_RADIUS
+		var fade := 1.0 - p
+		# Outer hot band — the "fire line".
+		draw_arc(Vector2.ZERO, r, 0.0, TAU, 96, Color(1.0, 0.55, 0.15, 0.9 * fade), 46.0, true)
+		draw_arc(Vector2.ZERO, r - 30.0, 0.0, TAU, 96, Color(1.0, 0.8, 0.3, 0.7 * fade), 18.0, true)
+		# Inner new-world glow (fades as the ring grows).
+		draw_circle(Vector2.ZERO, r * 0.98, Color(0.4, 0.7, 1.0, 0.12 * fade))

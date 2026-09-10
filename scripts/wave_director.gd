@@ -3,7 +3,7 @@ extends Node
 
 signal wave_started(wave: int, theme_name: String, debut_type_id: String)
 signal intermission_started(next_wave: int, seconds: float)
-signal group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float)
+signal group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float, focus: Variant)
 
 enum Archetype {
 	STANDARD,
@@ -259,8 +259,13 @@ const ELITE_WAVE_INTERVAL := 8
 const BOSS_WAVE_INTERVAL := 5
 ## Enemies start noticeably tankier now (2.4x the old wave-1 health) and keep climbing faster
 ## than before, so the run keeps escalating rather than plateauing once players out-level it.
-const BASE_HEALTH_MULTIPLIER := 2.8
-const HEALTH_GROWTH_PER_WAVE := 0.22
+const BASE_HEALTH_MULTIPLIER := 2.4
+const HEALTH_GROWTH_PER_WAVE := 0.16
+## Global ease: across every difficulty the base enemy health curve is scaled down so
+## creeps die a bit faster everywhere. Combined with the lower BASE_HEALTH_MULTIPLIER
+## above this makes every lobby difficulty noticeably easier without touching the
+## per-difficulty ladder (the EASY/NORMAL/HARD/BRUTAL pick still stacks on top of this).
+const GLOBAL_HEALTH_EASE := 0.85
 ## Offline solo (no CPU allies) ramps from wave 2 so keg/turret/landmarks stay clutch
 ## without making First Contact unfair. Kept modest so wave 5 budget stays under 60.
 ## SOLO_HEALTH_PRESSURE was 1.18: on top of BASE_HEALTH_MULTIPLIER + HEALTH_GROWTH_PER_WAVE
@@ -274,9 +279,12 @@ const SOLO_BUDGET_PRESSURE := 0.90
 const SOLO_DAMAGE_PRESSURE := 1.05
 const SOLO_PRESSURE_FROM_WAVE := 2
 ## FFA: each "team" is a single hero fighting 3 rivals, so enemies get an extra 25%
-## health bump and a 15% budget bump on top of the base curve to keep the challenge.
+## health bump and a bigger budget bump on top of the base curve. The budget was
+## raised (0.15 -> 0.45) because the user wanted WAY more creeps coming toward their
+## side of the map in FFA — the edge-trickle creeps that walk in from the perimeter
+## become a visible army instead of a light trickle.
 const FFA_HEALTH_PRESSURE := 1.25
-const FFA_BUDGET_PRESSURE := 1.15
+const FFA_BUDGET_PRESSURE := 1.45
 const FFA_DAMAGE_PRESSURE := 1.20
 
 ## The lobby's difficulty pick scales enemy health on top of the wave curve above (Pjotr mode
@@ -315,6 +323,9 @@ var nearby_enemy_count := 0
 var _reinforcements := 0
 var _pressure_cooldown := 0.0
 var _close_spawn := false
+## FFA: this team's spawn lane (map-edge position). Set by main.gd so pressure packs can
+## send extra creeps from the local player's own corner ("more creeps on my side").
+var team_focus_position: Vector2 = Vector2.ZERO
 
 
 func start(next_player_count: int = 1, classic: bool = false) -> void:
@@ -495,7 +506,8 @@ func health_multiplier_for_wave(target_wave: int) -> float:
 		base *= SOLO_HEALTH_PRESSURE
 	if GameRuntime.is_ffa():
 		base *= FFA_HEALTH_PRESSURE
-	return base * float(DIFFICULTY_HEALTH_MULTIPLIERS.get(GameRuntime.difficulty, 1.0))
+	# Apply the global ease so every difficulty's creeps die a bit faster everywhere.
+	return base * GLOBAL_HEALTH_EASE * float(DIFFICULTY_HEALTH_MULTIPLIERS.get(GameRuntime.difficulty, 1.0))
 
 
 func budget_for_wave(target_wave: int) -> float:
@@ -635,6 +647,18 @@ func _emit_pressure_pack() -> void:
 		health_multiplier_for_wave(wave),
 		1.0
 	)
+	# FFA: "more creeps toward the local player's side." A second, smaller pack lands
+	# from the local team's spawn lane so the local hero is genuinely pressured while
+	# the global edge waves keep feeding everyone else from all corners.
+	if GameRuntime.is_ffa() and team_focus_position.length_squared() > 0.0:
+		group_ready.emit(
+			type_id,
+			EnemyType.Formation.PACK,
+			clampi(n / 2, 3, 8),
+			health_multiplier_for_wave(wave),
+			1.0,
+			team_focus_position
+		)
 	if cruising and wave >= 4:
 		var tougher_id := _tougher_reinforcement_type(wave)
 		if not tougher_id.is_empty():
@@ -645,6 +669,12 @@ func _emit_pressure_pack() -> void:
 				health_multiplier_for_wave(wave),
 				1.0
 			)
+
+
+## Number of boss waves that must be beaten within the CURRENT world before the
+## world transitions. Bosses still spawn every 5th wave (BOSS_WAVE_INTERVAL), but
+## each world now gets `BIOMES_PER_WORLD` bosses before advancing.
+const WAVES_PER_WORLD := BOSS_WAVE_INTERVAL * 3
 
 
 ## Highest-cost non-elite, non-boss type unlocked by this wave — a real step up from

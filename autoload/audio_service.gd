@@ -42,6 +42,11 @@ const SOUND_LIBRARY: Dictionary = {
 	"wave_start": [preload("res://assets/audio/sfx/wave_start.ogg")],
 	"wave_clear": [preload("res://assets/audio/sfx/wave_clear.ogg")],
 	"boss_alert": [preload("res://assets/audio/sfx/boss_alert.ogg")],
+	# Boss-defeat beat: a triumphant-ish stinger on top of the alert, so "you took the boss
+	# down" reads as an event in the ears, not just the banner + ring sweep.
+	"boss_defeat": [preload("res://assets/audio/sfx/boss_alert.ogg"), preload("res://assets/audio/sfx/level_up.ogg")],
+	# Boss-takeover buff: a short rising chime when the killer "becomes the boss".
+	"boss_takeover": [preload("res://assets/audio/sfx/level_up.ogg")],
 	"scan": [preload("res://assets/audio/sfx/scan.ogg")],
 	"shop_open": [preload("res://assets/audio/sfx/shop_open.ogg")],
 	"shop_close": [preload("res://assets/audio/sfx/shop_close.ogg")],
@@ -166,6 +171,11 @@ const SOUND_LIBRARY: Dictionary = {
 	"sfx_heal": [preload("res://assets/audio/sfx/sfx_heal.ogg")],
 	"sfx_shield": [preload("res://assets/audio/sfx/sfx_shield.ogg")],
 	"sfx_force": [preload("res://assets/audio/sfx/sfx_force.ogg")],
+	# 5-4-3-2-1 fight countdown stingers. The dedicated synthesized wav files did not
+	# ship, so map the two countdown beats to existing sfx: a short ui tick for each
+	# number and the wave_start stinger for the "GO / FIGHT" beat.
+	"countdown_tick": [preload("res://assets/audio/sfx/ui_click.ogg")],
+	"countdown_fight": [preload("res://assets/audio/sfx/wave_start.ogg")],
 }
 
 const FAMILY_FOR_ARCHETYPE := {
@@ -237,6 +247,8 @@ const VOLUME_DB := {
 	"attack_nebula": -10.0,
 	"attack_astral": -10.0,
 	"attack_rime": -10.0,
+	"countdown_tick": -6.0,
+	"countdown_fight": -4.0,
 	"sfx_projectile": -9.0,
 	"sfx_cone": -8.0,
 	"sfx_radius": -7.0,
@@ -244,6 +256,8 @@ const VOLUME_DB := {
 	"sfx_heal": -9.0,
 	"sfx_shield": -9.0,
 	"sfx_force": -8.0,
+	"boss_takeover": -3.0,
+	"boss_defeat": -2.0,
 }
 
 const PITCH_SPREAD := {
@@ -277,6 +291,8 @@ const PITCH_SPREAD := {
 	"attack_arclight": 0.06,
 	"attack_bulwark": 0.04,
 	"attack_warden": 0.05,
+	"countdown_tick": 0.02,
+	"countdown_fight": 0.0,
 	"sfx_projectile": 0.05,
 	"sfx_cone": 0.04,
 	"sfx_radius": 0.04,

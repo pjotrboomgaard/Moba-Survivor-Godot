@@ -534,17 +534,11 @@ func _apply_kit_abilities() -> void:
 		var ability_id := String(loadout[slot_index])
 		if ability_id.is_empty() or not PlayerClass.ABILITIES.has(ability_id):
 			continue
-		# Ability-unlock system: the hero starts with ONLY their primary slot (index 0,
-		# "Q") usable. Every other slot exists but is locked (rank 0) and is unlocked via
-		# a level-up "unlock" offer. Rank 0 means "known but not yet unlocked".
-		var start_rank := 1 if slot_index == 0 else 0
-		known_abilities.append({"id": ability_id, "rank": start_rank})
+		# Every slot in the pre-picked loadout starts LEARNED and unlocked (rank 1).
+		# Level-ups then upgrade the ranks instead of unlocking. (The rank-0 unlock
+		# gating was removed per design: abilities are all learned from the start.)
+		known_abilities.append({"id": ability_id, "rank": 1})
 		cooldowns.append(0.0)
-	# Classic mode keeps the legacy full kit (no unlock gating) so it matches its
-	# simpler design; only the modern modes gate behind the unlock flow.
-	if GameRuntime.is_classic():
-		for entry in known_abilities:
-			entry.rank = maxi(1, int(entry.rank))
 	ability_cooldowns = cooldowns
 
 
@@ -715,6 +709,36 @@ func is_cpu() -> bool:
 
 func is_pvp_protected() -> bool:
 	return pvp_invuln_timer > 0.0
+
+
+## PVP balance: rival heroes take ~0.5x more damage when a hit comes from another
+## hero (both in FFA and cross-team Rift Clash), so trades resolve a little faster.
+## Creeps are unaffected.
+const PVP_TAKEN_MULT := 1.5
+
+## PVP balance: for chain-bolt heroes ("flying drone guy"), PVP chain HOPS (not the
+## primary hit) are heavily damped so the chain isn't a PVP nuke, while vs creeps the
+## full decaying chain damage is kept.
+const PVP_CHAIN_HIT_PENALTY := 0.3
+## Per-hop PVP damage penalty for the chain-bolt staff (multiplied onto each extra hop
+## when it hits a rival hero). Keeps the drone-chain deadly on creeps but weak on PVP.
+const PVP_CHAIN_HOP_PENALTY := 0.35
+## Decay factor applied to each successive mending-bolt chain hop (vs creeps). Vs
+## rivals the first hop keeps full damage and every later hop decays by this factor.
+const CHAIN_HOP_DECAY := 0.55
+
+
+## True when this hit's target is a rival hero (FFA or cross-team Rift Clash). Shields,
+## PVP taken-mult and chain damping all key off this.
+func _pvp_vs_rival(target: Node) -> bool:
+	if not target is Player:
+		return false
+	var rival := target as Player
+	if rival.is_pvp_protected() or rival.team_id == team_id:
+		return false
+	if GameRuntime.is_ffa() or GameRuntime.is_rift_clash():
+		return true
+	return false
 
 
 func apply_knockback(impulse: Vector2) -> void:
@@ -1072,7 +1096,7 @@ func _weapon_hit(target: Node2D, base_damage: float) -> void:
 		var rival := target as Player
 		if rival.is_pvp_protected() or rival.team_id == team_id:
 			return
-		var taken := maxf(rival.health.damage_taken_multiplier, 0.05)
+		var taken := maxf(rival.health.damage_taken_multiplier, 0.05) * PVP_TAKEN_MULT
 		var amount := rival.health.max_health / (GameRuntime.FFA_PVP_SHOTS_TO_KILL * taken)
 		amount *= _charge_damage_mult()
 		if crit:
@@ -1081,6 +1105,14 @@ func _weapon_hit(target: Node2D, base_damage: float) -> void:
 		return
 	var tap := PlayerClass.SHARED_WEAPON_TAP
 	var ratio := damage / maxf(weapon_damage, 1.0)
+	# PVP balance: chain-bolt heroes (the "flying drone guy") were too strong vs other
+	# heroes because every hop of the chain kept dealing full weapon taps. vs rivals,
+	# each hop decays by the chain multiplier so only the first hit lands hard — vs
+	# creeps the full chain damage is unchanged.
+	if target is Player and weapon_kind == PlayerClass.Weapon.CHAIN_BOLT and base_damage < weapon_damage * 0.9:
+		var rival_amount := tap * PVP_CHAIN_HIT_PENALTY * _charge_damage_mult() * (crit_mult if crit else 1.0)
+		_damage_enemy(target, rival_amount)
+		return
 	_damage_enemy(target, tap * ratio * _charge_damage_mult())
 
 
@@ -1477,6 +1509,9 @@ func _cast_known_ability(slot: int) -> void:
 	var values := PlayerClass.ability_values(ability_id, int(entry.rank))
 	_casting_ability_id = ability_id
 	ability_cooldowns[slot] = values.cooldown
+	# Every ability that does something fires a hero-distinctive SFX (the per-hero
+	# cast bank). Skipped for CPU bots and menu previews (SoundDirector.preview_muted).
+	_play_ability_sfx(ability_id)
 	# Clear any armed two-stage state — cast is now committed.
 	_pending_ability_slot = -1
 	_pending_ability_id = ""
@@ -2843,6 +2878,8 @@ var _dash_tween: Tween = null
 func _dash_to(destination: Vector2, duration: float = 0.14) -> void:
 	if _dash_tween != null and _dash_tween.is_valid():
 		_dash_tween.kill()
+	# Dashes "launch" the hero — a whoosh instead of a silent blink.
+	SoundDirector.play("dash", global_position)
 	_dash_tween = create_tween()
 	# Shortest plausible time so it always "happens fast" but reads as a move.
 	_dash_tween.tween_property(self, "global_position", destination, duration)
@@ -2913,6 +2950,16 @@ func _emit_ability_cast(points: PackedVector2Array) -> void:
 				# origin, motion streak along the travel path, appear ring at destination.
 				style = PlayerClass.EffectStyle.TELEPORT
 	ability_cast.emit(_casting_ability_id, style, points)
+
+
+## Per-hero ability SFX. Uses the hero's own `cast_<hero>` bank so each hero's abilities
+## are audibly distinct (Arclight zap, Tobor clank, Toien/Sage chime, ...). SoundDirector
+## keeps it off-screen-mutated and honours preview_muted for the menu previews. CPU bots
+## skip it so four FFA bots don't stack every ability's sound.
+func _play_ability_sfx(ability_id: String) -> void:
+	if simulation_mode == SimulationMode.CPU:
+		return
+	SoundDirector.play_ability(ability_id, global_position)
 
 
 ## Shared "the ability's primary hit landed on this enemy" handling: base damage plus
@@ -3955,6 +4002,11 @@ func _perform_attack() -> void:
 
 
 func _fire_weapon_once() -> void:
+	# Every primary attack fires a distinct per-hero sound (the "no sound on
+	# primary attack" complaint). Kept off the CPU bots and menu previews so
+	# FFA / the ability-preview viewport don't stack the whole roster at once.
+	if simulation_mode != SimulationMode.CPU:
+		SoundDirector.play("attack_%s" % class_id, global_position)
 	match weapon_kind:
 		PlayerClass.Weapon.CHAIN_BOLT:
 			_cast_chain_bolt()
@@ -4026,6 +4078,11 @@ func _cast_chain_bolt() -> void:
 		struck.append(next_target)
 		points.append(next_target.global_position)
 		var chain_damage := weapon_damage * pow(chain_damage_multiplier, chain_index + 1)
+		# Chain-HOP PVP nerf: vs a rival hero the extra hops decay much faster than
+		# vs creeps (which keep the full chain_damage_multiplier falloff). This keeps
+		# the "flying drone guy" strong on creeps without shredding rival heroes.
+		if _pvp_vs_rival(next_target):
+			chain_damage *= PVP_CHAIN_HOP_PENALTY
 		_weapon_hit(next_target, chain_damage)
 		previous = next_target
 
@@ -4083,18 +4140,22 @@ func _cast_mending_bolt() -> void:
 		points.append(primary.global_position)
 		_weapon_hit(primary, weapon_damage)
 	var extra := int(round(lerpf(0.0, 4.0, _shot_charge)))
+	# Charged mending bolt gets extra chain hops. Each hop decays by
+	# CHAIN_HOP_DECAY vs the previous — the "flying drone guy" chain nerf:
+	# vs rivals only the first hop keeps full damage, later hops fade fast;
+	# vs creeps the decaying chain is unchanged (kept strong there).
 	if extra > 0 and primary != null:
 		var struck: Array[Node2D] = [primary]
 		var saved_range := chain_range
 		chain_range = 90.0 * _charge_size_mult()
 		var previous := primary
-		for _i in extra:
+		for hop_index in extra:
 			var next_target := _find_chain_pvp_target(previous, struck)
 			if next_target == null:
 				break
 			struck.append(next_target)
 			points.append(next_target.global_position)
-			_weapon_hit(next_target, weapon_damage * 0.7)
+			_weapon_hit(next_target, weapon_damage * 0.7 * pow(CHAIN_HOP_DECAY, hop_index))
 			previous = next_target
 		chain_range = saved_range
 	if _shot_charge > 0.12:
@@ -4261,6 +4322,11 @@ func _damage_enemy(target: Node2D, amount: float) -> void:
 		resistance *= target.vulnerability_multiplier()
 	var ability_damage_mult := float(ability_buff_stats.get("damage_dealt_mult", 1.0))
 	var dealt := amount * damage_dealt_multiplier * ability_damage_mult * resistance
+	# PVP: a rival hero taking a hit from this hero gets an extra ~0.5x taken damage.
+	# This keys off the source, so it also covers abilities/chain/projectiles dealt by
+	# this hero, while leaving creep damage and self-heals untouched.
+	if _pvp_vs_rival(target):
+		dealt *= PVP_TAKEN_MULT
 	var was_alive := not target_health.is_dead
 	target_health.take_damage(dealt, self)
 	# Synergy "Iron Will" / "Bruiser": healing on kill. Only triggers if this hit
@@ -4274,10 +4340,14 @@ func _damage_enemy(target: Node2D, amount: float) -> void:
 		target.apply_knockback(global_position.direction_to(target.global_position) * knockback_strength)
 
 
+## Global gold-drop boost so items stay affordable through the late game. Multiplied on
+## top of any gold_multiplier upgrade the hero carries.
+const GOLD_DROP_BOOST := 1.45
+
 func add_gold(amount: int) -> void:
 	if simulation_mode == SimulationMode.PROXY or amount <= 0:
 		return
-	gold += int(round(float(amount) * gold_multiplier))
+	gold += int(round(float(amount) * gold_multiplier * GOLD_DROP_BOOST))
 	gold_changed.emit(gold)
 
 
@@ -4395,10 +4465,22 @@ func add_xp(amount: int) -> void:
 	while current_xp >= xp_required:
 		current_xp -= xp_required
 		level += 1
-		xp_required = roundi(xp_required * (1.12 if level >= 7 else XP_GROWTH))
+		xp_required = roundi(xp_required * _xp_growth_for_level(level))
 		xp_changed.emit(current_xp, xp_required, level)
 		level_reached.emit(level)
 	xp_changed.emit(current_xp, xp_required, level)
+
+
+## XP growth curve: the compounding 1.17 ramp makes level-ups stall badly past ~level 10
+## (and the level-up upgrade offers stop flowing). After level 10 we cap the per-level
+## growth so levels keep coming at a steady, reachable rate through the late game.
+func _xp_growth_for_level(level: int) -> float:
+	# After level 10 the XP needed to advance no longer grows at all: the requirement
+	# stays flat (growth factor 1.0) so level-ups keep coming at a steady pace instead of
+	# stalling in the late game. Levels 7-9 still ramp, and everything before is base.
+	if level >= 10:
+		return 1.0
+	return 1.12 if level >= 7 else XP_GROWTH
 
 
 ## Dev menu only: same per-level bookkeeping as add_xp, without spending XP, so it queues
@@ -4408,7 +4490,7 @@ func dev_add_levels(count: int) -> void:
 		return
 	for _index in count:
 		level += 1
-		xp_required = roundi(xp_required * (1.12 if level >= 7 else XP_GROWTH))
+		xp_required = roundi(xp_required * _xp_growth_for_level(level))
 		xp_changed.emit(current_xp, xp_required, level)
 		level_reached.emit(level)
 

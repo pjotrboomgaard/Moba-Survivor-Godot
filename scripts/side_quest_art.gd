@@ -7,6 +7,25 @@ const _P := {
 	"o": "1a1210", "w": "f2f4f0", "y": "ffe14a", "g": "3a6130", "p": "c45ec8",
 	"b": "4f8fe0", "c": "7fd4ff", "r": "e85a2a", "s": "8b95a1", "n": "6b4a1a",
 	"l": "50f59e", "d": "2a2018", "m": "ff7a29", "i": "d0e8f6", "k": "c9a227",
+	# Lagoon palette (tropical)
+	"q": "2a6b5a", "Q": "1a4a3e",  # palm frond dark
+	"e": "1a8f7a", "E": "3ecfa3",  # palm frond / lagoon water
+	"f": "ff8a5a", "F": "d95a2a",  # flamingo / fruit red
+	"u": "ffd85a", "U": "d9a83a",  # sun / gold
+	"Ff": "b0401a",  # deep red
+	# Forest palette
+	"h": "2a1a0a", "H": "1a1208",  # dark wood / tree trunk
+	"j": "7a5a3a", "J": "9c7a4a",  # mid wood
+	"A": "1f3f1a",  # deep forest green
+	"B": "2a5a2a",  # mid green
+	"C": "4a8a4a",  # light green leaf
+	# Mountain palette
+	"M": "6b7a8a",  # mountain rock
+	"N": "4a5560",  # mountain rock dark
+	"X": "3a4550",  # mountain rock darker
+	"O": "c8d4de",  # snow / ice light
+	"W": "a8b8c8",  # snow / ice mid
+	"V": "3a2a1a",  # mountain wood (hut beams)
 }
 
 
@@ -78,6 +97,89 @@ static func _rows(id: String, frame: int) -> Array:
 			return _FOREST_CAMP
 		"scorch_rock":
 			return _SCORCH_ROCK
+		# ---- Lagoon (tropical) ----
+		"lagoon_dodo":
+			return _LAGOON_DODO
+		"lagoon_flamingo":
+			return _LAGOON_FLAMINGO
+		"lagoon_parrot":
+			return _LAGOON_PARROT
+		"lagoon_fish":
+			return _LAGOON_FISH
+		"lagoon_crab":
+			return _LAGOON_CRAB
+		"lagoon_egg":
+			return _LAGOON_EGG
+		"lagoon_shell":
+			return _LAGOON_SHELL
+		"lagoon_palm_hut":
+			return _LAGOON_PALM_HUT
+		"lagoon_fruit_tree":
+			return _LAGOON_FRUIT_TREE
+		"lagoon_shrine":
+			return _LAGOON_SHRINE
+		"lagoon_well":
+			return _LAGOON_WELL
+		"lagoon_bonfire":
+			return _LAGOON_BONFIRE
+		# ---- Forest (woodland) ----
+		"forest_owl":
+			return _FOREST_OWL
+		"forest_wolf":
+			return _FOREST_WOLF
+		"forest_stag":
+			return _FOREST_STAG
+		"forest_fox":
+			return _FOREST_FOX
+		"forest_badger":
+			return _FOREST_BADGER
+		"forest_rabbit":
+			return _FOREST_RABBIT
+		"forest_squirrel":
+			return _FOREST_SQUIRREL
+		"forest_beetle":
+			return _FOREST_BEETLE
+		"forest_hut":
+			return _FOREST_HUT
+		"forest_treehouse":
+			return _FOREST_TREEHOUSE
+		"forest_stump_shrine":
+			return _FOREST_STUMP_SHRINE
+		"forest_well":
+			return _FOREST_WELL
+		"forest_totem":
+			return _FOREST_TOTEM
+		"forest_bonfire":
+			return _FOREST_BONFIRE
+		# ---- Mountain (alpine) ----
+		"mountain_yeti":
+			return _MOUNTAIN_YETI
+		"mountain_goat":
+			return _MOUNTAIN_GOAT
+		"mountain_owl":
+			return _MOUNTAIN_OWL
+		"mountain_icebear":
+			return _MOUNTAIN_ICEBEAR
+		"mountain_wolf":
+			return _MOUNTAIN_WOLF
+		"mountain_lizard":
+			return _MOUNTAIN_LIZARD
+		"mountain_cairn":
+			return _MOUNTAIN_CAIRN
+		"mountain_icestorm":
+			return _MOUNTAIN_ICESTORM
+		"mountain_isometric_hut":
+			return _MOUNTAIN_ISOMETRIC_HUT
+		"mountain_igloo":
+			return _MOUNTAIN_IGLOO
+		"mountain_shrine":
+			return _MOUNTAIN_SHRINE
+		"mountain_well":
+			return _MOUNTAIN_WELL
+		"mountain_bonfire":
+			return _MOUNTAIN_BONFIRE
+		"mountain_tower":
+			return _MOUNTAIN_TOWER
 		_:
 			return _SHARD
 
@@ -722,3 +824,58 @@ const _SCORCH_ROCK := [
 	"...sssss........",
 	"................",
 ]
+
+
+# ============================================================
+# Area-themed fallback art (Lagoon / Forest / Mountain).
+# These are TEMPORARY stand-ins so the dispatcher in _rows() compiles and the
+# game runs while Builder A bakes the full themed pixel art. Each falls back to
+# an existing creature/structure sprite with the right silhouette, so the areas
+# still show "something themed" until the real art lands.
+# ============================================================
+
+# Lagoon — birds/animals use the raven silhouette, structures use the palm.
+const _LAGOON_DODO := _RAVEN
+const _LAGOON_FLAMINGO := _OTTER
+const _LAGOON_PARROT := _RAVEN
+const _LAGOON_FISH := _FLOCK
+const _LAGOON_CRAB := _WOLF
+const _LAGOON_EGG := _COIN
+const _LAGOON_SHELL := _COIN
+const _LAGOON_PALM_HUT := _LAGOON_PALM
+const _LAGOON_FRUIT_TREE := _LAGOON_PALM
+const _LAGOON_SHRINE := _SCORCH_ROCK
+const _LAGOON_WELL := _SCORCH_ROCK
+const _LAGOON_BONFIRE := _SCORCH_ROCK
+
+# Forest — woodland creatures reuse wolf/fox, structures reuse the forest camp.
+const _FOREST_OWL := _RAVEN
+const _FOREST_WOLF := _WOLF
+const _FOREST_STAG := _BOAR
+const _FOREST_FOX := _FOX
+const _FOREST_BADGER := _OTTER
+const _FOREST_RABBIT := _FOX
+const _FOREST_SQUIRREL := _FOX
+const _FOREST_BEETLE := _WOLF
+const _FOREST_HUT := _FOREST_CAMP
+const _FOREST_TREEHOUSE := _FOREST_CAMP
+const _FOREST_STUMP_SHRINE := _SCORCH_ROCK
+const _FOREST_WELL := _SCORCH_ROCK
+const _FOREST_TOTEM := _SCORCH_ROCK
+const _FOREST_BONFIRE := _SCORCH_ROCK
+
+# Mountain — alpine creatures reuse the golem for the heavy hitters.
+const _MOUNTAIN_YETI := _GOLEM
+const _MOUNTAIN_GOAT := _BOAR
+const _MOUNTAIN_OWL := _RAVEN
+const _MOUNTAIN_ICEBEAR := _GOLEM
+const _MOUNTAIN_WOLF := _WOLF
+const _MOUNTAIN_LIZARD := _WOLF
+const _MOUNTAIN_CAIRN := _SCORCH_ROCK
+const _MOUNTAIN_ICESTORM := _SCORCH_ROCK
+const _MOUNTAIN_ISOMETRIC_HUT := _SCORCH_ROCK
+const _MOUNTAIN_IGLOO := _SCORCH_ROCK
+const _MOUNTAIN_SHRINE := _SCORCH_ROCK
+const _MOUNTAIN_WELL := _SCORCH_ROCK
+const _MOUNTAIN_BONFIRE := _SCORCH_ROCK
+const _MOUNTAIN_TOWER := _SCORCH_ROCK

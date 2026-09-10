@@ -1,0 +1,19 @@
+{
+  "hero": "arclight",
+  "mode": "solo_survival",
+  "until_wave": 2,
+  "duration": 40,
+  "danger_hp": 0.4,
+  "recover_hp": 0.55,
+  "comment": "Verify boss defeat -> takeover buff + 'YOU ARE THE BOSS' banner + ring sweep. Kill a low-HP ravager, capture the banner + probe.",
+  "events": [
+    {"kind": "probe", "label": "before", "t": 2.0},
+    {"kind": "spawn", "label": "boss", "type": "ravager", "hp_mult": 0.05, "at": [200, 0], "t": 3.0},
+    {"kind": "probe", "label": "boss_spawned", "t": 5.0},
+    {"kind": "kill_boss", "label": "kill", "t": 8.0},
+    {"kind": "snap", "label": "takeover_banner", "t": 8.6},
+    {"kind": "probe", "label": "after_kill", "t": 9.5},
+    {"kind": "snap", "label": "after_kill_snap", "t": 10.5},
+    {"kind": "report", "t": 30.0}
+  ]
+}
