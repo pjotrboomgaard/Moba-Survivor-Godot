@@ -590,7 +590,14 @@ func _should_reinforce() -> bool:
 		return false
 	if _pressure_cooldown > 0.0:
 		return false
-	if _reinforcements >= 12 + int(float(wave) / 1.0):
+	# In FFA each team runs its own director, so an uncapped per-team reinforcement
+	# count makes the local team get hammered while edge waves are the real pace-setters.
+	# Cap FFA reinforcement lower so creeps come mostly from the map-edge waves (even
+	# across all players) instead of a constant close pack around the local player.
+	var reinforce_cap := 12 + int(float(wave) / 1.0)
+	if GameRuntime.is_ffa():
+		reinforce_cap = 5
+	if _reinforcements >= reinforce_cap:
 		return false
 	if pressure_hp < 0.32:
 		return false
