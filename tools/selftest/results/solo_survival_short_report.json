@@ -1,0 +1,40 @@
+{
+  "effects": [],
+  "elapsed": 180.007547333337,
+  "enemies_spawned": 0,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "",
+  "results": {
+    "alive": false,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [
+      "only beaten wave 0 / 8 (t=180)"
+    ],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 0,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 8,
+    "verdict": "FAIL_NO_PROGRESS",
+    "wave": 0,
+    "xp": 0
+  },
+  "shots": []
+}

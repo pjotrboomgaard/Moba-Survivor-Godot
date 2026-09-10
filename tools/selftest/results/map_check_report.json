@@ -62,7 +62,7 @@
       "label": "map_check",
       "last_tapped": -1,
       "level": 1,
-      "obstacle_count": 204,
+      "obstacle_count": 140,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -85,14 +85,14 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 1.20293966666667,
+      "t": 1.3,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
       "xp": 0
     }
   ],
-  "elapsed": 1.40293966666666,
+  "elapsed": 1.41761766666667,
   "enemies_spawned": 0,
   "hero_position": "(72.0, 0.0)",
   "player_class": "arclight",
@@ -129,8 +129,8 @@
   "shots": [
     {
       "label": "grass_map_full",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2836/grass_map_full_0.603_2836.png",
-      "t": 0.602625666666667
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4787/grass_map_full_0.731_4787.png",
+      "t": 0.731445333333333
     }
   ]
 }
