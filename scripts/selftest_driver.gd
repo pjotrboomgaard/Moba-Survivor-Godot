@@ -159,6 +159,9 @@ func _ready() -> void:
 		# local hero if it wasn't already converted.
 		if _host_main != null and _host_main.has_method("_convert_local_to_ffa_bot"):
 			_host_main.call("_convert_local_to_ffa_bot")
+	# Tests must always run on the canonical grass (procedural "grass_real") map,
+	# never on a stray custom editor level the user happens to have picked.
+	GameRuntime.custom_editor_level_name = ""
 	GameRuntime.biome_locked = false
 	if _biome >= 0:
 		GameRuntime.set_biome(_biome, true)
