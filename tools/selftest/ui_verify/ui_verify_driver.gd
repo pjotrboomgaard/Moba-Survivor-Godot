@@ -27,10 +27,11 @@ func _ready() -> void:
 	# 2. hover the LMB button to confirm it shows an info panel.
 	_steps.append({"t": 2.5, "kind": "hover_lmb"})
 	_steps.append({"t": 5.0, "kind": "shot", "label": "lmb_hover"})
+	_steps.append({"t": 5.5, "kind": "probe_preview", "label": "lmb"})
 	# 3. hover the RMB button.
 	_steps.append({"t": 5.5, "kind": "hover_rmb"})
 	_steps.append({"t": 8.0, "kind": "shot", "label": "rmb_hover"})
-	# 4. hover ability archetypes BEFORE pressing the editor (scene changes after this).
+	_steps.append({"t": 8.5, "kind": "probe_preview", "label": "rmb"})
 	_steps.append({"t": 8.5, "kind": "hover_ability", "hero": "arclight", "slot": 0})
 	_steps.append({"t": 10.5, "kind": "shot", "label": "ability_preview_nuke"})
 	# Hard check: the SubViewport mini-world must actually render opaque pixels.

@@ -1217,11 +1217,14 @@ func _refresh_loadout_panel() -> void:
 	var hero_data := PlayerClass.by_id(hero_id)
 	var weapon_name := str(hero_data.get("weapon_name", "Primary Attack"))
 	var secondary_id := str(hero_data.get("secondary", ""))
-	# LMB button: primary weapon icon.
+	# LMB button: capture of the primary-attack projectile sprite (what LMB actually fires).
+	# The LMB attack projectile is configured with the "spark" projectile art, so the button
+	# shows that projectile icon rather than the hero portrait.
 	if lmb_slot_button != null:
 		lmb_slot_button.disabled = false
 		lmb_slot_button.text = ""
-		lmb_slot_button.icon = SpriteLibrary.texture_for(hero_id)
+		var lmb_proj_icon := SpriteLibrary.texture_for("spark")
+		lmb_slot_button.icon = lmb_proj_icon if lmb_proj_icon != null else SpriteLibrary.texture_for(hero_id)
 		lmb_slot_button.expand_icon = false
 		lmb_slot_button.add_theme_constant_override("icon_max_width", 52)
 		lmb_slot_button.add_theme_constant_override("icon_max_height", 52)
