@@ -162,7 +162,6 @@ const FFA_INTRO_WALK := 5.0
 const FFA_INTRO_END_HOLD := 2.0
 var _ffa_intro_elapsed := -1.0
 var _ffa_intro_done := false
-var _ffa_intro_unlocked := false
 var _ffa_intro_walk_dir := {}
 
 
@@ -3236,13 +3235,12 @@ func _ffa_intro_tick(delta: float) -> void:
 	if _ffa_intro_elapsed < FFA_INTRO_HOLD:
 		return  # phase 2: standing still, still locked.
 	if _ffa_intro_elapsed < FFA_INTRO_HOLD + FFA_INTRO_WALK:
-		# phase 3: auto-walk outward. Unlock so the command_move actually moves the hero.
-		if not _ffa_intro_unlocked:
-			_unlock_ffa_intro()
-		_drive_ffa_intro_walkout()
+		# phase 3: auto-walk outward. Keep movement_locked=true so the CPU brain and
+		# real input can't interfere; animate positions directly instead.
+		_drive_ffa_intro_walkout(delta)
 		return
 	if _ffa_intro_elapsed < FFA_INTRO_HOLD + FFA_INTRO_WALK + FFA_INTRO_END_HOLD:
-		return  # phase 4: hold still (already unlocked from walk-out).
+		return  # phase 4: hold still (still locked).
 	_finish_ffa_intro()
 
 
@@ -3273,19 +3271,24 @@ func _start_ffa_intro() -> void:
 		hud.announce_ffa_intro("ALL HEROES — LANDING")
 
 
-## Phase 3: command each hero to walk outward along its remembered direction. The
-## local hero's camera follows its position automatically.
-func _drive_ffa_intro_walkout() -> void:
+## Phase 3: animate each hero outward along its remembered direction by setting
+## global_position directly (movement stays locked, so the CPU brain / real input can't
+## fight it). Facing + z-sort update so the hero faces the walk direction.
+func _drive_ffa_intro_walkout(delta: float) -> void:
+	var speed := 210.0  # px/s
 	for peer_id in _ffa_intro_walk_dir.keys():
 		var p := players.get(peer_id) as Player
 		if p == null or not is_instance_valid(p):
 			continue
-		var dir := Vector2(_ffa_intro_walk_dir.get(peer_id, p.facing_direction))
-		# Keep the hero inside the arena: steer back toward center if it nears a wall.
-		var target: Vector2 = p.global_position + dir * 60.0
-		if arena is Arena and (arena as Arena).is_blocked(target, 28.0):
-			target = _landing_position()
-		p.set_authority_command(dir.normalized(), target, false, false, [false, false, false, false], false)
+		var dir := Vector2(_ffa_intro_walk_dir.get(peer_id, p.facing_direction)).normalized()
+		var step := dir * speed * delta
+		var target: Vector2 = p.global_position + step
+		if arena is Arena and (arena as Arena).is_blocked(target, 26.0):
+			# Nears a wall — stop walking further (hold at current spot).
+			continue
+		p.global_position = target
+		p.facing_direction = dir
+		p._refresh_sort_z()
 
 
 ## Phase 5: unlock everyone and start the deferred team wave directors so creeps spawn.
@@ -3308,15 +3311,6 @@ func _finish_ffa_intro() -> void:
 			director.start(maxi(1, members), false)
 	if hud != null:
 		hud.announce_ffa_intro("GO!")
-
-
-## Unlock hero movement for the walk-out / post-intro phases (idempotent).
-func _unlock_ffa_intro() -> void:
-	_ffa_intro_unlocked = true
-	for peer_id in players.keys():
-		var p := players.get(peer_id) as Player
-		if p != null and is_instance_valid(p):
-			p.movement_locked = false
 
 
 func _on_ffa_player_died(peer_id: int) -> void:
