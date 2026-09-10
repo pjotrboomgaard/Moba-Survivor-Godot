@@ -1131,6 +1131,16 @@ func announce_mission(mission_number: int, planet_name: String, tagline: String,
 	AudioService.play("scan")
 
 
+## "BOSS DEFEATED" beat: shown the moment a boss dies, so the clear reads as an event
+## and pairs with the world-transition warp that follows.
+func announce_boss_defeated(_wave: int) -> void:
+	if GameRuntime.is_classic():
+		return
+	theme_banner.text = "BOSS DEFEATED — next world approaching"
+	_flash(theme_banner, 3.0)
+	AudioService.play("boss_alert")
+
+
 func announce_boss_phase(phase: int, boss_name: String) -> void:
 	if GameRuntime.is_classic():
 		return

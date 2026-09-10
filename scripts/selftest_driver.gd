@@ -439,6 +439,10 @@ func _process(delta: float) -> void:
 							_player.revert_boss_form()
 					if not _player.in_boss_form:
 						_active_effects.append({"kind": "bossform_kill", "reverted": true, "t": _elapsed})
+			"kill_boss":
+				# Find the alive boss enemy and damage it to death (as if the player killed it),
+				# so we can verify the boss-death reward / takeover / transition path.
+				_kill_alive_boss(str(event.get("label", "kill_boss")))
 			"town_spawn":
 				# Force a town quest for the local player at the top-left corner.
 				_spawn_town_quest(str(event.get("art", "wolf")))
@@ -591,6 +595,9 @@ func _record_probe(label: String) -> void:
 		"hp": hp_now,
 		"hp_max": hp_max,
 		"hp_frac": _hp_frac(),
+		"gold": int(_player.gold),
+		"xp": int(_player.current_xp),
+		"level": int(_player.level),
 		"abilities": (_player.known_abilities.duplicate() if _player.known_abilities else []),
 		"ffa": _ffa_roster(),
 		"teleporters": _teleporter_pads(),
@@ -856,6 +863,35 @@ func _dev_skip_wave() -> void:
 		"wave_before": wave_before,
 		"wave_after": wave_after,
 		"advanced": wave_after > wave_before,
+		"t": _elapsed,
+	})
+
+
+## Find the first alive boss enemy and deal enough damage to kill it, attributing the
+## kill to the local player so the boss-death reward / boss-form / transition logic runs
+## exactly as it would in real combat. Records a probe with the reward outcome.
+func _kill_alive_boss(label: String) -> void:
+	var boss: Enemy = null
+	for e in _enemies:
+		if e != null and is_instance_valid(e) and e is Enemy and e.is_boss and not e.health.is_dead:
+			boss = e as Enemy
+			break
+	if boss == null:
+		_active_effects.append({"kind": "kill_boss", "label": label, "error": "no alive boss found", "t": _elapsed})
+		return
+	if _player != null:
+		_player.add_xp(10)  # nudge so last_damage_source attribution path is exercised
+		# Directly kill via the health component so defeated + boss_death signals fire.
+		if boss.health != null:
+			boss.health.last_damage_source = _player
+			boss.health.take_damage(boss.health.current_health + 1.0, _player)
+	_active_effects.append({
+		"kind": "kill_boss",
+		"label": label,
+		"boss": str(boss.type_id),
+		"gold_after": int(_player.gold) if _player != null else 0,
+		"xp_after": int(_player.current_xp) if _player != null else 0,
+		"level_after": int(_player.level) if _player != null else 0,
 		"t": _elapsed,
 	})
 

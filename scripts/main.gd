@@ -1554,6 +1554,13 @@ func _on_boss_death(enemy: Enemy) -> void:
 		if boss_killer != null and is_instance_valid(boss_killer):
 			boss_killer.grant_boss_form(enemy.type_id)
 
+	# Boss-kill reward: a clear "boss defeated" payout on top of the XP orb + boss form.
+	# Everyone on the killing team/hero gets a bonus of gold + XP so the boss clear is a
+	# felt reward beat before the world transition. The amount scales with the wave so
+	# later bosses pay out more.
+	if not GameRuntime.is_dedicated_server():
+		_grant_boss_kill_reward(enemy)
+
 
 func _shake_cameras(amplitude: float, duration: float) -> void:
 	if GameRuntime.is_dedicated_server():
@@ -1561,6 +1568,39 @@ func _shake_cameras(amplitude: float, duration: float) -> void:
 	for player in players.values():
 		if is_instance_valid(player):
 			(player as Player).shake_camera(amplitude, duration)
+
+
+## Boss-kill payout. The killing hero gets the full reward; in team/FFA the other heroes
+## on the winning side get a reduced share. Announces a "BOSS DEFEATED" beat on the HUD
+## so the moment reads as an event rather than just a big enemy dying.
+func _grant_boss_kill_reward(enemy: Enemy) -> void:
+	var wave := current_wave
+	var bonus_gold := 60 + 20 * maxi(1, wave / 5)
+	var bonus_xp := 40 + 15 * maxi(1, wave / 5)
+	var killer: Player = null
+	if enemy.health != null and enemy.health.last_damage_source is Player:
+		killer = enemy.health.last_damage_source as Player
+	if not GameRuntime.is_dedicated_server() and hud != null:
+		hud.announce_boss_defeated(wave)
+	if GameRuntime.is_ffa():
+		# FFA: only the killing hero gets the full reward.
+		if killer != null and is_instance_valid(killer):
+			killer.add_gold(bonus_gold)
+			killer.add_xp(bonus_xp)
+	elif GameRuntime.is_rift_clash():
+		# Team: reward every hero on the winning team.
+		if killer != null and is_instance_valid(killer):
+			var winning_team := killer.team_id
+			for player in players.values():
+				if is_instance_valid(player) and (player as Player).team_id == winning_team:
+					(player as Player).add_gold(bonus_gold / 2)
+					(player as Player).add_xp(bonus_xp / 2)
+	else:
+		# Solo/co-op: every alive hero gets the full reward.
+		for player in players.values():
+			if is_instance_valid(player) and not (player as Player).health.is_dead:
+				(player as Player).add_gold(bonus_gold)
+				(player as Player).add_xp(bonus_xp)
 
 
 var _cached_boss: Enemy = null
