@@ -112,31 +112,44 @@ func _nearest_enemy(reach: float) -> Node2D:
 
 func _draw() -> void:
 	var fill := _fill()
-	var accent := Color(0.1, 0.1, 0.12, 0.9)
-	var r := 5.5 + float(rank) * 0.4
-	# Drop shadow underneath.
-	draw_rect(Rect2(-r - 1.0, r * 0.35, r * 2.0 + 2.0, 3.0), Color(0.0, 0.0, 0.0, 0.22))
-	# Rotors: two little spinning propellers on either side.
-	var spin := fmod(Time.get_ticks_msec() * 0.02 + _orbit, TAU)
-	var rotor_l := Vector2(-r * 0.8, -r * 0.35)
-	var rotor_r := Vector2(r * 0.8, -r * 0.35)
-	var blade := Vector2(cos(spin), sin(spin)) * r * 0.55
-	draw_line(rotor_l - blade, rotor_l + blade, Color(0.2, 0.2, 0.25, 0.7), 1.5)
-	draw_line(rotor_r - blade, rotor_r + blade, Color(0.2, 0.2, 0.25, 0.7), 1.5)
-	draw_circle(rotor_l, 1.6, Color(0.25, 0.25, 0.3, 0.9))
-	draw_circle(rotor_r, 1.6, Color(0.25, 0.25, 0.3, 0.9))
-	# Arms connecting rotors to the body.
-	draw_line(rotor_l, Vector2(0.0, 0.0), accent, 1.4)
-	draw_line(rotor_r, Vector2(0.0, 0.0), accent, 1.4)
-	# Body: a small rounded capsule.
-	var body_w := r * 0.85
+	var dark := fill.darkened(0.55)
+	var accent := Color(0.08, 0.08, 0.1, 0.9)
+	# Bigger body so it clearly reads as a drone, not a dot. Grows with rank.
+	var r := 9.0 + float(rank) * 0.6
+	# Drop shadow underneath (on the ground, offset down).
+	var sh := r * 0.78
+	draw_circle(Vector2(0.0, sh), r * 0.85, Color(0.0, 0.0, 0.0, 0.26))
+	draw_circle(Vector2(0.0, sh - 1.0), r * 0.7, Color(0.0, 0.0, 0.0, 0.18))
+	# Rotors: four spinning propellers (two front, two back) on little arms, like a quad.
+	var spin := fmod(Time.get_ticks_msec() * 0.025 + _orbit, TAU)
+	var rotor_pos := [
+		Vector2(-r * 0.95, -r * 0.55), Vector2(r * 0.95, -r * 0.55),
+		Vector2(-r * 0.95, r * 0.45), Vector2(r * 0.95, r * 0.45),
+	]
+	for rp in rotor_pos:
+		var blade := Vector2(cos(spin), sin(spin)) * r * 0.5
+		# Rotor disc (blurry spinning prop).
+		draw_circle(rp, r * 0.5, Color(0.75, 0.78, 0.85, 0.28))
+		draw_line(rp - blade, rp + blade, Color(0.25, 0.27, 0.33, 0.85), 2.0)
+		draw_circle(rp, 1.8, Color(0.3, 0.32, 0.4, 0.95))
+		# Arm connecting rotor to body.
+		draw_line(rp, Vector2(rp.x * 0.4, rp.y * 0.4), accent, 2.0)
+	# Main body: rounded hull with a lighter top and darker base.
+	var body_w := r * 0.95
 	var body_h := r * 0.7
-	draw_rect(Rect2(-body_w, -body_h, body_w * 2.0, body_h * 2.0), fill)
-	# Cockpit light.
-	draw_rect(Rect2(-r * 0.28, -r * 0.3, r * 0.56, r * 0.5), Color(1.0, 1.0, 1.0, 0.85))
+	var body := Rect2(-body_w, -body_h, body_w * 2.0, body_h * 2.0)
+	draw_rect(body, dark)
+	draw_rect(Rect2(body.position + Vector2(1.0, 1.0), body.size - Vector2(2.0, 2.0)), fill)
+	# Top highlight band.
+	draw_rect(Rect2(-body_w + 1.0, -body_h + 1.0, body_w * 2.0 - 2.0, r * 0.3), fill.lightened(0.35))
+	# Cockpit / sensor light (pulses).
+	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.006 + _orbit)
+	draw_circle(Vector2(0.0, -r * 0.15), r * 0.3, Color(1.0, 1.0, 1.0, 0.55 + 0.4 * pulse))
+	# Kind-specific emblem dot.
+	draw_circle(Vector2(0.0, r * 0.2), r * 0.18, _fill().lightened(0.2))
 	# Rank pips on the body.
 	for i in rank:
-		draw_rect(Rect2(r * 0.45 + float(i) * 3.0, -1.0, 2.0, 2.0), Color(1.0, 0.9, 0.5, 0.9))
+		draw_rect(Rect2(r * 0.5 + float(i) * 4.0, -r * 0.1, 2.5, 2.5), Color(1.0, 0.9, 0.5, 0.95))
 
 
 func _fill() -> Color:
