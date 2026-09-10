@@ -158,10 +158,11 @@ var _ffa_world_wave := 1
 ## FFA_INTRO_WALK (camera follows each local player), stand still again, and only then
 ## do the team wave directors start and creeps begin.
 const FFA_INTRO_HOLD := 2.0
-const FFA_INTRO_WALK := 7.0
+const FFA_INTRO_WALK := 3.5
 const FFA_INTRO_END_HOLD := 2.0
 var _ffa_intro_elapsed := -1.0
 var _ffa_intro_done := false
+var _ffa_countdown_shown := 0   # last countdown number displayed during walkout
 var _ffa_intro_walk_dir := {}
 var _landing_fx: Node2D = null
 
@@ -3237,6 +3238,7 @@ func _ffa_intro_tick(delta: float) -> void:
 		# phase 3: auto-walk outward. Keep movement_locked=true so the CPU brain and
 		# real input can't interfere; animate positions directly instead.
 		_drive_ffa_intro_walkout(delta)
+		_tick_ffa_countdown()
 		return
 	if _ffa_intro_elapsed < FFA_INTRO_HOLD + FFA_INTRO_WALK + FFA_INTRO_END_HOLD:
 		return  # phase 4: hold still (still locked).
@@ -3290,6 +3292,21 @@ func _drive_ffa_intro_walkout(delta: float) -> void:
 		p._refresh_sort_z()
 
 
+## Show a 5->1 countdown during the walkout, flashing the current number on the HUD
+## so players know when the game is about to start. Each number shows for an equal
+## slice of the walkout window.
+func _tick_ffa_countdown() -> void:
+	if hud == null:
+		return
+	var walk_elapsed: float = _ffa_intro_elapsed - FFA_INTRO_HOLD
+	var frac: float = clampf(walk_elapsed / FFA_INTRO_WALK, 0.0, 1.0)
+	var remaining: int = 5 - int(frac * 5.0)  # 5 at start, drops to 0 at end
+	remaining = clampi(remaining, 0, 5)
+	if remaining != _ffa_countdown_shown:
+		_ffa_countdown_shown = remaining
+		hud.announce_ffa_intro(str(remaining) if remaining > 0 else "READY")
+
+
 ## Phase 5: unlock everyone and start the deferred team wave directors so creeps spawn.
 func _finish_ffa_intro() -> void:
 	_ffa_intro_done = true
@@ -3299,8 +3316,13 @@ func _finish_ffa_intro() -> void:
 		if p == null or not is_instance_valid(p):
 			continue
 		p.movement_locked = false
-		# Aim forward so the bot resumes its normal behavior.
-		p.set_authority_command(Vector2.ZERO, p.global_position + p.facing_direction * 100.0, false, false, [false, false, false, false], false)
+		# Aim forward so the bot resumes its normal behavior. Only script the CPU bots —
+		# the local offline player must keep reading real input (latching an external
+		# command here would freeze its movement after the intro, see set_authority_command).
+		if p.simulation_mode == Player.SimulationMode.CPU:
+			p.set_authority_command(Vector2.ZERO, p.global_position + p.facing_direction * 100.0, false, false, [false, false, false, false], false)
+		else:
+			p.clear_external_command()
 	for team_id in team_wave_directors.keys():
 		var director: WaveDirector = team_wave_directors[team_id]
 		if director != null and not director.running:

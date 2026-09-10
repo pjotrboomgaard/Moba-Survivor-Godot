@@ -1378,19 +1378,8 @@ func _ability_slot_index_for(hero_id: String, ability_id: String) -> int:
 func _update_preview_viewport() -> void:
 	if ability_preview == null or not ability_preview.visible:
 		return
-	var svp := ability_preview.get_node_or_null("AbilitySubViewport") as SubViewport
-	if svp == null:
-		return
-	# A SubViewport that is a child of a CanvasItem renders into the main viewport at
-	# the control's local origin, so just keep it sized to the control's rect.
-	var rect: Rect2 = ability_preview.get_global_rect()
-	svp.size = Vector2i(maxi(8, int(rect.size.x)), maxi(8, int(rect.size.y)))
-	# Center the world's action in the viewport.
-	var world := svp.get_node_or_null("AbilityPreviewWorld") as AbilityPreviewWorld
-	if world != null:
-		# Nudge the world's camera-independent framing: the world's _draw already centers
-		# the action around origin, so just keep the viewport origin at the control origin.
-		pass
+	if ability_preview_world != null:
+		ability_preview_world._update_viewport_size()
 
 
 func _on_lmb_hover() -> void:
@@ -2232,6 +2221,10 @@ func leave_game() -> void:
 	NetworkService.stop()
 	game_loaded = false
 	GameRuntime.set_runtime_mode(GameRuntime.RuntimeMode.OFFLINE)
+	# Reset FFA/team mode so the menu doesn't treat the next entry as FFA and the
+	# class picker doesn't fall into a stale team-assigned layout.
+	GameRuntime.set_team_mode(GameRuntime.TeamMode.NONE)
+	GameRuntime.ffa_all_bots = false
 	_show_lobby("Play as Tobor")
 
 

@@ -4,13 +4,13 @@
   "duration": 40,
   "danger_hp": 0.4,
   "recover_hp": 0.55,
-  "comment": "Verify FFA opening sequence: heroes land in circle, stand, walk out, then creeps start. Snapshots at intro + post-intro.",
+  "comment": "Verify FFA intro: land -> stand 2s -> walk 3.5s (with 5->1 countdown) -> stand 2s -> GO. Creeps only after GO. Local player must be able to move after GO.",
   "events": [
     {"kind": "snap", "label": "intro_gather", "t": 1.5},
-    {"kind": "snap", "label": "intro_walkout", "t": 4.5},
-    {"kind": "probe", "label": "post_intro", "t": 10.0},
-    {"kind": "snap", "label": "post_intro_game", "t": 12.0},
-    {"kind": "probe", "label": "creeps_started", "t": 25.0},
+    {"kind": "snap", "label": "intro_walkout_mid", "t": 4.0},
+    {"kind": "probe", "label": "post_intro", "t": 9.0},
+    {"kind": "snap", "label": "post_intro_game", "t": 10.0},
+    {"kind": "snap", "label": "creeps_20s", "t": 20.0},
     {"kind": "report", "t": 38.0}
   ]
 }
