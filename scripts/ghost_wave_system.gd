@@ -56,10 +56,19 @@ func _update_ghosts(delta: float) -> void:
 		var g := _ghosts[i]
 		g.pos = g.pos + g.vel * delta
 		if _is_way_off_map(g.pos):
+			_release_ghost_target_load(g)
 			_ghosts.remove_at(i)
 			_dirty = true
 		else:
 			i += 1
+
+
+## Drop the even-distribution bookkeeping for a ghost that no longer exists.
+func _release_ghost_target_load(g: Dictionary) -> void:
+	var key := int(g.get("target_peer", -1))
+	if key < 0:
+		return
+	_ghost_target_load[key] = maxi(0, int(_ghost_target_load.get(key, 0)) - 1)
 
 
 func _spawn_new_ghosts(delta: float) -> void:
@@ -84,6 +93,12 @@ func _spawn_rate_per_second() -> float:
 	return 1.4 * wave_factor * player_factor
 
 
+## Per-player ghost budget so the trickle is distributed evenly instead of all
+## streaming toward one hero. A player who has been starved gets priority next.
+var _ghost_target_load: Dictionary = {}  # peer_id -> int (ghosts currently assigned)
+var _ghost_rr_index := 0
+
+
 func _spawn_one_ghost() -> void:
 	var type_id: String = str(GHOST_TYPES.pick_random())
 	var speed: float = float(EnemyType.field(type_id, "movement_speed"))
@@ -94,19 +109,78 @@ func _spawn_one_ghost() -> void:
 	if _main != null and _main.get("wave_director") != null:
 		hp_mult = float((_main.get("wave_director") as WaveDirector).health_multiplier_for_wave(maxi(1, int(_main.get("current_wave")))))
 	var half := _playfield_half()
-	var pos := _random_perimeter_point(half)
-	var target := _pick_target_position()
-	var dir := target - pos
+	# Pick the least-targeted active player (round-robin) so every hero gets an
+	# even share of the perimeter trickle, and spawn that ghost from the map edge
+	# CLOSEST to that hero so it approaches from their own side.
+	var target := _pick_least_targeted_player()
+	if target == null:
+		return
+	var pos := _perimeter_point_nearest(half, target.global_position)
+	var dir := target.global_position - pos
 	if dir.length_squared() < 1.0:
 		dir = Vector2.RIGHT.rotated(randf() * TAU)
 	var vel := dir.normalized() * speed * speed_mult
+	var peer_key := int((target as Node).get("peer_id"))
+	_ghost_target_load[peer_key] = int(_ghost_target_load.get(peer_key, 0)) + 1
 	_ghosts.append({
 		"pos": pos,
 		"vel": vel,
 		"type_id": type_id,
 		"hp_mult": hp_mult,
 		"speed_mult": speed_mult,
+		"target_peer": peer_key,
 	})
+
+
+## Even distribution: return the active player with the fewest ghosts currently
+## assigned to them. Ties are broken by round-robin index so it cycles cleanly.
+func _pick_least_targeted_player() -> Player:
+	if _main == null:
+		return null
+	var players := (_main.get("players") as Dictionary).values()
+	var best: Player = null
+	var best_load := INF
+	for player_node in players:
+		var p := player_node as Player
+		if p == null or not is_instance_valid(p) or not p.active:
+			continue
+		var load := int(_ghost_target_load.get(int(p.get("peer_id")), 0))
+		if load < best_load:
+			best_load = load
+			best = p
+	return best
+
+
+## Pick the map-edge point nearest to `target_pos`, so each hero's creeps come in
+## from their own side of the map rather than a uniformly random edge.
+func _perimeter_point_nearest(half: Vector2, target_pos: Vector2) -> Vector2:
+	var m := GHOST_SPAWN_MARGIN
+	# Which of the 4 edges is the target nearest? Then pick a point along that edge.
+	var dist_top: float = absf(target_pos.y - (-half.y - m))
+	var dist_bot: float = absf(target_pos.y - (half.y + m))
+	var dist_left: float = absf(target_pos.x - (-half.x - m))
+	var dist_right: float = absf(target_pos.x - (half.x + m))
+	var nearest := 0
+	if dist_top <= dist_bot and dist_top <= dist_left and dist_top <= dist_right:
+		nearest = 0
+	elif dist_bot <= dist_left and dist_bot <= dist_right:
+		nearest = 1
+	elif dist_left <= dist_right:
+		nearest = 2
+	else:
+		nearest = 3
+	match nearest:
+		0:
+			# Top edge: x near target.x so the approach is angled toward them.
+			return Vector2(clampf(target_pos.x + randf_range(-600.0, 600.0), -half.x - m, half.x + m), -half.y - m)
+		1:
+			return Vector2(clampf(target_pos.x + randf_range(-600.0, 600.0), -half.x - m, half.x + m), half.y + m)
+		2:
+			return Vector2(-half.x - m, clampf(target_pos.y + randf_range(-600.0, 600.0), -half.y - m, half.y + m))
+		3:
+			return Vector2(half.x + m, clampf(target_pos.y + randf_range(-600.0, 600.0), -half.y - m, half.y + m))
+		_:
+			return Vector2(half.x + m, randf_range(-half.y - m, half.y + m))
 
 
 func _random_perimeter_point(half: Vector2) -> Vector2:
@@ -126,11 +200,14 @@ func _random_perimeter_point(half: Vector2) -> Vector2:
 
 
 func _pick_target_position() -> Vector2:
+	var p := _pick_least_targeted_player()
+	if p != null:
+		return p.global_position
 	if _main != null:
 		for player_node in (_main.get("players") as Dictionary).values():
-			var p := player_node as Player
-			if p != null and is_instance_valid(p) and p.active:
-				return p.global_position
+			var q := player_node as Player
+			if q != null and is_instance_valid(q) and q.active:
+				return q.global_position
 	return Vector2.ZERO
 
 
@@ -186,6 +263,7 @@ func _materialize_into_viewports() -> void:
 		var type_id: String = g.type_id
 		var hp_mult: float = g.hp_mult
 		var spd_mult: float = g.speed_mult
+		_release_ghost_target_load(g)
 		_ghosts.remove_at(i)
 		if _main.has_method("_spawn_enemy_at"):
 			var enemy: Enemy = _main._spawn_enemy_at(mat_pos, type_id, hp_mult, spd_mult)
