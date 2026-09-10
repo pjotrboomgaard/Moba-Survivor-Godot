@@ -1,0 +1,23 @@
+{
+  "hero": "arclight",
+  "mode": "solo_survival",
+  "until_wave": 6,
+  "duration": 40,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Verify wave-name + boss cadence with BIOME_CYCLE_WAVES=5: wave 5 must be a boss (world 1 end) and wave 6 switches to the next biome. Probes capture wave_name + biome_name so the report shows the alignment.",
+  "events": [
+    {"kind": "probe", "label": "wave1", "t": 3.0},
+    {"kind": "skip_wave", "t": 3.5, "label": "skip_to_2"},
+    {"kind": "probe", "label": "wave2", "t": 7.0},
+    {"kind": "skip_wave", "t": 7.5, "label": "skip_to_3"},
+    {"kind": "probe", "label": "wave3", "t": 11.0},
+    {"kind": "skip_wave", "t": 11.5, "label": "skip_to_4"},
+    {"kind": "probe", "label": "wave4", "t": 15.0},
+    {"kind": "skip_wave", "t": 15.5, "label": "skip_to_5"},
+    {"kind": "probe", "label": "wave5_boss", "t": 19.0},
+    {"kind": "skip_wave", "t": 19.5, "label": "skip_to_6"},
+    {"kind": "probe", "label": "wave6_newworld", "t": 23.0},
+    {"kind": "report", "t": 30.0}
+  ]
+}
