@@ -551,12 +551,15 @@ func apply_saved_level(data: Dictionary) -> void:
 	# (grass/flowers baked into the background). Re-scatter it so the meadow
 	# is preserved alongside the user-placed props.
 	_scatter_ground_cover()
+	queue_redraw()
 	landmarks_changed.emit()
 
 
 func _saved_obstacle_spec(sprite_id: String) -> Dictionary:
 	if sprite_id.begins_with("tree"):
-		return {"sprite": sprite_id, "radius": 18.0, "lift": 28.0}
+		# Trees are decorative (radius 0) so they bake into the background like the
+		# editor places them, instead of becoming a live blocking Obstacle node.
+		return {"sprite": sprite_id, "radius": 0.0, "lift": 28.0}
 	match sprite_id:
 		"grass_tuft", "grass_long", "grass_bush", "grass_mushroom", "grass_wild", "grass_flower", "grass_bloom", "flower_patch", "grass_lush", "grass_meadow", "dirt_tile":
 			return {"sprite": sprite_id, "radius": 0.0, "lift": 0.0}

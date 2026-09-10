@@ -603,6 +603,7 @@ func _record_probe(label: String) -> void:
 		"pvp_invuln": float(_player.pvp_invuln_timer),
 		"player_positions": _player_positions(),
 		"teleporters": _teleporter_pads(),
+		"obstacle_count": _obstacle_count(),
 	})
 
 
@@ -639,6 +640,23 @@ func _teleporter_pads() -> Array:
 		var p: Vector2 = entry["pos"]
 		pads.append([snappedf(p.x, 1.0), snappedf(p.y, 1.0)])
 	return pads
+
+
+## Count of live obstacle nodes in the arena. 0 (or a suspiciously low number)
+## signals the "empty map, only town" bug where the editor level / procedural
+## scatter failed to populate the field.
+func _obstacle_count() -> int:
+	var host_main: Variant = get_tree().get_first_node_in_group("main") if _host_main == null else _host_main
+	if host_main == null:
+		return -1
+	var arena: Variant = host_main.get("arena")
+	if arena == null or not (arena is Arena):
+		return -1
+	var n := 0
+	for obs in (arena as Arena).obstacles:
+		if is_instance_valid(obs):
+			n += 1
+	return n
 
 
 func _record_fps(label: String) -> void:

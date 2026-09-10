@@ -3266,6 +3266,9 @@ func _start_ffa_intro() -> void:
 			spot = center
 		p.global_position = spot
 		p.movement_locked = true
+		# Grant the PVP spawn shield so rival heroes can't one-shot each other on spawn.
+		# It lasts FFA_PVP_INVULN_SECONDS and flickers away in its final 2s.
+		p.grant_pvp_spawn_protection()
 		# Remember the outward direction for the walk-out phase.
 		_ffa_intro_walk_dir[peer_id] = Vector2.RIGHT.rotated(angle)
 		slot += 1
@@ -3304,7 +3307,7 @@ func _tick_ffa_countdown() -> void:
 	remaining = clampi(remaining, 0, 5)
 	if remaining != _ffa_countdown_shown:
 		_ffa_countdown_shown = remaining
-		hud.announce_ffa_intro(str(remaining) if remaining > 0 else "READY")
+		hud.ffa_countdown_tick(str(remaining) if remaining > 0 else "GO")
 
 
 ## Phase 5: unlock everyone and start the deferred team wave directors so creeps spawn.
@@ -3332,7 +3335,7 @@ func _finish_ffa_intro() -> void:
 					members += 1
 			director.start(maxi(1, members), false)
 	if hud != null:
-		hud.announce_ffa_intro("GO!")
+		hud.ffa_countdown_tick("FIGHT!", true)
 
 
 ## Landing beat visual: grass -> expanding blast ring -> crater. Plays during the

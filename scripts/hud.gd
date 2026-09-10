@@ -1149,6 +1149,60 @@ func announce_ffa_intro(text: String) -> void:
 	_flash(theme_banner, 2.0)
 
 
+## Big center-screen countdown for the FFA intro walkout: "5 4 3 2 1" each pop in,
+## then "FIGHT!" punches in with a bigger, longer animation. Driven by main.gd during
+## the FFA intro. `is_fight=true` uses a longer, more dramatic presentation.
+var _ffa_countdown_label: Label = null
+
+func ffa_countdown_tick(text: String, is_fight: bool = false) -> void:
+	if GameRuntime.is_classic():
+		return
+	if _ffa_countdown_label == null:
+		_ffa_countdown_label = Label.new()
+		_ffa_countdown_label.name = "FfaCountdownLabel"
+		_ffa_countdown_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_ffa_countdown_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_ffa_countdown_label.z_index = 10
+		_ffa_countdown_label.add_theme_font_size_override("font_size", 120)
+		_ffa_countdown_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1))
+		_ffa_countdown_label.add_theme_constant_override("outline_size", 12)
+		# Center it in the viewport.
+		_ffa_countdown_label.set_anchors_preset(Control.PRESET_CENTER)
+		_ffa_countdown_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_ffa_countdown_label.grow_vertical = Control.GROW_DIRECTION_BOTH
+		_ffa_countdown_label.position = Vector2.ZERO
+		add_child(_ffa_countdown_label)
+	_ffa_countdown_label.text = text
+	_ffa_countdown_label.visible = true
+	_play_countdown_punch(is_fight)
+
+
+func _play_countdown_punch(is_fight: bool) -> void:
+	if _ffa_countdown_label == null:
+		return
+	# Reset transform and start hidden/oversized, then tween to final size.
+	_ffa_countdown_label.scale = Vector2.ONE
+	var start_scale := Vector2(1.8, 1.8) if is_fight else Vector2(1.5, 1.5)
+	var end_scale := Vector2(1.25, 1.25) if is_fight else Vector2(1.0, 1.0)
+	_ffa_countdown_label.scale = start_scale
+	_ffa_countdown_label.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	if is_fight:
+		_ffa_countdown_label.add_theme_color_override("font_color", Color("ff5533"))
+		_ffa_countdown_label.add_theme_font_size_override("font_size", 160)
+	else:
+		_ffa_countdown_label.add_theme_color_override("font_color", Color("ffe08c"))
+		_ffa_countdown_label.add_theme_font_size_override("font_size", 120)
+	var dur: float = 0.9 if is_fight else 0.55
+	var tw := create_tween()
+	tw.tween_property(_ffa_countdown_label, "scale", end_scale, dur).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(_ffa_countdown_label, "modulate:a", 1.0, dur * 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	# Hold, then fade out.
+	tw.tween_interval(0.25)
+	tw.tween_property(_ffa_countdown_label, "modulate:a", 0.0, dur * 0.6)
+	tw.parallel().tween_property(_ffa_countdown_label, "scale", end_scale * 1.1, dur * 0.6)
+	AudioService.play("ui_click")
+
+
 func announce_boss_phase(phase: int, boss_name: String) -> void:
 	if GameRuntime.is_classic():
 		return

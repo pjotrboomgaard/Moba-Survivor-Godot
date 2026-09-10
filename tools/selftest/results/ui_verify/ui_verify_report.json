@@ -7,8 +7,38 @@
       "ok": true
     },
     {
-      "detail": "hero=tobor has no secondary (expected)",
-      "name": "hover_rmb_no_secondary",
+      "detail": "ability_preview_world present",
+      "name": "probe_preview_found",
+      "ok": true
+    },
+    {
+      "detail": "label=lmb opaque_frac=0.666 (expect >0.05)",
+      "name": "probe_preview_rendered",
+      "ok": true
+    },
+    {
+      "detail": "label=lmb on_screen_frac=0.955 (expect >0.08)",
+      "name": "probe_preview_screen_visible",
+      "ok": true
+    },
+    {
+      "detail": "hero=tobor (all heroes have a secondary)",
+      "name": "hover_rmb",
+      "ok": true
+    },
+    {
+      "detail": "ability_preview_world present",
+      "name": "probe_preview_found",
+      "ok": true
+    },
+    {
+      "detail": "label=rmb opaque_frac=0.666 (expect >0.05)",
+      "name": "probe_preview_rendered",
+      "ok": true
+    },
+    {
+      "detail": "label=rmb on_screen_frac=0.870 (expect >0.08)",
+      "name": "probe_preview_screen_visible",
       "ok": true
     },
     {
@@ -19,6 +49,21 @@
     {
       "detail": "called _show_ability_hover for arclight_blast_of_lightning",
       "name": "hover_ability_called",
+      "ok": true
+    },
+    {
+      "detail": "ability_preview_world present",
+      "name": "probe_preview_found",
+      "ok": true
+    },
+    {
+      "detail": "label=nuke opaque_frac=0.666 (expect >0.05)",
+      "name": "probe_preview_rendered",
+      "ok": true
+    },
+    {
+      "detail": "label=nuke on_screen_frac=0.860 (expect >0.08)",
+      "name": "probe_preview_screen_visible",
       "ok": true
     },
     {
@@ -52,22 +97,22 @@
       "ok": true
     },
     {
-      "detail": "placed=993",
+      "detail": "placed=30",
       "name": "api_place_obstacles",
       "ok": true
     },
     {
-      "detail": "new_assets_with_sprite=54/4",
+      "detail": "new_assets_with_sprite=5/4",
       "name": "api_new_assets_have_sprite",
       "ok": false
     },
     {
-      "detail": "placed=994",
+      "detail": "placed=31",
       "name": "api_place_landmark",
       "ok": true
     },
     {
-      "detail": "erased=true before=994 after=993",
+      "detail": "erased=true before=31 after=30",
       "name": "api_erase_obstacle",
       "ok": true
     },
@@ -77,17 +122,17 @@
       "ok": true
     },
     {
-      "detail": "expected=Vulkaan actual=Vulkaan biome_id=1",
-      "name": "world_switch_to_Vulkaan",
+      "detail": "expected=Ashen Crater actual=Ashen Crater biome_id=1",
+      "name": "world_switch_to_Ashen Crater",
       "ok": true
     },
     {
-      "detail": "expected=IJs actual=IJs biome_id=2",
-      "name": "world_switch_to_IJs",
+      "detail": "expected=Frostmere Reach actual=Frostmere Reach biome_id=2",
+      "name": "world_switch_to_Frostmere Reach",
       "ok": true
     },
     {
-      "detail": "placed=1348 in world=IJs",
+      "detail": "placed=1094 in world=Frostmere Reach",
       "name": "api_place_after_world_switch",
       "ok": true
     },
@@ -97,77 +142,77 @@
       "ok": true
     },
     {
-      "detail": "expected=Gras actual=Gras biome_id=0",
-      "name": "world_switch_to_Gras",
+      "detail": "expected=Verdant Hollow actual=Verdant Hollow biome_id=0",
+      "name": "world_switch_to_Verdant Hollow",
       "ok": true
     },
     {
-      "detail": "placed=989 (expected 10 from grass's own save)",
+      "detail": "placed=20 (grass save, independent of ice)",
       "name": "grass_save_independent_of_other_worlds",
-      "ok": false
+      "ok": true
     }
   ],
-  "elapsed": 27.5038013333327,
+  "elapsed": 27.5024523333327,
   "shots": [
     {
       "err": 0,
       "label": "lobby",
-      "path": "user://ui_verify_shots/lobby_4271.png"
+      "path": "user://ui_verify_shots/lobby_4285.png"
     },
     {
       "err": 0,
       "label": "lmb_hover",
-      "path": "user://ui_verify_shots/lmb_hover_6287.png"
+      "path": "user://ui_verify_shots/lmb_hover_7293.png"
     },
     {
       "err": 0,
       "label": "rmb_hover",
-      "path": "user://ui_verify_shots/rmb_hover_8279.png"
+      "path": "user://ui_verify_shots/rmb_hover_10277.png"
     },
     {
       "err": 0,
       "label": "ability_preview_nuke",
-      "path": "user://ui_verify_shots/ability_preview_nuke_10779.png"
+      "path": "user://ui_verify_shots/ability_preview_nuke_12777.png"
     },
     {
       "err": 0,
       "label": "ability_preview_radius",
-      "path": "user://ui_verify_shots/ability_preview_radius_13271.png"
+      "path": "user://ui_verify_shots/ability_preview_radius_15277.png"
     },
     {
       "err": 0,
       "label": "ability_preview_summon",
-      "path": "user://ui_verify_shots/ability_preview_summon_15787.png"
+      "path": "user://ui_verify_shots/ability_preview_summon_17868.png"
     },
     {
       "err": 0,
       "label": "editor",
-      "path": "user://ui_verify_shots/editor_18528.png"
+      "path": "user://ui_verify_shots/editor_18376.png"
     },
     {
       "err": 0,
       "label": "editor_with_props",
-      "path": "user://ui_verify_shots/editor_with_props_21503.png"
+      "path": "user://ui_verify_shots/editor_with_props_21385.png"
     },
     {
       "err": 0,
       "label": "editor_final",
-      "path": "user://ui_verify_shots/editor_final_24004.png"
+      "path": "user://ui_verify_shots/editor_final_23885.png"
     },
     {
       "err": 0,
       "label": "world_volcano",
-      "path": "user://ui_verify_shots/world_volcano_25812.png"
+      "path": "user://ui_verify_shots/world_volcano_25435.png"
     },
     {
       "err": 0,
       "label": "world_ice_with_props",
-      "path": "user://ui_verify_shots/world_ice_with_props_28670.png"
+      "path": "user://ui_verify_shots/world_ice_with_props_28101.png"
     },
     {
       "err": 0,
       "label": "world_back_to_grass",
-      "path": "user://ui_verify_shots/world_back_to_grass_30687.png"
+      "path": "user://ui_verify_shots/world_back_to_grass_30106.png"
     }
   ],
   "verdict": "FAIL"

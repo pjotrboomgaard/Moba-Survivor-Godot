@@ -928,6 +928,18 @@ func _randomize() -> void:
 
 func _save() -> void:
 	var data := {"obstacles": [], "landmarks": [], "features": [], "biome": GameRuntime.biome_id}
+	var baked_sprays: Dictionary = {}
+	if arena is Arena:
+		# Baked decorative props (grass, mushrooms, trees, flowers, dirt) are NOT live
+		# Obstacle nodes, so they are invisible to _editable_nodes(). Without this they
+		# are silently dropped on every re-save — the exact "grass disappears" bug.
+		for prop in (arena as Arena).baked_props:
+			var sprite_id := str(prop.get("sprite", ""))
+			var pos: Vector2 = prop.get("pos", Vector2.ZERO)
+			data.obstacles.append({"pos": [pos.x, pos.y], "sprite": sprite_id})
+			# De-dupe: if the same prop was also placed as a live obstacle in this
+			# session it would already be in the list above; keep only one copy.
+			baked_sprays[sprite_id + "|" + str(pos.x) + "," + str(pos.y)] = true
 	for node in _editable_nodes():
 		if not is_instance_valid(node):
 			continue
@@ -937,9 +949,14 @@ func _save() -> void:
 				"id": str(node.get("feature_id")),
 			})
 		elif node is Obstacle:
+			var ob := node as Obstacle
+			var key := ob.sprite_id + "|" + str(node.global_position.x) + "," + str(node.global_position.y)
+			if baked_sprays.has(key):
+				# Already saved from baked_props — skip the live-node duplicate.
+				continue
 			data.obstacles.append({
 				"pos": [node.global_position.x, node.global_position.y],
-				"sprite": (node as Obstacle).sprite_id,
+				"sprite": ob.sprite_id,
 			})
 		elif node is ArenaLandmark:
 			var lm := node as ArenaLandmark

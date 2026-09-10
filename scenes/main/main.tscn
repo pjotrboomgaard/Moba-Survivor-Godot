@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/arena/arena.tscn" id="2_arena"]
 [ext_resource type="Script" path="res://scripts/wave_director.gd" id="3_waves"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="4_hud"]
 [ext_resource type="Script" path="res://scripts/world_flash.gd" id="5_flash"]
+[ext_resource type="Script" path="res://scripts/world_transition_fx.gd" id="8_transition"]
 [ext_resource type="PackedScene" path="res://scenes/effects/fog_of_war.tscn" id="6_fog"]
 [ext_resource type="Script" path="res://scripts/ghost_wave_system.gd" id="7_ghosts"]
 
@@ -18,6 +19,9 @@ color = Color(1, 1, 1, 1)
 
 [node name="WorldFlash" type="Node2D" parent="."]
 script = ExtResource("5_flash")
+
+[node name="WorldTransition" type="Node2D" parent="."]
+script = ExtResource("8_transition")
 
 [node name="Actors" type="Node2D" parent="."]
 z_index = 20

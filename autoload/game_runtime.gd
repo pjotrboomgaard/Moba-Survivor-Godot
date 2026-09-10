@@ -67,8 +67,11 @@ const FFA_KILLS_TO_WIN := 15
 const FFA_RESPAWN_SECONDS := 30.0
 ## Flat gold paid to the hero who landed a player kill, on top of the victim's lost purse.
 const HERO_KILL_GOLD := 500
-const FFA_PVP_INVULN_SECONDS := 30.0
-const FFA_PVP_SHIELD_FLICKER_SECONDS := 5.0
+const FFA_PVP_INVULN_SECONDS := 10.0
+## The last N seconds of the spawn shield flicker on/off before it disappears. The
+## flicker beat accelerates as the timer runs down (see _refresh_pvp_modulate in
+## player.gd), so the shield "dies" in a rapid pulse.
+const FFA_PVP_SHIELD_FLICKER_SECONDS := 2.0
 const FFA_CLASS_ID := "tobor"
 const FFA_CPU_PEER_BASE := 101
 const FFA_HEALTH_MULT := 1.45

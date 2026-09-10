@@ -277,7 +277,7 @@ func _build_overhaul_ui() -> void:
 	loadout_row.add_theme_constant_override("separation", 8)
 	loadout_panel.add_child(loadout_row)
 	loadout_slots = []
-	# LMB/RMB buttons first (same size as Q/E/D/R).
+	# LMB/RMB buttons on the left, flat with no background.
 	var lmb_b := Button.new()
 	lmb_b.name = "LmbSlot"
 	lmb_b.toggle_mode = false
@@ -287,6 +287,7 @@ func _build_overhaul_ui() -> void:
 	lmb_b.mouse_entered.connect(_on_lmb_hover)
 	lmb_b.mouse_exited.connect(_on_ability_slot_unhover)
 	lmb_b.pressed.connect(_on_lmb_pressed)
+	_style_lmb_rmb_button(lmb_b)
 	loadout_row.add_child(lmb_b)
 	var rmb_b := Button.new()
 	rmb_b.name = "RmbSlot"
@@ -297,9 +298,16 @@ func _build_overhaul_ui() -> void:
 	rmb_b.mouse_entered.connect(_on_rmb_hover)
 	rmb_b.mouse_exited.connect(_on_ability_slot_unhover)
 	rmb_b.pressed.connect(_on_rmb_pressed)
+	_style_lmb_rmb_button(rmb_b)
 	loadout_row.add_child(rmb_b)
 	lmb_slot_button = lmb_b
 	rmb_slot_button = rmb_b
+	# Slight visual gap between LMB/RMB and the 4 ability slots.
+	var gap := Control.new()
+	gap.name = "LoadoutGap"
+	gap.custom_minimum_size = Vector2(16, 1)
+	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	loadout_row.add_child(gap)
 	for slot_index in 4:
 		var b := Button.new()
 		b.name = "Slot%d" % (slot_index + 1)
@@ -310,6 +318,7 @@ func _build_overhaul_ui() -> void:
 		b.mouse_entered.connect(_on_ability_slot_hover.bind(slot_index))
 		b.mouse_exited.connect(_on_ability_slot_unhover)
 		b.pressed.connect(_on_ability_slot_pressed.bind(slot_index))
+		_style_ability_button(b)
 		loadout_row.add_child(b)
 		loadout_slots.append(b)
 
@@ -1396,6 +1405,12 @@ func _show_rmb_hover(hero_id: String) -> void:
 	var sec_name := str(sec_info.get("name", "Secondary"))
 	var sec_charge := bool(sec_info.get("charge", false))
 	var sec_desc := str(sec_info.get("desc", ""))
+	# Show the secondary-ability icon, matching the Q/E/D/R tooltip layout.
+	if ability_hover_icon != null:
+		var sec_kind := str(PlayerClass.by_id(hero_id).get("secondary", "repulse"))
+		var sec_tex := SpriteLibrary.texture_for("secondary_%s" % sec_kind)
+		ability_hover_icon.texture = sec_tex if sec_tex != null else SpriteLibrary.texture_for("secondary_repulse")
+		ability_hover_icon.visible = true
 	# Every hero has a right-click secondary (a secondary_kind, not an ABILITIES entry),
 	# so show a full card: name, what it does, whether it's charged, and its cooldown.
 	if ability_hero_header != null:
@@ -1542,6 +1557,11 @@ func _show_lmb_hover(hero_id: String) -> void:
 	var hero_data := PlayerClass.by_id(hero_id)
 	var weapon_name := str(hero_data.get("weapon_name", "Primary Attack"))
 	ability_hero_header.text = "%s  ·  LMB" % weapon_name.to_upper()
+	# Show the primary-attack projectile icon, matching the Q/E/D/R tooltip layout.
+	if ability_hover_icon != null:
+		var lmb_icon := SpriteLibrary.texture_for("spark")
+		ability_hover_icon.texture = lmb_icon if lmb_icon != null else SpriteLibrary.texture_for(hero_id)
+		ability_hover_icon.visible = true
 	if ability_hover_body != null:
 		var dmg := int(hero_data.get("weapon_damage", 0))
 		var cd := float(hero_data.get("attack_interval", 0))
@@ -1637,6 +1657,7 @@ func _refresh_ability_pool(_hero_id: String) -> void:
 
 
 func _decorate_slot_button(button: Button) -> void:
+	_style_ability_button(button)
 	button.expand_icon = false
 	var tag := Label.new()
 	tag.name = "SlotTag"
@@ -1647,6 +1668,49 @@ func _decorate_slot_button(button: Button) -> void:
 	tag.add_theme_constant_override("shadow_size", 2)
 	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag)
+
+
+## LMB/RMB: flat, NO background, NO border. Reads as a bare icon slot, not a
+## pushable button. Only a faint highlight on hover so the user knows it's live.
+func _style_lmb_rmb_button(button: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	normal.border_color = Color(0.0, 0.0, 0.0, 0.0)
+	normal.set_border_width_all(0)
+	normal.set_corner_radius_all(0)
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = Color(0.12, 0.11, 0.07, 0.45)
+	hover.border_color = Color(1.0, 0.72, 0.28, 0.55)
+	hover.set_border_width_all(1)
+	var pressed := normal.duplicate() as StyleBoxFlat
+	pressed.bg_color = Color(0.08, 0.07, 0.04, 0.55)
+	pressed.border_color = Color(0.45, 0.38, 0.2, 0.6)
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("focus", normal)
+	button.add_theme_color_override("font_color", Color("f4f0e6"))
+
+
+## Q/E/D/R ability slots: subtle dark plate, NO border. Reads as a clean icon
+## frame without the orange border chrome the old version had.
+func _style_ability_button(button: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.09, 0.08, 0.06, 0.9)
+	normal.border_color = Color(0.0, 0.0, 0.0, 0.0)
+	normal.set_border_width_all(0)
+	normal.set_corner_radius_all(4)
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = Color(0.14, 0.12, 0.08, 0.95)
+	hover.border_color = Color(0.0, 0.0, 0.0, 0.0)
+	var pressed := normal.duplicate() as StyleBoxFlat
+	pressed.bg_color = Color(0.05, 0.04, 0.03, 0.95)
+	pressed.border_color = Color(0.0, 0.0, 0.0, 0.0)
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("focus", normal)
+	button.add_theme_color_override("font_color", Color("f4f0e6"))
 
 
 func _on_solo_pressed() -> void:

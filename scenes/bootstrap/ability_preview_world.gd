@@ -18,6 +18,11 @@ extends Control
 @onready var _sub_viewport: SubViewport = $SubViewport
 @onready var _world: Node2D = $SubViewport/World
 
+## TextureRect that actually blits the SubViewport into the main window. A bare
+## SubViewport node does NOT render to the parent canvas — you need a
+## SubViewportTexture wrapped in a CanvasItem. Created at runtime here.
+var _preview_tex: TextureRect = null
+
 const PlayerScene := preload("res://scenes/player/player.tscn")
 const EnemyScene := preload("res://scenes/enemy/enemy.tscn")
 
@@ -52,10 +57,44 @@ func _ready() -> void:
 		cam.limit_bottom = 400
 		_world.add_child(cam)
 		cam.make_current()
-	# Size the SubViewport to a sensible default; the host resizes it to the card.
+	# Size the SubViewport to a sensible default; _update_preview_viewport resizes.
 	if _sub_viewport != null:
 		_sub_viewport.size = Vector2i(360, 200)
+	_ensure_preview_rect()
 	_build_stage()
+
+
+## A bare SubViewport child does not reliably blit into the main window when it is
+## nested inside a Control layout. Wrap it in a SubViewportTexture shown by a
+## TextureRect so the mini world is guaranteed to render under the ability text.
+func _ensure_preview_rect() -> void:
+	if _preview_tex != null and is_instance_valid(_preview_tex):
+		return
+	if _sub_viewport == null:
+		return
+	var svp_tex := _sub_viewport.get_texture()
+	_preview_tex = TextureRect.new()
+	_preview_tex.name = "PreviewRect"
+	_preview_tex.texture = svp_tex
+	_preview_tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_preview_tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_preview_tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_preview_tex.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_preview_tex)
+
+
+## Keep the SubViewport sized to this Control so the mini world fills the panel's
+## preview area (and scales with the window).
+func _update_viewport_size() -> void:
+	if _sub_viewport == null:
+		return
+	var s := size
+	_sub_viewport.size = Vector2i(maxi(8, int(s.x)), maxi(8, int(s.y)))
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		_update_viewport_size()
 
 
 func _build_stage() -> void:

@@ -1,0 +1,15 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "build": "tank",
+  "time_scale": 1.0,
+  "until_wave": 2,
+  "duration": 40,
+  "comment": "Verify grass/map editor level loads in-game (not empty map). Probes obstacle_count + baked grass density via screenshots.",
+  "events": [
+    {"t": 5.0, "kind": "snap", "label": "start_map"},
+    {"t": 20.0, "kind": "snap", "label": "wave1_mid"},
+    {"t": 35.0, "kind": "snap", "label": "wave1_late"},
+    {"t": 38.0, "kind": "report"}
+  ]
+}

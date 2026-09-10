@@ -1,0 +1,327 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              825.0,
+              0.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              45.0,
+              647.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -858.0,
+              30.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              120.0,
+              -647.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "arclight",
+      "hp": 145.0,
+      "hp_frac": 1.0,
+      "hp_max": 145.0,
+      "kind": "probe",
+      "label": "post_intro",
+      "last_tapped": -1,
+      "level": 1,
+      "pending_id": "",
+      "pending_slot": -1,
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(825.0, 0.0)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(45.38898, 647.2581)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(-858.3701, 29.95509)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(120.3875, -646.6161)"
+        }
+      },
+      "pvp_invuln": 0.999999999999926,
+      "summons": 0,
+      "t": 9.0013346666668,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    }
+  ],
+  "elapsed": 38.0035799999986,
+  "enemies_spawned": 0,
+  "hero_position": "(1201.811, -125.4758)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 1,
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": false,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": false,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            1202.0,
+            -125.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": false,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            838.0,
+            -52.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 2,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            954.0,
+            -150.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": false,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            814.0,
+            -191.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 47,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.15
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 15.16
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 18,
+        "hp": 0.92,
+        "kills": 0,
+        "t": 20.17
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 22,
+        "hp": 0.92,
+        "kills": 0,
+        "t": 25.17
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 41,
+        "hp": 0.92,
+        "kills": 0,
+        "t": 30.18
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 41,
+        "hp": 0.93,
+        "kills": 0,
+        "t": 35.19
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 3,
+    "level_upgrades": {
+      "2": [
+        "vitality"
+      ],
+      "3": [
+        "vitality"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 0.915294117647059,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "vitality",
+      "vitality"
+    ],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 2,
+    "xp": 91
+  },
+  "shots": [
+    {
+      "label": "intro_gather",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3653/intro_gather_1.506_3653.png",
+      "t": 1.505605
+    },
+    {
+      "label": "intro_walkout_mid",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6145/intro_walkout_mid_4.002_6145.png",
+      "t": 4.00177566666666
+    },
+    {
+      "label": "post_intro_game",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12119/post_intro_game_10.001_12119.png",
+      "t": 10.0012946666668
+    },
+    {
+      "label": "creeps_20s",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_22137/creeps_20s_20.001_22137.png",
+      "t": 20.0005479999996
+    }
+  ]
+}

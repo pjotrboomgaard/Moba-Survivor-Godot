@@ -4666,7 +4666,10 @@ func _refresh_pvp_modulate() -> void:
 	var protected := is_pvp_protected()
 	world_health_bar.set_shield_active(protected)
 	if protected and pvp_invuln_timer <= GameRuntime.FFA_PVP_SHIELD_FLICKER_SECONDS:
-		var beat := 0.10 if pvp_invuln_timer <= 2.0 else 0.20
+		# Accelerating flicker over the final 2s: beat starts at 0.30s and shrinks to
+		# 0.06s as the shield is about to drop, so it "dies" in a rapid pulse.
+		var flicker_progress: float = clampf(1.0 - pvp_invuln_timer / GameRuntime.FFA_PVP_SHIELD_FLICKER_SECONDS, 0.0, 1.0)
+		var beat: float = lerp(0.30, 0.06, flicker_progress)
 		world_health_bar.set_shield_flicker(fmod(pvp_invuln_timer, beat * 2.0) > beat)
 	else:
 		world_health_bar.set_shield_flicker(true)
