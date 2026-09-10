@@ -1,31 +1,31 @@
 {
   "effects": [
     {
-      "cd_left": 22.1846666666668,
+      "cd_left": 22.1680000000001,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 2.36636066666667
+      "t": 2.35833333333333
     },
     {
       "cd_left": 22.0346666666668,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 2.51235262962963
+      "t": 2.49999999999999
     },
     {
-      "cd_left": 15.0766666666667,
+      "cd_left": 15.0933333333334,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 2.91845733333333
+      "t": 2.91573499999999
     },
     {
       "kind": "focus_tree",
       "label": "baked_tree_shadow",
       "pos": "(240.0, 160.0)",
-      "t": 3.00085933333333,
+      "t": 3.00833333333333,
       "tree": "tree_pine"
     },
     {
@@ -33,118 +33,118 @@
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 3.060649
+      "t": 3.05833333333333
     },
     {
-      "cd_left": 16.5033333333335,
+      "cd_left": 16.5200000000001,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 2,
-      "t": 3.47591657575757
+      "t": 3.46666666666666
     },
     {
       "cd_left": 189.916666666665,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 4.03691403030303
+      "t": 4.01808724242424
     },
     {
-      "cd_left": 189.766666666665,
+      "cd_left": 189.783333333332,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 4.185934
+      "t": 4.160954
     },
     {
       "cd_left": 19.9513333333336,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 4.59074074074074
+      "t": 4.56946833333335
     },
     {
-      "cd_left": 19.8013333333336,
+      "cd_left": 19.8180000000003,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 4.73858030303031
+      "t": 4.71126400000003
     },
     {
-      "cd_left": 12.8599999999999,
+      "cd_left": 12.8766666666666,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 5.14179466666669
+      "t": 5.12035490909096
     },
     {
-      "cd_left": 12.7099999999999,
+      "cd_left": 12.7433333333332,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 5.28346133333336
+      "t": 5.26202157575763
     },
     {
-      "cd_left": 14.2866666666667,
+      "cd_left": 14.3033333333334,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 2,
-      "t": 5.69179466666672
+      "t": 5.67035490909098
     },
     {
       "cd_left": 187.716666666663,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 6.24179466666674
+      "t": 6.2206490000001
     },
     {
-      "cd_left": 187.566666666663,
+      "cd_left": 187.58333333333,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 6.38346133333342
+      "t": 6.36231566666677
     },
     {
       "cd_left": 17.7513333333337,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 6.79255224242435
+      "t": 6.77064900000013
     },
     {
-      "cd_left": 17.6013333333337,
+      "cd_left": 17.6180000000004,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 6.93421890909102
+      "t": 6.9123156666668
     },
     {
-      "cd_left": 10.6599999999998,
+      "cd_left": 10.6766666666665,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 7.34255224242437
+      "t": 7.32064900000016
     },
     {
-      "cd_left": 10.5099999999998,
+      "cd_left": 10.5433333333331,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 7.48421890909105
+      "t": 7.46231566666683
     },
     {
-      "cd_left": 12.0866666666666,
+      "cd_left": 12.1033333333333,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 2,
-      "t": 7.8925522424244
+      "t": 7.87064900000018
     },
     {
       "kind": "focus_tree",
       "label": "baked_tree_shadow2",
       "pos": "(240.0, 160.0)",
-      "t": 8.00088557575774,
+      "t": 8.00398233333352,
       "tree": "tree_pine"
     },
     {
@@ -152,47 +152,47 @@
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 8.44441066666681
+      "t": 8.42064900000017
     },
     {
-      "cd_left": 185.349999999995,
+      "cd_left": 185.383333333328,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 8.60093233333347
+      "t": 8.56569866666683
     },
     {
-      "cd_left": 15.5346666666671,
+      "cd_left": 15.5513333333338,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 9.0086816666668
+      "t": 8.97368800000017
     },
     {
-      "cd_left": 15.3846666666671,
+      "cd_left": 15.4180000000004,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 9.1618976666668
+      "t": 9.11528666666683
     },
     {
-      "cd_left": 8.44333333333302,
+      "cd_left": 8.47666666666636,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 9.56358833333347
+      "t": 9.53192500000014
     },
     {
-      "cd_left": 8.29333333333302,
+      "cd_left": 8.32666666666635,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 9.70499624242437
+      "t": 9.67359166666679
     }
   ],
-  "elapsed": 10.0072689696971,
+  "elapsed": 10.0069250000001,
   "enemies_spawned": 0,
-  "hero_position": "(-287.0139, -204.2847)",
+  "hero_position": "(-246.3407, -191.5599)",
   "player_class": "tobor",
   "results": {
     "alive": true,
@@ -202,19 +202,19 @@
     "casts": [
       {
         "ability_id": "tobor_steam_keg",
-        "t": 0.839372666666666
+        "t": 0.832386333333333
       },
       {
         "ability_id": "tobor_spider_mines",
-        "t": 0.847705999999999
+        "t": 0.849052999999999
       },
       {
         "ability_id": "tobor_steam_turret",
-        "t": 1.25611111111111
+        "t": 1.257505
       },
       {
         "ability_id": "tobor_energy_field",
-        "t": 1.95909090909091
+        "t": 1.94932466666666
       }
     ],
     "creep_kills": 0,
@@ -223,18 +223,18 @@
       "only beaten wave 0 / 2 (t=10)"
     ],
     "ffa": {},
-    "gold": 90,
+    "gold": 0,
     "hero_kills": 0,
     "hp_samples": [
       {
-        "enemies": 12,
+        "enemies": 14,
         "gold": 0,
         "hp": 1.0,
         "t": 0.15,
         "wave": 1
       },
       {
-        "enemies": 17,
+        "enemies": 19,
         "gold": 0,
         "hp": 1.0,
         "t": 2.65,
@@ -242,14 +242,14 @@
       },
       {
         "enemies": 30,
-        "gold": 90,
+        "gold": 0,
         "hp": 1.0,
         "t": 5.16,
         "wave": 1
       },
       {
-        "enemies": 34,
-        "gold": 90,
+        "enemies": 35,
+        "gold": 0,
         "hp": 1.0,
         "t": 7.66,
         "wave": 1
@@ -264,8 +264,8 @@
     "pressure_boosts": 0,
     "quest_types": 2,
     "quests_seen": {
-      "chase_butterfly": 1,
-      "rescue_villager": 1
+      "rescue_villager": 1,
+      "ring_bell": 1
     },
     "shop_buy_count": 0,
     "shop_buys": [],
@@ -273,18 +273,18 @@
     "until_wave": 2,
     "verdict": "FAIL_NO_PROGRESS",
     "wave": 1,
-    "xp": 60
+    "xp": 0
   },
   "shots": [
     {
       "label": "baked_tree_shadow_ingame",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5841/baked_tree_shadow_ingame_3.501_5841.png",
-      "t": 3.50091657575757
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5674/baked_tree_shadow_ingame_3.508_5674.png",
+      "t": 3.50833333333333
     },
     {
       "label": "baked_tree_shadow_ingame2",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10842/baked_tree_shadow_ingame2_8.503_10842.png",
-      "t": 8.50274400000014
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10654/baked_tree_shadow_ingame2_8.504_10654.png",
+      "t": 8.50398233333349
     }
   ]
 }
