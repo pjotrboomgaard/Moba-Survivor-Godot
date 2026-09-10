@@ -88,7 +88,13 @@ func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixel
 		# front/behind rule without a magic bias that mis-sorted the canopy.
 		z_index = WorldClock.depth_z(global_position.y)
 	else:
-		z_index = 8
+		# Rocks and other solid obstacles use the same painter's-algorithm depth
+		# sort as trees, so the player can walk BEHIND them (they get occluded
+		# when the player is on the near side) and in FRONT of them when on the
+		# far side. Previously they used a fixed z=8, which put them permanently
+		# in the background and broke the front/behind rule (Task: rocks behave
+		# like trees).
+		z_index = WorldClock.depth_z(global_position.y)
 	if is_tree:
 		# Trees hide units behind them via LOS raycasts. They do not cast 2D-light umbras,
 		# but they cast a rotating canopy shadow that follows the sun and fits the trunk.
