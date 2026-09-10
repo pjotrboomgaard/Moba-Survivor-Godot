@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "biome": 0,
+  "comment": "Verify the World 1 starter town renders: 8 buildings around a central dirt square, a well at the center, accent trees. Camera focuses the town center at top-left.",
+  "events": [
+    {"t": 3.0, "kind": "probe", "label": "start"},
+    {"t": 3.5, "kind": "camera_zoom", "to": [820.0, 760.0], "zoom": 0.9},
+    {"t": 4.5, "kind": "snap", "label": "town_wide"},
+    {"t": 5.0, "kind": "camera_zoom", "to": [820.0, 760.0], "zoom": 1.4},
+    {"t": 6.0, "kind": "snap", "label": "town_square"},
+    {"t": 6.5, "kind": "report"}
+  ]
+}
