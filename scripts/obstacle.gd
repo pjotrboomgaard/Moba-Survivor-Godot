@@ -332,6 +332,10 @@ static func tree_display_zoom(pixel_zoom: float, texture: Texture2D) -> float:
 static func display_zoom(sprite_name: String, pixel_zoom: float, texture: Texture2D) -> float:
 	if sprite_name.contains("tree"):
 		return tree_display_zoom(pixel_zoom, texture)
+	# Town buildings: render noticeably larger than the 32px art implies so the
+	# settlement reads as bigger houses (was feeling small at pixel_zoom 4).
+	if sprite_name.begins_with("town_"):
+		return pixel_zoom * 1.8
 	var native := 16.0
 	if texture != null:
 		native = float(maxi(1, texture.get_width()))
