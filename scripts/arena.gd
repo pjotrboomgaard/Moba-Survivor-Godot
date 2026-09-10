@@ -557,9 +557,7 @@ func apply_saved_level(data: Dictionary) -> void:
 
 func _saved_obstacle_spec(sprite_id: String) -> Dictionary:
 	if sprite_id.begins_with("tree"):
-		# Trees are decorative (radius 0) so they bake into the background like the
-		# editor places them, instead of becoming a live blocking Obstacle node.
-		return {"sprite": sprite_id, "radius": 0.0, "lift": 28.0}
+		return {"sprite": sprite_id, "radius": 18.0, "lift": 28.0}
 	match sprite_id:
 		"grass_tuft", "grass_long", "grass_bush", "grass_mushroom", "grass_wild", "grass_flower", "grass_bloom", "flower_patch", "grass_lush", "grass_meadow", "dirt_tile":
 			return {"sprite": sprite_id, "radius": 0.0, "lift": 0.0}
@@ -1456,8 +1454,9 @@ func _near_corner_spawn(candidate: Vector2, radius: float) -> bool:
 func _is_decorative_prop(sprite_id: String, radius: float) -> bool:
 	if radius > 0.0:
 		return false
-	if sprite_id.begins_with("tree"):
-		return true
+	# Trees are live Obstacle nodes again (they keep their own shadow Sprite2D), so
+	# they are never baked into the background. Only ground cover (grass/flowers/
+	# dirt) bakes into the background texture.
 	if sprite_id.begins_with("grass") or sprite_id == "flower_patch" \
 			or sprite_id == "grass_lush" or sprite_id == "grass_meadow" \
 			or sprite_id == "dirt_tile":
@@ -2496,15 +2495,6 @@ func _draw_decals() -> void:
 		return
 	var drawn := 0
 	var cull := _baked_cull_rect()
-	# Draw shadows first so they sit under the sprite (the arena's own _draw
-	# layer is beneath all Node2D obstacles, so baked props share that plane).
-	for prop in baked_props:
-		var pos: Vector2 = prop.pos
-		if not cull.has_point(pos):
-			continue
-		var sprite_id := str(prop.sprite)
-		if sprite_id.contains("tree"):
-			_draw_baked_tree_shadow(pos, sprite_id)
 	for prop in baked_props:
 		var pos: Vector2 = prop.pos
 		if not cull.has_point(pos):
@@ -2528,40 +2518,6 @@ func _baked_cull_rect() -> Rect2:
 	var half_w := (vp.x * 0.5 / maxf(0.1, zoom.x)) + margin
 	var half_h := (vp.y * 0.5 / maxf(0.1, zoom.y)) + margin
 	return Rect2(cam_pos.x - half_w, cam_pos.y - half_h, half_w * 2.0, half_h * 2.0)
-
-
-## Baked tree shadow: a soft tapered ellipse on the ground, oriented by the sun
-## direction exactly like the live Obstacle tree shadow does. Drawn into the arena
-## background so a meadow full of trees doesn't need one Sprite2D per tree.
-func _draw_baked_tree_shadow(pos: Vector2, sprite_id: String) -> void:
-	var alpha := WorldClock.shadow_alpha
-	if alpha <= 0.0:
-		return
-	var dir := WorldClock.sun_dir
-	var shadow_dir := -dir
-	var angle := shadow_dir.angle() + PI / 2.0
-	var stretch := WorldClock.shadow_stretch
-	var length_factor := 0.55 + 0.35 * stretch
-	# Approximate the tree's on-screen height at its display zoom for a realistic
-	# footprint length. We draw an ellipse ~ (0.5–0.9 * tree_height) long.
-	var tex := SpriteLibrary.texture_for(sprite_id)
-	var native := 16.0
-	if tex != null:
-		native = float(maxi(1, tex.get_width()))
-	var zoom := Obstacle.tree_display_zoom(PIXEL_ZOOM, tex) if tex != null else Obstacle.tree_display_zoom(PIXEL_ZOOM, null)
-	var tree_h := native * 2.15 * zoom
-	var shadow_len := tree_h * length_factor
-	# Flatten perpendicular to the fall so it reads as lying on the grass.
-	var flatten := 0.62
-	var half_len := shadow_len * 0.5
-	var half_width := shadow_len * 0.5 * flatten
-	# Shift so the trunk end (local +Y) sits at the tree base.
-	var center := pos + shadow_dir * (shadow_len * 0.5)
-	draw_set_transform(center, angle, Vector2.ONE)
-	draw_circle(Vector2.ZERO, half_width, Color(0, 0, 0, alpha * 0.45))
-	# A second, slightly larger, fainter ellipse for a soft-edge look.
-	draw_circle(Vector2.ZERO, half_width * 1.25, Color(0, 0, 0, alpha * 0.18))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _draw_one_decal(sprite_name: String, spot: Vector2) -> void:

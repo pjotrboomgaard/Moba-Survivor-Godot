@@ -1,0 +1,16 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "build": "tank",
+  "time_scale": 1.0,
+  "until_wave": 2,
+  "duration": 45,
+  "comment": "Verify in-game baked tree shadow renders as a silhouette (matches live Obstacle shadow), not a blob. Focuses the camera on a baked tree.",
+  "events": [
+    {"t": 3.0, "kind": "focus_tree", "label": "baked_tree_shadow", "zoom": 2.2},
+    {"t": 3.5, "kind": "snap", "label": "baked_tree_shadow_ingame"},
+    {"t": 8.0, "kind": "focus_tree", "label": "baked_tree_shadow2", "zoom": 2.2},
+    {"t": 8.5, "kind": "snap", "label": "baked_tree_shadow_ingame2"},
+    {"t": 10.0, "kind": "report"}
+  ]
+}

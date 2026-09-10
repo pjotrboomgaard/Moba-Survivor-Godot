@@ -1,5 +1,5 @@
 {
-  "all_ok": false,
+  "all_ok": true,
   "checks": [
     {
       "detail": "hero=tobor",
@@ -17,7 +17,7 @@
       "ok": true
     },
     {
-      "detail": "label=lmb on_screen_frac=0.955 (expect >0.08)",
+      "detail": "label=lmb on_screen_frac=1.000 (expect >0.08)",
       "name": "probe_preview_screen_visible",
       "ok": true
     },
@@ -37,7 +37,7 @@
       "ok": true
     },
     {
-      "detail": "label=rmb on_screen_frac=0.870 (expect >0.08)",
+      "detail": "label=rmb on_screen_frac=1.000 (expect >0.08)",
       "name": "probe_preview_screen_visible",
       "ok": true
     },
@@ -62,7 +62,7 @@
       "ok": true
     },
     {
-      "detail": "label=nuke on_screen_frac=0.860 (expect >0.08)",
+      "detail": "label=nuke on_screen_frac=1.000 (expect >0.08)",
       "name": "probe_preview_screen_visible",
       "ok": true
     },
@@ -97,22 +97,22 @@
       "ok": true
     },
     {
-      "detail": "placed=30",
+      "detail": "placed=33",
       "name": "api_place_obstacles",
       "ok": true
     },
     {
-      "detail": "new_assets_with_sprite=5/4",
+      "detail": "new_assets_with_sprite=8/4",
       "name": "api_new_assets_have_sprite",
-      "ok": false
+      "ok": true
     },
     {
-      "detail": "placed=31",
+      "detail": "placed=34",
       "name": "api_place_landmark",
       "ok": true
     },
     {
-      "detail": "erased=true before=31 after=30",
+      "detail": "erased=true before=34 after=33",
       "name": "api_erase_obstacle",
       "ok": true
     },
@@ -132,7 +132,7 @@
       "ok": true
     },
     {
-      "detail": "placed=1094 in world=Frostmere Reach",
+      "detail": "placed=547 in world=Frostmere Reach",
       "name": "api_place_after_world_switch",
       "ok": true
     },
@@ -147,73 +147,73 @@
       "ok": true
     },
     {
-      "detail": "placed=20 (grass save, independent of ice)",
+      "detail": "placed=29 (grass save, independent of ice)",
       "name": "grass_save_independent_of_other_worlds",
       "ok": true
     }
   ],
-  "elapsed": 27.5024523333327,
+  "elapsed": 27.5073359999998,
   "shots": [
     {
       "err": 0,
       "label": "lobby",
-      "path": "user://ui_verify_shots/lobby_4285.png"
+      "path": "user://ui_verify_shots/lobby_5439.png"
     },
     {
       "err": 0,
       "label": "lmb_hover",
-      "path": "user://ui_verify_shots/lmb_hover_7293.png"
+      "path": "user://ui_verify_shots/lmb_hover_8438.png"
     },
     {
       "err": 0,
       "label": "rmb_hover",
-      "path": "user://ui_verify_shots/rmb_hover_10277.png"
+      "path": "user://ui_verify_shots/rmb_hover_11430.png"
     },
     {
       "err": 0,
       "label": "ability_preview_nuke",
-      "path": "user://ui_verify_shots/ability_preview_nuke_12777.png"
+      "path": "user://ui_verify_shots/ability_preview_nuke_13913.png"
     },
     {
       "err": 0,
       "label": "ability_preview_radius",
-      "path": "user://ui_verify_shots/ability_preview_radius_15277.png"
+      "path": "user://ui_verify_shots/ability_preview_radius_16439.png"
     },
     {
       "err": 0,
       "label": "ability_preview_summon",
-      "path": "user://ui_verify_shots/ability_preview_summon_17868.png"
+      "path": "user://ui_verify_shots/ability_preview_summon_18992.png"
     },
     {
       "err": 0,
       "label": "editor",
-      "path": "user://ui_verify_shots/editor_18376.png"
+      "path": "user://ui_verify_shots/editor_19472.png"
     },
     {
       "err": 0,
       "label": "editor_with_props",
-      "path": "user://ui_verify_shots/editor_with_props_21385.png"
+      "path": "user://ui_verify_shots/editor_with_props_22492.png"
     },
     {
       "err": 0,
       "label": "editor_final",
-      "path": "user://ui_verify_shots/editor_final_23885.png"
+      "path": "user://ui_verify_shots/editor_final_24981.png"
     },
     {
       "err": 0,
       "label": "world_volcano",
-      "path": "user://ui_verify_shots/world_volcano_25435.png"
+      "path": "user://ui_verify_shots/world_volcano_26522.png"
     },
     {
       "err": 0,
       "label": "world_ice_with_props",
-      "path": "user://ui_verify_shots/world_ice_with_props_28101.png"
+      "path": "user://ui_verify_shots/world_ice_with_props_28755.png"
     },
     {
       "err": 0,
       "label": "world_back_to_grass",
-      "path": "user://ui_verify_shots/world_back_to_grass_30106.png"
+      "path": "user://ui_verify_shots/world_back_to_grass_30772.png"
     }
   ],
-  "verdict": "FAIL"
+  "verdict": "PASS"
 }

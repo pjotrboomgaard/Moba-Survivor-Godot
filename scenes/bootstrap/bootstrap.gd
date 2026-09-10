@@ -1505,13 +1505,22 @@ func _layout_ability_hover_panel() -> void:
 		# Rendered ability preview: a real SubViewport running a mini game world where
 		# the hero bot casts the hovered ability on 3 standing creeps (actual in-game
 		# hero sprite + creeps + VFX, not a hand-drawn mimicry). See ability_preview_world.
+		# The preview is pinned to the BOTTOM of the panel, separated from the ability
+		# text by an expanding spacer, so it does not hug the description.
+		var spacer := layout.get_node_or_null("PreviewSpacer") as Control
+		if spacer == null:
+			spacer = Control.new()
+			spacer.name = "PreviewSpacer"
+			spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			layout.add_child(spacer)
 		var preview_node := layout.get_node_or_null("AbilityPreview")
 		if preview_node == null:
 			preview_node = AbilityPreviewWorldScene.instantiate()
 		ability_preview = preview_node as Node
 		ability_preview.name = "AbilityPreview"
 		ability_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		ability_preview.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		ability_preview.size_flags_vertical = Control.SIZE_SHRINK_END
 		ability_preview.custom_minimum_size = Vector2(340, 150)
 		ability_preview_world = ability_preview as AbilityPreviewWorld
 		if ability_preview.get_parent() != layout:

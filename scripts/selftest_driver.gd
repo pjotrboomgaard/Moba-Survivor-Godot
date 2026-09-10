@@ -516,19 +516,33 @@ func _focus_tree(event: Dictionary) -> void:
 	if arena == null or not (arena is Arena):
 		_active_effects.append({"kind": "focus_tree", "t": _elapsed, "error": "no arena"})
 		return
-	var tree: Obstacle = null
-	for obs in (arena as Arena).obstacles:
-		if obs == null or not is_instance_valid(obs):
-			continue
-		if str(obs.get("sprite_id")).contains("tree"):
-			tree = obs
+	# Trees now bake into the arena background (radius 0) instead of being live
+	# Obstacle nodes, so the first place to look is arena.baked_props. Fall back
+	# to live obstacles for editor playtests where the tree may still be a node.
+	var tree_pos: Vector2 = Vector2.ZERO
+	var tree_id := ""
+	var found := false
+	for prop in (arena as Arena).baked_props:
+		if str(prop.get("sprite", "")).contains("tree"):
+			tree_pos = prop.get("pos", Vector2.ZERO) as Vector2
+			tree_id = str(prop.get("sprite", ""))
+			found = true
 			break
-	if tree == null:
-		_active_effects.append({"kind": "focus_tree", "t": _elapsed, "error": "no tree obstacle"})
+	if not found:
+		for obs in (arena as Arena).obstacles:
+			if obs == null or not is_instance_valid(obs):
+				continue
+			if str(obs.get("sprite_id")).contains("tree"):
+				tree_pos = obs.global_position
+				tree_id = str(obs.get("sprite_id"))
+				found = true
+				break
+	if not found:
+		_active_effects.append({"kind": "focus_tree", "t": _elapsed, "error": "no tree obstacle or baked tree"})
 		return
 	if _player != null:
-		_player.global_position = tree.global_position + Vector2(70.0, 20.0)
-		_player.set_authority_command(Vector2.ZERO, tree.global_position, false, false, [false, false, false, false], false)
+		_player.global_position = tree_pos + Vector2(70.0, 20.0)
+		_player.set_authority_command(Vector2.ZERO, tree_pos, false, false, [false, false, false, false], false)
 	var vp := get_viewport()
 	var cam := vp.get_camera_2d() if vp != null else null
 	if cam != null:
@@ -539,9 +553,9 @@ func _focus_tree(event: Dictionary) -> void:
 		cam2.limit_right = 100000
 		cam2.limit_bottom = 100000
 		cam2.position_smoothing_enabled = false
-		cam2.global_position = tree.global_position + Vector2(30.0, 20.0)
+		cam2.global_position = tree_pos + Vector2(30.0, 20.0)
 		cam2.zoom = Vector2.ONE * float(event.get("zoom", 3.0))
-	_active_effects.append({"kind": "focus_tree", "label": str(event.get("label", "")), "t": _elapsed, "tree": str(tree.get("sprite_id")), "pos": tree.global_position})
+	_active_effects.append({"kind": "focus_tree", "label": str(event.get("label", "")), "t": _elapsed, "tree": tree_id, "pos": tree_pos})
 
 
 ## Snapshot every active landmark's gameplay state so the test report can assert against it.
