@@ -347,13 +347,81 @@ func _do_cast() -> void:
 	_hero.ability_cooldowns = [0.0, 0.0, 0.0, 0.0]
 	_hero.secondary_cooldown = 0.0
 	match ability_slot:
-		-1:  # LMB: hold the primary attack.
+		-1:  # LMB: hold the primary attack — spawn a visual projectile in the SubViewport.
 			_hero.command_attack = true
+			_spawn_lmb_projectile()
 		-2:  # RMB: fire the secondary.
 			_hero.command_secondary = true
 		_:   # Q/E/D/R kit ability: tap to arm + confirm.
 			_hero.scripted_tap_ability(ability_slot)
 			_hero.scripted_tap_ability(ability_slot)
+
+
+## Spawn a visual LMB projectile that flies from the hero to the nearest creep.
+## This is purely cosmetic — it runs inside the SubViewport world so the user
+## sees the weapon's shot animation in the ability preview.
+func _spawn_lmb_projectile() -> void:
+	if _hero == null or _creeps.is_empty():
+		return
+	var target := _creeps[0]
+	if target == null:
+		return
+	var origin := _hero.global_position
+	var dest := target.global_position
+	var direction := (dest - origin).normalized()
+	var dist := origin.distance_to(dest)
+	var speed := 900.0  # px/s — fast enough to read as a "shot"
+	var duration := dist / speed
+
+	# Simple visual: a small glowing dot that moves and fades out.
+	var proj := Node2D.new()
+	proj.position = origin
+	proj.z_index = 15
+	_world.add_child(proj)
+	_make_projectile_script(direction, dist, duration, _hero, proj)
+
+
+## Build and apply the GDScript that animates a single LMB projectile from
+## origin to target. The script self-moves, self-draws, and self-frees.
+func _make_projectile_script(direction: Vector2, dist: float, duration: float, hero: Player, proj: Node2D) -> void:
+	var color := _get_weapon_color()
+	var src_text := """
+extends Node2D
+var _dir: Vector2
+var _dist: float
+var _duration: float
+var _t: float = 0.0
+var _color: Color
+
+func setup(d: Vector2, dist: float, dur: float, color: Color) -> void:
+	_dir = d
+	_dist = dist
+	_duration = dur
+	_color = color
+
+func _process(delta: float) -> void:
+	_t += delta
+	if _t >= _duration:
+		queue_free()
+		return
+	position += _dir * (_dist * delta / _duration)
+	queue_redraw()
+
+func _draw() -> void:
+	draw_circle(Vector2.ZERO, 6.0, _color)
+	draw_circle(Vector2.ZERO, 3.0, Color(1.0, 1.0, 1.0, 0.9))
+"""
+	var script := GDScript.new()
+	script.source_code = src_text
+	script.reload(true)
+	proj.set_script(script)
+	proj.call("setup", direction, dist, duration, color)
+
+
+## Return the hero's primary weapon color for the projectile dot.
+func _get_weapon_color() -> Color:
+	var class_data := PlayerClass.by_id(hero_class_id)
+	return Color(class_data.effect_color) if not class_data.is_empty() else Color.WHITE
 
 
 func _reset_creeps() -> void:

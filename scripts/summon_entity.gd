@@ -130,6 +130,25 @@ func _on_health_changed(current: float, max_hp: float) -> void:
 		modulate = Color(1.0, 0.85, 0.7, 1.0)
 	elif frac >= 0.5:
 		modulate = Color.WHITE
+	queue_redraw()
+
+
+## Draw a small HP bar above turrets so their durability is visible in-game.
+func _draw() -> void:
+	if not is_turret or health == null:
+		return
+	var frac := clampf(health.current_health / maxf(1.0, health.max_health), 0.0, 1.0)
+	# Bar sits just above the sprite; only show when damaged.
+	if frac >= 1.0:
+		return
+	var bar_w := 40.0
+	var bar_h := 5.0
+	var bar_y := -34.0
+	# Backing
+	draw_rect(Rect2(-bar_w * 0.5, bar_y, bar_w, bar_h), Color(0.1, 0.1, 0.1, 0.6))
+	# Fill (green->yellow->red by fraction)
+	var fill_color := Color(0.3, 0.9, 0.3, 0.9) if frac > 0.5 else Color(0.95, 0.8, 0.2, 0.9) if frac > 0.25 else Color(0.95, 0.3, 0.2, 0.9)
+	draw_rect(Rect2(-bar_w * 0.5, bar_y, bar_w * frac, bar_h), fill_color)
 
 
 var _deploy_timer: float = 0.0
