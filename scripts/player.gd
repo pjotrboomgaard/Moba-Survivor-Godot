@@ -1986,10 +1986,11 @@ func _steam_cloud_tick(center: Vector2, radius: float, tick_power: float, tick_i
 		)
 
 
-## Steam Turret: one targetless cast plants an auto-firing steam turret at Wrench's feet.
-## Fast attack cadence chips nearby enemies; long-lived but disposable.
+## Steam Turret: place an auto-firing steam turret at the aim point (within range).
+## The turret chips nearby enemies for its lifetime. Placeable in-game — aim with the
+## cursor; bots place it between themselves and the nearest enemies.
 func _cast_ability_wrench_turret(data: Dictionary, values: Dictionary, _rank: int) -> void:
-	var landing := global_position + facing_direction * 18.0
+	var landing := _ability_aim_center(values.range)
 	_spawn_summon(data, values, landing)
 	SoundDirector.play_ability("tobor_steam_turret", global_position)
 	_emit_ability_cast(PackedVector2Array([global_position, landing]))
@@ -2833,6 +2834,20 @@ func _cast_ability_rime_freezing_field(data: Dictionary, values: Dictionary, _ra
 			enemy.apply_slow(0.35, 2.8)
 
 
+## Smooth point-to-point dash: tween global_position from the current spot to
+## `destination` over `duration` seconds. Very fast (snappy) but continuous — no
+## fade-out/fade-in teleport of the sprite. Cancels any previous dash tween so
+## rapid-cast dashes don't fight each other.
+var _dash_tween: Tween = null
+
+func _dash_to(destination: Vector2, duration: float = 0.14) -> void:
+	if _dash_tween != null and _dash_tween.is_valid():
+		_dash_tween.kill()
+	_dash_tween = create_tween()
+	# Shortest plausible time so it always "happens fast" but reads as a move.
+	_dash_tween.tween_property(self, "global_position", destination, duration)
+
+
 ## Riki-style Teleport Strike: pop behind the nearest enemy and hit them hard.
 func _cast_ability_blink_strike(data: Dictionary, values: Dictionary) -> void:
 	var reach := float(values.get("range", 360.0))
@@ -2841,7 +2856,7 @@ func _cast_ability_blink_strike(data: Dictionary, values: Dictionary) -> void:
 		return
 	var origin := global_position
 	var landing := nearest.global_position + (global_position - nearest.global_position).normalized() * 18.0
-	global_position = landing
+	_dash_to(landing, 0.12)
 	_apply_ability_hit(nearest, data, values)
 	_emit_ability_cast(PackedVector2Array([origin, landing, Vector2(48.0, 0.0)]))
 
@@ -3192,7 +3207,8 @@ func _cast_ability_dash_strike(data: Dictionary, values: Dictionary) -> void:
 	var hit_radius := float(values.dash_distance) * 0.5 + float(values.radius)
 	for target in _enemies_in_radius(midpoint, hit_radius):
 		_apply_ability_hit(target, data, values)
-	global_position = destination
+	# Smooth dash: move the sprite continuously (very fast) instead of instant teleport.
+	_dash_to(destination, 0.14)
 	# points: [origin, destination, Vector2(ring_radius, 0)] for the TELEPORT style.
 	_emit_ability_cast(PackedVector2Array([origin, destination, Vector2(float(values.radius) * 0.9, 0.0)]))
 	# Dragon Fire: the dash scorches a lingering trail of flame along the whole path.
@@ -3236,11 +3252,13 @@ func _cast_ability_blink(_data: Dictionary, values: Dictionary) -> void:
 	if direction.length_squared() <= 0.0:
 		direction = facing_direction
 	var origin := global_position
-	global_position += direction * values.dash_distance
-	for target in _enemies_in_radius(global_position, values.radius):
+	var destination := origin + direction * values.dash_distance
+	_dash_to(destination, 0.14)
+	# Hit is registered at destination (the tween moves the sprite; the hit is instant).
+	for target in _enemies_in_radius(destination, values.radius):
 		_apply_ability_hit(target, _data, values)
 	# points: [origin, destination, Vector2(ring_radius, 0)] for the TELEPORT style.
-	_emit_ability_cast(PackedVector2Array([origin, global_position, Vector2(float(values.radius) * 0.9, 0.0)]))
+	_emit_ability_cast(PackedVector2Array([origin, destination, Vector2(float(values.radius) * 0.9, 0.0)]))
 
 
 func _cast_ability_self_heal(data: Dictionary, values: Dictionary) -> void:
@@ -3787,9 +3805,10 @@ func _cast_secondary_bramble_snare() -> void:
 func _cast_secondary_windstep() -> void:
 	var dir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
 	var from := global_position
-	global_position += dir * (240.0 * _sec_radius_mult())
+	var dest := from + dir * (240.0 * _sec_radius_mult())
+	_dash_to(dest, 0.12)
 	var radius := 90.0 * _sec_radius_mult()
-	for target in _pvp_hosts_in_radius(from.lerp(global_position, 0.5), radius):
+	for target in _pvp_hosts_in_radius(from.lerp(dest, 0.5), radius):
 		if target.has_method("apply_slow"):
 			target.apply_slow(0.4, 1.4 * _sec_effect_mult())
 	_secondary_move_mult = 1.22

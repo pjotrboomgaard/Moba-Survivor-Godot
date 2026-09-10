@@ -58,6 +58,10 @@ var biome_from_cli := false
 var return_to_world_editor := false
 ## When true, Arena replaces auto-scatter with the saved editor layout for this biome.
 var use_editor_level := false
+## Optional explicit map name (without the world_editor_level_ prefix and .json
+## suffix). When set, editor_level_path() resolves to user://world_editor_level_<name>.json.
+## Lets the user tell the game exactly which "Save As" file to use.
+var custom_editor_level_name := ""
 ## Offline co-op stand-ins: spawn the other three playable heroes as CPU allies.
 var fill_cpu_allies := false
 ## FFA / Rift Clash split. NONE until a lobby or the FFA simulate button sets it.
@@ -154,13 +158,45 @@ func biome_key() -> String:
 
 
 func editor_level_path() -> String:
+	# An explicitly chosen "Save As" map overrides the biome default, so the user
+	# can tell the game exactly which map file to use.
+	if custom_editor_level_name:
+		return "user://world_editor_level_%s.json" % custom_editor_level_name
 	var key := biome_key()
 	if key.is_empty():
 		return "user://world_editor_level.json"
 	return "user://world_editor_level_%s.json" % key
 
 
+const _CUSTOM_MAP_FILE := "user://custom_editor_map.json"
+
+
+func persist_custom_map_name(name: String) -> void:
+	## Remember the chosen "Save As" map so it survives restarts / fresh games.
+	custom_editor_level_name = name
+	var file := FileAccess.open(_CUSTOM_MAP_FILE, FileAccess.WRITE)
+	if file == null:
+		return
+	file.store_string(JSON.stringify({"name": name}))
+	file.close()
+
+
+func _load_custom_map_name() -> void:
+	if not FileAccess.file_exists(_CUSTOM_MAP_FILE):
+		return
+	var f := FileAccess.open(_CUSTOM_MAP_FILE, FileAccess.READ)
+	if f == null:
+		return
+	var parsed = JSON.parse_string(f.get_as_text())
+	f.close()
+	if typeof(parsed) == TYPE_DICTIONARY:
+		var n := str(parsed.get("name", ""))
+		if n:
+			custom_editor_level_name = n
+
+
 func _ready() -> void:
+	_load_custom_map_name()
 	configure_from_arguments(_cli_arguments())
 	if is_ffa():
 		print("[runtime] FFA auto-start bots=%s args=%s" % [ffa_all_bots, ",".join(_cli_arguments())])

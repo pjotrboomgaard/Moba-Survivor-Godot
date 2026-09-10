@@ -135,6 +135,10 @@ var _mix_button: Button = null
 var _radius_slider: HSlider = null
 var _density_slider: HSlider = null
 var _sprawl_label: Label = null
+var _save_as_input: LineEdit = null
+var _save_as_data: Dictionary = {}
+var _load_as_input: LineEdit = null
+var _load_picker: Control = null
 
 var _obstacle_scene: PackedScene = load("res://scenes/arena/obstacle.tscn")
 
@@ -926,7 +930,7 @@ func _randomize() -> void:
 	_refresh_status()
 
 
-func _save() -> void:
+func _collect_level() -> Dictionary:
 	var data := {"obstacles": [], "landmarks": [], "features": [], "biome": GameRuntime.biome_id}
 	var baked_sprays: Dictionary = {}
 	if arena is Arena:
@@ -966,6 +970,11 @@ func _save() -> void:
 				"sprite": lm.sprite_name,
 				"hint": str(lm.get("_hint")),
 			})
+	return data
+
+
+func _save() -> void:
+	var data := _collect_level()
 	var path := _save_path_for_current_world()
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
@@ -979,23 +988,323 @@ func _save() -> void:
 		status_label.text = "saved %d props -> %s" % [data.obstacles.size() + data.features.size() + data.landmarks.size(), path]
 
 
-func _load() -> void:
-	var path := _save_path_for_current_world()
+func _show_status(text: String) -> void:
+	if status_label != null:
+		status_label.text = text
+
+
+func _save_as() -> void:
+	# Prompt the user for a file name, then save the current level to a new
+	# file so they can later tell the game exactly which map to use.
+	if _save_as_input != null and is_instance_valid(_save_as_input):
+		_show_status("already in Save As")
+		return
+	var data := _collect_level()
+	var prompt_bar := HBoxContainer.new()
+	prompt_bar.name = "SaveAsBar"
+	prompt_bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	prompt_bar.offset_left = 292.0
+	prompt_bar.offset_right = -12.0
+	prompt_bar.offset_top = 48.0
+	prompt_bar.offset_bottom = 72.0
+	prompt_bar.add_theme_constant_override("separation", 6)
+	var label := Label.new()
+	label.text = "Save As name:"
+	label.custom_minimum_size = Vector2(0, 0)
+	_save_as_input = LineEdit.new()
+	_save_as_input.placeholder_text = "my_map"
+	_save_as_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_save_as_input.submitted.connect(func(txt: String): _save_as_submit(txt, prompt_bar))
+	prompt_bar.add_child(label)
+	prompt_bar.add_child(_save_as_input)
+	var ok_btn := Button.new()
+	ok_btn.text = "OK"
+	ok_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ok_btn.custom_minimum_size = Vector2(0, 34)
+	ok_btn.pressed.connect(func(): _save_as_submit(_save_as_input.text, prompt_bar))
+	prompt_bar.add_child(ok_btn)
+	toolbar_layer.add_child(prompt_bar)
+	_save_as_input.grab_focus()
+	# Hide the status label so it doesn't overlap the prompt.
+	if status_label != null:
+		status_label.visible = false
+	# Save the collected data so _save_as_submit doesn't re-scan the scene.
+	_save_as_data = data
+
+
+func _save_as_submit(text: String, prompt_bar: HBoxContainer) -> void:
+	var name := _sanitize_map_name(text)
+	if name.is_empty():
+		_show_status("invalid name")
+		return
+	# Save to user://world_editor_level_<name>.json so the user can later
+	# tell the game exactly which map to use via GameRuntime.custom_editor_level_name.
+	var path := "user://world_editor_level_%s" % name
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		push_warning("[WorldEditor] Save As failed: %s" % error_string(FileAccess.get_open_error()))
+		_show_status("Save As failed")
+		_remove_save_as_bar(prompt_bar)
+		return
+	file.store_string(JSON.stringify(_save_as_data))
+	file.close()
+	# Point the game at this new map so the next Play/FFA uses it immediately.
+	var stem := name.trim_suffix(".json")
+	GameRuntime.persist_custom_map_name(stem)
+	# Also back the file up into the repo so it survives and is versioned.
+	_backup_level_to_repo(name, _save_as_data)
+	_remove_save_as_bar(prompt_bar)
+	_show_status("SAVED AS %s (%d props) — game now uses: %s" % [stem, _save_as_data.obstacles.size() + _save_as_data.features.size() + _save_as_data.landmarks.size(), path])
+	print("[WorldEditor] Saved As -> %s (custom_editor_level_name=%s)" % [path, stem])
+
+
+func _remove_save_as_bar(prompt_bar: HBoxContainer) -> void:
+	if is_instance_valid(prompt_bar):
+		prompt_bar.queue_free()
+	_save_as_input = null
+	if status_label != null:
+		status_label.visible = true
+
+
+func _sanitize_map_name(raw: String) -> String:
+	var n := raw.strip_edges()
+	n = n.replace(" ", "_").replace("/", "_").replace("\\", "_").replace(":", "_")
+	if n.is_empty():
+		return ""
+	if not n.ends_with(".json"):
+		n += ".json"
+	# Keep it reasonable in length.
+	if n.length() > 48:
+		n = n.left(48)
+	# Strip a trailing ".json.json" if it was doubled.
+	while n.ends_with(".json.json"):
+		n = n.left(n.length() - 6)
+	return n
+
+
+func _backup_level_to_repo(name: String, data: Dictionary) -> void:
+	# Write a copy into assets/levels/ so the map is versioned and survives
+	# even if user:// is wiped. Best-effort: silently skip on failure.
+	var repo_rel := "assets/levels/" + name
+	if not name.ends_with(".json"):
+		repo_rel += ".json"
+	var abs_path := ProjectSettings.globalize_path("res://") + repo_rel
+	var f := FileAccess.open(abs_path, FileAccess.WRITE)
+	if f == null:
+		return
+	f.store_string(JSON.stringify(data))
+	f.close()
+	print("[WorldEditor] Backed up level to repo: %s" % abs_path)
+
+
+func _load_as() -> void:
+	# Prompt the user for a saved map name (from a previous Save As), then load it.
+	if _load_as_input != null and is_instance_valid(_load_as_input):
+		_show_status("already in Load As")
+		return
+	var prompt_bar := HBoxContainer.new()
+	prompt_bar.name = "LoadAsBar"
+	prompt_bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	prompt_bar.offset_left = 292.0
+	prompt_bar.offset_right = -12.0
+	prompt_bar.offset_top = 48.0
+	prompt_bar.offset_bottom = 72.0
+	prompt_bar.add_theme_constant_override("separation", 6)
+	var label := Label.new()
+	label.text = "Load map:"
+	_load_as_input = LineEdit.new()
+	_load_as_input.placeholder_text = _list_saved_maps_summary()
+	_load_as_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_load_as_input.submitted.connect(func(txt: String): _load_as_submit(txt, prompt_bar))
+	prompt_bar.add_child(label)
+	prompt_bar.add_child(_load_as_input)
+	var ok_btn := Button.new()
+	ok_btn.text = "Load"
+	ok_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ok_btn.custom_minimum_size = Vector2(0, 34)
+	ok_btn.pressed.connect(func(): _load_as_submit(_load_as_input.text, prompt_bar))
+	prompt_bar.add_child(ok_btn)
+	toolbar_layer.add_child(prompt_bar)
+	_load_as_input.grab_focus()
+	if status_label != null:
+		status_label.visible = false
+
+
+func _load_as_submit(text: String, prompt_bar: HBoxContainer) -> void:
+	var name := _sanitize_map_name(text)
+	if name.is_empty():
+		_show_status("invalid name")
+		if is_instance_valid(prompt_bar):
+			prompt_bar.queue_free()
+		_load_as_input = null
+		if status_label != null:
+			status_label.visible = true
+		return
+	_load_named_map(name)
+	if is_instance_valid(prompt_bar):
+		prompt_bar.queue_free()
+	_load_as_input = null
+	if status_label != null:
+		status_label.visible = true
+
+
+func _load_named_map(name: String) -> void:
+	var path := "user://world_editor_level_%s" % name
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		print("[WorldEditor] No saved level at %s" % path)
+		_show_status("map not found: %s" % name)
 		return
 	var parsed = JSON.parse_string(file.get_as_text())
 	file.close()
 	if typeof(parsed) != TYPE_DICTIONARY:
-		push_warning("[WorldEditor] Invalid level file")
+		_show_status("invalid map file: %s" % name)
+		push_warning("[WorldEditor] Invalid level file: %s" % path)
 		return
 	if arena is Arena:
 		(arena as Arena).apply_saved_level(parsed as Dictionary)
 	_adopt_arena_props()
 	_undo_stack.clear()
 	_refresh_status()
-	print("[WorldEditor] Loaded %d props from %s" % [_placed, path])
+	_show_status("loaded %s (%d props)" % [name, _placed])
+	print("[WorldEditor] Loaded named map -> %s" % path)
+
+
+func _list_saved_maps() -> Array:
+	# List user:// for world_editor_level_<name>.json files (Save As outputs).
+	var names: Array = []
+	if not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path("user://")):
+		return names
+	var da := DirAccess.open(ProjectSettings.globalize_path("user://"))
+	if da == null:
+		return names
+	da.list_dir_begin()
+	var file_name := da.get_next()
+	while file_name != "":
+		if not da.current_is_dir():
+			if file_name.begins_with("world_editor_level_") and file_name.ends_with(".json"):
+				var stem := file_name.trim_prefix("world_editor_level_").trim_suffix(".json")
+				if not stem.is_empty():
+					names.append(stem)
+		file_name = da.get_next()
+	da.list_dir_end()
+	names.sort()
+	return names
+
+
+func _list_saved_maps_summary() -> String:
+	var names := _list_saved_maps()
+	if names.is_empty():
+		return "(no saved maps yet)"
+	return ", ".join(names)
+
+
+func _all_maps() -> Array:
+	## Return a list of all loadable maps: the current biome's default + all
+	## Save As outputs. Each entry: {"name": <stem or "" for default>, "label": ..., "path": ...}
+	var maps: Array = []
+	var key := GameRuntime.biome_key()
+	# The biome default map (always listed first).
+	if key.is_empty():
+		maps.append({"name": "", "label": "Grass (default)", "path": "user://world_editor_level.json"})
+	else:
+		maps.append({"name": key, "label": "%s (default)" % GameRuntime.biome_name().capitalize(), "path": "user://world_editor_level_%s.json" % key})
+	# Save As outputs (world_editor_level_<name>.json, name != biome key).
+	for stem in _list_saved_maps():
+		if stem == key or key.is_empty() and stem == "":
+			continue
+		var p := "user://world_editor_level_%s.json" % stem
+		if FileAccess.file_exists(p):
+			maps.append({"name": stem, "label": stem, "path": p})
+	return maps
+
+
+func _load() -> void:
+	# Open a picker that lists every saved map (biome defaults + Save As outputs)
+	# and lets the user click one to load it.
+	if _load_picker != null and is_instance_valid(_load_picker):
+		_show_status("already in Load picker")
+		return
+	var maps := _all_maps()
+	if maps.is_empty():
+		_show_status("no saved maps found")
+		return
+	var panel := VBoxContainer.new()
+	panel.name = "LoadPicker"
+	panel.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	panel.offset_left = 292.0
+	panel.offset_right = -12.0
+	panel.offset_top = 48.0
+	panel.offset_bottom = 420.0
+	panel.add_theme_constant_override("separation", 4)
+	var header := Label.new()
+	header.text = "Choose a map to load:"
+	panel.add_child(header)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_child(scroll)
+	var list_box := VBoxContainer.new()
+	list_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(list_box)
+	for m in maps:
+		var b := Button.new()
+		b.text = m.label
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.pressed.connect(func(): _load_pick(m.name, panel))
+		list_box.add_child(b)
+	var cancel := Button.new()
+	cancel.text = "Cancel"
+	cancel.size_flags_horizontal = Control.SIZE_SHRINK_END
+	cancel.pressed.connect(func(): _close_load_picker(panel))
+	panel.add_child(cancel)
+	_load_picker = panel
+	toolbar_layer.add_child(panel)
+	if status_label != null:
+		status_label.visible = false
+
+
+func _load_pick(name: String, panel: Control) -> void:
+	# Empty name == biome default. Otherwise it's a Save As stem.
+	if name.is_empty():
+		_load_default_map()
+	else:
+		_load_named_map(name)
+	_close_load_picker(panel)
+
+
+func _load_default_map() -> void:
+	var path := _save_path_for_current_world()
+	if not FileAccess.file_exists(path):
+		_show_status("no saved map for this biome")
+		return
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		_show_status("could not open %s" % path)
+		return
+	var parsed = JSON.parse_string(file.get_as_text())
+	file.close()
+	if typeof(parsed) != TYPE_DICTIONARY:
+		push_warning("[WorldEditor] Invalid level file")
+		_show_status("invalid level file")
+		return
+	if arena is Arena:
+		(arena as Arena).apply_saved_level(parsed as Dictionary)
+	_adopt_arena_props()
+	_undo_stack.clear()
+	_refresh_status()
+	# Clear any custom map pointer so the default biome map is used by the game.
+	GameRuntime.persist_custom_map_name("")
+	_show_status("loaded default map (%d props)" % _placed)
+	print("[WorldEditor] Loaded default map from %s" % path)
+
+
+func _close_load_picker(panel: Control) -> void:
+	_load_picker = null
+	if is_instance_valid(panel):
+		panel.queue_free()
+	if status_label != null:
+		status_label.visible = true
 
 
 func _playtest() -> void:
@@ -1090,8 +1399,10 @@ func _build_toolbar() -> void:
 	bar.add_child(_make_button("Next ]", "world_next"))
 	bar.add_child(_make_spacer())
 	bar.add_child(_make_button("Ctrl+S Save", "save"))
+	bar.add_child(_make_button("Save As", "save_as"))
 	bar.add_child(_make_button("Ctrl+Z Undo", "undo"))
 	bar.add_child(_make_button("O Load", "load"))
+	bar.add_child(_make_button("Load As", "load_as"))
 	bar.add_child(_make_button("F6 Play", "playtest"))
 	bar.add_child(_make_button("X Clear", "clear"))
 	bar.add_child(_make_button("Esc Back", "exit"))
@@ -1271,6 +1582,10 @@ func _on_button(action: String, arg: Variant) -> void:
 			_clear_placed()
 		"save":
 			_save()
+		"save_as":
+			_save_as()
+		"load_as":
+			_load_as()
 		"undo":
 			_undo()
 		"load":

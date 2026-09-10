@@ -40,6 +40,14 @@ var lightning_scene: PackedScene = preload("res://scenes/effects/lightning_effec
 var ability_vfx_scene: PackedScene = preload("res://scenes/effects/ability_vfx.tscn")
 var projectile_scene: PackedScene = preload("res://scenes/projectile/projectile.tscn")
 
+## Per-ability vector-effect dedup. When a hero (or a bot) spams the same ability,
+## each cast previously spawned a fresh full-screen LightningEffect; the stacked copies
+## overlaid on one another and read as a muddy blob. We now cap how many *same-ability*
+## vector flashes can live at once. When the cap is hit, the oldest one is released early
+## instead of stacking another copy.
+const _MAX_CONCURRENT_VECTOR_FX_PER_ABILITY := 3
+var _active_vector_fx: Array = []  # LightningEffect nodes added via _add_vector_fx()
+
 var players: Dictionary = {}
 var enemies: Dictionary = {}
 var xp_orbs: Dictionary = {}
@@ -2132,7 +2140,8 @@ func _play_secondary_fx(class_id: String, style: int, points: PackedVector2Array
 		if style_tag != "":
 			effect.style_tag = style_tag
 	effect.points = points
-	add_child(effect)
+	# Dedup: cap concurrent secondary FX per hero so rapid-cast secondaries don't stack.
+	_add_vector_fx(effect, "sec_" + class_id)
 	SoundDirector.play("cast_%s" % class_id, points[0] if points.size() > 0 else null)
 
 
@@ -2274,10 +2283,53 @@ const VECTOR_ONLY_KIT_IDS := {
 	"nebula_time_shift_blink": PlayerClass.EffectStyle.TELEPORT,
 }
 
+## Set of ability IDs that are a hero's ultimate (kit_r). These get a 2x longer vector
+## VFX lifetime so the big finisher reads heavier. Built lazily from PlayerClass so new
+## heroes' ults are picked up automatically.
+var _ULT_ABILITY_IDS: Dictionary = {}
+
+func _build_ult_ability_ids() -> void:
+	if not _ULT_ABILITY_IDS.is_empty():
+		return
+	for class_def in PlayerClass.CLASSES:
+		var r_id := str(class_def.get("kit_r", ""))
+		if not r_id.is_empty():
+			_ULT_ABILITY_IDS[r_id] = true
+
+
+## Add a vector LightningEffect while enforcing the per-ability dedup cap. Returns the
+## node so callers can still configure it; if the cap was hit, the oldest live effect for
+## that same key is freed early so the new cast reads cleanly instead of stacking.
+func _add_vector_fx(flash: LightningEffect, key: String) -> LightningEffect:
+	if flash == null:
+		return null
+	# Drop any stale entries (already queue_freed / no longer in tree).
+	_active_vector_fx.erase(null)
+	var same_key: Array = []
+	for e in _active_vector_fx:
+		if e != null and is_instance_valid(e) and e.get_meta("fx_key", "") == key:
+			same_key.append(e)
+	# Cap: free the oldest over-cap copies before adding the new one.
+	while same_key.size() >= _MAX_CONCURRENT_VECTOR_FX_PER_ABILITY:
+		var oldest: LightningEffect = same_key.pop_front()
+		_active_vector_fx.erase(oldest)
+		if is_instance_valid(oldest):
+			oldest.queue_free()
+	flash.set_meta("fx_key", key)
+	_active_vector_fx.append(flash)
+	add_child(flash)
+	flash.tree_exited.connect(_on_vector_fx_exited.bind(flash))
+	return flash
+
+
+func _on_vector_fx_exited(node: Node) -> void:
+	_active_vector_fx.erase(node)
+
 
 ## Cast animation for Pjotr-mode abilities. Pixel-art layered on vector flash unless the
 ## ability is in VECTOR_ONLY_KIT_IDS (HoN-faithful robot heroes) — those go pure vector.
 func _play_ability_effect(ability_id: String, effect_style: int, points: PackedVector2Array) -> void:
+	_build_ult_ability_ids()
 	print("[main] _play_ability_effect %s" % ability_id)
 	if GameRuntime.is_dedicated_server() or GameRuntime.is_classic():
 		return
@@ -2298,21 +2350,24 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 		flash.main_color = primary_color
 		flash.chain_color = secondary_color
 		# BLAST shatter is a short pop; BURST rings (Energy Field) can linger a beat longer.
+		var is_ult := _ULT_ABILITY_IDS.has(ability_id)
+		var lifetime_scale := 2.0 if is_ult else 1.0
 		if flash.style == PlayerClass.EffectStyle.BLAST:
-			flash.lifetime = 0.22
+			flash.lifetime = 0.22 * lifetime_scale
 		elif flash.style == PlayerClass.EffectStyle.BURST:
-			flash.lifetime = clampf(0.28 + (points[1].x if points.size() >= 2 else 80.0) / 1400.0, 0.28, 0.55)
+			flash.lifetime = clampf(0.28 + (points[1].x if points.size() >= 2 else 80.0) / 1400.0, 0.28, 0.55) * lifetime_scale
 		elif flash.style == PlayerClass.EffectStyle.TELEPORT:
 			# Blink duration scales with the travel distance so long dashes feel weightier.
+			# A dash is a *move*, not a nuke — keep it snappy; don't double it.
 			var dist := 0.0
 			if points.size() >= 2 and points[1] is Vector2:
 				dist = points[0].distance_to(points[1])
 			flash.lifetime = clampf(0.28 + dist / 1600.0, 0.28, 0.52)
 		else:
-			flash.lifetime = clampf(0.14 + (points[1].x if points.size() >= 2 else 80.0) / 900.0, 0.14, 0.42)
+			flash.lifetime = clampf(0.14 + (points[1].x if points.size() >= 2 else 80.0) / 900.0, 0.14, 0.42) * lifetime_scale
 		flash.points = points
 		KitFxLibrary.apply_to_lightning(flash, ability_id)
-		add_child(flash)
+		_add_vector_fx(flash, ability_id)
 		if not vector_only:
 			var vfx := ability_vfx_scene.instantiate() as AbilityVfx
 			vfx.configure(ability_id, effect_style, points)
