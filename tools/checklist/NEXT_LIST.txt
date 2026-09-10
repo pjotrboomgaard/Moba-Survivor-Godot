@@ -1,7 +1,7 @@
 # Coop-MOBA-Survivor - active task list (carried by check tool)
 # Format: "[ ] task" or "[x] task". Toggle in place. Unchecked items are kept.
 
-[ ] Town: 8 buildings + central square + well + sand texture (World 1 top-left), each editor-placeable
+[x] Town: 8 buildings + central square + well + sand texture (World 1 top-left), each editor-placeable  [DONE: gen_world1_town.gd + 1.8x scale + town_render_verify screenshot]
 [ ] World 1 bottom-left: big lagoon area (new assets, quest-interactive)
 [ ] World 1 top-right: inner forest with animals + quest elements (new assets)
 [ ] World 1 bottom-right: 4th interactive quest area (new assets)
