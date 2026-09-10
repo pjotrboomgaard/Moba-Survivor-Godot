@@ -1,5 +1,5 @@
 {
-  "all_ok": true,
+  "all_ok": false,
   "checks": [
     {
       "detail": "hero=tobor",
@@ -82,7 +82,7 @@
       "ok": true
     },
     {
-      "detail": "placed=223",
+      "detail": "placed=13",
       "name": "api_place_obstacles",
       "ok": true
     },
@@ -92,12 +92,12 @@
       "ok": true
     },
     {
-      "detail": "placed=224",
+      "detail": "placed=14",
       "name": "api_place_landmark",
       "ok": true
     },
     {
-      "detail": "erased=true before=224 after=223",
+      "detail": "erased=true before=14 after=13",
       "name": "api_erase_obstacle",
       "ok": true
     },
@@ -117,7 +117,7 @@
       "ok": true
     },
     {
-      "detail": "placed=452 in world=Frostmere Reach",
+      "detail": "placed=599 in world=Frostmere Reach",
       "name": "api_place_after_world_switch",
       "ok": true
     },
@@ -132,73 +132,73 @@
       "ok": true
     },
     {
-      "detail": "placed=441 (grass save, independent of ice)",
+      "detail": "placed=588 (grass save, independent of ice)",
       "name": "grass_save_independent_of_other_worlds",
-      "ok": true
+      "ok": false
     }
   ],
-  "elapsed": 27.505203575757,
+  "elapsed": 27.5025513333329,
   "shots": [
     {
       "err": 0,
       "label": "lobby",
-      "path": "user://ui_verify_shots/lobby_4895.png"
+      "path": "user://ui_verify_shots/lobby_4321.png"
     },
     {
       "err": 0,
       "label": "lmb_hover",
-      "path": "user://ui_verify_shots/lmb_hover_7913.png"
+      "path": "user://ui_verify_shots/lmb_hover_7313.png"
     },
     {
       "err": 0,
       "label": "rmb_hover",
-      "path": "user://ui_verify_shots/rmb_hover_10913.png"
+      "path": "user://ui_verify_shots/rmb_hover_10305.png"
     },
     {
       "err": 0,
       "label": "ability_preview_nuke",
-      "path": "user://ui_verify_shots/ability_preview_nuke_14581.png"
+      "path": "user://ui_verify_shots/ability_preview_nuke_12804.png"
     },
     {
       "err": 0,
       "label": "ability_preview_radius",
-      "path": "user://ui_verify_shots/ability_preview_radius_17074.png"
+      "path": "user://ui_verify_shots/ability_preview_radius_15304.png"
     },
     {
       "err": 0,
       "label": "ability_preview_summon",
-      "path": "user://ui_verify_shots/ability_preview_summon_19716.png"
+      "path": "user://ui_verify_shots/ability_preview_summon_17988.png"
     },
     {
       "err": 0,
       "label": "editor",
-      "path": "user://ui_verify_shots/editor_20204.png"
+      "path": "user://ui_verify_shots/editor_18488.png"
     },
     {
       "err": 0,
       "label": "editor_with_props",
-      "path": "user://ui_verify_shots/editor_with_props_23213.png"
+      "path": "user://ui_verify_shots/editor_with_props_21504.png"
     },
     {
       "err": 0,
       "label": "editor_final",
-      "path": "user://ui_verify_shots/editor_final_25712.png"
+      "path": "user://ui_verify_shots/editor_final_23997.png"
     },
     {
       "err": 0,
       "label": "world_volcano",
-      "path": "user://ui_verify_shots/world_volcano_27379.png"
+      "path": "user://ui_verify_shots/world_volcano_25663.png"
     },
     {
       "err": 0,
       "label": "world_ice_with_props",
-      "path": "user://ui_verify_shots/world_ice_with_props_29553.png"
+      "path": "user://ui_verify_shots/world_ice_with_props_27846.png"
     },
     {
       "err": 0,
       "label": "world_back_to_grass",
-      "path": "user://ui_verify_shots/world_back_to_grass_31562.png"
+      "path": "user://ui_verify_shots/world_back_to_grass_29838.png"
     }
   ],
-  "verdict": "PASS"
+  "verdict": "FAIL"
 }
