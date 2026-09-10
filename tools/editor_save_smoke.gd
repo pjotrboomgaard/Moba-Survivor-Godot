@@ -8,6 +8,16 @@ func _ready() -> void:
 	GameRuntime.set_biome(0, true)
 	GameRuntime.use_editor_level = false
 	var failed := 0
+	# Back up the user's real editor level so the save/load round-trip below can't clobber it.
+	var _lv_path := GameRuntime.editor_level_path()
+	var _backup_content := ""
+	var _had_backup := false
+	if FileAccess.file_exists(_lv_path):
+		var _rf := FileAccess.open(_lv_path, FileAccess.READ)
+		if _rf != null:
+			_backup_content = _rf.get_as_text()
+			_rf.close()
+			_had_backup = true
 	var packed: PackedScene = load("res://scenes/world_editor/world_editor.tscn")
 	var editor: WorldEditor = packed.instantiate()
 	add_child(editor)
@@ -72,6 +82,13 @@ func _ready() -> void:
 		failed += 1
 	else:
 		print("PASS flower survived save/load")
+	# Restore the user's real editor level so the test's save doesn't clobber it.
+	if _had_backup:
+		var _wr := FileAccess.open(_lv_path, FileAccess.WRITE)
+		if _wr != null:
+			_wr.store_string(_backup_content)
+			_wr.close()
+			print("Restored user editor level (%d bytes) from backup" % _backup_content.length())
 	if failed > 0:
 		printerr("editor_save_smoke FAILED %d" % failed)
 		get_tree().quit(1)
