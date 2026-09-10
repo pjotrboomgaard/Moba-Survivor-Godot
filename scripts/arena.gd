@@ -496,13 +496,6 @@ func rebuild() -> void:
 
 
 func _apply_editor_level_if_any() -> void:
-	# Grass biome (biome 0) uses the pure procedural world — dense trees, rocks,
-	# and 800 grass tufts scattered by _scatter_obstacles + _scatter_ground_cover.
-	# The saved editor level for grass is sparse (mostly a starter town) and would
-	# clobber the rich procedural scatter. Skip it for grass; apply it for other
-	# biomes where the user has intentionally authored a custom layout.
-	if GameRuntime.biome_id == 0:
-		return
 	var path := GameRuntime.editor_level_path()
 	if not FileAccess.file_exists(path):
 		return
@@ -554,12 +547,8 @@ func apply_saved_level(data: Dictionary) -> void:
 			String(entry.get("sprite", "")),
 			String(entry.get("hint", ""))
 		)
-	# clear_editable_props() wiped the procedurally-scattered obstacles (trees,
-	# rocks) and ground cover (grass/flowers). Re-scatter both so the "regular map"
-	# is dense — procedural trees/rocks + user-placed props + 800 grass tufts —
-	# rather than just the sparse editor level.
-	_scatter_obstacles()
-	_scatter_ground_cover()
+	# The saved level now includes the full procedural scatter (trees, rocks,
+	# grass tufts) plus any user-placed props, so no re-scatter is needed here.
 	queue_redraw()
 	landmarks_changed.emit()
 
