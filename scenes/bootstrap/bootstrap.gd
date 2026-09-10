@@ -2,6 +2,7 @@ extends Node
 
 const RunSave := preload("res://scripts/run_save.gd")
 const AbilityPreviewScript := preload("res://scenes/bootstrap/ability_preview.gd")
+const AbilityPreviewWorldScene := preload("res://scenes/bootstrap/ability_preview_world.tscn")
 
 const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 
@@ -59,6 +60,7 @@ var rmb_slot_button: Button = null
 var ability_hover_icon: TextureRect = null
 var ability_hover_body: RichTextLabel = null
 var ability_preview: Node = null
+var ability_preview_world: AbilityPreviewWorld = null
 
 var _ability_panel_hero_id: String = ""
 var _pending_run_save: Dictionary = {}
@@ -397,6 +399,7 @@ func _sync_steam_display_name() -> void:
 
 func _process(delta: float) -> void:
 	_process_hero_hover_walk(delta)
+	_update_preview_viewport()
 	if _waiting_steam_operation:
 		_steam_operation_elapsed += delta
 		if _steam_operation_elapsed >= STEAM_OPERATION_TIMEOUT:
@@ -1319,13 +1322,47 @@ func _on_ability_slot_unhover() -> void:
 	_hide_ability_hover()
 
 
+## Maps an ability id to its slot index (0..3) in the given hero's current loadout.
+## Returns -1 if not found (e.g. a secondary id not in the kit).
+func _ability_slot_index_for(hero_id: String, ability_id: String) -> int:
+	var ids := _hero_ability_ids(hero_id)
+	for i in ids.size():
+		if str(ids[i]) == ability_id:
+			return i
+	return -1
+
+
+## Keep the preview SubViewport sized to the visible preview Control so the mini world
+## fills the hover panel's preview area (and scales with the window). Called every
+## frame from _process — cheap when the panel is hidden (skips work).
+func _update_preview_viewport() -> void:
+	if ability_preview == null or not ability_preview.visible:
+		return
+	var svp := ability_preview.get_node_or_null("AbilitySubViewport") as SubViewport
+	if svp == null:
+		return
+	# A SubViewport that is a child of a CanvasItem renders into the main viewport at
+	# the control's local origin, so just keep it sized to the control's rect.
+	var rect: Rect2 = ability_preview.get_global_rect()
+	svp.size = Vector2i(maxi(8, int(rect.size.x)), maxi(8, int(rect.size.y)))
+	# Center the world's action in the viewport.
+	var world := svp.get_node_or_null("AbilityPreviewWorld") as AbilityPreviewWorld
+	if world != null:
+		# Nudge the world's camera-independent framing: the world's _draw already centers
+		# the action around origin, so just keep the viewport origin at the control origin.
+		pass
+
+
 func _on_lmb_hover() -> void:
 	var hero_id := PlayerProfile.selected_class_id
 	_show_lmb_hover(hero_id)
 
 
 func _on_rmb_hover() -> void:
-	var hero_id := PlayerProfile.selected_class_id
+	_show_rmb_hover(PlayerProfile.selected_class_id)
+
+
+func _show_rmb_hover(hero_id: String) -> void:
 	var sec_info := PlayerClass.secondary_info_for_class(hero_id)
 	var sec_name := str(sec_info.get("name", "Secondary"))
 	var sec_charge := bool(sec_info.get("charge", false))
@@ -1344,8 +1381,10 @@ func _on_rmb_hover() -> void:
 	elif ability_hero_blurb != null:
 		ability_hero_blurb.visible = true
 		ability_hero_blurb.text = sec_name
+	# Show a preview of the hero performing its secondary on the creeps.
 	if ability_preview != null:
-		ability_preview.visible = false
+		ability_preview.configure("secondary")
+		ability_preview.visible = true
 	ability_panel.visible = true
 	_raise_ability_hover()
 
@@ -1480,8 +1519,10 @@ func _show_lmb_hover(hero_id: String) -> void:
 	elif ability_hero_blurb != null:
 		ability_hero_blurb.visible = true
 		ability_hero_blurb.text = "%s — primary attack" % weapon_name
+	# Simulated preview: loops the LMB effect on the 3 creeps.
 	if ability_preview != null:
-		ability_preview.visible = false
+		ability_preview.configure("lmb_" + hero_id)
+		ability_preview.visible = true
 	ability_panel.visible = true
 
 
@@ -1499,6 +1540,7 @@ func _show_ability_hover(ability_id: String) -> void:
 	elif ability_hero_blurb != null:
 		ability_hero_blurb.visible = true
 		ability_hero_blurb.text = _format_ability_tooltip(ability_id).replace("[b]", "").replace("[/b]", "").replace("[color=9fb3d1]", "").replace("[/color]", "")
+	# Simulated preview: loops this ability's effect on the 3 creeps.
 	if ability_preview != null:
 		ability_preview.configure(ability_id)
 		ability_preview.visible = true

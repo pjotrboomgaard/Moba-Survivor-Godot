@@ -150,16 +150,14 @@ func _hover_rmb() -> void:
 		_check("hover_rmb_bootstrap", false, "current_scene not found")
 		return
 	var hero_id := PlayerProfile.selected_class_id
-	var secondary_id := str(PlayerClass.by_id(hero_id).get("secondary", ""))
-	if secondary_id.is_empty() or not PlayerClass.ABILITIES.has(secondary_id):
-		_check("hover_rmb_no_secondary", true, "hero=" + hero_id + " has no secondary (expected)")
-		return
-	if bootstrap.has_method("_show_ability_hover"):
-		bootstrap._show_ability_hover(secondary_id)
-		_check("hover_rmb", true, "hero=" + hero_id + " secondary=" + secondary_id)
-		_print("[ui-verify] hovered RMB (" + secondary_id + ") for " + hero_id)
+	# Every hero has a right-click secondary (a secondary_kind, not an ABILITIES entry),
+	# so just call the dedicated RMB hover which now shows a full card.
+	if bootstrap.has_method("_show_rmb_hover"):
+		bootstrap._show_rmb_hover(hero_id)
+		_check("hover_rmb", true, "hero=" + hero_id + " (all heroes have a secondary)")
+		_print("[ui-verify] hovered RMB for " + hero_id)
 	else:
-		_check("hover_rmb_method", false, "no _show_ability_hover method")
+		_check("hover_rmb_method", false, "no _show_rmb_hover method")
 
 
 func _press_editor_button() -> void:
