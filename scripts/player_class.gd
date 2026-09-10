@@ -2395,13 +2395,64 @@ static func random_upgrade_ids(class_id: String, amount: int = 4, known: Array =
 	var ability_ids := ability_offer_ids(class_id, known_entries, 6)
 	var class_upgrades: Array = by_id(class_id).get("upgrades", [])
 	var mixed := UpgradeCatalog.mixed_offer(ability_ids, class_upgrades, offer_level, amount)
-	if not mixed.is_empty():
-		return mixed
+	# Ability-unlock system: if the hero still has locked abilities (rank 0), the
+	# level-up MUST always offer at least one "unlock" choice so they can grow their
+	# kit. Guarantee a locked-ability token is present; if it's missing, replace a
+	# random stat slot with it (unlocking new abilities is the priority over stats
+	# while the kit isn't full).
+	var mixed_out: Array[String] = []
+	for t in mixed:
+		mixed_out.append(str(t))
+	if _locked_ids_from_known(known_entries) and not _contains_locked_token(mixed_out, known_entries):
+		var locked_pick := _pick_a_locked_id(known_entries)
+		if not locked_pick.is_empty():
+			# Drop one stat token and inject the unlock instead.
+			var stat_index := -1
+			for i in mixed_out.size():
+				if not UpgradeCatalog.is_ability_token(mixed_out[i]):
+					stat_index = i
+					break
+			if stat_index >= 0:
+				mixed_out[stat_index] = UpgradeCatalog.ABILITY_PREFIX + locked_pick
+			else:
+				mixed_out.append(UpgradeCatalog.ABILITY_PREFIX + locked_pick)
+	if not mixed_out.is_empty():
+		return mixed_out
 	var pool: Array[String] = []
 	for upgrade_id in by_id(class_id).upgrades:
 		pool.append(upgrade_id)
 	pool.shuffle()
 	return pool.slice(0, amount)
+
+
+## Ability-unlock helpers: given a hero's known_abilities entries, report whether any
+## slot is still locked (rank 0), and whether a candidate offer list already contains a
+## token that unlocks one of them. These keep the "always offer a new ability until all
+## are unlocked" rule centralized so both solo and FFA share the same behaviour.
+static func _locked_ids_from_known(known: Array[Dictionary]) -> Array[String]:
+	var out: Array[String] = []
+	for entry in known:
+		if entry is Dictionary and int((entry as Dictionary).get("rank", 1)) < 1:
+			out.append(str((entry as Dictionary).id))
+	return out
+
+
+static func _pick_a_locked_id(known: Array[Dictionary]) -> String:
+	var locked := _locked_ids_from_known(known)
+	if locked.is_empty():
+		return ""
+	return locked.pick_random()
+
+
+static func _contains_locked_token(tokens: Array[String], known: Array[Dictionary]) -> bool:
+	var locked := _locked_ids_from_known(known)
+	if locked.is_empty():
+		return false
+	for token in tokens:
+		if UpgradeCatalog.is_ability_token(token):
+			if locked.has(UpgradeCatalog.ability_id_from(token)):
+				return true
+	return false
 
 
 static func upgrade_info(upgrade_id: String) -> Dictionary:

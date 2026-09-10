@@ -534,8 +534,17 @@ func _apply_kit_abilities() -> void:
 		var ability_id := String(loadout[slot_index])
 		if ability_id.is_empty() or not PlayerClass.ABILITIES.has(ability_id):
 			continue
-		known_abilities.append({"id": ability_id, "rank": 1})
+		# Ability-unlock system: the hero starts with ONLY their primary slot (index 0,
+		# "Q") usable. Every other slot exists but is locked (rank 0) and is unlocked via
+		# a level-up "unlock" offer. Rank 0 means "known but not yet unlocked".
+		var start_rank := 1 if slot_index == 0 else 0
+		known_abilities.append({"id": ability_id, "rank": start_rank})
 		cooldowns.append(0.0)
+	# Classic mode keeps the legacy full kit (no unlock gating) so it matches its
+	# simpler design; only the modern modes gate behind the unlock flow.
+	if GameRuntime.is_classic():
+		for entry in known_abilities:
+			entry.rank = maxi(1, int(entry.rank))
 	ability_cooldowns = cooldowns
 
 
@@ -1264,6 +1273,21 @@ func learn_ability(ability_id: String) -> void:
 		ability_cooldowns.append(0.0)
 
 
+## Ability-unlock system: ids of abilities the hero holds but has not yet unlocked
+## (rank 0). Empty means the full kit is available.
+func locked_ability_ids() -> Array[String]:
+	var out: Array[String] = []
+	for entry in known_abilities:
+		if int(entry.rank) < 1:
+			out.append(str(entry.id))
+	return out
+
+
+## True while any ability slot is still locked (rank 0).
+func has_locked_abilities() -> bool:
+	return not locked_ability_ids().is_empty()
+
+
 func upgrade_ability(ability_id: String) -> void:
 	if simulation_mode == SimulationMode.PROXY:
 		return
@@ -1426,6 +1450,12 @@ func _update_ability_slots(delta: float, slots_held: Array) -> void:
 	_tick_cooldowns(delta)
 	for slot in known_abilities.size():
 		if slot >= slots_held.size():
+			continue
+		# Ability-unlock gating: a locked slot (rank 0) cannot be cast. It is
+		# unlocked via a level-up "unlock" offer which bumps the rank to 1.
+		if int(known_abilities[slot].rank) < 1:
+			if slot < _slots_held_prev.size():
+				_slots_held_prev[slot] = bool(slots_held[slot])
 			continue
 		var held := bool(slots_held[slot])
 		var was_held := slot < _slots_held_prev.size() and _slots_held_prev[slot]

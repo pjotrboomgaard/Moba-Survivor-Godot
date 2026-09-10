@@ -1,0 +1,11 @@
+{
+  "hero": "arclight",
+  "mode": "solo_survival",
+  "comment": "Verify ability-unlock flow. Start: only Q (rank 1), slots 1-3 locked (rank 0). Force to level 4 so the selftest auto-picks offers; assert an unlock token was offered & applied (at least one of slots 1-3 reaches rank >= 1).",
+  "events": [
+    {"t": 0.5, "kind": "probe", "label": "start"},
+    {"t": 0.6, "kind": "force_level", "levels": 4},
+    {"t": 1.2, "kind": "probe", "label": "after_levels"},
+    {"t": 1.4, "kind": "report"}
+  ]
+}

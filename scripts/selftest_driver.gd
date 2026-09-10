@@ -489,6 +489,10 @@ func _process(delta: float) -> void:
 				_set_hp_fraction(float(event.get("fraction", 0.5)))
 			"pick_upgrade":
 				_pick_upgrade_index(int(event.get("index", 0)))
+			"pick_unlock":
+				# Find the first pending offer token that is an ability with rank 0
+				# (a locked ability) and pick it — exercises the "unlock" flow.
+				_pick_unlock_ability()
 			"skip_wave":
 				_dev_skip_wave()
 			"dev_command":
@@ -661,7 +665,26 @@ func _record_probe(label: String) -> void:
 		"teleporters": _teleporter_pads(),
 		"obstacle_count": _obstacle_count(),
 		"recruits": _recruit_probe(),
+		"pending_upgrade_ids": _pending_offers("pending_upgrades"),
+		"pending_ability_ids": _pending_offers("pending_ability_offers"),
 	})
+
+
+## Read the host's pending offer lists (stat + ability) for the local hero so a test
+## can assert an "unlock" token is present when the kit isn't full.
+func _pending_offers(field: String) -> Array:
+	if _host_main == null:
+		return []
+	var dict: Variant = _host_main.get(field)
+	if not (dict is Dictionary):
+		return []
+	var d := dict as Dictionary
+	var ids: Variant = d.get(_player.owner_peer_id, [])
+	var out: Array = []
+	if ids is Array:
+		for id in ids:
+			out.append(str(id))
+	return out
 
 
 ## All players' world-space positions, keyed by peer_id. Used to verify the FFA intro
@@ -934,6 +957,46 @@ func _pick_upgrade_index(index: int) -> void:
 		"upgrade_id": upgrade_id,
 		"cooldowns_before": cooldowns_before,
 		"pending_slot_before": pending_slot_before,
+		"t": _elapsed,
+	})
+
+
+## Pick the first pending offer that would unlock a currently-locked ability
+## (rank 0 -> 1). Falls back to the first pending upgrade if none qualify.
+func _pick_unlock_ability() -> void:
+	if _host_main == null:
+		_active_effects.append({"kind": "pick_unlock", "error": "no host", "t": _elapsed})
+		return
+	if _player == null:
+		_active_effects.append({"kind": "pick_unlock", "error": "no player", "t": _elapsed})
+		return
+	var peer_id: int = _player.owner_peer_id
+	var pending: Array = _host_main.pending_upgrades.get(peer_id, [])
+	if pending.is_empty():
+		_active_effects.append({"kind": "pick_unlock", "error": "no pending offers", "t": _elapsed})
+		return
+	var chosen := -1
+	for i in pending.size():
+		var token := str(pending[i])
+		var up: Array = _host_main.pending_upgrades.get(peer_id, [])
+		# The mixed offer uses "ability:<id>" tokens; detect a locked target.
+		if token.begins_with("ability:"):
+			var ability_id := token.substr("ability:".length())
+			for entry in _player.known_abilities:
+				if str(entry.get("id", "")) == ability_id and int(entry.get("rank", 1)) < 1:
+					chosen = i
+					break
+		if chosen >= 0:
+			break
+	if chosen < 0:
+		chosen = 0
+	var chosen_id := str(pending[chosen])
+	_host_main._apply_upgrade_choice(peer_id, chosen_id)
+	_active_effects.append({
+		"kind": "pick_unlock",
+		"index": chosen,
+		"upgrade_id": chosen_id,
+		"abilities_after": (_player.known_abilities.duplicate() if _player.known_abilities else []),
 		"t": _elapsed,
 	})
 

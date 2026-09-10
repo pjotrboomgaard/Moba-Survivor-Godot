@@ -4,7 +4,7 @@
       "kind": "landmarks",
       "label": "ffa_landmarks",
       "list": [],
-      "t": 0.806242
+      "t": 0.806116666666666
     },
     {
       "abilities": [
@@ -35,14 +35,14 @@
       ],
       "enemies_alive": 0,
       "ffa": {
-        "all_bots": false,
+        "all_bots": true,
         "count": 4,
         "enabled": true,
         "heroes": [
           {
             "alive": true,
             "class": "tobor",
-            "cpu": false,
+            "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
@@ -108,8 +108,10 @@
       "last_tapped": -1,
       "level": 1,
       "obstacle_count": 17,
+      "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
+      "pending_upgrade_ids": [],
       "player_positions": {
         "1": {
           "locked": true,
@@ -140,7 +142,7 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 1.00366522222222,
+      "t": 1.00611666666667,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
@@ -168,40 +170,40 @@
       "biome_id": 0,
       "biome_name": "Verdant Hollow",
       "cds": [
+        16.7513333333338,
+        14.3933333333333,
         0.0,
-        0.0,
-        0.0,
-        0.0
+        191.133333333333
       ],
       "enemies_alive": 0,
       "ffa": {
-        "all_bots": false,
+        "all_bots": true,
         "count": 4,
         "enabled": true,
         "heroes": [
           {
             "alive": true,
             "class": "tobor",
-            "cpu": false,
+            "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              820.0,
-              -1.0
+              -105.0,
+              -146.0
             ],
             "team": ""
           },
           {
-            "alive": true,
+            "alive": false,
             "class": "cinder",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              111.0,
-              1394.0
+              69.0,
+              -97.0
             ],
             "team": "1"
           },
@@ -209,12 +211,12 @@
             "alive": true,
             "class": "pyra",
             "cpu": true,
-            "kills": 0,
+            "kills": 1,
             "local": false,
             "peer": 102,
             "pos": [
-              -104.0,
-              -423.0
+              -45.0,
+              -271.0
             ],
             "team": "2"
           },
@@ -226,8 +228,8 @@
             "local": false,
             "peer": 103,
             "pos": [
-              -123.0,
-              -444.0
+              62.0,
+              -572.0
             ],
             "team": "3"
           }
@@ -238,34 +240,36 @@
           5600.0
         ]
       },
-      "gold": 0,
+      "gold": 138,
       "hero": "tobor",
-      "hp": 110.62,
-      "hp_frac": 0.930361648444071,
+      "hp": 118.9,
+      "hp_frac": 1.0,
       "hp_max": 118.9,
       "kind": "probe",
       "label": "ffa_15s",
       "last_tapped": -1,
-      "level": 1,
-      "obstacle_count": 31,
+      "level": 3,
+      "obstacle_count": 17,
+      "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
+      "pending_upgrade_ids": [],
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(820.2047, -0.867049)"
+          "pos": "(-104.5737, -146.378)"
         },
         "101": {
           "locked": false,
-          "pos": "(110.8909, 1394.098)"
+          "pos": "(69.42815, -97.29892)"
         },
         "102": {
           "locked": false,
-          "pos": "(-103.7961, -423.4544)"
+          "pos": "(-44.76917, -271.135)"
         },
         "103": {
           "locked": false,
-          "pos": "(-122.6029, -444.4996)"
+          "pos": "(62.12162, -571.7271)"
         }
       },
       "pvp_invuln": 0.0,
@@ -279,12 +283,12 @@
         "arts": [],
         "minions": 0
       },
-      "summons": 0,
-      "t": 15.0061016666666,
+      "summons": 1,
+      "t": 15.0011156363635,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
-      "xp": 48
+      "xp": 35
     },
     {
       "abilities": [
@@ -308,53 +312,53 @@
       "biome_id": 0,
       "biome_name": "Verdant Hollow",
       "cds": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
+        1.75133333333343,
+        16.56,
+        17.8533333333334,
+        176.133333333321
       ],
       "enemies_alive": 0,
       "ffa": {
-        "all_bots": false,
+        "all_bots": true,
         "count": 4,
         "enabled": true,
         "heroes": [
           {
-            "alive": false,
+            "alive": true,
             "class": "tobor",
-            "cpu": false,
+            "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              783.0,
-              3.0
+              68.0,
+              -1146.0
             ],
             "team": ""
           },
           {
-            "alive": true,
+            "alive": false,
             "class": "cinder",
             "cpu": true,
-            "kills": 1,
+            "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              -185.0,
-              1072.0
+              69.0,
+              -97.0
             ],
             "team": "1"
           },
           {
-            "alive": false,
+            "alive": true,
             "class": "pyra",
             "cpu": true,
-            "kills": 0,
+            "kills": 2,
             "local": false,
             "peer": 102,
             "pos": [
-              -183.0,
-              -296.0
+              -1.0,
+              -1141.0
             ],
             "team": "2"
           },
@@ -362,12 +366,12 @@
             "alive": false,
             "class": "tobor",
             "cpu": true,
-            "kills": 1,
+            "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              81.0,
-              105.0
+              616.0,
+              -1647.0
             ],
             "team": "3"
           }
@@ -378,34 +382,36 @@
           5600.0
         ]
       },
-      "gold": 0,
+      "gold": 305,
       "hero": "tobor",
-      "hp": 0.0,
-      "hp_frac": 0.0,
+      "hp": 118.9,
+      "hp_frac": 1.0,
       "hp_max": 118.9,
       "kind": "probe",
       "label": "ffa_30s",
       "last_tapped": -1,
-      "level": 1,
-      "obstacle_count": 31,
+      "level": 4,
+      "obstacle_count": 17,
+      "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
+      "pending_upgrade_ids": [],
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(782.7455, 3.179669)"
+          "pos": "(68.27586, -1146.106)"
         },
         "101": {
           "locked": false,
-          "pos": "(-184.7555, 1072.48)"
+          "pos": "(69.42815, -97.29892)"
         },
         "102": {
           "locked": false,
-          "pos": "(-182.7102, -296.2294)"
+          "pos": "(-0.502615, -1140.519)"
         },
         "103": {
           "locked": false,
-          "pos": "(81.39971, 105.2725)"
+          "pos": "(615.7986, -1647.382)"
         }
       },
       "pvp_invuln": 0.0,
@@ -419,12 +425,12 @@
         "arts": [],
         "minions": 0
       },
-      "summons": 0,
-      "t": 30.0014043333328,
+      "summons": 4,
+      "t": 30.0038599999994,
       "teleporters": [],
       "wave": 2,
       "wave_name": "Growing Numbers",
-      "xp": 48
+      "xp": 0
     },
     {
       "abilities": [
@@ -448,27 +454,27 @@
       "biome_id": 0,
       "biome_name": "Verdant Hollow",
       "cds": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
+        11.0013333333336,
+        1.55999999999969,
+        2.85333333333311,
+        161.133333333309
       ],
       "enemies_alive": 0,
       "ffa": {
-        "all_bots": false,
+        "all_bots": true,
         "count": 4,
         "enabled": true,
         "heroes": [
           {
-            "alive": false,
+            "alive": true,
             "class": "tobor",
-            "cpu": false,
+            "cpu": true,
             "kills": 0,
             "local": true,
             "peer": 1,
             "pos": [
-              783.0,
-              3.0
+              -462.0,
+              -797.0
             ],
             "team": ""
           },
@@ -476,25 +482,25 @@
             "alive": true,
             "class": "cinder",
             "cpu": true,
-            "kills": 1,
+            "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              627.0,
-              1261.0
+              2965.0,
+              -2042.0
             ],
             "team": "1"
           },
           {
-            "alive": false,
+            "alive": true,
             "class": "pyra",
             "cpu": true,
-            "kills": 0,
+            "kills": 2,
             "local": false,
             "peer": 102,
             "pos": [
-              -183.0,
-              -296.0
+              -176.0,
+              -758.0
             ],
             "team": "2"
           },
@@ -502,12 +508,12 @@
             "alive": false,
             "class": "tobor",
             "cpu": true,
-            "kills": 1,
+            "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              81.0,
-              105.0
+              616.0,
+              -1647.0
             ],
             "team": "3"
           }
@@ -518,34 +524,36 @@
           5600.0
         ]
       },
-      "gold": 0,
+      "gold": 411,
       "hero": "tobor",
-      "hp": 0.0,
-      "hp_frac": 0.0,
+      "hp": 118.9,
+      "hp_frac": 1.0,
       "hp_max": 118.9,
       "kind": "probe",
       "label": "ffa_45s",
       "last_tapped": -1,
-      "level": 1,
-      "obstacle_count": 31,
+      "level": 6,
+      "obstacle_count": 17,
+      "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
+      "pending_upgrade_ids": [],
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(782.7455, 3.179669)"
+          "pos": "(-461.6459, -796.7054)"
         },
         "101": {
           "locked": false,
-          "pos": "(627.2491, 1260.717)"
+          "pos": "(2965.32, -2041.533)"
         },
         "102": {
           "locked": false,
-          "pos": "(-182.7102, -296.2294)"
+          "pos": "(-176.2814, -757.8004)"
         },
         "103": {
           "locked": false,
-          "pos": "(81.39971, 105.2725)"
+          "pos": "(615.7986, -1647.382)"
         }
       },
       "pvp_invuln": 0.0,
@@ -559,44 +567,67 @@
         "arts": [],
         "minions": 0
       },
-      "summons": 0,
-      "t": 45.0021822424234,
+      "summons": 1,
+      "t": 45.0066443333325,
       "teleporters": [],
       "wave": 2,
       "wave_name": "Growing Numbers",
-      "xp": 48
+      "xp": 96
     }
   ],
-  "elapsed": 45.5076953333325,
+  "elapsed": 45.5045406445398,
   "enemies_spawned": 0,
-  "hero_position": "(782.7455, 3.179669)",
+  "hero_position": "(-390.5634, -782.3089)",
   "player_class": "tobor",
   "results": {
-    "alive": false,
+    "alive": true,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 0,
-    "casts": [],
-    "creep_kills": 0,
-    "died": true,
-    "errors": [
-      "never fought: casts=0 gold=0 kills=0 creep_kills=0"
+    "cast_count": 6,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 8.06742424242442
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 12.2278096666667
+      },
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 14.1276706666666
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 29.1288599999994
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 29.3955266666661
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 32.311264666666
+      }
     ],
+    "creep_kills": 20,
+    "died": false,
+    "errors": [],
     "ffa": {
-      "all_bots": false,
+      "all_bots": true,
       "count": 4,
       "enabled": true,
       "heroes": [
         {
-          "alive": false,
+          "alive": true,
           "class": "tobor",
-          "cpu": false,
+          "cpu": true,
           "kills": 0,
           "local": true,
           "peer": 1,
           "pos": [
-            783.0,
-            3.0
+            -391.0,
+            -782.0
           ],
           "team": ""
         },
@@ -604,25 +635,25 @@
           "alive": true,
           "class": "cinder",
           "cpu": true,
-          "kills": 1,
+          "kills": 0,
           "local": false,
           "peer": 101,
           "pos": [
-            512.0,
-            1252.0
+            2892.0,
+            -2016.0
           ],
           "team": "1"
         },
         {
-          "alive": false,
+          "alive": true,
           "class": "pyra",
           "cpu": true,
-          "kills": 0,
+          "kills": 2,
           "local": false,
           "peer": 102,
           "pos": [
-            -183.0,
-            -296.0
+            -228.0,
+            -758.0
           ],
           "team": "2"
         },
@@ -630,12 +661,12 @@
           "alive": false,
           "class": "tobor",
           "cpu": true,
-          "kills": 1,
+          "kills": 0,
           "local": false,
           "peer": 103,
           "pos": [
-            81.0,
-            105.0
+            616.0,
+            -1647.0
           ],
           "team": "3"
         }
@@ -646,7 +677,7 @@
         5600.0
       ]
     },
-    "gold": 0,
+    "gold": 411,
     "hero_kills": 0,
     "hp_samples": [
       {
@@ -668,105 +699,115 @@
       {
         "alive": true,
         "class": "tobor",
-        "gold": 0,
+        "gold": 27,
         "hp": 1.0,
         "kills": 0,
-        "t": 10.15
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 0,
-        "hp": 0.93,
+        "gold": 138,
+        "hp": 1.0,
         "kills": 0,
-        "t": 15.18
+        "t": 15.22
       },
       {
-        "alive": false,
+        "alive": true,
         "class": "tobor",
-        "gold": 0,
-        "hp": 0.0,
+        "gold": 251,
+        "hp": 1.0,
         "kills": 0,
-        "t": 20.19
+        "t": 20.22
       },
       {
-        "alive": false,
+        "alive": true,
         "class": "tobor",
-        "gold": 0,
-        "hp": 0.0,
+        "gold": 275,
+        "hp": 1.0,
         "kills": 0,
-        "t": 25.19
+        "t": 25.23
       },
       {
-        "alive": false,
+        "alive": true,
         "class": "tobor",
-        "gold": 0,
-        "hp": 0.0,
+        "gold": 305,
+        "hp": 1.0,
         "kills": 0,
-        "t": 30.2
+        "t": 30.23
       },
       {
-        "alive": false,
+        "alive": true,
         "class": "tobor",
-        "gold": 0,
-        "hp": 0.0,
+        "gold": 345,
+        "hp": 1.0,
         "kills": 0,
-        "t": 35.2
+        "t": 35.24
       },
       {
-        "alive": false,
+        "alive": true,
         "class": "tobor",
-        "gold": 0,
-        "hp": 0.0,
+        "gold": 383,
+        "hp": 1.0,
         "kills": 0,
-        "t": 40.21
+        "t": 40.24
       },
       {
-        "alive": false,
+        "alive": true,
         "class": "tobor",
-        "gold": 0,
-        "hp": 0.0,
+        "gold": 411,
+        "hp": 1.0,
         "kills": 0,
-        "t": 45.22
+        "t": 45.25
       }
     ],
     "landmark_saves": 0,
-    "level": 1,
-    "level_upgrades": {},
+    "level": 6,
+    "level_upgrades": {
+      "5": [
+        "push_drone"
+      ],
+      "6": [
+        "push_drone"
+      ]
+    },
     "max_hp": 1.0,
-    "min_hp": 0.0,
+    "min_hp": 1.0,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 0,
     "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
-    "taken_upgrades": [],
+    "taken_upgrades": [
+      "push_drone",
+      "push_drone"
+    ],
     "until_wave": 20,
-    "verdict": "FAIL_IDLE",
+    "verdict": "PASS_OK",
     "wave": 2,
-    "xp": 48
+    "xp": 96
   },
   "shots": [
     {
       "label": "ffa_t0",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3608/ffa_t0_1.004_3608.png",
-      "t": 1.00366522222222
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5896/ffa_t0_1.006_5896.png",
+      "t": 1.00611666666667
     },
     {
       "label": "ffa_t15",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_17722/ffa_t15_15.108_17722.png",
-      "t": 15.1083333333333
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_19974/ffa_t15_15.105_19974.png",
+      "t": 15.105087090909
     },
     {
       "label": "ffa_t30",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_32715/ffa_t30_30.101_32715.png",
-      "t": 30.1014043333328
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_34968/ffa_t30_30.104_34968.png",
+      "t": 30.1038599999994
     },
     {
       "label": "ffa_t45",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_47736/ffa_t45_45.109_47736.png",
-      "t": 45.1090909090901
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_49974/ffa_t45_45.107_49974.png",
+      "t": 45.1066443333325
     }
   ]
 }

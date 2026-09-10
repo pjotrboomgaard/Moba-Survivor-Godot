@@ -900,6 +900,18 @@ func _refresh_ability_icons() -> void:
 			icon.texture = SpriteLibrary.texture_for(ability_id)
 			var info := PlayerClass.ability_info(ability_id)
 			name_label.text = _clip_label(str(info.get("name", ability_id)))
+		# Ability-unlock gating: a rank-0 slot is locked — gray it out and hide the
+		# cooldown bar so the player can tell at a glance which abilities still need
+		# to be unlocked via a level-up offer.
+		var locked: bool = int(entry.get("rank", 1)) < 1
+		if locked:
+			icon.modulate = Color(0.4, 0.4, 0.4, 0.55)
+			name_label.text = "LOCKED"
+			name_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75, 0.9))
+			_apply_kit_cooldown(nodes, 0.0, 1.0)
+			continue
+		icon.modulate = Color.WHITE
+		name_label.add_theme_color_override("font_color", Color.WHITE)
 		var remaining: float = bound_player.ability_cooldowns[slot] if slot < bound_player.ability_cooldowns.size() else 0.0
 		var values := PlayerClass.ability_values(ability_id, int(entry.get("rank", 1)))
 		var cooldown_max := maxf(0.01, float(values.get("cooldown", 1.0)))
@@ -2057,14 +2069,18 @@ func show_ability_offer(player: Player, ability_ids: Array[String], pause_game: 
 			choice_buttons[index].visible = false
 			continue
 		var ability_id := offered_upgrade_ids[index]
-		var current_rank := 0
+		var current_rank := -1
+		var known_count := player.known_abilities.size()
 		for entry in player.known_abilities:
 			if entry.id == ability_id:
 				current_rank = int(entry.rank)
 				break
 		var info := PlayerClass.ability_info(ability_id)
 		var ability_name := str(info.get("name", ability_id))
-		var verb := "Upgrade" if current_rank > 0 else "Learn"
+		# "Unlock" = the hero already owns this slot but it's locked (rank 0).
+		# "Learn"  = a brand-new ability not yet in the loadout.
+		# "Upgrade" = already unlocked, gaining a rank.
+		var verb := "Unlock" if (current_rank >= 0 and current_rank == 0) else ("Upgrade" if current_rank > 0 else "Learn")
 		choice_buttons[index].visible = true
 		_clear_choice_rarity(choice_buttons[index])
 		choice_buttons[index].text = "[%d]  %s %s" % [index + 1, verb, ability_name]

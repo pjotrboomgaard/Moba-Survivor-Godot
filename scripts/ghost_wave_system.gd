@@ -120,7 +120,7 @@ func _spawn_one_ghost() -> void:
 	if dir.length_squared() < 1.0:
 		dir = Vector2.RIGHT.rotated(randf() * TAU)
 	var vel := dir.normalized() * speed * speed_mult
-	var peer_key := int((target as Node).get("peer_id"))
+	var peer_key := int(target.owner_peer_id)
 	_ghost_target_load[peer_key] = int(_ghost_target_load.get(peer_key, 0)) + 1
 	_ghosts.append({
 		"pos": pos,
@@ -144,7 +144,8 @@ func _pick_least_targeted_player() -> Player:
 		var p := player_node as Player
 		if p == null or not is_instance_valid(p) or not p.active:
 			continue
-		var load := int(_ghost_target_load.get(int(p.get("peer_id")), 0))
+		var peer_key := int(p.owner_peer_id)
+		var load := int(_ghost_target_load.get(peer_key, 0))
 		if load < best_load:
 			best_load = load
 			best = p
