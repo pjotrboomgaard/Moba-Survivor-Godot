@@ -51,6 +51,9 @@ var ability_pool: GridContainer = null
 var loadout_slots: Array[Button] = []
 var lmb_slot_button: Button = null
 var rmb_slot_button: Button = null
+## Ability index pinned open by a click (-1 = none). While pinned, mouse_exited does
+## NOT close the panel, so you can keep the preview up for screenshots / testing.
+var _pinned_ability_index := -1
 
 # --- HoN-style ability description panel (lives in bootstrap.tscn) ---
 @onready var ability_panel: PanelContainer = $StatusLayer/AbilityPanel
@@ -283,6 +286,7 @@ func _build_overhaul_ui() -> void:
 	lmb_b.focus_mode = Control.FOCUS_NONE
 	lmb_b.mouse_entered.connect(_on_lmb_hover)
 	lmb_b.mouse_exited.connect(_on_ability_slot_unhover)
+	lmb_b.pressed.connect(_on_lmb_pressed)
 	loadout_row.add_child(lmb_b)
 	var rmb_b := Button.new()
 	rmb_b.name = "RmbSlot"
@@ -292,6 +296,7 @@ func _build_overhaul_ui() -> void:
 	rmb_b.focus_mode = Control.FOCUS_NONE
 	rmb_b.mouse_entered.connect(_on_rmb_hover)
 	rmb_b.mouse_exited.connect(_on_ability_slot_unhover)
+	rmb_b.pressed.connect(_on_rmb_pressed)
 	loadout_row.add_child(rmb_b)
 	lmb_slot_button = lmb_b
 	rmb_slot_button = rmb_b
@@ -304,6 +309,7 @@ func _build_overhaul_ui() -> void:
 		b.focus_mode = Control.FOCUS_NONE
 		b.mouse_entered.connect(_on_ability_slot_hover.bind(slot_index))
 		b.mouse_exited.connect(_on_ability_slot_unhover)
+		b.pressed.connect(_on_ability_slot_pressed.bind(slot_index))
 		loadout_row.add_child(b)
 		loadout_slots.append(b)
 
@@ -805,6 +811,9 @@ func _refresh_difficulty() -> void:
 func _on_class_toggled(is_pressed: bool, class_id: String) -> void:
 	if _updating_class_ui or not is_pressed:
 		return
+	# Clear any pinned ability/preview — it belonged to the previous hero.
+	_pinned_ability_index = -1
+	_hide_ability_hover()
 	PlayerProfile.select_class(class_id)
 	AudioService.play("ui_click")
 	_refresh_class_selection()
@@ -1319,7 +1328,35 @@ func _on_ability_slot_hover(slot_index: int) -> void:
 
 
 func _on_ability_slot_unhover() -> void:
+	# When an ability is pinned open by a click, leaving the button must NOT close the
+	# panel (so the tooltip + rendered preview stay up for screenshots / testing).
+	if _pinned_ability_index >= 0:
+		return
 	_hide_ability_hover()
+
+
+## Click-to-pin handlers: clicking an ability button pins its tooltip + rendered
+## preview so it stays visible after the mouse moves away. Clicking a different slot
+## re-pins that one; the pin persists until the hero changes or the user hovers away
+## from the whole panel.
+func _on_ability_slot_pressed(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= _shown_kit_ids.size():
+		return
+	var ability_id := str(_shown_kit_ids[slot_index])
+	if ability_id.is_empty():
+		return
+	_pinned_ability_index = slot_index
+	_show_ability_hover(ability_id)
+
+
+func _on_lmb_pressed() -> void:
+	_pinned_ability_index = -1
+	_show_lmb_hover(PlayerProfile.selected_class_id)
+
+
+func _on_rmb_pressed() -> void:
+	_pinned_ability_index = -2
+	_show_rmb_hover(PlayerProfile.selected_class_id)
 
 
 ## Maps an ability id to its slot index (0..3) in the given hero's current loadout.
@@ -1416,7 +1453,7 @@ func _layout_ability_hover_panel() -> void:
 	ability_panel.offset_left = 36.0
 	ability_panel.offset_top = 72.0
 	ability_panel.offset_right = 520.0
-	ability_panel.offset_bottom = 620.0
+	ability_panel.offset_bottom = 690.0
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.05, 0.04, 0.03, 0.55)
 	style.border_color = Color(1.0, 0.72, 0.28, 0.9)

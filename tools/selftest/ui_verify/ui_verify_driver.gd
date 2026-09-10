@@ -33,6 +33,8 @@ func _ready() -> void:
 	# 4. hover ability archetypes BEFORE pressing the editor (scene changes after this).
 	_steps.append({"t": 8.5, "kind": "hover_ability", "hero": "arclight", "slot": 0})
 	_steps.append({"t": 10.5, "kind": "shot", "label": "ability_preview_nuke"})
+	# Hard check: the SubViewport mini-world must actually render opaque pixels.
+	_steps.append({"t": 11.0, "kind": "probe_preview", "label": "nuke"})
 	_steps.append({"t": 11.0, "kind": "hover_ability", "hero": "arclight", "slot": 2})
 	_steps.append({"t": 13.0, "kind": "shot", "label": "ability_preview_radius"})
 	# 5. hover a SUMMON_SPIRIT ability (Tobor's Steam Keg) to verify summon rendering.
@@ -85,6 +87,8 @@ func _run_step(step: Dictionary) -> void:
 			_hover_lmb()
 		"hover_rmb":
 			_hover_rmb()
+		"probe_preview":
+			_probe_preview(str(step.get("label", "preview")))
 		"press_editor":
 			_press_editor_button()
 		"api_place_all":
@@ -158,6 +162,74 @@ func _hover_rmb() -> void:
 		_print("[ui-verify] hovered RMB for " + hero_id)
 	else:
 		_check("hover_rmb_method", false, "no _show_rmb_hover method")
+
+
+## Inspect the AbilityPreview SubViewport's rendered texture and report how many
+## non-transparent pixels it has. This is a hard check that the mini-world is actually
+## rendering (not just that the panel is visible). Fails if the SubViewport is blank.
+func _probe_preview(label: String) -> void:
+	var bootstrap := get_tree().current_scene
+	if bootstrap == null:
+		_check("probe_preview_bootstrap", false, "current_scene not found")
+		return
+	var world: AbilityPreviewWorld = bootstrap.get("ability_preview_world")
+	if world == null:
+		_check("probe_preview_found", false, "ability_preview_world is null")
+		return
+	_check("probe_preview_found", true, "ability_preview_world present")
+	var svp: SubViewport = world.get_node_or_null("SubViewport")
+	if svp == null:
+		_check("probe_preview_subvp", false, "SubViewport not found")
+		return
+	# Give the SubViewport a moment to render a frame.
+	# We sample the texture directly; it should have opaque pixels if the world drew.
+	var tex: Texture2D = svp.get_texture()
+	if tex == null:
+		_check("probe_preview_texture", false, "no texture on SubViewport")
+		return
+	var img: Image = tex.get_image()
+	if img == null or img.is_empty():
+		_check("probe_preview_image", false, "empty image from SubViewport texture")
+		return
+	var opaque := 0
+	var total := img.get_width() * img.get_height()
+	# Sample every 4th pixel for speed.
+	for y in range(0, img.get_height(), 4):
+		for x in range(0, img.get_width(), 4):
+			var px: Color = img.get_pixel(x, y)
+			if px.a > 0.5 and (px.r + px.g + px.b) > 0.05:
+				opaque += 1
+	var frac: float = float(opaque) / float(ceil(float(total) / 16.0))
+	_check("probe_preview_rendered", frac > 0.05, "label=%s opaque_frac=%.3f (expect >0.05)" % [label, frac])
+	_print("[ui-verify] PREVIEW PROBE %s: opaque_frac=%.3f (%d px)" % [label, frac, opaque])
+	# ALSO sample the MAIN viewport at the preview's on-screen rect — the hard truth of
+	# whether the SubViewport is actually blitted into what the user sees (a bare
+	# SubViewport may hold a valid internal texture but not display in the main window).
+	var preview_ctrl: Control = world.get_node_or_null("SubViewport") as Control
+	var svp_rect: Rect2 = world.get_rect()  # world root is the AbilityPreview Control
+	var vp: Viewport = get_viewport()
+	var vp_img: Image = vp.get_texture().get_image()
+	if vp_img == null or vp_img.is_empty():
+		_check("probe_preview_screen_image", false, "could not read main viewport image")
+		return
+	var screen_opaque := 0
+	var screen_total := 0
+	# Sample a small region in the middle-bottom of the panel where the preview should sit.
+	var y0 := int(svp_rect.position.y + svp_rect.size.y * 0.55)
+	var y1 := int(svp_rect.position.y + svp_rect.size.y * 0.95)
+	var x0 := int(svp_rect.position.x + svp_rect.size.x * 0.1)
+	var x1 := int(svp_rect.position.x + svp_rect.size.x * 0.9)
+	var step_x := maxi(2, (x1 - x0) / 40)
+	var step_y := maxi(2, (y1 - y0) / 20)
+	for sy in range(maxi(0, y0), min(int(vp_img.get_height()), y1), step_y):
+		for sx in range(maxi(0, x0), min(int(vp_img.get_width()), x1), step_x):
+			screen_total += 1
+			var spx: Color = vp_img.get_pixel(sx, sy)
+			if spx.a > 0.5 and (spx.r + spx.g + spx.b) > 0.08:
+				screen_opaque += 1
+	var screen_frac: float = 0.0 if screen_total == 0 else float(screen_opaque) / float(screen_total)
+	_check("probe_preview_screen_visible", screen_frac > 0.08, "label=%s on_screen_frac=%.3f (expect >0.08)" % [label, screen_frac])
+	_print("[ui-verify] PREVIEW SCREEN %s: on_screen_frac=%.3f region=rect(%d,%d,%d,%d)" % [label, screen_frac, x0, y0, x1, y1])
 
 
 func _press_editor_button() -> void:
