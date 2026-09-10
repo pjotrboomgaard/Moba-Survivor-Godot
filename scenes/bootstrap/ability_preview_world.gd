@@ -177,11 +177,11 @@ func _make_ground_script() -> GDScript:
 extends Node2D
 func _draw() -> void:
 	var center := Vector2(45.0, 0.0)
-	# Nearly invisible floor — just enough to read "a place", the panel bg dominates.
-	draw_circle(center, 240.0, Color(0.08, 0.11, 0.14, 0.18))
-	draw_circle(center, 140.0, Color(0.10, 0.13, 0.16, 0.08))
-	# One faint ring.
-	draw_arc(center, 160.0, 0.0, TAU, 48, Color(0.5, 0.7, 0.9, 0.04), 1.5, true)
+	# Soft arena floor — moderate alpha so it reads as a place but isn't a solid
+	# black box. The menu panel's own background still shows through the edges.
+	draw_circle(center, 240.0, Color(0.10, 0.14, 0.18, 0.45))
+	draw_circle(center, 140.0, Color(0.12, 0.16, 0.20, 0.25))
+	draw_arc(center, 160.0, 0.0, TAU, 48, Color(0.5, 0.7, 0.9, 0.08), 1.5, true)
 """
 	var script := GDScript.new()
 	script.source_code = text

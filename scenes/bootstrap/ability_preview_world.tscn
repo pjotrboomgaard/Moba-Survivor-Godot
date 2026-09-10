@@ -13,7 +13,7 @@ grow_vertical = 2
 
 [node name="SubViewport" type="SubViewport" parent="."]
 size = Vector2i(340, 150)
-render_target_update_mode = 3
+render_target_update_mode = 0
 transparent_bg = true
 
 [node name="World" type="Node2D" parent="SubViewport"]

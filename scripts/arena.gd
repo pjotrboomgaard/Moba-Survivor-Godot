@@ -548,9 +548,40 @@ func apply_saved_level(data: Dictionary) -> void:
 			String(entry.get("hint", ""))
 		)
 	# The saved level now includes the full procedural scatter (trees, rocks,
-	# grass tufts) plus any user-placed props, so no re-scatter is needed here.
+	# grass tufts) plus any user-placed props. If the saved level was authored
+	# before the dense ground-cover scatter was enabled, it may be sparse. To
+	# guarantee the "40% of edges missing grass" bug never surfaces, we top up
+	# with non-clobbering ground cover: only place where there's actually room.
+	_top_up_ground_cover()
 	queue_redraw()
 	landmarks_changed.emit()
+
+
+## After loading a saved level, fill remaining empty ground with grass/flowers.
+## Uses the same collision check as _scatter_ground_cover, so existing props are
+## never overwritten — only empty spots get new tufts. This is the fix for the
+## "grass not loaded on ~40% of map edges" issue.
+func _top_up_ground_cover() -> void:
+	var kit := _ground_cover_sprites()
+	if kit.is_empty():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _layout_seed() + 997  # different seed so top-ups don't overlap scatter
+	var limit := playfield_size() * 0.5 - Vector2(WALL_MARGIN, WALL_MARGIN)
+	var target_count := 400  # top-up target: fill gaps in the saved level
+	var planted := 0
+	var attempts := 0
+	while planted < target_count and attempts < target_count * 40:
+		attempts += 1
+		var candidate := Vector2(
+			rng.randf_range(-limit.x, limit.x),
+			rng.randf_range(-limit.y, limit.y)
+		)
+		var sprite_id := kit[rng.randi() % kit.size()]
+		if _try_place_obstacle(candidate, rng, _cover_type(sprite_id), 22.0):
+			planted += 1
+	if planted > 0:
+		print("[ground_cover_topup] added ", planted, " ground props to fill sparse edges")
 
 
 func _saved_obstacle_spec(sprite_id: String) -> Dictionary:
