@@ -133,9 +133,6 @@ func _spawn_creeps() -> void:
 		e.global_position = Vector2(CREEP_START_X, -60.0 + 60.0 * float(i))
 		_freeze_creep(e)
 		_creeps.append(e)
-		# Give the creeps a visible HP bar so the damage is readable in the preview.
-		if e.world_health_bar != null:
-			e.world_health_bar.visible = true
 
 
 ## Stand a creep still: zero its speed so it doesn't wander off-frame. We keep its
