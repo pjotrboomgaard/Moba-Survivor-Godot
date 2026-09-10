@@ -1014,7 +1014,7 @@ func _save_as() -> void:
 	_save_as_input = LineEdit.new()
 	_save_as_input.placeholder_text = "my_map"
 	_save_as_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_save_as_input.submitted.connect(func(txt: String): _save_as_submit(txt, prompt_bar))
+	_save_as_input.text_submitted.connect(func(txt: String): _save_as_submit(txt, prompt_bar))
 	prompt_bar.add_child(label)
 	prompt_bar.add_child(_save_as_input)
 	var ok_btn := Button.new()
@@ -1115,7 +1115,7 @@ func _load_as() -> void:
 	_load_as_input = LineEdit.new()
 	_load_as_input.placeholder_text = _list_saved_maps_summary()
 	_load_as_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_load_as_input.submitted.connect(func(txt: String): _load_as_submit(txt, prompt_bar))
+	_load_as_input.text_submitted.connect(func(txt: String): _load_as_submit(txt, prompt_bar))
 	prompt_bar.add_child(label)
 	prompt_bar.add_child(_load_as_input)
 	var ok_btn := Button.new()
