@@ -163,49 +163,29 @@ func _biome_tint() -> Color:
 			return Color("7dbb5a")
 
 
-## Each camp gets a distinct pixel-art marker: camp 0 = diamond (red/brute),
-## camp 1 = square (blue/sentinel), camp 2 = triangle (purple/stalker).
-## All sit on a soft radial glow so they read as "camp" from the minimap distance.
-func _make_camp_marker_texture(camp_index: int, accent: Color) -> ImageTexture:
-	var size := 64
+## Each camp gets a subtle, small ground-pad indicator: a thin ring around the
+## camp centre plus a tiny accent dot, tinted by the camp's accent color. Kept
+## small and low-opacity so it reads as a "you can raid this camp" hint on the
+## ground rather than a large floating pixel-art blob (per user request: remove
+## the big pixel art under the creep camps).
+func _make_camp_marker_texture(_camp_index: int, accent: Color) -> ImageTexture:
+	var size := 44
 	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
-	var cx := size / 2.0
-	var cy := size / 2.0
-	var half := size / 2.0
+	var c := size / 2.0
 	for y in size:
 		for x in size:
-			var p := Vector2(x - cx, y - cy)
+			var p := Vector2(x - c, y - c)
 			var d := p.length()
-			# Soft outer glow (radial).
-			var glow_a := 0.0
-			if d <= half and d >= half - 10.0:
-				glow_a = 0.18
-			elif d < half - 10.0:
-				glow_a = 0.10
-			# Core shape by camp index.
-			var core_a := 0.0
-			var core_c: Color = accent
-			match camp_index % 3:
-				0:
-					# Diamond: |x - cx| + |y - cy| <= r
-					if absf(p.x) + absf(p.y) <= 16.0:
-						core_a = 0.95
-						core_c = accent.lerp(Color.WHITE, 0.25)
-				1:
-					# Square with a notch.
-					if absf(p.x) <= 14.0 and absf(p.y) <= 14.0:
-						core_a = 0.95
-						core_c = accent.lerp(Color.WHITE, 0.2)
-				2:
-					# Upward triangle.
-					if p.y >= -14.0 and p.y <= 14.0 and absf(p.x) <= (14.0 - absf(p.y + 14.0) * 0.5):
-						core_a = 0.95
-						core_c = accent.lerp(Color.WHITE, 0.3)
-			var a := maxf(glow_a, core_a)
+			var a := 0.0
+			# Thin ground ring (the camp "pad").
+			if d <= 18.0 and d >= 15.0:
+				a = 0.30
+			# Tiny accent centre dot.
+			elif d <= 3.0:
+				a = 0.55
 			if a > 0.0:
-				var c: Color = accent if core_a > 0.0 else Color(0.9, 0.8, 1.0, 1.0)
-				c = c.lerp(core_c, core_a)
-				img.set_pixel(x, y, c if a > 0.5 else Color(c.r, c.g, c.b, a))
+				var col := accent.lerp(Color.WHITE, 0.25)
+				img.set_pixel(x, y, Color(col.r, col.g, col.b, a))
 	return ImageTexture.create_from_image(img)
 
 func _notification(what: int) -> void:

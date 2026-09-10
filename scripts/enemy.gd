@@ -190,6 +190,12 @@ const CAMP_GUARDIAN_AGGRO_RADIUS := 300.0
 ## player standing in the camp is hard to disengage from (Task 2: "camps should be
 ## difficult"). 1.05x over the base 0.85 → effective ~0.89x of movement_speed.
 const CAMP_GUARDIAN_AGGR_SPEED_MULT := 1.05
+## Camp ranged-attack state: the guardian fires fast projectiles at the engaged
+## player so camps actively attack back (per user request). Populated by main.gd
+## when the camp guardian is spawned.
+var camp_projectile_range := 340.0
+var camp_projectile_interval := 0.9
+var _camp_projectile_timer := 0.0
 
 ## Terrain-hazard / lava-dunk state. Flying enemies skim over pools; grounded ones take
 ## the full dunk when a knockback arc drops them inside lava. Scramble slows the crawl
@@ -816,11 +822,40 @@ func _process_camp_guardian(delta: float) -> void:
 			velocity = global_position.direction_to(target.global_position) * movement_speed * 0.85 * CAMP_GUARDIAN_AGGR_SPEED_MULT
 		else:
 			velocity = Vector2.ZERO
+		# Fast ranged attacks: the camp guardian actively shoots the engaged player
+		# (per user request: camps should "be fast with attacking you or projectiles").
+		# This is IN ADDITION to the contact tick + undodgeable slam pulse, so a camp
+		# that is being attacked shoots back immediately.
+		if camp_projectile_interval > 0.0 and projectile_damage > 0.0:
+			_camp_projectile_timer -= delta
+			if _camp_projectile_timer <= 0.0 and dist <= camp_projectile_range:
+				_camp_projectile_timer = camp_projectile_interval
+				_camp_guardian_fire_bolt()
 		# Visual: face the target.
 		queue_redraw()
 	else:
 		# Out of leash: stop completely (no chase).
 		velocity = Vector2.ZERO
+		# Reset the bolt timer so a fresh engage doesn't get an instant shot.
+		_camp_projectile_timer = 0.0
+
+
+## Camp guardian ranged bolt: fires a fast projectile at the current target.
+## Uses the per-camp projectile profile (projectile_count / projectile_speed /
+## projectile_sprite) so each camp type reads distinctly.
+func _camp_guardian_fire_bolt() -> void:
+	if target == null or not server_authoritative or projectile_damage <= 0.0:
+		return
+	var dmg := projectile_damage
+	if _solo_boss_fight():
+		dmg *= SOLO_BOSS_HAZARD_DAMAGE_MULT
+	var base_direction := global_position.direction_to(target.global_position)
+	var count := maxi(1, projectile_count)
+	var spread := deg_to_rad(14.0)
+	var start := -spread * float(count - 1) * 0.5
+	for index in count:
+		var direction := base_direction.rotated(start + spread * float(index))
+		projectile_fired.emit(global_position, direction, dmg, projectile_speed, projectile_sprite)
 
 
 ## Emit an undodgeable area damage pulse around the camp guardian. All players

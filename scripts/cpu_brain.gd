@@ -103,25 +103,48 @@ static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dict
 
 	if not protected and hp < panic and rival_open:
 		result.aim = rival.global_position
-		var flee_to := Vector2.ZERO
-		if tactic == FfaTactic.SKIRMISHER and shrine != Vector2.INF:
-			flee_to = shrine
-		result.move = _smooth_move(player, player.global_position.direction_to(flee_to), delta, FFA_MOVE_SCALE)
+		# Flee AWAY from the rival (not toward center where other bots fight).
+		var flee_dir := (player.global_position - rival.global_position)
+		if flee_dir.length_squared() < 1.0:
+			flee_dir = player.facing_direction
+		flee_dir = flee_dir.normalized()
+		# Skirmishers may instead retreat toward a shrine (safe ground).
+		if tactic == FfaTactic.SKIRMISHER and shrine != Vector2.INF and player.global_position.distance_to(shrine) < 600.0:
+			flee_dir = player.global_position.direction_to(shrine)
+		result.move = _smooth_move(player, flee_dir, delta, FFA_MOVE_SCALE)
+		# Still throw a defensive ability while fleeing.
 		_arm_combat(result, player, rival, player.global_position.distance_to(rival.global_position), delta)
 		return _apply_ffa_dodge(player, result, delta)
 
 	if rival_open:
 		var gap := player.global_position.distance_to(rival.global_position)
-		var hunt := protected or tactic != FfaTactic.AMBUSHER or gap < FFA_COMMIT_RANGE
+		# Early-game rule: if this bot is at low gold (< 300) or low level (< 3), it
+		# should farm creeps first rather than committing to a cross-map rival chase.
+		# This prevents the "bot walks across the map and dies with 63 gold" pattern.
+		var early_game := int(player.gold) < 300 or int(player.level) < 3
+		var commit_range: float = FFA_COMMIT_RANGE if not early_game else 520.0
+		var hunt := protected or tactic != FfaTactic.AMBUSHER or gap < commit_range
 		if hunt:
 			_arm_combat(result, player, rival, gap, delta)
 			result.move = _smooth_move(player, _ffa_fight_move(player, rival, tactic, gap), delta, FFA_MOVE_SCALE)
 			return _apply_ffa_dodge(player, result, delta)
 
 	if creep != null:
-		_arm_combat(result, player, creep, player.global_position.distance_to(creep.global_position), delta)
-		result.move = _smooth_move(player, _desired_move(player, creep, null, player.global_position.distance_to(creep.global_position)), delta, FFA_MOVE_SCALE)
-		return _apply_ffa_dodge(player, result, delta)
+		var creep_gap := player.global_position.distance_to(creep.global_position)
+		# Ranged heroes should keep distance; don't walk into melee creep range.
+		var ideal_gap: float = float(player.attack_range) * 0.6
+		if creep_gap > ideal_gap + 180.0:
+			# Too far — move toward the creep but only if no rival is immediately close.
+			var rival_close := rival != null and player.global_position.distance_to(rival.global_position) < 400.0
+			if not rival_close:
+				_arm_combat(result, player, creep, creep_gap, delta)
+				result.move = _smooth_move(player, player.global_position.direction_to(creep.global_position), delta, FFA_MOVE_SCALE)
+				return _apply_ffa_dodge(player, result, delta)
+		else:
+			# In range — fight the creep.
+			_arm_combat(result, player, creep, creep_gap, delta)
+			result.move = _smooth_move(player, _desired_move(player, creep, null, creep_gap), delta, FFA_MOVE_SCALE)
+			return _apply_ffa_dodge(player, result, delta)
 
 	if tactic == FfaTactic.AMBUSHER:
 		var rim := _ffa_crater_rim(player)

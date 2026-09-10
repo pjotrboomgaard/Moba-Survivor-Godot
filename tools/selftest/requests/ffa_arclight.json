@@ -1,0 +1,30 @@
+﻿{
+    "hero":  "arclight",
+    "mode":  "ffa",
+    "events":  [
+                   {
+                       "t":  1,
+                       "kind":  "landmarks",
+                       "label":  "ffa_landmarks"
+                   },
+                   {
+                       "t":  1.2,
+                       "kind":  "probe",
+                       "label":  "ffa_start"
+                   },
+                   {
+                       "t":  24,
+                       "kind":  "probe",
+                       "label":  "ffa_mid"
+                   },
+                   {
+                       "t":  47.5,
+                       "kind":  "probe",
+                       "label":  "ffa_end"
+                   },
+                   {
+                       "t":  48,
+                       "kind":  "report"
+                   }
+               ]
+}

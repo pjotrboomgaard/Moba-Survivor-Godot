@@ -1358,6 +1358,9 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 		enemy.explode_damage *= dmg
 	# Camp guardian setup: hold position, undodgeable slam pulse, reduced damage
 	# taken, and no-chase past the leash radius (see Enemy._process_camp_guardian).
+	# Camps now ALSO fire fast projectiles at the engaged player, so they actively
+	# attack you when you engage them (per user request: "creep camps should be
+	# fast with attacking you or projectiles").
 	if camp_guardian:
 		enemy.is_camp_guardian = true
 		enemy.camp_guardian_home = enemy.global_position
@@ -1368,6 +1371,19 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 		# Contact is secondary so a kiting player chips the guardian without
 		# getting shredded by contact + slam stacking.
 		enemy.contact_damage *= 0.5
+		# Fast ranged attacks: each camp type gets its own projectile profile so
+		# camps read as distinct (brute = heavy single bolt, sentinel = precise,
+		# stalker = rapid multi-bolt).
+		var camp_shot := _camp_projectile_profile(fitted_id)
+		enemy.projectile_damage = camp_shot["projectile_damage"]
+		enemy.projectile_count = int(camp_shot["projectile_count"])
+		enemy.projectile_speed = float(camp_shot["projectile_speed"])
+		enemy.attack_interval = float(camp_shot["interval"])
+		enemy.camp_projectile_range = float(camp_shot["range"])
+		# Reuse the standard hostile bolt sprite for the camp's ranged attack.
+		# (Distinct camp identity comes from the bolt cadence/count + the camp
+		# marker/guardian art, not a separate projectile texture.)
+		enemy.projectile_sprite = "spit"
 	enemy.defeated.connect(_on_enemy_defeated)
 	enemy.projectile_fired.connect(_on_enemy_projectile_fired)
 	enemy.spawn_requested.connect(_on_enemy_spawn_requested)
@@ -1383,6 +1399,22 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 	if enemy.is_boss:
 		_cached_boss = null
 	return enemy
+
+
+## Per-camp-type projectile profile so each camp reads as distinct:
+##  brute    = heavy single slow bolt
+##  sentinel = precise fast bolt
+##  stalker  = rapid 3-bolt fan
+func _camp_projectile_profile(type_id: String) -> Dictionary:
+	match type_id:
+		"brute":
+			return {"projectile_damage": 9.0, "projectile_count": 1, "projectile_speed": 320.0, "interval": 0.9, "range": 340.0}
+		"sentinel":
+			return {"projectile_damage": 6.0, "projectile_count": 1, "projectile_speed": 440.0, "interval": 0.7, "range": 380.0}
+		"stalker":
+			return {"projectile_damage": 4.0, "projectile_count": 3, "projectile_speed": 360.0, "interval": 1.1, "range": 300.0}
+		_:
+			return {"projectile_damage": 7.0, "projectile_count": 1, "projectile_speed": 380.0, "interval": 0.85, "range": 340.0}
 
 
 func _on_enemy_spawn_requested(type_id: String, origin: Vector2, count: int) -> void:
