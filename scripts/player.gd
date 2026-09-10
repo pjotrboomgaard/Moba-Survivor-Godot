@@ -1461,6 +1461,16 @@ func _tick_cooldowns(delta: float) -> void:
 	for slot in ability_cooldowns.size():
 		ability_cooldowns[slot] = maxf(0.0, ability_cooldowns[slot] - delta)
 	secondary_cooldown = maxf(0.0, secondary_cooldown - delta)
+	# Tobor's mine/turret charges refill over time (not on a hard cooldown).
+	if class_id == "tobor":
+		_mine_charge_timer += delta
+		_turret_charge_timer += delta
+		if _mine_charge_left < TOBOR_MAX_MINE_CHARGES and _mine_charge_timer >= TOBOR_MINE_CHARGE_REGEN_SECONDS:
+			_mine_charge_left += 1
+			_mine_charge_timer = 0.0
+		if _turret_charge_left < TOBOR_MAX_TURRET_CHARGES and _turret_charge_timer >= TOBOR_TURRET_CHARGE_REGEN_SECONDS:
+			_turret_charge_left += 1
+			_turret_charge_timer = 0.0
 
 
 func _update_ability_slots(delta: float, slots_held: Array) -> void:
@@ -1776,6 +1786,20 @@ const WRENCH_MAX_MINES := 999
 ## but it's much higher than before so Tobor can stack several at once.
 const MAX_ACTIVE_TURRETS := 12
 
+## Tobor's placement kit runs on CHARGES instead of a single long cooldown: each cast
+## spends one charge and charges refill over time. This means Tobor can spam a burst of
+## mines/turrets up to the cap, then wait to recharge — matching the user's "cooldown gone,
+## add charge" request. The cap is what actually limits field clutter now.
+const TOBOR_MAX_MINE_CHARGES := 3
+const TOBOR_MAX_TURRET_CHARGES := 3
+const TOBOR_MINE_CHARGE_REGEN_SECONDS := 16.0
+const TOBOR_TURRET_CHARGE_REGEN_SECONDS := 22.0
+## Tobor charge state. Refilled in _tick_cooldowns; consumed by the cast functions.
+var _mine_charge_left := TOBOR_MAX_MINE_CHARGES
+var _turret_charge_left := TOBOR_MAX_TURRET_CHARGES
+var _mine_charge_timer := 0.0
+var _turret_charge_timer := 0.0
+
 
 func _cast_ability_summon_spirit(data: Dictionary, values: Dictionary) -> void:
 	# Place at aim point (clamped to a sane throw distance) — the player picks where the turret
@@ -2024,16 +2048,25 @@ func _steam_cloud_tick(center: Vector2, radius: float, tick_power: float, tick_i
 ## Steam Turret: place an auto-firing steam turret at the aim point (within range).
 ## The turret chips nearby enemies for its lifetime. Placeable in-game — aim with the
 ## cursor; bots place it between themselves and the nearest enemies.
+## CHARGED: spends one of Tobor's turret charges; no cast if none are left.
 func _cast_ability_wrench_turret(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	if class_id == "tobor" and _turret_charge_left <= 0:
+		return  # no turret charge left
 	var landing := _ability_aim_center(values.range)
 	_spawn_summon(data, values, landing)
+	if class_id == "tobor":
+		_turret_charge_left -= 1
+		_turret_charge_timer = 0.0
 	SoundDirector.play_ability("tobor_steam_turret", global_position)
 	_emit_ability_cast(PackedVector2Array([global_position, landing]))
 
 
 ## Spider Mines: scatter a small clutch of proximity mines around the cursor. Each anchors
 ## where it lands and detonates on contact — field denial, not a direct nuke.
+## CHARGED: spends one of Tobor's mine charges; no cast if none are left.
 func _cast_ability_wrench_mines(data: Dictionary, values: Dictionary, rank: int) -> void:
+	if class_id == "tobor" and _mine_charge_left <= 0:
+		return  # no mine charge left
 	var mine_count := clampi(int(data.get("mine_count", 2)) + rank - 1, 1, WRENCH_MAX_MINES)
 	var scatter_radius := float(data.get("scatter_radius", 70.0))
 	var arm_range := maxf(float(values.range), 1200.0)
@@ -2052,6 +2085,10 @@ func _cast_ability_wrench_mines(data: Dictionary, values: Dictionary, rank: int)
 			var dist := _rand_range_float(scatter_radius * 0.35, scatter_radius)
 			point = center + Vector2(cos(angle), sin(angle)) * dist
 		_spawn_wrench_mine(data, values, point)
+	# Spend the charge only after the mines are actually placed.
+	if class_id == "tobor":
+		_mine_charge_left -= 1
+		_mine_charge_timer = 0.0
 	_emit_ability_cast(PackedVector2Array([center, Vector2(scatter_radius, 0.0)]))
 
 
@@ -2956,10 +2993,24 @@ func _emit_ability_cast(points: PackedVector2Array) -> void:
 ## are audibly distinct (Arclight zap, Tobor clank, Toien/Sage chime, ...). SoundDirector
 ## keeps it off-screen-mutated and honours preview_muted for the menu previews. CPU bots
 ## skip it so four FFA bots don't stack every ability's sound.
+## The 16 kit_r "R" abilities are each hero's ultimate — their SFX should ring out
+## for ~2x the duration of a normal cast (mirrors the 2x VFX lifetime in main.gd).
+static var _ULT_ABILITY_IDS: Dictionary = {}
+
+static func _is_ult_ability(ability_id: String) -> bool:
+	if _ULT_ABILITY_IDS.is_empty():
+		for class_def in PlayerClass.CLASSES:
+			var r_id := str(class_def.get("kit_r", ""))
+			if not r_id.is_empty():
+				_ULT_ABILITY_IDS[r_id] = true
+	return _ULT_ABILITY_IDS.has(ability_id)
+
+
 func _play_ability_sfx(ability_id: String) -> void:
 	if simulation_mode == SimulationMode.CPU:
 		return
-	SoundDirector.play_ability(ability_id, global_position)
+	# Ultimates get a ~2x longer SFX; normal abilities a standard one.
+	AudioService.play_ability(ability_id, _is_ult_ability(ability_id))
 
 
 ## Shared "the ability's primary hit landed on this enemy" handling: base damage plus

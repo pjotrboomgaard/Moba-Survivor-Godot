@@ -165,6 +165,9 @@ const SOUND_LIBRARY: Dictionary = {
 	"attack_astral": [preload("res://assets/audio/themes/attack_astral.wav")],
 	"attack_rime": [preload("res://assets/audio/themes/attack_rime.wav")],
 	"sfx_projectile": [preload("res://assets/audio/sfx/sfx_projectile.ogg")],
+	# Summoned drones: a short zap when a turret fires. Reuses the shared projectile
+	# bank (a short, distinct zap) so every firing drone has audible presence.
+	"turret_fire": [preload("res://assets/audio/sfx/sfx_projectile.ogg")],
 	"sfx_cone": [preload("res://assets/audio/sfx/sfx_cone.ogg")],
 	"sfx_radius": [preload("res://assets/audio/sfx/sfx_radius.ogg")],
 	"sfx_dash": [preload("res://assets/audio/sfx/sfx_dash.ogg")],
@@ -250,6 +253,7 @@ const VOLUME_DB := {
 	"countdown_tick": -6.0,
 	"countdown_fight": -4.0,
 	"sfx_projectile": -9.0,
+	"turret_fire": -12.0,
 	"sfx_cone": -8.0,
 	"sfx_radius": -7.0,
 	"sfx_dash": -9.0,
@@ -294,6 +298,7 @@ const PITCH_SPREAD := {
 	"countdown_tick": 0.02,
 	"countdown_fight": 0.0,
 	"sfx_projectile": 0.05,
+	"turret_fire": 0.05,
 	"sfx_cone": 0.04,
 	"sfx_radius": 0.04,
 	"sfx_dash": 0.05,
@@ -312,6 +317,7 @@ const MAX_VOICES := {
 	"explosion": 1,
 	"ui_click": 2,
 	"dash": 2,
+	"turret_fire": 6,
 	"charge": 2,
 	"cast_tobor": 2,
 	"attack_tobor": 3,
@@ -342,8 +348,22 @@ const MUSIC_VOLUME_DB := -18.0
 const POOL_SIZE := 14
 const DEFAULT_MAX_VOICES := 5
 
+## Per-world ambient beds: a short, punchy, pixel-art-analog bed per biome that loops
+## under the arena music so each world "sounds" like its place (grass nature, volcano
+## rumble, ice wind, docks water). Synthesized by tools/synth_themes.py.
+const WORLD_THEME_TRACKS: Dictionary = {
+	0: preload("res://assets/audio/themes/world_grass.wav"),
+	1: preload("res://assets/audio/themes/world_volcano.wav"),
+	2: preload("res://assets/audio/themes/world_ice.wav"),
+	3: preload("res://assets/audio/themes/world_factory.wav"),
+	4: preload("res://assets/audio/themes/world_docks.wav"),
+}
+const WORLD_THEME_VOLUME_DB := -24.0
+
 var sfx_enabled := false
 var music_enabled := true
+var _world_theme_player: AudioStreamPlayer
+var _world_theme_biome: int = -1
 
 ## Self-test/probe hooks: last_play_ability mirrors the ability_id passed to the latest
 ## play_ability call that actually fired a player; last_play records the sound id, the
@@ -403,20 +423,52 @@ func has_sound(sound_id: String) -> bool:
 ## the shared archetype family takes (projectile/cone/heal/...) so the layer never goes
 ## silent; a total miss warns instead of crashing. last_play_ability records what fired
 ## for probes/debugging.
-func play_ability(ability_id: String) -> AudioStreamPlayer:
+func play_ability(ability_id: String, is_ult: bool = false) -> AudioStreamPlayer:
 	var bank := "cast_%s" % ability_id.split("_")[0]
 	if SOUND_LIBRARY.has(bank):
 		var player := play(bank)
 		if player != null:
+			# Ultimate SFX lasts ~2x longer than a normal ability (matches the 2x VFX
+			# lifetime in main.gd _play_ability_effect): play the bank, then re-trigger a
+			# second stretched take after a short gap so the whole thing rings out for
+			# roughly double the duration.
+			if is_ult:
+				player.pitch_scale = 0.7
+				var echo := player
+				_ult_echo_call(bank, echo)
 			last_play_ability = ability_id
 		return player
 	var info := PlayerClass.ability_info(ability_id)
 	if not info.is_empty():
 		var family := str(FAMILY_FOR_ARCHETYPE.get(int(info.get("archetype", -1)), ""))
 		if family != "" and SOUND_LIBRARY.has(family):
-			return play(family)
+			var fam_player := play(family)
+			if fam_player != null and is_ult:
+				fam_player.pitch_scale = 0.7
+			return fam_player
 	push_warning("[AudioService] no cast bank or family take for ability '%s'" % ability_id)
 	return null
+
+
+## Re-triggers the same cast bank one beat later, stretched down, so the ultimate SFX
+## reads as a long, heavy flourish rather than a single blip. Skips if muted/stopped.
+func _ult_echo_call(bank: String, _primary: AudioStreamPlayer) -> void:
+	var echo := AudioStreamPlayer.new()
+	add_child(echo)
+	echo.bus = "SFX"
+	echo.volume_db = float(VOLUME_DB.get(bank, -8.0)) - 3.0
+	echo.pitch_scale = 0.5
+	var takes: Array = SOUND_LIBRARY.get(bank, [])
+	if takes.is_empty():
+		echo.queue_free()
+		return
+	echo.stream = takes[0]
+	var timer := get_tree().create_timer(0.35)
+	timer.timeout.connect(func() -> void:
+		if echo.is_inside_tree() and sfx_enabled:
+			echo.play()
+		echo.free()
+)
 
 
 func play_music() -> void:
