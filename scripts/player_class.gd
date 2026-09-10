@@ -734,6 +734,37 @@ const WALL_DURATION := 6.0
 const WALL_MAX_LENGTH := 280.0
 const WALL_THICKNESS := 28.0
 
+## Display metadata for each RMB secondary_kind. These are NOT part of the ABILITIES
+## table (secondaries are a separate, always-available right-click system), so the
+## menu's RMB tooltip looks them up here by secondary_kind. "charge" is true when the
+## ability builds up before it can fire (the HUD shows a charge bar while it fills).
+const SECONDARY_INFO: Dictionary = {
+	"repulse":     {"name": "Repulse Nova",     "charge": false, "desc": "Right-click detonates a knockback blast that shoves nearby enemies away, peeling you off a pack."},
+	"volt_mend":   {"name": "Volt Mend",        "charge": false, "desc": "Right-click zaps yourself for a burst of healing and a brief shield."},
+	"wall":        {"name": "Drawn Wall",       "charge": false, "desc": "Right-click builds a short wall in front of you that blocks enemies and creeps."},
+	"vine_tangle": {"name": "Vine Tangle",       "charge": false, "desc": "Right-click snags nearby enemies with vines, rooting them in place for a moment."},
+	"ice_block":   {"name": "Ice Block",        "charge": true,  "desc": "Right-click (hold) builds a wall of ice; release to slam it forward and freeze what it hits."},
+	"heat_burst":  {"name": "Heat Burst",       "charge": false, "desc": "Right-click vents a cone of scalding steam that damages and slows nearby enemies."},
+	"blast_jump":  {"name": "Blast Jump",       "charge": false, "desc": "Right-click launches you a short distance forward with a concussive thump."},
+	"magma_armor": {"name": "Magma Armor",      "charge": false, "desc": "Right-click coats yourself in magma for a short time; nearby enemies taking your hits get scorched."},
+	"cinder_veil": {"name": "Cinder Veil",      "charge": false, "desc": "Right-click wraps yourself in embers, granting a brief shield and a movement speed boost."},
+	"bramble_snare": {"name": "Bramble Snare",   "charge": false, "desc": "Right-click lashes out a thorny whip that snags and damages the first enemy it reaches."},
+	"windstep":    {"name": "Windstep",         "charge": false, "desc": "Right-click dashes forward on a burst of wind, briefly passing through obstacles."},
+	"oak_bark":    {"name": "Oak Bark",         "charge": false, "desc": "Right-click hardens your bark, absorbing damage for a short time and healing a bit."},
+	"bloom_mend":  {"name": "Bloom Mend",       "charge": false, "desc": "Right-click blooms flowers around you that heal you and slow nearby enemies."},
+	"gale_gust":   {"name": "Gale Gust",        "charge": false, "desc": "Right-click whips up a gust that shoves nearby enemies and drags them back."},
+	"time_skip":   {"name": "Time Skip",        "charge": false, "desc": "Right-click blinks you forward a short distance, leaving a brief afterimage."},
+	"ward_light":  {"name": "Ward of Light",    "charge": false, "desc": "Right-click projects a shield of light around you that absorbs damage."},
+	"glacial_nova":{"name": "Glacial Nova",     "charge": true,  "desc": "Right-click (hold) gathers a glacial nova; release to unleash a burst of frost that damages and slows enemies."},
+	"rime_ward":   {"name": "Rime Ward",        "charge": false, "desc": "Right-click plants a frost ward that slows and chills enemies who step near it."},
+}
+
+## Returns the SECONDARY_INFO entry for a hero's secondary_kind (by class id).
+static func secondary_info_for_class(class_id: String) -> Dictionary:
+	var sec_kind: String = str(by_id(class_id).get("secondary", "repulse"))
+	var info: Variant = SECONDARY_INFO.get(sec_kind, SECONDARY_INFO["repulse"])
+	return info
+
 const UPGRADES: Dictionary = {
 	"rapid": {"name": "Rapid Casting", "description": "Attack 18% faster"},
 	"heavy": {"name": "Charged Weapon", "description": "+8 weapon damage"},

@@ -1225,35 +1225,44 @@ func _refresh_loadout_panel() -> void:
 			lmb_tag = t
 		lmb_tag.text = "LMB"
 		lmb_slot_button.tooltip_text = "%s: %s" % [weapon_name, _lmb_tooltip(hero_id)]
-	# RMB button: secondary ability icon.
+	# RMB button: secondary ability icon. Every hero has a right-click secondary
+	# (a `secondary_kind` like "repulse", not an entry in the ABILITIES table), so this
+	# is always populated. The secondary icon reuses the shared secondary sprite when
+	# one exists, otherwise falls back to the hero's accent glyph.
 	if rmb_slot_button != null:
-		if not secondary_id.is_empty() and PlayerClass.ABILITIES.has(secondary_id):
-			rmb_slot_button.disabled = false
-			rmb_slot_button.text = ""
-			rmb_slot_button.icon = SpriteLibrary.texture_for(secondary_id)
-			rmb_slot_button.expand_icon = false
-			rmb_slot_button.add_theme_constant_override("icon_max_width", 52)
-			rmb_slot_button.add_theme_constant_override("icon_max_height", 52)
-			var rmb_tag := rmb_slot_button.get_node_or_null("SlotTag") as Label
-			if rmb_tag == null:
-				var t := Label.new()
-				t.name = "SlotTag"
-				t.position = Vector2(2, 2)
-				t.add_theme_font_size_override("font_size", 9)
-				t.add_theme_color_override("font_color", Color("f5c542"))
-				t.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				rmb_slot_button.add_child(t)
-				rmb_tag = t
-			rmb_tag.text = "RMB"
-			rmb_slot_button.tooltip_text = _ability_tooltip(secondary_id)
-		else:
-			rmb_slot_button.disabled = true
-			rmb_slot_button.text = ""
-			rmb_slot_button.icon = null
-			rmb_slot_button.tooltip_text = "No secondary ability"
-			var rmb_tag2 := rmb_slot_button.get_node_or_null("SlotTag") as Label
-			if rmb_tag2 != null:
-				rmb_tag2.text = "RMB"
+		var sec_info := PlayerClass.secondary_info_for_class(hero_id)
+		var sec_name := str(sec_info.get("name", "Secondary"))
+		var sec_charge := bool(sec_info.get("charge", false))
+		var sec_desc := str(sec_info.get("desc", ""))
+		var sec_tooltip := "%s\n%s" % [sec_name, sec_desc]
+		if sec_charge:
+			sec_tooltip += "\n\nCharged — hold to build, release to fire."
+		sec_tooltip += "\nCooldown: ~%.0fs" % float(PlayerClass.SECONDARY_COOLDOWN)
+		rmb_slot_button.disabled = false
+		rmb_slot_button.text = ""
+		# Try the shared secondary icon set first (only the five common secondaries have
+		# bespoke 8x8 glyphs: repulse / freeze / volt_mend / rime_ward / wall). Other
+		# secondary kinds fall back to the repulse glyph so the button is never empty.
+		var sec_kind := str(PlayerClass.by_id(hero_id).get("secondary", "repulse"))
+		var sec_texture := SpriteLibrary.texture_for("secondary_%s" % sec_kind)
+		if sec_texture == null:
+			sec_texture = SpriteLibrary.texture_for("secondary_repulse")
+		rmb_slot_button.icon = sec_texture
+		rmb_slot_button.expand_icon = false
+		rmb_slot_button.add_theme_constant_override("icon_max_width", 52)
+		rmb_slot_button.add_theme_constant_override("icon_max_height", 52)
+		var rmb_tag := rmb_slot_button.get_node_or_null("SlotTag") as Label
+		if rmb_tag == null:
+			var t := Label.new()
+			t.name = "SlotTag"
+			t.position = Vector2(2, 2)
+			t.add_theme_font_size_override("font_size", 9)
+			t.add_theme_color_override("font_color", Color("f5c542"))
+			t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			rmb_slot_button.add_child(t)
+			rmb_tag = t
+		rmb_tag.text = "RMB"
+		rmb_slot_button.tooltip_text = sec_tooltip
 	var slot_names := ["Q", "E", "D", "R"]
 	for slot_index in loadout_slots.size():
 		var button := loadout_slots[slot_index] as Button
@@ -1317,18 +1326,28 @@ func _on_lmb_hover() -> void:
 
 func _on_rmb_hover() -> void:
 	var hero_id := PlayerProfile.selected_class_id
-	var secondary_id := str(PlayerClass.by_id(hero_id).get("secondary", ""))
-	if secondary_id.is_empty() or not PlayerClass.ABILITIES.has(secondary_id):
-		# No secondary: show a small "no secondary" panel instead of hiding.
-		ability_hero_header.text = "RMB  ·  NO SECONDARY"
-		if ability_hover_body != null:
-			ability_hover_body.text = "This hero has no secondary ability."
-		if ability_preview != null:
-			ability_preview.visible = false
-		ability_panel.visible = true
-		_raise_ability_hover()
-		return
-	_show_ability_hover(secondary_id)
+	var sec_info := PlayerClass.secondary_info_for_class(hero_id)
+	var sec_name := str(sec_info.get("name", "Secondary"))
+	var sec_charge := bool(sec_info.get("charge", false))
+	var sec_desc := str(sec_info.get("desc", ""))
+	# Every hero has a right-click secondary (a secondary_kind, not an ABILITIES entry),
+	# so show a full card: name, what it does, whether it's charged, and its cooldown.
+	if ability_hero_header != null:
+		ability_hero_header.text = ("RMB  ·  " + sec_name).to_upper()
+	if ability_hover_body != null:
+		var body := sec_desc
+		body += "\n\n[color=#9fb3d1]Charged: %s   Cooldown: ~%.0fs[/color]" % [
+			"yes (hold to build)" if sec_charge else "no",
+			float(PlayerClass.SECONDARY_COOLDOWN),
+		]
+		ability_hover_body.text = body
+	elif ability_hero_blurb != null:
+		ability_hero_blurb.visible = true
+		ability_hero_blurb.text = sec_name
+	if ability_preview != null:
+		ability_preview.visible = false
+	ability_panel.visible = true
+	_raise_ability_hover()
 
 
 func _lmb_tooltip(hero_id: String) -> String:
