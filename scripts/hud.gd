@@ -1033,7 +1033,12 @@ func _set_world_wave(wave: int) -> void:
 	var hide := GameRuntime.is_classic()
 	if world_label != null:
 		world_label.visible = not hide
-		world_label.text = "WORLD %d" % _world_number_for_wave(_hud_wave)
+		# Show the arena name so each world reads as a distinct place, not just
+		# "WORLD 2". The name comes from GameRuntime.biome_name().
+		if GameRuntime.is_classic():
+			world_label.text = "WORLD %d" % _world_number_for_wave(_hud_wave)
+		else:
+			world_label.text = GameRuntime.biome_name().to_upper()
 	if wave_label != null:
 		wave_label.visible = not hide
 

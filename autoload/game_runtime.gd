@@ -78,7 +78,7 @@ const FFA_PVP_SHOTS_TO_KILL := 10.0
 var ffa_all_bots := false
 
 const BIOME_KEYS := ["", "volcano", "ice", "factory", "docks"]
-const BIOME_NAMES := ["Gras", "Vulkaan", "IJs", "Fabriek", "Docks"]
+const BIOME_NAMES := ["Verdant Hollow", "Ashen Crater", "Frostmere Reach", "Ironworks Yard", "Saltbreak Docks"]
 const BIOME_ALIASES := {
 	"parking": 0,
 	"parkeer": 0,

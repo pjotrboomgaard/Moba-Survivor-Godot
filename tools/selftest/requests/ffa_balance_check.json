@@ -1,0 +1,14 @@
+{
+  "hero": "arclight",
+  "mode": "ffa",
+  "until_wave": 8,
+  "duration": 240,
+  "time_scale": 2.0,
+  "comment": "FFA balance check: 4 heroes, verify camp projectiles + spawn distribution don't crash, and gather kill/win data.",
+  "events": [
+    {"kind": "snap", "label": "ffa_t20", "t": 20},
+    {"kind": "snap", "label": "ffa_t60", "t": 60},
+    {"kind": "snap", "label": "ffa_t120", "t": 120},
+    {"kind": "snap", "label": "ffa_t180", "t": 180}
+  ]
+}
