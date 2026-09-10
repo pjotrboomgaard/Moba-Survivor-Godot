@@ -1381,10 +1381,11 @@ func _show_rmb_hover(hero_id: String) -> void:
 	elif ability_hero_blurb != null:
 		ability_hero_blurb.visible = true
 		ability_hero_blurb.text = sec_name
-	# Show a preview of the hero performing its secondary on the creeps.
+	# Rendered preview: the hero bot performs its RMB secondary on the standing creeps.
 	if ability_preview != null:
-		ability_preview.configure("secondary")
 		ability_preview.visible = true
+	if ability_preview_world != null:
+		ability_preview_world.reload(hero_id, -2)
 	ability_panel.visible = true
 	_raise_ability_hover()
 
@@ -1457,14 +1458,18 @@ func _layout_ability_hover_panel() -> void:
 		ability_hover_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		ability_hover_body.add_theme_color_override("default_color", Color("f4f0e6"))
 		ability_hover_body.add_theme_font_size_override("normal_font_size", 16)
-		# Simulated ability preview: loops the ability's effect hitting 3 creeps.
+		# Rendered ability preview: a real SubViewport running a mini game world where
+		# the hero bot casts the hovered ability on 3 standing creeps (actual in-game
+		# hero sprite + creeps + VFX, not a hand-drawn mimicry). See ability_preview_world.
 		var preview_node := layout.get_node_or_null("AbilityPreview")
 		if preview_node == null:
-			preview_node = AbilityPreviewScript.new()
+			preview_node = AbilityPreviewWorldScene.instantiate()
 		ability_preview = preview_node as Node
 		ability_preview.name = "AbilityPreview"
 		ability_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		ability_preview.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		ability_preview.custom_minimum_size = Vector2(340, 150)
+		ability_preview_world = ability_preview as AbilityPreviewWorld
 		if ability_preview.get_parent() != layout:
 			layout.add_child(ability_preview)
 		layout.move_child(ability_preview, layout.get_child_count() - 1)
@@ -1519,10 +1524,11 @@ func _show_lmb_hover(hero_id: String) -> void:
 	elif ability_hero_blurb != null:
 		ability_hero_blurb.visible = true
 		ability_hero_blurb.text = "%s — primary attack" % weapon_name
-	# Simulated preview: loops the LMB effect on the 3 creeps.
+	# Rendered preview: the hero bot performs its LMB primary on the standing creeps.
 	if ability_preview != null:
-		ability_preview.configure("lmb_" + hero_id)
 		ability_preview.visible = true
+	if ability_preview_world != null:
+		ability_preview_world.reload(hero_id, -1)
 	ability_panel.visible = true
 
 
@@ -1540,10 +1546,12 @@ func _show_ability_hover(ability_id: String) -> void:
 	elif ability_hero_blurb != null:
 		ability_hero_blurb.visible = true
 		ability_hero_blurb.text = _format_ability_tooltip(ability_id).replace("[b]", "").replace("[/b]", "").replace("[color=9fb3d1]", "").replace("[/color]", "")
-	# Simulated preview: loops this ability's effect on the 3 creeps.
+	# Rendered preview: drive the hero bot to cast this ability on the standing creeps.
 	if ability_preview != null:
-		ability_preview.configure(ability_id)
 		ability_preview.visible = true
+	if ability_preview_world != null:
+		var slot := _ability_slot_index_for(PlayerProfile.selected_class_id, ability_id)
+		ability_preview_world.reload(PlayerProfile.selected_class_id, slot)
 	ability_panel.visible = true
 
 
@@ -1553,7 +1561,6 @@ func _hide_ability_hover() -> void:
 	if ability_hover_icon != null:
 		ability_hover_icon.visible = false
 	if ability_preview != null:
-		ability_preview.deactivate()
 		ability_preview.visible = false
 
 

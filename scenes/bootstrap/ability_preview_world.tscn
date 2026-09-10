@@ -2,5 +2,18 @@
 
 [ext_resource type="Script" path="res://scenes/bootstrap/ability_preview_world.gd" id="1"]
 
-[node name="AbilityPreviewWorld" type="Node2D"]
+[node name="AbilityPreviewRoot" type="Control"]
 script = ExtResource("1")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewport" type="SubViewport" parent="."]
+size = Vector2i(340, 150)
+render_target_update_mode = 3
+transparent_bg = true
+
+[node name="World" type="Node2D" parent="SubViewport"]

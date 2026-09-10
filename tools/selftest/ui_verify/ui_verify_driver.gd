@@ -26,18 +26,18 @@ func _ready() -> void:
 	_steps.append({"t": 2.0, "kind": "shot", "label": "lobby"})
 	# 2. hover the LMB button to confirm it shows an info panel.
 	_steps.append({"t": 2.5, "kind": "hover_lmb"})
-	_steps.append({"t": 4.0, "kind": "shot", "label": "lmb_hover"})
+	_steps.append({"t": 5.0, "kind": "shot", "label": "lmb_hover"})
 	# 3. hover the RMB button.
-	_steps.append({"t": 4.5, "kind": "hover_rmb"})
-	_steps.append({"t": 6.0, "kind": "shot", "label": "rmb_hover"})
+	_steps.append({"t": 5.5, "kind": "hover_rmb"})
+	_steps.append({"t": 8.0, "kind": "shot", "label": "rmb_hover"})
 	# 4. hover ability archetypes BEFORE pressing the editor (scene changes after this).
-	_steps.append({"t": 6.5, "kind": "hover_ability", "hero": "arclight", "slot": 0})
-	_steps.append({"t": 8.5, "kind": "shot", "label": "ability_preview_nuke"})
-	_steps.append({"t": 9.0, "kind": "hover_ability", "hero": "arclight", "slot": 2})
-	_steps.append({"t": 11.0, "kind": "shot", "label": "ability_preview_radius"})
+	_steps.append({"t": 8.5, "kind": "hover_ability", "hero": "arclight", "slot": 0})
+	_steps.append({"t": 10.5, "kind": "shot", "label": "ability_preview_nuke"})
+	_steps.append({"t": 11.0, "kind": "hover_ability", "hero": "arclight", "slot": 2})
+	_steps.append({"t": 13.0, "kind": "shot", "label": "ability_preview_radius"})
 	# 5. hover a SUMMON_SPIRIT ability (Tobor's Steam Keg) to verify summon rendering.
-	_steps.append({"t": 11.5, "kind": "hover_ability", "hero": "tobor", "slot": 1})
-	_steps.append({"t": 13.5, "kind": "shot", "label": "ability_preview_summon"})
+	_steps.append({"t": 13.5, "kind": "hover_ability", "hero": "tobor", "slot": 1})
+	_steps.append({"t": 15.5, "kind": "shot", "label": "ability_preview_summon"})
 	# 6. press the World Editor button programmatically (scene change to editor).
 	_steps.append({"t": 14.0, "kind": "press_editor"})
 	# 7. capture the editor (empty, toolbar visible).

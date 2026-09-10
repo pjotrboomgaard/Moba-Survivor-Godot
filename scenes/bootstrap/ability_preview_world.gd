@@ -1,22 +1,22 @@
 class_name AbilityPreviewWorld
-extends Node2D
-## A self-contained "mini game world" that renders the REAL in-game hero + creeps
-## and has the hero bot auto-cast a chosen ability on them, on a loop. Used as the
-## ability-hover preview in the main menu (embedded in a SubViewport so the menu shows
-## the actual in-game VFX / hero / creeps rather than a hand-drawn mimicry).
+extends Control
+## Rendered ability preview: a real SubViewport running a mini game world where a
+## hero bot casts the hovered ability on 3 standing creeps. Shows the ACTUAL in-game
+## hero sprite, creeps, and ability VFX (not a hand-drawn mimicry), on a loop.
 ##
-## Requirements (per user):
-##   * Real in-game hero (bot that casts by itself).
-##   * 3 real creeps standing still as targets.
-##   * Loops: cast -> VFX plays on creeps -> creeps damaged/knocked -> reset -> repeat.
-##   * No background clutter so the effect reads clearly.
+## Structure (see .tscn):
+##   AbilityPreviewRoot (this Control)
+##     SubViewport  -> World (Node2D, holds hero + creeps)
 ##
-## The host (bootstrap) sets `.hero_class_id` + `.ability_slot` and calls `.start()`.
-## On re-hover it calls `.reload(hero_class_id, ability_slot)`.
+## A SubViewport that is a child of the tree renders into the main viewport at its
+## position/size automatically (not top-level), so it shows up right under the
+## ability text in the hover card.
 ##
-## Ability slot convention: 0..3 maps to Q/E/D/R kit abilities; -1 = LMB primary;
-## -2 = RMB secondary. For LMB/RMB the preview shows the hero performing its
-## basic attack / secondary on the creeps.
+## The host (bootstrap) calls `.reload(hero_class_id, ability_slot)` on hover:
+##   ability_slot 0..3 maps to Q/E/D/R; -1 = LMB primary; -2 = RMB secondary.
+
+@onready var _sub_viewport: SubViewport = $SubViewport
+@onready var _world: Node2D = $SubViewport/World
 
 const PlayerScene := preload("res://scenes/player/player.tscn")
 const EnemyScene := preload("res://scenes/enemy/enemy.tscn")
@@ -26,27 +26,62 @@ var ability_slot := 0
 
 var _hero: Player = null
 var _creeps: Array[Enemy] = []
-var _phase := "idle"      # prep -> casting -> recover -> (loop)
+var _phase := "idle"   # prep -> casting -> recover -> loop
 var _phase_time := 0.0
 var _running := false
 
-# Timings for the loop.
-const PREP_DURATION := 0.6
-const CAST_DURATION := 1.6
-const RECOVER_DURATION := 1.1
-
+const PREP_DURATION := 0.5
+const CAST_DURATION := 1.5
+const RECOVER_DURATION := 1.0
 const CREEP_COUNT := 3
-const CREEP_START_X := 170.0
-const HERO_X := -90.0
+const CREEP_START_X := 150.0
+const HERO_X := -60.0
 
 func _ready() -> void:
-	# Nothing here; the host calls start()/reload() to populate.
-	pass
+	# Add a Camera2D inside the SubViewport so the action (hero at x=-60, creeps at
+	# x=150) is framed nicely in the small preview window. The camera centers on the
+	# midpoint between hero and creeps.
+	if _world != null:
+		var cam := Camera2D.new()
+		cam.name = "PreviewCam"
+		cam.position = Vector2((HERO_X + CREEP_START_X) * 0.5, 0.0)
+		cam.zoom = Vector2(0.7, 0.7)
+		cam.limit_left = -400
+		cam.limit_top = -400
+		cam.limit_right = 400
+		cam.limit_bottom = 400
+		_world.add_child(cam)
+		cam.make_current()
+	# Size the SubViewport to a sensible default; the host resizes it to the card.
+	if _sub_viewport != null:
+		_sub_viewport.size = Vector2i(360, 200)
+	_build_stage()
+
+
+func _build_stage() -> void:
+	# A subtle ground so the world reads as a place, without clutter.
+	var ground := Node2D.new()
+	ground.set_script(_make_ground_script())
+	_world.add_child(ground)
+
+
+func _make_ground_script() -> GDScript:
+	var text := """
+extends Node2D
+func _draw() -> void:
+	draw_circle(Vector2(45.0, 0.0), 200.0, Color(0.05, 0.06, 0.09, 0.9))
+	draw_circle(Vector2(45.0, 0.0), 150.0, Color(0.09, 0.10, 0.13, 0.6))
+"""
+	var script := GDScript.new()
+	script.source_code = text
+	script.reload(true)
+	return script
 
 
 func reload(next_hero_class: String, next_slot: int) -> void:
 	hero_class_id = next_hero_class
 	ability_slot = next_slot
+	_running = true
 	_restart()
 
 
@@ -55,7 +90,6 @@ func start() -> void:
 	_restart()
 
 
-## Rebuild the hero + creeps and begin the cast loop.
 func _restart() -> void:
 	_clear_world()
 	_spawn_hero()
@@ -74,35 +108,34 @@ func _clear_world() -> void:
 	_creeps.clear()
 
 
-## Spawn the hero in OFFLINE mode with external commands so the bot's brain does NOT
-## override our scripted casting. Non-local so its Camera2D is disabled (the host's
-## SubViewport camera controls framing).
 func _spawn_hero() -> void:
 	var p := PlayerScene.instantiate() as Player
-	add_child(p)
+	_world.add_child(p)
 	_hero = p
+	# OFFLINE mode with latched external commands -> the bot's brain does NOT override
+	# our scripted casting. Non-local -> its Camera2D is disabled; the SubViewport
+	# frames the action.
 	p.configure(0, Player.SimulationMode.OFFLINE, false, hero_class_id)
 	p.global_position = Vector2(HERO_X, 0.0)
 	if p.camera != null:
 		p.camera.enabled = false
-	# Latch external commands so OFFLINE polling does not fight us.
 	p.set_authority_command(Vector2.ZERO, Vector2(CREEP_START_X, 0.0), false, false, [false, false, false, false], false)
-	# Keep full health so the preview never shows a dead hero.
 	p.health.current_health = p.health.max_health
 
 
-## Spawn 3 static creeps in a line to the hero's right as the cast targets.
 func _spawn_creeps() -> void:
 	_creeps.clear()
 	var type_id := EnemyType.DEFAULT_TYPE_ID
 	for i in CREEP_COUNT:
 		var e := EnemyScene.instantiate() as Enemy
-		add_child(e)
+		_world.add_child(e)
 		e.configure(300 + i, true, type_id, 1.0, 0.0)
-		e.global_position = Vector2(CREEP_START_X, -72.0 + 72.0 * float(i))
-		# Stand still: freeze the creep so it doesn't wander off-frame.
+		e.global_position = Vector2(CREEP_START_X, -60.0 + 60.0 * float(i))
 		_freeze_creep(e)
 		_creeps.append(e)
+		# Give the creeps a visible HP bar so the damage is readable in the preview.
+		if e.world_health_bar != null:
+			e.world_health_bar.visible = true
 
 
 ## Stand a creep still: zero its speed so it doesn't wander off-frame. We keep its
@@ -120,7 +153,6 @@ func _physics_process(delta: float) -> void:
 	_phase_time += delta
 	match _phase:
 		"prep":
-			# Hero faces the creeps, aims at the middle creep.
 			_aim_at_creeps()
 			if _phase_time >= PREP_DURATION:
 				_phase = "casting"
@@ -143,11 +175,9 @@ func _aim_at_creeps() -> void:
 	var mid := _creeps[_creeps.size() / 2]
 	if mid == null:
 		return
-	# Keep the aim latched on the middle creep; move=0 so the hero stands still.
-	var slots := [false, false, false, false]
 	var attack := ability_slot == -1
 	var secondary := ability_slot == -2
-	_hero.set_authority_command(Vector2.ZERO, mid.global_position, attack, false, slots, secondary)
+	_hero.set_authority_command(Vector2.ZERO, mid.global_position, attack, false, [false, false, false, false], secondary)
 
 
 func _do_cast() -> void:
@@ -164,34 +194,15 @@ func _do_cast() -> void:
 			_hero.command_secondary = true
 		_:   # Q/E/D/R kit ability: tap to arm + confirm.
 			_hero.scripted_tap_ability(ability_slot)
-			# A second tap confirms targeted abilities (arm then confirm).
 			_hero.scripted_tap_ability(ability_slot)
 
 
 func _reset_creeps() -> void:
-	# Re-top the creeps' HP so the loop keeps showing fresh damage.
 	for c in _creeps:
 		if c == null or not is_instance_valid(c):
 			continue
 		c.health.current_health = c.health.max_health
 		c.global_position = Vector2(CREEP_START_X, c.global_position.y)
 		_freeze_creep(c)
-	# Restore the hero's health so it never dies mid-preview.
 	if _hero != null:
 		_hero.health.current_health = _hero.health.max_health
-
-
-func _draw() -> void:
-	# Faint ground grid so the mini-world has spatial reference without clutter.
-	var grid_step := 48.0
-	var left := -320.0
-	var right := 340.0
-	var top := -240.0
-	var bottom := 240.0
-	for gx in range(int(left / grid_step), int(right / grid_step) + 1):
-		for gy in range(int(top / grid_step), int(bottom / grid_step) + 1):
-			var p := Vector2(gx * grid_step, gy * grid_step)
-			draw_line(p, p + Vector2(grid_step, 0.0), Color(1.0, 1.0, 1.0, 0.04), 1.0)
-			draw_line(p, p + Vector2(0.0, grid_step), Color(1.0, 1.0, 1.0, 0.04), 1.0)
-	# A slightly brighter "stage" ellipse under the action.
-	draw_circle(Vector2(40.0, 0.0), 260.0, Color(1.0, 0.95, 0.85, 0.03))
