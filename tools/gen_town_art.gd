@@ -31,7 +31,7 @@ const PAL := {
 	"D": "5a3a1a",  # door light
 	"e": "f2e8b0",  # window warm
 	"E": "fff5d0",  # window glint
-	"a": "c0392b",  # awning red
+	"a": "c0392b",  # awning red / arched door
 	"A": "e8d8a8",  # awning cream
 	"s": "8a8a8a",  # well stone
 	"S": "a8a8a8",  # well stone light
@@ -42,6 +42,22 @@ const PAL := {
 	"O": "8b5a36",  # chimney light
 	"x": "2a1a0a",  # cross / dark trim
 	"l": "6b4a2a",  # post / wood dark
+	# A-frame thatched house (ref 1)
+	"t": "c9a065",  # thatch light (tan)
+	"T": "a17a45",  # thatch shadow
+	"f": "8f8f8f",  # stone wall (front)
+	"F": "6f6f6f",  # stone wall shadow
+	# Timber-frame semi-iso house (ref 2)
+	"m": "f0e08a",  # cream/yellow timber-frame wall
+	"M": "c8b86a",  # cream shadow
+	"v": "5a3a20",  # dark timber beam
+	"V": "402818",  # timber beam shadow
+	"u": "2a6a6a",  # teal shutter
+	"U": "1f4f4f",  # teal shutter shadow
+	"q": "5a5f63",  # grey tiled roof
+	"Q": "3f4448",  # grey roof shadow
+	"r1": "d98a4a",  # orange door light
+	"d1": "b86a35",  # orange door dark
 }
 
 func _init() -> void:
@@ -80,31 +96,35 @@ func _write(id: String, rows: Array) -> void:
 	print("Wrote %s (%dx%d)" % [path, width, height])
 
 
-## House: warm timber front, terracotta gabled roof, chimney, two-story with door + windows.
-## 32px grid -> ~128px at PIXEL_ZOOM 4, roughly 2x tree height with more detail.
+## House (ref 1): steep thatched A-frame with a central ridge beam, stone base,
+## red arched double-door, two curtained windows, and a round gable window.
 const _S_HOUSE := [
-	"........OOO.......",
-	"........OOo.......",
-	"........OOO.......",
-	".......OOO......",
-	".....rrrrrrrr.....",
-	"....rrrrrrrrrr....",
-	"...rrrrrrrrrrrr...",
-	"..rrrrrrrrrrrrrr..",
-	".rrrrrrrrrrrrrrrr.",
-	".wwwwwwwwwwwwwwww.",
-	".weeeewwwweeeewww.",
-	".weeeewwwweeeewww.",
-	".wwwwwwwwwwwwwwww.",
-	".wwwwwwwwwwwwwwww.",
-	".wwwwwwwwwwwwwwww.",
-	".weeeewwwweeeewww.",
-	".weeeewwwweeeewww.",
-	".wwwwwwwwwwwwwwww.",
-	".wddwwwwwwwwwwwwd.",
-	".wDDwwwwwwwwwwwwd.",
-	".wwwwwwwwwwwwwwww.",
-	".WWWWWWWWWWWWWWWW.",
+	".......TTT........",
+	".......TTT........",
+	".......TTT........",
+	".......TTT........",
+	"......TTTTT.......",
+	"......TTTTT.......",
+	".....TTTTTTTT.....",
+	"....TTTTTTTTTT....",
+	"....TTTTTTTTTT....",
+	"...TTTTTTTTTTTT...",
+	"...TTTeeeTTTTTTT..",
+	"...TTTeeeTTTTTTT..",
+	"..TTTTTTTTTTTTTT..",
+	"..TTTTTTTTTTTTTT..",
+	".TTTTTTTTTTTTTTTT.",
+	".TTTTTTTTTTTTTTTT.",
+	".TTTTTTTTTTTTTTTT.",
+	"..FFFFFFFFFFFFFF..",
+	"..FFFFffffFFFFFF..",
+	"..FFFFeeFFFFeeFF..",
+	"..FFFFeeFFFFeeFF..",
+	"..FFFFaaffffaaff..",
+	"..FFFFaaFaFaaffF..",
+	"..FFFFaaFaFaaffF..",
+	"..FFFFFFaFaaffFFFF",
+	"..................",
 ]
 
 ## Shop: wide cream front, red/cream striped awning, sign, door.
@@ -176,30 +196,32 @@ const _SPRITES := {
 }
 
 ## Extra house variants for a more varied streetscape.
-## House2: grey stone, cobalt roof, arched door, two-story.
+## House2 (ref 2): semi-isometric timber-frame — grey tiled roof, yellow/cream
+## stucco with dark timber cross-brace beams, teal shutters, orange door.
 const _S_HOUSE2 := [
-	"........OOO.......",
-	"........OOo.......",
-	"........OOO.......",
-	".......OOO......",
-	".....cccccccc.....",
-	"....cccccccccc....",
-	"...cccccccccccc...",
-	"..cccccccccccccc..",
-	".cccccccccccccccc.",
-	".gggggggggggggggg.",
-	".geeeegggggeeeegg.",
-	".geeeegggggeeeegg.",
-	".gggggggggggggggg.",
-	".gggggggggggggggg.",
-	".gggggggggggggggg.",
-	".geeeegggggeeeegg.",
-	".geeeegggggeeeegg.",
-	".gggggggggggggggg.",
-	".gddgggggggggggdg.",
-	".gDDeeggddggDDeeg.",
-	".gggggggggggggggg.",
-	".GGGGGGGGGGGGGGGG.",
+	"............qq....",
+	"...........qqq....",
+	"..........qqqq....",
+	"...vvvvvvvqqqq....",
+	"..vmmmmmmmqqqq....",
+	"..vmmmmmqqqqqq....",
+	"..vmmmmqqqqqqqq...",
+	"..vvvvvqqqqqqqq...",
+	".vmuumeemmuuvmv...",
+	".vmuumeemmuuvmv...",
+	".vmmmmmmmmmmmvm...",
+	".vmvvvvvvvvvvvm...",
+	".vmuumeemmuuvmv...",
+	".vmuumeemmuuvmv...",
+	".vmmmmmmmmmmmvm...",
+	".vmvmmmmmmmmvvm...",
+	".vmvmmmmmmmmvvm...",
+	".vmvmmmmmmmmvvm...",
+	".vmvmvvvvvvvmvm...",
+	".vmvmmmmmmmmvvm...",
+	".vmmmmmmmmmmmmmv.",
+	".vMMMMMMMMMMMMMV.",
+	"................",
 ]
 
 ## House3: brown timber, brown gable, two windows, big door, two-story.

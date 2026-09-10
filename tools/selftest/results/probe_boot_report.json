@@ -1,12 +1,6 @@
 {
   "effects": [
     {
-      "hp": 1.0,
-      "kind": "landmark_save",
-      "saves": 1,
-      "t": 0.748492999999999
-    },
-    {
       "abilities": [
         {
           "id": "tobor_steam_keg",
@@ -47,7 +41,7 @@
             "local": true,
             "peer": 1,
             "pos": [
-              112.0,
+              72.0,
               0.0
             ],
             "team": ""
@@ -65,10 +59,10 @@
       "hp_frac": 1.0,
       "hp_max": 82.0,
       "kind": "probe",
-      "label": "start",
+      "label": "boot_probe",
       "last_tapped": -1,
       "level": 1,
-      "obstacle_count": 441,
+      "obstacle_count": 204,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -76,7 +70,7 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(112.0, 0.0)"
+          "pos": "(72.0, 0.0)"
         }
       },
       "pvp_invuln": 0.0,
@@ -91,16 +85,16 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 3.00551466666666,
+      "t": 1.007203,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
       "xp": 0
     }
   ],
-  "elapsed": 6.50650333333341,
+  "elapsed": 2.00728766666666,
   "enemies_spawned": 0,
-  "hero_position": "(112.0, 0.0)",
+  "hero_position": "(72.0, 0.0)",
   "player_class": "tobor",
   "results": {
     "alive": true,
@@ -115,7 +109,7 @@
     "gold": 0,
     "hero_kills": 0,
     "hp_samples": [],
-    "landmark_saves": 1,
+    "landmark_saves": 0,
     "level": 1,
     "level_upgrades": {},
     "max_hp": 0.0,
@@ -134,14 +128,14 @@
   },
   "shots": [
     {
-      "label": "town_wide",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7511/town_wide_4.505_7511.png",
-      "t": 4.50539800000001
+      "label": "boot_early",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2777/boot_early_0.507_2777.png",
+      "t": 0.507056333333334
     },
     {
-      "label": "town_square",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9019/town_square_6.007_9019.png",
-      "t": 6.0069993333334
+      "label": "boot_late",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3777/boot_late_1.507_3777.png",
+      "t": 1.507203
     }
   ]
 }

@@ -133,24 +133,6 @@ func _on_health_changed(current: float, max_hp: float) -> void:
 	queue_redraw()
 
 
-## Draw a small HP bar above turrets so their durability is visible in-game.
-func _draw() -> void:
-	if not is_turret or health == null:
-		return
-	var frac := clampf(health.current_health / maxf(1.0, health.max_health), 0.0, 1.0)
-	# Bar sits just above the sprite; only show when damaged.
-	if frac >= 1.0:
-		return
-	var bar_w := 40.0
-	var bar_h := 5.0
-	var bar_y := -34.0
-	# Backing
-	draw_rect(Rect2(-bar_w * 0.5, bar_y, bar_w, bar_h), Color(0.1, 0.1, 0.1, 0.6))
-	# Fill (green->yellow->red by fraction)
-	var fill_color := Color(0.3, 0.9, 0.3, 0.9) if frac > 0.5 else Color(0.95, 0.8, 0.2, 0.9) if frac > 0.25 else Color(0.95, 0.3, 0.2, 0.9)
-	draw_rect(Rect2(-bar_w * 0.5, bar_y, bar_w * frac, bar_h), fill_color)
-
-
 var _deploy_timer: float = 0.0
 
 
@@ -326,6 +308,16 @@ func _draw() -> void:
 			var alpha := glow * (1.0 - float(ring) * 0.3)
 			draw_arc(Vector2(0, -14), r, 0.0, TAU, 24, Color(tint.r, tint.g, tint.b, alpha * 0.7), 2.0, true)
 		draw_circle(Vector2(0, -14), 3.0 * glow, Color(1.0, 1.0, 1.1, glow * 0.9))
+	# Turret HP bar above the sprite; only shown once the turret has taken damage.
+	if is_turret and health != null:
+		var frac := clampf(health.current_health / maxf(1.0, health.max_health), 0.0, 1.0)
+		if frac < 1.0:
+			var bar_w := 40.0
+			var bar_h := 5.0
+			var bar_y := -34.0
+			draw_rect(Rect2(-bar_w * 0.5, bar_y, bar_w, bar_h), Color(0.1, 0.1, 0.1, 0.6))
+			var fill_color := Color(0.3, 0.9, 0.3, 0.9) if frac > 0.5 else Color(0.95, 0.8, 0.2, 0.9) if frac > 0.25 else Color(0.95, 0.3, 0.2, 0.9)
+			draw_rect(Rect2(-bar_w * 0.5, bar_y, bar_w * frac, bar_h), fill_color)
 
 
 func _strike_nearest() -> void:

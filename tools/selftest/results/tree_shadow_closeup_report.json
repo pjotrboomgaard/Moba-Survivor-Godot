@@ -4,7 +4,7 @@
       "hp": 1.0,
       "kind": "landmark_save",
       "saves": 1,
-      "t": 0.748492999999999
+      "t": 0.749999999999999
     },
     {
       "abilities": [
@@ -68,7 +68,7 @@
       "label": "start",
       "last_tapped": -1,
       "level": 1,
-      "obstacle_count": 441,
+      "obstacle_count": 434,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -91,16 +91,23 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 3.00551466666666,
+      "t": 3.00833333333332,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
       "xp": 0
+    },
+    {
+      "kind": "focus_tree",
+      "label": "",
+      "pos": "(240.0, 160.0)",
+      "t": 3.50833333333332,
+      "tree": "tree_pine"
     }
   ],
-  "elapsed": 6.50650333333341,
+  "elapsed": 5.00825466666668,
   "enemies_spawned": 0,
-  "hero_position": "(112.0, 0.0)",
+  "hero_position": "(310.0, 180.0)",
   "player_class": "tobor",
   "results": {
     "alive": true,
@@ -134,14 +141,14 @@
   },
   "shots": [
     {
-      "label": "town_wide",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7511/town_wide_4.505_7511.png",
-      "t": 4.50539800000001
+      "label": "tree_closeup",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7018/tree_closeup_4.008_7018.png",
+      "t": 4.00833333333332
     },
     {
-      "label": "town_square",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9019/town_square_6.007_9019.png",
-      "t": 6.0069993333334
+      "label": "tree_medium",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7509/tree_medium_4.502_7509.png",
+      "t": 4.50200681818182
     }
   ]
 }

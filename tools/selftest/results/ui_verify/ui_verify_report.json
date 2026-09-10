@@ -1,5 +1,5 @@
 {
-  "all_ok": false,
+  "all_ok": true,
   "checks": [
     {
       "detail": "hero=tobor",
@@ -10,11 +10,6 @@
       "detail": "ability_preview_world present",
       "name": "probe_preview_found",
       "ok": true
-    },
-    {
-      "detail": "label=lmb opaque_frac=0.000 (expect >0.01)",
-      "name": "probe_preview_rendered",
-      "ok": false
     },
     {
       "detail": "label=lmb on_screen_frac=1.000 (expect >0.08)",
@@ -30,11 +25,6 @@
       "detail": "ability_preview_world present",
       "name": "probe_preview_found",
       "ok": true
-    },
-    {
-      "detail": "label=rmb opaque_frac=0.000 (expect >0.01)",
-      "name": "probe_preview_rendered",
-      "ok": false
     },
     {
       "detail": "label=rmb on_screen_frac=1.000 (expect >0.08)",
@@ -55,11 +45,6 @@
       "detail": "ability_preview_world present",
       "name": "probe_preview_found",
       "ok": true
-    },
-    {
-      "detail": "label=nuke opaque_frac=0.000 (expect >0.01)",
-      "name": "probe_preview_rendered",
-      "ok": false
     },
     {
       "detail": "label=nuke on_screen_frac=1.000 (expect >0.08)",
@@ -97,7 +82,7 @@
       "ok": true
     },
     {
-      "detail": "placed=13",
+      "detail": "placed=223",
       "name": "api_place_obstacles",
       "ok": true
     },
@@ -107,12 +92,12 @@
       "ok": true
     },
     {
-      "detail": "placed=14",
+      "detail": "placed=224",
       "name": "api_place_landmark",
       "ok": true
     },
     {
-      "detail": "erased=true before=14 after=13",
+      "detail": "erased=true before=224 after=223",
       "name": "api_erase_obstacle",
       "ok": true
     },
@@ -132,7 +117,7 @@
       "ok": true
     },
     {
-      "detail": "placed=1186 in world=Frostmere Reach",
+      "detail": "placed=452 in world=Frostmere Reach",
       "name": "api_place_after_world_switch",
       "ok": true
     },
@@ -147,73 +132,73 @@
       "ok": true
     },
     {
-      "detail": "placed=152 (grass save, independent of ice)",
+      "detail": "placed=441 (grass save, independent of ice)",
       "name": "grass_save_independent_of_other_worlds",
       "ok": true
     }
   ],
-  "elapsed": 27.5032763333328,
+  "elapsed": 27.505203575757,
   "shots": [
     {
       "err": 0,
       "label": "lobby",
-      "path": "user://ui_verify_shots/lobby_5103.png"
+      "path": "user://ui_verify_shots/lobby_4895.png"
     },
     {
       "err": 0,
       "label": "lmb_hover",
-      "path": "user://ui_verify_shots/lmb_hover_8111.png"
+      "path": "user://ui_verify_shots/lmb_hover_7913.png"
     },
     {
       "err": 0,
       "label": "rmb_hover",
-      "path": "user://ui_verify_shots/rmb_hover_11104.png"
+      "path": "user://ui_verify_shots/rmb_hover_10913.png"
     },
     {
       "err": 0,
       "label": "ability_preview_nuke",
-      "path": "user://ui_verify_shots/ability_preview_nuke_13613.png"
+      "path": "user://ui_verify_shots/ability_preview_nuke_14581.png"
     },
     {
       "err": 0,
       "label": "ability_preview_radius",
-      "path": "user://ui_verify_shots/ability_preview_radius_16094.png"
+      "path": "user://ui_verify_shots/ability_preview_radius_17074.png"
     },
     {
       "err": 0,
       "label": "ability_preview_summon",
-      "path": "user://ui_verify_shots/ability_preview_summon_18852.png"
+      "path": "user://ui_verify_shots/ability_preview_summon_19716.png"
     },
     {
       "err": 0,
       "label": "editor",
-      "path": "user://ui_verify_shots/editor_19353.png"
+      "path": "user://ui_verify_shots/editor_20204.png"
     },
     {
       "err": 0,
       "label": "editor_with_props",
-      "path": "user://ui_verify_shots/editor_with_props_22364.png"
+      "path": "user://ui_verify_shots/editor_with_props_23213.png"
     },
     {
       "err": 0,
       "label": "editor_final",
-      "path": "user://ui_verify_shots/editor_final_24879.png"
+      "path": "user://ui_verify_shots/editor_final_25712.png"
     },
     {
       "err": 0,
       "label": "world_volcano",
-      "path": "user://ui_verify_shots/world_volcano_26437.png"
+      "path": "user://ui_verify_shots/world_volcano_27379.png"
     },
     {
       "err": 0,
       "label": "world_ice_with_props",
-      "path": "user://ui_verify_shots/world_ice_with_props_28969.png"
+      "path": "user://ui_verify_shots/world_ice_with_props_29553.png"
     },
     {
       "err": 0,
       "label": "world_back_to_grass",
-      "path": "user://ui_verify_shots/world_back_to_grass_31021.png"
+      "path": "user://ui_verify_shots/world_back_to_grass_31562.png"
     }
   ],
-  "verdict": "FAIL"
+  "verdict": "PASS"
 }

@@ -3252,7 +3252,7 @@ func _cast_ability_blink(_data: Dictionary, values: Dictionary) -> void:
 	if direction.length_squared() <= 0.0:
 		direction = facing_direction
 	var origin := global_position
-	var destination := origin + direction * values.dash_distance
+	var destination := origin + direction * float(values.dash_distance)
 	_dash_to(destination, 0.14)
 	# Hit is registered at destination (the tween moves the sprite; the hit is instant).
 	for target in _enemies_in_radius(destination, values.radius):

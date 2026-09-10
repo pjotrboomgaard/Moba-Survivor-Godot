@@ -158,14 +158,12 @@ func biome_key() -> String:
 
 
 func editor_level_path() -> String:
-	# An explicitly chosen "Save As" map overrides the biome default, so the user
+	# An explicitly chosen "Save As" map overrides the default, so the user
 	# can tell the game exactly which map file to use.
 	if custom_editor_level_name:
 		return "user://world_editor_level_%s.json" % custom_editor_level_name
-	var key := biome_key()
-	if key.is_empty():
-		return "user://world_editor_level.json"
-	return "user://world_editor_level_%s.json" % key
+	# Default map: the user's saved "grass_real" level (dense Verdant Hollow).
+	return "user://world_editor_level_grass_real.json"
 
 
 const _CUSTOM_MAP_FILE := "user://custom_editor_map.json"
