@@ -100,7 +100,7 @@ const BIOME_ALIASES := {
 
 
 ## One biome every seven waves so a run walks grass → volcano → ice → factory → docks.
-const BIOME_CYCLE_WAVES := 7
+const BIOME_CYCLE_WAVES := 5
 
 
 func biome_for_wave(wave: int) -> int:

@@ -256,7 +256,7 @@ const AMBUSH_BUDGET_SCALE := 0.8
 const AMBUSH_FIRST_GROUP_SCALE := 0.6
 const WAVE_TIMEOUT_SECONDS := 120.0
 const ELITE_WAVE_INTERVAL := 8
-const BOSS_WAVE_INTERVAL := 7
+const BOSS_WAVE_INTERVAL := 5
 ## Enemies start noticeably tankier now (2.4x the old wave-1 health) and keep climbing faster
 ## than before, so the run keeps escalating rather than plateauing once players out-level it.
 const BASE_HEALTH_MULTIPLIER := 2.8
