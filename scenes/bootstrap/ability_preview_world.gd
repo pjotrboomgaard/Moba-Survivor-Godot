@@ -169,20 +169,19 @@ func _build_stage() -> void:
 
 
 func _make_ground_script() -> GDScript:
-	# A very faint, mostly-transparent disc so the preview reads as "a place" without
-	# a solid black box behind the hero + creeps. The SubViewport has transparent_bg
-	# on, so anything not painted stays see-through and the menu panel shows behind.
+	# The SubViewport has transparent_bg=true, so anything not painted is fully
+	# transparent — the menu panel background shows through. We draw a very faint
+	# disc just so the scene reads as "a place", but keep alpha low enough that
+	# the black box effect is gone.
 	var text := """
 extends Node2D
 func _draw() -> void:
 	var center := Vector2(45.0, 0.0)
-	# Soft arena floor so the preview sits on a bounded "place", not a black void.
-	draw_circle(center, 260.0, Color(0.13, 0.17, 0.22, 0.88))
-	draw_circle(center, 210.0, Color(0.15, 0.20, 0.26, 0.72))
-	draw_circle(center, 160.0, Color(0.18, 0.24, 0.30, 0.55))
-	# Faint concentric rings for depth.
-	for r in [70.0, 120.0, 170.0, 220.0]:
-		draw_arc(center, r, 0.0, TAU, 48, Color(0.55, 0.75, 0.95, 0.10), 2.0, true)
+	# Nearly invisible floor — just enough to read "a place", the panel bg dominates.
+	draw_circle(center, 240.0, Color(0.08, 0.11, 0.14, 0.18))
+	draw_circle(center, 140.0, Color(0.10, 0.13, 0.16, 0.08))
+	# One faint ring.
+	draw_arc(center, 160.0, 0.0, TAU, 48, Color(0.5, 0.7, 0.9, 0.04), 1.5, true)
 """
 	var script := GDScript.new()
 	script.source_code = text
