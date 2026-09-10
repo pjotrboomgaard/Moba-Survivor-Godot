@@ -1,0 +1,11 @@
+{
+  "hero": "arclight",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "time_scale": 0.35,
+  "events": [
+    {"t": 0.5, "kind": "snap", "label": "ffa_map_top"},
+    {"t": 0.6, "kind": "biome_probe", "label": "ffa_map"},
+    {"t": 1.2, "kind": "report"}
+  ]
+}

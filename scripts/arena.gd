@@ -547,9 +547,11 @@ func apply_saved_level(data: Dictionary) -> void:
 			String(entry.get("sprite", "")),
 			String(entry.get("hint", ""))
 		)
-	# clear_editable_props() wiped the procedurally-scattered ground cover
-	# (grass/flowers baked into the background). Re-scatter it so the meadow
-	# is preserved alongside the user-placed props.
+	# clear_editable_props() wiped the procedurally-scattered obstacles (trees,
+	# rocks) and ground cover (grass/flowers). Re-scatter both so the "regular map"
+	# is dense — procedural trees/rocks + user-placed props + 800 grass tufts —
+	# rather than just the sparse editor level.
+	_scatter_obstacles()
 	_scatter_ground_cover()
 	queue_redraw()
 	landmarks_changed.emit()
@@ -1583,10 +1585,10 @@ func _cover_type(sprite_id: String) -> Dictionary:
 
 
 func _scatter_ground_cover() -> void:
-	# Grass world (biome 0): user places grass/flowers manually via world editor.
-	# No random scattering here.
-	if GameRuntime.biome_id == 0:
-		return
+	# Every biome (including the grass meadow, biome 0) scatters procedural ground
+	# cover so the "regular map" always reads as a dense, rich field — grass,
+	# flowers, tufts — rather than an empty meadow. The world editor can still add
+	# extra props on top of this base; it no longer has to be the sole source.
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _layout_seed() + 211
 	var kit := _ground_cover_sprites()

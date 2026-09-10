@@ -1,0 +1,972 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              90.0,
+              0.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "stump",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              0.0,
+              90.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "sage",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -90.0,
+              0.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "volt",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              0.0,
+              -90.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "arclight",
+      "hp": 145.0,
+      "hp_frac": 1.0,
+      "hp_max": 145.0,
+      "kind": "probe",
+      "label": "start",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 204,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(90.0, 0.0)"
+        },
+        "101": {
+          "locked": true,
+          "pos": "(-0.000004, 90.0)"
+        },
+        "102": {
+          "locked": true,
+          "pos": "(-90.0, -0.000008)"
+        },
+        "103": {
+          "locked": true,
+          "pos": "(0.000001, -90.0)"
+        }
+      },
+      "pvp_invuln": 9.19999999999996,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 0.80481,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        17.8096666666669,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              128.0,
+              535.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "stump",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              143.0,
+              482.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "sage",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -258.0,
+              76.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "volt",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -15.0,
+              -241.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 131,
+      "hero": "arclight",
+      "hp": 145.0,
+      "hp_frac": 1.0,
+      "hp_max": 145.0,
+      "kind": "probe",
+      "label": "t15",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 204,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(128.4378, 534.6866)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(143.086, 481.6179)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(-257.9666, 75.78883)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(-15.4699, -240.6635)"
+        }
+      },
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 15.0047433333331,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 60
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        2.80966666666661,
+        25.933333333334,
+        8.6365999999999,
+        189.116666666664
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -233.0,
+              481.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": false,
+            "class": "stump",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              180.0,
+              502.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "sage",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -195.0,
+              481.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": false,
+            "class": "volt",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -6.0,
+              232.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 830,
+      "hero": "arclight",
+      "hp": 105.4,
+      "hp_frac": 0.726896551724138,
+      "hp_max": 145.0,
+      "kind": "probe",
+      "label": "t30",
+      "last_tapped": -1,
+      "level": 5,
+      "obstacle_count": 204,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(-232.9139, 480.5792)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(179.9255, 501.5718)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(-195.1533, 481.1288)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(-6.298079, 231.5887)"
+        }
+      },
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 30.002188999999,
+      "teleporters": [],
+      "wave": 2,
+      "wave_name": "Growing Numbers",
+      "xp": 48
+    }
+  ],
+  "elapsed": 30.502188999999,
+  "enemies_spawned": 0,
+  "hero_position": "(-295.6276, 462.9859)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 95,
+    "casts": [
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 11.1130766666667
+      },
+      {
+        "ability_id": "arclight_chain_lightning",
+        "t": 17.529743333333
+      },
+      {
+        "ability_id": "arclight_static_bolt",
+        "t": 17.5464099999996
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 27.1123016666658
+      },
+      {
+        "ability_id": "arclight_static_bolt",
+        "t": 28.0938759999991
+      }
+    ],
+    "creep_kills": 92,
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            -296.0,
+            463.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": false,
+          "class": "stump",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            180.0,
+            502.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "sage",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -246.0,
+            475.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": false,
+          "class": "volt",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            -6.0,
+            232.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 830,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 90,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.16
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 90,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.16
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 131,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 15.17
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 137,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 20.18
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 156,
+        "hp": 0.92,
+        "kills": 0,
+        "t": 25.19
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 830,
+        "hp": 0.73,
+        "kills": 0,
+        "t": 30.19
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 5,
+    "level_upgrades": {
+      "5": [
+        "rapid"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 0.726896551724138,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "rapid"
+    ],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 2,
+    "xp": 48
+  },
+  "shots": []
+}

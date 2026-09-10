@@ -1,0 +1,13 @@
+{
+  "hero": "arclight",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "comment": "FFA lock gating: over 30s the bots level up and should only cast abilities they have unlocked (rank>=1). Verify no ability with rank 0 is ever cast. Also confirm recruits happen (bots walk to corners).",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 0.8, "kind": "probe", "label": "start"},
+    {"t": 15.0, "kind": "probe", "label": "t15"},
+    {"t": 30.0, "kind": "probe", "label": "t30"},
+    {"t": 30.5, "kind": "report"}
+  ]
+}

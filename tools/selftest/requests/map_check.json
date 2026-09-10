@@ -1,0 +1,9 @@
+{
+  "hero": "arclight",
+  "time_scale": 0.3,
+  "events": [
+    {"t": 0.6, "kind": "snap", "label": "grass_map_full"},
+    {"t": 1.2, "kind": "probe", "label": "map_check"},
+    {"t": 1.4, "kind": "report"}
+  ]
+}
