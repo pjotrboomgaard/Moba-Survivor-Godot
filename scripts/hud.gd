@@ -1141,6 +1141,14 @@ func announce_boss_defeated(_wave: int) -> void:
 	AudioService.play("boss_alert")
 
 
+## Brief, centered banner for the FFA opening sequence ("ALL HEROES — LANDING", "GO!").
+func announce_ffa_intro(text: String) -> void:
+	if GameRuntime.is_classic():
+		return
+	theme_banner.text = text
+	_flash(theme_banner, 2.0)
+
+
 func announce_boss_phase(phase: int, boss_name: String) -> void:
 	if GameRuntime.is_classic():
 		return

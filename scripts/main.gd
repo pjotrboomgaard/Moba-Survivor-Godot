@@ -153,6 +153,17 @@ const FFA_BOUNTY_CAP := 4
 const FFA_BOUNTY_TYPES := ["brute", "hexer", "lurker", "sentinel", "splitter", "bomber"]
 const FFA_CPU_SHOP_SECONDS := 12.0
 var _ffa_world_wave := 1
+## FFA opening sequence: all four heroes land in a circle at center, stand still for
+## FFA_INTRO_HOLD (can't control), then auto-walk outward in their own directions for
+## FFA_INTRO_WALK (camera follows each local player), stand still again, and only then
+## do the team wave directors start and creeps begin.
+const FFA_INTRO_HOLD := 2.0
+const FFA_INTRO_WALK := 5.0
+const FFA_INTRO_END_HOLD := 2.0
+var _ffa_intro_elapsed := -1.0
+var _ffa_intro_done := false
+var _ffa_intro_unlocked := false
+var _ffa_intro_walk_dir := {}
 
 
 func _ready() -> void:
@@ -890,7 +901,10 @@ func _ensure_team_wave_director(team_id: String) -> void:
 		if RiftClashManager.team_of(int(peer_id)) == int(team_id):
 			members += 1
 	team_wave_directors[team_id] = director
-	director.start(maxi(1, members), false)
+	# Defer the actual start until the FFA intro sequence (landing circle → walk-out)
+	# completes, so creeps don't spawn while the heroes are still landing.
+	if _ffa_intro_done:
+		director.start(maxi(1, members), false)
 
 
 ## Server-local reaction when a team wave begins — the host HUD shows the wave the
@@ -3167,6 +3181,7 @@ func _player_on_team(team_id: String) -> Player:
 func _tick_ffa(delta: float) -> void:
 	if not GameRuntime.is_ffa() or game_over:
 		return
+	_ffa_intro_tick(delta)
 	_ffa_elapsed += delta
 	_ffa_shop_timer += delta
 	_ffa_status_timer += delta
@@ -3198,6 +3213,110 @@ func _tick_ffa(delta: float) -> void:
 	for peer_id in due:
 		_ffa_respawn_in.erase(peer_id)
 		_respawn_ffa_player(int(peer_id))
+
+
+## FFA opening sequence. Runs only on the local (OFFLINE/host) side. Phases:
+##   1. "gather"  — heroes land in a tight circle at center; movement locked.
+##   2. "hold"    — stand still (can't control) for FFA_INTRO_HOLD seconds.
+##   3. "walkout" — each hero auto-walks outward in its own direction for FFA_INTRO_WALK
+##      (the local player's camera follows, so the map pans as they scatter).
+##   4. "settle"  — stand still again for FFA_INTRO_END_HOLD.
+##   5. start     — unlock movement and start all team wave directors (creeps begin).
+## The team wave directors are deferred (see _ensure_team_wave_director) so no creeps
+## spawn during the intro.
+func _ffa_intro_tick(delta: float) -> void:
+	if not GameRuntime.is_ffa():
+		return
+	if _ffa_intro_done:
+		return
+	if _ffa_intro_elapsed < 0.0:
+		# First tick: drop everyone into a landing circle at the crater and lock them.
+		_start_ffa_intro()
+	_ffa_intro_elapsed += delta
+	if _ffa_intro_elapsed < FFA_INTRO_HOLD:
+		return  # phase 2: standing still, still locked.
+	if _ffa_intro_elapsed < FFA_INTRO_HOLD + FFA_INTRO_WALK:
+		# phase 3: auto-walk outward. Unlock so the command_move actually moves the hero.
+		if not _ffa_intro_unlocked:
+			_unlock_ffa_intro()
+		_drive_ffa_intro_walkout()
+		return
+	if _ffa_intro_elapsed < FFA_INTRO_HOLD + FFA_INTRO_WALK + FFA_INTRO_END_HOLD:
+		return  # phase 4: hold still (already unlocked from walk-out).
+	_finish_ffa_intro()
+
+
+## Phase 1 setup: position all heroes in a circle around the crater center and lock
+## their input so they can't move during the "land and stand" beat.
+func _start_ffa_intro() -> void:
+	_ffa_intro_elapsed = 0.0
+	var center: Vector2 = _landing_position()
+	var count := players.size()
+	if count == 0:
+		_ffa_intro_done = true
+		return
+	var slot := 0
+	for peer_id in players.keys():
+		var p := players.get(peer_id) as Player
+		if p == null or not is_instance_valid(p):
+			continue
+		var angle := TAU * float(slot) / float(count)
+		var spot: Vector2 = center + Vector2.RIGHT.rotated(angle) * 90.0
+		if arena is Arena and (arena as Arena).is_blocked(spot, 28.0):
+			spot = center
+		p.global_position = spot
+		p.movement_locked = true
+		# Remember the outward direction for the walk-out phase.
+		_ffa_intro_walk_dir[peer_id] = Vector2.RIGHT.rotated(angle)
+		slot += 1
+	if hud != null:
+		hud.announce_ffa_intro("ALL HEROES — LANDING")
+
+
+## Phase 3: command each hero to walk outward along its remembered direction. The
+## local hero's camera follows its position automatically.
+func _drive_ffa_intro_walkout() -> void:
+	for peer_id in _ffa_intro_walk_dir.keys():
+		var p := players.get(peer_id) as Player
+		if p == null or not is_instance_valid(p):
+			continue
+		var dir := Vector2(_ffa_intro_walk_dir.get(peer_id, p.facing_direction))
+		# Keep the hero inside the arena: steer back toward center if it nears a wall.
+		var target: Vector2 = p.global_position + dir * 60.0
+		if arena is Arena and (arena as Arena).is_blocked(target, 28.0):
+			target = _landing_position()
+		p.set_authority_command(dir.normalized(), target, false, false, [false, false, false, false], false)
+
+
+## Phase 5: unlock everyone and start the deferred team wave directors so creeps spawn.
+func _finish_ffa_intro() -> void:
+	_ffa_intro_done = true
+	for peer_id in players.keys():
+		var p := players.get(peer_id) as Player
+		if p == null or not is_instance_valid(p):
+			continue
+		p.movement_locked = false
+		# Aim forward so the bot resumes its normal behavior.
+		p.set_authority_command(Vector2.ZERO, p.global_position + p.facing_direction * 100.0, false, false, [false, false, false, false], false)
+	for team_id in team_wave_directors.keys():
+		var director: WaveDirector = team_wave_directors[team_id]
+		if director != null and not director.running:
+			var members := 1
+			for peer_id in players.keys():
+				if RiftClashManager.team_of(int(peer_id)) == int(team_id):
+					members += 1
+			director.start(maxi(1, members), false)
+	if hud != null:
+		hud.announce_ffa_intro("GO!")
+
+
+## Unlock hero movement for the walk-out / post-intro phases (idempotent).
+func _unlock_ffa_intro() -> void:
+	_ffa_intro_unlocked = true
+	for peer_id in players.keys():
+		var p := players.get(peer_id) as Player
+		if p != null and is_instance_valid(p):
+			p.movement_locked = false
 
 
 func _on_ffa_player_died(peer_id: int) -> void:
