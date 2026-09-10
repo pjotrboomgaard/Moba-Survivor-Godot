@@ -1,0 +1,19 @@
+# Coop-MOBA-Survivor - active task list (carried by check tool)
+# Format: "[ ] task" or "[x] task". Toggle in place. Unchecked items are kept.
+
+[ ] Town: 8 buildings + central square + well + sand texture (World 1 top-left), each editor-placeable
+[ ] World 1 bottom-left: big lagoon area (new assets, quest-interactive)
+[ ] World 1 top-right: inner forest with animals + quest elements (new assets)
+[ ] World 1 bottom-right: 4th interactive quest area (new assets)
+[ ] Recruitable neutral creeps: unique pixel art per area, join player after quest
+[ ] World 2: reuse World 1 object positions as fire assets; update world editor
+[ ] World 1->2 transition: 10s animation (camera to crater, shake, bubbling lava, lava shoots, fire-spread circle transition, trees same position as fire trees, boulders fire-tinted, lava everywhere)
+[ ] Similar transitions between worlds 2->3 and 3->4
+[ ] Unique movement for all heroes except the 4 robot ones
+[ ] Weather: rain cools lava (walkable, no dmg) / ice water->ice / factory freezes all entities briefly
+[ ] Equipment: purchased items render aesthetically on hero sprite; upgrades make them bigger/better
+[ ] FFA balance: simulate FFA, buff/nerf abilities for equal outcomes; improve bots
+[ ] For every hero: extract an image + description prompt for a pixel-art main-menu background
+[ ] 3 droid heroes (excl. wrench): side (non-front) sprites off-center - re-center direction frames
+[ ] Test all map features
+[ ] Keep improving bots (play better)
