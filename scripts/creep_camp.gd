@@ -102,7 +102,8 @@ func _respawn_camps() -> void:
 				randf_range(-CAMP_JITTER, CAMP_JITTER),
 			)
 			# Each camp has its own unique guardian type (CAMP_ROSTERS[i]).
-			# Camp 0 = brute (red), camp 1 = sentinel (blue), camp 2 = stalker (purple).
+			# Camp 0 = brute (red), camp 1 = sentinel (blue), camp 2 = stalker (purple),
+			# camp 3 = lurker (gold).
 			var type_id := CAMP_ROSTERS[i % CAMP_ROSTERS.size()]
 			var health_mult := randf_range(HEALTH_RANGE[0], HEALTH_RANGE[1])
 			var speed_mult := randf_range(SPEED_RANGE[0], SPEED_RANGE[1])

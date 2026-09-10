@@ -5,6 +5,7 @@ const UpgradeCatalog := preload("res://scripts/upgrade_catalog.gd")
 const RunSave := preload("res://scripts/run_save.gd")
 const SideQuestDirector := preload("res://scripts/side_quest_director.gd")
 const CreepCampScript := preload("res://scripts/creep_camp.gd")
+const RecruitAreasScript := preload("res://scripts/recruit_areas.gd")
 const _CorpseScript := preload("res://scripts/corpse.gd")
 const GhostWaveSystem := preload("res://scripts/ghost_wave_system.gd")
 
@@ -80,6 +81,7 @@ var ready_for_next_wave: Dictionary = {}
 var revive_progress: Dictionary = {}
 var _side_quest_director: Node = null
 var _creep_camp: Node = null
+var _recruit_areas: Node = null
 var _ghost_waves: Node = null
 
 const REVIVE_RADIUS := 60.0
@@ -2008,6 +2010,15 @@ func _effect_display(landmark: ArenaLandmark) -> String:
 
 
 ## HUD no longer has flash_combat_text; reuse the debut banner so solo/host still get a beat.
+## HUD banner for a recruited neutral creep joining the local player's team.
+## Called by recruit_areas.gd when an area's quest completes.
+func flash_recruit_joined(area_name: String, creature: String, accent: Color) -> void:
+	if hud == null:
+		return
+	if hud.has_method("announce_recruit_joined"):
+		hud.call("announce_recruit_joined", area_name, creature, accent)
+
+
 func _landmark_flash(text: String, color: Color) -> void:
 	if hud == null:
 		return
@@ -3459,6 +3470,11 @@ func _start_side_quests() -> void:
 	_creep_camp.name = "CreepCamp"
 	add_child(_creep_camp)
 	_creep_camp.start(self, arena)
+
+	_recruit_areas = RecruitAreasScript.new()
+	_recruit_areas.name = "RecruitAreas"
+	add_child(_recruit_areas)
+	_recruit_areas.start(self, arena)
 
 
 ## Continuous "ghost trickle": lightweight enemy records that stream in from the

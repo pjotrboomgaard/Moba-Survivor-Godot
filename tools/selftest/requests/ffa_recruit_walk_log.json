@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "comment": "Short FFA to confirm the recruit-walk log fires (weak bots should seek a corner recruit area).",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 1.0, "kind": "probe", "label": "start"},
+    {"t": 20.0, "kind": "probe", "label": "t20"},
+    {"t": 20.5, "kind": "report"}
+  ]
+}

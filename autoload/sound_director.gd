@@ -14,7 +14,15 @@ func is_on_screen(world_pos: Vector2, margin: float = DEFAULT_MARGIN) -> bool:
 	return viewport.get_visible_rect().grow(margin).has_point(screen_pos)
 
 
+## When true, all SFX/ability audio is silenced. The main-menu ability preview runs a
+## live hero + creeps in a SubViewport that keep casting on a loop; we mute the whole
+## director while the menu is open so the preview loop doesn't spam ability SFX.
+var preview_muted := false
+
+
 func play(sound_id: String, world_position: Variant = null) -> AudioStreamPlayer:
+	if preview_muted:
+		return null
 	if world_position is Vector2 and not is_on_screen(world_position):
 		return null
 	var player := AudioService.play(sound_id)
@@ -24,6 +32,8 @@ func play(sound_id: String, world_position: Variant = null) -> AudioStreamPlayer
 
 
 func play_ability(ability_id: String, world_position: Variant = null) -> AudioStreamPlayer:
+	if preview_muted:
+		return null
 	if world_position is Vector2 and not is_on_screen(world_position):
 		return null
 	var player := AudioService.play_ability(ability_id)

@@ -16,6 +16,16 @@ if (-not (Test-Path $ResultsDir)) { New-Item -ItemType Directory -Path $ResultsD
 
 Write-Host "Project: $ProjectRoot"
 
+# Back up the user's editor level before the test clobbers it, so running the
+# selftest never wipes the map the user hand-placed in the world editor.
+$UserDataDirEarly = Join-Path $env:APPDATA "Godot\app_userdata\Rift Survivors"
+$LevelFile = Join-Path $UserDataDirEarly "world_editor_level.json"
+$LevelBackup = Join-Path $UserDataDirEarly "world_editor_level.json.uivf.bak"
+if (Test-Path $LevelFile) {
+    Copy-Item $LevelFile $LevelBackup -Force
+    Write-Host "Backed up editor level -> world_editor_level.json.uivf.bak"
+}
+
 $godotArgs = @("--path", $ProjectRoot, "--ui-verify")
 $godotProc = Start-Process -FilePath $GodotExe -ArgumentList $godotArgs -NoNewWindow -PassThru
 if (-not $godotProc.WaitForExit(120000)) {
@@ -23,6 +33,12 @@ if (-not $godotProc.WaitForExit(120000)) {
     Stop-Process -Id $godotProc.Id -Force -ErrorAction SilentlyContinue
 }
 Write-Host "Godot exited."
+
+# Restore the user's editor level so the selftest never leaves a clobbered map.
+if (Test-Path $LevelBackup) {
+    Copy-Item $LevelBackup $LevelFile -Force
+    Write-Host "Restored editor level from backup (test did not modify the user map)"
+}
 
 $UserDataDir = Join-Path $env:APPDATA "Godot\app_userdata\Rift Survivors"
 $shotsSrc = Join-Path $UserDataDir "ui_verify_shots"

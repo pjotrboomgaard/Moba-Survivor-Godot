@@ -1,0 +1,19 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "comment": "Verify FFA bots recruit neutral creep areas: bots should walk to a corner recruit area, stand still 3s, and get a friendly_minion ally that can attack heroes. Run 45s for bots to reach + bond. recruit_probe counts live friendly_minions and their art_ids.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 0.8, "kind": "landmarks", "label": "ffa_landmarks"},
+    {"t": 1.0, "kind": "probe", "label": "ffa_start"},
+    {"t": 1.0, "kind": "snap", "label": "ffa_t0"},
+    {"t": 15.0, "kind": "probe", "label": "ffa_15s"},
+    {"t": 15.1, "kind": "snap", "label": "ffa_t15"},
+    {"t": 30.0, "kind": "probe", "label": "ffa_30s"},
+    {"t": 30.1, "kind": "snap", "label": "ffa_t30"},
+    {"t": 45.0, "kind": "probe", "label": "ffa_45s"},
+    {"t": 45.1, "kind": "snap", "label": "ffa_t45"},
+    {"t": 45.5, "kind": "report"}
+  ]
+}

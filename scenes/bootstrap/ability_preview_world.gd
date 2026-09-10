@@ -109,7 +109,9 @@ func _ready() -> void:
 		var cam := Camera2D.new()
 		cam.name = "PreviewCam"
 		cam.position = Vector2((HERO_X + CREEP_START_X) * 0.5, 0.0)
-		cam.zoom = Vector2(0.7, 0.7)
+		# Zoomed out 2x from the earlier 0.7 so ability radii (rings, bolts, area
+		# effects) have room to read in the small panel instead of running off-frame.
+		cam.zoom = Vector2(0.35, 0.35)
 		cam.limit_left = -400
 		cam.limit_top = -400
 		cam.limit_right = 400
@@ -167,11 +169,20 @@ func _build_stage() -> void:
 
 
 func _make_ground_script() -> GDScript:
+	# A very faint, mostly-transparent disc so the preview reads as "a place" without
+	# a solid black box behind the hero + creeps. The SubViewport has transparent_bg
+	# on, so anything not painted stays see-through and the menu panel shows behind.
 	var text := """
 extends Node2D
 func _draw() -> void:
-	draw_circle(Vector2(45.0, 0.0), 200.0, Color(0.05, 0.06, 0.09, 0.9))
-	draw_circle(Vector2(45.0, 0.0), 150.0, Color(0.09, 0.10, 0.13, 0.6))
+	var center := Vector2(45.0, 0.0)
+	# Soft arena floor so the preview sits on a bounded "place", not a black void.
+	draw_circle(center, 260.0, Color(0.13, 0.17, 0.22, 0.88))
+	draw_circle(center, 210.0, Color(0.15, 0.20, 0.26, 0.72))
+	draw_circle(center, 160.0, Color(0.18, 0.24, 0.30, 0.55))
+	# Faint concentric rings for depth.
+	for r in [70.0, 120.0, 170.0, 220.0]:
+		draw_arc(center, r, 0.0, TAU, 48, Color(0.55, 0.75, 0.95, 0.10), 2.0, true)
 """
 	var script := GDScript.new()
 	script.source_code = text
@@ -183,12 +194,20 @@ func reload(next_hero_class: String, next_slot: int) -> void:
 	hero_class_id = next_hero_class
 	ability_slot = next_slot
 	_running = true
+	SoundDirector.preview_muted = true
 	_restart()
 
 
 func start() -> void:
 	_running = true
+	SoundDirector.preview_muted = true
 	_restart()
+
+
+## Silence + clear the running preview (called when the menu hover closes).
+func stop() -> void:
+	_running = false
+	SoundDirector.preview_muted = false
 
 
 func _restart() -> void:

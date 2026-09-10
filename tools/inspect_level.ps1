@@ -4,9 +4,14 @@ $j = Get-Content $f -Raw | ConvertFrom-Json
 Write-Output ("biome: " + $j.biome)
 $ob = $j.obstacles
 Write-Output ("total obstacles: " + $ob.Count)
-$ob | Group-Object sprite | Sort-Object Count -Descending |
-  ForEach-Object { Write-Output ("  " + $_.Name + "  x" + $_.Count) }
-Write-Output "--- tree positions ---"
-$ob | Where-Object { $_.sprite -like "tree_*" } | ForEach-Object {
-  Write-Output ("  " + $_.sprite + " @ (" + $_.pos[0] + "," + $_.pos[1] + ")")
+$ob | Group-Object sprite | Sort-Object Count -Descending | ForEach-Object { Write-Output ("  " + $_.Name + "  x" + $_.Count) }
+# Grass/flower bounds
+Write-Output "--- grass/flower position bounds ---"
+$g = $ob | Where-Object { $_.sprite -match "grass|flower|dirt" }
+if ($g) {
+  $xs = @($g | ForEach-Object { [int]$_.pos[0] })
+  $ys = @($g | ForEach-Object { [int]$_.pos[1] })
+  Write-Output ("  count=" + $g.Count + " xmin=" + ($xs | Measure-Object -Minimum).Minimum + " xmax=" + ($xs | Measure-Object -Maximum).Maximum + " ymin=" + ($ys | Measure-Object -Minimum).Minimum + " ymax=" + ($ys | Measure-Object -Maximum).Maximum)
+} else {
+  Write-Output "  (none)"
 }

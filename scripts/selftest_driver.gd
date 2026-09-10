@@ -25,6 +25,8 @@ var _player: Player = null
 var _enemies: Array[Node] = []
 var _walk_target: Variant = null  # Vector2 or null while a walk_to is in flight
 var _walk_deadline := 0.0  # give up if the player hasn't reached by then
+var _pin_pos := Vector2.ZERO  # when _pin_active, hold the hero here each frame
+var _pin_active := false
 var _shots_taken: Array[Dictionary] = []
 var _active_effects: Array[Dictionary] = []
 var _last_slot_tapped: int = -1
@@ -37,6 +39,7 @@ var _ffa := false
 var _time_scale := 1.0
 var _build := ""
 var _biome := -1
+var _ffa_all_bots := false
 var _survival_duration := 1100.0
 var _until_wave := 20
 var _danger_hp := 0.42
@@ -110,6 +113,7 @@ static func from_request(path: String = "user://selftest_request.json") -> SelfT
 		driver._recover_hp = float((parsed as Dictionary).get("recover_hp", 0.56))
 	elif str((parsed as Dictionary).get("mode", "")) == "ffa":
 		driver._ffa = true
+		driver._ffa_all_bots = bool((parsed as Dictionary).get("ffa_all_bots", false))
 	driver._biome = int((parsed as Dictionary).get("biome", -1))
 	# Build strategy: which upgrade path the bot should favour when offered a
 	# choice. "tank" (survival), "tempo" (attack speed + crits), "ranged"
@@ -135,6 +139,8 @@ func _ready() -> void:
 	if not GameRuntime.is_ffa() and _ffa:
 		GameRuntime.team_mode = GameRuntime.TeamMode.FFA
 		GameRuntime.fill_cpu_allies = true
+		if _ffa_all_bots:
+			GameRuntime.ffa_all_bots = true
 		# Spawn the 3 CPU rivals directly (main.gd already spawned the local player).
 		var cpu_peer := 101
 		for _index in 3:
@@ -142,6 +148,17 @@ func _ready() -> void:
 			cpu_peer += 1
 	elif not GameRuntime.is_ffa():
 		GameRuntime.fill_cpu_allies = false
+	# FFA "all bots" (ffa_all_bots=true): the local hero must also be a CPU so that
+	# ALL 4 heroes run CpuBrain (including the recruit behavior). main.gd's OFFLINE
+	# block converts local→bot only when ffa_all_bots was set before scene load, so
+	# do it here post-boot if the local player is still OFFLINE.
+	if _ffa and _ffa_all_bots and not GameRuntime.ffa_all_bots:
+		GameRuntime.ffa_all_bots = true
+	if _ffa_all_bots:
+		# Ensure every hero is a CPU. main._convert_local_to_ffa_bot handles the
+		# local hero if it wasn't already converted.
+		if _host_main != null and _host_main.has_method("_convert_local_to_ffa_bot"):
+			_host_main.call("_convert_local_to_ffa_bot")
 	GameRuntime.biome_locked = false
 	if _biome >= 0:
 		GameRuntime.set_biome(_biome, true)
@@ -331,17 +348,19 @@ func _process(delta: float) -> void:
 			_player.level if _player else 0,
 		])
 		_debug_last_tick = _elapsed
-	if _survival:
+	if _pin_active:
+		# While pinned, hold the hero in place for the recruit bond; skip bot AI.
+		_tick_pin()
+	elif _survival:
 		_tick_survival(delta)
 		if _beaten_wave >= _until_wave or _elapsed >= _survival_duration:
 			_finish_and_quit()
 			return
+		_tick_walk()
+		_overlay_combat_hold()
 	elif _ffa:
 		_tick_ffa(delta)
-	_tick_walk()
 	_flush_confirm_taps()
-	if _survival:
-		_overlay_combat_hold()
 	while not _events.is_empty() and float(_events[0].get("t", 0.0)) <= _elapsed:
 		var event: Dictionary = _events.pop_front()
 		var kind := str(event.get("kind", ""))
@@ -407,6 +426,20 @@ func _process(delta: float) -> void:
 						_player.global_position += Vector2(float(off[0]), float(off[1]))
 					_walk_target = null
 					_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, false, false, [false, false, false, false], false)
+			"pin":
+				# Hold the hero at a world position, overriding the survival/FFA bot so it
+				# can stand still in a recruit area to complete the bond. "to" = absolute.
+				if _player != null:
+					var pin_to: Array = event.get("to", [0.0, 0.0])
+					_pin_pos = Vector2(float(pin_to[0]), float(pin_to[1]))
+					_player.global_position = _pin_pos
+					_player.movement_locked = true
+			"unpin":
+				if _player != null:
+					_pin_pos = Vector2.ZERO
+					_pin_active = false
+					_player.movement_locked = false
+					_player.clear_external_command()
 			"landmarks":
 				_record_landmarks(str(event.get("label", "landmarks")))
 			"primary_hold":
@@ -489,6 +522,15 @@ func _tick_walk() -> void:
 	_player.set_authority_command(offset.normalized(), _player.aim_world_position, attack, false, [false, false, false, false], false)
 
 
+## While pinned, re-force the hero to the pin position every frame so the survival
+## bot can't drag it off-site (used to hold a recruit area long enough to bond).
+func _tick_pin() -> void:
+	if not _pin_active or _player == null:
+		return
+	_player.global_position = _pin_pos
+	_player.set_authority_command(Vector2.ZERO, _pin_pos, false, false, [false, false, false, false], false)
+
+
 ## Move the 2D camera to a world position and set a zoom so the next snap is a
 ## close-up. Used for shadow / detail inspection. `at` is a player-relative
 ## offset by default; use "to" for absolute world coordinates.
@@ -516,9 +558,9 @@ func _focus_tree(event: Dictionary) -> void:
 	if arena == null or not (arena is Arena):
 		_active_effects.append({"kind": "focus_tree", "t": _elapsed, "error": "no arena"})
 		return
-	# Trees now bake into the arena background (radius 0) instead of being live
-	# Obstacle nodes, so the first place to look is arena.baked_props. Fall back
-	# to live obstacles for editor playtests where the tree may still be a node.
+	# Trees are live Obstacle nodes again (they cast their own Sprite2D shadow).
+	# Look in arena.obstacles first; fall back to baked_props for any decorative
+	# ground-cover tree that might still be baked.
 	var tree_pos: Vector2 = Vector2.ZERO
 	var tree_id := ""
 	var found := false
@@ -618,6 +660,7 @@ func _record_probe(label: String) -> void:
 		"player_positions": _player_positions(),
 		"teleporters": _teleporter_pads(),
 		"obstacle_count": _obstacle_count(),
+		"recruits": _recruit_probe(),
 	})
 
 
@@ -654,6 +697,27 @@ func _teleporter_pads() -> Array:
 		var p: Vector2 = entry["pos"]
 		pads.append([snappedf(p.x, 1.0), snappedf(p.y, 1.0)])
 	return pads
+
+
+## Recruited ally info: count of live friendly_minion nodes + the recruit-area
+## positions, so a selftest can confirm a neutral creep actually joined the
+## player's team after a recruit quest.
+func _recruit_probe() -> Dictionary:
+	var minions := 0
+	var arts: Array = []
+	for m in get_tree().get_nodes_in_group("friendly_minion"):
+		if is_instance_valid(m):
+			minions += 1
+			var a: String = str(m.get("art_id"))
+			if not arts.has(a):
+				arts.append(a)
+	var area_pos: Array = []
+	var host_main: Variant = _host_main
+	if host_main != null:
+		var ra: Variant = host_main.get("_recruit_areas")
+		if ra != null and is_instance_valid(ra) and ra.has_method("area_positions"):
+			area_pos = (ra as Node).area_positions()
+	return {"minions": minions, "arts": arts, "area_positions": area_pos}
 
 
 ## Count of live obstacle nodes in the arena. 0 (or a suspiciously low number)

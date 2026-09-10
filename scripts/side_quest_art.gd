@@ -64,6 +64,20 @@ static func _rows(id: String, frame: int) -> Array:
 			return _RAVEN
 		"fox":
 			return _FOX
+		"otter":
+			return _OTTER
+		"boar":
+			return _BOAR
+		"golem":
+			return _GOLEM
+		"town_house":
+			return _TOWN_HOUSE
+		"lagoon_palm":
+			return _LAGOON_PALM
+		"forest_camp":
+			return _FOREST_CAMP
+		"scorch_rock":
+			return _SCORCH_ROCK
 		_:
 			return _SHARD
 
@@ -570,5 +584,141 @@ const _FOX := [
 	"................",
 	"................",
 	"................",
+	"................",
+]
+## Lagoon recruit: a teal water otter/axolotl with fins and a bright eye.
+const _OTTER := [
+	"................",
+	"................",
+	"...bbbb.........",
+	"..bwwwwb........",
+	".bwwcwwbb.......",
+	".bwycwwbbb......",
+	".bbbbbbbbbbb....",
+	".bwwwwwwwwb.....",
+	"..bbbbbbbb.b....",
+	"..b..b..b.bb....",
+	"...b..b..b......",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Forest recruit: a brown boar with a white snout and bright tusks.
+const _BOAR := [
+	"................",
+	"................",
+	"..nn....n.......",
+	".nnnnnnn........",
+	".nwwwnnnnn......",
+	".nwwwnnnnnn.....",
+	".nnnnnnnnnnn....",
+	".nwwwwwwnnnn....",
+	"..nnnnnnnnnn.b..",
+	"..n..n..n..b....",
+	"...n..n..n......",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Scorch recruit: a rocky golem with a glowing amber core.
+const _GOLEM := [
+	"................",
+	"................",
+	"....sssss.......",
+	"...sssssss......",
+	"...s.k.k.s......",
+	"...sssssss......",
+	"..ssykykys......",
+	"...sssssss......",
+	"...ss..ss.......",
+	"...ss..ss.......",
+	"...ss..ss.......",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+
+## ---- Recruit-area camp structures (isometric-ish, 16x16) ----------------------
+## Town (top-left): a medieval isometric longhouse — thatched roof, timber frame,
+## small windows, and a wooden door. 2x the visual weight of a tree.
+const _TOWN_HOUSE := [
+	"................",
+	"........nn......",
+	"......nnnn......",
+	".....nnnnnn.....",
+	"....nnnnnnnn....",
+	"...nnnnnnnnnn...",
+	"..kkkkkkkkkkkk..",
+	".kkwkkwkkwkkkkk.",
+	"kwnnnnnnnnwkwwk.",
+	"kwnnyynnyykwkwk.",
+	"kwnnyyyyyykwnwk.",
+	"kwnnnnnnnnkwkww.",
+	"kwnkkkkkkkkkkww.",
+	".kkkkkkkkkkkkkk.",
+	"..gggggggggggg..",
+	"................",
+]
+## Lagoon (bottom-left): a tropical palm over turquoise water with a small reed bank.
+const _LAGOON_PALM := [
+	"................",
+	".....gggg.......",
+	"....ggggggg.....",
+	"...ggggggggg....",
+	"..ggggggggggg...",
+	"..ggggggggggg...",
+	"....nnnnnn......",
+	".....nnnn.......",
+	"......nn........",
+	"......nn........",
+	".....nnnn.......",
+	"....nnnnnn......",
+	"....iiiiiic.....",
+	"...iiiiiiccc....",
+	"...iiiiicccccc..",
+	"................",
+]
+## Forest (top-right): a campsite — a striped tent with a campfire in front.
+const _FOREST_CAMP := [
+	"................",
+	"......rr........",
+	".....rryyrr.....",
+	"....rryyryyr....",
+	"...rryyryyrr....",
+	"...rryrrrryr....",
+	"..rryrrrrrryr...",
+	"..ryrryrrrryrr..",
+	".rrryyrrryyrrr..",
+	".ryryrrrrryryrr.",
+	".rrryryyrrryrr..",
+	"rrrrrryryrrrrrr.",
+	"..mm....mm......",
+	"..mm..mm..mm....",
+	"...rrrrrrrr.....",
+	"................",
+]
+## Scorch (bottom-right): an obsidian spire with a molten crack, volcanic rock base.
+const _SCORCH_ROCK := [
+	"................",
+	"......oo........",
+	".....oooo.......",
+	".....ommo.......",
+	"....oommoo......",
+	"....ommmo.......",
+	"...ooomooo......",
+	"...oommoo.......",
+	"..ooooooo.......",
+	"..ommmmmo.......",
+	"..ooooooo.......",
+	".oooomoooo......",
+	".oommmmmmo......",
+	"..ooooooo.......",
+	"...sssss........",
 	"................",
 ]

@@ -1,0 +1,25 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "build": "tank",
+  "time_scale": 1.0,
+  "until_wave": 2,
+  "duration": 40,
+  "comment": "Verify grass/flowers render across the WHOLE map (edges + center), not just near spawn. Places a dense grass+flower meadow across the map via focus_camera events walking to each edge.",
+  "events": [
+    {"t": 2.0, "kind": "snap", "label": "spawn_center"},
+    {"t": 4.0, "kind": "walk", "dx": 1200, "dy": 0, "label": "to_right"},
+    {"t": 8.0, "kind": "snap", "label": "right_edge"},
+    {"t": 10.0, "kind": "walk", "dx": -2400, "dy": 0, "label": "to_left"},
+    {"t": 14.0, "kind": "snap", "label": "left_edge"},
+    {"t": 16.0, "kind": "walk", "dx": 1200, "dy": -1400, "label": "to_topright"},
+    {"t": 20.0, "kind": "snap", "label": "top_right_edge"},
+    {"t": 22.0, "kind": "walk", "dx": -2400, "dy": 0, "label": "to_topleft"},
+    {"t": 26.0, "kind": "snap", "label": "top_left_edge"},
+    {"t": 28.0, "kind": "walk", "dx": 1200, "dy": 1400, "label": "to_bottom"},
+    {"t": 32.0, "kind": "snap", "label": "bottom_edge"},
+    {"t": 34.0, "kind": "walk", "dx": 0, "dy": -1400, "label": "back_to_center"},
+    {"t": 36.0, "kind": "snap", "label": "back_center"},
+    {"t": 38.0, "kind": "report"}
+  ]
+}

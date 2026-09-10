@@ -1,0 +1,772 @@
+{
+  "effects": [
+    {
+      "kind": "landmarks",
+      "label": "ffa_landmarks",
+      "list": [],
+      "t": 0.806242
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              90.0,
+              0.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              0.0,
+              90.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -90.0,
+              0.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              0.0,
+              -90.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "tobor",
+      "hp": 118.9,
+      "hp_frac": 1.0,
+      "hp_max": 118.9,
+      "kind": "probe",
+      "label": "ffa_start",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 17,
+      "pending_id": "",
+      "pending_slot": -1,
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(90.0, 0.0)"
+        },
+        "101": {
+          "locked": true,
+          "pos": "(-0.000004, 90.0)"
+        },
+        "102": {
+          "locked": true,
+          "pos": "(-90.0, -0.000008)"
+        },
+        "103": {
+          "locked": true,
+          "pos": "(0.000001, -90.0)"
+        }
+      },
+      "pvp_invuln": 8.99999999999995,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 1.00366522222222,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              820.0,
+              -1.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              111.0,
+              1394.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -104.0,
+              -423.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -123.0,
+              -444.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "tobor",
+      "hp": 110.62,
+      "hp_frac": 0.930361648444071,
+      "hp_max": 118.9,
+      "kind": "probe",
+      "label": "ffa_15s",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 31,
+      "pending_id": "",
+      "pending_slot": -1,
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(820.2047, -0.867049)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(110.8909, 1394.098)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(-103.7961, -423.4544)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(-122.6029, -444.4996)"
+        }
+      },
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 15.0061016666666,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 48
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": false,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              783.0,
+              3.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              -185.0,
+              1072.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -183.0,
+              -296.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": false,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              81.0,
+              105.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "tobor",
+      "hp": 0.0,
+      "hp_frac": 0.0,
+      "hp_max": 118.9,
+      "kind": "probe",
+      "label": "ffa_30s",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 31,
+      "pending_id": "",
+      "pending_slot": -1,
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(782.7455, 3.179669)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(-184.7555, 1072.48)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(-182.7102, -296.2294)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(81.39971, 105.2725)"
+        }
+      },
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 30.0014043333328,
+      "teleporters": [],
+      "wave": 2,
+      "wave_name": "Growing Numbers",
+      "xp": 48
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": false,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              783.0,
+              3.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              627.0,
+              1261.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -183.0,
+              -296.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": false,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              81.0,
+              105.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "tobor",
+      "hp": 0.0,
+      "hp_frac": 0.0,
+      "hp_max": 118.9,
+      "kind": "probe",
+      "label": "ffa_45s",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 31,
+      "pending_id": "",
+      "pending_slot": -1,
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(782.7455, 3.179669)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(627.2491, 1260.717)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(-182.7102, -296.2294)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(81.39971, 105.2725)"
+        }
+      },
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 45.0021822424234,
+      "teleporters": [],
+      "wave": 2,
+      "wave_name": "Growing Numbers",
+      "xp": 48
+    }
+  ],
+  "elapsed": 45.5076953333325,
+  "enemies_spawned": 0,
+  "hero_position": "(782.7455, 3.179669)",
+  "player_class": "tobor",
+  "results": {
+    "alive": false,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": true,
+    "errors": [
+      "never fought: casts=0 gold=0 kills=0 creep_kills=0"
+    ],
+    "ffa": {
+      "all_bots": false,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": false,
+          "class": "tobor",
+          "cpu": false,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            783.0,
+            3.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": true,
+          "class": "cinder",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            512.0,
+            1252.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": false,
+          "class": "pyra",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -183.0,
+            -296.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": false,
+          "class": "tobor",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            81.0,
+            105.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 0.93,
+        "kills": 0,
+        "t": 15.18
+      },
+      {
+        "alive": false,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 0.0,
+        "kills": 0,
+        "t": 20.19
+      },
+      {
+        "alive": false,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 0.0,
+        "kills": 0,
+        "t": 25.19
+      },
+      {
+        "alive": false,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 0.0,
+        "kills": 0,
+        "t": 30.2
+      },
+      {
+        "alive": false,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 0.0,
+        "kills": 0,
+        "t": 35.2
+      },
+      {
+        "alive": false,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 0.0,
+        "kills": 0,
+        "t": 40.21
+      },
+      {
+        "alive": false,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 0.0,
+        "kills": 0,
+        "t": 45.22
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 0.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "FAIL_IDLE",
+    "wave": 2,
+    "xp": 48
+  },
+  "shots": [
+    {
+      "label": "ffa_t0",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3608/ffa_t0_1.004_3608.png",
+      "t": 1.00366522222222
+    },
+    {
+      "label": "ffa_t15",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_17722/ffa_t15_15.108_17722.png",
+      "t": 15.1083333333333
+    },
+    {
+      "label": "ffa_t30",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_32715/ffa_t30_30.101_32715.png",
+      "t": 30.1014043333328
+    },
+    {
+      "label": "ffa_t45",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_47736/ffa_t45_45.109_47736.png",
+      "t": 45.1090909090901
+    }
+  ]
+}

@@ -1131,6 +1131,18 @@ func announce_mission(mission_number: int, planet_name: String, tagline: String,
 	AudioService.play("scan")
 
 
+## "A <creature> joined your team" beat, fired when the player completes a
+## recruitment-area quest and a neutral creep joins their side.
+func announce_recruit_joined(area_name: String, creature: String, accent: Color) -> void:
+	if GameRuntime.is_classic():
+		return
+	theme_banner.text = "RECRUITED: %s — %s joins your team" % [area_name.to_upper(), creature.to_upper()]
+	theme_banner.add_theme_font_size_override("font_size", 26)
+	theme_banner.add_theme_color_override("font_color", accent)
+	_flash(theme_banner, 2.8)
+	AudioService.play("scan")
+
+
 ## "BOSS DEFEATED" beat: shown the moment a boss dies, so the clear reads as an event
 ## and pairs with the world-transition warp that follows.
 func announce_boss_defeated(_wave: int) -> void:

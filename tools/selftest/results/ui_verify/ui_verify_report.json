@@ -2,7 +2,7 @@
   "all_ok": true,
   "checks": [
     {
-      "detail": "hero=tobor",
+      "detail": "hero=warden",
       "name": "hover_lmb",
       "ok": true
     },
@@ -12,7 +12,7 @@
       "ok": true
     },
     {
-      "detail": "label=lmb opaque_frac=0.666 (expect >0.05)",
+      "detail": "label=lmb opaque_frac=0.395 (expect >0.05)",
       "name": "probe_preview_rendered",
       "ok": true
     },
@@ -22,7 +22,7 @@
       "ok": true
     },
     {
-      "detail": "hero=tobor (all heroes have a secondary)",
+      "detail": "hero=warden (all heroes have a secondary)",
       "name": "hover_rmb",
       "ok": true
     },
@@ -32,7 +32,7 @@
       "ok": true
     },
     {
-      "detail": "label=rmb opaque_frac=0.666 (expect >0.05)",
+      "detail": "label=rmb opaque_frac=0.395 (expect >0.05)",
       "name": "probe_preview_rendered",
       "ok": true
     },
@@ -57,7 +57,7 @@
       "ok": true
     },
     {
-      "detail": "label=nuke opaque_frac=0.666 (expect >0.05)",
+      "detail": "label=nuke opaque_frac=0.395 (expect >0.05)",
       "name": "probe_preview_rendered",
       "ok": true
     },
@@ -102,7 +102,7 @@
       "ok": true
     },
     {
-      "detail": "new_assets_with_sprite=8/4",
+      "detail": "new_assets_with_sprite=4/4",
       "name": "api_new_assets_have_sprite",
       "ok": true
     },
@@ -132,7 +132,7 @@
       "ok": true
     },
     {
-      "detail": "placed=547 in world=Frostmere Reach",
+      "detail": "placed=740 in world=Frostmere Reach",
       "name": "api_place_after_world_switch",
       "ok": true
     },
@@ -152,67 +152,67 @@
       "ok": true
     }
   ],
-  "elapsed": 27.5073359999998,
+  "elapsed": 27.5068936666661,
   "shots": [
     {
       "err": 0,
       "label": "lobby",
-      "path": "user://ui_verify_shots/lobby_5439.png"
+      "path": "user://ui_verify_shots/lobby_4485.png"
     },
     {
       "err": 0,
       "label": "lmb_hover",
-      "path": "user://ui_verify_shots/lmb_hover_8438.png"
+      "path": "user://ui_verify_shots/lmb_hover_7494.png"
     },
     {
       "err": 0,
       "label": "rmb_hover",
-      "path": "user://ui_verify_shots/rmb_hover_11430.png"
+      "path": "user://ui_verify_shots/rmb_hover_10477.png"
     },
     {
       "err": 0,
       "label": "ability_preview_nuke",
-      "path": "user://ui_verify_shots/ability_preview_nuke_13913.png"
+      "path": "user://ui_verify_shots/ability_preview_nuke_12971.png"
     },
     {
       "err": 0,
       "label": "ability_preview_radius",
-      "path": "user://ui_verify_shots/ability_preview_radius_16439.png"
+      "path": "user://ui_verify_shots/ability_preview_radius_15478.png"
     },
     {
       "err": 0,
       "label": "ability_preview_summon",
-      "path": "user://ui_verify_shots/ability_preview_summon_18992.png"
+      "path": "user://ui_verify_shots/ability_preview_summon_18053.png"
     },
     {
       "err": 0,
       "label": "editor",
-      "path": "user://ui_verify_shots/editor_19472.png"
+      "path": "user://ui_verify_shots/editor_18571.png"
     },
     {
       "err": 0,
       "label": "editor_with_props",
-      "path": "user://ui_verify_shots/editor_with_props_22492.png"
+      "path": "user://ui_verify_shots/editor_with_props_21571.png"
     },
     {
       "err": 0,
       "label": "editor_final",
-      "path": "user://ui_verify_shots/editor_final_24981.png"
+      "path": "user://ui_verify_shots/editor_final_24070.png"
     },
     {
       "err": 0,
       "label": "world_volcano",
-      "path": "user://ui_verify_shots/world_volcano_26522.png"
+      "path": "user://ui_verify_shots/world_volcano_25586.png"
     },
     {
       "err": 0,
       "label": "world_ice_with_props",
-      "path": "user://ui_verify_shots/world_ice_with_props_28755.png"
+      "path": "user://ui_verify_shots/world_ice_with_props_27977.png"
     },
     {
       "err": 0,
       "label": "world_back_to_grass",
-      "path": "user://ui_verify_shots/world_back_to_grass_30772.png"
+      "path": "user://ui_verify_shots/world_back_to_grass_29986.png"
     }
   ],
   "verdict": "PASS"

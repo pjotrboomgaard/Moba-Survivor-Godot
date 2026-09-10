@@ -1,0 +1,28 @@
+{
+  "hero": "arclight",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "comment": "FFA recruit via pin: force the local hero into each recruit area's bond radius for 3.5s to confirm the FFA bond + recruit works (minion with can_attack_heroes spawns). Probes count friendly_minion.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 0.8, "kind": "snap", "label": "boot"},
+    {"t": 1.0, "kind": "probe", "label": "before"},
+    {"t": 1.5, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.2, "kind": "probe", "label": "after_town"},
+    {"t": 5.6, "kind": "snap", "label": "town_area"},
+    {"t": 5.8, "kind": "unpin"},
+    {"t": 6.0, "kind": "pin", "to": [-2520.0, 1680.0]},
+    {"t": 9.7, "kind": "probe", "label": "after_lagoon"},
+    {"t": 10.1, "kind": "snap", "label": "lagoon_area"},
+    {"t": 10.3, "kind": "unpin"},
+    {"t": 10.5, "kind": "pin", "to": [2520.0, -1680.0]},
+    {"t": 14.2, "kind": "probe", "label": "after_forest"},
+    {"t": 14.6, "kind": "snap", "label": "forest_area"},
+    {"t": 14.8, "kind": "unpin"},
+    {"t": 15.0, "kind": "pin", "to": [2520.0, 1680.0]},
+    {"t": 18.7, "kind": "probe", "label": "after_scorch"},
+    {"t": 19.1, "kind": "snap", "label": "scorch_area"},
+    {"t": 19.3, "kind": "unpin"},
+    {"t": 19.8, "kind": "report"}
+  ]
+}

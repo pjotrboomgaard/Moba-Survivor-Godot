@@ -146,6 +146,30 @@ static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dict
 			result.move = _smooth_move(player, _desired_move(player, creep, null, creep_gap), delta, FFA_MOVE_SCALE)
 			return _apply_ffa_dodge(player, result, delta)
 
+	# Recruit behavior: if a neutral recruit area is within range and this bot has
+	# not yet claimed it, walk to it and stand still to complete the bond. Standing
+	# still lets recruit_areas.gd convert the creep into a friendly minion that then
+	# fights other players and creeps for the bot.
+	var recruit: Variant = _ffa_recruit_target(player)
+	if recruit != null:
+		var rp: Vector2 = Vector2((recruit as Dictionary).get("pos", Vector2.ZERO))
+		var rdist := player.global_position.distance_to(rp)
+		if rdist < 40.0:
+			# In the ring — stand still so the bond timer fills.
+			result.move = Vector2.ZERO
+			result.aim = rp
+			return _apply_ffa_dodge(player, result, delta)
+		# Walk toward the area; only commit if no rival is right on top of us, OR this
+		# bot is weak (low level) and the area is close enough that the risk is worth
+		# the power grab.
+		var weak := int(player.level) < 3
+		var rival_close_r := rival != null and player.global_position.distance_to(rival.global_position) < 320.0
+		var walkable := (not rival_close_r) or (weak and rdist < 700.0)
+		if walkable:
+			result.move = _smooth_move(player, player.global_position.direction_to(rp), delta, FFA_MOVE_SCALE)
+			result.aim = rp
+			return _apply_ffa_dodge(player, result, delta)
+
 	if tactic == FfaTactic.AMBUSHER:
 		var rim := _ffa_crater_rim(player)
 		result.move = _smooth_move(player, _steer_towards(player.global_position, rim, FFA_LANDMARK_HOLD), delta, FFA_MOVE_SCALE)
@@ -295,6 +319,27 @@ static func _ffa_cut_through_crater(player: Player, rival: Player, gap: float) -
 			via = Vector2.RIGHT
 		via = via.normalized()
 	return via
+
+
+## Nearest neutral recruit area the bot can still claim, or null if every area is
+## already claimed (or no recruit system is live). The recruited ally then follows
+## the bot and fights enemies + rival heroes, so this is a real FFA power grab.
+## No distance gate: an unclaimed area is always a worth-seeking objective when the
+## bot has nothing more urgent to do (this runs *after* the flee/rival/creep checks).
+static func _ffa_recruit_target(player: Player) -> Variant:
+	if player == null or not player.is_inside_tree():
+		return null
+	var main = player.get_tree().get_first_node_in_group("main")
+	if main == null:
+		return null
+	var ra = main.get("_recruit_areas")
+	if ra == null or not is_instance_valid(ra) or not ra.has_method("nearest_unclaimed_area"):
+		return null
+	var peer_id := int(player.get("peer_id"))
+	var info: Variant = ra.call("nearest_unclaimed_area", peer_id, player.global_position)
+	if info == null or int((info as Dictionary).get("index", -1)) < 0:
+		return null
+	return info
 
 
 static func _ffa_crater_rim(player: Player) -> Vector2:

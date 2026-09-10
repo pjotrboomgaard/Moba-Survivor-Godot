@@ -1,0 +1,979 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              90.0,
+              0.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              0.0,
+              90.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -90.0,
+              0.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              0.0,
+              -90.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "arclight",
+      "hp": 145.0,
+      "hp_frac": 1.0,
+      "hp_max": 145.0,
+      "kind": "probe",
+      "label": "before",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 17,
+      "pending_id": "",
+      "pending_slot": -1,
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(90.0, 0.0)"
+        },
+        "101": {
+          "locked": true,
+          "pos": "(-0.000004, 90.0)"
+        },
+        "102": {
+          "locked": true,
+          "pos": "(-90.0, -0.000008)"
+        },
+        "103": {
+          "locked": true,
+          "pos": "(0.000001, -90.0)"
+        }
+      },
+      "pvp_invuln": 8.99999999999995,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 1.010564,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -1837.0,
+              -1680.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              0.0,
+              773.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -772.0,
+              0.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              0.0,
+              -772.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "arclight",
+      "hp": 136.0,
+      "hp_frac": 0.937931034482759,
+      "hp_max": 145.0,
+      "kind": "probe",
+      "label": "after_town",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 17,
+      "pending_id": "",
+      "pending_slot": -1,
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(-1837.5, -1680.0)"
+        },
+        "101": {
+          "locked": true,
+          "pos": "(-0.000034, 772.5)"
+        },
+        "102": {
+          "locked": true,
+          "pos": "(-772.5, -0.000068)"
+        },
+        "103": {
+          "locked": true,
+          "pos": "(0.000009, -772.5)"
+        }
+      },
+      "pvp_invuln": 4.74999999999991,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 5.26666666666666,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        17.7430000000002,
+        0.0,
+        0.0,
+        188.049999999997
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2544.0,
+              1321.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              56.0,
+              1426.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -953.0,
+              6.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -494.0,
+              -452.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 147,
+      "hero": "arclight",
+      "hp": 136.0,
+      "hp_frac": 0.937931034482759,
+      "hp_max": 145.0,
+      "kind": "probe",
+      "label": "after_lagoon",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 17,
+      "pending_id": "",
+      "pending_slot": -1,
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(-2543.634, 1320.752)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(55.5517, 1425.904)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(-952.695, 5.726494)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(-493.5147, -452.2643)"
+        }
+      },
+      "pvp_invuln": 0.216666666666591,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 9.79713061904762,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        13.2763333333335,
+        0.0,
+        0.0,
+        183.583333333327
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              2520.0,
+              -1680.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              -616.0,
+              1763.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -151.0,
+              -39.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -574.0,
+              -156.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 250,
+      "hero": "arclight",
+      "hp": 136.0,
+      "hp_frac": 0.937931034482759,
+      "hp_max": 145.0,
+      "kind": "probe",
+      "label": "after_forest",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 17,
+      "pending_id": "",
+      "pending_slot": -1,
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(2520.0, -1680.0)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(-616.2051, 1763.207)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(-151.1477, -39.09386)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(-574.2934, -155.8639)"
+        }
+      },
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [
+          "boar"
+        ],
+        "minions": 1
+      },
+      "summons": 0,
+      "t": 14.2625,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 60
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        8.77633333333329,
+        0.0,
+        0.0,
+        179.083333333323
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": true,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              2520.0,
+              1680.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              -720.0,
+              839.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "pyra",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -151.0,
+              -39.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 1,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              -282.0,
+              230.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 286,
+      "hero": "arclight",
+      "hp": 124.0,
+      "hp_frac": 0.855172413793103,
+      "hp_max": 145.0,
+      "kind": "probe",
+      "label": "after_scorch",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 17,
+      "pending_id": "",
+      "pending_slot": -1,
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(2520.0, 1680.0)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(-720.3047, 838.5587)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(-151.1477, -39.09386)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(-282.4836, 229.6348)"
+        }
+      },
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [
+          "boar",
+          "golem"
+        ],
+        "minions": 2
+      },
+      "summons": 0,
+      "t": 18.7666666666667,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 60
+    }
+  ],
+  "elapsed": 19.8153143333333,
+  "enemies_spawned": 0,
+  "hero_position": "(2519.689, 1602.616)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 28,
+    "casts": [
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 5.81666666666666
+      }
+    ],
+    "creep_kills": 20,
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            2520.0,
+            1603.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": true,
+          "class": "cinder",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            -977.0,
+            762.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": false,
+          "class": "pyra",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -151.0,
+            -39.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            -238.0,
+            245.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 292,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 0,
+        "hp": 0.94,
+        "kills": 0,
+        "t": 5.17
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 147,
+        "hp": 0.94,
+        "kills": 0,
+        "t": 10.2
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 250,
+        "hp": 0.94,
+        "kills": 0,
+        "t": 15.26
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 0.855172413793103,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 1,
+    "xp": 78
+  },
+  "shots": [
+    {
+      "label": "boot",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4385/boot_0.882_4385.png",
+      "t": 0.881841666666667
+    },
+    {
+      "label": "town_area",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9886/town_area_5.656_9886.png",
+      "t": 5.65597166666667
+    },
+    {
+      "label": "lagoon_area",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_15220/lagoon_area_10.197_15220.png",
+      "t": 10.197182
+    },
+    {
+      "label": "forest_area",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_19958/forest_area_14.658_19958.png",
+      "t": 14.6575093333333
+    },
+    {
+      "label": "scorch_area",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_24569/scorch_area_19.106_24569.png",
+      "t": 19.106376
+    }
+  ]
+}
