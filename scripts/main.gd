@@ -158,11 +158,12 @@ var _ffa_world_wave := 1
 ## FFA_INTRO_WALK (camera follows each local player), stand still again, and only then
 ## do the team wave directors start and creeps begin.
 const FFA_INTRO_HOLD := 2.0
-const FFA_INTRO_WALK := 5.0
+const FFA_INTRO_WALK := 7.0
 const FFA_INTRO_END_HOLD := 2.0
 var _ffa_intro_elapsed := -1.0
 var _ffa_intro_done := false
 var _ffa_intro_walk_dir := {}
+var _landing_fx: Node2D = null
 
 
 func _ready() -> void:
@@ -745,7 +746,6 @@ func _convert_local_to_ffa_bot() -> void:
 		return
 	local_player.simulation_mode = Player.SimulationMode.CPU
 	local_player.apply_class(GameRuntime.ffa_class_for_peer(local_player.owner_peer_id))
-	local_player.grant_pvp_spawn_protection()
 	hud.bind_player(local_player)
 	hud.refresh_ffa_scoreboard(_ffa_scoreboard_rows())
 
@@ -797,8 +797,6 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 		player.apply_team_identity()
 		if GameRuntime.is_server() or GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 			_ensure_team_wave_director(player.team_id)
-		if GameRuntime.is_ffa():
-			player.grant_pvp_spawn_protection()
 	pending_inputs[peer_id] = {
 		"move": Vector2.ZERO,
 		"aim": player.global_position + Vector2.RIGHT * 100.0,
@@ -3233,6 +3231,7 @@ func _ffa_intro_tick(delta: float) -> void:
 		_start_ffa_intro()
 	_ffa_intro_elapsed += delta
 	if _ffa_intro_elapsed < FFA_INTRO_HOLD:
+		_tick_landing_fx()
 		return  # phase 2: standing still, still locked.
 	if _ffa_intro_elapsed < FFA_INTRO_HOLD + FFA_INTRO_WALK:
 		# phase 3: auto-walk outward. Keep movement_locked=true so the CPU brain and
@@ -3249,6 +3248,7 @@ func _ffa_intro_tick(delta: float) -> void:
 func _start_ffa_intro() -> void:
 	_ffa_intro_elapsed = 0.0
 	var center: Vector2 = _landing_position()
+	_spawn_landing_fx(center)
 	var count := players.size()
 	if count == 0:
 		_ffa_intro_done = true
@@ -3276,17 +3276,16 @@ func _start_ffa_intro() -> void:
 ## fight it). Facing + z-sort update so the hero faces the walk direction.
 func _drive_ffa_intro_walkout(delta: float) -> void:
 	var speed := 210.0  # px/s
+	# Cinematic walk: move each hero straight outward for the full FFA_INTRO_WALK
+	# duration, ignoring obstacles. This guarantees all four cover exactly the same
+	# distance (no hero gets stuck on a rock, so the spread stays symmetric).
 	for peer_id in _ffa_intro_walk_dir.keys():
 		var p := players.get(peer_id) as Player
 		if p == null or not is_instance_valid(p):
 			continue
 		var dir := Vector2(_ffa_intro_walk_dir.get(peer_id, p.facing_direction)).normalized()
 		var step := dir * speed * delta
-		var target: Vector2 = p.global_position + step
-		if arena is Arena and (arena as Arena).is_blocked(target, 26.0):
-			# Nears a wall — stop walking further (hold at current spot).
-			continue
-		p.global_position = target
+		p.global_position = p.global_position + step
 		p.facing_direction = dir
 		p._refresh_sort_z()
 
@@ -3294,6 +3293,7 @@ func _drive_ffa_intro_walkout(delta: float) -> void:
 ## Phase 5: unlock everyone and start the deferred team wave directors so creeps spawn.
 func _finish_ffa_intro() -> void:
 	_ffa_intro_done = true
+	_clear_landing_fx()
 	for peer_id in players.keys():
 		var p := players.get(peer_id) as Player
 		if p == null or not is_instance_valid(p):
@@ -3311,6 +3311,62 @@ func _finish_ffa_intro() -> void:
 			director.start(maxi(1, members), false)
 	if hud != null:
 		hud.announce_ffa_intro("GO!")
+
+
+## Landing beat visual: grass -> expanding blast ring -> crater. Plays during the
+## FFA_INTRO_HOLD phase. The node draws in world space at the crater center and fades
+## out once the walk-out begins.
+func _spawn_landing_fx(center: Vector2) -> void:
+	_clear_landing_fx()
+	var node := Node2D.new()
+	node.name = "FfaLandingFx"
+	node.position = center
+	node.z_index = -5
+	# A _draw-based fx driven by _tick_landing_fx via the elapsed intro timer.
+	_landing_fx = node
+	actors.add_child(node)
+	var t := GDScript.new()
+	t.source_code = """
+extends Node2D
+var progress := 0.0
+func _draw() -> void:
+	# Crater (dark pit).
+	draw_circle(Vector2.ZERO, 46.0, Color(0.10, 0.09, 0.08, 0.9))
+	draw_circle(Vector2.ZERO, 34.0, Color(0.05, 0.04, 0.04, 0.95))
+	# Blast ring — grows with progress.
+	var ring_r: float = 20.0 + progress * 120.0
+	draw_arc(Vector2.ZERO, ring_r, 0.0, TAU, 48, Color(1.0, 0.85, 0.5, 0.5 * (1.0 - progress)), 3.0)
+	# Dust specks.
+	for i in 10:
+		var a: float = float(i) * 0.6283 + progress * 2.0
+		var d: float = ring_r * 0.9
+		draw_circle(Vector2.from_angle(a) * d, 2.0, Color(0.7, 0.65, 0.5, 0.3 * (1.0 - progress)))
+"""
+	t.reload(true)
+	node.set_script(t)
+	# Heroes drop in with a brief scale pop as they "land".
+	for peer_id in players.keys():
+		var p := players.get(peer_id) as Player
+		if p == null or not is_instance_valid(p) or p.sprite == null:
+			continue
+		var tw := create_tween()
+		tw.tween_property(p.sprite, "scale", p.sprite.scale, 0.25).set_trans(Tween.TRANS_QUAD)
+
+
+## Drive the landing beat: blast ring expands 0->1 across the hold phase, then the
+## crater settles and the fx fades.
+func _tick_landing_fx() -> void:
+	if _landing_fx == null or not is_instance_valid(_landing_fx):
+		return
+	var t: float = clampf(_ffa_intro_elapsed / FFA_INTRO_HOLD, 0.0, 1.0)
+	_landing_fx.set("progress", t)
+	_landing_fx.queue_redraw()
+
+
+func _clear_landing_fx() -> void:
+	if _landing_fx != null and is_instance_valid(_landing_fx):
+		_landing_fx.queue_free()
+	_landing_fx = null
 
 
 func _on_ffa_player_died(peer_id: int) -> void:

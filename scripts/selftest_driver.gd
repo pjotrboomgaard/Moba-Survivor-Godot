@@ -600,8 +600,31 @@ func _record_probe(label: String) -> void:
 		"level": int(_player.level),
 		"abilities": (_player.known_abilities.duplicate() if _player.known_abilities else []),
 		"ffa": _ffa_roster(),
+		"pvp_invuln": float(_player.pvp_invuln_timer),
+		"player_positions": _player_positions(),
 		"teleporters": _teleporter_pads(),
 	})
+
+
+## All players' world-space positions, keyed by peer_id. Used to verify the FFA intro
+## walk-out is symmetric (all heroes cover the same distance).
+func _player_positions() -> Dictionary:
+	var host_main: Variant = get_tree().get_first_node_in_group("main") if _host_main == null else _host_main
+	var players := {}
+	if host_main == null:
+		return players
+	var p_dict: Variant = host_main.get("players")
+	if p_dict == null:
+		return players
+	for peer_id in p_dict.keys():
+		var p: Variant = p_dict.get(peer_id)
+		if p == null or not is_instance_valid(p):
+			continue
+		players[str(peer_id)] = {
+			"pos": (p as Node2D).global_position,
+			"locked": bool(p.get("movement_locked")),
+		}
+	return players
 
 
 func _teleporter_pads() -> Array:
