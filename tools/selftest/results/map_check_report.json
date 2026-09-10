@@ -85,14 +85,14 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 1.20132,
+      "t": 1.20293966666667,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
       "xp": 0
     }
   ],
-  "elapsed": 1.40132,
+  "elapsed": 1.40293966666666,
   "enemies_spawned": 0,
   "hero_position": "(72.0, 0.0)",
   "player_class": "arclight",
@@ -129,8 +129,8 @@
   "shots": [
     {
       "label": "grass_map_full",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2796/grass_map_full_0.601_2795.png",
-      "t": 0.600839
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_2836/grass_map_full_0.603_2836.png",
+      "t": 0.602625666666667
     }
   ]
 }
