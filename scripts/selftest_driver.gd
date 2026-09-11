@@ -1626,7 +1626,7 @@ func _tick_survival(delta: float) -> void:
 	var nearest_d := _player.global_position.distance_to(foe.global_position) if foe != null else 9999.0
 	# Combat: start the pad sprint while there is still HP to cross the last 300px.
 	# Intermission: top off so the next wave doesn't open already bleeding.
-	var commit_at := 0.36 if wave > 0 and wave % 5 == 0 else (0.60 if wave < 12 else 0.48)
+	var commit_at := 0.36 if wave > 0 and wave % 5 == 0 else (0.70 if wave < 12 else 0.55)
 	if in_break and frac < 0.90 and not (wave > 0 and wave % 5 == 0):
 		_heal_commit = true
 	elif frac <= commit_at:
@@ -1650,7 +1650,14 @@ func _tick_survival(delta: float) -> void:
 	)
 	var need_shop := (not breaking_off) and _want_shop and in_break and frac >= 0.55 and not need_heal and not need_freeze and not (boss_up and need_wipe)
 	var target_lm: ArenaLandmark = null
-	if need_heal:
+	# Hard override: critically low HP -> sprint to the heal pad and drop combat,
+	# even on a boss wave. This is the "flee to heal" behaviour that keeps the bot
+	# alive when it is overwhelmed by a pack.
+	var critical_flee := frac < 0.30 and heal != null and _landmark_ready(heal)
+	if critical_flee:
+		target_lm = heal
+		_shop_trip = false
+	elif need_heal:
 		target_lm = heal
 		_shop_trip = false
 	elif need_freeze:
