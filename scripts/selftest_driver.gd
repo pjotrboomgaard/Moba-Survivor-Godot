@@ -1784,6 +1784,24 @@ func _fight_near_heal(heal: ArenaLandmark, foe: Node2D, wave: int) -> Vector2:
 		return home + (pos - home).normalized() * ((band_in + band_out) * 0.5)
 	if foe == null:
 		return pos
+	# Overwhelmed escape: when many enemies are clustered tightly around the player,
+	# kiting a single target keeps the rest converging. Instead, break toward the
+	# heal vent (away from the local swarm centroid) so contact damage drops.
+	var nearby := _nearby_enemy_count(320.0)
+	if nearby >= 6:
+		var centroid := Vector2.ZERO
+		var count := 0
+		for e in _alive_enemies():
+			if pos.distance_to(e.global_position) < 320.0:
+				centroid += e.global_position
+				count += 1
+		if count > 0:
+			centroid /= count
+			var from_swarm := pos - centroid
+			var esc := home + (pos - home).normalized() * 360.0
+			# Blend: flee the swarm centroid while drifting toward the heal vent.
+			var dir := from_swarm.normalized() + (esc - pos).normalized() * 0.6
+			return pos + dir.normalized() * 260.0
 	var away := pos - foe.global_position
 	var dist := away.length()
 	var boss_fight := foe is Enemy and (foe as Enemy).is_boss
