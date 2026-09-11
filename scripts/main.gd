@@ -2849,6 +2849,10 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 			player.add_gold(500)
 		"skip_wave":
 			_dev_skip_wave()
+		"open_cinematic":
+			# Test hook: replay the opening crash-landing cinematic on demand.
+			_opening_cinematic_playing = false
+			play_opening_cinematic()
 		"mission_warp":
 			# Test hook: run the cinematic ring-of-fire world transition on demand.
 			# Record the current (old) biome, advance to the next one, rebuild the
@@ -3328,6 +3332,7 @@ func play_opening_cinematic() -> void:
 	# Hide the crater while the map is being "dropped" (for grass/volcano where it exists).
 	if arena is Arena:
 		(arena as Arena).set_crater_unlocked(false)
+		(arena as Arena).queue_redraw()
 	# Zoom out to the full-map overhead view.
 	_zoom_cameras_to_center(true)
 	# Build the ship node.
