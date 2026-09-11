@@ -2706,7 +2706,10 @@ func _regular_polygon(center: Vector2, radius: float, facets: int) -> PackedVect
 func _draw_crater() -> void:
 	if not crater_feature_active():
 		return
-	crater_unlocked = true
+	# Gated on crater_unlocked so the opening crash-landing cinematic can build the
+	# arena with the crater hidden, then reveal it on the ship's impact.
+	if not crater_unlocked:
+		return
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _layout_seed() + 7
 	var bowl := crater_rect()

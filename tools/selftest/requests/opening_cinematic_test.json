@@ -1,0 +1,15 @@
+{
+  "hero": "arclight",
+  "comment": "P2.1a: opening crash-landing cinematic. Trigger open_cinematic dev command; capture the zoomed-out empty map, the ship mid-flight, the explosion, and the zoomed-in crater.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "before"},
+    {"t": 1.5, "kind": "dev_command", "command": "open_cinematic"},
+    {"t": 2.6, "kind": "snap", "label": "zoomed_out_empty"},
+    {"t": 3.4, "kind": "snap", "label": "ship_midflight"},
+    {"t": 4.1, "kind": "snap", "label": "explosion"},
+    {"t": 4.3, "kind": "probe", "label": "impact"},
+    {"t": 5.6, "kind": "snap", "label": "zoomed_in_crater"},
+    {"t": 6.5, "kind": "report"}
+  ]
+}

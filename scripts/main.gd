@@ -28,6 +28,12 @@ const GhostWaveSystem := preload("res://scripts/ghost_wave_system.gd")
 @onready var hud: GameHUD = $HUD
 @onready var world_flash: Node2D = get_node_or_null("WorldFlash")
 @onready var ghost_wave_system: Node2D = $GhostWaveSystem
+@onready var world_transition: Node2D = get_node_or_null("WorldTransition")
+## Opening cinematic: a pixel-art ship crashes into the map centre, forms the crater,
+## then zooms to the hero. Created lazily; null until play_opening_cinematic runs.
+var _opening_ship: Node2D = null
+## True while the opening crash-landing cinematic is playing; wave 1 spawn waits.
+var _opening_cinematic_playing := false
 ## One-shot helper so the many `game_over = true` sites can flip the ghost trickle
 ## off without every caller remembering to reach for the node.
 func _set_ghosts_game_over(dead: bool) -> void:
@@ -237,7 +243,14 @@ func _ready() -> void:
 		_try_restore_pending_run()
 		if GameRuntime.is_ffa() and GameRuntime.ffa_all_bots:
 			_convert_local_to_ffa_bot()
-		_spawn_initial_wave()
+		# Opening crash-landing cinematic (solo + FFA). Skipped under selftest so the
+		# harness gets the arena in its normal state; the dev command `open_cinematic`
+		# still triggers it on demand for visual verification.
+		var _in_selftest := OS.has_feature("selftest") or "--selftest" in OS.get_cmdline_args()
+		if not _in_selftest and GameRuntime.return_to_world_editor == false:
+			play_opening_cinematic()
+		else:
+			_spawn_initial_wave()
 		if GameRuntime.is_ffa():
 			_maintain_ffa_bounties()
 		_start_side_quests()
@@ -1077,6 +1090,11 @@ func _on_team_wave_group_ready(
 
 func _spawn_initial_wave() -> void:
 	if initial_wave_spawned or players.is_empty():
+		return
+	# The opening crash-landing cinematic delays wave 1 until the ship impacts and
+	# the hero lands in the crater. If it's still playing, defer; the cinematic's
+	# finish handler calls this again.
+	if _opening_cinematic_playing:
 		return
 	initial_wave_spawned = true
 	if GameRuntime.is_rift_clash():
@@ -2831,6 +2849,15 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 			player.add_gold(500)
 		"skip_wave":
 			_dev_skip_wave()
+		"mission_warp":
+			# Test hook: run the cinematic ring-of-fire world transition on demand.
+			# Record the current (old) biome, advance to the next one, rebuild the
+			# arena, then play the ring sweep revealing new world inside / old outside.
+			var old_id := GameRuntime.biome_id
+			var next_id := (old_id + 1) % 5
+			GameRuntime.set_biome(next_id)
+			_rebuild_arena()
+			_play_mission_warp(current_wave + 1, old_id)
 		_:
 			if command.begins_with("resolution:"):
 				_apply_resolution_command(command)
@@ -2878,6 +2905,9 @@ func probe_boss_transition() -> Dictionary:
 	var out := _last_boss_transition.duplicate()
 	out["ring_live"] = _boss_ring_live_count()
 	out["camera_zoom"] = _local_camera_zoom_probe()
+	if world_transition != null:
+		out["world_transition_active"] = bool(world_transition.is_active())
+		out["world_transition_progress"] = float(world_transition.progress)
 	return out
 
 
@@ -2903,7 +2933,11 @@ func _local_camera_zoom_probe() -> Array:
 
 ## Zoom every local player's camera out to a wide framing of the map centre for ~2.2s,
 ## so the boss ring sweep and the world landing both read in a single wide shot.
-func _zoom_cameras_to_center() -> void:
+## Zoom every local player's camera out to the map centre.
+## If `hold` is true, stay zoomed out (used by the cinematic world transition, which
+## zooms back explicitly via _transition_zoom_back_to_players). Otherwise zoom out,
+## hold briefly, then zoom back to the original framing (used by the boss-death ring).
+func _zoom_cameras_to_center(hold: bool = false) -> void:
 	if GameRuntime.is_dedicated_server():
 		return
 	var center := Vector2.ZERO
@@ -2914,16 +2948,21 @@ func _zoom_cameras_to_center() -> void:
 		var cam := player.camera
 		if cam == null:
 			continue
+		cam.position_smoothing_enabled = false
 		var old_zoom := cam.zoom
-		var target_zoom := Vector2(0.42, 0.42)
+		# Zoom far enough out to see the WHOLE map (8400x5600) at once so the
+		# center-origin ring sweep reads as "fire consuming the old world".
+		var target_zoom := Vector2(0.13, 0.13)
 		var start_pos := cam.global_position
+		print("[transition] zoom cam out peer=%d old_zoom=%s cam_enabled=%s" % [peer_id, str(old_zoom), str(cam.enabled)])
 		var tween := create_tween()
 		tween.set_parallel(true)
-		tween.tween_property(cam, "zoom", target_zoom, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tween.tween_property(cam, "global_position", center, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tween.tween_interval(1.4)
-		tween.tween_property(cam, "zoom", old_zoom, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		tween.tween_property(cam, "global_position", start_pos, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tween.tween_property(cam, "zoom", target_zoom, 1.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(cam, "global_position", center, 1.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		if not hold:
+			tween.tween_interval(1.4)
+			tween.tween_property(cam, "zoom", old_zoom, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+			tween.tween_property(cam, "global_position", start_pos, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 
 func _play_world_flash(rebuild: bool = true, on_landed: Callable = Callable()) -> void:
@@ -2956,35 +2995,103 @@ func _play_world_flash(rebuild: bool = true, on_landed: Callable = Callable()) -
 ## them at the new landing spot behind the black screen, hold on the hud's title card
 ## (see MISSION_WARP_SCREEN_HOLD), then fade back and hand control back. ~4 seconds total,
 ## versus the old ~1.6s fade-to-white-and-back that read as barely more than a wave bump.
-func _play_mission_warp(next_wave: int) -> void:
+## `old_biome_override` lets a caller (the dev-command test hook) pass the biome the
+## arena was just showing BEFORE the caller already advanced GameRuntime.biome_id. In
+## normal play the old biome is simply the current one.
+func _play_mission_warp(next_wave: int, old_biome_override: int = -1) -> void:
 	_last_boss_ring_source = "mission_warp"
 	var mission_number := _mission_number_for_wave(next_wave)
-	if GameRuntime.is_dedicated_server() or world_flash == null:
+	var old_biome := GameRuntime.biome_id if old_biome_override < 0 else old_biome_override
+	if GameRuntime.is_dedicated_server():
 		_rebuild_arena()
 		_trigger_world_landing(mission_number)
 		return
+
+	# Cinematic ring-of-fire world transition:
+	#   1) lock players + shake
+	#   2) zoom every local camera out to the full-map overhead view
+	#   3) rebuild the arena to the NEW biome in place (live, underneath)
+	#   4) sweep a fire ring across the map; the old biome's ground is overlaid in
+	#      world space on top, masked to the OUTSIDE of the ring so the NEW world
+	#      reveals itself inside the ring while the OLD world stays outside.
+	#   5) zoom the cameras back into the players' new landing spot.
+	# No black fade — both worlds are visible at the same time during the sweep,
+	# and the game keeps running throughout.
 	_set_players_locked(true)
-	_shake_cameras(10.0, 0.3)
-	(world_flash as WorldFlash).set_flash_color(Color.BLACK)
-	world_flash.visible = true
-	world_flash.modulate.a = 0.0
-	var tween := create_tween()
-	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tween.tween_property(world_flash, "modulate:a", 1.0, MISSION_WARP_FADE_IN)
-	tween.tween_callback(_rebuild_arena)
-	tween.tween_callback(func() -> void: _trigger_world_landing(mission_number))
-	# Fire-sweep ring + zoom-to-middle during the world transition. The ring fires
-	# once the arena has been rebuilt to the new biome, so the inside of the ring
-	# already shows the new world while the outside still reads as the old one.
-	tween.tween_callback(_play_boss_ring)
-	tween.tween_interval(MISSION_WARP_SCREEN_HOLD)
-	tween.tween_callback(func() -> void: _shake_cameras(6.0, 0.25))
-	tween.tween_property(world_flash, "modulate:a", 0.0, MISSION_WARP_FADE_OUT)
-	tween.tween_callback(func() -> void:
-		if world_flash != null:
-			world_flash.visible = false
+	_shake_cameras(8.0, 0.3)
+
+	# Remember the old biome's ground so the overlay can paint it.
+	var old_ground := _biome_ground_color(old_biome)
+
+	# 2) Zoom out to the full map and HOLD there (we zoom back explicitly after the sweep).
+	_zoom_cameras_to_center(true)
+
+	# 3) Rebuild the arena to the new biome + drop players at the landing spot.
+	_rebuild_arena()
+	_trigger_world_landing(mission_number)
+
+	_last_boss_transition = {
+		"center": Vector2.ZERO,
+		"biome_id": GameRuntime.biome_id,
+		"biome_name": GameRuntime.biome_name(),
+		"t": Time.get_ticks_msec(),
+		"source": "mission_warp",
+	}
+
+	# 4) Run the world-space fire-ring reveal. The transition node drives its own
+	#    tween and, on `finished`, we zoom back in.
+	if world_transition == null:
 		_set_players_locked(false)
-	)
+		return
+	var half := (arena as Arena).half_extents() if arena is Arena else Vector2(4200.0, 2800.0)
+	if not _mission_warp_connected:
+		world_transition.finished.connect(_on_mission_warp_finished)
+		_mission_warp_connected = true
+	world_transition.begin(old_ground, Vector2.ZERO, _full_map_radius(half), half)
+
+
+func _on_mission_warp_finished() -> void:
+	# 5) Sweep complete: zoom the cameras back in to the players' new position.
+	_transition_zoom_back_to_players()
+	_set_players_locked(false)
+
+
+## Guard flag so _play_mission_warp connects the finished signal only once.
+var _mission_warp_connected := false
+
+
+## Map a biome id to a representative ground fill color for the transition overlay.
+func _biome_ground_color(biome_id: int) -> Color:
+	match biome_id:
+		1: return Color(0.18, 0.09, 0.07, 1.0)  # volcano
+		2: return Color(0.11, 0.16, 0.22, 1.0)  # ice
+		3: return Color(0.09, 0.11, 0.13, 1.0)  # factory
+		4: return Color(0.10, 0.12, 0.17, 1.0)  # docks
+		_: return Color(0.35, 0.75, 0.30, 1.0)  # grass / default — brightened for visibility
+
+
+## A ring radius that comfortably covers the full map diagonal so the sweep fully
+## reveals the new world.
+func _full_map_radius(half: Vector2) -> float:
+	return half.length() * 1.05
+
+
+## Zoom every local player's camera back from the full-map overhead view to a
+## comfortable framing around their (new) position. Mirrors the inverse of
+## _zoom_cameras_to_center().
+func _transition_zoom_back_to_players() -> void:
+	if GameRuntime.is_dedicated_server():
+		return
+	for peer_id in players.keys():
+		var player := players[peer_id] as Player
+		if player == null or not is_instance_valid(player) or not player.is_local_player:
+			continue
+		var cam := player.camera
+		if cam == null:
+			continue
+		var target_zoom := Vector2(0.5, 0.5)
+		var tween := create_tween()
+		tween.tween_property(cam, "zoom", target_zoom, 1.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 
 
 ## Freezes/frees every local player's movement + abilities for the mission-warp beat above —
@@ -3200,6 +3307,61 @@ func _apply_resolution_command(command: String) -> void:
 	if parts.size() != 2:
 		return
 	hud.apply_resolution(Vector2(int(parts[0]), int(parts[1])), false)
+
+
+## Opening crash-landing cinematic (solo + FFA): the world starts zoomed out with no
+## crater; a pixel-art ship flies in wobbling, detonates at the centre (one big red
+## explosion + crater reveal), then the camera zooms back in to the hero(s) standing
+## in the crater. Runs once at match start; wave 1 is gated on it finishing.
+## Dev-command `open_cinematic` also triggers it on demand for testing.
+func play_opening_cinematic() -> void:
+	if _opening_cinematic_playing:
+		return
+	if GameRuntime.is_dedicated_server():
+		# Headless: skip the visual, just make sure the crater is revealed.
+		if arena is Arena:
+			(arena as Arena).set_crater_unlocked(true)
+		_spawn_initial_wave()
+		return
+	_opening_cinematic_playing = true
+	_shake_cameras(4.0, 0.3)
+	# Hide the crater while the map is being "dropped" (for grass/volcano where it exists).
+	if arena is Arena:
+		(arena as Arena).set_crater_unlocked(false)
+	# Zoom out to the full-map overhead view.
+	_zoom_cameras_to_center(true)
+	# Build the ship node.
+	var half := Vector2(4800.0, 3400.0)
+	if arena is Arena:
+		half = (arena as Arena).half_extents()
+	var start_pos := Vector2(0.0, -1.4 * half.y)  # enter from far above
+	_opening_ship = Node2D.new()
+	var ship_script: GDScript = load("res://scripts/ship_crash_fx.gd")
+	_opening_ship.set_script(ship_script)
+	add_child(_opening_ship)
+	# Wait a beat for the zoom-out to start settling, then launch the ship.
+	await get_tree().create_timer(1.0).timeout
+	if not is_instance_valid(_opening_ship):
+		_opening_cinematic_playing = false
+		return
+	_opening_ship.call("play", start_pos, Vector2.ZERO, _on_opening_impact)
+	await _opening_ship.finished
+	_opening_cinematic_playing = false
+	if is_instance_valid(_opening_ship):
+		_opening_ship.queue_free()
+	_opening_ship = null
+	# Now start the game.
+	_spawn_initial_wave()
+
+
+## Fire on the ship's impact: reveal the crater, shake, and zoom back in to the hero.
+func _on_opening_impact() -> void:
+	if arena is Arena:
+		(arena as Arena).set_crater_unlocked(true)
+	_shake_cameras(16.0, 0.6)
+	_play_sound("explosion")
+	# Zoom back into the crater where the hero(es) are standing.
+	_transition_zoom_back_to_players()
 
 
 ## Resizes the window and rescales the local player's camera zoom so the visible

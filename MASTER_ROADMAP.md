@@ -144,6 +144,33 @@ Detailed cinematic transition sub-tasks:
 - [ ] P2.1h Both maps coexist for ~2-3s during the zoom-out phase (pre-render overlap)
 - [ ] P2.1i VERIFY: selftest captures screenshots at each phase (zoom-out, ring mid-sweep, zoom-in)
 
+### P2.1a Opening "crash-landing" cinematic (match start) - [NOT STARTED]
+A new opening sequence that plays **instead of** the plain spawn, at the very start of a
+match — both **solo** and **FFA**. Sequence:
+- [ ] P2.1a.1 World begins **zoomed out** to a full-map overhead view.
+- [ ] P2.1a.2 The crater in the middle is **NOT yet present** (arena built without the crater/landing pad for this moment).
+- [ ] P2.1a.3 A **pixel-art spaceship** appears, viewed **from the back** (engines glowing,
+       exhaust plumes), entering from off-screen and **wobbling/rocking** as it moves.
+- [ ] P2.1a.4 The ship travels **fast** toward the planet/map centre (a quick, dramatic fly-in).
+- [ ] P2.1a.5 On impact at the centre: **one big red explosion** (flash + shockwave + debris),
+       screen shake.
+- [ ] P2.1a.6 The **crater forms** at the impact point (reveal/activate the crater + landing pad).
+- [ ] P2.1a.7 Smooth **zoom IN** to the hero, now standing **in the middle of the crater**.
+- [ ] P2.1a.8 Game starts (wave 1 spawns) **after** the zoom-in completes. Same for FFA
+       (each hero lands in/around the crater).
+- [ ] P2.1a.9 Ship sprite = **pixel art** (overlayed on the world, engine glow + plume), NOT vector.
+- [ ] P2.1a.10 Dev hook `open_cinematic` to trigger on demand + selftest request capturing each
+       phase (zoomed-out empty map, ship mid-flight, explosion, crater + zoomed-in hero).
+- [ ] P2.1a.11 VERIFY: screenshots at each phase; game boots into gameplay (no hang).
+
+Implementation notes:
+- Ship = a dedicated pixel-art node (`ship_crash_fx`) drawn from behind, wobble via a sine offset,
+  fast linear motion toward (0,0). Explosion reuses the arrival-explosion pipeline
+  (`_play_arrival_explosion`) with a larger red flash. Crater reveal via
+  `arena.set_crater_unlocked(true)` / `_draw_crater` gated on the crash completing.
+- Suppress wave-1 spawn until the cinematic finishes (`game_over`-style lock or a
+  `cinematic_playing` flag the wave director waits on).
+
 ### P2.1b Per-map object placement (non-grass maps) - [NOT STARTED]
 - [ ] Each non-grass biome (volcano, ice, factory, docks, lagoon, forest, mountain) needs its
       own authored object layout — do NOT copy trees/props from the grass map to other biomes.
