@@ -444,6 +444,7 @@ func _process(delta: float) -> void:
 				if _player != null:
 					var pin_to: Array = event.get("to", [0.0, 0.0])
 					_pin_pos = Vector2(float(pin_to[0]), float(pin_to[1]))
+					_pin_active = true
 					_player.global_position = _pin_pos
 					_player.movement_locked = true
 			"unpin":

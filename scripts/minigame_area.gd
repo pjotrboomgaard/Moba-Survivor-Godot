@@ -65,6 +65,7 @@ func _spawn_minigame(index: int, pos: Vector2, accent: Color, name: String) -> v
 	game.name = "Minigame_%d" % index
 	add_child(game)
 	game.position = pos
+	game.z_index = 4000
 	game.set("display_name", name)
 	game.set("accent", accent)
 	game.set("area_index", index)

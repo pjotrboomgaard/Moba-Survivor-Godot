@@ -37,6 +37,8 @@ var display_name := "Minigame"
 var _input_buffer: Array[InputEvent] = []
 var _banner_alpha := 0.0
 var _finished_flash := 0.0
+var _ui_layer: CanvasLayer = null
+var _ui_label: Label = null
 
 func start(owner_player: Player, index: int = -1, accent_color: Color = Color.WHITE) -> void:
 	owner_player = owner_player
@@ -50,7 +52,19 @@ func start(owner_player: Player, index: int = -1, accent_color: Color = Color.WH
 	_banner_alpha = 1.0
 	_finished_flash = 0.0
 	_reset()
+	_update_ui_label()
 	queue_redraw()
+
+
+func _update_ui_label() -> void:
+	if _ui_label == null:
+		return
+	if active:
+		_ui_label.visible = true
+		_ui_label.text = "%s  |  Score: %d  |  %.1fs" % [display_name.to_upper(), score, timer]
+		_ui_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.95))
+	else:
+		_ui_label.visible = false
 
 
 func stop() -> void:
@@ -94,7 +108,23 @@ func bot_tick(_delta: float) -> Dictionary:
 
 
 func _ready() -> void:
-	pass
+	# Build a screen-space UI overlay so the minigame banner is always visible
+	# when active, regardless of camera position.
+	_ui_layer = CanvasLayer.new()
+	_ui_layer.name = "MinigameUI"
+	_ui_layer.layer = 90
+	add_child(_ui_layer)
+	_ui_label = Label.new()
+	_ui_label.name = "Banner"
+	_ui_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_ui_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_ui_label.add_theme_font_size_override("font_size", 28)
+	_ui_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3, 1.0))
+	# Position in screen-space: top-center. Use explicit position/size.
+	_ui_label.position = Vector2(360, 30)
+	_ui_label.size = Vector2(520, 50)
+	_ui_label.visible = false
+	_ui_layer.add_child(_ui_label)
 
 
 func _veto_interact() -> bool:
@@ -114,7 +144,7 @@ func on_input_event(event: InputEvent) -> void:
 
 
 func _draw() -> void:
-	# Idle ring (very faint) so the corner reads as a place even when inactive.
+	# Always draw the idle/active ring so the corner reads as a minigame spot.
 	if not active:
 		_draw_idle_ring()
 		return
@@ -169,6 +199,7 @@ func _process(delta: float) -> void:
 	timer -= delta
 	_banner_alpha = maxf(0.0, _banner_alpha - delta * 0.4)
 	_finished_flash = maxf(0.0, _finished_flash - delta * 1.2)
+	_update_ui_label()
 	if timer <= 0.0:
 		_finish_with_reward()
 		return
@@ -181,14 +212,12 @@ func _finish_with_reward() -> void:
 	finished_flag = true
 	active = false
 	_finished_flash = 1.0
+	_update_ui_label()
 	if owner_player != null and is_instance_valid(owner_player):
 		owner_player.add_gold(REWARD_GOLD)
 		owner_player.add_xp(REWARD_XP)
-	# AudioService.play is UI-agnostic; the SoundDirector variant is world-ducked
-	# but the minigame already owns the banner, so we just fire the shared stinger.
 	AudioService.play("minigame_win")
 	finished.emit(owner_player, score, {"gold": REWARD_GOLD, "xp": REWARD_XP})
-	# Small on-screen banner via main.hud.
 	if is_inside_tree():
 		var main: Node = get_tree().get_first_node_in_group("main")
 		if main != null and main.has_method("flash_recruit_joined"):

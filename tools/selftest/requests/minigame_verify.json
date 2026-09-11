@@ -1,0 +1,28 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "comment": "Verify village minigames: pin player at minigame position, start Keg Toss + Whack-a-Creep, probe active/score/finished, screenshot the UI. Run ~40s with extra wait for camera smoothing.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 0.5, "kind": "minigame", "label": "initial_state", "index": -1},
+    {"t": 1.0, "kind": "start_minigame", "index": 1},
+    {"t": 1.0, "kind": "pin", "to": [-2520, 1680]},
+    {"t": 1.5, "kind": "minigame", "label": "keg_started", "index": 1},
+    {"t": 4.0, "kind": "snap", "label": "keg_active"},
+    {"t": 8.0, "kind": "minigame", "label": "keg_mid", "index": 1},
+    {"t": 18.0, "kind": "minigame", "label": "keg_late", "index": 1},
+    {"t": 18.5, "kind": "snap", "label": "keg_late"},
+    {"t": 19.0, "kind": "unpin"},
+    {"t": 19.0, "kind": "start_minigame", "index": 2},
+    {"t": 19.0, "kind": "pin", "to": [2520, -1680]},
+    {"t": 19.5, "kind": "minigame", "label": "whack_started", "index": 2},
+    {"t": 24.0, "kind": "snap", "label": "whack_active"},
+    {"t": 25.0, "kind": "minigame", "label": "whack_mid", "index": 2},
+    {"t": 34.0, "kind": "minigame", "label": "whack_late", "index": 2},
+    {"t": 34.5, "kind": "snap", "label": "whack_late"},
+    {"t": 34.5, "kind": "unpin"},
+    {"t": 35.0, "kind": "minigame", "label": "all_final", "index": -1},
+    {"t": 36.0, "kind": "report"}
+  ]
+}
