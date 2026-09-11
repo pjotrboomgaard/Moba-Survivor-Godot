@@ -288,7 +288,7 @@ const PITCH_SPREAD := {
 	"charge": 0.03,
 	"cast_arclight": 0.05,
 	"cast_bulwark": 0.04,
-	"cast_warden": 0.04,
+	"cast_warden": 0.14,
 	"cast_rime": 0.05,
 	"cast_tobor": 0.04,
 	"cast_cinder": 0.05,
