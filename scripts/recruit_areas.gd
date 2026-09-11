@@ -97,8 +97,9 @@ func _spawn_structures() -> void:
 		spr.z_as_relative = false
 		# Sit just behind the recruit creeps so it reads as the "home" they live at.
 		spr.z_index = 4
-		# Larger than a tree (tree scale ~3-4x); 2x a tree reads as a building.
-		spr.scale = Vector2(7.0, 7.0)
+		# Houses are now ~32px isometric art (was 16px). Scale down from 7.0 to
+		# 3.5 so the on-screen footprint stays roughly the same as before.
+		spr.scale = Vector2(3.5, 3.5)
 		spr.position = _area_positions[i] - Vector2(0.0, 10.0)
 		add_child(spr)
 		_area_structures.append(spr)
@@ -150,7 +151,10 @@ func _spawn_recruits() -> void:
 			var spr := Sprite2D.new()
 			spr.z_as_relative = false
 			spr.z_index = 6
-			var scale := 4.2 if slot == 0 else 3.0
+			# Lead creatures are now ~24px art (was 16px). Slot 0 (lead) scales to
+			# 2.1; the smaller kit/scout slots scale to 1.5 so they read a touch
+			# smaller than the ~32px houses above them.
+			var scale := 2.1 if slot == 0 else 1.5
 			spr.scale = Vector2(scale, scale)
 			var offset := Vector2.RIGHT.rotated(slot * 2.4 + i) * 26.0
 			spr.position = _area_positions[i] + offset

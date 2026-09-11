@@ -1,0 +1,8 @@
+{
+  "hero": "tobor",
+  "biome": 0,
+  "comment": "Recruit art upgrade check: display the 4 upgraded houses and 4 lead creatures at in-game scale on a flat green ground, capture a 3x-zoomed screenshot to verify isometric shading.",
+  "events": [
+    {"t": 0.5, "kind": "probe", "label": "start"}
+  ]
+}

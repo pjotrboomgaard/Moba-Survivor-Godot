@@ -1,0 +1,19 @@
+{
+  "creature_ids": [
+    "wolf",
+    "lagoon_flamingo",
+    "forest_stag",
+    "mountain_goat"
+  ],
+  "creature_scale": 2.1,
+  "house_ids": [
+    "lagoon_palm_hut",
+    "forest_hut",
+    "mountain_isometric_hut",
+    "town_house"
+  ],
+  "house_scale": 3.5,
+  "scene": "recruit_art_test",
+  "shot": "user://recruit_art_test.png",
+  "verdict": "PASS"
+}

@@ -1243,16 +1243,16 @@ func _load_named_map(name: String) -> void:
 	# the Load As prompt sanitizes input and appends ".json", so strip it here to
 	# avoid a doubled suffix that would make the path not exist.
 	var stem := name.trim_suffix(".json").strip_edges()
-	var file := FileAccess.open(_map_path_for_stem(stem), FileAccess.READ)
+	var path := _map_path_for_stem(stem)
+	var file := FileAccess.open(path, FileAccess.READ)
 	# Fuzzy fallback: a typed biome alias ("grass", "ice", "vulkaan") or the bare
 	# word for the current biome should resolve to that biome's default file even
 	# when the user has not explicitly saved under that exact stem.
 	if file == null:
 		var aliased := _resolve_alias_to_map(stem)
 		if not aliased.is_empty():
-			file = FileAccess.open(aliased, FileAccess.READ)
-			if file != null:
-				path = aliased
+			path = aliased
+			file = FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		# Be explicit about what's available so the user can't be stuck on a dead end.
 		var available := ", ".join(_list_saved_maps())
@@ -1296,8 +1296,7 @@ func _resolve_alias_to_map(stem: String) -> String:
 			return _map_path_for_stem(biome_key)
 	return ""
 
-Now let me verify lint:
-
+func _list_saved_maps() -> Array:
 	# List user:// for world_editor_level_<name>.json files (Save As outputs).
 	var names: Array = []
 	if not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path("user://")):
