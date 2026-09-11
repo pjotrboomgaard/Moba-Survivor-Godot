@@ -1,0 +1,11 @@
+{
+  "scene": "scenes/minigame_test/minigame_test.tscn",
+  "hero": "tobor",
+  "minigame_index": 15,
+  "time_scale": 4.0,
+  "duration_s": 20,
+  "checks": [
+    { "id": "game_started", "type": "log_contains", "value": "MINIGAME_TEST ready", "fail": "FAIL" },
+    { "id": "game_finished", "type": "log_contains", "value": "MINIGAME_TEST SUMMARY", "fail": "FAIL" }
+  ]
+}

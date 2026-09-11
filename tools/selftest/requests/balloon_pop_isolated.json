@@ -1,0 +1,6 @@
+{
+  "minigame_index": 12,
+  "hero": "volt",
+  "time_scale": 1.0,
+  "comment": "Isolated balloon pop test: lagoon world, single hero pops rising balloons before they escape. Verify score > 0, hero survives."
+}

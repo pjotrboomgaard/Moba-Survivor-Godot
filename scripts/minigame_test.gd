@@ -25,6 +25,12 @@ const _WhackRushScript := preload("res://scripts/minigame_whack_rush.gd")
 const _TreasureDash2Script := preload("res://scripts/minigame_treasure_dash2.gd")
 const _CreepTagScript := preload("res://scripts/minigame_creep_tag.gd")
 const _KegTossProScript := preload("res://scripts/minigame_keg_toss_pro.gd")
+const _RingRollScript := preload("res://scripts/minigame_ring_roll.gd")
+const _CreepPinballScript := preload("res://scripts/minigame_creep_pinball.gd")
+const _BalloonPopScript := preload("res://scripts/minigame_balloon_pop.gd")
+const _SlimeSplatScript := preload("res://scripts/minigame_slime_splat.gd")
+const _CrystalCatchScript := preload("res://scripts/minigame_crystal_catch.gd")
+const _CrateStackScript := preload("res://scripts/minigame_crate_stack.gd")
 
 var player_scene: PackedScene = preload("res://scenes/player/player.tscn")
 
@@ -119,7 +125,12 @@ func _spawn_test_minigame() -> void:
 		7: script = _WhackRushScript
 		8: script = _CreepTagScript
 		9: script = _TreasureDash2Script
-		10: script = _DanceDiscoScript
+		10: script = _RingRollScript
+		11: script = _CreepPinballScript
+		12: script = _BalloonPopScript
+		13: script = _SlimeSplatScript
+		14: script = _CrystalCatchScript
+		15: script = _CrateStackScript
 		_:
 			push_error("MINIGAME_TEST unknown minigame index: %d" % test_minigame_index)
 			_finish("ERROR_UNKNOWN_INDEX")

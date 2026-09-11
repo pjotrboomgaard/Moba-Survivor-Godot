@@ -1,0 +1,13 @@
+{
+  "elapsed": 40.0156756666675,
+  "hero": "volt",
+  "hero_hp": 110.0,
+  "hero_position": "(-86.94878, 130.0)",
+  "min_hp": 110.0,
+  "minigame_index": 12,
+  "reason": "FINISHED",
+  "score": 7030,
+  "screenshot": "user://minigame_test_12.png",
+  "timer": -0.00734266666669799,
+  "verdict": "PASS_OK"
+}

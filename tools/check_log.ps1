@@ -1,3 +1,2 @@
-$log = Join-Path $env:APPDATA 'Godot\app_userdata\Rift Survivors\logs\godot.log'
-Write-Output "=== LAST 60 LINES ==="
-Get-Content $log -Tail 60
+$log = "C:\Users\pjotr\AppData\Roaming\Godot\app_userdata\Rift Survivors\logs\godot.log"
+Select-String -Path $log -Pattern "MINIGAME_DEBUG|could not load|Parse Error|SCRIPT ERROR|dance" | Select-Object -First 20 | ForEach-Object { Write-Host $_.Line }

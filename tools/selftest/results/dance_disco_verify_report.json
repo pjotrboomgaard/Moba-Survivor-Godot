@@ -1,0 +1,457 @@
+{
+  "effects": [
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 1,
+      "t": 0.15
+    },
+    {
+      "games": [
+        {
+          "active": false,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 0,
+          "timer": 15.0
+        }
+      ],
+      "kind": "minigame",
+      "label": "initial",
+      "t": 0.507407407407407
+    },
+    {
+      "index": 4,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 1.001603
+    },
+    {
+      "index": 4,
+      "kind": "minigame_bot_force",
+      "on": true,
+      "t": 1.001603
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 0,
+          "timer": 57.9996476666667
+        }
+      ],
+      "kind": "minigame",
+      "label": "dance_started",
+      "t": 3.00195533333334
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 0,
+          "timer": 46.9950685555557
+        }
+      ],
+      "kind": "minigame",
+      "label": "dance_mid1",
+      "t": 14.0065344444445
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 16,
+          "timer": 30.9946886666668
+        }
+      ],
+      "kind": "minigame",
+      "label": "dance_mid2",
+      "t": 30.0069143333331
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 37,
+          "timer": 15.9969110000004
+        }
+      ],
+      "kind": "minigame",
+      "label": "dance_mid3",
+      "t": 45.0046919999998
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 48,
+          "timer": 2.99657744444479
+        }
+      ],
+      "kind": "minigame",
+      "label": "dance_late",
+      "t": 58.0050255555556
+    },
+    {
+      "games": [
+        {
+          "active": false,
+          "finished": true,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 49,
+          "timer": -0.00915466666632281
+        }
+      ],
+      "kind": "minigame",
+      "label": "dance_final",
+      "t": 65.0000000000002
+    },
+    {
+      "index": 4,
+      "kind": "minigame_bot_force",
+      "on": false,
+      "t": 66.5000000000008
+    }
+  ],
+  "elapsed": 67.0054483333343,
+  "enemies_spawned": 0,
+  "hero_position": "(104.2536, -271.2021)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 11,
+    "casts": [
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 7.50937275757586
+      },
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 7.50937275757586
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 7.6287460000001
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 8.07561166666677
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 24.8499999999998
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 26.3784477575755
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 32.3166666666665
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 42.0135286666664
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 45.1145573333331
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 56.5708333333334
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 59.1832491515152
+      }
+    ],
+    "creep_kills": 18,
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": true,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            104.0,
+            -271.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": true,
+          "class": "pyra",
+          "cpu": true,
+          "kills": 1,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            114.0,
+            -302.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "slag",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -2871.0,
+            1837.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": false,
+          "class": "ember",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            1087.0,
+            -2777.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 559,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 66,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 134,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 15.16
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 153,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 20.17
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 186,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 25.17
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 212,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 30.18
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 229,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 35.18
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 238,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 40.19
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 257,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 45.2
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 308,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 50.2
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 352,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 55.2
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 389,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 60.21
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 559,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 65.22
+      }
+    ],
+    "landmark_saves": 1,
+    "level": 8,
+    "level_upgrades": {
+      "2": [
+        "gun_drone"
+      ],
+      "3": [
+        "heavy"
+      ],
+      "4": [
+        "lucky_strike"
+      ],
+      "5": [
+        "scholar"
+      ],
+      "6": [
+        "vitality"
+      ],
+      "7": [
+        "aftershock"
+      ],
+      "8": [
+        "scholar"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "gun_drone",
+      "heavy",
+      "lucky_strike",
+      "scholar",
+      "vitality",
+      "aftershock",
+      "scholar"
+    ],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 2,
+    "xp": 114
+  },
+  "shots": [
+    {
+      "label": "dance_early",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11452/dance_early_8.006_11452.png",
+      "t": 8.00573633333343
+    },
+    {
+      "label": "dance_mid1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_23440/dance_mid1_20.004_23440.png",
+      "t": 20.0044833333332
+    },
+    {
+      "label": "dance_mid2",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_39448/dance_mid2_36.003_39448.png",
+      "t": 36.0032739696968
+    },
+    {
+      "label": "dance_mid3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_55441/dance_mid3_52.000_55441.png",
+      "t": 52.0004359999999
+    },
+    {
+      "label": "dance_late",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_65458/dance_late_62.007_65457.png",
+      "t": 62.0070771428572
+    },
+    {
+      "label": "dance_final",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_69453/dance_final_66.006_69453.png",
+      "t": 66.0062132121219
+    }
+  ]
+}

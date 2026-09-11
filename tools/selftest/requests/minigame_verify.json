@@ -7,9 +7,9 @@
   "events": [
     {"t": 0.5, "kind": "minigame", "label": "initial_state", "index": -1},
 
+    {"t": 1.0, "kind": "teleport", "to": [-2520, -1680]},
     {"t": 1.0, "kind": "start_minigame", "index": 0},
     {"t": 1.0, "kind": "minigame_bot_force", "index": 0, "on": true},
-    {"t": 1.0, "kind": "pin", "to": [-2520, -1680]},
     {"t": 1.5, "kind": "minigame", "label": "treasure_started", "index": 0},
     {"t": 5.0, "kind": "snap", "label": "treasure_active"},
     {"t": 8.0, "kind": "minigame", "label": "treasure_mid", "index": 0},

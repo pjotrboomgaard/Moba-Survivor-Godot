@@ -1,0 +1,13 @@
+{
+  "elapsed": 45.1093171851855,
+  "hero": "rime",
+  "hero_hp": 115.0,
+  "hero_position": "(-21.92935, 77.33873)",
+  "min_hp": 115.0,
+  "minigame_index": 14,
+  "reason": "FINISHED",
+  "score": 4050,
+  "screenshot": "user://minigame_test_14.png",
+  "timer": -0.0500579259260776,
+  "verdict": "PASS_OK"
+}

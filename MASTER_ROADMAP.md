@@ -87,8 +87,9 @@ selftest + screenshot, restart app each turn, commit+push periodically, max 2 wo
 - [x] Bot path: bot_tick mirrors dancing bot
 - [x] VERIFY: isolated test PASS score=98, hero survives
 ### P1.7 Build 3+ more minigames for different locations - [DONE - verified 2026-09-11]
-All 5 new minigames built, registered, and verified in the isolated test scene. Bot scores:
+All new minigames built, registered, and verified in the isolated test scene. Bot scores:
   gem_relay=2180, whack_rush=26280, treasure_dash2=7876, creep_tag=375, keg_toss_pro=8628
+  ring_roll=96, creep_pinball=108, balloon_pop=7030, slime_splat=1330, crystal_catch=4050, crate_stack=2640
 All PASS with hero surviving.
 Each minigame is a standalone game: own floor/visuals, join-over mechanic, bot_tick + player input,
 tested via the isolated scene (scenes/minigame_test/minigame_test.tscn) with a bot. Mario-Party-inspired long list:
@@ -98,7 +99,17 @@ tested via the isolated scene (scenes/minigame_test/minigame_test.tscn) with a b
 - **Whack Rush** (forest, idx 7): Faster 3x3 grid, combo multiplier, more hammers. Creeps join as whackers. 40s. Bot: rapid-fire whacks on active cells.
 - **Creep Tag** (mountain, idx 8): Chase/evade — you're "it", tag creeps to add them; tagged creeps turn friendly and help tag others. 50s. Bot: chase nearest creep.
 - **Treasure Dash 2** (town, idx 9): Moving gems + obstacles; collect as many as possible. Creeps join as gem carriers. 45s. Bot: path to nearest gem.
-- **Disco Dash** (town, idx 10): Combo of dance + movement — follow a moving pattern on the floor, creeps dance with you. 60s. Bot: mirror the pattern.
+- **Ring Roll** (ice, idx 10): Roll a ring to collect gems on a track; creeps join as ring-followers. Ice world theme. 40s. Bot: roll toward nearest gem.
+- **Creep Pinball** (factory, idx 11): Steer a paddle to bounce creeps into score pockets; creeps join as bouncers. Factory world theme. 45s. Bot: paddle toward lowest creep.
+- **Balloon Pop** (lagoon, idx 12): Pop balloons that float up from the bottom; creeps join as balloon carriers. Lagoon world theme. 40s. Bot: move under nearest balloon.
+- **Slime Splat** (lagoon, idx 13): Whack-a-mole — tap slimes on water tiles before they sink. Creeps join as splat-crew. 45s. Bot: move to nearest slime + attack.
+- **Crystal Catch** (mountain, idx 14): Catch falling crystal shards before they hit the ground. Mountain critters join as catchers. 45s. Bot: move under nearest falling crystal.
+- **Crate Stack** (forest, idx 15): Move under falling crates to stack them high. Forest critters join as stackers. 45s. Bot: move under nearest crate.
+
+**CONSTRAINT (user instruction):** ALL quests, minigames, houses/architecture, and creature sprites are
+PIXEL ART (same pixel density as the existing sprite set). ONLY hero abilities and attacks are vector
+artwork. Do NOT make pixel art for quests/minigames/architecture/creatures yet — build the minigame
+logic and testing first; add the pixel art after ALL minigame tasks are complete.
 
 For each minigame:
 - [ ] Script in scripts/minigame_<name>.gd
@@ -108,10 +119,33 @@ For each minigame:
 - [ ] Screenshot shows the minigame floor + visuals
 
 ## PHASE 2 - WORLD TRANSITIONS + HUD
-### P2.1 World-transition rework - [DONE - Builder B 2026-09-11]
-- [x] Boss kill -> takeover
-- [x] 2nd kill -> zoom to centre + ring fire sweep
-- [x] Per-world bosses
+### P2.1 World-transition rework — Cinematic ring-of-fire transition - [IN PROGRESS]
+- [x] Boss kill #1 (wave 5) -> player who defeated it takes over boss
+- [ ] Boss kill #2 -> full cinematic transition sequence (see detailed sub-tasks below)
+- [x] Per-world bosses (distinct boss form/sprite per biome)
+- [ ] Similar transition at wave 10 (boss #2), wave 15 (boss #3), etc.
+- [ ] VERIFY: full transition sequence selftest + screenshot at each stage
+
+Detailed cinematic transition sub-tasks:
+- [ ] P2.1a On boss #2 defeat: smooth zoom OUT from player's current viewport to full-map overhead view
+- [ ] P2.1b At full-map zoom: pre-render BOTH old and new world maps simultaneously (side-by-side or stacked)
+- [ ] P2.1c Ring of fire erupts from centre and spreads outward across the old map (shader/draw effect)
+- [ ] P2.1d Inside the moving ring: new map is visible (already rendered); outside the ring: old map
+- [ ] P2.1e Ring completes full sweep; old map fully replaced by new map
+- [ ] P2.1f Smooth zoom BACK IN to player's new viewport position on the new map
+- [ ] P2.1g Game continues seamlessly (no scene reload, no input loss, no reset)
+- [ ] P2.1h Both maps coexist for ~2-3s during the zoom-out phase (pre-render overlap)
+- [ ] P2.1i VERIFY: selftest captures screenshots at each phase (zoom-out, ring mid-sweep, zoom-in)
+
+### P2.1b Per-map object placement (non-grass maps) - [NOT STARTED]
+- [ ] Each non-grass biome (volcano, ice, factory, docks, lagoon, forest, mountain) needs its
+      own authored object layout — do NOT copy trees/props from the grass map to other biomes.
+- [ ] Biome-specific props only: volcano = rocks/lava chunks; ice = ice crystals/snow;
+      factory = crates/barrels/masts; docks = poles/bollards; lagoon = palms/palm trees;
+      forest = forest trees/huts; mountain = rocks/spires/mountain huts.
+- [ ] Use the world editor to place props per-biome (switch worlds with [ / ]).
+- [ ] Save each biome's layout as its own file (user://world_editor_level_<biome_key>.json).
+- [ ] VERIFY: each biome loads its own saved layout, no grass-map props leaking in.
 ### P2.2 HUD + UI - [NOT STARTED]
 - [ ] T2.2a Hold-TAB in-game ability tooltips
 - [ ] T2.2b Show all stats / upgrades / items
@@ -178,11 +212,11 @@ For each minigame:
 ### P5.17 Dock world cleanup - [DONE]
 - [x] No random houses in dock world (biome 4 ground cover excludes town_house*)
 - [ ] VERIFY: screenshot
-### P5.7 World transition
-- [ ] After boss defeated 2x: circle inside = old world, outside = fire ring
-- [ ] Zoom to middle on transition
-- [ ] Bosses differ per world
-- [ ] VERIFY: boss_takeover_verify
+### P5.7 World transition - [SEE P2.1]
+- Superseded by P2.1 (detailed cinematic ring-of-fire transition spec).
+- [x] After boss defeated 2x: circle inside = old world, outside = fire ring
+- [x] Zoom to middle on transition
+- [x] Bosses differ per world
 ### P5.8 Rain effects - [PENDING]
 - [ ] Rain on grass world
 - [ ] VERIFY: screenshot
@@ -221,8 +255,9 @@ For each minigame:
 ### P5.18 Landmarks
 - [ ] Landmarks work same across all worlds
 - [ ] VERIFY: screenshot per world
-### P5.19 All heroes access all items
-- [ ] Shop catalog: all items available to all heroes
+### P5.19 All heroes access all items - [DONE]
+- [x] All 7 shop items use `heroes: ALL_HEROES` (16 heroes)
+- [x] Per-hero aliases provide flavored names/descriptions
 - [ ] VERIFY: shop UI screenshot
 ### P5.20 SFX: all abilities distinct
 - [ ] Every ability has distinct SFX (not barely-visible)

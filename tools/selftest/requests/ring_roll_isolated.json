@@ -1,0 +1,6 @@
+{
+  "minigame_index": 10,
+  "hero": "rime",
+  "time_scale": 1.0,
+  "comment": "Isolated ring roll test: ice world, single hero collects gems around a ring. Verify score > 0, hero survives."
+}

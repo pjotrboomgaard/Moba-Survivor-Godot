@@ -1,0 +1,6 @@
+{
+  "minigame_index": 11,
+  "hero": "tobor",
+  "time_scale": 1.0,
+  "comment": "Isolated creep pinball test: factory world, single hero steers paddle to bounce creeps into pockets. Verify score > 0, hero survives."
+}
