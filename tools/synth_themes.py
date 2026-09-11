@@ -366,6 +366,22 @@ DRONE_FIRE_RECIPE = [
      dict(wave="sine", f0=1800, f1=700, dur=0.07, amp=0.3)],
 ]
 
+# T3.6 volcano "lava cooled" SFX: a deep, resonant thud followed by a slow,
+# downward-panning rumble, signalling the lava has solidified.
+LAVA_COOL_RECIPE = [
+    [dict(wave="square", f0=110, f1=45, dur=0.55, amp=0.60, duty=0.30),
+     dict(wave="sine", f0=220, f1=80, dur=0.50, amp=0.35),
+     dict(wave="crackle", f0=500, f1=150, dur=0.40, amp=0.20)],
+]
+
+# T3.7 factory "ground electrocuted" SFX: a sharp, crackling electric zap
+# that reads as an energised floor plate.
+ELECTRO_RECIPE = [
+    [dict(wave="zap_noise", f0=4000, f1=800, dur=0.35, amp=0.55),
+     dict(wave="saw", f0=600, f1=200, dur=0.28, amp=0.25),
+     dict(wave="chime", f0=2800, f1=1600, dur=0.15, amp=0.15, partials=[1.0, 2.0])],
+]
+
 # Per-WORLD ambient beds (task A). Each is a long-ish, low, looping-style bed that
 # crossfades in when the player enters that biome. Kept short-punch analog, not a
 # digital wash: nature swells for grass, rumble+metal clank for the volcano,
@@ -401,6 +417,30 @@ WORLD_THEME_RECIPES = {
          dict(wave="crackle", f0=900, f1=500, dur=4.0, amp=0.05)],
     ],
 }
+
+
+# A short rain loop: filtered white noise with a gentle amplitude wobble so it
+# reads as steady rain. ~3s loop, quiet (peak ~0.35). Written to the themes dir.
+def make_rain_loop(rng):
+    length = int(3.0 * MIX_RATE)
+    data = [0.0] * length
+    # Low-pass-ish noise via simple 1-pole smoothing.
+    last = 0.0
+    alpha = 0.18
+    for i in range(length):
+        white = rng.uniform(-1.0, 1.0)
+        last = last * (1.0 - alpha) + white * alpha
+        # Gentle amplitude wobble (rain intensity variation) + a few "droplet"
+        # ticks for texture.
+        wobble = 0.6 + 0.4 * math.sin(i / MIX_RATE * 2.1)
+        v = last * wobble * 0.55
+        if rng.random() < 0.0006:
+            v += rng.uniform(0.15, 0.3)
+        data[i] = v
+    peak = max(abs(v) for v in data) or 1.0
+    if peak > 0.5:
+        data = [v * 0.5 / peak for v in data]
+    return b"".join(int(max(-1.0, min(1.0, v)) * 32767).to_bytes(2, "little", signed=True) for v in data)
 
 
 def main():
@@ -456,6 +496,13 @@ def main():
             write_wav(path, synthesize(take, rng))
             written += 1
             print("wrote %s" % path)
+    # T3.6/T3.7 biome-hazard SFX.
+    write_wav(os.path.join(OUT_DIR, "lava_cool.wav"), synthesize(LAVA_COOL_RECIPE[0], rng))
+    written += 1
+    print("wrote assets/audio/themes/lava_cool.wav")
+    write_wav(os.path.join(OUT_DIR, "electro_crackle.wav"), synthesize(ELECTRO_RECIPE[0], rng))
+    written += 1
+    print("wrote assets/audio/themes/electro_crackle.wav")
     # Per-world ambient beds (task A) — one looping bed per biome.
     for name, takes in WORLD_THEME_RECIPES.items():
         for i, take in enumerate(takes):
@@ -464,6 +511,10 @@ def main():
             write_wav(path, synthesize(take, rng))
             written += 1
             print("wrote %s" % path)
+    # Rain loop (T3.5) — quiet, steady rain used by the biome weather overlay.
+    write_wav(os.path.join(OUT_DIR, "rain.wav"), make_rain_loop(rng))
+    written += 1
+    print("wrote assets/audio/themes/rain.wav")
     print("synth_themes: %d wav files" % written)
 
 

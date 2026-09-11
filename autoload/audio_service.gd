@@ -47,6 +47,11 @@ const SOUND_LIBRARY: Dictionary = {
 	"boss_defeat": [preload("res://assets/audio/sfx/boss_alert.ogg"), preload("res://assets/audio/sfx/level_up.ogg")],
 	# Boss-takeover buff: a short rising chime when the killer "becomes the boss".
 	"boss_takeover": [preload("res://assets/audio/sfx/level_up.ogg")],
+	# Rain loop for the biome weather overlay (T3.5). Looped + crossfaded via set_rain().
+	# Loaded lazily (not preload) so a missing import file can't break script parsing.
+	"rain": [],
+	"lava_cool": [],
+	"electro_crackle": [],
 	"scan": [preload("res://assets/audio/sfx/scan.ogg")],
 	"shop_open": [preload("res://assets/audio/sfx/shop_open.ogg")],
 	"shop_close": [preload("res://assets/audio/sfx/shop_close.ogg")],
@@ -594,6 +599,64 @@ func _stop_world_theme() -> void:
 	if _world_theme_player != null and _world_theme_player.is_inside_tree():
 		_world_theme_player.stop()
 	_world_theme_biome = -1
+
+
+## Rain loop for the biome weather overlay (T3.5). Crossfades a quiet rain bed
+## in/out when the arena toggles rain. No-op in the editor or when SFX is off.
+var _rain_player: AudioStreamPlayer = null
+const RAIN_VOLUME_DB := -22.0
+
+func _load_rain_stream() -> AudioStream:
+	var stream: AudioStream = ResourceLoader.load("res://assets/audio/themes/rain.wav", "", ResourceLoader.CACHE_MODE_IGNORE)
+	if stream is AudioStreamWAV:
+		(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
+		(stream as AudioStreamWAV).loop_begin = 0
+		(stream as AudioStreamWAV).loop_end = -1
+	return stream
+
+func set_rain(on: bool) -> void:
+	if not sfx_enabled or GameRuntime.is_dedicated_server():
+		return
+	if on:
+		if _rain_player == null or not _rain_player.is_inside_tree():
+			_rain_player = AudioStreamPlayer.new()
+			_rain_player.bus = "SFX"
+			_rain_player.process_mode = Node.PROCESS_MODE_ALWAYS
+			add_child(_rain_player)
+			var stream: AudioStream = _load_rain_stream()
+			if stream != null:
+				_rain_player.stream = stream
+				_rain_player.volume_db = RAIN_VOLUME_DB - 20.0
+				_rain_player.play()
+				var tw := create_tween()
+				tw.tween_property(_rain_player, "volume_db", RAIN_VOLUME_DB, 1.5)
+		elif not _rain_player.playing:
+			_rain_player.volume_db = RAIN_VOLUME_DB - 10.0
+			_rain_player.play()
+			var tw2 := create_tween()
+			tw2.tween_property(_rain_player, "volume_db", RAIN_VOLUME_DB, 1.5)
+	else:
+		if _rain_player != null and _rain_player.is_inside_tree():
+			var tw3 := create_tween()
+			tw3.tween_property(_rain_player, "volume_db", RAIN_VOLUME_DB - 30.0, 1.2)
+			tw3.tween_callback(_rain_player.stop)
+
+
+## Play a one-shot SFX loaded by file path (for the biome-hazard theme SFX that
+## aren't in the SOUND_LIBRARY). No-op if the file hasn't been imported yet.
+func play_theme_stream(path: String) -> void:
+	if not sfx_enabled or GameRuntime.is_dedicated_server():
+		return
+	var stream: AudioStream = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+	if stream == null:
+		return
+	var player := _acquire_player("theme_stream")
+	if player == null:
+		return
+	player.stream = stream
+	player.bus = "SFX"
+	player.volume_db = -12.0
+	player.play()
 
 
 func set_sfx_enabled(enabled: bool) -> void:

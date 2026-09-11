@@ -9,8 +9,23 @@ _Last updated: 2026-09-11_
 > RPS, Treasure Dash) created and parse errors fixed — boots clean. T1.4 SFX: footstep per
 > biome, drone fire, Warden clarity, countdown, world themes all done. T1.5: difficulty
 > eased, XP cap, shield vs creeps, creep distribution done. T1.6: world transitions +
-> volcano/docks/ice cleanup done + verified. In progress: T1.4 remaining (ability SFX
-> distinctness verification), T1.5 (16-hero balance pass), T2.x remaining items.
+> volcano/docks/ice cleanup done + verified.
+>
+> **New tasks added 2026-09-11 (late-day batch):**
+> - T1.7 Hero ability rework (Volt bouncing lightning, Warden multi-charge wards, Fissure
+>   multi-charge + bigger, role specialization per hero)
+> - T1.8 Level-up diversification (3-4 choices per level, role-scaled)
+> - T1.9 Biome hazards: rain overlay + SFX in all worlds, volcano black-lava phase,
+>   factory electro ground
+> - T1.10 Non-robot hero SFX redo (world-themed, pixel-art-analog, per-ability distinct)
+> - T3.4 Minigame pixel art (all minigames pixel-art only)
+> - T3.3 Isometric architecture + creature art at tree/rock detail level (in progress)
+> - T3.5 Rain effect, T3.6 Volcano black lava, T3.7 Factory electro, T3.8 SFX redo,
+>   T3.9 Hero role + multi-charge, T3.10 Upgrade diversification, T3.11 Recruit creep
+>   behavior test, T3.12 Use new sprites to populate 4 areas on empty map
+>
+> **In progress:** T1.5 hero balance (all heroes solo + FFA), T3.3 isometric art.
+> **Queued:** T1.7–T1.10, T3.4–T3.12.
 
 This is the master plan. Each task has sub-requirements and must be validated in-game
 by the selftest harness (bot must survive; visual changes must be confirmed in
@@ -51,6 +66,7 @@ screenshots). Use this to track progress.
 - [x] Validate: `recruit_springs_verify.json` selftest — 4 distinct areas confirmed via screenshots
 
 ### T1.3 Mario-Party-style mini-games (each = a big build)
+> **All minigame assets must be pixel art only** (no vector) — see T3.4.
 - [ ] Framework
   - [ ] `minigame_base.gd`: start/stop, score, timer, bot-playable, player-playable
   - [ ] Bot AI: `CpuBrain` calls `minigame_base` when in village
@@ -109,6 +125,28 @@ screenshots). Use this to track progress.
 - [x] Zoom to middle on world transition
 - [x] Validate: `boss_takeover_verify.json` confirms boss → takeover probe (killer_in_boss_form=true, buffed stats); `volcano_no_trees.json` screenshot shows lava+rocks, no trees/grass
 
+### T1.7 Hero ability rework + role specialization (NEW 2026-09-11)
+- [ ] **Volt Q → bouncing lightning**: arcs slowly between creeps in an area, AoE denial; multi-charge
+- [ ] **Warden voodoo wards → multi-charge** (3 stack, cast refreshes timer)
+- [ ] **Fissure → multi-charge + bigger AoE** (confirm which hero; widen area)
+- [ ] Every hero gets at least one multi-charge ability
+- [ ] Role specialization pass: each of the 16 heroes tuned to read clearly as their role (tank/mage/support/assassin/ranged/melee/druid/stealth)
+- [ ] Verify: solo + FFA selftest per hero; screenshot each hero's new Q
+
+### T1.8 Level-up diversification (NEW 2026-09-11)
+- [ ] 3-4 distinct upgrade choices per level-up (not 2 repeated)
+- [ ] Upgrades scale with hero role
+- [ ] Verify: each hero solo → level-up UI shows varied options
+
+### T1.9 Biome hazards: rain + black lava + factory electro (NEW 2026-09-11)
+- [ ] Rain overlay + rain SFX in all worlds (occasional, 8-15s bursts) — see T3.5
+- [ ] Volcano: lava periodically cools to black, walkable no-dmg (5-8s) — see T3.6
+- [ ] Factory: ground periodically electrocutes, small damage ticks — see T3.7
+
+### T1.10 Non-robot hero SFX redo (NEW 2026-09-11)
+- [ ] Each non-robot hero: distinct per-ability SFX, world-themed, pixel-art-analog — see T3.8
+- [ ] Verify: `sound_probe_heroes` selftest confirms each hero's SFX is audibly distinct
+
 ---
 
 ## P2 — MEDIUM
@@ -141,10 +179,156 @@ screenshots). Use this to track progress.
 - [ ] Animated creatures: walk cycles, idle bob
 - [ ] "Chill" lingering NPCs: idle + small wander
 
+### T3.3 Isometric architecture + creature art at tree/rock detail level
+**User direction (2026-09-11):** Houses / props / architecture for the new areas
+(lagoon, forest, mountain, town) must be **isometric** with the same detail density
+and layered shading as the existing trees and rocks. The trees look great because
+they have multiple overlapping color layers, highlights, shadows, and speckle
+texture that make them feel 3D and layered. Creature sprites must reach the same
+quality bar. **Same pixel density as the trees** (~32×32, nearest-neighbor), not
+16px. Apply that treatment:
+
+- [ ] **Isometric houses** — redraw all town/lagoon/forest/mountain houses in
+      semi-isometric 3/4 view with a clear front face + side face + roof plane,
+      matching the existing `tree_oak` / `rock_large` pixel density (~32×32)
+- [ ] **Layered shading pass** — each architecture sprite gets: base color,
+      shadow face (darker), highlight face (lighter), ambient-occlusion line at
+      base, and 1–2 speckle/texture pixels to break up flat areas
+- [ ] **Roof depth** — roofs must have a visible front slope + back slope with
+      distinct shading, not a flat triangle
+- [ ] **New-area props** (lagoon fruit trees, forest totems, mountain cairns,
+      town well/church) — same isometric + shading treatment
+- [ ] **Creature sprites** — lagoon dodo/flamingo/parrot/fish, forest owl/fox/wolf,
+      mountain yeti/goat/ice-bear — redraw at tree-level detail: layered fur/feather
+      shading, highlight + shadow on the body, distinct eye + beak/claw detail,
+      same ~32×32 pixel density as the trees
+- [ ] **Consistency check** — all new architecture + creatures must read as the
+      same art pass as the trees/rocks (no flat-color blocky sprites in between)
+- [ ] Verify: open world editor → inspect each new area's sprites at 4× zoom →
+      confirm isometric form + layered shading matches tree/rock quality
+- [ ] Verify: in-game screenshot of each recruitment area shows the new art
+
 ### T3.2 Sound polish
 - [ ] Each world: 3-4 ambient loops
 - [ ] Footsteps per biome (grass = soft, ice = crunch, lava = sizzle)
 - [ ] UI hover/click consistent
+
+### T3.4 Minigame pixel art
+**User direction (2026-09-11):** Every minigame must use pixel-art-only assets —
+no vector art. Each minigame's sprites (targets, props, characters, UI bits) must
+read as the same pixel-art pass as the trees/houses.
+
+- [ ] Dance/disco minigame — pixel-art disco ball, floor tiles, dancing creeps (2-frame)
+- [ ] Keg Toss — pixel-art kegs, target ring, lagoon backdrop props
+- [ ] Whack-a-Creep — pixel-art creeps (3×3 grid), mallet, grid tiles
+- [ ] RPS — pixel-art hand gestures (rock/paper/creep), table
+- [ ] Treasure Dash — pixel-art maze walls, treasure chests, runner
+- [ ] All other planned minigames (crate stack, crystal catch, ring roll, slime splat,
+      balloon pop, gem relay, creep pinball) — pixel art only
+- [ ] Verify: each minigame in its isolated empty-world scene shows only pixel-art sprites
+
+### T3.5 Rain effect (all worlds)
+**User direction (2026-09-11):** Rain happens occasionally in ALL worlds — a nice
+rain overlay + rain sound.
+
+- [ ] Rain particle overlay: ~40-60 falling streak particles, light blue-white,
+      slight diagonal angle, subtle
+- [ ] Rain is occasional — random start/stop, lasts 8-15s, not permanent
+- [ ] Rain SFX: synthesized rain loop (quiet, -20dB), crossfades in/out with the rain
+- [ ] Rain works in all 5 biomes (grass/volcano/ice/factory/docks) — in volcano it's
+      "ash + rain", in factory "rain + steam", but visually the same rain overlay
+- [ ] Verify: selftest with a forced-rain dev command → screenshot shows rain streaks
+      + rain sound audible
+
+### T3.6 Volcano "black lava" phase
+**User direction (2026-09-11):** In the lava world, the lava periodically becomes
+black (solidified) for a short window, during which walking on it causes no damage.
+
+- [ ] Every ~20-30s the lava pools enter a "black" phase for ~5-8s
+- [ ] Black phase: lava color shifts to dark grey/black, hazard DOT paused,
+      no dunk scramble
+- [ ] Visual cue: a brief "the lava cools" flash + SFX (deep thud) when it cools
+- [ ] Verify: screenshot during black phase shows dark pools + player walks on
+      them without damage
+
+### T3.7 Factory "electrocuted ground" hazard
+**User direction (2026-09-11):** In the factory world, the ground periodically
+electrocutes, dealing small damage to anyone standing on the affected area.
+
+- [ ] Every ~15-25s a random floor patch (3-4 tiles) "electrocutes" for ~3s
+- [ ] Electro patch: crackling electric overlay (zigzag lines + sparks), small
+      damage tick (2-3 dps), visible
+- [ ] SFX: electric crackle
+- [ ] Verify: screenshot shows the electro patch + damage ticks while standing on it
+
+### T3.8 Redo SFX for all non-robot classes + per-world themed pixel-art feel
+**User direction (2026-09-11):** Redo the SFX for the non-robot hero classes so
+each ability has fitting, distinct SFX. Each hero has specific themed effects that
+fit the pixel-art style. Heroes are from different worlds (fire world, ice world,
+etc.) so their SFX should be world-themed. The overall feel should be slightly
+analog / pixel-art (short, punchy, not overly digital).
+
+- [ ] Each hero: 4 ability SFX + primary attack SFX + ultimate SFX, all distinct
+- [ ] World-themed: fire-world heroes (Cinder, Ember) get crackling/burning SFX;
+      ice-world (Rime, Frost) get crystalline/freeze SFX; nature (Thorn, Willow)
+      get leaf/branch SFX; storm (Volt, Pyra) get thunder/crackle SFX; arcane
+      (Warden, Sage) get mystical SFX; steam/robot (Tobor, Volt-bot) get mechanical
+- [ ] All SFX synthed via `tools/synth_themes.py` with pixel-art-analog character
+      (square/triangle wave, short envelopes, pitch variation)
+- [ ] Verify: `sound_probe_heroes` selftest confirms each hero's SFX fires and is
+      audibly distinct from the others
+
+### T3.9 Hero role specialization + multi-charge abilities
+**User direction (2026-09-11):** Look at the kind of role each hero has and make
+them more specific to that role. Give each hero something they have **multiple
+charges of**.
+
+- [ ] **Volt (thunder)** — Q becomes a **bouncing lightning bolt** that arcs slowly
+      between creeps within an area, giving AoE denial (not a single-target zap).
+      Each bounce deals damage; it keeps bouncing until it runs out of creeps or
+      a max-bounce count
+- [ ] **Warden (voodoo wards)** — Q now has **multiple charges** (e.g. 3 wards
+      stack before expiring); casting refreshes the charge timer
+- [ ] **Fissure** (which hero? — confirm) — Q now has **multiple charges** AND the
+      fissure is **bigger** (wider/darker area of effect)
+- [ ] Each of the 16 heroes: confirm they have at least one multi-charge ability
+      (track which hero / which ability)
+- [ ] Role clarity: each hero's kit should clearly read as their intended role
+      (tank / mage / support / assassin / ranged / melee / druid / etc.)
+
+### T3.10 Level upgrades diversification
+**User direction (2026-09-11):** Make sure level upgrades are diversified — not
+just a few options repeated.
+
+- [ ] Level-up choices: 3-4 distinct upgrades per level (not 2 repeated options)
+- [ ] Upgrades scale with hero role (tank gets more HP/armor, mage gets more
+      damage/cd, support gets more heal/shield)
+- [ ] Verify: run solo with each hero → check the level-up UI shows varied choices
+
+### T3.11 Recruit-area creep behavior test
+**User direction (2026-09-11):** Test the behavior of winning over creeps (the
+recruit/bond mechanic) and confirm that recruited creeps can fight other players
+or other creeps after a minigame is done.
+
+- [ ] Recruit flow: stand in area → bond timer fills → creeps become friendly
+      minions that follow the player
+- [ ] Friendly minions fight enemy creeps (target nearest enemy)
+- [ ] In FFA: friendly minions fight OTHER players' minions/hero
+- [ ] After a minigame completes, the player's recruited creeps still function
+      and engage in combat
+- [ ] Verify: selftest with 2 heroes + recruited creeps → creeps fight enemies;
+      FFA selftest → creeps fight other team
+
+### T3.12 Use new sprites to build 4 areas on an empty map
+**User direction (2026-09-11):** After building all the isometric sprites, use
+them to populate the 4 recruitment areas on an otherwise empty map (the isolated
+test scene). Each area should show its house + props + 3 creature variants, all
+using the new isometric art.
+
+- [ ] Isolated empty-world scene with 4 areas laid out (one per corner)
+- [ ] Each area: structure (house) + 2-3 props + 3 recruit creatures
+- [ ] Screenshot at 4× zoom → confirm all new art renders correctly and reads as
+      the same art pass as the trees/rocks
 
 ---
 

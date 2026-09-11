@@ -360,6 +360,7 @@ const CULL_INTERVAL := 0.25
 
 func _process(delta: float) -> void:
 	_update_water_drift(delta)
+	_update_biome_weather(delta)
 	# Periodic biome hazards fire only when a biome is active.
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0:
 		var interval := 0.0
@@ -471,6 +472,7 @@ func _ready() -> void:
 		_build_field()
 		_spawn_landmarks()
 		_apply_editor_level_if_any()
+	_spawn_biome_weather()
 	queue_redraw()
 
 
@@ -695,9 +697,19 @@ func _hazard_biome_kind() -> String:
 
 ## Resolve the hazard under a world position. Returns {} when safe. Pools are small
 ## enough that first-hit wins; if two overlapped the first in the list takes precedence.
+## T3.6: while the volcano lava is in its "cooled" phase, the zone reports zero
+## player/enemy DOT so walking on it is harmless (the visual darkens via
+## _draw_cooled_lava_overlay).
 func hazard_at(world_position: Vector2) -> Dictionary:
 	for zone in hazard_zones:
 		if _zone_contains(zone, world_position, 0.0):
+			if _lava_cooled and GameRuntime.biome_id == 1:
+				var cooled := zone.duplicate(true)
+				cooled["player_dot"] = 0.0
+				cooled["enemy_dot"] = 0.0
+				cooled["percent_per_second"] = 0.0
+				cooled["cooled"] = true
+				return cooled
 			return zone
 	return {}
 
@@ -1270,6 +1282,150 @@ const EMP_RADIUS := 260.0
 const EMP_DAMAGE := 8.0
 const EMP_SLOW := 0.45
 const EMP_SLOW_DURATION := 2.5
+
+
+## ============================================================================
+## T3.5 / T3.6 / T3.7 — Biome weather + cooldown phases
+## ============================================================================
+## Rain happens *occasionally* in every world (T3.5). The volcano lava
+## periodically cools to a harmless black state (T3.6). The factory ground
+## periodically electrocutes (T3.7). All three are driven by timers below.
+
+const _BIOME_WEATHER := preload("res://scripts/biome_weather.gd")
+var _biome_weather: Node2D = null
+var _rain_timer := 12.0            # seconds until the next rain onset
+const RAIN_ONSET_MIN := 18.0
+const RAIN_ONSET_MAX := 45.0
+const RAIN_DURATION_MIN := 8.0
+const RAIN_DURATION_MAX := 15.0
+var _rain_active := false
+var _rain_remaining := 0.0
+
+## Volcano black-lava phase: while true, lava hazard_at() reports no damage.
+var _lava_cooled := false
+var _lava_cool_timer := 20.0       # seconds until the next cooling onset
+const LAVA_COOL_ONSET_MIN := 20.0
+const LAVA_COOL_ONSET_MAX := 30.0
+const LAVA_COOL_DURATION := 6.0
+var _lava_cool_remaining := 0.0
+
+## Factory electro ground phase: a small floor patch that ticks damage.
+var _electro_active := false
+var _electro_timer := 18.0         # seconds until the next electro onset
+const ELECTRO_ONSET_MIN := 15.0
+const ELECTRO_ONSET_MAX := 25.0
+const ELECTRO_DURATION := 3.0
+const ELECTRO_DPS := 3.0
+var _electro_origin := Vector2.ZERO
+var _electro_radius := 90.0
+var _electro_remaining := 0.0
+
+
+func _spawn_biome_weather() -> void:
+	if _biome_weather != null and is_instance_valid(_biome_weather):
+		return
+	_biome_weather = _BIOME_WEATHER.new()
+	add_child(_biome_weather)
+
+
+func _update_biome_weather(delta: float) -> void:
+	if not GameRuntime.uses_biomes():
+		return
+	# Rain (all biomes).
+	if _rain_active:
+		_rain_remaining -= delta
+		if _rain_remaining <= 0.0:
+			_set_rain(false)
+	else:
+		_rain_timer -= delta
+		if _rain_timer <= 0.0:
+			_set_rain(true)
+			_rain_remaining = randf_range(RAIN_DURATION_MIN, RAIN_DURATION_MAX)
+			_rain_timer = randf_range(RAIN_ONSET_MIN, RAIN_ONSET_MAX)
+	# Volcano black lava.
+	if GameRuntime.biome_id == 1:
+		if _lava_cooled:
+			_lava_cool_remaining -= delta
+			if _lava_cool_remaining <= 0.0:
+				_lava_cooled = false
+				queue_redraw()
+		else:
+			_lava_cool_timer -= delta
+			if _lava_cool_timer <= 0.0:
+				_lava_cooled = true
+				_lava_cool_remaining = LAVA_COOL_DURATION
+				_lava_cool_timer = randf_range(LAVA_COOL_ONSET_MIN, LAVA_COOL_ONSET_MAX)
+				_play_lava_cool_sfx()
+				queue_redraw()
+	# Factory electro ground.
+	if GameRuntime.biome_id == 3:
+		if _electro_active:
+			_electro_remaining -= delta
+			_tick_electro_damage(delta)
+			if _electro_remaining <= 0.0:
+				_electro_active = false
+		else:
+			_electro_timer -= delta
+			if _electro_timer <= 0.0:
+				_electro_active = true
+				_electro_remaining = ELECTRO_DURATION
+				_electro_origin = _random_walkable_hazard_spot() if _random_walkable_hazard_spot() != null else Vector2.ZERO
+				_electro_timer = randf_range(ELECTRO_ONSET_MIN, ELECTRO_ONSET_MAX)
+				_play_electro_sfx()
+		queue_redraw()
+
+
+func _set_rain(active: bool) -> void:
+	if _rain_active == active:
+		return
+	_rain_active = active
+	if _biome_weather == null:
+		_spawn_biome_weather()
+	if _biome_weather != null:
+		_biome_weather.set_rain_active(active)
+
+
+func is_lava_cooled() -> bool:
+	return _lava_cooled
+
+
+func _play_lava_cool_sfx() -> void:
+	_play_theme_stream("res://assets/audio/themes/lava_cool.wav")
+
+
+func _play_electro_sfx() -> void:
+	_play_theme_stream("res://assets/audio/themes/electro_crackle.wav")
+
+
+## Play a one-shot theme SFX by file path, loaded lazily (no preload so a
+## missing import file never breaks script parsing).
+func _play_theme_stream(path: String) -> void:
+	var aud := get_tree().get_first_node_in_group("audio_service")
+	if aud == null or not aud.has_method("play_theme_stream"):
+		return
+	aud.play_theme_stream(path)
+
+
+func _tick_electro_damage(delta: float) -> void:
+	if not _electro_active:
+		return
+	var r_sq := _electro_radius * _electro_radius
+	for p in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(p) or not p.get("active"):
+			continue
+		var h = p.get("health")
+		if h == null or h.is_dead:
+			continue
+		if _electro_origin.distance_squared_to(p.global_position) <= r_sq:
+			h.take_damage(ELECTRO_DPS * delta, p)
+	for e in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(e):
+			continue
+		var eh = e.get("health")
+		if eh == null or eh.is_dead:
+			continue
+		if _electro_origin.distance_squared_to(e.global_position) <= r_sq:
+			eh.take_damage(ELECTRO_DPS * 0.6 * delta, e)
 
 
 func _emit_biome_hazard() -> void:
@@ -2237,6 +2393,8 @@ func _draw() -> void:
 	_draw_crater()
 	_draw_decals()
 	_draw_hazards()
+	_draw_cooled_lava_overlay()
+	_draw_electro_ground()
 	_draw_night_glow_overlays()
 	if GameRuntime.uses_biomes():
 		# Biome accent rims match the desaturated tiles in tobor_world_art.gd (roughly
@@ -2569,6 +2727,72 @@ func _draw_hazards() -> void:
 				if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 					continue
 				_draw_lava_rect(rect, tile, edge)
+
+
+## T3.6: when the volcano lava has cooled to a black/solid state, paint a dark
+## overlay over the lava zones so they read as harmless solidified rock.
+func _draw_cooled_lava_overlay() -> void:
+	if not _lava_cooled or GameRuntime.biome_id != 1:
+		return
+	var dark := Color(0.18, 0.16, 0.15, 0.78)
+	for zone in hazard_zones:
+		var kind := str(zone.get("biome_kind", "lava"))
+		if kind != "volcano_lava" and kind != "lava":
+			continue
+		var shape := str(zone.get("shape", "rect"))
+		match shape:
+			"circle":
+				var c := Vector2(zone.get("center", Vector2.ZERO))
+				var rad := float(zone.get("radius", 0.0))
+				draw_circle(c, rad, dark)
+			"ring":
+				var c := Vector2(zone.get("center", Vector2.ZERO))
+				var inner := float(zone.get("inner_radius", 0.0))
+				var outer := float(zone.get("radius", 0.0))
+				draw_circle(c, outer, dark)
+				draw_circle(c, inner, Color(0, 0, 0, 0))
+			_:
+				var rect: Rect2 = zone.get("rect", Rect2())
+				if rect.size.x > 0.0 and rect.size.y > 0.0:
+					draw_rect(rect, dark, true)
+	# A subtle "the lava cooled" label near the center for legibility.
+	if not hazard_zones.is_empty():
+		var zone0: Dictionary = hazard_zones[0]
+		var shape0 := str(zone0.get("shape", "rect"))
+		var center0: Vector2 = Vector2.ZERO
+		if shape0 == "circle":
+			center0 = zone0.get("center", Vector2.ZERO)
+		elif shape0 == "ring":
+			center0 = zone0.get("center", Vector2.ZERO)
+		else:
+			var rect0: Rect2 = zone0.get("rect", Rect2())
+			if rect0.size.x > 0.0 and rect0.size.y > 0.0:
+				center0 = rect0.position
+		draw_string(ThemeDB.fallback_font, center0 + Vector2(0, -30), "the lava cools...", HORIZONTAL_ALIGNMENT_CENTER, -1, 14, Color(0.85, 0.85, 0.9, 0.85))
+
+
+## T3.7: factory electro ground — a crackling electric patch that deals small
+## damage ticks while active.
+func _draw_electro_ground() -> void:
+	if not _electro_active or GameRuntime.biome_id != 3:
+		return
+	var t := clampf(1.0 - _electro_remaining / ELECTRO_DURATION, 0.0, 1.0)
+	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.02)
+	var col := Color(0.55, 0.85, 1.0, 0.35 + 0.25 * pulse)
+	draw_circle(_electro_origin, _electro_radius, col)
+	draw_arc(_electro_origin, _electro_radius, 0.0, TAU, 32, Color(0.7, 0.9, 1.0, 0.7), 2.0, true)
+	# Crackling zigzag lines across the patch.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(Time.get_ticks_msec() / 100.0)
+	for i in 6:
+		var ang := rng.randf() * TAU
+		var r0 := rng.randf_range(0.0, _electro_radius * 0.5)
+		var r1 := rng.randf_range(_electro_radius * 0.5, _electro_radius)
+		var p0 := _electro_origin + Vector2.from_angle(ang) * r0
+		var p1 := _electro_origin + Vector2.from_angle(ang + rng.randf_range(-0.4, 0.4)) * r1
+		draw_line(p0, p1, Color(0.85, 0.95, 1.0, 0.6 + 0.3 * pulse), 1.5)
+	# Label.
+	draw_string(ThemeDB.fallback_font, _electro_origin + Vector2(0, -_electro_radius - 8), "electrified!", HORIZONTAL_ALIGNMENT_CENTER, -1, 12, Color(0.7, 0.9, 1.0, 0.9))
 
 
 func _hazard_tile(biome_kind: String) -> Texture2D:
