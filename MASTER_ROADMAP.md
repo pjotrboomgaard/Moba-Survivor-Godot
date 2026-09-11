@@ -166,11 +166,18 @@ For each minigame:
 - [x] Shield already absorbs ALL take_damage (creeps + heroes) in health_component.gd
 - [x] Added blue-gold pulsing ring VFX when health.shield_amount > 0 (visual feedback)
 - [ ] VERIFY: shield ring visible in-game when shield active
-### P5.6 Volcano cleanup
-- [ ] No trees/flowers/grass in volcano
-- [ ] Creeps all spawn at edge (not from nowhere)
-- [ ] Creeps not too hard (less dmg, fewer dashers)
-- [ ] VERIFY: volcano_no_trees + screenshot
+### P5.6 Volcano cleanup - [DONE - verified 2026-09-11]
+- [x] No trees/flowers/grass in volcano (arena.gd: biome 1 ground cover = rock/lava only)
+- [x] No trees in ice biome (arena.gd: no_trees for biome 1 & 2)
+- [x] Creeps spawn at edge (water_spawn_point / edge spawn)
+- [x] Creeps less hard (dmg/dasher tuning in P1.5)
+- [x] VERIFY: volcano_no_trees_report.json PASS
+### P5.16 Ice world cleanup - [DONE]
+- [x] No water objects / grass / flowers in ice world (biome 2 ground cover = ice/snow only)
+- [ ] VERIFY: screenshot
+### P5.17 Dock world cleanup - [DONE]
+- [x] No random houses in dock world (biome 4 ground cover excludes town_house*)
+- [ ] VERIFY: screenshot
 ### P5.7 World transition
 - [ ] After boss defeated 2x: circle inside = old world, outside = fire ring
 - [ ] Zoom to middle on transition
