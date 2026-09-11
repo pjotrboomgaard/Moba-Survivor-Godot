@@ -694,6 +694,7 @@ func _record_probe(label: String) -> void:
 		"xp": int(_player.current_xp),
 		"level": int(_player.level),
 		"abilities": (_player.known_abilities.duplicate() if _player.known_abilities else []),
+		"transition": _host_main.probe_boss_transition() if _host_main != null and _host_main.has_method("probe_boss_transition") else {},
 		"ffa": _ffa_roster(),
 		"pvp_invuln": float(_player.pvp_invuln_timer),
 		"player_positions": _player_positions(),
@@ -1446,6 +1447,19 @@ func _alive_enemies() -> Array[Node2D]:
 			continue
 		out.append(n)
 	return out
+
+
+## Count of living enemies within `radius` of the local hero. Used by the
+## overwhelmed-escape behavior in _fight_near_heal().
+func _nearby_enemy_count(radius: float) -> int:
+	var count := 0
+	if _player == null:
+		return 0
+	var pos := _player.global_position
+	for n in _alive_enemies():
+		if pos.distance_to(n.global_position) <= radius:
+			count += 1
+	return count
 
 
 func _nearest_enemy() -> Node2D:

@@ -1536,6 +1536,18 @@ func _tick_cooldowns(delta: float) -> void:
 		if _turret_charge_left < TOBOR_MAX_TURRET_CHARGES and _turret_charge_timer >= TOBOR_TURRET_CHARGE_REGEN_SECONDS:
 			_turret_charge_left += 1
 			_turret_charge_timer = 0.0
+	# T3.9: Bulwark's fissure charges refill over time (multi-charge ability).
+	if class_id == "bulwark":
+		_fissure_charge_timer += delta
+		if _fissure_charge_left < BULWARK_MAX_FISSURE_CHARGES and _fissure_charge_timer >= BULWARK_FISSURE_CHARGE_REGEN_SECONDS:
+			_fissure_charge_left += 1
+			_fissure_charge_timer = 0.0
+	# T3.9: Warden's ward charges refill over time (multi-charge ability).
+	if class_id == "warden":
+		_ward_charge_timer += delta
+		if _ward_charge_left < WARDEN_MAX_WARD_CHARGES and _ward_charge_timer >= WARDEN_WARD_CHARGE_REGEN_SECONDS:
+			_ward_charge_left += 1
+			_ward_charge_timer = 0.0
 
 
 func _update_ability_slots(delta: float, slots_held: Array) -> void:
@@ -1827,6 +1839,8 @@ func _cast_ability_zone_channel(data: Dictionary, values: Dictionary) -> void:
 	for hurt in _enemies_in_radius(center, float(values.get("radius", 240.0))):
 		_apply_ability_hit(hurt, data, values)
 	print("[zc] post-loop")
+	# Hero↔tree: fire/lightning themed heroes char trees inside the zone.
+	_ignite_trees_in_radius(center, float(values.get("radius", 240.0)))
 	_emit_ability_cast(PackedVector2Array([center, Vector2(values.get("radius", 240.0), 0.0)]))
 	print("[zc] post-emit")
 
@@ -2260,17 +2274,33 @@ const FISSURE_WALL_SEGMENTS := 5
 const FISSURE_WALL_DURATION := 5.0
 const FISSURE_STUN_DURATION := 1.5
 const FISSURE_HIT_RADIUS := 60.0
+## T3.9: Bulwark's Fissure now runs on CHARGES (like Tobor's mines) instead of one
+## long cooldown, and the ridge is bigger. Each cast spends a charge; charges refill
+## over time so you can burst multiple fissures in a fight.
+const BULWARK_MAX_FISSURE_CHARGES := 3
+const BULWARK_FISSURE_CHARGE_REGEN_SECONDS := 11.0
+var _fissure_charge_left := BULWARK_MAX_FISSURE_CHARGES
+var _fissure_charge_timer := 0.0
+## T3.9: Warden's Voodoo Wards now stack up to 3 clutches; casting refreshes the
+## charge timer so repeated casts keep the field covered instead of expiring.
+const WARDEN_MAX_WARD_CHARGES := 3
+const WARDEN_WARD_CHARGE_REGEN_SECONDS := 14.0
+var _ward_charge_left := WARDEN_MAX_WARD_CHARGES
+var _ward_charge_timer := 0.0
 
 func _cast_ability_bulwark_fissure(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	if class_id == "bulwark" and _fissure_charge_left <= 0:
+		return  # no fissure charge left
 	var origin := global_position
 	var direction := global_position.direction_to(aim_world_position)
 	if direction.length_squared() <= 0.0:
 		direction = facing_direction
-	var wall_length := maxf(float(data.get("wall_length", 340.0)), 220.0)
+	# T3.9: bigger Fissure — longer ridge, wider hit band.
+	var wall_length := maxf(float(data.get("wall_length", 340.0)), 300.0) * 1.35
 	var wall_duration := maxf(float(data.get("wall_duration", FISSURE_WALL_DURATION)), 2.0)
-	var wall_segments := maxi(int(data.get("wall_segments", FISSURE_WALL_SEGMENTS)), 3)
+	var wall_segments := maxi(int(data.get("wall_segments", FISSURE_WALL_SEGMENTS)), 5)
 	var stun_duration := maxf(float(data.get("stun_on_hit", {}).get("duration", FISSURE_STUN_DURATION)), 0.6)
-	var hit_radius := maxf(float(values.get("radius", FISSURE_HIT_RADIUS)), 30.0)
+	var hit_radius := maxf(float(values.get("radius", FISSURE_HIT_RADIUS)), 60.0) * 1.4
 	var endpoint := origin + direction * wall_length
 
 	# Stun + damage everything along the wall line (capsule around the segment).
@@ -2289,6 +2319,10 @@ func _cast_ability_bulwark_fissure(data: Dictionary, values: Dictionary, _rank: 
 
 	_spawn_fissure_wall(origin, direction, wall_length, wall_segments, wall_duration)
 	_emit_ability_cast(PackedVector2Array([origin, endpoint, Vector2(hit_radius, wall_duration)]))
+	# Spend a fissure charge only after the wall actually spawned.
+	if class_id == "bulwark":
+		_fissure_charge_left -= 1
+		_fissure_charge_timer = 0.0
 
 
 ## Raises a physical ridge: a row of short-lived StaticBody2D segments on collision layer 16
@@ -2500,31 +2534,64 @@ func _cast_ability_sage_grace(data: Dictionary, values: Dictionary, _rank: int) 
 ## Volt's Gust: Zephyr's signature push. A forward cone of hard wind that knocks enemies
 ## flat — reuses PUSH_PULL_BURST (negative power = push) but wrapped in a vector so the
 ## direction is aim-controlled instead of self-centred.
+## Volt's Q (rework): a slow-bouncing arc of lightning that keeps jumping between
+## creeps inside the {radius} area. Each bounce deals {power} Magic damage + a
+## 0.55x slow for 1.6s, holding the frontline in place (AoE denial). The bolt
+## bounces up to {bounce_count} times; it stops when it runs out of creeps.
 func _cast_ability_volt_gust(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	var direction := global_position.direction_to(aim_world_position)
 	if direction.length_squared() <= 0.0:
 		direction = facing_direction
-	# Gust pushes enemies away — negative power = outward push per PUSH_PULL_BURST semantics.
-	var gust := data.duplicate()
-	gust["power_base"] = -absf(float(data.get("power_base", 300.0)))
-	gust["power_per_rank"] = -absf(float(data.get("power_per_rank", 35.0)))
-	gust["slow_on_hit"] = {"factor": 0.6, "duration": 1.8}
 	var gust_radius := maxf(float(values.get("radius", 0.0)), 200.0)
 	var center := global_position + direction * 20.0
-	for target in _enemies_in_radius(center, gust_radius):
-		if not target.has_method("apply_knockback"):
-			continue
-		var away := center.direction_to(target.global_position)
-		if away.length_squared() <= 0.0:
-			away = direction
-		var strength := absf(float(values.get("power", 300.0)))
-		target.apply_knockback(away * strength)
-		_arm_hazard_escape(target)
-		if target.has_method("apply_slow"):
-			target.apply_slow(0.6, 1.8)
-		_damage_enemy(target, values.power)
+	var bounce_count := int(values.get("bounce_count", 6))
+	var bounce_interval := float(values.get("bounce_interval", 0.18))
+	var slow_factor := float(data.get("slow_on_hit", {}).get("factor", 0.55)) if data.has("slow_on_hit") else 0.55
+	var slow_duration := float(data.get("slow_on_hit", {}).get("duration", 1.6)) if data.has("slow_on_hit") else 1.6
+	# Gather all creeps in the area and build a nearest-neighbor chain so the
+	# bolt "bounces" between them in a readable sequence rather than hitting
+	# everyone at once.
+	var targets: Array[Node2D] = _enemies_in_radius(center, gust_radius)
+	var chain: Array[Node2D] = []
+	if not targets.is_empty():
+		chain.append(targets[0])
+		var visited: Dictionary = { targets[0]: true }
+		for _i in bounce_count - 1:
+			var last: Node2D = chain.back()
+			var next_pick: Node2D = null
+			var best_d := INF
+			for t in targets:
+				if visited.has(t):
+					continue
+				var d: float = last.global_position.distance_squared_to(t.global_position)
+				if d < best_d:
+					best_d = d
+					next_pick = t
+			if next_pick == null:
+				break
+			chain.append(next_pick)
+			visited[next_pick] = true
+	# Emit the cast VFX + SFX now so the player sees the ability land.
 	_emit_ability_cast(PackedVector2Array([center, Vector2(gust_radius, 0.0)]))
-	_spawn_ability_zone_pulse(center, gust_radius, 1.2)
+	_spawn_ability_zone_pulse(center, gust_radius, bounce_interval * chain.size() + 0.3)
+	# Schedule each bounce. Each bounce: damage + slow the target, and draw a
+	# lightning arc from the previous position to this one. `self` is implicit
+	# in lambdas so no extra capture is needed.
+	var bolt_from: Vector2 = global_position
+	for i in chain.size():
+		var target: Node2D = chain[i]
+		var delay: float = i * bounce_interval
+		var from_pos: Vector2 = bolt_from if i == 0 else chain[i - 1].global_position
+		var t := get_tree().create_timer(delay)
+		var arc_points := PackedVector2Array([from_pos, target.global_position])
+		t.timeout.connect(func():
+			if not is_instance_valid(self) or not is_instance_valid(target):
+				return
+			self._emit_lightning_arc(arc_points)
+			self._damage_enemy(target, values.power)
+			if target.has_method("apply_slow"):
+				target.apply_slow(slow_factor, slow_duration)
+		)
 
 
 ## Nebula's Time Shift: Chronos's blink through the time stream. Blink forward, then sweep
@@ -2611,13 +2678,24 @@ func _cast_ability_bulwark_heavyweight(data: Dictionary, values: Dictionary, _ra
 ## Warden's Voodoo Wards: Pollywog Priest's signature. Drops a RING of venom-spitting
 ## totems around the focus area. Four wards, each firing at the nearest enemy.
 func _cast_ability_warden_voodoo_wards(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	# T3.9: multi-charge — each cast consumes one of Warden's ward charges; no
+	# cast if none are left. Repeated casts stack up to WARDEN_MAX_WARD_CHARGES
+	# clutches of wards before the oldest expire, and casting refreshes the
+	# charge timer so the field stays covered (see _tick_cooldowns).
+	if class_id == "warden" and _ward_charge_left <= 0:
+		return  # no ward charge left
 	var wards := data.duplicate()
-	wards["summon_count"] = 4
+	# Multi-charge: 3 wards stack per cast instead of a single clutch.
+	wards["summon_count"] = 3 * WARDEN_MAX_WARD_CHARGES
 	wards["duration"] = maxf(float(wards.get("duration", 18.0)), 16.0)
 	# Small ring radius so the wards fan out around the aim point like a real priest circle.
 	var v := values.duplicate()
 	v.radius = maxf(float(values.get("radius", 0.0)), 60.0)
 	_cast_ability_summon_spirit(wards, v)
+	# Spend a ward charge only after the wards are actually placed.
+	if class_id == "warden":
+		_ward_charge_left -= 1
+		_ward_charge_timer = 0.0
 
 
 ## Cinder's Fiery Assault: a ring of fire DETONATING around the caster. The ground keeps
@@ -3195,6 +3273,50 @@ func _spawn_ability_zone_pulse(position: Vector2, radius: float, duration: float
 	)
 
 
+## Draw a single jagged lightning arc between two world-space points (used by
+## Volt's bouncing Q). Emitted as a BOLT-style ability_cast so main.gd's VFX
+## pipeline renders the themed arc for the hero.
+func _emit_lightning_arc(arc_points: PackedVector2Array) -> void:
+	if arc_points.size() < 2:
+		return
+	# Use the hero's ability_cast signal with BOLT style so it picks up the
+	# hero's effect color and KitFxLibrary arc rendering.
+	ability_cast.emit(_casting_ability_id, PlayerClass.EffectStyle.BOLT, arc_points)
+
+
+## NEW hero↔tree interaction: fire-themed heroes ignite trees inside `radius` of
+## `center`, lightning/storm-themed heroes char (burn) trees in the same band.
+## Trees have a shared API on the arena: ignite_tree(pos). Returns the number of
+## trees affected so a selftest probe can confirm the interaction fired.
+const _FIRE_TREE_HEROES := ["cinder", "pyra", "ember", "slag"]
+const _LIGHTNING_TREE_HEROES := ["volt", "arclight", "nebula"]
+func _ignite_trees_in_radius(center: Vector2, radius: float) -> int:
+	var affected := 0
+	if not (_FIRE_TREE_HEROES.has(class_id) or _LIGHTNING_TREE_HEROES.has(class_id)):
+		return affected
+	if _arena == null:
+		_arena = Arena.arena_root(self)
+	if _arena == null or not _arena.has_method("ignite_tree"):
+		return affected
+	# Iterate the arena's real tree obstacles (same source of truth the fire-tree
+	# mechanic uses for spreading). Snap each in-radius tree to ignite it.
+	var obstacles: Array = _arena.get("obstacles")
+	if obstacles == null:
+		return affected
+	var r_sq := radius * radius
+	for o in obstacles:
+		if not is_instance_valid(o):
+			continue
+		var sprite_id: String = str(o.get("sprite_id", ""))
+		if not sprite_id.begins_with("tree"):
+			continue
+		var opos: Vector2 = o.global_position
+		if center.distance_squared_to(opos) <= r_sq:
+			_arena.ignite_tree(opos)
+			affected += 1
+	return affected
+
+
 ## Hex-wall electrocution: enemies crossing or lingering on the rim get shocked again.
 func _update_energy_fields(delta: float) -> void:
 	var index := 0
@@ -3297,6 +3419,8 @@ func _cast_ability_radius_burst(data: Dictionary, values: Dictionary) -> void:
 	if values.range > 0.0:
 		var travel := minf(values.range, global_position.distance_to(aim_world_position))
 		center = global_position + global_position.direction_to(aim_world_position) * travel
+	# Hero↔tree: fire/lightning themed heroes char trees inside the blast radius.
+	_ignite_trees_in_radius(center, float(values.get("radius", 0.0)))
 	# Artillery-style sky strike: paint the mark, ordnance screams down after a short fuse,
 	# then the whole zone detonates at once. Non-sky strikes land instantly as before.
 	if bool(data.get("sky_strike", false)):

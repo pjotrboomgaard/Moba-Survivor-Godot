@@ -382,6 +382,20 @@ ELECTRO_RECIPE = [
      dict(wave="chime", f0=2800, f1=1600, dur=0.15, amp=0.15, partials=[1.0, 2.0])],
 ]
 
+# T3.13 storm: two parts. "thunder_rumble" is the deep low rumble that follows
+# a lightning flash (delayed). "thunder_crack" is the sharp initial strike
+# crack heard at the instant of the bolt.
+THUNDER_CRACK_RECIPE = [
+    [dict(wave="zap_noise", f0=5000, f1=1200, dur=0.30, amp=0.65),
+     dict(wave="square", f0=120, f1=60, dur=0.22, amp=0.35, duty=0.4),
+     dict(wave="crackle", f0=3000, f1=900, dur=0.25, amp=0.35)],
+]
+THUNDER_RUMBLE_RECIPE = [
+    [dict(wave="saw", f0=90, f1=40, dur=1.6, amp=0.55, duty=0.5),
+     dict(wave="crackle", f0=300, f1=120, dur=1.4, amp=0.28),
+     dict(wave="sine", f0=60, f1=35, dur=1.8, amp=0.30)],
+]
+
 # Per-WORLD ambient beds (task A). Each is a long-ish, low, looping-style bed that
 # crossfades in when the player enters that biome. Kept short-punch analog, not a
 # digital wash: nature swells for grass, rumble+metal clank for the volcano,
@@ -515,6 +529,13 @@ def main():
     write_wav(os.path.join(OUT_DIR, "rain.wav"), make_rain_loop(rng))
     written += 1
     print("wrote assets/audio/themes/rain.wav")
+    # Thunder SFX (T3.13) — strike crack + rolling rumble.
+    write_wav(os.path.join(OUT_DIR, "thunder_crack.wav"), synthesize(THUNDER_CRACK_RECIPE[0], rng))
+    written += 1
+    print("wrote assets/audio/themes/thunder_crack.wav")
+    write_wav(os.path.join(OUT_DIR, "thunder_rumble.wav"), synthesize(THUNDER_RUMBLE_RECIPE[0], rng))
+    written += 1
+    print("wrote assets/audio/themes/thunder_rumble.wav")
     print("synth_themes: %d wav files" % written)
 
 

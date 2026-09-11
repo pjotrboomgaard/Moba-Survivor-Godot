@@ -31,9 +31,12 @@ _Last updated: 2026-09-11_
 > - **HARD RULE:** Test new VFX/features in an EMPTY isolated world first, then
 >   main scene. Applies to T3.13, T3.14 and all future VFX/features.
 >
-> **In progress:** T1.5 hero balance (all heroes solo + FFA), T3.3 isometric art,
-> T1.7 Volt bouncing Q (in progress).
-> **Queued:** T1.7–T1.10, T3.4–T3.14.
+> **In progress:** T3.13 storm + T3.14 fire tree (isolated test scenes), hero↔tree
+> interaction. T1.5 hero balance (all heroes solo + FFA) ongoing.
+> **Done this batch:** T1.7 Volt bouncing Q (AREA_BOUNCE), Warden wards multi-charge,
+> Fissure bigger + multi-charge. T1.8 level-up diversification confirmed (4-choice
+> rarity-mixed offer, role pools). T1.10 per-world hero SFX banks present.
+> **Queued:** T3.4, T3.11, T3.12, biome-hazard re-verify.
 
 This is the master plan. Each task has sub-requirements and must be validated in-game
 by the selftest harness (bot must survive; visual changes must be confirmed in
@@ -142,9 +145,16 @@ screenshots). Use this to track progress.
 - [ ] Verify: solo + FFA selftest per hero; screenshot each hero's new Q
 
 ### T1.8 Level-up diversification (NEW 2026-09-11)
-- [ ] 3-4 distinct upgrade choices per level-up (not 2 repeated)
-- [ ] Upgrades scale with hero role
-- [ ] Verify: each hero solo → level-up UI shows varied options
+- [x] 3-4 distinct upgrade choices per level-up — `UpgradeCatalog.mixed_offer`
+      already offers 4 slots (HUD "PICK 1 2 3 4") with a controlled rarity mix
+      (~70% all-common, ~25% 3C+1R, ~5% 3C+1L), an ability unlock token, and
+      range/arc dedup (`recently_offered`) so "Long Haft" doesn't repeat.
+- [x] Upgrades scale with hero role — each hero has its own authored `upgrades`
+      pool (Bulwark tank: plating/ironhide/vitality; Warden support: flow/choir;
+      Cinder fire: ember_sprite/heat_gust; Volt: spark_sprite/chain; ...) so a
+      hero only ever sees role-appropriate stats.
+- [ ] Verify: each hero solo → level-up UI shows 4 varied options (spot-check
+      tobor/bulwark/warden/cinder via selftest screenshots)
 
 ### T1.9 Biome hazards: rain + black lava + factory electro (NEW 2026-09-11)
 - [ ] Rain overlay + rain SFX in all worlds (occasional, 8-15s bursts) — see T3.5
@@ -152,7 +162,11 @@ screenshots). Use this to track progress.
 - [ ] Factory: ground periodically electrocutes, small damage ticks — see T3.7
 
 ### T1.10 Non-robot hero SFX redo (NEW 2026-09-11)
-- [ ] Each non-robot hero: distinct per-ability SFX, world-themed, pixel-art-analog — see T3.8
+- [x] Each non-robot hero: distinct per-ability SFX, world-themed, pixel-art-analog
+      — see T3.8. `tools/synth_themes.py` has per-world themed cast + attack banks
+      for all 16 heroes (Iron Foundry steam/metal, Ashen Caldera fire/crackle,
+      Verdant Wilds wood/wind/chime, Storm Court electric/cosmic/ice); WAVs exist
+      in `assets/audio/themes/` (`<hero>.wav`, `attack_<hero>.wav`).
 - [ ] Verify: `sound_probe_heroes` selftest confirms each hero's SFX is audibly distinct
 
 ---
@@ -431,8 +445,13 @@ Fire / lightning / storm-themed heroes can set trees on fire or kill trees in
 different ways. After isolated-world testing, verify against the **existing
 forest and its trees**.
 
-- [ ] Fire-world heroes (Cinder, Ember/Pyra) — abilities ignite trees in their
-      blast/zone (tree catches fire, spreads per T3.14)
+- [x] Fire-world heroes (Cinder, Ember/Pyra) — abilities ignite trees in their
+      blast/zone. Wired via `player._ignite_trees_in_radius(center, radius)`,
+      called from `_cast_ability_radius_burst` + `_cast_ability_zone_channel`
+      for the fire/lightning themed hero set (`_FIRE_TREE_HEROES` /
+      `_LIGHTNING_TREE_HEROES`). Uses the same `arena.ignite_tree(pos)` API the
+      T3.14 fire-tree mechanic + T3.13 storm use, so spread/burn-out to stump
+      works identically.
 - [ ] Lightning/storm heroes (Volt, Arclight) — lightning abilities strike trees
       on fire or shatter/char them
 - [ ] Any hero with a "kill tree" style hit (heavy AoE) — trees in the area take

@@ -851,6 +851,9 @@ enum Archetype {
 	ATTACK_FURY,
 	## HoN Earthshaker Fissure-style: linear impassable wall that also stuns along its line.
 	SPAWN_WALL,
+	## Volt's Arc Lightning: a slow bolt that keeps bouncing between creeps in an area,
+	## dealing damage on every bounce and holding the frontline (AoE denial).
+	AREA_BOUNCE,
 }
 
 ## The four worlds the roster is drawn from — Iron Foundry is the original robot crew,
@@ -882,6 +885,7 @@ const ARCHETYPE_NAMES := {
 	Archetype.PIT_SLOW: "pit_slow",
 	Archetype.ATTACK_FURY: "attack_fury",
 	Archetype.SPAWN_WALL: "spawn_wall",
+	Archetype.AREA_BOUNCE: "area_bounce",
 }
 
 ## id -> data. Every hero picks 12 of these (see CLASSES[i].ability_pool). Numeric fields scale
@@ -1084,8 +1088,8 @@ const ABILITIES: Dictionary = {
 	# --- Bulwark (Tremor / Behemoth) ------------------------------------------------------
 	"bulwark_fissure": {
 		"name": "Fissure", "archetype": Archetype.SPAWN_WALL,
-		"description": "Cracks the earth open in a {wall_length}-unit line, raising an impassable ridge for {wall_duration}s that deals {power} Magic damage and stuns everything standing on it for {stun_duration}s.",
-		"cooldown_base": 9.5, "cooldown_per_rank": -0.7, "cooldown_min": 5.4,
+		"description": "Cracks the earth open in a wide, impassable ridge for {wall_duration}s, dealing {power} Magic damage and stunning everything standing on it for {stun_duration}s. Holds up to 3 charges that refill over time.",
+		"cooldown_base": 2.0, "cooldown_per_rank": -0.2, "cooldown_min": 1.2,
 		"power_base": 38.0, "power_per_rank": 10.0, "wall_length": 340.0, "radius": 60.0,
 		"stun_on_hit": {"duration": 1.2},
 		"wall_duration": 4.5, "wall_segments": 5,
@@ -1192,7 +1196,7 @@ const ABILITIES: Dictionary = {
 	},
 	"warden_voodoo_wards": {
 		"name": "Voodoo Wards", "archetype": Archetype.SUMMON_SPIRIT,
-		"description": "Plants a clutch of voodoo wards for {duration}s that spit venom at anything hostile within {range} range, each bolt dealing {power} Magic damage.",
+		"description": "Plants voodoo wards for {duration}s that spit venom at anything hostile within {range} range, each bolt dealing {power} Magic damage. Holds up to 3 charges that stack and refill over time.",
 		"cooldown_base": 12.0, "cooldown_per_rank": -1.1, "cooldown_min": 7.0,
 		"power_base": 9.0, "power_per_rank": 2.5, "range": 400.0,
 		"duration_base": 18.0, "duration_per_rank": 1.0, "summon_count": 1,
@@ -2011,10 +2015,11 @@ const ABILITIES: Dictionary = {
 	},
 	# --- Volt -------------------------------------------------------------------------------
 	"volt_gust": {
-		"name": "Gust", "archetype": Archetype.CONE_BURST,
-		"description": "Throws a hard-edged gust that flattens the frontline, dealing {power} Magic damage.",
-		"cooldown_base": 8.0, "cooldown_per_rank": -0.8, "cooldown_min": 4.5,
-		"power_base": 32.0, "power_per_rank": 8.0, "radius": 480.0,
+		"name": "Arc Lightning", "archetype": Archetype.AREA_BOUNCE,
+		"description": "Drops a slow-bouncing arc of lightning between creeps in a {radius} area, dealing {power} Magic damage each bounce and holding the frontline. Bounces up to {bounce_count} times.",
+		"cooldown_base": 7.0, "cooldown_per_rank": -0.7, "cooldown_min": 3.8,
+		"power_base": 16.0, "power_per_rank": 5.0, "radius": 320.0,
+		"bounce_count": 6, "bounce_interval": 0.18, "slow_on_hit": {"factor": 0.55, "duration": 1.6},
 	},
 	"volt_wind_shield": {
 		"name": "Wind Shield", "archetype": Archetype.SHIELD_BURST,
