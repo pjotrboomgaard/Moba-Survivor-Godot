@@ -4945,6 +4945,16 @@ func _draw() -> void:
 		_draw_secondary_charge_indicator()
 	if aim_indicator_visible and is_local_player and not _pending_ability_id.is_empty():
 		_draw_aim_indicator()
+	# Absorb shield indicator: a soft blue-gold ring around the hero when a shield
+	# is active, so the player can see it's up and roughly how much is left.
+	if health != null and health.shield_amount > 0.0:
+		var _shield_frac := clampf(health.shield_amount / maxf(health.max_health, 1.0), 0.0, 1.0)
+		var _shield_pulse := 1.0 + 0.03 * sin(Time.get_ticks_msec() * 0.008)
+		var _shield_r := 42.0 * _shield_pulse
+		draw_arc(Vector2.ZERO, _shield_r, 0.0, TAU, 36,
+			Color(0.4, 0.7, 1.0, 0.5 + 0.3 * _shield_frac), 3.0, true)
+		draw_arc(Vector2.ZERO, _shield_r * 0.85, 0.0, TAU * _shield_frac, 24,
+			Color(0.6, 0.9, 1.0, 0.3), 2.0, true)
 
 
 ## LMB charge indicator: shows the growing damage number above the hero while the
