@@ -1,0 +1,411 @@
+{
+  "effects": [
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 1,
+      "t": 0.147884333333334
+    },
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 2,
+      "t": 0.147884333333334
+    },
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 3,
+      "t": 0.147884333333334
+    },
+    {
+      "games": [
+        {
+          "active": false,
+          "finished": false,
+          "id": "Treasure Dash",
+          "index": 0,
+          "pos": "(-2520.0, -1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss",
+          "index": 1,
+          "pos": "(-2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack-a-Creep",
+          "index": 2,
+          "pos": "(2520.0, -1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Rock-Paper-Creep",
+          "index": 3,
+          "pos": "(2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        }
+      ],
+      "kind": "minigame",
+      "label": "initial_state",
+      "t": 0.503403666666667
+    },
+    {
+      "index": 1,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 1.00499533333333
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Keg Toss",
+          "index": 1,
+          "pos": "(-2520.0, 1680.0)",
+          "score": 0,
+          "timer": 14.5
+        }
+      ],
+      "kind": "minigame",
+      "label": "keg_started",
+      "t": 1.50499533333333
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Keg Toss",
+          "index": 1,
+          "pos": "(-2520.0, 1680.0)",
+          "score": 0,
+          "timer": 8.00499533333366
+        }
+      ],
+      "kind": "minigame",
+      "label": "keg_mid",
+      "t": 8.00000000000016
+    },
+    {
+      "games": [
+        {
+          "active": false,
+          "finished": true,
+          "id": "Keg Toss",
+          "index": 1,
+          "pos": "(-2520.0, 1680.0)",
+          "score": 0,
+          "timer": -0.00499099999979644
+        }
+      ],
+      "kind": "minigame",
+      "label": "keg_late",
+      "t": 18.0083333333331
+    },
+    {
+      "index": 2,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 19.0017973333331
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Whack-a-Creep",
+          "index": 2,
+          "pos": "(2520.0, -1680.0)",
+          "score": 0,
+          "timer": 14.5001796666667
+        }
+      ],
+      "kind": "minigame",
+      "label": "whack_started",
+      "t": 19.5016176666664
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Whack-a-Creep",
+          "index": 2,
+          "pos": "(2520.0, -1680.0)",
+          "score": 0,
+          "timer": 8.99431633333357
+        }
+      ],
+      "kind": "minigame",
+      "label": "whack_mid",
+      "t": 25.0074809999995
+    },
+    {
+      "games": [
+        {
+          "active": false,
+          "finished": true,
+          "id": "Whack-a-Creep",
+          "index": 2,
+          "pos": "(2520.0, -1680.0)",
+          "score": 0,
+          "timer": -0.00432433333323909
+        }
+      ],
+      "kind": "minigame",
+      "label": "whack_late",
+      "t": 34.0061216666657
+    },
+    {
+      "games": [
+        {
+          "active": false,
+          "finished": false,
+          "id": "Treasure Dash",
+          "index": 0,
+          "pos": "(-2520.0, -1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": true,
+          "id": "Keg Toss",
+          "index": 1,
+          "pos": "(-2520.0, 1680.0)",
+          "score": 0,
+          "timer": -0.00499099999979644
+        },
+        {
+          "active": false,
+          "finished": true,
+          "id": "Whack-a-Creep",
+          "index": 2,
+          "pos": "(2520.0, -1680.0)",
+          "score": 0,
+          "timer": -0.00432433333323909
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Rock-Paper-Creep",
+          "index": 3,
+          "pos": "(2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        }
+      ],
+      "kind": "minigame",
+      "label": "all_final",
+      "t": 35.0044682424232
+    }
+  ],
+  "elapsed": 36.0032946666656,
+  "enemies_spawned": 0,
+  "hero_position": "(73.04197, -255.4641)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 7,
+    "casts": [
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 7.50955833333349
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 7.50955833333349
+      },
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 7.50955833333349
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 8.06666666666683
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 29.9144549999992
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 30.1811216666659
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 32.3144549999991
+      }
+    ],
+    "creep_kills": 22,
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": true,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            73.0,
+            -255.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            465.0,
+            186.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            242.0,
+            -222.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "cinder",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            876.0,
+            -1098.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 445,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 168,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 19.01
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 230,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 24.04
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 256,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 29.05
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 389,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 34.06
+      }
+    ],
+    "landmark_saves": 3,
+    "level": 2,
+    "level_upgrades": {
+      "2": [
+        "aftershock"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "aftershock"
+    ],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 2,
+    "xp": 57
+  },
+  "shots": [
+    {
+      "label": "keg_active",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6569/keg_active_4.001_6569.png",
+      "t": 4.00130366666666
+    },
+    {
+      "label": "keg_late",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_21052/keg_late_18.508_21052.png",
+      "t": 18.5083333333331
+    },
+    {
+      "label": "whack_active",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_26561/whack_active_24.000_26561.png",
+      "t": 24.0003356666662
+    },
+    {
+      "label": "whack_late",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_37061/whack_late_34.506_37061.png",
+      "t": 34.5061216666656
+    }
+  ]
+}
