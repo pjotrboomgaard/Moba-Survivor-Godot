@@ -168,63 +168,99 @@ func on_input_event(event: InputEvent) -> void:
 
 
 func _draw_body() -> void:
-	# Disco floor: concentric rings + rotating colored tiles
-	var floor_col := Color(0.15, 0.12, 0.25, 0.6)
-	draw_circle(Vector2.ZERO, FLOOR_RADIUS, floor_col)
+	# Disco floor: a pixel-art checkerboard of chunky square tiles (T3.4 — minigames
+	# use pixel art only). Each tile is 40u; tiles are clipped to the floor radius.
+	var floor_col := Color(0.13, 0.10, 0.24, 0.85)
+	var r_sq := FLOOR_RADIUS * FLOOR_RADIUS
+	var tile := 40.0
+	var grid_color_a := Color(0.28, 0.20, 0.45, 0.9)
+	var grid_color_b := Color(0.18, 0.14, 0.34, 0.9)
+	var tiles := int(FLOOR_RADIUS * 2.0 / tile)
+	for gx in range(tiles + 1):
+		for gy in range(tiles + 1):
+			var c := Vector2((gx - tiles * 0.5) * tile, (gy - tiles * 0.5) * tile)
+			if c.length_squared() > r_sq:
+				continue
+			var checker := (gx + gy) % 2
+			var col := grid_color_a if checker == 0 else grid_color_b
+			# A subtle "light" pulse that travels with the disco ball.
+			var pulse := 0.5 + 0.5 * sin(_discoball_angle * 2.0 + (gx + gy) * 0.5)
+			col = col.lerp(Color(0.55, 0.4, 0.95, 0.9), pulse * 0.25)
+			draw_rect(Rect2(c - Vector2(tile * 0.48, tile * 0.48), Vector2(tile * 0.96, tile * 0.96)), col)
 
-	# Rotating grid lines
-	var lines := 8
-	for i in lines:
-		var a1 := _discoball_angle + TAU * float(i) / float(lines)
-		var p1 := Vector2.from_angle(a1) * (FLOOR_RADIUS - 10.0)
-		var p2 := Vector2.from_angle(a1 + TAU / float(lines)) * (FLOOR_RADIUS - 10.0)
-		# Draw a tile edge
-		draw_line(Vector2.from_angle(a1) * 40.0, p1, Color(0.4, 0.3, 0.8, 0.3), 2.0)
-		draw_line(Vector2.from_angle(a1 + 0.4) * 40.0, Vector2.from_angle(a1 + 0.4) * (FLOOR_RADIUS - 10.0),
-			Color(0.8, 0.3, 0.6, 0.2), 2.0)
+	# Pixel-art floor border: a thick square ring clipped to the circle.
+	draw_arc(Vector2.ZERO, FLOOR_RADIUS, 0.0, TAU, 32, Color(0.7, 0.5, 1.0, 0.9), 5.0)
 
-	# Floor border
-	draw_arc(Vector2.ZERO, FLOOR_RADIUS, 0.0, TAU, 48, Color(0.6, 0.4, 1.0, 0.5), 3.0)
-
-	# Disco ball: a shiny circle above the floor (drawn at a fixed "hanging" spot)
+	# Disco ball: a faceted pixel cube (not a smooth circle) with a spinning
+	# 4x4 grid of shiny squares, hung from a string, with light beams.
 	var ball_pos := Vector2(0.0, -FLOOR_RADIUS - 40.0)
-	var ball_radius := 22.0
-	# Ball body
+	var ball_half := 22.0
+	# Ball body: a slightly rounded square.
 	var ball_grad := 0.5 + 0.5 * sin(_discoball_angle * 2.0)
-	draw_circle(ball_pos, ball_radius, Color(0.7 + 0.3 * ball_grad, 0.7 + 0.3 * ball_grad, 0.9, 0.95))
-	# Ball sparkle facets
+	draw_rect(
+		Rect2(ball_pos - Vector2(ball_half, ball_half), Vector2(ball_half * 2, ball_half * 2)),
+		Color(0.6 + 0.3 * ball_grad, 0.6 + 0.3 * ball_grad, 0.85, 0.95)
+	)
+	# Faceted pixel squares (4x4 grid), brightness driven by spin angle.
+	var facet := ball_half * 0.5
+	for fx in 4:
+		for fy in 4:
+			var fp := ball_pos + Vector2(fx - 1.5, fy - 1.5) * facet
+			var spin := 0.5 + 0.5 * sin(_discoball_angle * 3.0 + (fx * 1.3 + fy * 0.9))
+			var fc := Color(0.85 + 0.15 * spin, 0.85 + 0.15 * spin, 1.0, 0.9)
+			draw_rect(Rect2(fp - Vector2(facet * 0.42, facet * 0.42), Vector2(facet * 0.84, facet * 0.84)), fc)
+	# String (pixel column)
+	for sy in 8:
+		var sp := ball_pos + Vector2(0.0, -ball_half - 4.0 - sy * 4.0)
+		draw_rect(Rect2(sp - Vector2(1.5, 1.5), Vector2(3.0, 3.0)), Color(0.85, 0.85, 0.9, 0.5))
+	# Light beams from the ball: chunky pixel rays.
 	for i in 6:
-		var fa := _discoball_angle + TAU * float(i) / 6.0
-		var fp := ball_pos + Vector2.from_angle(fa) * ball_radius * 0.6
-		draw_circle(fp, 3.0, Color(1.0, 1.0, 1.0, 0.7 + 0.3 * sin(_discoball_angle + float(i))))
-	# String
-	draw_line(ball_pos + Vector2(0.0, -ball_radius), Vector2(0.0, -FLOOR_RADIUS - 120.0),
-		Color(0.8, 0.8, 0.8, 0.5), 2.0)
-	# Light rays from ball
-	for i in 4:
-		var ra := _discoball_angle + TAU * float(i) / 4.0
-		var r_start := ball_pos + Vector2.from_angle(ra) * ball_radius
-		var r_end := ball_pos + Vector2.from_angle(ra) * (FLOOR_RADIUS + 60.0)
-		draw_line(r_start, r_end, Color(1.0, 0.9, 0.5, 0.15), 1.5)
+		var ra := _discoball_angle + TAU * float(i) / 6.0
+		var beam := Vector2.from_angle(ra)
+		var r_start := ball_pos + beam * (ball_half + 4.0)
+		var r_end := ball_pos + beam * (FLOOR_RADIUS + 40.0)
+		# Draw as a thick short column so it reads pixel-art, not a hairline.
+		for seg in 5:
+			var t0 := float(seg) / 5.0
+			var t1 := float(seg + 1) / 5.0
+			var p0 := r_start.lerp(r_end, t0)
+			var p1 := r_start.lerp(r_end, t1)
+			var a01 := p1 - p0
+			if a01.length_squared() <= 0.0:
+				continue
+			var nrm := a01.normalized().orthogonal()
+			draw_rect(Rect2(p0 - nrm * 2.0, Vector2(a01.length() + 4.0, 4.0)), Color(1.0, 0.95, 0.5, 0.18))
 
-	# Dancing bot (the one to mimic)
+	# Dancing bot (the one to mimic) — pixel-art blocky bot with a head + body.
 	var bot_color := Color(0.3, 0.9, 0.5, 0.95)
-	draw_circle(_bot_pos, 18.0, bot_color)
-	# Bot direction indicator
+	var bot_bounce := sin(Time.get_ticks_msec() * 0.008) * 3.0
+	# Body (square torso)
+	draw_rect(Rect2(_bot_pos + Vector2(-12, -6 + bot_bounce), Vector2(24, 22)), bot_color)
+	# Head (smaller square on top)
+	draw_rect(Rect2(_bot_pos + Vector2(-8, -22 + bot_bounce), Vector2(16, 16)), bot_color.lightened(0.15))
+	# Eyes (two dark pixels)
+	draw_rect(Rect2(_bot_pos + Vector2(-6, -17 + bot_bounce), Vector2(4, 4)), Color(0.1, 0.1, 0.15))
+	draw_rect(Rect2(_bot_pos + Vector2(2, -17 + bot_bounce), Vector2(4, 4)), Color(0.1, 0.1, 0.15))
+	# Direction indicator (arrow pixel)
 	var bot_dir := Vector2.from_angle(_discoball_angle)
-	draw_circle(_bot_pos + bot_dir * 12.0, 6.0, Color(1.0, 1.0, 0.5, 0.9))
+	draw_rect(Rect2(_bot_pos + bot_dir * 20.0 + bot_bounce * Vector2(0,1) - Vector2(4, 4), Vector2(8, 8)), Color(1.0, 1.0, 0.5, 0.9))
 	# Bot label
-	draw_string(ThemeDB.fallback_font, Vector2(_bot_pos.x - 30.0, _bot_pos.y - 28.0),
+	draw_string(ThemeDB.fallback_font, Vector2(_bot_pos.x - 30.0, _bot_pos.y - 30.0),
 		"DANCE!", HORIZONTAL_ALIGNMENT_CENTER, 60, 12, Color(1.0, 1.0, 0.5, 0.8))
 
-	# Joined creeps (the crowd)
+	# Joined creeps (the crowd) — pixel-art blocky creeps with a head + body.
 	for c in _joined_creeps:
 		var cp: Vector2 = c.get("pos", Vector2.ZERO)
 		var cc: Color = c.get("color", Color.WHITE)
 		# Bounce animation
 		var bounce := sin(Time.get_ticks_msec() * 0.008 + cp.x * 0.01) * 4.0
-		draw_circle(cp + Vector2(0.0, bounce), 12.0, cc)
-		draw_circle(cp + Vector2(0.0, bounce) + Vector2(0.0, -6.0), 5.0, Color(1.0, 1.0, 1.0, 0.6))
+		# Body
+		draw_rect(Rect2(cp + Vector2(-10, -4 + bounce), Vector2(20, 18)), cc)
+		# Head
+		draw_rect(Rect2(cp + Vector2(-7, -16 + bounce), Vector2(14, 14)), cc.lightened(0.2))
+		# Eyes
+		draw_rect(Rect2(cp + Vector2(-4, -11 + bounce), Vector2(3, 3)), Color(0.1, 0.1, 0.15))
+		draw_rect(Rect2(cp + Vector2(2, -11 + bounce), Vector2(3, 3)), Color(0.1, 0.1, 0.15))
 
 	# Player marker
 	if owner_player != null and is_instance_valid(owner_player):
