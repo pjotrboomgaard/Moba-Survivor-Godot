@@ -1,0 +1,190 @@
+{
+  "effects": [
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 1,
+      "t": 0.75
+    },
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 2,
+      "t": 0.75
+    },
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 3,
+      "t": 0.75
+    },
+    {
+      "abilities": [
+        {
+          "id": "cinder_dragon_fire",
+          "rank": 1
+        },
+        {
+          "id": "cinder_fiery_assault",
+          "rank": 1
+        },
+        {
+          "id": "cinder_whirling_flame",
+          "rank": 1
+        },
+        {
+          "id": "cinder_pillar_of_flame",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              112.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "cinder",
+      "hp": 90.0,
+      "hp_frac": 1.0,
+      "hp_max": 90.0,
+      "kind": "probe",
+      "label": "boot",
+      "last_sfx": "enemy_death",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 667,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(112.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 1.00075757575757,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 99.0,
+      "kind": "fps_probe",
+      "label": "idle_start",
+      "t": 2.00160057575757
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 120.0,
+      "kind": "fps_probe",
+      "label": "walking_1",
+      "t": 5.00387524242428
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 120.0,
+      "kind": "fps_probe",
+      "label": "walking_2",
+      "t": 8.50688100000014
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 120.0,
+      "kind": "fps_probe",
+      "label": "idle_end",
+      "t": 14.0067923333332
+    }
+  ],
+  "elapsed": 15.0067923333331,
+  "enemies_spawned": 0,
+  "hero_position": "(112.0, 0.0)",
+  "player_class": "cinder",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 95,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 3,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 70
+  },
+  "shots": [
+    {
+      "label": "grass_walk",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11621/grass_walk_9.007_11621.png",
+      "t": 9.00688100000011
+    }
+  ]
+}

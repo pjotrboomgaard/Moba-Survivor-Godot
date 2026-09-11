@@ -188,6 +188,8 @@ const SOUND_LIBRARY: Dictionary = {
 	"step_lava": [preload("res://assets/audio/themes/step_lava.wav")],
 	"step_metal": [preload("res://assets/audio/themes/step_metal.wav")],
 	"step_wood": [preload("res://assets/audio/themes/step_wood.wav")],
+	# Village minigame completion stinger: a bright, celebratory chime.
+	"minigame_win": [preload("res://assets/audio/themes/minigame_win.wav")],
 }
 
 const FAMILY_FOR_ARCHETYPE := {

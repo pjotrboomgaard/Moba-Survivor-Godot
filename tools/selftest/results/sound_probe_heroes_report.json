@@ -1,0 +1,217 @@
+{
+  "effects": [
+    {
+      "ability_id": "tobor_steam_keg",
+      "assert_ability_match": false,
+      "assert_bank_match": false,
+      "assert_player_fired": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_tobor",
+      "kind": "sound_probe",
+      "label": "tobor_q",
+      "last_play_ability": "",
+      "last_play_sound_id": "",
+      "ok": false,
+      "player_non_null": false,
+      "player_was_playing": false,
+      "stream_path": "",
+      "t": 0.701855
+    },
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 1,
+      "t": 0.74251
+    },
+    {
+      "ability_id": "cinder_dragon_fire",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "cast_cinder",
+      "kind": "sound_probe",
+      "label": "cinder_q",
+      "last_play_ability": "cinder_dragon_fire",
+      "last_play_sound_id": "cast_cinder",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/cinder_3.wav",
+      "t": 1.60103433333333
+    },
+    {
+      "ability_id": "volt_gust",
+      "assert_ability_match": false,
+      "assert_bank_match": false,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_volt",
+      "kind": "sound_probe",
+      "label": "volt_q",
+      "last_play_ability": "cinder_dragon_fire",
+      "last_play_sound_id": "countdown_tick",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/countdown_tick.wav",
+      "t": 2.40248881818181
+    },
+    {
+      "ability_id": "sage_petal_dance",
+      "assert_ability_match": true,
+      "assert_bank_match": false,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_sage",
+      "kind": "sound_probe",
+      "label": "sage_q",
+      "last_play_ability": "sage_petal_dance",
+      "last_play_sound_id": "countdown_tick",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/countdown_tick.wav",
+      "t": 3.201242
+    },
+    {
+      "abilities": [
+        {
+          "id": "sage_petal_dance",
+          "rank": 1
+        },
+        {
+          "id": "sage_volatile_pod",
+          "rank": 1
+        },
+        {
+          "id": "sage_grace",
+          "rank": 1
+        },
+        {
+          "id": "sage_charm",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        33.96,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "sage",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              112.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "sage",
+      "hp": 130.0,
+      "hp_frac": 1.0,
+      "hp_max": 130.0,
+      "kind": "probe",
+      "label": "end",
+      "last_sfx": "countdown_tick",
+      "last_tapped": 0,
+      "level": 1,
+      "obstacle_count": 1266,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(112.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 3.60644566666667,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    }
+  ],
+  "elapsed": 3.80188578787879,
+  "enemies_spawned": 0,
+  "hero_position": "(112.0, 0.0)",
+  "player_class": "sage",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 2,
+    "casts": [
+      {
+        "ability_id": "cinder_dragon_fire",
+        "t": 1.40155724242424
+      },
+      {
+        "ability_id": "sage_petal_dance",
+        "t": 3.00626266666666
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 1,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": []
+}

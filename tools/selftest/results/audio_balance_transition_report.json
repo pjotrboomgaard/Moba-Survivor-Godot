@@ -1,0 +1,651 @@
+{
+  "effects": [
+    {
+      "command": "toggle_invulnerable",
+      "kind": "dev_command",
+      "t": 0.216666666666667
+    },
+    {
+      "ability_id": "tobor_x",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "attack_tobor",
+      "kind": "sound_probe",
+      "label": "primary_tobor",
+      "last_play_ability": "tobor_steam_keg",
+      "last_play_sound_id": "attack_tobor",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/attack_tobor.wav",
+      "t": 0.709090909090909
+    },
+    {
+      "ability_id": "arclight_x",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "attack_arclight",
+      "kind": "sound_probe",
+      "label": "primary_arclight",
+      "last_play_ability": "arclight_static_bolt",
+      "last_play_sound_id": "attack_arclight",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/attack_arclight_2.wav",
+      "t": 1.506543
+    },
+    {
+      "ability_id": "volt_x",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "attack_volt",
+      "kind": "sound_probe",
+      "label": "primary_volt",
+      "last_play_ability": "volt_typhoon",
+      "last_play_sound_id": "attack_volt",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/attack_volt.wav",
+      "t": 2.30647633333333
+    },
+    {
+      "abilities": [
+        {
+          "id": "bulwark_fissure",
+          "rank": 1
+        },
+        {
+          "id": "bulwark_heavyweight",
+          "rank": 1
+        },
+        {
+          "id": "bulwark_shockwave_strike",
+          "rank": 1
+        },
+        {
+          "id": "bulwark_echo_slam",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              628.0,
+              -2.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "bulwark",
+      "hp": 220.0,
+      "hp_frac": 1.0,
+      "hp_max": 220.0,
+      "kind": "probe",
+      "label": "after_dash",
+      "last_sfx": "dash",
+      "last_tapped": 0,
+      "level": 1,
+      "obstacle_count": 856,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(627.6752, -1.784902)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 3,
+      "t": 2.90523633333333,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "ability_id": "bulwark_fortify",
+      "assert_ability_match": false,
+      "assert_bank_match": false,
+      "assert_player_fired": true,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_bulwark",
+      "kind": "sound_probe",
+      "label": "cast_bulwark_fortify",
+      "last_play_ability": "bulwark_heavyweight",
+      "last_play_sound_id": "attack_bulwark",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/attack_bulwark.wav",
+      "t": 3.40675148484848
+    },
+    {
+      "abilities": [
+        {
+          "id": "bulwark_fissure",
+          "rank": 1
+        },
+        {
+          "id": "bulwark_heavyweight",
+          "rank": 1
+        },
+        {
+          "id": "bulwark_shockwave_strike",
+          "rank": 1
+        },
+        {
+          "id": "bulwark_echo_slam",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        8.57666666666663,
+        12.1626666666667,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              513.0,
+              -90.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "bulwark",
+      "hp": 220.0,
+      "hp_frac": 1.0,
+      "hp_max": 220.0,
+      "kind": "probe",
+      "label": "shield_probe",
+      "last_sfx": "attack_bulwark",
+      "last_tapped": 2,
+      "level": 1,
+      "obstacle_count": 856,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(513.4593, -89.70023)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 3,
+      "t": 3.70675148484848,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "cd_left": 7.14333333333327,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 5.13898357575761
+    },
+    {
+      "cd_left": 10.1793333333332,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 5.68974115151521
+    },
+    {
+      "cd_left": 170.583333333332,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.24020866666675
+    },
+    {
+      "abilities": [
+        {
+          "id": "bulwark_fissure",
+          "rank": 1
+        },
+        {
+          "id": "bulwark_heavyweight",
+          "rank": 1
+        },
+        {
+          "id": "bulwark_shockwave_strike",
+          "rank": 1
+        },
+        {
+          "id": "bulwark_echo_slam",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        13.7586666666666,
+        5.77666666666661,
+        9.36266666666651,
+        170.316666666665
+      ],
+      "enemies_alive": 1,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              302.0,
+              -135.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "bulwark",
+      "hp": 220.0,
+      "hp_frac": 1.0,
+      "hp_max": 220.0,
+      "kind": "probe",
+      "label": "after_elite_dmg",
+      "last_sfx": "attack_bulwark",
+      "last_tapped": 0,
+      "level": 1,
+      "obstacle_count": 856,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(302.261, -135.2517)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 3,
+      "t": 6.50679300000009,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "cd_left": 13.4753333333332,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 6.79835866666677
+    },
+    {
+      "cd_left": 13.3253333333332,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 6.93864184848496
+    },
+    {
+      "cd_left": 4.92666666666661,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 7.35658166666679
+    },
+    {
+      "cd_left": 7.96266666666645,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 7.91283990909106
+    },
+    {
+      "cd_left": 168.366666666663,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 8.46505600000013
+    },
+    {
+      "cd_left": 11.2586666666665,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 9.01518366666677
+    },
+    {
+      "cd_left": 11.1086666666664,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 9.15676733333343
+    },
+    {
+      "boss": "ravager",
+      "gold_after": 278,
+      "kind": "kill_boss",
+      "label": "boss_kill",
+      "level_after": 1,
+      "t": 9.50668433333341,
+      "xp_after": 45
+    },
+    {
+      "cd_left": 2.70999999999995,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 9.57082890909099
+    },
+    {
+      "cd_left": 5.74599999999979,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 10.1234410000001
+    },
+    {
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "camera_zoom": [
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "killer_damage_mult": 1.0,
+      "killer_in_boss_form": true,
+      "kind": "boss_transition_probe",
+      "label": "boss_transition",
+      "last_boss_transition": {
+        "biome_id": 0,
+        "biome_name": "Verdant Hollow",
+        "center": "(329.1182, 24.34317)",
+        "source": "boss_death",
+        "t": 12371
+      },
+      "ring_live": 1,
+      "t": 10.5026106666667,
+      "wave": 1
+    },
+    {
+      "cd_left": 166.149999999995,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 10.6775436666667
+    },
+    {
+      "cd_left": 9.04199999999968,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 11.2278720000001
+    },
+    {
+      "cd_left": 8.89199999999967,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 11.3695330000001
+    },
+    {
+      "cd_left": 0.493333333333289,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 11.7861830000001
+    },
+    {
+      "cd_left": 3.52933333333313,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 12.3444940000001
+    }
+  ],
+  "elapsed": 12.5028210000001,
+  "enemies_spawned": 2,
+  "hero_position": "(-517.8021, -232.6954)",
+  "player_class": "bulwark",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 9,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 0.83560606060606
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 0.844696969696969
+      },
+      {
+        "ability_id": "arclight_static_bolt",
+        "t": 1.25664833333333
+      },
+      {
+        "ability_id": "volt_typhoon",
+        "t": 1.81474533333333
+      },
+      {
+        "ability_id": "volt_gust",
+        "t": 2.50647633333333
+      },
+      {
+        "ability_id": "bulwark_heavyweight",
+        "t": 2.92266057575757
+      },
+      {
+        "ability_id": "bulwark_shockwave_strike",
+        "t": 3.47341815151514
+      },
+      {
+        "ability_id": "bulwark_echo_slam",
+        "t": 4.03162133333332
+      },
+      {
+        "ability_id": "bulwark_fissure",
+        "t": 4.72539266666668
+      }
+    ],
+    "creep_kills": 2,
+    "died": false,
+    "errors": [
+      "only beaten wave 0 / 2 (t=13)"
+    ],
+    "ffa": {},
+    "gold": 358,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "enemies": 12,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 0.15,
+        "wave": 1
+      },
+      {
+        "enemies": 17,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 2.65,
+        "wave": 1
+      },
+      {
+        "enemies": 27,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 5.16,
+        "wave": 1
+      },
+      {
+        "enemies": 32,
+        "gold": 17,
+        "hp": 1.0,
+        "t": 7.66,
+        "wave": 1
+      },
+      {
+        "enemies": 36,
+        "gold": 358,
+        "hp": 1.0,
+        "t": 10.17,
+        "wave": 1
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 5,
+    "level_upgrades": {
+      "2": [
+        "gun_drone"
+      ],
+      "3": [
+        "sweep"
+      ],
+      "4": [
+        "reach"
+      ],
+      "5": [
+        "havoc"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 2,
+    "quests_seen": {
+      "collect_shards": 1,
+      "ring_bell": 1
+    },
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "gun_drone",
+      "sweep",
+      "reach",
+      "havoc"
+    ],
+    "until_wave": 2,
+    "verdict": "FAIL_NO_PROGRESS",
+    "wave": 1,
+    "xp": 107
+  },
+  "shots": [
+    {
+      "label": "boss_ring",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12574/boss_ring_10.007_12574.png",
+      "t": 10.0067833333334
+    }
+  ]
+}

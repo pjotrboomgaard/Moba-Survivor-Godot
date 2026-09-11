@@ -1,0 +1,354 @@
+{
+  "effects": [
+    {
+      "enemies_alive": 14,
+      "kills_after": 3,
+      "kills_before": 0,
+      "kind": "primary_probe",
+      "label": "primary_hold",
+      "t": 1.56058315151515
+    },
+    {
+      "cd_left": 22.1680000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.36058315151515
+    },
+    {
+      "cd_left": 22.0180000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.50224981818181
+    },
+    {
+      "actual": 5,
+      "kind": "force_level",
+      "t": 2.50224981818181,
+      "target": 3
+    },
+    {
+      "cd_left": 15.0933333333334,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.91058315151514
+    },
+    {
+      "cd_left": 14.9433333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 3.06666666666666
+    },
+    {
+      "error": "index out of range",
+      "index": 0,
+      "kind": "pick_upgrade",
+      "pending_size": 0,
+      "t": 3.20307799999999
+    },
+    {
+      "error": "index out of range",
+      "index": 0,
+      "kind": "pick_upgrade",
+      "pending_size": 0,
+      "t": 3.40447224242423
+    },
+    {
+      "cd_left": 16.5200000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 3.46356315151514
+    },
+    {
+      "error": "index out of range",
+      "index": 0,
+      "kind": "pick_upgrade",
+      "pending_size": 0,
+      "t": 3.60750254545454
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        20.5180000000002,
+        13.9933333333333,
+        15.9700000000002,
+        189.949999999998
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -62.0,
+              -82.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 18,
+      "hero": "tobor",
+      "hp": 71.65,
+      "hp_frac": 0.873780487804878,
+      "hp_max": 82.0,
+      "kind": "probe",
+      "label": "upgrades_taken",
+      "last_sfx": "attack_tobor",
+      "last_tapped": 3,
+      "level": 5,
+      "obstacle_count": 667,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(-61.99347, -82.42471)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 4,
+      "t": 4.00758866666666,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 117
+    },
+    {
+      "cd_left": 189.949999999998,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.01592199999999
+    },
+    {
+      "cd_left": 189.799999999998,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.15758866666667
+    },
+    {
+      "cd_left": 19.9680000000002,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 4.56647966666669
+    },
+    {
+      "cd_left": 19.8180000000003,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 4.70814633333336
+    },
+    {
+      "cd_left": 12.8766666666666,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 5.11666666666671
+    },
+    {
+      "cd_left": 12.7433333333332,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 5.25877966666671
+    },
+    {
+      "cd_left": 14.3033333333334,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 5.67273533333339
+    },
+    {
+      "cd_left": 187.73333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.22344200000008
+    },
+    {
+      "cd_left": 187.599999999997,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.36533333333342
+    },
+    {
+      "cd_left": 17.7513333333337,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 6.77391633333344
+    },
+    {
+      "cd_left": 17.6180000000004,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 6.91611633333345
+    }
+  ],
+  "elapsed": 7.00778300000012,
+  "enemies_spawned": 3,
+  "hero_position": "(-799.5891, -617.3901)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "tank",
+    "cast_count": 4,
+    "casts": [
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 0.846199666666666
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 0.846199666666666
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 1.26058315151515
+      },
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 1.95224981818181
+      }
+    ],
+    "creep_kills": 3,
+    "died": false,
+    "errors": [
+      "only beaten wave 0 / 3 (t=7)"
+    ],
+    "ffa": {},
+    "gold": 18,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "enemies": 14,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 0.15,
+        "wave": 1
+      },
+      {
+        "enemies": 17,
+        "gold": 18,
+        "hp": 0.87,
+        "t": 2.65,
+        "wave": 1
+      },
+      {
+        "enemies": 24,
+        "gold": 18,
+        "hp": 0.87,
+        "t": 5.16,
+        "wave": 1
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 5,
+    "level_upgrades": {
+      "2": [
+        "laser_drone"
+      ],
+      "3": [
+        "heavy"
+      ],
+      "4": [
+        "push_drone"
+      ],
+      "5": [
+        "heavy"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 0.873780487804878,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 2,
+    "quests_seen": {
+      "smash_dummy": 1,
+      "stand_spring": 1
+    },
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "laser_drone",
+      "heavy",
+      "push_drone",
+      "heavy"
+    ],
+    "until_wave": 3,
+    "verdict": "FAIL_NO_PROGRESS",
+    "wave": 1,
+    "xp": 117
+  },
+  "shots": [
+    {
+      "label": "t3_levelup_offers",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5392/t3_levelup_offers_3.002_5392.png",
+      "t": 3.00224981818181
+    },
+    {
+      "label": "t5_after",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7400/t5_after_5.008_7400.png",
+      "t": 5.00814633333337
+    }
+  ]
+}

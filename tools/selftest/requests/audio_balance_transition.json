@@ -1,0 +1,43 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 2,
+  "duration": 14.0,
+  "danger_hp": 0.35,
+  "recover_hp": 0.6,
+  "comment": "Verify A+B+C: per-hero primary-attack SFX (primary_attack events + sound_probe stream), dash whoosh, shield absorbs creep damage, PVP chain nerf constants, and boss-defeat ring+zoom transition (spawn low-HP boss, kill_boss, boss_transition_probe + ring screenshot).",
+  "events": [
+    {"t": 0.2, "kind": "dev_command", "command": "toggle_invulnerable"},
+
+    {"t": 0.4, "kind": "aim", "at": [220, 0]},
+    {"t": 0.5, "kind": "primary_attack"},
+    {"t": 0.7, "kind": "sound_probe", "ability_id": "tobor_x", "label": "primary_tobor"},
+
+    {"t": 1.0, "kind": "hero", "id": "arclight"},
+    {"t": 1.2, "kind": "aim", "at": [220, 0]},
+    {"t": 1.3, "kind": "primary_attack"},
+    {"t": 1.5, "kind": "sound_probe", "ability_id": "arclight_x", "label": "primary_arclight"},
+
+    {"t": 1.8, "kind": "hero", "id": "volt"},
+    {"t": 2.0, "kind": "aim", "at": [220, 0]},
+    {"t": 2.1, "kind": "primary_attack"},
+    {"t": 2.3, "kind": "sound_probe", "ability_id": "volt_x", "label": "primary_volt"},
+
+    {"t": 2.6, "kind": "hero", "id": "bulwark"},
+    {"t": 2.8, "kind": "dash"},
+    {"t": 2.9, "kind": "probe", "label": "after_dash"},
+
+    {"t": 3.2, "kind": "cast", "slot": 0},
+    {"t": 3.4, "kind": "sound_probe", "ability_id": "bulwark_fortify", "label": "cast_bulwark_fortify"},
+    {"t": 3.7, "kind": "probe", "label": "shield_probe"},
+
+    {"t": 4.5, "kind": "spawn", "label": "elite", "type": "brute", "hp_mult": 2.0, "at": [40, 0]},
+    {"t": 6.5, "kind": "probe", "label": "after_elite_dmg"},
+
+    {"t": 7.0, "kind": "spawn", "label": "boss", "type": "ravager", "hp_mult": 0.02, "at": [200, 0]},
+    {"t": 9.5, "kind": "kill_boss", "label": "boss_kill"},
+    {"t": 10.0, "kind": "snap", "label": "boss_ring"},
+    {"t": 10.5, "kind": "boss_transition_probe", "label": "boss_transition"},
+    {"t": 12.5, "kind": "report"}
+  ]
+}

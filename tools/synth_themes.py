@@ -286,6 +286,15 @@ DRONE_FIRE_RECIPE = [
      dict(wave="sine", f0=1800, f1=700, dur=0.07, amp=0.3)],
 ]
 
+# Minigame win stinger: a short, bright, celebratory chime that signals a minigame
+# completed successfully. Distinct from the boss-defeat stinger (quieter, lighter).
+MINIGAME_WIN_RECIPE = [
+    [dict(wave="chime", f0=1200, f1=1800, dur=0.30, amp=0.50, partials=[1.0, 1.5, 2.0]),
+     dict(wave="sine", f0=800, f1=1200, dur=0.22, amp=0.35)],
+    [dict(wave="chime", f0=1400, f1=2200, dur=0.28, amp=0.48, partials=[1.0, 1.33, 2.0]),
+     dict(wave="crackle", f0=2000, f1=1400, dur=0.15, amp=0.20)],
+]
+
 # Per-BIOME footstep stingers (P3 footstep sounds). Short, quiet, single-shot ticks
 # that fire on a cadence while the hero walks. Each is deliberately low-amp so 10
 # steps a second never becomes noise; the *flavour* differs per biome: grass = soft
@@ -395,6 +404,13 @@ def main():
     write_wav(os.path.join(OUT_DIR, "drone_fire.wav"), synthesize(DRONE_FIRE_RECIPE[0], rng))
     written += 1
     print("wrote assets/audio/themes/drone_fire.wav")
+    # Minigame win stinger.
+    for i, take in enumerate(MINIGAME_WIN_RECIPE):
+        suffix = "" if i == 0 else "_%d" % (i + 1)
+        path = os.path.join(OUT_DIR, "minigame_win" + suffix + ".wav")
+        write_wav(path, synthesize(take, rng))
+        written += 1
+        print("wrote %s" % path)
     # Per-world ambient beds (task A) — one looping bed per biome.
     for name, takes in WORLD_THEME_RECIPES.items():
         for i, take in enumerate(takes):

@@ -1,0 +1,749 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "warden_tongue_tied",
+          "rank": 1
+        },
+        {
+          "id": "warden_thorn_volley",
+          "rank": 1
+        },
+        {
+          "id": "warden_voodoo_wards",
+          "rank": 1
+        },
+        {
+          "id": "warden_life_drain",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 9,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              112.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "warden",
+      "hp": 140.0,
+      "hp_frac": 1.0,
+      "hp_max": 140.0,
+      "kind": "probe",
+      "label": "pre_cast",
+      "last_sfx": "wave_start",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 667,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(112.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 0.506871242424242,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 1,
+      "t": 0.749923999999999
+    },
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 2,
+      "t": 0.749923999999999
+    },
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 3,
+      "t": 0.749923999999999
+    },
+    {
+      "abilities": [
+        {
+          "id": "warden_tongue_tied",
+          "rank": 1
+        },
+        {
+          "id": "warden_thorn_volley",
+          "rank": 1
+        },
+        {
+          "id": "warden_voodoo_wards",
+          "rank": 1
+        },
+        {
+          "id": "warden_life_drain",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              112.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 65,
+      "hero": "warden",
+      "hp": 140.0,
+      "hp_frac": 1.0,
+      "hp_max": 140.0,
+      "kind": "probe",
+      "label": "after_q",
+      "last_sfx": "enemy_death",
+      "last_tapped": 0,
+      "level": 1,
+      "obstacle_count": 667,
+      "pending_ability_ids": [],
+      "pending_id": "warden_tongue_tied",
+      "pending_slot": 0,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(112.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 0.803354666666666,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "abilities": [
+        {
+          "id": "warden_tongue_tied",
+          "rank": 1
+        },
+        {
+          "id": "warden_thorn_volley",
+          "rank": 1
+        },
+        {
+          "id": "warden_voodoo_wards",
+          "rank": 1
+        },
+        {
+          "id": "warden_life_drain",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              112.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 65,
+      "hero": "warden",
+      "hp": 140.0,
+      "hp_frac": 1.0,
+      "hp_max": 140.0,
+      "kind": "probe",
+      "label": "q_settled",
+      "last_sfx": "xp",
+      "last_tapped": 0,
+      "level": 2,
+      "obstacle_count": 667,
+      "pending_ability_ids": [],
+      "pending_id": "warden_tongue_tied",
+      "pending_slot": 0,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(112.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 2.007872,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 35
+    },
+    {
+      "abilities": [
+        {
+          "id": "warden_tongue_tied",
+          "rank": 1
+        },
+        {
+          "id": "warden_thorn_volley",
+          "rank": 1
+        },
+        {
+          "id": "warden_voodoo_wards",
+          "rank": 1
+        },
+        {
+          "id": "warden_life_drain",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        24.86,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              112.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 65,
+      "hero": "warden",
+      "hp": 140.0,
+      "hp_frac": 1.0,
+      "hp_max": 140.0,
+      "kind": "probe",
+      "label": "after_e",
+      "last_sfx": "cast_warden",
+      "last_tapped": 1,
+      "level": 2,
+      "obstacle_count": 674,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(112.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 3.20577133333333,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 35
+    },
+    {
+      "abilities": [
+        {
+          "id": "warden_tongue_tied",
+          "rank": 1
+        },
+        {
+          "id": "warden_thorn_volley",
+          "rank": 1
+        },
+        {
+          "id": "warden_voodoo_wards",
+          "rank": 1
+        },
+        {
+          "id": "warden_life_drain",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        23.0600000000001,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              112.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 65,
+      "hero": "warden",
+      "hp": 140.0,
+      "hp_frac": 1.0,
+      "hp_max": 140.0,
+      "kind": "probe",
+      "label": "e_settled",
+      "last_sfx": "countdown_tick",
+      "last_tapped": 1,
+      "level": 2,
+      "obstacle_count": 674,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(112.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 5.00124766666669,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 35
+    },
+    {
+      "abilities": [
+        {
+          "id": "warden_tongue_tied",
+          "rank": 1
+        },
+        {
+          "id": "warden_thorn_volley",
+          "rank": 1
+        },
+        {
+          "id": "warden_voodoo_wards",
+          "rank": 1
+        },
+        {
+          "id": "warden_life_drain",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        21.8600000000002,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              112.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 65,
+      "hero": "warden",
+      "hp": 140.0,
+      "hp_frac": 1.0,
+      "hp_max": 140.0,
+      "kind": "probe",
+      "label": "after_r",
+      "last_sfx": "countdown_fight",
+      "last_tapped": 2,
+      "level": 2,
+      "obstacle_count": 674,
+      "pending_ability_ids": [],
+      "pending_id": "warden_voodoo_wards",
+      "pending_slot": 2,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(112.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 6.20352039393948,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 35
+    },
+    {
+      "abilities": [
+        {
+          "id": "warden_tongue_tied",
+          "rank": 1
+        },
+        {
+          "id": "warden_thorn_volley",
+          "rank": 1
+        },
+        {
+          "id": "warden_voodoo_wards",
+          "rank": 1
+        },
+        {
+          "id": "warden_life_drain",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        20.0766666666669,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              112.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 65,
+      "hero": "warden",
+      "hp": 140.0,
+      "hp_frac": 1.0,
+      "hp_max": 140.0,
+      "kind": "probe",
+      "label": "r_settled",
+      "last_sfx": "countdown_fight",
+      "last_tapped": 2,
+      "level": 2,
+      "obstacle_count": 674,
+      "pending_ability_ids": [],
+      "pending_id": "warden_voodoo_wards",
+      "pending_slot": 2,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(112.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 8.00000000000015,
+      "teleporters": [],
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 35
+    }
+  ],
+  "elapsed": 8.50075757575771,
+  "enemies_spawned": 9,
+  "hero_position": "(112.0, 0.0)",
+  "player_class": "warden",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 1,
+    "casts": [
+      {
+        "ability_id": "warden_thorn_volley",
+        "t": 3.10577133333333
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 65,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 3,
+    "level": 2,
+    "level_upgrades": {
+      "2": [
+        "rapid"
+      ]
+    },
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "rapid"
+    ],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 35
+  },
+  "shots": [
+    {
+      "label": "q_impact",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4029/q_impact_1.508_4029.png",
+      "t": 1.50808766666666
+    },
+    {
+      "label": "e_impact",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6513/e_impact_4.006_6513.png",
+      "t": 4.00573099999999
+    },
+    {
+      "label": "r_impact",
+      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9513/r_impact_7.004_9513.png",
+      "t": 7.00352039393951
+    }
+  ]
+}

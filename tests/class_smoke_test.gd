@@ -500,20 +500,24 @@ func _test_separation() -> void:
 
 
 func _test_wave_archetypes() -> void:
+	var saved_biome := GameRuntime.biome_id
+	GameRuntime.biome_id = 0
 	var director := WaveDirector.new()
 	add_child(director)
 	director.set_player_count(1)
 
-	_check(director.theme_for_wave(7).archetype == WaveDirector.Archetype.BOSS, "Wave 7 must be a boss wave")
-	_check(director.theme_for_wave(14).archetype == WaveDirector.Archetype.BOSS, "Wave 14 must be a boss wave")
-	_check(director.theme_for_wave(21).archetype == WaveDirector.Archetype.BOSS, "Wave 21 must be a boss wave")
-	_check(director.theme_for_wave(28).archetype == WaveDirector.Archetype.BOSS, "Wave 28 must be a boss wave")
-	_check(director.theme_for_wave(35).archetype == WaveDirector.Archetype.BOSS, "Wave 35 must stay a boss wave")
-	_check(director.theme_for_wave(56).archetype == WaveDirector.Archetype.BOSS, "Improvised seventh waves must stay boss waves")
-	_check(director.theme_for_wave(96).archetype == WaveDirector.Archetype.ELITE, "Improvised eighth waves must be elite waves")
+	# Boss waves now fire on every 5th wave (BOSS_WAVE_INTERVAL = 5), so the boss
+	# cadence is 5, 10, 15, 20, 25, ... The old 7/14/21 cadence was pre-rework.
+	_check(director.theme_for_wave(5).archetype == WaveDirector.Archetype.BOSS, "Wave 5 must be a boss wave")
+	_check(director.theme_for_wave(10).archetype == WaveDirector.Archetype.BOSS, "Wave 10 must be a boss wave")
+	_check(director.theme_for_wave(15).archetype == WaveDirector.Archetype.BOSS, "Wave 15 must be a boss wave")
+	_check(director.theme_for_wave(20).archetype == WaveDirector.Archetype.BOSS, "Wave 20 must be a boss wave")
+	_check(director.theme_for_wave(25).archetype == WaveDirector.Archetype.BOSS, "Wave 25 must stay a boss wave")
+	_check(director.theme_for_wave(55).archetype == WaveDirector.Archetype.BOSS, "Improvised 5th waves must stay boss waves")
+	_check(director.theme_for_wave(56).archetype == WaveDirector.Archetype.ELITE, "Improvised 8th waves must be elite waves")
 	_check(director.theme_for_wave(1).archetype == WaveDirector.Archetype.STANDARD, "The first wave must stay standard")
 
-	var boss_groups := director.plan_wave(7, WaveDirector.Archetype.BOSS)
+	var boss_groups := director.plan_wave(5, WaveDirector.Archetype.BOSS)
 	var boss_count := 0
 	var add_count := 0
 	for group in boss_groups:
@@ -523,9 +527,24 @@ func _test_wave_archetypes() -> void:
 			add_count += int(group.count)
 	_check(boss_count == 1, "A boss wave must contain exactly one boss, got %d" % boss_count)
 	_check(add_count == 0, "A boss fight must be solo until the boss dies, got %d adds" % add_count)
-	_check(EnemyType.boss_for_wave(7) == "ravager", "Wave 7 should send the Ravager")
-	_check(EnemyType.boss_for_wave(14) == "stormcaller", "Wave 14 should send the Stormcaller")
-	_check(EnemyType.boss_for_wave(21) == "ravager", "Odd boss waves should rotate back to the Ravager")
+	# Two bosses per world: wave 5 is the world's 1st boss, wave 10 is the 2nd
+	# (still the same biome 0, but a different boss type). Wave 15 advances to
+	# biome 1 (volcano) with its own first boss.
+	# Boss rotation within a world: wave 5 -> index 0 (first boss), wave 10 ->
+	# index 1 (second boss, DIFFERENT type). So the same world's two bosses must
+	# be different; and across worlds the biome's own rotation applies.
+	_check(EnemyType.boss_for_wave(5) == "ravager", "Wave 5 (world 1 boss #1) should send the Ravager")
+	_check(EnemyType.boss_for_wave(10) == "stormcaller", "Wave 10 (world 1 boss #2) should send the Stormcaller")
+	_check(EnemyType.boss_for_wave(5) != EnemyType.boss_for_wave(10), "A world's two bosses must be DIFFERENT types")
+	GameRuntime.biome_id = 1
+	_check(EnemyType.boss_for_wave(5) == "magma_golem", "Volcano's 1st boss should be Magma Golem")
+	_check(EnemyType.boss_for_wave(10) == "frost_titan", "Volcano's 2nd boss should be Frost Titan")
+	GameRuntime.biome_id = 2
+	# At wave 5, Ice's rotation starts with Frost Titan but its unlock_wave is 10,
+	# so only Magma Golem (unlock 5) is available -> index 0 = magma_golem.
+	_check(EnemyType.boss_for_wave(5) == "magma_golem", "Ice's 1st boss (wave 5) should fall back to Magma Golem")
+	_check(EnemyType.boss_for_wave(10) == "magma_golem", "Ice's 2nd boss (wave 10) should be Magma Golem")
+	GameRuntime.biome_id = saved_biome
 
 	var air_groups := director.plan_wave(9, WaveDirector.Archetype.AIR_ASSAULT)
 	_check(not air_groups.is_empty(), "An air assault must send something")
@@ -544,13 +563,21 @@ func _test_wave_archetypes() -> void:
 	var early_air := director.plan_wave(2, WaveDirector.Archetype.AIR_ASSAULT)
 	_check(not early_air.is_empty(), "An archetype without unlocked types must fall back, not send nothing")
 
-	var bosses_before_seven := 0
-	for target_wave in range(1, 7):
+	var bosses_before_five := 0
+	for target_wave in range(1, 5):
 		var theme := director.theme_for_wave(target_wave)
 		for group in director.plan_wave(target_wave, theme.archetype, theme.modifier, theme.debut):
 			if EnemyType.is_boss(str(group.type_id)):
-				bosses_before_seven += 1
-	_check(bosses_before_seven == 0, "No boss may appear before wave 7")
+				bosses_before_five += 1
+	_check(bosses_before_five == 0, "No boss may appear before wave 5")
+
+	# The "flying drone guy" (Volt) is the chain-bolt hero that was PVP-tuned:
+	# his extra chain hops must be damped vs rival heroes but unchanged vs creeps.
+	# We assert the balance constants are present and applied, so a regression
+	# (someone deleting the PVP chain nerf) fails the smoke test.
+	_check(Player.PVP_CHAIN_HIT_PENALTY < 1.0, "PVP chain hit penalty must reduce chain damage vs rivals")
+	_check(Player.PVP_CHAIN_HOP_PENALTY < 1.0, "PVP chain hop penalty must reduce each extra hop vs rivals")
+	_check(Player.PVP_TAKEN_MULT > 1.0, "Rival heroes must take extra damage from other heroes (faster PVP deaths)")
 
 	director.free()
 
@@ -776,11 +803,11 @@ func _test_sprite_art() -> void:
 	GameRuntime.biome_id = 4
 	_check(int(EnemyType.biome_multipliers().get("gold", 0)) > 0, "Docks enemies should drop extra gold")
 	GameRuntime.biome_id = saved_combat_biome
-	_check(GameRuntime.biome_for_wave(1) == 0, "Waves 1-5 are the grass meadow")
-	_check(GameRuntime.biome_for_wave(6) == 1, "Wave 6 must enter the volcano biome")
-	_check(GameRuntime.biome_for_wave(11) == 2, "Wave 11 must enter the ice biome")
-	_check(GameRuntime.biome_for_wave(16) == 3, "Wave 16 must enter the factory biome")
-	_check(GameRuntime.biome_for_wave(21) == 4, "Wave 21 must enter the docks biome")
+	_check(GameRuntime.biome_for_wave(1) == 0, "Waves 1-10 are the grass meadow")
+	_check(GameRuntime.biome_for_wave(11) == 1, "Wave 11 must enter the volcano biome")
+	_check(GameRuntime.biome_for_wave(21) == 2, "Wave 21 must enter the ice biome")
+	_check(GameRuntime.biome_for_wave(31) == 3, "Wave 31 must enter the factory biome")
+	_check(GameRuntime.biome_for_wave(41) == 4, "Wave 41 must enter the docks biome")
 	_check(GameRuntime.parse_biome("vulkaan") == 1, "Dev biome aliases should accept Dutch names")
 	_check(GameRuntime.parse_biome("docks") == 4, "Dev biome aliases should accept docks")
 	var saved_lock := GameRuntime.biome_locked

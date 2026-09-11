@@ -2,7 +2,7 @@
   "all_ok": false,
   "checks": [
     {
-      "detail": "hero=tobor",
+      "detail": "hero=cinder",
       "name": "hover_lmb",
       "ok": true
     },
@@ -17,7 +17,7 @@
       "ok": true
     },
     {
-      "detail": "hero=tobor (all heroes have a secondary)",
+      "detail": "hero=cinder (all heroes have a secondary)",
       "name": "hover_rmb",
       "ok": true
     },
@@ -117,7 +117,7 @@
       "ok": true
     },
     {
-      "detail": "placed=599 in world=Frostmere Reach",
+      "detail": "placed=1287 in world=Frostmere Reach",
       "name": "api_place_after_world_switch",
       "ok": true
     },
@@ -132,72 +132,72 @@
       "ok": true
     },
     {
-      "detail": "placed=588 (grass save, independent of ice)",
+      "detail": "placed=1274 (grass save, independent of ice)",
       "name": "grass_save_independent_of_other_worlds",
       "ok": false
     }
   ],
-  "elapsed": 27.5025513333329,
+  "elapsed": 27.5055903333329,
   "shots": [
     {
       "err": 0,
       "label": "lobby",
-      "path": "user://ui_verify_shots/lobby_4321.png"
+      "path": "user://ui_verify_shots/lobby_5180.png"
     },
     {
       "err": 0,
       "label": "lmb_hover",
-      "path": "user://ui_verify_shots/lmb_hover_7313.png"
+      "path": "user://ui_verify_shots/lmb_hover_8163.png"
     },
     {
       "err": 0,
       "label": "rmb_hover",
-      "path": "user://ui_verify_shots/rmb_hover_10305.png"
+      "path": "user://ui_verify_shots/rmb_hover_11163.png"
     },
     {
       "err": 0,
       "label": "ability_preview_nuke",
-      "path": "user://ui_verify_shots/ability_preview_nuke_12804.png"
+      "path": "user://ui_verify_shots/ability_preview_nuke_13655.png"
     },
     {
       "err": 0,
       "label": "ability_preview_radius",
-      "path": "user://ui_verify_shots/ability_preview_radius_15304.png"
+      "path": "user://ui_verify_shots/ability_preview_radius_16163.png"
     },
     {
       "err": 0,
       "label": "ability_preview_summon",
-      "path": "user://ui_verify_shots/ability_preview_summon_17988.png"
+      "path": "user://ui_verify_shots/ability_preview_summon_19182.png"
     },
     {
       "err": 0,
       "label": "editor",
-      "path": "user://ui_verify_shots/editor_18488.png"
+      "path": "user://ui_verify_shots/editor_19712.png"
     },
     {
       "err": 0,
       "label": "editor_with_props",
-      "path": "user://ui_verify_shots/editor_with_props_21504.png"
+      "path": "user://ui_verify_shots/editor_with_props_22687.png"
     },
     {
       "err": 0,
       "label": "editor_final",
-      "path": "user://ui_verify_shots/editor_final_23997.png"
+      "path": "user://ui_verify_shots/editor_final_25183.png"
     },
     {
       "err": 0,
       "label": "world_volcano",
-      "path": "user://ui_verify_shots/world_volcano_25663.png"
+      "path": "user://ui_verify_shots/world_volcano_27271.png"
     },
     {
       "err": 0,
       "label": "world_ice_with_props",
-      "path": "user://ui_verify_shots/world_ice_with_props_27846.png"
+      "path": "user://ui_verify_shots/world_ice_with_props_29822.png"
     },
     {
       "err": 0,
       "label": "world_back_to_grass",
-      "path": "user://ui_verify_shots/world_back_to_grass_29838.png"
+      "path": "user://ui_verify_shots/world_back_to_grass_31982.png"
     }
   ],
   "verdict": "FAIL"

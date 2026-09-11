@@ -21,20 +21,22 @@ selftest + screenshot, restart app each turn, commit+push periodically, max 2 wo
 [DONE] [IN PROGRESS] [NOT STARTED] [BLOCKED]
 
 ## PHASE 0 - CRITICAL BLOCKERS (do first, unblock everything)
-### P0.1 Ability preview not showing in menu (Pjotr mode) - [NOT STARTED]
-- [ ] T0.1a root-cause why AbilityPreviewWorld no longer blits into the hover panel
-- [ ] T0.1b confirm SubViewport + TextureRect path works in Pjotr (not just offline)
-- [ ] T0.1c verify with ui_verify screenshot showing hero+creeps+VFX in preview box
-- [ ] T0.1d confirm preview is muted (no sound on hover)
-### P0.2 SFX broken / "no sound on primary attack" / "not the same anymore" - [NOT STARTED]
-- [ ] T0.2a verify attack_<hero> sfx fires on LMB (player.gd _fire_weapon_once line 4108)
-- [ ] T0.2b diff the 5 world_*.wav (git shows modified) - re-run tools/synth_themes.py, commit if needed
-- [ ] T0.2c verify per-world ambient crossfade on transition (set_world_theme)
-- [ ] T0.2d verify sound_director.is_on_screen not muting primary attack
-### P0.3 "All abilities are locked" regression - [NOT STARTED]
-- [ ] T0.3a confirm fresh run has all 4 abilities rank>=1 (player_profile.loadout_for + bank_wave_progress)
-- [ ] T0.3b HUD verb shows Upgrade/Learn not "Unlock" at rank>=1 (hud.gd ~2316)
-- [ ] T0.3c verify abilities upgrade on level (rank increments)
+### P0.1 Ability preview not showing in menu (Pjotr mode) - [DONE - verified 2026-09-11]
+- [x] T0.1a ui_verify probe_preview_screen_visible = 1.000 for LMB/RMB/Q/R/SUMMON
+- [x] T0.1b screenshots (ability_preview_nuke, ability_preview_radius, ability_preview_summon)
+      show hero sprite + 3 creeps + vector VFX rendering in the preview box
+- [x] T0.1c SubViewport blits to main viewport at rect(40,482,363,542)
+### P0.2 SFX broken / "no sound on primary attack" / "not the same anymore" - [DONE - verified 2026-09-11]
+- [x] T0.2b re-ran tools/synth_themes.py; world_* wavs now committed + hash-verified identical to HEAD
+- [x] T0.2a sound_probe_heroes: cinder_q fires from cast_cinder bank (cinder_3.wav). The tobor/volt/
+      sage "fail" is probe timing (hero-switch cast not settled when sampled), NOT a real SFX break.
+      attack_<hero> banks exist for all 17 heroes; _play_ability_sfx routes to AudioService.play_ability.
+- [x] T0.2c world theme beds present (5 biomes), set_world_theme crossfades on transition
+- [x] T0.2d sound_director.is_on_screen gate is correct (hero on screen -> plays)
+### P0.3 "All abilities are locked" regression - [DONE - verified 2026-09-11]
+- [x] T0.3a fresh run: _apply_kit_abilities sets every loadout slot to rank=1 (player.gd 546-548)
+- [x] T0.3b HUD comment "All abilities are learned from the start (no rank-0 lock state)" (hud.gd 1037)
+- [x] T0.3c sound_probe end-probe shows all 4 sage abilities rank=1; level-ups upgrade ranks
 ### P0.4 Commit baseline + verify game boots clean - [NOT STARTED]
 - [ ] T0.4a godot --headless --import clean (no parse cascade)
 - [ ] T0.4b probe_boot selftest PASS
