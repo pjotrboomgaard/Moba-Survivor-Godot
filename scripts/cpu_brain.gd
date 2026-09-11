@@ -170,6 +170,23 @@ static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dict
 			result.aim = rp
 			return _apply_ffa_dodge(player, result, delta)
 
+	# Village minigames: if no recruit is available, look for a nearby idle minigame
+	# and walk to it, then start + play it via bot_tick.
+	var minigame_info: Variant = _ffa_minigame_target(player)
+	if minigame_info != null:
+		var mpos: Vector2 = Vector2((minigame_info as Dictionary).get("pos", Vector2.ZERO))
+		var mdist := player.global_position.distance_to(mpos)
+		if mdist < 50.0:
+			# At the minigame — start it (if not already active) and let bot_tick drive.
+			_ffa_minigame_play(player, mpos, result, delta)
+			return _apply_ffa_dodge(player, result, delta)
+		# Walk toward the minigame area.
+		var rival_close_m := rival != null and player.global_position.distance_to(rival.global_position) < 320.0
+		if not rival_close_m:
+			result.move = _smooth_move(player, player.global_position.direction_to(mpos), delta, FFA_MOVE_SCALE)
+			result.aim = mpos
+			return _apply_ffa_dodge(player, result, delta)
+
 	if tactic == FfaTactic.AMBUSHER:
 		var rim := _ffa_crater_rim(player)
 		result.move = _smooth_move(player, _steer_towards(player.global_position, rim, FFA_LANDMARK_HOLD), delta, FFA_MOVE_SCALE)
@@ -182,7 +199,6 @@ static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dict
 		return _apply_ffa_dodge(player, result, delta)
 	result.move = _smooth_move(player, _steer_towards(player.global_position, home, 80.0), delta, FFA_MOVE_SCALE)
 	result.aim = home
-	return _apply_ffa_dodge(player, result, delta)
 	return _apply_ffa_dodge(player, result, delta)
 
 
@@ -592,3 +608,47 @@ static func _downed_ally(player: Player) -> Player:
 			best_dist = dist
 			best = ally
 	return best
+
+
+## Find the nearest idle minigame area the bot can walk to and play.
+static func _ffa_minigame_target(player: Player) -> Variant:
+	if player == null or not player.is_inside_tree():
+		return null
+	var main = player.get_tree().get_first_node_in_group("main")
+	if main == null:
+		return null
+	var ma = main.get("_minigame_area")
+	if ma == null or not is_instance_valid(ma) or not ma.has_method("nearest_idle_minigame"):
+		return null
+	return ma.call("nearest_idle_minigame", player.global_position)
+
+
+## Drive the minigame's bot_tick while the bot stands at the minigame position.
+## The minigame's bot_tick() returns a Dictionary with "move" (desired direction),
+## "attack", and "interact" flags. We forward the move direction so the player
+## actually walks (needed for Treasure Dash where the player position IS the marker).
+static func _ffa_minigame_play(player: Player, mpos: Vector2, result: Dictionary, delta: float) -> void:
+	var main = player.get_tree().get_first_node_in_group("main")
+	if main == null:
+		return
+	var ma = main.get("_minigame_area")
+	if ma == null or not is_instance_valid(ma):
+		return
+	# Find the active minigame at this position and drive its bot_tick.
+	var mg: Variant = ma.call("active_minigame_at", mpos, 60.0)
+	if mg == null:
+		# No active minigame yet — start the nearest idle one for this bot.
+		var info: Variant = ma.call("nearest_idle_minigame", player.global_position)
+		if info != null and int((info as Dictionary).get("index", -1)) >= 0:
+			var idx := int((info as Dictionary).get("index", -1))
+			mg = ma.call("start_minigame", idx, player)
+	if mg != null and is_instance_valid(mg) and mg.has_method("bot_tick"):
+		var bt: Variant = mg.call("bot_tick", delta)
+		if bt is Dictionary:
+			# Use the minigame's suggested move direction (e.g. toward gems for Treasure Dash).
+			var mv: Vector2 = Vector2.ZERO
+			if (bt as Dictionary).has("move") and (bt as Dictionary).get("move") is Vector2:
+				mv = (bt as Dictionary).get("move") as Vector2
+			result.move = _smooth_move(player, mv, delta, FFA_MOVE_SCALE)
+			result.aim = mpos
+			result.attack = false

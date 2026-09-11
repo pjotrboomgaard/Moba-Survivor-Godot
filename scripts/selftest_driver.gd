@@ -396,6 +396,10 @@ func _process(delta: float) -> void:
 				await _screenshot(str(event.get("label", "snap")))
 			"probe":
 				_record_probe(str(event.get("label", "probe")))
+			"minigame":
+				_record_minigame_probe(str(event.get("label", "minigame")), int(event.get("index", -1)))
+			"start_minigame":
+				_start_minigame_event(int(event.get("index", 0)))
 			"fps_probe":
 				_record_fps(str(event.get("label", "fps")))
 			"biome_probe":
@@ -771,6 +775,70 @@ func _recruit_probe() -> Dictionary:
 		if ra != null and is_instance_valid(ra) and ra.has_method("area_positions"):
 			area_pos = (ra as Node).area_positions()
 	return {"minions": minions, "arts": arts, "area_positions": area_pos}
+
+
+## Probe the minigame system: reports which minigames are active, their scores,
+## and whether any has finished. If `index` >= 0, reports only that minigame.
+func _record_minigame_probe(label: String, index: int) -> void:
+	var host_main: Variant = _host_main
+	if host_main == null:
+		_active_effects.append({"kind": "minigame", "label": label, "t": _elapsed, "error": "no host"})
+		return
+	var ma: Variant = host_main.get("_minigame_area")
+	if ma == null or not is_instance_valid(ma):
+		_active_effects.append({"kind": "minigame", "label": label, "t": _elapsed, "error": "no minigame_area"})
+		return
+	var games: Array = []
+	if index >= 0:
+		# Report a single minigame by index.
+		var g: Variant = ma.call("get_minigame", index)
+		if g == null or not is_instance_valid(g):
+			_active_effects.append({"kind": "minigame", "label": label, "t": _elapsed, "index": index, "error": "no minigame at index"})
+			return
+		games.append(_minigame_state(index, g))
+	else:
+		# Report all minigames.
+		var all: Array = ma.call("all_minigames")
+		for i in all.size():
+			games.append(_minigame_state(i, all[i]))
+	_active_effects.append({"kind": "minigame", "label": label, "t": _elapsed, "games": games})
+
+
+static func _minigame_state(index: int, g: Variant) -> Dictionary:
+	var node := g as Node
+	if node == null:
+		return {"index": index, "error": "null game"}
+	return {
+		"index": index,
+		"id": str(node.get("display_name")),
+		"active": bool(node.get("active")),
+		"finished": bool(node.get("finished_flag")),
+		"score": int(node.get("score")),
+		"timer": float(node.get("timer")),
+		"pos": (node as Node2D).global_position if node is Node2D else Vector2.ZERO,
+	}
+
+
+## Directly start a minigame for the local player (for selftest verification).
+func _start_minigame_event(index: int) -> void:
+	var host_main: Variant = _host_main
+	if host_main == null:
+		_active_effects.append({"kind": "start_minigame", "index": index, "t": _elapsed, "error": "no host"})
+		return
+	var ma: Variant = host_main.get("_minigame_area")
+	if ma == null or not is_instance_valid(ma):
+		_active_effects.append({"kind": "start_minigame", "index": index, "t": _elapsed, "error": "no minigame_area"})
+		return
+	if _player == null:
+		_active_effects.append({"kind": "start_minigame", "index": index, "t": _elapsed, "error": "no player"})
+		return
+	var result: Variant = ma.call("start_minigame", index, _player)
+	_active_effects.append({
+		"kind": "start_minigame",
+		"index": index,
+		"t": _elapsed,
+		"started": result != null,
+	})
 
 
 ## Count of live obstacle nodes in the arena. 0 (or a suspiciously low number)

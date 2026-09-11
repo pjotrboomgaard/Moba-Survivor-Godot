@@ -6,6 +6,7 @@ const RunSave := preload("res://scripts/run_save.gd")
 const SideQuestDirector := preload("res://scripts/side_quest_director.gd")
 const CreepCampScript := preload("res://scripts/creep_camp.gd")
 const RecruitAreasScript := preload("res://scripts/recruit_areas.gd")
+const MinigameAreaScript := preload("res://scripts/minigame_area.gd")
 const _CorpseScript := preload("res://scripts/corpse.gd")
 const GhostWaveSystem := preload("res://scripts/ghost_wave_system.gd")
 
@@ -93,6 +94,7 @@ var revive_progress: Dictionary = {}
 var _side_quest_director: Node = null
 var _creep_camp: Node = null
 var _recruit_areas: Node = null
+var _minigame_area: Node = null
 var _ghost_waves: Node = null
 
 const REVIVE_RADIUS := 60.0
@@ -3703,6 +3705,11 @@ func _start_side_quests() -> void:
 	_recruit_areas.name = "RecruitAreas"
 	add_child(_recruit_areas)
 	_recruit_areas.start(self, arena)
+
+	_minigame_area = MinigameAreaScript.new()
+	_minigame_area.name = "MinigameArea"
+	add_child(_minigame_area)
+	_minigame_area.start(self, arena, _recruit_areas)
 
 
 ## Continuous "ghost trickle": lightweight enemy records that stream in from the

@@ -50,7 +50,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "steam",
 		"draw_mode": "hex_field",
-		"lifetime": 0.9,
+		"lifetime": 1.8,
 	},
 	# ── Pyra — Blast-Step (teleport secondary) ─────────────────────────────
 	"pyra_blast_jump": {
@@ -130,7 +130,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "storm",
 		"draw_mode": "storm_pillar",
-		"lifetime": 0.7,
+		"lifetime": 1.4,
 	},
 	"arclight_ball_lightning": {
 		"primary_color": "fff8a8",
@@ -166,7 +166,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "nature",
 		"draw_mode": "quake_rings",
-		"lifetime": 0.75,
+		"lifetime": 1.5,
 	},
 	# ── Warden (Totem / Pollywog) ────────────────────────────────────────────
 	"warden_tongue_tied": {
@@ -203,7 +203,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 4,
 		"style": "fire",
 		"draw_mode": "orbit_rings",
-		"lifetime": 0.55,
+		"lifetime": 1.1,
 	},
 	# ── Frostbinder ──────────────────────────────────────────────────────────
 	"frostbinder_ice_spike": {
@@ -231,7 +231,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "ice",
 		"draw_mode": "ice_cone",
-		"lifetime": 0.7,
+		"lifetime": 1.4,
 	},
 	"frostbinder_rime_barrage": {
 		"primary_color": "a8dcff",
@@ -267,7 +267,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "fire",
 		"draw_mode": "flame_pillar",
-		"lifetime": 0.8,
+		"lifetime": 1.6,
 	},
 	"cinder_whirling_flame": {
 		"primary_color": "ffb347",
@@ -303,7 +303,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "fire",
 		"draw_mode": "air_strike",
-		"lifetime": 0.65,
+		"lifetime": 1.3,
 	},
 	"pyra_molten_charge": {
 		"primary_color": "ff8a5c",
@@ -348,7 +348,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "fire",
 		"draw_mode": "eruption_plume",
-		"lifetime": 0.85,
+		"lifetime": 1.7,
 	},
 	# ── Ember (Witchfire / Demented) ─────────────────────────────────────────
 	"ember_entangle": {
@@ -385,7 +385,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 2,
 		"style": "fire",
 		"draw_mode": "ward_shell",
-		"lifetime": 0.7,
+		"lifetime": 1.4,
 	},
 	# ── Thorn (Venom / Slither) ──────────────────────────────────────────────
 	"thorn_poison_spray": {
@@ -422,7 +422,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "nature",
 		"draw_mode": "toxic_bloom",
-		"lifetime": 0.75,
+		"lifetime": 1.5,
 	},
 	"thorn_bramble_dash": {
 		"primary_color": "7dff3a",
@@ -458,7 +458,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "nature",
 		"draw_mode": "root_wall",
-		"lifetime": 0.8,
+		"lifetime": 1.6,
 	},
 	# ── Stump (Keeper) ───────────────────────────────────────────────────────
 	"stump_natures_rally": {
@@ -494,7 +494,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "nature",
 		"draw_mode": "overgrowth",
-		"lifetime": 0.85,
+		"lifetime": 1.7,
 	},
 	# ── Sage (Nymphel / Nymphora) ────────────────────────────────────────────
 	"sage_grace": {
@@ -531,7 +531,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "nature",
 		"draw_mode": "petal_fan",
-		"lifetime": 0.75,
+		"lifetime": 1.5,
 	},
 	# ── Volt (Gale / Zephyr) ─────────────────────────────────────────────────
 	"volt_gust": {
@@ -568,7 +568,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "storm",
 		"draw_mode": "typhoon_spiral",
-		"lifetime": 0.85,
+		"lifetime": 1.7,
 	},
 	# ── Nebula (Aeon / Chronos) ──────────────────────────────────────────────
 	"nebula_time_shift": {
@@ -613,7 +613,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "arcane",
 		"draw_mode": "clock_field",
-		"lifetime": 0.9,
+		"lifetime": 1.8,
 	},
 	# ── Astral (Lumina / Empath) ─────────────────────────────────────────────
 	"astral_essence_link": {
@@ -659,7 +659,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "arcane",
 		"draw_mode": "orbit_rings",
-		"lifetime": 0.85,
+		"lifetime": 1.7,
 	},
 	# ── Rime (Glacier / Glacius) ─────────────────────────────────────────────
 	"rime_ice_imprisonment": {
@@ -687,7 +687,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "ice",
 		"draw_mode": "freeze_field",
-		"lifetime": 0.95,
+		"lifetime": 1.9,
 	},
 	# Pool aliases still referenced by VECTOR_ONLY / ability pools.
 	"willow_volley": {
