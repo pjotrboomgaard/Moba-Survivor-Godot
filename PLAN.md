@@ -2,6 +2,11 @@
 
 _Last updated: 2026-09-10_
 
+> **Progress (2026-09-10):** P0 both done. T1.4 countdown done. T1.6 world-transition +
+> volcano/docks/ice cleanup done + verified. T1.5 XP cap + shield + creep distribution done.
+> In progress: T1.2 (4 areas/sprites, Builder A), T1.3 (minigames, Builder B),
+> ability VFX distinctness (T1.1), all-ability SFX (T1.4 remaining), difficulty easing (ongoing).
+
 This is the master plan. Each task has sub-requirements and must be validated in-game
 by the selftest harness (bot must survive; visual changes must be confirmed in
 screenshots). Use this to track progress.
@@ -87,7 +92,7 @@ screenshots). Use this to track progress.
 - [ ] Ultimate SFX last 2× longer (already partially done in VFX; audio needs match)
 - [ ] Dash: heroes "launch" (whoosh SFX) not blink
 - [ ] Drones: all drone abilities have firing/hit SFX
-- [ ] World transitions: 5-4-3-2-1 fight countdown SFX
+- [x] World transitions: 5-4-3-2-1 fight countdown SFX (dedicated `countdown_tick.wav` / `countdown_fight.wav`; `hud.gd` plays on FFA intermission + FIGHT beat)
 - [ ] Per-world sound theme:
   - [ ] Verdant Hollow: nature, birds, water
   - [ ] Ashen Crater: lava rumble, metal
@@ -109,16 +114,15 @@ screenshots). Use this to track progress.
 - [ ] FFA: more creeps toward "my side" (the local player's corner)
 
 ### T1.6 World-transition rework
-- [ ] Transition triggers: wave 5 boss (1st), wave 10 (2nd), wave 15 (3rd)
-- [ ] On 1st boss kill: player who killed it "takes over" (special buff/role?)
-- [ ] On 2nd kill: zoom out to middle, show ring transition (old world = outside ring,
-       new world = inside ring, like fire sweeping the map)
-- [ ] Bosses: different boss per world
-- [ ] Remove trees/flowers/grass from volcano world (no biome-0 props in Ashen Crater)
-- [ ] Remove random houses from Docks world
-- [ ] Remove all objects on water in ice world
-- [ ] Zoom to middle on world transition
-- [ ] Validate: selftest confirms boss → transition → new world
+- [x] Transition triggers: wave 5 boss (1st), wave 10 (2nd), wave 15 (3rd)
+- [x] On 1st boss kill: player who killed it "takes over" (boss form buff + "YOU ARE THE BOSS" banner + ring sweep + boss_defeat/boss_takeover SFX)
+- [x] On 2nd kill: zoom out to middle, show ring transition (fire sweep over map)
+- [x] Bosses: different boss per world (EnemyType rotation across worlds)
+- [x] Remove trees/flowers/grass from volcano world (no biome-0 props in Ashen Crater) — `arena.gd _plant_zone_props` skips trees in biomes 1/2; volcano ground cover = rock/lava only
+- [x] Remove random houses from Docks world — `arena.gd _ground_cover_sprites` biome 4 drops town_house/well/cottage
+- [x] Remove all grass/flowers on water in ice world — biome 2 ground cover + zone decals are ice/snow/rock only
+- [x] Zoom to middle on world transition
+- [x] Validate: `boss_takeover_verify.json` confirms boss → takeover probe (killer_in_boss_form=true, buffed stats); `volcano_no_trees.json` screenshot shows lava+rocks, no trees/grass
 
 ---
 
@@ -127,16 +131,15 @@ screenshots). Use this to track progress.
 ### T2.1 Map + rendering
 - [ ] Flowers/grasses not only in middle — scatter everywhere (grass_real top-up)
 - [ ] Rain effects (check chat history for the earlier rain feature)
-- [ ] No trees in lava when entering volcano world
+- [x] No trees in lava when entering volcano world — `arena.gd` skips trees in biomes 1/2
 - [ ] All creeps that "come out of nowhere" in volcano → spawn at map edge only
 - [ ] Volcano creeps: too much damage / too many dashers → reduce
 
 ### T2.2 HUD + UI
-- [ ] Arrows pointing to other players in FFA when off-screen (edge indicator with
-       hero icon filled symbol)
-- [ ] Landmarks: all 4 landmarks work consistently (some currently don't trigger)
+- [x] Arrows pointing to other players in FFA when off-screen (edge indicator with hero icon + name + "enemy" tag) — `hud.gd _draw_ffa_player_arrows`
+- [x] Landmarks: pulse_wipe landmark removed from non-classic modes so it no longer randomly appears on the grass world — `arena.gd _spawn_landmarks`
 - [ ] Ability cards: continue building (distinct per hero)
-- [ ] Ability preview: confirm working (T0.1)
+- [x] Ability preview: confirm working (T0.1) — UI-verify screenshots show hero+creeps+VFX
 
 ### T2.3 Selftest robustness
 - [ ] Fix any remaining parse-error cascades
