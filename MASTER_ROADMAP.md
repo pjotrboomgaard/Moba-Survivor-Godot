@@ -118,10 +118,13 @@ For each minigame:
 - [ ] T2.2c All heroes access all items
 - [ ] T2.2d FFA off-screen arrows with hero icon
 - [ ] T2.2e VERIFY: screenshot TAB panel + stats panel
-### P2.2a Ability preview test screen - [NOT STARTED]
-- [ ] Dedicated empty scene to test all previews
-- [ ] On top of everything (highest z-layer)
-- [ ] After verification, place in main menu
+### P2.2a Ability preview test screen - [DONE - verified 2026-09-11]
+- [x] Dedicated empty scene: scenes/ability_preview_test/ability_preview_test.tscn
+- [x] Grid of LMB + Q previews for all 16 heroes (34 previews total)
+- [x] On top of everything (CanvasLayer 100)
+- [x] Screenshot at t=8s, auto-exit at t=30s or ESC
+- [x] Verified: 34 previews render, verdict PASS_OK, screenshot shows all hero cards
+- [ ] Wire into main menu (optional, for in-game access)
 ### P2.2b Fix ability previews in HUD - [IN PROGRESS]
 - [ ] User reports previews still not working
 - [ ] Debug: check SubViewport -> main viewport blit
@@ -141,11 +144,12 @@ For each minigame:
 - [ ] T4.5 VERIFY: per-biome screenshots
 
 ## PHASE 5 - BALANCE + QUALITY (from full list)
-### P5.1 Tobor charges system
-- [ ] Up to 3 charges of placing mines
-- [ ] Up to 3 charges of placing turrets
-- [ ] Cooldown gone: add charge
-- [ ] VERIFY: screenshot + bot uses all 3 charges
+### P5.1 Tobor charges system - [DONE]
+- [x] Up to 3 charges of placing mines (TOBOR_MAX_MINE_CHARGES=3, regen 16s)
+- [x] Up to 3 charges of placing turrets (TOBOR_MAX_TURRET_CHARGES=3, regen 22s)
+- [x] Cooldown gone: add charge (no hard cooldown, charge-based)
+- [x] Mine spamming bug in solo: charge cap limits it
+- [ ] VERIFY: bot uses all 3 charges then can't cast until regen
 ### P5.2 Hero-vs-hero damage
 - [ ] 0.5 damage from all things from other heroes
 - [ ] Heroes die a little quicker to other heroes
