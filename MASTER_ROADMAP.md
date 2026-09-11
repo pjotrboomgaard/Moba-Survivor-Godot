@@ -169,6 +169,13 @@ Detailed cinematic transition sub-tasks:
 - [ ] T3.2 Bot survival test across all 16 heroes
 - [ ] T3.3 Minigame bot completion (all 5+)
 - [ ] T3.4 VERIFY: each new request PASS + screenshot
+### P3.1 World editor: all new pixel-art sprites visible + selectable
+- [ ] Lagoon architecture + creature sprites appear in the editor palette (world = Lagoon)
+- [ ] Forest architecture + creature sprites appear in the editor palette (world = Forest)
+- [ ] Mountain architecture + creature sprites appear in the editor palette (world = Mountain)
+- [ ] Town architecture + creature sprites appear in the editor palette (world = Town/Docks)
+- [ ] VERIFY: screenshot of editor palette for each new world shows the sprites
+- [ ] VERIFY: placing a new-area sprite in the editor + save/load round-trip works
 
 ## PHASE 4 - POLISH
 - [ ] T4.1 Rain effects on grass world

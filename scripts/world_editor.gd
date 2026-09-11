@@ -55,6 +55,60 @@ const OBSTACLE_SPEC := {
 	"town_shop": {"radius": 26.0, "lift": 12.0},
 	"town_church": {"radius": 20.0, "lift": 16.0},
 	"town_well": {"radius": 14.0, "lift": 6.0},
+	# --- Lagoon (tropical) architecture ---
+	"lagoon_palm_hut": {"radius": 22.0, "lift": 12.0},
+	"lagoon_fruit_tree": {"radius": 16.0, "lift": 30.0},
+	"lagoon_shrine": {"radius": 16.0, "lift": 10.0},
+	"lagoon_well": {"radius": 14.0, "lift": 6.0},
+	"lagoon_bonfire": {"radius": 12.0, "lift": 4.0},
+	# --- Lagoon (tropical) creatures ---
+	"lagoon_dodo": {"radius": 10.0, "lift": 0.0},
+	"lagoon_flamingo": {"radius": 10.0, "lift": 0.0},
+	"lagoon_parrot": {"radius": 9.0, "lift": 0.0},
+	"lagoon_crab": {"radius": 8.0, "lift": 0.0},
+	"lagoon_fish": {"radius": 8.0, "lift": 0.0},
+	"lagoon_shell": {"radius": 6.0, "lift": 0.0},
+	"lagoon_egg": {"radius": 6.0, "lift": 0.0},
+	"lagoon_palm": {"radius": 14.0, "lift": 32.0},
+	# --- Forest (woodland) architecture ---
+	"forest_hut": {"radius": 20.0, "lift": 12.0},
+	"forest_treehouse": {"radius": 18.0, "lift": 28.0},
+	"forest_stump_shrine": {"radius": 14.0, "lift": 8.0},
+	"forest_well": {"radius": 13.0, "lift": 6.0},
+	"forest_totem": {"radius": 10.0, "lift": 10.0},
+	"forest_bonfire": {"radius": 10.0, "lift": 4.0},
+	"forest_camp": {"radius": 16.0, "lift": 8.0},
+	# --- Forest (woodland) creatures ---
+	"forest_stag": {"radius": 12.0, "lift": 0.0},
+	"forest_owl": {"radius": 9.0, "lift": 0.0},
+	"forest_squirrel": {"radius": 8.0, "lift": 0.0},
+	"forest_wolf": {"radius": 11.0, "lift": 0.0},
+	"forest_fox": {"radius": 9.0, "lift": 0.0},
+	"forest_badger": {"radius": 9.0, "lift": 0.0},
+	"forest_rabbit": {"radius": 7.0, "lift": 0.0},
+	"forest_beetle": {"radius": 6.0, "lift": 0.0},
+	# --- Mountain (alpine) architecture ---
+	"mountain_isometric_hut": {"radius": 20.0, "lift": 12.0},
+	"mountain_igloo": {"radius": 18.0, "lift": 10.0},
+	"mountain_shrine": {"radius": 16.0, "lift": 10.0},
+	"mountain_well": {"radius": 13.0, "lift": 6.0},
+	"mountain_tower": {"radius": 16.0, "lift": 16.0},
+	"mountain_bonfire": {"radius": 10.0, "lift": 4.0},
+	"mountain_cairn": {"radius": 12.0, "lift": 6.0},
+	# --- Mountain (alpine) creatures ---
+	"mountain_goat": {"radius": 11.0, "lift": 0.0},
+	"mountain_yeti": {"radius": 14.0, "lift": 0.0},
+	"mountain_wolf": {"radius": 11.0, "lift": 0.0},
+	"mountain_owl": {"radius": 9.0, "lift": 0.0},
+	"mountain_icebear": {"radius": 16.0, "lift": 0.0},
+	"mountain_lizard": {"radius": 8.0, "lift": 0.0},
+	# --- Town creatures ---
+	"wolf": {"radius": 11.0, "lift": 0.0},
+	"fox": {"radius": 9.0, "lift": 0.0},
+	"raven": {"radius": 8.0, "lift": 0.0},
+	"otter": {"radius": 9.0, "lift": 0.0},
+	"boar": {"radius": 12.0, "lift": 0.0},
+	"golem": {"radius": 14.0, "lift": 0.0},
 }
 
 const TREES := [
@@ -67,6 +121,29 @@ const GRASS := [
 	"grass_flower", "grass_bloom", "flower_patch", "grass_lush", "grass_meadow", "dirt_tile",
 ]
 const THEME := ["lava_chunk", "ice_crystal", "crate_box", "barrel_keg", "bollard", "vent_cap"]
+## Recruit-area / corner-structure sprites available in every biome's palette.
+## These are the pixel-art houses/architecture + creatures for the four
+## recruit areas (Town, Lagoon, Forest, Mountain) plus the Town animals.
+const RECRUIT_AREA_SPRITES := [
+	# Town
+	"town_house", "town_shop", "town_church", "town_well",
+	"wolf", "fox", "raven", "otter", "boar", "golem",
+	# Lagoon
+	"lagoon_palm_hut", "lagoon_fruit_tree", "lagoon_shrine",
+	"lagoon_well", "lagoon_bonfire", "lagoon_palm",
+	"lagoon_dodo", "lagoon_flamingo", "lagoon_parrot",
+	"lagoon_crab", "lagoon_fish", "lagoon_shell", "lagoon_egg",
+	# Forest
+	"forest_hut", "forest_treehouse", "forest_stump_shrine",
+	"forest_well", "forest_totem", "forest_bonfire", "forest_camp",
+	"forest_stag", "forest_owl", "forest_squirrel",
+	"forest_wolf", "forest_fox", "forest_badger", "forest_rabbit", "forest_beetle",
+	# Mountain
+	"mountain_isometric_hut", "mountain_igloo", "mountain_shrine",
+	"mountain_well", "mountain_tower", "mountain_bonfire", "mountain_cairn",
+	"mountain_goat", "mountain_yeti", "mountain_wolf",
+	"mountain_owl", "mountain_icebear", "mountain_lizard",
+]
 const LANDMARK_EFFECTS := ["pulse_wipe", "heal_all", "freeze_time", "phase_cloak", "speed_surge", "battle_frenzy"]
 const ASSET_LABELS := {
 	"tree_oak": "Oak", "tree_round": "Round", "tree_pine": "Pine", "tree_fir": "Fir",
@@ -85,6 +162,19 @@ const ASSET_LABELS := {
 	"factory_stack": "Smokestack", "spark_coil": "Spark coil", "warning_lamp": "Lamp",
 	"docks_wave": "Waves", "lighthouse": "Lighthouse", "dock_lantern": "Lantern",
 	"town_house": "House", "town_shop": "Shop", "town_church": "Church", "town_well": "Well",
+	"lagoon_palm_hut": "Palm hut", "lagoon_fruit_tree": "Fruit tree", "lagoon_shrine": "Lagoon shrine",
+	"lagoon_well": "Lagoon well", "lagoon_bonfire": "Lagoon fire", "lagoon_palm": "Palm",
+	"lagoon_dodo": "Dodo", "lagoon_flamingo": "Flamingo", "lagoon_parrot": "Parrot",
+	"lagoon_crab": "Crab", "lagoon_fish": "Fish", "lagoon_shell": "Shell", "lagoon_egg": "Egg",
+	"forest_hut": "Forest hut", "forest_treehouse": "Treehouse", "forest_stump_shrine": "Stump shrine",
+	"forest_well": "Forest well", "forest_totem": "Totem", "forest_bonfire": "Forest fire", "forest_camp": "Camp",
+	"forest_stag": "Stag", "forest_owl": "Owl", "forest_squirrel": "Squirrel", "forest_wolf": "F- wolf",
+	"forest_fox": "Fox", "forest_badger": "Badger", "forest_rabbit": "Rabbit", "forest_beetle": "Beetle",
+	"mountain_isometric_hut": "M- hut", "mountain_igloo": "Igloo", "mountain_shrine": "M- shrine",
+	"mountain_well": "M- well", "mountain_tower": "Tower", "mountain_bonfire": "M- fire", "mountain_cairn": "Cairn",
+	"mountain_goat": "Goat", "mountain_yeti": "Yeti", "mountain_wolf": "M- wolf", "mountain_owl": "M- owl",
+	"mountain_icebear": "Ice bear", "mountain_lizard": "Lizard",
+	"wolf": "Wolf", "fox": "Town fox", "raven": "Raven", "otter": "Otter", "boar": "Boar", "golem": "Golem",
 	"landmark": "Landmark", "erase": "Erase",
 }
 
@@ -1498,6 +1588,9 @@ func _rebuild_palette() -> void:
 		ids.append_array(kit.get("theme", []))
 		ids.append_array(kit.get("anim", []))
 		_palette_list.add_child(_palette_section(str(kit.get("name", "World")), ids))
+	# Recruit-area sprites (houses/creatures for Town, Lagoon, Forest, Mountain)
+	# are available in every world so the user can place them in any biome.
+	_palette_list.add_child(_palette_section("Recruit areas", RECRUIT_AREA_SPRITES))
 	_palette_list.add_child(_palette_section("Tools", ["landmark", "erase"]))
 	if not _palette_buttons.has(_tool):
 		var trees := current_trees()
@@ -1535,6 +1628,8 @@ func _make_palette_button(sprite_id: String) -> Button:
 	var tex := SpriteLibrary.texture_for(sprite_id)
 	if tex == null and WorldFeatureArtScript.is_feature(sprite_id):
 		tex = WorldFeatureArtScript.preview_texture(sprite_id)
+	if tex == null:
+		tex = SideQuestArt.texture(sprite_id)
 	if tex != null:
 		b.icon = tex
 		b.expand_icon = true

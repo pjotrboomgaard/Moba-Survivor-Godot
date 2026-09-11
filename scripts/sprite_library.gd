@@ -21,6 +21,10 @@ static func texture_for(sprite_name: String) -> Texture2D:
 		texture = _load_png("tw_%s" % sprite_name)
 	if texture == null and keyed != sprite_name:
 		texture = _load_png(sprite_name)
+	if texture == null:
+		# Recruit-area / creature / pixel-art architecture sprites are generated
+		# by SideQuestArt (procedural pixel art), not loaded from PNG files.
+		texture = SideQuestArt.texture(sprite_name)
 	_cache[keyed] = texture
 	return texture
 
