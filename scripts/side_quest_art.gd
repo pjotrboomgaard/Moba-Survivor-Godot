@@ -26,6 +26,7 @@ const _P := {
 	"O": "c8d4de",  # snow / ice light
 	"W": "a8b8c8",  # snow / ice mid
 	"V": "3a2a1a",  # mountain wood (hut beams)
+	"z": "ff9a3d",  # coral / warm accent (crab shell, fruit, coral)
 }
 
 
@@ -99,13 +100,13 @@ static func _rows(id: String, frame: int) -> Array:
 			return _SCORCH_ROCK
 		# ---- Lagoon (tropical) ----
 		"lagoon_dodo":
-			return _LAGOON_DODO
+			return _LAGOON_DODO_B if frame % 2 == 1 else _LAGOON_DODO_A
 		"lagoon_flamingo":
 			return _LAGOON_FLAMINGO
 		"lagoon_parrot":
 			return _LAGOON_PARROT
 		"lagoon_fish":
-			return _LAGOON_FISH
+			return _LAGOON_FISH_B if frame % 2 == 1 else _LAGOON_FISH_A
 		"lagoon_crab":
 			return _LAGOON_CRAB
 		"lagoon_egg":
@@ -130,7 +131,7 @@ static func _rows(id: String, frame: int) -> Array:
 		"forest_stag":
 			return _FOREST_STAG
 		"forest_fox":
-			return _FOREST_FOX
+			return _FOREST_FOX_B if frame % 2 == 1 else _FOREST_FOX_A
 		"forest_badger":
 			return _FOREST_BADGER
 		"forest_rabbit":
@@ -150,10 +151,10 @@ static func _rows(id: String, frame: int) -> Array:
 		"forest_totem":
 			return _FOREST_TOTEM
 		"forest_bonfire":
-			return _FOREST_BONFIRE
+			return _FOREST_BONFIRE_B if frame % 2 == 1 else _FOREST_BONFIRE_A
 		# ---- Mountain (alpine) ----
 		"mountain_yeti":
-			return _MOUNTAIN_YETI
+			return _MOUNTAIN_YETI_B if frame % 2 == 1 else _MOUNTAIN_YETI_A
 		"mountain_goat":
 			return _MOUNTAIN_GOAT
 		"mountain_owl":
@@ -167,7 +168,7 @@ static func _rows(id: String, frame: int) -> Array:
 		"mountain_cairn":
 			return _MOUNTAIN_CAIRN
 		"mountain_icestorm":
-			return _MOUNTAIN_ICESTORM
+			return _MOUNTAIN_ICESTORM_B if frame % 2 == 1 else _MOUNTAIN_ICESTORM_A
 		"mountain_isometric_hut":
 			return _MOUNTAIN_ISOMETRIC_HUT
 		"mountain_igloo":
@@ -834,48 +835,884 @@ const _SCORCH_ROCK := [
 # still show "something themed" until the real art lands.
 # ============================================================
 
-# Lagoon — birds/animals use the raven silhouette, structures use the palm.
-const _LAGOON_DODO := _RAVEN
-const _LAGOON_FLAMINGO := _OTTER
-const _LAGOON_PARROT := _RAVEN
-const _LAGOON_FISH := _FLOCK
-const _LAGOON_CRAB := _WOLF
-const _LAGOON_EGG := _COIN
-const _LAGOON_SHELL := _COIN
-const _LAGOON_PALM_HUT := _LAGOON_PALM
-const _LAGOON_FRUIT_TREE := _LAGOON_PALM
-const _LAGOON_SHRINE := _SCORCH_ROCK
-const _LAGOON_WELL := _SCORCH_ROCK
-const _LAGOON_BONFIRE := _SCORCH_ROCK
+# ---- Lagoon: creatures ----
+## Dodo: plump cream bird with a pale crest, blue beak, and a little crest puff.
+## 2-frame walk: A has feet tucked, B has legs spread.
+const _LAGOON_DODO_A := [
+	"................",
+	".......ww.......",
+	".....wwwww......",
+	"....wwwwww......",
+	"...wwwwwww......",
+	"...wbwwwww......",
+	"...wwwwwwww.....",
+	"..wwwwwwwwww....",
+	"..wwwwwwwwww....",
+	"...wwwwwwww.....",
+	"....wwwwww......",
+	"......ww........",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+const _LAGOON_DODO_B := [
+	"................",
+	".......ww.......",
+	".....wwwww......",
+	"....wwwwww......",
+	"...wwwwwww......",
+	"...wbwwwww......",
+	"...wwwwwwww.....",
+	"..wwwwwwwwww....",
+	"..wwwwwwwwww....",
+	"...wwwwwwww.....",
+	"....wwwwww......",
+	"......ww........",
+	"....w...w.......",
+	"................",
+	"................",
+	"................",
+]
+## Flamingo: tall coral-pink bird with a long curved neck and one raised leg.
+const _LAGOON_FLAMINGO := [
+	"................",
+	".....ff.........",
+	"....fff.........",
+	"....f.f.........",
+	"....f.f.........",
+	"...f..f.........",
+	"..fff..f........",
+	".fffffff........",
+	".ffffff.........",
+	"..ffff..........",
+	"...ffff.........",
+	"....ff..........",
+	"....ff..........",
+	"....f...f.......",
+	"................",
+	"................",
+]
+## Parrot: small multi-coloured tropical bird — green body, blue wing, red beak.
+const _LAGOON_PARROT := [
+	"................",
+	".......CC.......",
+	"......CCbb......",
+	".....Cbbbb......",
+	"....Cbbbbrr.....",
+	"....bbbb...r....",
+	"....Cbbbb.......",
+	".....bbbb.......",
+	"......bbbb......",
+	".......bb.......",
+	"......CC........",
+	".....CC.........",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Fish A: a small tropical fish with a big tail fin (tail up).
+const _LAGOON_FISH_A := [
+	"................",
+	"................",
+	"....ee..........",
+	"...eeee.........",
+	"..eeeeee.e......",
+	".ebwwwee.ee.....",
+	".eeeeeeeeee.....",
+	".eeeeee.eee.....",
+	"..eeee.eee......",
+	"...eeee.........",
+	"....ee..........",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Fish B: tail flipped down for the second frame.
+const _LAGOON_FISH_B := [
+	"................",
+	"................",
+	"....ee..........",
+	"...eeee.........",
+	"..eeeeee........",
+	".ebwwweeeee.....",
+	".eeeeeeeeee.....",
+	".eeeeee.ee......",
+	"..eeee.ee.......",
+	"...eeee.........",
+	"....ee..........",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Crab: wide coral-red body with two claw pincers and short legs.
+const _LAGOON_CRAB := [
+	"................",
+	"................",
+	"................",
+	"..z.....z.......",
+	".zz.....zz......",
+	"..z.....z.......",
+	".zzzzzzzzz......",
+	".zwwzzzzwz......",
+	".zwwzzzzwz......",
+	".zzzzzzzzz......",
+	"..z..z..z.......",
+	"..z..z..z.......",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Egg: a single speckled tropical egg.
+const _LAGOON_EGG := [
+	"................",
+	"................",
+	"................",
+	"................",
+	".......ww.......",
+	"......www.......",
+	".....wwwww......",
+	"....wwwww.......",
+	"....wwwwww......",
+	"....wwwww.......",
+	"....wwww........",
+	".....wwww.......",
+	"......ww........",
+	"................",
+	"................",
+	"................",
+]
+## Shell: a fan-shaped tropical scallop shell with ridges.
+const _LAGOON_SHELL := [
+	"................",
+	"................",
+	"................",
+	"................",
+	".....wwww.......",
+	"....wEwwwEw.....",
+	"...wEwwwwwwEw...",
+	"...wEwwwwwwEw...",
+	"..wEwEwEwEwEw...",
+	"..wEwEwEwEwEw...",
+	"...wwwwwwww.....",
+	"....wwwwww......",
+	".....wwww.......",
+	"......ww........",
+	"................",
+	"................",
+]
+## Palm hut: a stilted tropical hut with a thatched palm roof and reed stilts.
+const _LAGOON_PALM_HUT := [
+	"................",
+	"......nnnn......",
+	".....nkkkn......",
+	"....nkkkkkn.....",
+	"...nkkkkkkkn....",
+	"..nkkkkkkkkkn...",
+	"...eeeeeeee.....",
+	"...e.jjjj.j.....",
+	"...j.j...j.j....",
+	"...j.j...j.j....",
+	"...j.j...j.j....",
+	"..jj.jj.jj.jj...",
+	"...j.j...j.j....",
+	"...j.j...j.j....",
+	"..jj.jj.jj.jj...",
+	"................",
+]
+## Fruit tree: a tropical tree with a broad canopy and a few hanging fruit.
+const _LAGOON_FRUIT_TREE := [
+	"................",
+	"....EEEEE.......",
+	"...EEEEEEE......",
+	"..EEEEEEEE..u...",
+	"..EEEEEE.u.u....",
+	"..EEEEEE.uu.....",
+	"...EEEEEE.......",
+	"....EEEEE.......",
+	"......nn........",
+	".....nnnn.......",
+	"......nn........",
+	"......nn........",
+	"....nnnnnn......",
+	"................",
+	"................",
+	"................",
+]
+## Lagoon shrine: a small stone shrine with a water basin and a glowing totem.
+const _LAGOON_SHRINE := [
+	"................",
+	"................",
+	".......ss.......",
+	"......sccs......",
+	".......ss.......",
+	"....ssssss......",
+	"...s......s.....",
+	"...s.oo..s......",
+	"...s.oo..s......",
+	"...s.oo..s......",
+	"...s......s.....",
+	"....ssssss......",
+	"....ssssss......",
+	"...eeeeeee......",
+	"...eccccce......",
+	"................",
+]
+## Lagoon well: a stone well with a wooden roof and a rope.
+const _LAGOON_WELL := [
+	"................",
+	"......nnnn......",
+	".....nkkkn......",
+	"....nkkkkkn.....",
+	"......nnnn......",
+	".....n..n.......",
+	"....s..s........",
+	"....s..s........",
+	"....sss.s.......",
+	"....s.s.s.......",
+	"....s..s.s......",
+	"....s..s.s......",
+	"....sss.s.......",
+	"....s..s........",
+	"....s..s........",
+	"....eeeeee......",
+]
+## Lagoon bonfire: a small beach campfire with coral embers.
+const _LAGOON_BONFIRE := [
+	"................",
+	"................",
+	"................",
+	"................",
+	".......mm.......",
+	"......mzzm......",
+	".....mzzmz......",
+	"......mmm.......",
+	"....nnnnnn......",
+	"....n.nnn.n.....",
+	"....n..n..n.....",
+	".....n..n.......",
+	"......nn........",
+	"................",
+	"................",
+	"................",
+]
 
-# Forest — woodland creatures reuse wolf/fox, structures reuse the forest camp.
-const _FOREST_OWL := _RAVEN
-const _FOREST_WOLF := _WOLF
-const _FOREST_STAG := _BOAR
-const _FOREST_FOX := _FOX
-const _FOREST_BADGER := _OTTER
-const _FOREST_RABBIT := _FOX
-const _FOREST_SQUIRREL := _FOX
-const _FOREST_BEETLE := _WOLF
-const _FOREST_HUT := _FOREST_CAMP
-const _FOREST_TREEHOUSE := _FOREST_CAMP
-const _FOREST_STUMP_SHRINE := _SCORCH_ROCK
-const _FOREST_WELL := _SCORCH_ROCK
-const _FOREST_TOTEM := _SCORCH_ROCK
-const _FOREST_BONFIRE := _SCORCH_ROCK
+# ---- Forest: creatures ----
+## Owl: a round brown woodland owl with big amber eyes and ear tufts.
+const _FOREST_OWL := [
+	"................",
+	"................",
+	"....j....j......",
+	"...jjjjjjj......",
+	"..jjjjjjjjj.....",
+	"..jjyjjjjyj.....",
+	"..jjyjjjjyj.....",
+	"...jjjjjjj......",
+	"..jCCCCCCj......",
+	"..jCCCCCCj......",
+	"...jCCCCjj......",
+	"....jjjjjj......",
+	".....j..j.......",
+	"....jj..jj......",
+	"................",
+	"................",
+]
+## Forest wolf: a slate-grey wolf — same species as the town wolf but a colder,
+## blue-grey coat to read as "wild".
+const _FOREST_WOLF := [
+	"................",
+	"..M....MM.......",
+	".MM..MMMMM......",
+	".M.MMWMMMM......",
+	"..MMMMMMMM......",
+	"..MMMMMMMMM.....",
+	"...MMMMMMMM.....",
+	"...MM..MM..M....",
+	"....MM.M.MM.....",
+	"....M...M..M....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Stag: a deer with a tan body and large branching antlers.
+const _FOREST_STAG := [
+	"................",
+	".J..........J...",
+	".JJ..........JJ.",
+	".J.J....J....J..",
+	".JJ....JJJJ.....",
+	"...JJJJJJJJ.....",
+	"..JJWWWJJJJ.....",
+	".JJJJJJJJJJ.....",
+	".JJJJJJJJJJJ....",
+	".JJ..JJ..JJ.....",
+	".JJ..JJ..JJ.....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Fox A: a woodland fox with a bushy white-tipped tail.
+const _FOREST_FOX_A := [
+	"................",
+	"..r....r........",
+	".rr..rrr........",
+	".rrrwwrr........",
+	"..rryrrr........",
+	"..rrrrrr........",
+	"...rrrrrr.......",
+	"...rr..rr.......",
+	"....r..r........",
+	"...rr..rr.......",
+	"..r..rr..r......",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Fox B: tail raised for the second walk frame.
+const _FOREST_FOX_B := [
+	"................",
+	"..r....r........",
+	".rr..rrr........",
+	".rrrwwrr........",
+	"..rryrrr........",
+	"..rrrrrr........",
+	"...rrrrrr.......",
+	"...rr..rr.......",
+	"....r..r........",
+	"...rr..rr.......",
+	".r...rr...r.....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Badger: a stocky grey-brown animal with a white face stripe.
+const _FOREST_BADGER := [
+	"................",
+	"................",
+	"................",
+	"..j....j........",
+	".jjjjjjjjj......",
+	".jwwjjjjwj......",
+	".jjjjjjjjjj.....",
+	".jwwjjjjwwj.....",
+	".jjjjjjjjjj.....",
+	".jj..jj..jj.....",
+	".jj..jj..jj.....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Rabbit: a small brown rabbit with long ears.
+const _FOREST_RABBIT := [
+	"................",
+	"....J...J.......",
+	"....JJ.JJ.......",
+	"....JwJwJ.......",
+	"...JwJwJwJ......",
+	"...JwwwwwJ......",
+	"...JwwwwwJ......",
+	"....JwwwJ.......",
+	".....JwJ........",
+	"....J...J.......",
+	"....J...J.......",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Squirrel: a small red-brown squirrel with a big curved tail.
+const _FOREST_SQUIRREL := [
+	"................",
+	"......J.........",
+	".....JJJ........",
+	"....JJJJ....J...",
+	"....JJwwJJ.JJ...",
+	"....JJwwJJJJ....",
+	".....JJJJJJ.....",
+	"......JJJJ......",
+	".....JJ.JJ......",
+	"....JJ...JJ.....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Beetle: a dark rounded beetle with a split shell and legs.
+const _FOREST_BEETLE := [
+	"................",
+	"................",
+	"................",
+	"................",
+	".....dddddd.....",
+	"....dd.dddd.....",
+	"...dd.dd.ddd....",
+	"...dddddddd.....",
+	"...dd.dd.ddd....",
+	"....dd.dddd.....",
+	".....dddddd.....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Woodcutter cabin: a log cabin with a stone chimney and a door.
+const _FOREST_HUT := [
+	"................",
+	"......nnn.......",
+	"....nnnnnn......",
+	"...nnnnnnnn.....",
+	"..JhJhJhJhJ.....",
+	".JhJhJhJhJhJ....",
+	".JhJhJhJhJhJ....",
+	".JhJhHJhJhJ.....",
+	".JhJhHJhJhJ.....",
+	".JhJhJhJhJhJ....",
+	"..ggggggggg.....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Tree hollow: a tree with a dark round doorway carved into the trunk.
+const _FOREST_TREEHOUSE := [
+	"................",
+	"................",
+	"....CCCCC.......",
+	"..CCCCCCCCC.....",
+	".CCCCCCCCCCC....",
+	".CCCCCCCCCC C...",
+	"..CCCCCCCCC.....",
+	"....nnnnnn......",
+	"...nnHHHHnn.....",
+	"...nnH..Hnn.....",
+	"...nnH..Hnn.....",
+	"...nnHHHHnn.....",
+	"...nnnnnnnn.....",
+	"....nnnnnn......",
+	"................",
+	"................",
+	"................",
+]
+## Mushroom ring: a fairy ring of small mushrooms on grass.
+const _FOREST_STUMP_SHRINE := [
+	"................",
+	"................",
+	"................",
+	"................",
+	"...rr...rr......",
+	"..rwr...rwr.....",
+	"..rwr...rwr.....",
+	"...rr...rr......",
+	"rr......rr......",
+	"rwr.....rwr.....",
+	"rwr.....rwr.....",
+	"rr......rr......",
+	"..gggggggggg....",
+	"................",
+	"................",
+	"................",
+]
+## Forest well: a rustic stone well with a roof and a pulley.
+const _FOREST_WELL := [
+	"................",
+	"......nnnn......",
+	".....nkkkn......",
+	"....nkkkkkn.....",
+	"......nnnn......",
+	".....n..n.......",
+	"....s..s........",
+	"....s..s........",
+	"....sss.s.......",
+	"....s.s.s.......",
+	"....s..s.s......",
+	"....s..s.s......",
+	"....sss.s.......",
+	"....s..s........",
+	"....s..s........",
+	"....CCCCCC......",
+]
+## Totem post: a tall carved wooden totem with a face.
+const _FOREST_TOTEM := [
+	"................",
+	"....hhhhhh......",
+	"....hwhhwh......",
+	"....hhhhhh......",
+	"....hyyyyh......",
+	"....hhhhhh......",
+	"....hwwwwh......",
+	"....hhhhhh......",
+	"....hwhhwh......",
+	"....hhhhhh......",
+	"....hyyyyh......",
+	"....hhhhhh......",
+	"....hhhhhh......",
+	"................",
+	"................",
+	"................",
+]
+## Forest bonfire A: a flickering campfire — flames leaning left, logs below.
+const _FOREST_BONFIRE_A := [
+	"................",
+	"................",
+	"................",
+	".......mm.......",
+	"......mzm.......",
+	".....mmzmz......",
+	"....zzmzmz......",
+	".....mmm........",
+	"....nnnnnn......",
+	"....n.nnn.n.....",
+	"....n..n..n.....",
+	".....n..n.......",
+	"......nn........",
+	"................",
+	"................",
+	"................",
+]
+## Forest bonfire B: flames leaning right for the flicker frame.
+const _FOREST_BONFIRE_B := [
+	"................",
+	"................",
+	"................",
+	"......mm........",
+	".....mzm........",
+	"....mzmmz.......",
+	"....zmmzmz......",
+	".....mmm........",
+	"....nnnnnn......",
+	"....n.nnn.n.....",
+	"....n..n..n.....",
+	".....n..n.......",
+	"......nn........",
+	"................",
+	"................",
+	"................",
+]
 
-# Mountain — alpine creatures reuse the golem for the heavy hitters.
-const _MOUNTAIN_YETI := _GOLEM
-const _MOUNTAIN_GOAT := _BOAR
-const _MOUNTAIN_OWL := _RAVEN
-const _MOUNTAIN_ICEBEAR := _GOLEM
-const _MOUNTAIN_WOLF := _WOLF
-const _MOUNTAIN_LIZARD := _WOLF
-const _MOUNTAIN_CAIRN := _SCORCH_ROCK
-const _MOUNTAIN_ICESTORM := _SCORCH_ROCK
-const _MOUNTAIN_ISOMETRIC_HUT := _SCORCH_ROCK
-const _MOUNTAIN_IGLOO := _SCORCH_ROCK
-const _MOUNTAIN_SHRINE := _SCORCH_ROCK
-const _MOUNTAIN_WELL := _SCORCH_ROCK
-const _MOUNTAIN_BONFIRE := _SCORCH_ROCK
-const _MOUNTAIN_TOWER := _SCORCH_ROCK
+# ---- Mountain: creatures ----
+## Yeti A: a big shaggy white creature crouched low, head tucked.
+const _MOUNTAIN_YETI_A := [
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+	"....wwwwww......",
+	"...wwwwwwwww....",
+	"..wwowwwwwwow...",
+	"..wwwwwwwwwww...",
+	"..wwwwwwwwwww...",
+	".wwwwwwwwwwwww..",
+	".www..www..ww...",
+	".ww....ww....w..",
+	"................",
+	"................",
+	"................",
+]
+## Yeti B: yeti upright, head raised, standing taller.
+const _MOUNTAIN_YETI_B := [
+	"................",
+	".....wwww.......",
+	"....wwwwww......",
+	"....wwooww......",
+	"....wwwwww......",
+	"....wwwwww......",
+	"...wwwwwwwww....",
+	"..wwwwwwwwwww...",
+	"..wwwwwwwwwww...",
+	".wwwwwwwwwwwww..",
+	".wwwwwwwwwwwww..",
+	".www..www..ww...",
+	".ww....ww....w..",
+	"................",
+	"................",
+	"................",
+]
+## Mountain goat: a sure-footed goat with curved horns.
+const _MOUNTAIN_GOAT := [
+	"................",
+	"..O...O.........",
+	"..O..OO.........",
+	"..OOOOO.........",
+	"...OOOO.........",
+	"....OOOOO.......",
+	"...OOOOOOOO.....",
+	"..OOOOOOOOOO....",
+	"..OO.OO..OO.O...",
+	"..OO.OO..OO.....",
+	"..OO.OO..OO.....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Mountain owl: a snowy grey-brown raptor perched, big amber eyes.
+const _MOUNTAIN_OWL := [
+	"................",
+	"...M....M.......",
+	"..MMMMMM........",
+	".MMMMMMMMM......",
+	".MMAMMMAAM......",
+	".MMAMMMAAM......",
+	"..MMMMMMMM......",
+	"..MWWWWWWWM.....",
+	"..MWWWWWWWM.....",
+	"...MWWWWWM......",
+	"....MMMMMM......",
+	".....M..M.......",
+	"....MM..MM......",
+	"................",
+	"................",
+	"................",
+]
+## Ice bear: a large white polar bear.
+const _MOUNTAIN_ICEBEAR := [
+	"................",
+	"................",
+	"...wwww.........",
+	"..wwwwww........",
+	".wwwowwwww......",
+	".wwwwwwwwww.....",
+	".wwwwwwwwwwww...",
+	".wwwwwwwwwwww...",
+	".wwwwwwwwwwww...",
+	".ww..ww..ww.....",
+	".ww..ww..ww.....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Mountain wolf: a white-furred wolf.
+const _MOUNTAIN_WOLF := [
+	"................",
+	"..w....ww.......",
+	".ww..wwwww......",
+	".w.wwwwwww......",
+	"..wwwwwwww......",
+	"..wwwwwwwww.....",
+	"...wwwwwwww.....",
+	"...ww..ww..w....",
+	"....ww.w.ww.....",
+	"....w...w..w....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Ice lizard: a small blue-green cold-blooded reptile.
+const _MOUNTAIN_LIZARD := [
+	"................",
+	"................",
+	"................",
+	"................",
+	"....E....E......",
+	"...EE....EE.....",
+	"....EEEEEE......",
+	"...EEEEEEEE.....",
+	"..EEEEEEEEEE....",
+	"..EE..EE..EE....",
+	"..EE..EE..EE....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Cairn: a stacked pile of alpine stones with a flag.
+const _MOUNTAIN_CAIRN := [
+	"................",
+	"......r.........",
+	"....rrrr........",
+	".......s........",
+	".....sss........",
+	"....ssss........",
+	"...ssssss.......",
+	"..ssssssss......",
+	".ssssssssss.....",
+	"....ssss........",
+	"...ssssss.......",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Ice storm A: a swirling snowstorm vortex (spinning left).
+const _MOUNTAIN_ICESTORM_A := [
+	"................",
+	"....c.........c.",
+	"...cc.......cc..",
+	"..c..cc...cc....",
+	".cc....ww....c..",
+	"..c..wwww....c..",
+	"...cc.wWWw.cc...",
+	"....cc.wWw.cc...",
+	"......ccwwcc....",
+	".....cc...cc....",
+	"....c.......c...",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Ice storm B: vortex spun to the opposite side.
+const _MOUNTAIN_ICESTORM_B := [
+	"................",
+	".c.........c....",
+	"..cc.......cc...",
+	"....cc...c..c...",
+	"..c....ww....cc.",
+	"..c....wwww...c.",
+	"...cc.wWWw.cc...",
+	"...cc.wWw.cc....",
+	"....ccwwcc......",
+	"....cc...cc.....",
+	"...c.......c....",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Isometric stone hut: a diamond-roofed alpine hut (isometric).
+const _MOUNTAIN_ISOMETRIC_HUT := [
+	"................",
+	".......OO.......",
+	".....OOOOWW.....",
+	"...OOOOWWWWW....",
+	"...OOWWWWWWW....",
+	"..NNNWWWWWWNN...",
+	"..NVVVVVVVVVN...",
+	"..NVVwVVVVVVN...",
+	"..NVVVVVVVVVN...",
+	"...NNVVVVVN.....",
+	"....NNNNNN......",
+	"................",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Igloo: a smooth white dome.
+const _MOUNTAIN_IGLOO := [
+	"................",
+	"................",
+	"................",
+	"......OOOO......",
+	"....OOOOOOOO....",
+	"...OOOOOOOOOO...",
+	"..OOOOWWWWWOOO..",
+	"..OOWWWWWWWWWO..",
+	".OOWWWWWWWWWWWO.",
+	".OOWWWWwwWWWWOO.",
+	".OWWWWWWWWWWWWO.",
+	"..OOOOOOOOOOOO..",
+	"...OOOOOOOOOO...",
+	"....OOOOOOOO....",
+	"................",
+	"................",
+]
+## Mountain shrine: a stone cairn-shrine with glowing runes.
+const _MOUNTAIN_SHRINE := [
+	"................",
+	"................",
+	".......yy.......",
+	"......syyss.....",
+	".....ssssss.....",
+	"....ss....ss....",
+	"....s.ll.lls....",
+	"....s.ll.lls....",
+	"....s.ll.lls....",
+	"....s.ll.lls....",
+	"....ss....ss....",
+	".....ssssss.....",
+	"....ssssssss....",
+	"................",
+	"................",
+	"................",
+]
+## Mountain well: an ice-rimmed stone well.
+const _MOUNTAIN_WELL := [
+	"................",
+	"......OOOO......",
+	"....OOOOOOOO....",
+	"...OOWWWWWWWO...",
+	"...OWWWWWWWWWO..",
+	"....NWWWWWWWN...",
+	"....NWWwwWWWN...",
+	"....NWWWWWWWN...",
+	"....NWWWWWWWN...",
+	"....NWWwwWWWN...",
+	"....NWWWWWWWN...",
+	".....NNNNNN.....",
+	"................",
+	"................",
+	"................",
+	"................",
+]
+## Mountain bonfire: a cold-snow-bordered campfire.
+const _MOUNTAIN_BONFIRE := [
+	"................",
+	"................",
+	"................",
+	".......mm.......",
+	"......mzzm......",
+	".....mzzmz......",
+	"......mmm.......",
+	"....nnnnnn......",
+	"....n.nnn.n.....",
+	"....n..n..n.....",
+	".....n..n.......",
+	"......nn........",
+	"....OOOOOO......",
+	"................",
+	"................",
+	"................",
+]
+## Lookout tower: a tall wooden watchtower on a rock base.
+const _MOUNTAIN_TOWER := [
+	"................",
+	"....VVVVVV......",
+	"....VwVVwV......",
+	"....VVVVVV......",
+	"...V......V.....",
+	"...V..VV..V.....",
+	"...V......V.....",
+	"...V..VV..V.....",
+	"...V......V.....",
+	"...V..VV..V.....",
+	"...VV....VV.....",
+	"...VVVVVVVV.....",
+	"..NNNNNNNNN.....",
+	".NNNNNNNNNNNN...",
+	"................",
+	"................",
+]

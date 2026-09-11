@@ -1,0 +1,27 @@
+{
+  "hero": "arclight",
+  "mode": "solo_survival",
+  "comment": "Verify themed recruit-area pixel art (Builder A): each corner shows a themed structure (palm/camp/spire) + 2 idle recruit creatures. Pin the hero to each of the 4 recruit areas long enough to BOND (BOND_SECONDS=3) so the creatures convert to friendly_minions with the area art id, then snap. Expect 4 distinct recruit arts: wolf, otter, boar, golem. FAIL_NO_PROGRESS verdict expected (short run).",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 0.5, "kind": "snap", "label": "boot"},
+    {"t": 1.0, "kind": "probe", "label": "before"},
+    {"t": 1.5, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.2, "kind": "probe", "label": "after_town"},
+    {"t": 5.6, "kind": "snap", "label": "town_area"},
+    {"t": 5.8, "kind": "unpin"},
+    {"t": 6.0, "kind": "pin", "to": [-2520.0, 1680.0]},
+    {"t": 9.7, "kind": "probe", "label": "after_lagoon"},
+    {"t": 10.1, "kind": "snap", "label": "lagoon_area"},
+    {"t": 10.3, "kind": "unpin"},
+    {"t": 10.5, "kind": "pin", "to": [2520.0, -1680.0]},
+    {"t": 14.2, "kind": "probe", "label": "after_forest"},
+    {"t": 14.6, "kind": "snap", "label": "forest_area"},
+    {"t": 14.8, "kind": "unpin"},
+    {"t": 15.0, "kind": "pin", "to": [2520.0, 1680.0]},
+    {"t": 18.7, "kind": "probe", "label": "after_scorch"},
+    {"t": 19.1, "kind": "snap", "label": "scorch_area"},
+    {"t": 19.3, "kind": "unpin"},
+    {"t": 19.8, "kind": "report"}
+  ]
+}
