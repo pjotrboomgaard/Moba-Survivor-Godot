@@ -32,6 +32,29 @@ func get_ghosts() -> Array:
 	return _ghosts
 
 
+## Pick a ghost type from the SAME pool the wave director has already unlocked at
+## the current wave, so the edge trickle reinforces (rather than outpaces) the
+## director's gradual introduction. Falls back to GHOST_TYPES when the wave is
+## unknown or no type is unlocked yet.
+func _pick_wave_gated_type() -> String:
+	var wave := 1
+	if _main != null and _main.get("current_wave") != null:
+		wave = maxi(1, int(_main.get("current_wave")))
+	var unlocked: Array[String] = []
+	for type_data in EnemyType.spawnable_for_wave(wave):
+		var id := str(type_data.id)
+		# Only count the "normal" melee/ranged pool types the director actually
+		# spawns for its waves — exclude boss/elite-only and biome-exclusive.
+		if bool(type_data.get("is_boss", false)):
+			continue
+		if bool(type_data.get("world_exclusive", false)):
+			continue
+		unlocked.append(id)
+	if unlocked.is_empty():
+		return str(GHOST_TYPES.pick_random())
+	return str(unlocked.pick_random())
+
+
 func bind(main_node: Node) -> void:
 	_main = main_node
 	if _main != null:
@@ -85,12 +108,17 @@ func _spawn_rate_per_second() -> float:
 	var wave := 1
 	if _main != null:
 		wave = maxi(1, int(_main.get("current_wave")))
-	var wave_factor := 1.0 + 0.08 * float(wave - 1)
+	# Early waves keep the edge trickle light so the wave director's focused
+	# groups are the main thing the player faces (the user complained about "many
+	# different creeps from the start"). The trickle builds up with the wave so
+	# later fights stay busy, but waves 1-5 read as the director's clean intro.
+	var base_rate := 0.4 + 0.22 * float(wave - 1)
+	var wave_factor := 1.0 + 0.06 * float(wave - 1)
 	var player_count := 1
 	if _main != null:
 		player_count = maxi(1, (_main.get("players") as Dictionary).size())
 	var player_factor := 1.0 + 0.25 * float(player_count - 1)
-	return 1.4 * wave_factor * player_factor
+	return base_rate * wave_factor * player_factor
 
 
 ## Per-player ghost budget so the trickle is distributed evenly instead of all
@@ -100,7 +128,11 @@ var _ghost_rr_index := 0
 
 
 func _spawn_one_ghost() -> void:
-	var type_id: String = str(GHOST_TYPES.pick_random())
+	# Pick from the SAME pool the wave director is currently spawning, so the
+	# edge trickle never introduces a type the wave hasn't unlocked yet. Early
+	# waves stay focused on grunts/swarmlings; spitters/brutes/chargers only
+	# start trickling in once the wave director has introduced them.
+	var type_id := _pick_wave_gated_type()
 	var speed: float = float(EnemyType.field(type_id, "movement_speed"))
 	if speed <= 0.0:
 		speed = 90.0

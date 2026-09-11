@@ -96,34 +96,38 @@ func _write(id: String, rows: Array) -> void:
 	print("Wrote %s (%dx%d)" % [path, width, height])
 
 
-## House (ref 1): steep thatched A-frame with a central ridge beam, grey chimney,
-## stone base, red arched double-door, two curtained windows, round gable window.
+## House (ref 1): detailed thatched A-frame, 22 wide x 26 tall. Rich roof thatch
+## texture with layered shading (t/T/y), central ridge + chimney with smoke, two
+## curtained windows with glint, red arched double-door with handle, stone foundation
+## with visible masonry joints, and side-wall depth shading (N/F shadows).
 const _S_HOUSE := [
-	".........OO......",
-	".........OO......",
-	".......ttt.OO....",
-	".......tttOOO....",
-	"......ttttttt....",
-	"...tttt.Tttt.tt..",
-	"...tttttttttttt..",
-	"..tTttt.Tttt.tTt.",
-	"..tttttttttttttt.",
-	".tTttt.Ttttt.tTt.",
-	".tttttt.Tttt.tt..",
-	".tTtttttttttttt..",
-	".ttttttt.Ttt.ttt.",
-	".tTtttttTTTtttt..",
-	".ttttttt.Tttt.tt.",
-	".tttttttTTTtttt..",
-	"..........TT.......",
-	"..fffffffffffff...",
-	"..ffffeeffffeeff..",
-	"..ffffeeffffeeff..",
-	"..ffffaaffffaaff..",
-	"..ffffaaFaFaaffF..",
-	"..FFFFaaFaFaaffFFF",
-	"..FFFFFsssssFFFF..",
-	"..................",
+	"..........OO........",
+	"..........OO........",
+	".........OOo........",
+	"....tttt.OOo........",
+	"...tttttt.OO........",
+	"..ttt.y.tttOo.......",
+	".ttt.y.ttttttt......",
+	".tt.y.tttt.y.ttt....",
+	"ttt.y.tttt.y.tttt...",
+	"tt.yy.ttt.y.ttt.y...",
+	"t.yt.ttt.y.ttt.y.tt.",
+	"ttt.ttt.y.ttt.y.ttt.",
+	".ttt.ttttt.tttt.tt.",
+	".tt.ttt.y.ttt.tt...",
+	".ttt.ttt.y.ttt.tt..",
+	".tt.ttt.tttt.tt.tt.",
+	"..tttttttttttttt....",
+	"..NffffffffffffffN..",
+	"..FFFFeeffffeeFFFF..",
+	"..FFFFeeffffeeFFFF..",
+	"..FFFFeeffffeeFFFF..",
+	"..ffffddffffddffff..",
+	"..FFFFDdffffddFFFF..",
+	"..ffffddffffddffff..",
+	"..ffffDDaaffDDffff..",
+	"..GGGGGGGGGGGGGGGG..",
+	"..GG.GG.GG.GG.GG.GG.",
 ]
 
 ## Shop: wide cream front, red/cream striped awning, sign, door.

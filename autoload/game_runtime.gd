@@ -163,8 +163,13 @@ func editor_level_path() -> String:
 	# can tell the game exactly which map file to use.
 	if custom_editor_level_name:
 		return "user://world_editor_level_%s.json" % custom_editor_level_name
-	# Default map: the user's saved "grass_real" level (dense Verdant Hollow).
-	return "user://world_editor_level_grass_real.json"
+	# Default map: the current biome's authored level. Grass (biome_key() == "")
+	# keeps the original "grass_real" filename so the UI-verify harness (which
+	# checks for the dense Verdant Hollow level specifically) keeps working.
+	var key := biome_key()
+	if key.is_empty():
+		return "user://world_editor_level_grass_real.json"
+	return "user://world_editor_level_%s.json" % key
 
 
 const _CUSTOM_MAP_FILE := "user://custom_editor_map.json"

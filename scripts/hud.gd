@@ -1223,9 +1223,9 @@ func announce_wave(wave: int, theme_display_name: String, debut_type_id: String)
 		theme_banner.add_theme_color_override("font_color", Color("ff4a4a"))
 		_flash(theme_banner, 3.4)
 		AudioService.play("boss_alert")
-		# Boss approach: 5-4-3-2-1 fight countdown so the player knows the fight is
-		# imminent, on top of the alert stinger.
-		_run_wave_countdown()
+		# No 5-4-3-2-1 countdown on boss approach — only the FFA walkout start uses the
+		# big center-screen countdown. The boss_alert stinger + red banner + danger pulse
+		# already signal the fight is imminent.
 		pulse_danger(2.2)
 		debut_banner.visible = false
 		return
@@ -1234,8 +1234,6 @@ func announce_wave(wave: int, theme_display_name: String, debut_type_id: String)
 	theme_banner.text = "WAVE %d — %s" % [maxi(1, wave), theme_display_name.to_upper()]
 	_flash(theme_banner, 2.6)
 	AudioService.play("wave_start")
-	# 5-4-3-2-1 fight countdown SFX on every wave start (and boss approach, above).
-	_run_wave_countdown()
 	if debut_type_id.is_empty():
 		debut_banner.visible = false
 		return

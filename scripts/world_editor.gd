@@ -1239,10 +1239,25 @@ func _load_as_submit(text: String, prompt_bar: HBoxContainer) -> void:
 
 
 func _load_named_map(name: String) -> void:
-	var path := "user://world_editor_level_%s" % name
-	var file := FileAccess.open(path, FileAccess.READ)
+	# Accept either the bare stem ("volcano") or a full filename ("volcano.json") —
+	# the Load As prompt sanitizes input and appends ".json", so strip it here to
+	# avoid a doubled suffix that would make the path not exist.
+	var stem := name.trim_suffix(".json").strip_edges()
+	var file := FileAccess.open(_map_path_for_stem(stem), FileAccess.READ)
+	# Fuzzy fallback: a typed biome alias ("grass", "ice", "vulkaan") or the bare
+	# word for the current biome should resolve to that biome's default file even
+	# when the user has not explicitly saved under that exact stem.
 	if file == null:
-		_show_status("map not found: %s" % name)
+		var aliased := _resolve_alias_to_map(stem)
+		if not aliased.is_empty():
+			file = FileAccess.open(aliased, FileAccess.READ)
+			if file != null:
+				path = aliased
+	if file == null:
+		# Be explicit about what's available so the user can't be stuck on a dead end.
+		var available := ", ".join(_list_saved_maps())
+		_show_status("map not found: %s  (available: %s)" % [stem, available if not available.is_empty() else "none"])
+		push_warning("[WorldEditor] Load failed: %s (have: [%s])" % [path, available])
 		return
 	var parsed = JSON.parse_string(file.get_as_text())
 	file.close()
@@ -1259,7 +1274,30 @@ func _load_named_map(name: String) -> void:
 	print("[WorldEditor] Loaded named map -> %s" % path)
 
 
-func _list_saved_maps() -> Array:
+## The on-disk path for a bare map stem, without assuming a ".json" suffix.
+func _map_path_for_stem(stem: String) -> String:
+	return "user://world_editor_level_%s.json" % stem
+
+
+## Resolve a typed biome alias (e.g. "grass", "ice", "vulkaan", "4") to the
+## biome's default map file, so the Load As prompt works even when the user has
+## not explicitly saved a custom map under that name.
+func _resolve_alias_to_map(stem: String) -> String:
+	var key := stem.to_lower()
+	# Grass has an empty biome_key, so map the alias words to the real default file.
+	if key in ["grass", "gras", "verdant", "0", ""]:
+		return "user://world_editor_level_grass_real.json"
+	var aliased := GameRuntime.parse_biome(key)
+	if aliased >= 0:
+		var biome_key := str(GameRuntime.BIOME_KEYS[aliased])
+		if biome_key.is_empty():
+			return "user://world_editor_level_grass_real.json"
+		if FileAccess.file_exists(_map_path_for_stem(biome_key)):
+			return _map_path_for_stem(biome_key)
+	return ""
+
+Now let me verify lint:
+
 	# List user:// for world_editor_level_<name>.json files (Save As outputs).
 	var names: Array = []
 	if not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path("user://")):
@@ -1293,14 +1331,18 @@ func _all_maps() -> Array:
 	## Save As outputs. Each entry: {"name": <stem or "" for default>, "label": ..., "path": ...}
 	var maps: Array = []
 	var key := GameRuntime.biome_key()
-	# The biome default map (always listed first).
+	# The biome default map (always listed first). Grass keeps the dense "grass_real"
+	# filename (the actual authored level), so the default entry points at the real file.
+	var default_path := GameRuntime.editor_level_path()
 	if key.is_empty():
-		maps.append({"name": "", "label": "Grass (default)", "path": "user://world_editor_level.json"})
+		maps.append({"name": "", "label": "Grass (default)", "path": default_path})
 	else:
-		maps.append({"name": key, "label": "%s (default)" % GameRuntime.biome_name().capitalize(), "path": "user://world_editor_level_%s.json" % key})
+		maps.append({"name": key, "label": "%s (default)" % GameRuntime.biome_name().capitalize(), "path": default_path})
 	# Save As outputs (world_editor_level_<name>.json, name != biome key).
 	for stem in _list_saved_maps():
-		if stem == key or key.is_empty() and stem == "":
+		if stem == key:
+			continue
+		if key.is_empty() and stem == "":
 			continue
 		var p := "user://world_editor_level_%s.json" % stem
 		if FileAccess.file_exists(p):

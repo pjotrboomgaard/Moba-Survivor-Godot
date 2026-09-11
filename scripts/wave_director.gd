@@ -39,8 +39,8 @@ const MODIFIER_NAMES := {
 const SCRIPTED_WAVES: Array[Dictionary] = [
 	{"name": "First Contact", "archetype": Archetype.STANDARD},
 	{"name": "Growing Numbers", "archetype": Archetype.STANDARD, "debut": "swarmling"},
+	{"name": "Acid Rain", "archetype": Archetype.SNIPERS, "debut": "spitter"},
 	{"name": "The Swarm", "archetype": Archetype.SWARM},
-	{"name": "Acid Rain", "archetype": Archetype.STANDARD, "debut": "spitter"},
 	{"name": "The Ravager", "archetype": Archetype.BOSS},
 	{"name": "Wings", "archetype": Archetype.AIR_ASSAULT, "debut": "drifter"},
 	{"name": "Air Assault", "archetype": Archetype.AIR_ASSAULT, "modifier": Modifier.SURGE},
@@ -234,7 +234,9 @@ const INTERMISSION_SECONDS := 10.0
 const SHOP_INTERMISSION_SECONDS := 30.0
 ## The shop opens after every other boss (waves 10, 20, 30, ...).
 const SHOP_WAVE_INTERVAL := 10
-const GROUP_INTERVAL_SECONDS := 1.7
+## Wave groups arrive faster now so each wave clears quicker — the user wants waves that
+## are shorter and punchier, not drawn-out marathons. 1.2s instead of 1.7s.
+const GROUP_INTERVAL_SECONDS := 1.2
 const AMBUSH_GROUP_INTERVAL := 0.2
 ## Ambush waves normally dump every group in ~0.2s cadence, so the whole wave's enemies
 ## converge on the player in a few seconds instead of the ~25-35s a standard wave spreads
@@ -257,10 +259,13 @@ const AMBUSH_FIRST_GROUP_SCALE := 0.6
 const WAVE_TIMEOUT_SECONDS := 120.0
 const ELITE_WAVE_INTERVAL := 8
 const BOSS_WAVE_INTERVAL := 5
-## Enemies start noticeably tankier now (2.4x the old wave-1 health) and keep climbing faster
-## than before, so the run keeps escalating rather than plateauing once players out-level it.
-const BASE_HEALTH_MULTIPLIER := 2.4
-const HEALTH_GROWTH_PER_WAVE := 0.16
+## Enemy health curve. Kept close to the original gradual ladder: wave 1 starts at ~1.6x a
+## bare grunt and climbs modestly per wave. The "more variety + much tankier" pass pushed
+## this to 2.4x / +0.16 which made early waves feel like an instant swarm of glass-cannons;
+## the user wants the original slow introduction back, challenging from wave 1 but not
+## overwhelming, so it's pulled back down.
+const BASE_HEALTH_MULTIPLIER := 1.7
+const HEALTH_GROWTH_PER_WAVE := 0.10
 ## Global ease: across every difficulty the base enemy health curve is scaled down so
 ## creeps die a bit faster everywhere. Combined with the lower BASE_HEALTH_MULTIPLIER
 ## above this makes every lobby difficulty noticeably easier without touching the
@@ -524,9 +529,12 @@ func budget_for_wave(target_wave: int) -> float:
 	# Eased the early-wave floor (12 + 4*w) so waves 1-5 are survivable for a fresh hero;
 	# the steeper climb still kicks in from wave 6 onward (12 + 4*w keeps pace, but the
 	# 4-per-wave growth is halved from 8 so the late curve is not exponential).
-	var solo_budget := 12.0 + 4.0 * float(target_wave)
-	if target_wave >= 6:
-		solo_budget += 4.0 * float(target_wave - 5)
+	# Gradual headcount: early waves stay small and focused (short, single-focus fights),
+	# growing slowly so each wave reads as a distinct "type of fight" rather than an endless
+	# swarm. The steeper climb only kicks in from wave 8 onward.
+	var solo_budget := 8.0 + 2.5 * float(target_wave)
+	if target_wave >= 8:
+		solo_budget += 3.5 * float(target_wave - 7)
 	if _solo_pressure_active(target_wave):
 		solo_budget *= SOLO_BUDGET_PRESSURE
 	if GameRuntime.is_ffa():
@@ -566,21 +574,26 @@ func _solo_pressure_active(target_wave: int) -> bool:
 	return target_wave >= SOLO_PRESSURE_FROM_WAVE
 
 
+## Target live-enemy count that _should_reinforce() tops up toward. Kept deliberately
+## LOW early on so waves 1-5 clear quickly with a distinct "character" per wave instead of
+## turning into an endless swarm (the user's "waves are too long / too much variety early").
+## The floor climbs slowly so later waves stay busy, and the cap is lowered (max ~60 vs the
+## old 120) to keep late-wave populations readable.
 func _desired_live() -> int:
-	var floor_n := 12 + int(float(wave) * 2.0)
+	var floor_n := 6 + int(float(wave) * 1.0)
 	if pressure_hp >= 0.80:
-		floor_n += 12 + int(float(wave) * 1.1)
+		floor_n += 6 + int(float(wave) * 0.6)
 	elif pressure_hp >= 0.55:
-		floor_n += 7
+		floor_n += 4
 	elif pressure_hp < 0.28:
-		floor_n = maxi(6, floor_n - 4)
+		floor_n = maxi(4, floor_n - 3)
 	# Cap climbs from wave 1 so every stage stays busy, not just the late run.
 	# FFA has 4 players each running their own AI + wave director, so cap lower
 	# to avoid lag from too many enemies simultaneously.
-	var live_cap := mini(40 + int(float(wave) * 3.0), 120)
+	var live_cap := mini(24 + int(float(wave) * 2.0), 60)
 	if GameRuntime.is_ffa():
-		live_cap = mini(live_cap, 70)
-	return clampi(floor_n, 6, live_cap)
+		live_cap = mini(live_cap, 50)
+	return clampi(floor_n, 4, live_cap)
 
 
 ## Was solo-only (gated behind _solo_pressure_active) so co-op waves could go quiet for a
@@ -618,7 +631,12 @@ func _should_reinforce() -> bool:
 	# count makes the local team get hammered while edge waves are the real pace-setters.
 	# Cap FFA reinforcement lower so creeps come mostly from the map-edge waves (even
 	# across all players) instead of a constant close pack around the local player.
-	var reinforce_cap := 12 + int(float(wave) / 1.0)
+	# Early waves get no reinforcement top-ups at all: each of waves 1-5 is a
+	# short, distinct fight. Reinforcement only kicks in from wave 6+ so the run
+	# stays busy in the late game without dragging out the early intro waves.
+	if wave < 6:
+		return false
+	var reinforce_cap := 6 + int(float(wave) / 2.0)
 	if GameRuntime.is_ffa():
 		reinforce_cap = 5
 	if _reinforcements >= reinforce_cap:

@@ -126,7 +126,9 @@ const TYPES: Array[Dictionary] = [
 		"projectile_speed": 420.0,
 		"xp_value": 14,
 		"gold_value": 4,
-		"unlock_wave": 4,
+		# Unlocks at wave 3 so the wave-3 "Acid Rain" shooter/dodge wave (the spitter debut)
+		# has a real spitter pool to dodge, not just the two debut spitters.
+		"unlock_wave": 3,
 		"cost": 1.2,
 		"weight": 2.0,
 		"formation": Formation.SCATTERED,
