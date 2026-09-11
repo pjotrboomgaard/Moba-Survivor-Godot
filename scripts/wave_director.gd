@@ -274,10 +274,10 @@ const GLOBAL_HEALTH_EASE := 0.85
 ## wave 15-20 — enemies survive longer *and* hit harder *and* there are more of them, all
 ## three axes growing at once. Eased to 1.12 so enemies are still tankier solo than in co-op,
 ## just without stacking a third compounding multiplier as hard on the late-wave spike.
-const SOLO_HEALTH_PRESSURE := 0.85
+const SOLO_HEALTH_PRESSURE := 0.72
 const SOLO_BUDGET_PRESSURE := 0.90
 ## Eased from 1.05: creeps hit ~10% softer in solo so the run feels forgiving.
-const SOLO_DAMAGE_PRESSURE := 0.95
+const SOLO_DAMAGE_PRESSURE := 0.72
 const SOLO_PRESSURE_FROM_WAVE := 2
 ## FFA: each "team" is a single hero fighting 3 rivals, so enemies get an extra 25%
 ## health bump and a bigger budget bump on top of the base curve. The budget was
@@ -521,7 +521,12 @@ func budget_for_wave(target_wave: int) -> float:
 	# Roughly double the old headcount at every wave (base 12->24, per-wave growth 2.6->6.0 —
 	# more than double, so the curve keeps getting steeper instead of just shifting up by a
 	# flat amount) on top of the doubled per-enemy health above, so both axes compound.
-	var solo_budget := 22.0 + 8.0 * float(target_wave)
+	# Eased the early-wave floor (12 + 4*w) so waves 1-5 are survivable for a fresh hero;
+	# the steeper climb still kicks in from wave 6 onward (12 + 4*w keeps pace, but the
+	# 4-per-wave growth is halved from 8 so the late curve is not exponential).
+	var solo_budget := 12.0 + 4.0 * float(target_wave)
+	if target_wave >= 6:
+		solo_budget += 4.0 * float(target_wave - 5)
 	if _solo_pressure_active(target_wave):
 		solo_budget *= SOLO_BUDGET_PRESSURE
 	if GameRuntime.is_ffa():

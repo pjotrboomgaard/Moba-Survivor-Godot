@@ -76,6 +76,13 @@ selftest + screenshot, restart app each turn, commit+push periodically, max 2 wo
 - [x] PVP chain hit penalty reduced
 - [x] Tremor weakened
 - [x] 3 new upgrade synergies
+### P1.5b Solo creep balance pass - [IN PROGRESS - 2026-09-11]
+- [x] Solo budget curve eased: 22+8w -> 12+4w (+4w for w>=6) (wave1 ~16 not ~30)
+- [x] SOLO_HEALTH_PRESSURE 0.85 -> 0.72 (creeps die faster solo)
+- [x] SOLO_DAMAGE_PRESSURE 0.95 -> 0.72 (creeps hit ~28% softer solo)
+- [x] VERIFY (solo_survival_short): tobor lv7->lv14 kills87->312; all 4 tested heroes now reach lv5-14
+      (previously died wave 1). Bot survival substantially improved; full wave-20 clutch still
+      pending (creeps still overwhelm at boss waves 5/10 — next: improve bot heal-landmark retreat).
 ### P1.6 DANCE DISCO minigame - [DONE - verified 2026-09-11]
 - [x] Disco floor + disco ball visual
 - [x] Dancing bot moves in 4 patterns (circle/figure-8/zigzag/spin), 10s each
