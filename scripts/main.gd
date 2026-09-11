@@ -2563,7 +2563,8 @@ func _offer_next_upgrade(peer_id: int) -> void:
 	if leveled_player == null:
 		return
 	var upgrade_ids := PlayerClass.random_upgrade_ids(
-		leveled_player.class_id, 4, leveled_player.known_abilities, leveled_player.level
+		leveled_player.class_id, 4, leveled_player.known_abilities, leveled_player.level,
+		leveled_player.taken_upgrades
 	)
 	if upgrade_ids.is_empty():
 		leveled_player.apply_fallback_bonus()
@@ -2744,6 +2745,8 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 			player.dev_add_levels(5)
 		"spawn_elite":
 			_dev_spawn_elite()
+		"spawn_boss":
+			_dev_spawn_boss()
 		"toggle_invulnerable":
 			player.set_invulnerable(not player.health.invulnerable)
 		"biome_auto":
@@ -2979,6 +2982,8 @@ func _reposition_players_to_landing(landing: Vector2) -> void:
 func _trigger_world_landing(mission_number: int) -> void:
 	if GameRuntime.is_classic():
 		return
+	# Start / refresh the world's ambient bed whenever a world lands.
+	AudioService.set_world_theme(GameRuntime.biome_id)
 	if GameRuntime.is_ffa():
 		if not GameRuntime.is_dedicated_server():
 			hud.announce_mission(mission_number, _mission_planet_name(), _mission_planet_tagline(), MISSION_WARP_CARD_HOLD)
@@ -3028,6 +3033,8 @@ func _transition_to_biome(next_id: int) -> void:
 		return
 	GameRuntime.biome_id = next_id
 	_play_world_flash()
+	# Each world sounds like its place — crossfade the ambient bed to the new biome.
+	AudioService.set_world_theme(next_id)
 
 
 func _sync_playfield() -> void:
@@ -3094,6 +3101,20 @@ func _dev_spawn_elite() -> void:
 	var offset := Vector2.RIGHT.rotated(randf_range(0.0, TAU)) * 260.0
 	var multiplier := wave_director.health_multiplier_for_wave(maxi(1, current_wave))
 	_spawn_enemy(offset, "brute", multiplier)
+
+
+## Self-test helper: spawn a boss of the current biome near the local player so the
+## boss-defeat transition (ring sweep + camera zoom) can be triggered on demand.
+func _dev_spawn_boss() -> void:
+	if game_over:
+		return
+	var boss_id := EnemyType.boss_for_wave(maxi(1, current_wave))
+	var focus := _first_active_player()
+	var offset := Vector2.RIGHT.rotated(randf_range(0.0, TAU)) * 320.0
+	var multiplier := wave_director.health_multiplier_for_wave(maxi(1, current_wave))
+	_spawn_enemy(offset, boss_id, multiplier)
+	if focus == null:
+		_spawn_enemy(Vector2.ZERO, boss_id, multiplier)
 
 
 ## Self-test helper: "resolution:<w>x<h>" or "resolution:fullscreen".

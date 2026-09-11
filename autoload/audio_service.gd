@@ -174,11 +174,10 @@ const SOUND_LIBRARY: Dictionary = {
 	"sfx_heal": [preload("res://assets/audio/sfx/sfx_heal.ogg")],
 	"sfx_shield": [preload("res://assets/audio/sfx/sfx_shield.ogg")],
 	"sfx_force": [preload("res://assets/audio/sfx/sfx_force.ogg")],
-	# 5-4-3-2-1 fight countdown stingers. The dedicated synthesized wav files did not
-	# ship, so map the two countdown beats to existing sfx: a short ui tick for each
-	# number and the wave_start stinger for the "GO / FIGHT" beat.
-	"countdown_tick": [preload("res://assets/audio/sfx/ui_click.ogg")],
-	"countdown_fight": [preload("res://assets/audio/sfx/wave_start.ogg")],
+	# 5-4-3-2-1 fight countdown stingers: a short synthesized tick for each number
+	# and a heavier "GO / FIGHT" beat when the wave starts.
+	"countdown_tick": [preload("res://assets/audio/themes/countdown_tick.wav")],
+	"countdown_fight": [preload("res://assets/audio/themes/countdown_fight.wav")],
 }
 
 const FAMILY_FOR_ARCHETYPE := {
@@ -389,6 +388,7 @@ func _ready() -> void:
 		player.process_mode = Node.PROCESS_MODE_ALWAYS
 		add_child(player)
 		_sfx_pool.append(player)
+	_world_theme_player = _make_world_theme_player()
 	_apply_mute_state()
 
 
@@ -478,6 +478,44 @@ func play_music() -> void:
 
 func stop_music() -> void:
 	_music_player.stop()
+
+
+## Crossfades the looping world-ambient bed to match the current biome. Each world "sounds"
+## like its place (grass = nature swell, volcano = rumble, ice = wind, docks = water).
+## No-op if the biome hasn't changed or the bed is missing. Called on world transition.
+func set_world_theme(biome_id: int) -> void:
+	if _world_theme_player == null or not _world_theme_player.is_inside_tree():
+		return
+	if biome_id == _world_theme_biome:
+		return
+	_world_theme_biome = biome_id
+	var track: Variant = WORLD_THEME_TRACKS.get(biome_id, null)
+	if track == null:
+		_stop_world_theme()
+		return
+	var stream: AudioStream = track
+	if stream is AudioStreamWAV:
+		(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
+		(stream as AudioStreamWAV).loop_begin = 0
+		(stream as AudioStreamWAV).loop_end = -1
+	if _world_theme_player.playing:
+		# Simple crossfade: start the new bed quietly, fade up, and let the old bed's
+		# tail die under it (the single-loop design keeps this cheap).
+		_world_theme_player.stream = stream
+		_world_theme_player.volume_db = WORLD_THEME_VOLUME_DB - 14.0
+		_world_theme_player.play()
+		var tw := create_tween()
+		tw.tween_property(_world_theme_player, "volume_db", WORLD_THEME_VOLUME_DB, 1.2)
+	else:
+		_world_theme_player.stream = stream
+		_world_theme_player.volume_db = WORLD_THEME_VOLUME_DB
+		_world_theme_player.play()
+
+
+func _stop_world_theme() -> void:
+	if _world_theme_player != null and _world_theme_player.is_inside_tree():
+		_world_theme_player.stop()
+	_world_theme_biome = -1
 
 
 func set_sfx_enabled(enabled: bool) -> void:
@@ -586,6 +624,17 @@ func _make_music_player() -> AudioStreamPlayer:
 	player.stream = MUSIC_TRACK
 	player.volume_db = MUSIC_VOLUME_DB
 	player.bus = "Music"
+	player.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(player)
+	return player
+
+
+## A dedicated looping player for the current world's ambient bed. It shares the Music bus
+## so it ducks with everything else, and sits low under the main theme.
+func _make_world_theme_player() -> AudioStreamPlayer:
+	var player := AudioStreamPlayer.new()
+	player.bus = "Music"
+	player.volume_db = WORLD_THEME_VOLUME_DB
 	player.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(player)
 	return player

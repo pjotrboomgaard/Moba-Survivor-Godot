@@ -124,6 +124,10 @@ var xp_gain_mult := 1.0
 var pulse_interval := 0.0
 var pulse_timer := 0.0
 var pulse_radius := 160.0
+## Id of the SFX fired by the most recent pulse blast. Set in _tick_pulse_blast so a
+## selftest can assert the Metronome/Heartbeat/Supernova pulse actually made a sound
+## (auto-attacks otherwise clobber AudioService.last_play between the fire and the probe).
+var pulse_last_sfx := ""
 var last_death_gold_lost := 0
 var shop_stacks: Dictionary = {}
 var _tobor_walk_phase := 0.0
@@ -4097,6 +4101,12 @@ func _tick_pulse_blast(delta: float) -> void:
 	pulse_timer = 0.0
 	for target in _pvp_hosts_in_radius(global_position, pulse_radius):
 		_weapon_hit(target, weapon_damage)
+	# Make the pulse blast visibly and audibly register: a quick expanding ring at the
+	# player's feet plus a short "whoosh" stinger so the Metronome/Heartbeat/Supernova
+	# upgrade is obvious the moment it fires (previously it was a bare staff-cast blip).
+	_spawn_ability_zone_pulse(global_position, pulse_radius, 0.7)
+	pulse_last_sfx = "sfx_radius"
+	SoundDirector.play("sfx_radius", global_position)
 	staff_cast.emit(class_id, PackedVector2Array([
 		global_position,
 		global_position,

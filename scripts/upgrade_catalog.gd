@@ -7,6 +7,13 @@ const ABILITY_PREFIX := "ability:"
 const RARE_CHANCE := 0.18
 const LEGENDARY_CHANCE := 0.045
 
+## Range / reach / arc / chain-length stat upgrades. These were offered far too often
+## relative to their real value (a +35 range bump rarely matters vs crit/volley/damage),
+## so the offer picker skips any of these that have ALREADY been seen in a prior offer
+## unless no other stat of the same rarity remains. This spreads the build options out
+## instead of re-offering "Long Haft" every two levels.
+const RANGE_ARC_IDS := ["reach", "sweep", "volt", "lash", "chain", "blast", "nova_core"]
+
 ## Synergy trees: when a player holds upgrades from BOTH sides of a pair, they
 ## earn an extra bonus on top of the individual effects. This is what makes
 ## builds feel like "paths" — e.g. Tempo + Crit becomes a crit-tempo build,
@@ -258,7 +265,13 @@ static func ability_id_from(token: String) -> String:
 ##  - ~25% of the time: 3 commons + 1 rare
 ##  - ~5%  of the time: 3 commons + 1 legendary (the "really cool" moment)
 ## This replaces the old per-slot independent roll which produced 3+ rares.
-static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int, amount: int = 4) -> Array[String]:
+## `recently_offered` is the set of stat upgrade ids already offered to this player
+## in recent levels; range/arc upgrades in that set are penalised so the same
+## "Long Haft / Wide Sweep" style stat does not dominate every offer.
+static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int, amount: int = 4, recently_offered: Array = []) -> Array[String]:
+	var recent_set: Dictionary = {}
+	for id in recently_offered:
+		recent_set[str(id)] = true
 	var out: Array[String] = []
 	# Decide the rarity slots up front (stat slots only; ability token handled below).
 	var stat_slots := maxi(1, amount)
@@ -282,10 +295,10 @@ static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int
 
 	var used: Dictionary = {}
 	for rarity in rarities:
-		var pick := _pick_stat_for_rarity(class_upgrade_ids, rarity, used, level)
+		var pick := _pick_stat_for_rarity(class_upgrade_ids, rarity, used, level, recent_set)
 		if pick.is_empty():
 			# Fallback to a common if the chosen rarity pool was exhausted.
-			pick = _pick_stat_for_rarity(class_upgrade_ids, "common", used, level)
+			pick = _pick_stat_for_rarity(class_upgrade_ids, "common", used, level, recent_set)
 		if not pick.is_empty():
 			used[pick] = true
 			out.append(pick)
@@ -300,9 +313,15 @@ static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int
 	return out
 
 
-static func _pick_stat_for_rarity(class_upgrade_ids: Array, rarity: String, used: Dictionary, level: int) -> String:
+static func _pick_stat_for_rarity(class_upgrade_ids: Array, rarity: String, used: Dictionary, level: int, recent_set: Dictionary = {}) -> String:
 	var pool := _pool_for(class_upgrade_ids, rarity, level)
 	pool.shuffle()
+	# First pass: never pick a range/arc upgrade that was already offered recently.
+	for id in pool:
+		if not used.has(id) and not (recent_set.has(id) and RANGE_ARC_IDS.has(id)):
+			return id
+	# Second pass: if every candidate is a recently-offered range/arc stat, allow it
+	# rather than leaving the slot empty.
 	for id in pool:
 		if not used.has(id):
 			return id

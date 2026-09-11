@@ -1085,10 +1085,10 @@ const ABILITIES: Dictionary = {
 	"bulwark_fissure": {
 		"name": "Fissure", "archetype": Archetype.SPAWN_WALL,
 		"description": "Cracks the earth open in a {wall_length}-unit line, raising an impassable ridge for {wall_duration}s that deals {power} Magic damage and stuns everything standing on it for {stun_duration}s.",
-		"cooldown_base": 8.5, "cooldown_per_rank": -0.8, "cooldown_min": 4.8,
-		"power_base": 55.0, "power_per_rank": 14.0, "wall_length": 340.0, "radius": 60.0,
-		"stun_on_hit": {"duration": 1.5},
-		"wall_duration": 5.0, "wall_segments": 5,
+		"cooldown_base": 9.5, "cooldown_per_rank": -0.7, "cooldown_min": 5.4,
+		"power_base": 38.0, "power_per_rank": 10.0, "wall_length": 340.0, "radius": 60.0,
+		"stun_on_hit": {"duration": 1.2},
+		"wall_duration": 4.5, "wall_segments": 5,
 	},
 	"bulwark_heavyweight": {
 		"name": "Heavyweight", "archetype": Archetype.ATTACK_FURY,
@@ -1101,20 +1101,20 @@ const ABILITIES: Dictionary = {
 		"name": "Echo Slam", "archetype": Archetype.RADIUS_BURST,
 		"description": "Slams the ground with such force that the arena itself answers, dealing {power} Magic damage to every enemy within {radius} units and stunning for {stun_duration}s. Echoes louder for every enemy inside.",
 		"cooldown_base": 45.0, "cooldown_per_rank": -3.8, "cooldown_min": 27.0,
-		"power_base": 120.0, "power_per_rank": 30.0, "range": 0.0, "radius": 300.0,
+		"power_base": 88.0, "power_per_rank": 22.0, "range": 0.0, "radius": 300.0,
 		"stun_on_hit": {"duration": 1.0},
 	},
 	"bulwark_shockwave_strike": {
 		"name": "Shockwave Strike", "archetype": Archetype.NUKE_BOLT,
 		"description": "Slams the ground in front of you, dealing {power} Magic damage in a short-range shockwave.",
 		"cooldown_base": 4.0, "cooldown_per_rank": -0.4, "cooldown_min": 2.2,
-		"power_base": 40.0, "power_per_rank": 11.0, "range": 220.0,
+		"power_base": 30.0, "power_per_rank": 8.0, "range": 220.0,
 	},
 	"bulwark_ground_slam": {
 		"name": "Ground Slam", "archetype": Archetype.RADIUS_BURST,
 		"description": "Cracks the earth around you, dealing {power} Magic damage within {radius} units in every direction.",
 		"cooldown_base": 6.0, "cooldown_per_rank": -0.6, "cooldown_min": 3.4,
-		"power_base": 34.0, "power_per_rank": 9.0, "range": 0.0, "radius": 190.0,
+		"power_base": 24.0, "power_per_rank": 7.0, "range": 0.0, "radius": 190.0,
 	},
 	"bulwark_cleave": {
 		"name": "Cleave", "archetype": Archetype.CONE_BURST,
@@ -2346,7 +2346,7 @@ static func ids() -> Array[String]:
 
 
 static func playable_ids() -> Array[String]:
-	return ["tobor", "arclight", "bulwark", "warden", "cinder", "pyra", "slug", "ember", "thorn", "willow", "stump", "sage", "volt", "nebula", "astral", "rime"]
+	return ["tobor", "arclight", "bulwark", "warden", "cinder", "pyra", "slag", "ember", "thorn", "willow", "stump", "sage", "volt", "nebula", "astral", "rime"]
 
 
 static func cpu_ally_ids(human_class_id: String) -> Array[String]:
@@ -2376,9 +2376,10 @@ static func sanitize_id(class_id: String) -> String:
 	return class_id if is_valid_id(class_id) else DEFAULT_CLASS_ID
 
 
-static func random_upgrade_ids(class_id: String, amount: int = 4, known: Array = [], level: int = 1) -> Array[String]:
+static func random_upgrade_ids(class_id: String, amount: int = 4, known: Array = [], level: int = 1, taken: Array = []) -> Array[String]:
 	var known_entries: Array[Dictionary] = []
 	var offer_level := level
+	var taken_ids: Array = taken
 	for entry in known:
 		if entry is Dictionary:
 			known_entries.append(entry)
@@ -2392,9 +2393,11 @@ static func random_upgrade_ids(class_id: String, amount: int = 4, known: Array =
 			if matches.size() == 1:
 				known_entries = matches[0].known_abilities.duplicate()
 				offer_level = matches[0].level
+				if taken_ids.is_empty():
+					taken_ids = matches[0].taken_upgrades.duplicate()
 	var ability_ids := ability_offer_ids(class_id, known_entries, 6)
 	var class_upgrades: Array = by_id(class_id).get("upgrades", [])
-	var mixed := UpgradeCatalog.mixed_offer(ability_ids, class_upgrades, offer_level, amount)
+	var mixed := UpgradeCatalog.mixed_offer(ability_ids, class_upgrades, offer_level, amount, taken_ids)
 	# Ability-unlock system: if the hero still has locked abilities (rank 0), the
 	# level-up MUST always offer at least one "unlock" choice so they can grow their
 	# kit. Guarantee a locked-ability token is present; if it's missing, replace a

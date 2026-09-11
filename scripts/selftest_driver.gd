@@ -27,6 +27,7 @@ var _walk_target: Variant = null  # Vector2 or null while a walk_to is in flight
 var _walk_deadline := 0.0  # give up if the player hasn't reached by then
 var _pin_pos := Vector2.ZERO  # when _pin_active, hold the hero here each frame
 var _pin_active := false
+var _kill_live_boss_pending := false  # deferred boss kill for a just-spawned boss
 var _shots_taken: Array[Dictionary] = []
 var _active_effects: Array[Dictionary] = []
 var _last_slot_tapped: int = -1
@@ -351,6 +352,10 @@ func _process(delta: float) -> void:
 			_player.level if _player else 0,
 		])
 		_debug_last_tick = _elapsed
+	# Deferred boss kill: a freshly-spawned boss is added to `enemies` next frame, so a
+	# kill requested the same frame must be re-run once the spawn has settled.
+	if _kill_live_boss_pending:
+		_kill_live_boss()
 	if _pin_active:
 		# While pinned, hold the hero in place for the recruit bond; skip bot AI.
 		_tick_pin()
@@ -455,6 +460,16 @@ func _process(delta: float) -> void:
 				_secondary_hold(float(event.get("duration", 0.6)))
 			"secondary_probe":
 				_record_secondary_probe(str(event.get("label", "secondary")))
+			"primary_attack":
+				# Fire exactly one basic (LMB-equivalent) attack at the current aim point.
+				# Used to verify the per-hero primary-attack SFX bank fires.
+				if _player != null:
+					_player._perform_attack()
+			"dash":
+				# Directly fire the dash so the whoosh SFX (player.gd _dash_to) is
+				# exercised even without an active item / dash input action.
+				if _player != null:
+					_player._dash_to(_player.global_position + Vector2.RIGHT * 120.0, 0.14)
 			"bossform_grant":
 				# Directly grant boss form to verify HUD icons + movement + attacks.
 				if _player != null:
@@ -488,6 +503,10 @@ func _process(delta: float) -> void:
 				_focus_tree(event)
 			"force_level":
 				_force_level(int(event.get("levels", 1)))
+			"grant_pulse":
+				# Grant the Metronome pulse blast to the local hero and force it to fire
+				# once immediately, so we can verify the visible ring + SFX register.
+				_grant_pulse_blast(str(event.get("label", "pulse")))
 			"set_hp":
 				_set_hp_fraction(float(event.get("fraction", 0.5)))
 			"pick_upgrade":
@@ -500,6 +519,8 @@ func _process(delta: float) -> void:
 				_dev_skip_wave()
 			"boss_transition_probe":
 				_record_boss_transition_probe(str(event.get("label", "boss_transition")))
+			"boss_transition_kill":
+				_record_boss_transition_probe(str(event.get("label", "boss_transition")), true)
 			"dev_command":
 				# Forward a dev command to the host main (e.g. "resolution:1920x1080").
 				var cmd := str(event.get("command", ""))
@@ -672,6 +693,10 @@ func _record_probe(label: String) -> void:
 		"recruits": _recruit_probe(),
 		"pending_upgrade_ids": _pending_offers("pending_upgrades"),
 		"pending_ability_ids": _pending_offers("pending_ability_offers"),
+		"pulse_interval": float(_player.pulse_interval),
+		"pulse_radius": float(_player.pulse_radius),
+		"pulse_last_sfx": str(_player.pulse_last_sfx),
+		"last_sfx": str(AudioService.last_play.get("sound_id", "")) if AudioService.last_play != null else "",
 	})
 
 
@@ -920,6 +945,31 @@ func _force_level(target_level: int) -> void:
 	})
 
 
+## Grant the local hero a Metronome pulse blast and force it to fire exactly once, so
+## we can verify the visible expanding ring + sfx_radius stinger register (the Metronome
+## / Heartbeat / Supernova upgrade). Records whether a pulse fired and the last SFX id.
+func _grant_pulse_blast(label: String) -> void:
+	if _player == null:
+		_active_effects.append({"kind": "grant_pulse", "label": label, "error": "no player", "t": _elapsed})
+		return
+	var hero := _player.class_id
+	var before_interval := _player.pulse_interval
+	# Give the hero the pulse blast (Metronome: every 20s, radius 160).
+	_player.apply_upgrade("metronome")
+	# Fire ~0.1s from now so the caller can snapshot the expanding ring on the next event.
+	_player.pulse_interval = 0.1
+	_player.pulse_timer = 0.0
+	_active_effects.append({
+		"kind": "grant_pulse",
+		"label": label,
+		"hero": hero,
+		"interval_before": before_interval,
+		"interval_set": _player.pulse_interval,
+		"last_sfx": str(AudioService.last_play.get("sound_id", "")) if AudioService.last_play != null else "",
+		"t": _elapsed,
+	})
+
+
 ## Set the player's health to a fraction (0.0-1.0) of max. Used to trigger low-HP
 ## UI (e.g. heal arrow) in a deterministic way.
 func _set_hp_fraction(fraction: float) -> void:
@@ -1008,10 +1058,14 @@ func _pick_unlock_ability() -> void:
 
 ## Snapshot the world transition state after a boss kill: which biome the game is in,
 ## the wave, and whether the killer got the takeover buff (boss_form active + buffed stats).
-func _record_boss_transition_probe(label: String) -> void:
+func _record_boss_transition_probe(label: String, kill_boss: bool = false) -> void:
 	if _host_main == null:
 		_active_effects.append({"kind": "boss_transition_probe", "error": "no host", "t": _elapsed})
 		return
+	# Optionally kill a live boss to force the boss-defeat ring + zoom transition.
+	# Uses the dev boss spawn if none is alive yet, so the transition code path runs.
+	if kill_boss:
+		_kill_live_boss()
 	var info := {
 		"kind": "boss_transition_probe",
 		"label": label,
@@ -1020,9 +1074,36 @@ func _record_boss_transition_probe(label: String) -> void:
 		"wave": _host_main.current_wave,
 		"killer_in_boss_form": _player.in_boss_form if _player != null else false,
 		"killer_damage_mult": _player.damage_dealt_multiplier if _player != null else 0.0,
+		"last_boss_transition": _host_main._last_boss_transition,
+		"ring_live": _host_main._boss_ring_live_count(),
+		"camera_zoom": _host_main._local_camera_zoom_probe(),
 		"t": _elapsed,
 	}
 	_active_effects.append(info)
+
+
+## Kill the nearest live boss (spawning one via the dev command if needed) so the
+## boss-defeat transition (_play_boss_ring) runs and can be probed.
+func _kill_live_boss() -> void:
+	if _host_main == null:
+		return
+	# Ensure a boss is alive; spawn one on demand if the wave has no boss yet.
+	var boss: Node = null
+	for enemy in _host_main.enemies.values():
+		if enemy is Enemy and (enemy as Enemy).is_boss and not (enemy as Enemy).health.is_dead:
+			boss = enemy
+			break
+	if boss == null:
+		_host_main._dev_spawn_boss()
+		# Let the spawn finish wiring before we touch it next frame.
+		_kill_live_boss_pending = true
+		return
+	var b := boss as Enemy
+	# One-shot kill: drain its health directly (the died signal fires the transition).
+	var health := b.health
+	if health != null and health.has_method("take_damage"):
+		health.take_damage(health.current_health + 10.0, _player if _player != null else b)
+	_kill_live_boss_pending = false
 
 
 ## Snapshot window size, mode, and the local camera zoom so a test can verify
@@ -1185,7 +1266,12 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 		_active_effects.append(entry)
 		return
 	var prefix := ability_id.split("_")[0]
-	var bank := "cast_%s" % prefix
+	# Primary-attack SFX (kind == "primary_attack_<hero>") fire through
+	# SoundDirector.play("attack_<hero>") rather than play_ability, so last_play_ability
+	# still holds whatever ability fired last. Detect this up front and relax the
+	# ability/bank asserts to just "the expected attack_<hero> sound fired".
+	var is_primary_attack_probe := ability_id.begins_with("primary_attack_")
+	var bank := "cast_%s" % prefix if not is_primary_attack_probe else "attack_%s" % prefix
 	entry["expected_bank"] = bank
 	var last_ability: String = AudioService.last_play_ability
 	var last: Dictionary = AudioService.last_play
@@ -1197,7 +1283,8 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 	entry["stream_path"] = stream.resource_path if stream != null else ""
 	entry["player_non_null"] = player != null
 	entry["player_was_playing"] = player.playing if player != null else false
-	entry["assert_ability_match"] = last_ability == ability_id
+	# For primary-attack probes, match the sound_id to attack_<hero> (not the ability name).
+	entry["assert_ability_match"] = (sound_id == bank) if is_primary_attack_probe else (last_ability == ability_id)
 	entry["assert_bank_match"] = sound_id == bank
 	# Theme takes live in assets/audio/themes/<hero>.wav, not named cast_<hero> — match
 	# by hero prefix so the assert covers both synthesized themes and legacy .ogg takes.

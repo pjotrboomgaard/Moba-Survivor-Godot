@@ -204,7 +204,7 @@ const ITEMS: Array[Dictionary] = [
 		"pickup_radius_bonus": 0.25,
 		"pickup_radius_bonus_step": 0.08,
 		"board_jump": true,
-		"heroes": TOBOR_ONLY,
+		"heroes": ALL_HEROES,
 	},
 ]
 
