@@ -276,7 +276,8 @@ const GLOBAL_HEALTH_EASE := 0.85
 ## just without stacking a third compounding multiplier as hard on the late-wave spike.
 const SOLO_HEALTH_PRESSURE := 0.85
 const SOLO_BUDGET_PRESSURE := 0.90
-const SOLO_DAMAGE_PRESSURE := 1.05
+## Eased from 1.05: creeps hit ~10% softer in solo so the run feels forgiving.
+const SOLO_DAMAGE_PRESSURE := 0.95
 const SOLO_PRESSURE_FROM_WAVE := 2
 ## FFA: each "team" is a single hero fighting 3 rivals, so enemies get an extra 25%
 ## health bump and a bigger budget bump on top of the base curve. The budget was
@@ -288,12 +289,15 @@ const FFA_BUDGET_PRESSURE := 1.45
 const FFA_DAMAGE_PRESSURE := 1.20
 
 ## The lobby's difficulty pick scales enemy health on top of the wave curve above (Pjotr mode
-## only — Classic's endless-grunt test loop stays flat regardless of this).
+## only — Classic's endless-grunt test loop stays flat regardless of this). The whole ladder
+## was pushed down so every lobby difficulty is meaningfully easier than before: EASY is now
+## very light, NORMAL is a touch below the old EASY, and HARD/BRUTAL are capped well under the
+## old curve (which was 0.65/1.0/1.5/2.25) so creeps are easier to kill at every setting.
 const DIFFICULTY_HEALTH_MULTIPLIERS := {
-	GameRuntime.Difficulty.EASY: 0.65,
-	GameRuntime.Difficulty.NORMAL: 1.0,
-	GameRuntime.Difficulty.HARD: 1.5,
-	GameRuntime.Difficulty.BRUTAL: 2.25,
+	GameRuntime.Difficulty.EASY: 0.48,
+	GameRuntime.Difficulty.NORMAL: 0.78,
+	GameRuntime.Difficulty.HARD: 1.1,
+	GameRuntime.Difficulty.BRUTAL: 1.6,
 }
 
 const CLASSIC_SPAWN_INTERVAL := 1.4
