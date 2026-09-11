@@ -187,6 +187,9 @@ func _draw_body() -> void:
 ## the game plays itself even when the owner is a human (used by minigame_verify
 ## so a pinned local hero still earns score + reward without keyboard input).
 var bot_force := false
+## Last movement vector returned by bot_tick; the host (main.gd or the isolated
+## test scene) reads this to drive the owner's `minigame_move_override`.
+var last_bot_move := Vector2.ZERO
 
 
 func _process(delta: float) -> void:
@@ -194,7 +197,8 @@ func _process(delta: float) -> void:
 		return
 	_update_delta(delta)
 	if bot_force:
-		bot_tick(delta)
+		var _bt := bot_tick(delta)
+		last_bot_move = _bt.get("move", Vector2.ZERO)
 	timer -= delta
 	_banner_alpha = maxf(0.0, _banner_alpha - delta * 0.4)
 	_finished_flash = maxf(0.0, _finished_flash - delta * 1.2)

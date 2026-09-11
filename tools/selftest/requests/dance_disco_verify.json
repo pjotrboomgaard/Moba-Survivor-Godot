@@ -1,0 +1,28 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "comment": "Verify the Dance Disco minigame (index 4, arena center). Teleport to center, start with bot_force so bot_tick drives mimicry. Run 68s to complete the full 60s minigame. Probes: accuracy, crowd size, final score. Reward scales with crowd.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 0.5, "kind": "minigame", "label": "initial", "index": 4},
+
+    {"t": 1.0, "kind": "teleport", "to": [0, 0]},
+    {"t": 1.0, "kind": "start_minigame", "index": 4},
+    {"t": 1.0, "kind": "minigame_bot_force", "index": 4, "on": true},
+    {"t": 3.0, "kind": "minigame", "label": "dance_started", "index": 4},
+    {"t": 8.0, "kind": "snap", "label": "dance_early"},
+    {"t": 14.0, "kind": "minigame", "label": "dance_mid1", "index": 4},
+    {"t": 20.0, "kind": "snap", "label": "dance_mid1"},
+    {"t": 30.0, "kind": "minigame", "label": "dance_mid2", "index": 4},
+    {"t": 36.0, "kind": "snap", "label": "dance_mid2"},
+    {"t": 45.0, "kind": "minigame", "label": "dance_mid3", "index": 4},
+    {"t": 52.0, "kind": "snap", "label": "dance_mid3"},
+    {"t": 58.0, "kind": "minigame", "label": "dance_late", "index": 4},
+    {"t": 62.0, "kind": "snap", "label": "dance_late"},
+    {"t": 65.0, "kind": "minigame", "label": "dance_final", "index": 4},
+    {"t": 66.0, "kind": "snap", "label": "dance_final"},
+    {"t": 66.5, "kind": "minigame_bot_force", "index": 4, "on": false},
+    {"t": 67.0, "kind": "report"}
+  ]
+}

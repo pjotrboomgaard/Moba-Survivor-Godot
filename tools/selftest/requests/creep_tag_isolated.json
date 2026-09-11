@@ -1,0 +1,6 @@
+{
+  "minigame_index": 8,
+  "hero": "tobor",
+  "time_scale": 1.0,
+  "comment": "Isolated creep tag test: single hero in empty arena. Bot chases and tags creeps. Verify score > 0, hero survives."
+}

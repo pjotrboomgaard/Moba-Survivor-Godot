@@ -20,6 +20,11 @@ const _KegTossScript := preload("res://scripts/minigame_keg_toss.gd")
 const _RpsScript := preload("res://scripts/minigame_rps.gd")
 const _TreasureDashScript := preload("res://scripts/minigame_treasure_dash.gd")
 const _WhackScript := preload("res://scripts/minigame_whack.gd")
+const _GemRelayScript := preload("res://scripts/minigame_gem_relay.gd")
+const _WhackRushScript := preload("res://scripts/minigame_whack_rush.gd")
+const _TreasureDash2Script := preload("res://scripts/minigame_treasure_dash2.gd")
+const _CreepTagScript := preload("res://scripts/minigame_creep_tag.gd")
+const _KegTossProScript := preload("res://scripts/minigame_keg_toss_pro.gd")
 
 var player_scene: PackedScene = preload("res://scenes/player/player.tscn")
 
@@ -47,11 +52,11 @@ func _ready() -> void:
 			f.close()
 	if req != null:
 		if req.has("minigame_index"):
-			test_minigame_index = int(req["minigame_index"])
+			test_minigame_index = req["minigame_index"] as int
 		if req.has("hero"):
 			test_hero = str(req["hero"])
 		if req.has("time_scale"):
-			Engine.time_scale = float(req["time_scale"])
+			Engine.time_scale = req["time_scale"] as float
 
 	print("MINIGAME_TEST ready: index=%d hero=%s duration=%.0f" % [test_minigame_index, test_hero, test_duration])
 
@@ -109,6 +114,12 @@ func _spawn_test_minigame() -> void:
 		2: script = _WhackScript
 		3: script = _RpsScript
 		4: script = _DanceDiscoScript
+		5: script = _GemRelayScript
+		6: script = _KegTossProScript
+		7: script = _WhackRushScript
+		8: script = _CreepTagScript
+		9: script = _TreasureDash2Script
+		10: script = _DanceDiscoScript
 		_:
 			push_error("MINIGAME_TEST unknown minigame index: %d" % test_minigame_index)
 			_finish("ERROR_UNKNOWN_INDEX")
@@ -137,28 +148,41 @@ func _process(delta: float) -> void:
 		var hp: float = _player.get("health").get("current_health")
 		_min_hp = minf(_min_hp, hp)
 
-	# Drive bot movement.
+	# Drive bot movement: read the minigame's last_bot_move (computed by its own
+	# _process when bot_force is on) and apply it to the hero's override.
 	if _minigame != null and is_instance_valid(_minigame):
-		if bool(_minigame.get("active")) and bool(_minigame.get("bot_force")):
-			if _minigame.has_method("bot_tick"):
-				var choice: Dictionary = _minigame.bot_tick(delta)
-				var move: Vector2 = (choice.get("move", Vector2.ZERO) if choice.has("move") else Vector2.ZERO) as Vector2
-				if _player != null and is_instance_valid(_player):
-					_player.minigame_move_override = move.limit_length(1.0)
+		var mg_active: Variant = _minigame.get("active")
+		var mg_bot_force: Variant = _minigame.get("bot_force")
+		var mg_move: Variant = _minigame.get("last_bot_move")
+		if mg_active and mg_bot_force and mg_move != null:
+			var move: Vector2 = mg_move as Vector2
+			if _player != null and is_instance_valid(_player):
+				_player.minigame_move_override = move.limit_length(1.0)
 		else:
 			if _player != null and is_instance_valid(_player):
 				_player.minigame_move_override = Vector2.ZERO
 
 	# Periodic log.
 	if Engine.get_process_frames() % 30 == 0:
-		var score := int(_minigame.get("score")) if _minigame and is_instance_valid(_minigame) else -1
-		var timer := float(_minigame.get("timer")) if _minigame and is_instance_valid(_minigame) else -1.0
-		var hero_pos := _player.global_position if _player and is_instance_valid(_player) else Vector2.ZERO
+		var score := -1
+		var timer := -1.0
+		if _minigame != null and is_instance_valid(_minigame):
+			var sv: Variant = _minigame.get("score")
+			var tv: Variant = _minigame.get("timer")
+			if sv is int:
+				score = sv
+			elif sv is float:
+				score = int(sv)
+			if tv is float:
+				timer = tv
+			elif tv is int:
+				timer = float(tv)
+		var hero_pos := _player.global_position if _player != null and is_instance_valid(_player) else Vector2.ZERO
 		print("MINIGAME_TEST t=%.1f score=%d timer=%.1f hero=(%.0f,%.0f) hp=%.0f" % [
 			_elapsed, score, timer, hero_pos.x, hero_pos.y, _min_hp])
 
 	# Check if minigame finished.
-	if _minigame != null and is_instance_valid(_minigame) and bool(_minigame.get("finished_flag")):
+	if _minigame != null and is_instance_valid(_minigame) and _minigame.get("finished_flag"):
 		_finish("FINISHED")
 		return
 
@@ -172,8 +196,19 @@ func _finish(reason: String) -> void:
 		return
 	_finished = true
 
-	var score := int(_minigame.get("score")) if _minigame and is_instance_valid(_minigame) else -1
-	var timer := float(_minigame.get("timer")) if _minigame and is_instance_valid(_minigame) else -1.0
+	var score := -1
+	var timer := -1.0
+	if _minigame != null and is_instance_valid(_minigame):
+		var sv: Variant = _minigame.get("score")
+		var tv: Variant = _minigame.get("timer")
+		if sv is int:
+			score = sv
+		elif sv is float:
+			score = int(sv)
+		if tv is float:
+			timer = tv
+		elif tv is int:
+			timer = float(tv)
 	var hero_hp := _player.health.current_health if _player and is_instance_valid(_player) and _player.has_node("HealthComponent") else -1.0
 	var hero_pos := _player.global_position if _player and is_instance_valid(_player) else Vector2.ZERO
 	print("MINIGAME_TEST SUMMARY reason=%s score=%d timer=%.1f hero_hp=%.0f hero_pos=(%.0f,%.0f) min_hp=%.0f" % [

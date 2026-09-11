@@ -1,0 +1,6 @@
+{
+  "minigame_index": 9,
+  "hero": "tobor",
+  "time_scale": 1.0,
+  "comment": "Isolated keg toss pro test: single hero in empty arena, lagoon theme. Bot aligns under moving barrels and throws kegs. Verify score > 0, hero survives."
+}

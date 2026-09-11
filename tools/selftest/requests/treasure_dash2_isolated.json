@@ -1,0 +1,6 @@
+{
+  "minigame_index": 9,
+  "hero": "tobor",
+  "time_scale": 1.0,
+  "comment": "Isolated Treasure Dash 2 test: single hero in empty arena. Bot collects moving gems while dodging obstacles. Verify score > 0, hero survives, 45s duration."
+}

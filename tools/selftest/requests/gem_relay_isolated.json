@@ -1,0 +1,6 @@
+{
+  "minigame_index": 5,
+  "hero": "tobor",
+  "time_scale": 1.0,
+  "comment": "Isolated Gem Relay test: single hero in empty arena. Bot runs between relay markers collecting gems. Verify score > 0, hero survives, 45s duration."
+}

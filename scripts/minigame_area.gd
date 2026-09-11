@@ -35,13 +35,19 @@ func start(main_node: Node, arena_node: Node2D, recruit_areas: Node) -> void:
 	for c in corners:
 		positions.append(Vector2(c.x * half.x * 0.60, c.y * half.y * 0.60))
 
-	# Create the minigames: 4 at corners + 1 at center (Dance Disco).
+	# Create the minigames: 4 at corners + 1 at center + 3 at mid-edges.
 	_spawn_minigame(0, positions[0], Color("8fae6a"), "Treasure Dash")
 	_spawn_minigame(1, positions[1], Color("5ad4ff"), "Keg Toss")
 	_spawn_minigame(2, positions[2], Color("7dbb5a"), "Whack-a-Creep")
 	_spawn_minigame(3, positions[3], Color("ff9a3d"), "Rock-Paper-Creep")
 	# Dance Disco at arena center
 	_spawn_minigame(4, Vector2.ZERO, Color("b44dff"), "Dance Disco")
+	# 5 new minigames at mid-edges + inner ring (lagoon/forest/mountain/town themed)
+	_spawn_minigame(5, Vector2.ZERO + Vector2(-half.x * 0.35, -half.y * 0.55), Color("2ee0c0"), "Gem Relay")
+	_spawn_minigame(6, Vector2.ZERO + Vector2(half.x * 0.45, half.y * 0.45), Color("3fb0e0"), "Keg Toss Pro")
+	_spawn_minigame(7, Vector2.ZERO + Vector2(half.x * 0.55, -half.y * 0.35), Color("3fa84a"), "Whack Rush")
+	_spawn_minigame(8, Vector2.ZERO + Vector2(-half.x * 0.55, half.y * 0.25), Color("c07bff"), "Creep Tag")
+	_spawn_minigame(9, Vector2.ZERO + Vector2(half.x * 0.35, half.y * 0.55), Color("e0c05a"), "Treasure Dash 2")
 
 	_enabled = true
 
@@ -59,11 +65,20 @@ func _spawn_minigame(index: int, pos: Vector2, accent: Color, name: String) -> v
 			script = load("res://scripts/minigame_rps.gd")
 		4:
 			script = load("res://scripts/minigame_dance_disco.gd")
+		5:
+			script = load("res://scripts/minigame_gem_relay.gd")
+		6:
+			script = load("res://scripts/minigame_keg_toss_pro.gd")
+		7:
+			script = load("res://scripts/minigame_whack_rush.gd")
+		8:
+			script = load("res://scripts/minigame_creep_tag.gd")
+		9:
+			script = load("res://scripts/minigame_treasure_dash2.gd")
 		_:
 			return
 	if script == null:
 		push_warning("MinigameArea: could not load script for index %d" % index)
-		print("MINIGAME_DEBUG spawn index=%d script=null" % index)
 		_games.append(null)
 		return
 	var game: Node2D = script.new()
@@ -75,7 +90,6 @@ func _spawn_minigame(index: int, pos: Vector2, accent: Color, name: String) -> v
 	game.set("accent", accent)
 	game.set("area_index", index)
 	_games.append(game)
-	print("MINIGAME_DEBUG spawned index=%d name=%s total=%d" % [index, name, _games.size()])
 
 
 ## Get a single minigame by index (for probes).

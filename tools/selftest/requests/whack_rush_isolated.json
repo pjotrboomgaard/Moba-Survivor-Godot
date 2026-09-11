@@ -1,0 +1,6 @@
+{
+  "minigame_index": 7,
+  "hero": "tobor",
+  "time_scale": 1.0,
+  "comment": "Isolated Whack Rush test: single hero in empty arena. Bot whacks targets in 4x4 grid with combo multiplier. Verify score > 0, hero survives, 40s duration."
+}
