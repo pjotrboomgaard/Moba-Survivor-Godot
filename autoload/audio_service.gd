@@ -178,6 +178,13 @@ const SOUND_LIBRARY: Dictionary = {
 	# and a heavier "GO / FIGHT" beat when the wave starts.
 	"countdown_tick": [preload("res://assets/audio/themes/countdown_tick.wav")],
 	"countdown_fight": [preload("res://assets/audio/themes/countdown_fight.wav")],
+	# Per-biome footstep stingers (P3 footstep sounds). Quiet, single-shot, fired on a
+	# cadence while the hero walks so movement "reads" even in a busy mix.
+	"step_grass": [preload("res://assets/audio/themes/step_grass.wav")],
+	"step_ice": [preload("res://assets/audio/themes/step_ice.wav")],
+	"step_lava": [preload("res://assets/audio/themes/step_lava.wav")],
+	"step_metal": [preload("res://assets/audio/themes/step_metal.wav")],
+	"step_wood": [preload("res://assets/audio/themes/step_wood.wav")],
 }
 
 const FAMILY_FOR_ARCHETYPE := {
@@ -251,6 +258,11 @@ const VOLUME_DB := {
 	"attack_rime": -10.0,
 	"countdown_tick": -6.0,
 	"countdown_fight": -4.0,
+	"step_grass": -18.0,
+	"step_ice": -18.0,
+	"step_lava": -18.0,
+	"step_metal": -18.0,
+	"step_wood": -18.0,
 	"sfx_projectile": -9.0,
 	"turret_fire": -12.0,
 	"sfx_cone": -8.0,
@@ -296,6 +308,11 @@ const PITCH_SPREAD := {
 	"attack_warden": 0.05,
 	"countdown_tick": 0.02,
 	"countdown_fight": 0.0,
+	"step_grass": 0.08,
+	"step_ice": 0.06,
+	"step_lava": 0.06,
+	"step_metal": 0.06,
+	"step_wood": 0.08,
 	"sfx_projectile": 0.05,
 	"turret_fire": 0.05,
 	"sfx_cone": 0.04,
@@ -318,6 +335,11 @@ const MAX_VOICES := {
 	"dash": 2,
 	"turret_fire": 6,
 	"charge": 2,
+	"step_grass": 2,
+	"step_ice": 2,
+	"step_lava": 2,
+	"step_metal": 2,
+	"step_wood": 2,
 	"cast_tobor": 2,
 	"attack_tobor": 3,
 	"attack_arclight": 3,

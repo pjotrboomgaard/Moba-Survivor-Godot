@@ -194,6 +194,11 @@ var aegis_charges := 0
 var aegis_charges_left := 0
 var sprint_timer := 0.0
 var sprint_cooldown := 0.0
+## Footstep cadence: how far the hero must travel before the next footstep SFX tick.
+## Each step plays a short, biome-flavoured stinger so movement "reads" even in the
+## audio mix (soft on grass, crunch on ice/snow, sizzle on lava).
+var _footstep_dist := 0.0
+const FOOTSTEP_STEP_DISTANCE := 105.0
 var command_ability := false
 
 var attack_cooldown := 0.0
@@ -977,6 +982,7 @@ func _physics_process(delta: float) -> void:
 	velocity = move_input * speed + knockback_velocity
 	move_and_slide()
 	_refresh_sort_z()
+	_tick_footsteps(delta)
 	# Synergy "Skirmisher": healing while moving (movement = safety = life).
 	if _move_heal_per_second > 0.0 and velocity.length_squared() > 400.0 and not health.is_dead:
 		health.current_health = minf(health.max_health, health.current_health + _move_heal_per_second * delta)
@@ -1002,6 +1008,44 @@ func _reset_attack_charge() -> void:
 	_shot_charge = 0.0
 	_charge_firing = false
 	_attack_held_prev = false
+
+
+## Plays a short, biome-flavoured footstep stinger every time the hero travels a fixed
+## distance while moving. The biome decides the flavour so the audio "sounds like the
+## place" (P3 footstep sound): grass = soft thud, ice/snow = crisp crack, lava = sizzle,
+## factory/docks = metallic/wooden creak. Silent when standing still or in the lobby.
+func _tick_footsteps(delta: float) -> void:
+	if health.is_dead:
+		return
+	var step_speed := velocity.length()
+	if step_speed < 40.0:
+		# Slower than walking -> reset the accumulator so a fresh step fires promptly
+		# once movement resumes.
+		_footstep_dist = 0.0
+		return
+	_footstep_dist += step_speed * delta
+	if _footstep_dist < FOOTSTEP_STEP_DISTANCE:
+		return
+	_footstep_dist = 0.0
+	var sfx_id := _footstep_sfx_for_biome()
+	if sfx_id != "":
+		SoundDirector.play(sfx_id, global_position)
+
+
+## Maps the current biome to a footstep SFX id. Falls back to a generic soft step when
+## the biome has no dedicated footstep bank yet (so the layer is never silent).
+func _footstep_sfx_for_biome() -> String:
+	if GameRuntime.uses_biomes():
+		match GameRuntime.biome_id:
+			1:  # Ashen Crater (volcano)
+				return "step_lava"
+			2:  # Frostmere Reach (ice)
+				return "step_ice"
+			3:  # Foundry (factory)
+				return "step_metal"
+			4:  # Docks
+				return "step_wood"
+	return "step_grass"
 
 
 func _charge_t() -> float:

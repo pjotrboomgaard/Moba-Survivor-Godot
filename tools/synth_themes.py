@@ -261,6 +261,86 @@ ATTACK_RECIPES = {
     ],
 }
 
+# 5-4-3-2-1 fight countdown stingers. The tick is a short, dry, analog "tock"
+# (like a pixel-art clock hand clicking over a notch); the fight stinger is a
+# low, rising war-drum hit that resolves into a bright chime so the player
+# reads "here we go" without it sounding like a generic alert.
+COUNTDOWN_RECIPES = {
+    "countdown_tick": [
+        [dict(wave="square", f0=720, f1=560, dur=0.12, amp=0.55, duty=0.25),
+         dict(wave="sine", f0=1180, f1=920, dur=0.09, amp=0.40)],
+    ],
+    "countdown_fight": [
+        [dict(wave="square", f0=90, f1=55, dur=0.42, amp=0.62, duty=0.34),
+         dict(wave="saw", f0=60, f1=40, dur=0.38, amp=0.36),
+         dict(wave="chime", f0=1400, f1=1900, dur=0.24, amp=0.30, partials=[1.0, 1.5, 2.0])],
+    ],
+}
+
+# Per-BIOME footstep stingers (P3 footstep sounds). Short, quiet, single-shot ticks
+# that fire on a cadence while the hero walks. Each is deliberately low-amp so 10
+# steps a second never becomes noise; the *flavour* differs per biome: grass = soft
+# organic thud, ice = bright short crack, lava = wet sizzle, factory = metallic tick,
+# docks = soft wooden tap.
+FOOTSTEP_RECIPES = {
+    "step_grass": [
+        [dict(wave="sine", f0=240, f1=140, dur=0.09, amp=0.30),
+         dict(wave="crackle", f0=600, f1=300, dur=0.05, amp=0.12)],
+    ],
+    "step_ice": [
+        [dict(wave="chime", f0=2200, f1=1400, dur=0.06, amp=0.22, partials=[1.0, 2.0]),
+         dict(wave="square", f0=900, f1=500, dur=0.04, amp=0.14, duty=0.2)],
+    ],
+    "step_lava": [
+        [dict(wave="crackle", f0=1400, f1=500, dur=0.08, amp=0.24),
+         dict(wave="saw", f0=300, f1=120, dur=0.06, amp=0.10)],
+    ],
+    "step_metal": [
+        [dict(wave="square", f0=520, f1=300, dur=0.05, amp=0.18, duty=0.3),
+         dict(wave="chime", f0=1600, f1=900, dur=0.04, amp=0.10, partials=[1.0])],
+    ],
+    "step_wood": [
+        [dict(wave="sine", f0=360, f1=200, dur=0.07, amp=0.26),
+         dict(wave="square", f0=140, f1=80, dur=0.04, amp=0.12, duty=0.25)],
+    ],
+}
+
+# Per-WORLD ambient beds (task A). Each is a long-ish, low, looping-style bed that
+# crossfades in when the player enters that biome. Kept short-punch analog, not a
+# digital wash: nature swells for grass, rumble+metal clank for the volcano,
+# wind+ice sparkle for the ice, and water lapping for the docks.
+WORLD_THEME_RECIPES = {
+    # biome 0 = Verdant Hollow (grass): soft nature swell.
+    "world_grass": [
+        [dict(wave="sine", f0=180, f1=240, dur=6.0, amp=0.22, partials=[]),
+         dict(wave="chime", f0=880, f1=1200, dur=3.0, amp=0.08, partials=[1.0, 1.5]),
+         dict(wave="whoosh", f0=300, f1=500, dur=6.0, amp=0.10)],
+    ],
+    # biome 1 = Ashen Crater (volcano): low rumble + metallic clank.
+    "world_volcano": [
+        [dict(wave="saw", f0=48, f1=40, dur=6.0, amp=0.30, duty=0.5),
+         dict(wave="square", f0=70, f1=55, dur=6.0, amp=0.20, duty=0.3),
+         dict(wave="crackle", f0=400, f1=180, dur=6.0, amp=0.12)],
+    ],
+    # biome 2 = Frostmere Reach (ice): wind + ice sparkle.
+    "world_ice": [
+        [dict(wave="whoosh", f0=260, f1=520, dur=6.0, amp=0.18),
+         dict(wave="chime", f0=1800, f1=2400, dur=3.0, amp=0.07, partials=[1.0, 2.0]),
+         dict(wave="crackle", f0=2600, f1=1600, dur=4.0, amp=0.06)],
+    ],
+    # biome 3 = Ironworks Yard (factory): distant machinery hum.
+    "world_factory": [
+        [dict(wave="square", f0=55, f1=50, dur=6.0, amp=0.16, duty=0.4),
+         dict(wave="crackle", f0=300, f1=160, dur=6.0, amp=0.10)],
+    ],
+    # biome 4 = Saltbreak Docks: water lapping.
+    "world_docks": [
+        [dict(wave="whoosh", f0=200, f1=360, dur=6.0, amp=0.16),
+         dict(wave="sine", f0=320, f1=420, dur=3.0, amp=0.08),
+         dict(wave="crackle", f0=900, f1=500, dur=4.0, amp=0.05)],
+    ],
+}
+
 
 def main():
     rng = random.Random(0xC0FFEE)
@@ -277,6 +357,30 @@ def main():
         for i, take in enumerate(takes):
             suffix = "" if i == 0 else "_%d" % (i + 1)
             path = os.path.join(OUT_DIR, "attack_" + hero + suffix + ".wav")
+            write_wav(path, synthesize(take, rng))
+            written += 1
+            print("wrote %s" % path)
+    # Countdown SFX live at the top level of the themes dir (not per-hero).
+    for name, takes in COUNTDOWN_RECIPES.items():
+        for i, take in enumerate(takes):
+            suffix = "" if i == 0 else "_%d" % (i + 1)
+            path = os.path.join(OUT_DIR, name + suffix + ".wav")
+            write_wav(path, synthesize(take, rng))
+            written += 1
+            print("wrote %s" % path)
+    # Per-biome footstep stingers (P3).
+    for name, takes in FOOTSTEP_RECIPES.items():
+        for i, take in enumerate(takes):
+            suffix = "" if i == 0 else "_%d" % (i + 1)
+            path = os.path.join(OUT_DIR, name + suffix + ".wav")
+            write_wav(path, synthesize(take, rng))
+            written += 1
+            print("wrote %s" % path)
+    # Per-world ambient beds (task A) — one looping bed per biome.
+    for name, takes in WORLD_THEME_RECIPES.items():
+        for i, take in enumerate(takes):
+            suffix = "" if i == 0 else "_%d" % (i + 1)
+            path = os.path.join(OUT_DIR, name + suffix + ".wav")
             write_wav(path, synthesize(take, rng))
             written += 1
             print("wrote %s" % path)
