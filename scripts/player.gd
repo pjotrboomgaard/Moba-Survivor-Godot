@@ -728,10 +728,11 @@ const PVP_TAKEN_MULT := 1.5
 ## PVP balance: for chain-bolt heroes ("flying drone guy"), PVP chain HOPS (not the
 ## primary hit) are heavily damped so the chain isn't a PVP nuke, while vs creeps the
 ## full decaying chain damage is kept.
-const PVP_CHAIN_HIT_PENALTY := 0.3
-## Per-hop PVP damage penalty for the chain-bolt staff (multiplied onto each extra hop
-## when it hits a rival hero). Keeps the drone-chain deadly on creeps but weak on PVP.
-const PVP_CHAIN_HOP_PENALTY := 0.35
+const PVP_CHAIN_HIT_PENALTY := 0.2
+## P1.5f: per-hop PVP damage penalty for the chain-bolt staff, reduced from 0.35 to
+## 0.22 — chains were still shredding rival heroes even after the per-hop decay; this
+## keeps the "flying drone guy" strong on creeps while making PVP chains clearly weak.
+const PVP_CHAIN_HOP_PENALTY := 0.22
 ## Decay factor applied to each successive mending-bolt chain hop (vs creeps). Vs
 ## rivals the first hop keeps full damage and every later hop decays by this factor.
 const CHAIN_HOP_DECAY := 0.55

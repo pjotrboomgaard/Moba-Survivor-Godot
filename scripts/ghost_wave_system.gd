@@ -152,27 +152,20 @@ func _pick_least_targeted_player() -> Player:
 	return best
 
 
-## Pick the map-edge point nearest to `target_pos`, so each hero's creeps come in
-## from their own side of the map rather than a uniformly random edge.
+## P1.5b: spawn creeps from all 4 map edges evenly (round-robin, one per edge
+## before repeating) instead of always picking the edge nearest to the target
+## hero. The position along each edge stays near the hero's axis so the approach
+## is still angled toward them, but the *edge* is distributed so every hero gets
+## pressure from every corner of the map.
+var _edge_rr := 0
+
 func _perimeter_point_nearest(half: Vector2, target_pos: Vector2) -> Vector2:
 	var m := GHOST_SPAWN_MARGIN
-	# Which of the 4 edges is the target nearest? Then pick a point along that edge.
-	var dist_top: float = absf(target_pos.y - (-half.y - m))
-	var dist_bot: float = absf(target_pos.y - (half.y + m))
-	var dist_left: float = absf(target_pos.x - (-half.x - m))
-	var dist_right: float = absf(target_pos.x - (half.x + m))
-	var nearest := 0
-	if dist_top <= dist_bot and dist_top <= dist_left and dist_top <= dist_right:
-		nearest = 0
-	elif dist_bot <= dist_left and dist_bot <= dist_right:
-		nearest = 1
-	elif dist_left <= dist_right:
-		nearest = 2
-	else:
-		nearest = 3
-	match nearest:
+	# Round-robin across the 4 edges so creeps arrive from all corners evenly.
+	var edge := _edge_rr % 4
+	_edge_rr += 1
+	match edge:
 		0:
-			# Top edge: x near target.x so the approach is angled toward them.
 			return Vector2(clampf(target_pos.x + randf_range(-600.0, 600.0), -half.x - m, half.x + m), -half.y - m)
 		1:
 			return Vector2(clampf(target_pos.x + randf_range(-600.0, 600.0), -half.x - m, half.x + m), half.y + m)

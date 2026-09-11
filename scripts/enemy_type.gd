@@ -574,7 +574,7 @@ const TYPES: Array[Dictionary] = [
 		"radius": 68.0,
 		"max_health": 1400.0,
 		"movement_speed": 92.0,
-		"contact_damage": 12.0,
+		"contact_damage": 9.0,
 		"attack_interval": 0.85,
 		"attack_distance": 92.0,
 		"xp_value": 420,
@@ -587,7 +587,9 @@ const TYPES: Array[Dictionary] = [
 		"charge_speed": 540.0,
 		"charge_windup": 0.5,
 		"charge_duration": 0.62,
-		"dash_interval": 3.2,
+		## P1.5g: Ravager (Tremor's world boss) was too strong — reduced contact
+		## damage and lengthened the dash interval so the fight is winnable.
+		"dash_interval": 4.2,
 		"unlock_wave": 5,
 		"cost": 12.0,
 		"weight": 0.0,

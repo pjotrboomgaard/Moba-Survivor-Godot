@@ -65,11 +65,12 @@ func _process(delta: float) -> void:
 
 
 func _fire() -> void:
-	var interval := maxf(0.28, 0.72 - 0.08 * float(rank - 1))
-	var power := (7.0 + 3.0 * float(rank)) * (owner_player.damage_dealt_multiplier if owner_player != null else 1.0)
+	## P1.5d: drones are stronger — faster fire cadence and noticeably more damage.
+	var interval := maxf(0.22, 0.58 - 0.07 * float(rank - 1))
+	var power := (10.0 + 4.0 * float(rank)) * (owner_player.damage_dealt_multiplier if owner_player != null else 1.0)
 	match kind:
 		Kind.GUN, Kind.EMBER, Kind.THORN, Kind.SPARK, Kind.FROST, Kind.LASER:
-			var reach := 360.0 + 28.0 * float(rank) if kind == Kind.LASER else 260.0 + 20.0 * float(rank)
+			var reach := 380.0 + 30.0 * float(rank) if kind == Kind.LASER else 300.0 + 22.0 * float(rank)
 			var target := _nearest_enemy(reach)
 			if target == null:
 				return

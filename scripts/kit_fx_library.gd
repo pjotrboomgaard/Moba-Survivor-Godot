@@ -50,7 +50,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "steam",
 		"draw_mode": "hex_field",
-		"lifetime": 1.8,
+		"lifetime": 3.6,
 	},
 	# ── Pyra — Blast-Step (teleport secondary) ─────────────────────────────
 	"pyra_blast_jump": {
@@ -130,7 +130,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "storm",
 		"draw_mode": "storm_pillar",
-		"lifetime": 1.4,
+		"lifetime": 2.8,
 	},
 	"arclight_ball_lightning": {
 		"primary_color": "fff8a8",
@@ -166,7 +166,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "nature",
 		"draw_mode": "quake_rings",
-		"lifetime": 1.5,
+		"lifetime": 3.0,
 	},
 	# ── Warden (Totem / Pollywog) ────────────────────────────────────────────
 	"warden_tongue_tied": {
@@ -231,7 +231,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "ice",
 		"draw_mode": "ice_cone",
-		"lifetime": 1.4,
+		"lifetime": 2.8,
 	},
 	"frostbinder_rime_barrage": {
 		"primary_color": "a8dcff",
@@ -267,7 +267,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "fire",
 		"draw_mode": "flame_pillar",
-		"lifetime": 1.6,
+		"lifetime": 3.2,
 	},
 	"cinder_whirling_flame": {
 		"primary_color": "ffb347",
@@ -303,7 +303,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "fire",
 		"draw_mode": "air_strike",
-		"lifetime": 1.3,
+		"lifetime": 2.6,
 	},
 	"pyra_molten_charge": {
 		"primary_color": "ff8a5c",
@@ -348,7 +348,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "fire",
 		"draw_mode": "eruption_plume",
-		"lifetime": 1.7,
+		"lifetime": 3.4,
 	},
 	# ── Ember (Witchfire / Demented) ─────────────────────────────────────────
 	"ember_entangle": {
@@ -385,7 +385,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 2,
 		"style": "fire",
 		"draw_mode": "ward_shell",
-		"lifetime": 1.4,
+		"lifetime": 2.8,
 	},
 	# ── Thorn (Venom / Slither) ──────────────────────────────────────────────
 	"thorn_poison_spray": {
@@ -422,7 +422,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "nature",
 		"draw_mode": "toxic_bloom",
-		"lifetime": 1.5,
+		"lifetime": 3.0,
 	},
 	"thorn_bramble_dash": {
 		"primary_color": "7dff3a",
@@ -458,7 +458,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "nature",
 		"draw_mode": "root_wall",
-		"lifetime": 1.6,
+		"lifetime": 3.2,
 	},
 	# ── Stump (Keeper) ───────────────────────────────────────────────────────
 	"stump_natures_rally": {
@@ -494,7 +494,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "nature",
 		"draw_mode": "overgrowth",
-		"lifetime": 1.7,
+		"lifetime": 3.4,
 	},
 	# ── Sage (Nymphel / Nymphora) ────────────────────────────────────────────
 	"sage_grace": {
@@ -568,7 +568,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "storm",
 		"draw_mode": "typhoon_spiral",
-		"lifetime": 1.7,
+		"lifetime": 3.4,
 	},
 	# ── Nebula (Aeon / Chronos) ──────────────────────────────────────────────
 	"nebula_time_shift": {
@@ -613,7 +613,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "arcane",
 		"draw_mode": "clock_field",
-		"lifetime": 1.8,
+		"lifetime": 3.6,
 	},
 	# ── Astral (Lumina / Empath) ─────────────────────────────────────────────
 	"astral_essence_link": {
@@ -650,7 +650,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "arcane",
 		"draw_mode": "moonfall",
-		"lifetime": 0.7,
+		"lifetime": 1.4,
 	},
 	"astral_as_one": {
 		"primary_color": "fff4c4",
@@ -659,7 +659,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 6,
 		"style": "arcane",
 		"draw_mode": "orbit_rings",
-		"lifetime": 1.7,
+		"lifetime": 3.4,
 	},
 	# ── Rime (Glacier / Glacius) ─────────────────────────────────────────────
 	"rime_ice_imprisonment": {
@@ -687,7 +687,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 7,
 		"style": "ice",
 		"draw_mode": "freeze_field",
-		"lifetime": 1.9,
+		"lifetime": 3.8,
 	},
 	# Pool aliases still referenced by VECTOR_ONLY / ability pools.
 	"willow_volley": {

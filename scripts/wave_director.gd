@@ -285,7 +285,10 @@ const SOLO_PRESSURE_FROM_WAVE := 2
 ## side of the map in FFA — the edge-trickle creeps that walk in from the perimeter
 ## become a visible army instead of a light trickle.
 const FFA_HEALTH_PRESSURE := 1.25
-const FFA_BUDGET_PRESSURE := 1.45
+## P1.5c: FFA "more creeps toward the local side." Raised budget pressure so the
+## per-team director spawns a visibly bigger edge trickle for the local hero, on
+## top of the lane-targeted pressure pack below.
+const FFA_BUDGET_PRESSURE := 1.85
 const FFA_DAMAGE_PRESSURE := 1.20
 
 ## The lobby's difficulty pick scales enemy health on top of the wave curve above (Pjotr mode

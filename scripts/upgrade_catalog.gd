@@ -93,6 +93,26 @@ const SYNERGIES := {
 		"bonus": {"extra_projectiles_flat": 1, "companion_damage_flat": 4.0},
 		"flavor": "Your drones share your volley — more fire, more drones.",
 	},
+	# P1.5 upgrade-diversity pass: three new synergy pairs that mix across paths
+	# (splash+farm, crit+tempo, tank+move) so mid-runs find more distinct builds.
+	"aftershock_farm": {
+		"requires": ["aftershock", "scholar"],
+		"name": "Ripple Grind",
+		"bonus": {"xp_gain_mult": 0.1, "blast_radius_flat": 10.0},
+		"flavor": "Every echo blast you land feeds your XP engine.",
+	},
+	"keen_tempo": {
+		"requires": ["keen_eye", "haste"],
+		"name": "Precision Tempo",
+		"bonus": {"crit_chance": 0.04, "attack_interval_mult": 0.08},
+		"flavor": "Steady rhythm makes the crit window land more often.",
+	},
+	"flow_ironhide": {
+		"requires": ["flow", "ironhide"],
+		"name": "Bastion Aura",
+		"bonus": {"self_heal_on_move": 0.4, "damage_taken_mult": -0.04},
+		"flavor": "A wall that slowly knits its own wounds while it holds.",
+	},
 }
 
 ## Return all synergies where the player holds ALL required upgrades.
