@@ -1,0 +1,12 @@
+{
+  "hero": "cinder",
+  "biome": 0,
+  "comment": "P3 footstep SFX: walk the hero a long distance so _tick_footsteps fires step_grass; probe last_sfx right after each leg to confirm a biome footstep id was the most recent SFX. Also confirm biome 1 (volcano) uses step_lava.",
+  "events": [
+    {"t": 1.0, "kind": "walk_to", "at": [600, 0], "timeout": 4.0},
+    {"t": 5.2, "kind": "probe", "label": "grass_walk"},
+    {"t": 5.6, "kind": "walk_to", "at": [-1200, 0], "timeout": 4.0},
+    {"t": 9.8, "kind": "probe", "label": "grass_walk2"},
+    {"t": 11.0, "kind": "report"}
+  ]
+}
