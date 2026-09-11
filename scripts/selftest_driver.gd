@@ -1266,11 +1266,12 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 		_active_effects.append(entry)
 		return
 	var prefix := ability_id.split("_")[0]
-	# Primary-attack SFX (kind == "primary_attack_<hero>") fire through
-	# SoundDirector.play("attack_<hero>") rather than play_ability, so last_play_ability
-	# still holds whatever ability fired last. Detect this up front and relax the
-	# ability/bank asserts to just "the expected attack_<hero> sound fired".
-	var is_primary_attack_probe := ability_id.begins_with("primary_attack_")
+	# Primary-attack SFX fire through SoundDirector.play("attack_<hero>") rather than
+	# play_ability, so last_play_ability still holds whatever ability fired last. Detect
+	# a primary-attack probe from either the ability_id ("primary_attack_<hero>") OR the
+	# label ("primary_<hero>") so we relax the ability/bank asserts to just "the expected
+	# attack_<hero> sound fired".
+	var is_primary_attack_probe := ability_id.begins_with("primary_attack_") or label.begins_with("primary_")
 	var bank := "cast_%s" % prefix if not is_primary_attack_probe else "attack_%s" % prefix
 	entry["expected_bank"] = bank
 	var last_ability: String = AudioService.last_play_ability
@@ -1288,7 +1289,10 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 	entry["assert_bank_match"] = sound_id == bank
 	# Theme takes live in assets/audio/themes/<hero>.wav, not named cast_<hero> — match
 	# by hero prefix so the assert covers both synthesized themes and legacy .ogg takes.
-	entry["assert_stream_from_bank"] = stream != null and ("themes/%s" % prefix) in stream.resource_path
+	# Primary-attack streams are themes/attack_<hero>[_N].wav, so match the attack_<hero>
+	# prefix instead of the bare hero prefix.
+	var stream_prefix := "themes/%s" % ("attack_%s" % prefix if is_primary_attack_probe else prefix)
+	entry["assert_stream_from_bank"] = stream != null and stream_prefix in stream.resource_path
 	entry["assert_player_fired"] = player != null
 	entry["ok"] = (entry["assert_ability_match"] and entry["assert_bank_match"]
 		and entry["assert_stream_from_bank"] and entry["assert_player_fired"])

@@ -598,6 +598,7 @@ const TYPES: Array[Dictionary] = [
 	{
 		"id": "stormcaller",
 		"name": "Stormcaller",
+		"world_exclusive": true,
 		"behaviour": Behaviour.RANGED,
 		"fill_color": "2f6bff",
 		"outline_color": "b8d4ff",
@@ -1039,7 +1040,14 @@ static func boss_for_wave(wave: int) -> String:
 			unlocked.append(boss_id)
 	if unlocked.is_empty():
 		return rotation[0]
-	return unlocked[(int(wave) / WaveDirector.BOSS_WAVE_INTERVAL - 1) % unlocked.size()]
+	# Two bosses per world: wave 5 = boss #1 (index 0), wave 10 = boss #2 (index 1).
+	# Every 10 waves the biome advances (WAVES_PER_WORLD = 15, but bosses land on
+	# wave 5 and 10 within a world, so the index cycles 0,1,0,1 across worlds).
+	# Index = (wave / BOSS_WAVE_INTERVAL - 1) gives: wave 5 -> 0, wave 10 -> 1,
+	# wave 15 -> 2, wave 20 -> 3, ... Then mod by unlocked.size() so it cycles
+	# through the available bosses in the current biome.
+	var boss_number := maxi(0, int(wave) / WaveDirector.BOSS_WAVE_INTERVAL - 1)
+	return unlocked[boss_number % unlocked.size()]
 
 
 static func damage_multiplier(type_id: String, damage_type: int) -> float:

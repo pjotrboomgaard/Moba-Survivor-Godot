@@ -177,6 +177,11 @@ var _last_boss_ring_source := "none"
 const FFA_INTRO_HOLD := 2.0
 const FFA_INTRO_WALK := 3.5
 const FFA_INTRO_END_HOLD := 2.0
+
+## Global gold-drop boost so items stay affordable through the late game. Multiplied on
+## top of any gold_multiplier upgrade the hero carries. Only applied at the enemy-kill
+## award path (not dev/test gold), so unit-test gold expectations stay exact.
+const GOLD_DROP_BOOST := 1.45
 var _ffa_intro_elapsed := -1.0
 var _ffa_intro_done := false
 var _ffa_countdown_shown := 0   # last countdown number displayed during walkout
@@ -1760,17 +1765,19 @@ func _on_enemy_defeated(enemy: Enemy) -> void:
 		_cached_boss = null
 	_spawn_xp_orb(enemy.global_position, enemy.xp_value)
 	_spawn_corpse(enemy)
+	# Global gold-drop boost so items stay affordable through the late game.
+	var drop_amount := maxi(1, int(round(float(enemy.gold_value) * GOLD_DROP_BOOST)))
 	if GameRuntime.is_ffa() and enemy.health.last_damage_source is Player:
 		var creep_killer := enemy.health.last_damage_source as Player
-		creep_killer.add_gold(maxi(1, int(round(float(enemy.gold_value) * 1.5))))
+		creep_killer.add_gold(maxi(1, int(round(float(drop_amount) * 1.5))))
 		creep_killer.creep_kills += 1
 	elif GameRuntime.is_rift_clash() and enemy.health.last_damage_source is Player:
 		var killer := enemy.health.last_damage_source as Player
 		killer.creep_kills += 1
 		if killer.team_id != "":
-			_award_gold_to_team(killer.team_id, enemy.gold_value)
+			_award_gold_to_team(killer.team_id, drop_amount)
 	else:
-		_award_gold(enemy.gold_value)
+		_award_gold(drop_amount)
 		if enemy.health.last_damage_source is Player:
 			var solo_killer := enemy.health.last_damage_source as Player
 			solo_killer.creep_kills += 1

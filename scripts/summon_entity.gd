@@ -11,14 +11,13 @@ signal expired(entity: SummonEntity)
 ## they carry a HealthComponent so creeps can hunt and destroy them like any other unit.
 ## Only summons flagged as a turret get real HP; mines/traps (trigger_radius > 0) stay
 ## indestructible (they detonate on contact instead of being chewed up).
-const TURRET_BASE_HEALTH := 220.0
+const TURRET_BASE_HEALTH := 360.0
 var is_turret := false
 var health: HealthComponent
 
-@export var lifetime: float = 12.0
-## Per-bolt damage scaled down so the turret reads as "chips health away constantly",
-## not as a secondary nuke. The hero's own cadence does the heavy lifting.
-@export var power: float = 8.0
+@export var lifetime: float = 14.0
+## Per-bolt damage — bumped so summons are meaningful damage dealers, not just chips.
+@export var power: float = 13.0
 ## Fast attack cadence — we want to see a stream of bolts, not a slow drip.
 @export var attack_interval: float = 0.32
 @export var range: float = 380.0
@@ -54,6 +53,8 @@ var seek_range: float = 260.0
 var taunt_weight: float = 0.6
 var _exploded := false
 var _arm_timer: float = 0.0
+## Throttle for turret SFX so a field of turrets doesn't stack into a wall of noise.
+var _turret_sfx_cooldown: float = 0.0
 
 @onready var _sprite: Sprite2D = $Sprite2D
 @onready var _shadow: Polygon2D = $Shadow
@@ -155,6 +156,11 @@ func _process(delta: float) -> void:
 		if _deploy_timer <= 0.0:
 			sprite.scale = Vector2(3.4, 3.4) if _is_mine() else Vector2(3.0, 3.0)
 			sprite.modulate = _body_modulate()
+			# Deploy SFX — the drone "lands" audibly so summons have presence.
+			if GameRuntime.is_dedicated_server():
+				pass
+			else:
+				SoundDirector.play("sfx_radius", global_position)
 	if _is_mine():
 		if _arm_timer > 0.0:
 			_arm_timer = maxf(0.0, _arm_timer - delta)
@@ -336,6 +342,14 @@ func _strike_nearest() -> void:
 	# Muzzle flash + a fat visible bolt so you can tell the turret is actually shooting.
 	_muzzle_t = 0.32
 	_flash(best)
+	# Drones "fire" — a short zap so summoned turrets have audible presence. Kept
+	# quiet-ish (the shared sfx_projectile bank) and throttled to the fire cycle so a
+	# field of turrets doesn't stack into a wall of noise.
+	if GameRuntime.is_dedicated_server():
+		pass
+	elif _turret_sfx_cooldown <= 0.0:
+		_turret_sfx_cooldown = 0.28
+		SoundDirector.play("turret_fire", global_position)
 	var health := best.get_node_or_null("HealthComponent")
 	if health != null and health.has_method("take_damage"):
 		health.take_damage(power, self)

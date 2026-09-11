@@ -672,9 +672,10 @@ func _emit_pressure_pack() -> void:
 
 
 ## Number of boss waves that must be beaten within the CURRENT world before the
-## world transitions. Bosses still spawn every 5th wave (BOSS_WAVE_INTERVAL), but
-## each world now gets `BIOMES_PER_WORLD` bosses before advancing.
-const WAVES_PER_WORLD := BOSS_WAVE_INTERVAL * 3
+## world transitions. Bosses still spawn every 5th wave (BOSS_WAVE_INTERVAL); each
+## world gets 2 bosses before advancing (wave 5 = 1st boss, wave 10 = 2nd boss),
+## so a world lasts 10 waves. The transition fires right after the 2nd boss dies.
+const WAVES_PER_WORLD := BOSS_WAVE_INTERVAL * 2
 
 
 ## Highest-cost non-elite, non-boss type unlocked by this wave — a real step up from

@@ -106,8 +106,9 @@ const BIOME_ALIASES := {
 }
 
 
-## One biome every seven waves so a run walks grass → volcano → ice → factory → docks.
-const BIOME_CYCLE_WAVES := 5
+## One biome every 10 waves (2 boss cycles) so a run walks grass → volcano → ice → factory → docks.
+## A world transition fires after the 2nd boss of the current world is defeated.
+const BIOME_CYCLE_WAVES := 10
 
 
 func biome_for_wave(wave: int) -> int:

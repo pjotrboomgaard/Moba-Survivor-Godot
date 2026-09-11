@@ -4401,14 +4401,10 @@ func _damage_enemy(target: Node2D, amount: float) -> void:
 		target.apply_knockback(global_position.direction_to(target.global_position) * knockback_strength)
 
 
-## Global gold-drop boost so items stay affordable through the late game. Multiplied on
-## top of any gold_multiplier upgrade the hero carries.
-const GOLD_DROP_BOOST := 1.45
-
 func add_gold(amount: int) -> void:
 	if simulation_mode == SimulationMode.PROXY or amount <= 0:
 		return
-	gold += int(round(float(amount) * gold_multiplier * GOLD_DROP_BOOST))
+	gold += int(round(float(amount) * gold_multiplier))
 	gold_changed.emit(gold)
 
 
