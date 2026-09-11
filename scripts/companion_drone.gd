@@ -36,6 +36,9 @@ var owner_player: Player = null
 var rank := 1
 var _orbit := 0.0
 var _cooldown := 0.0
+## Independent throttle so the drone-fire SFX can't stack into noise even if several
+## companions fire on the same frame.
+var _fire_sfx_cooldown := 0.0
 var _slot := 0
 
 
@@ -55,6 +58,7 @@ func _process(delta: float) -> void:
 	var radius := 42.0 + float(_slot) * 10.0
 	global_position = owner_player.global_position + Vector2(cos(_orbit), sin(_orbit)) * radius
 	_cooldown = maxf(0.0, _cooldown - delta)
+	_fire_sfx_cooldown = maxf(0.0, _fire_sfx_cooldown - delta)
 	if _cooldown <= 0.0:
 		_fire()
 	queue_redraw()
@@ -70,6 +74,12 @@ func _fire() -> void:
 			if target == null:
 				return
 			_cooldown = interval * (0.72 if kind == Kind.LASER else 1.0)
+			# Audible presence: each shotting familiar fires a short, quiet zap so the
+			# drone is not silent. Throttled to the fire cycle so a swarm of drones
+			# never turns into a wall of noise.
+			if _fire_sfx_cooldown <= 0.0:
+				_fire_sfx_cooldown = 0.22
+				SoundDirector.play("drone_fire", global_position)
 			owner_player._damage_enemy(target, power * (1.15 if kind == Kind.LASER else 1.0))
 			if kind == Kind.SPARK and target.has_method("apply_slow"):
 				target.apply_slow(0.85, 0.4)

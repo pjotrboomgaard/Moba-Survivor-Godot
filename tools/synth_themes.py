@@ -277,6 +277,15 @@ COUNTDOWN_RECIPES = {
     ],
 }
 
+# Companion-drone firing stinger (P1 "drone SFX"). A short, high, quiet zap distinct
+# from the hero's own attacks and from the summoned-turret `turret_fire` so the player
+# can tell *the drone* just fired. Kept very quiet (-19dB) and throttled in
+# companion_drone.gd so a swarm of familiars never stacks into a wall of noise.
+DRONE_FIRE_RECIPE = [
+    [dict(wave="zap_noise", f0=3200, f1=900, dur=0.09, amp=0.5),
+     dict(wave="sine", f0=1800, f1=700, dur=0.07, amp=0.3)],
+]
+
 # Per-BIOME footstep stingers (P3 footstep sounds). Short, quiet, single-shot ticks
 # that fire on a cadence while the hero walks. Each is deliberately low-amp so 10
 # steps a second never becomes noise; the *flavour* differs per biome: grass = soft
@@ -304,6 +313,12 @@ FOOTSTEP_RECIPES = {
          dict(wave="square", f0=140, f1=80, dur=0.04, amp=0.12, duty=0.25)],
     ],
 }
+
+# Per-drone firing stinger (P1 drone SFX).
+DRONE_FIRE_RECIPE = [
+    [dict(wave="zap_noise", f0=3200, f1=900, dur=0.09, amp=0.5),
+     dict(wave="sine", f0=1800, f1=700, dur=0.07, amp=0.3)],
+]
 
 # Per-WORLD ambient beds (task A). Each is a long-ish, low, looping-style bed that
 # crossfades in when the player enters that biome. Kept short-punch analog, not a
@@ -376,6 +391,10 @@ def main():
             write_wav(path, synthesize(take, rng))
             written += 1
             print("wrote %s" % path)
+    # Companion-drone firing stinger (P1 drone SFX).
+    write_wav(os.path.join(OUT_DIR, "drone_fire.wav"), synthesize(DRONE_FIRE_RECIPE[0], rng))
+    written += 1
+    print("wrote assets/audio/themes/drone_fire.wav")
     # Per-world ambient beds (task A) — one looping bed per biome.
     for name, takes in WORLD_THEME_RECIPES.items():
         for i, take in enumerate(takes):

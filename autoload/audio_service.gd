@@ -168,6 +168,9 @@ const SOUND_LIBRARY: Dictionary = {
 	# Summoned drones: a short zap when a turret fires. Reuses the shared projectile
 	# bank (a short, distinct zap) so every firing drone has audible presence.
 	"turret_fire": [preload("res://assets/audio/sfx/sfx_projectile.ogg")],
+	# Companion-familiar (drone) firing stinger: a distinct quiet zap so the *drone*
+	# has audible presence, separate from the hero's own attacks and the turret zap.
+	"drone_fire": [preload("res://assets/audio/themes/drone_fire.wav")],
 	"sfx_cone": [preload("res://assets/audio/sfx/sfx_cone.ogg")],
 	"sfx_radius": [preload("res://assets/audio/sfx/sfx_radius.ogg")],
 	"sfx_dash": [preload("res://assets/audio/sfx/sfx_dash.ogg")],
@@ -265,6 +268,7 @@ const VOLUME_DB := {
 	"step_wood": -18.0,
 	"sfx_projectile": -9.0,
 	"turret_fire": -12.0,
+	"drone_fire": -19.0,
 	"sfx_cone": -8.0,
 	"sfx_radius": -7.0,
 	"sfx_dash": -9.0,
@@ -315,6 +319,7 @@ const PITCH_SPREAD := {
 	"step_wood": 0.08,
 	"sfx_projectile": 0.05,
 	"turret_fire": 0.05,
+	"drone_fire": 0.06,
 	"sfx_cone": 0.04,
 	"sfx_radius": 0.04,
 	"sfx_dash": 0.05,
@@ -334,6 +339,7 @@ const MAX_VOICES := {
 	"ui_click": 2,
 	"dash": 2,
 	"turret_fire": 6,
+	"drone_fire": 4,
 	"charge": 2,
 	"step_grass": 2,
 	"step_ice": 2,
