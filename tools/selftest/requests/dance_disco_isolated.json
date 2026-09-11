@@ -1,0 +1,6 @@
+{
+  "minigame_index": 4,
+  "hero": "tobor",
+  "time_scale": 1.0,
+  "comment": "Isolated dance disco test: single hero in empty arena, no waves/creeps/other players. Bot mirrors the dancing bot for 60s. Verify score > 0, hero survives, disco floor + ball visible in screenshots."
+}

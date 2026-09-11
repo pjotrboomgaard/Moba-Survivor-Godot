@@ -31,8 +31,8 @@ var _finished_flash := 0.0
 var _ui_layer: CanvasLayer = null
 var _ui_label: Label = null
 
-func start(owner_player: Player, index: int = -1, accent_color: Color = Color.WHITE) -> void:
-	owner_player = owner_player
+func start(p_owner: Player, index: int = -1, accent_color: Color = Color.WHITE) -> void:
+	owner_player = p_owner
 	area_index = index if index >= 0 else area_index
 	accent = accent_color
 	active = true

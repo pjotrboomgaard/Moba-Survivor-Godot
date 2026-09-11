@@ -1,0 +1,12 @@
+{
+  "elapsed": 60.0101246666691,
+  "hero": "tobor",
+  "hero_hp": 90.0,
+  "hero_position": "(70.04156, -50.06217)",
+  "min_hp": 90.0,
+  "minigame_index": 4,
+  "reason": "FINISHED",
+  "score": 98,
+  "timer": -0.00179166666844896,
+  "verdict": "PASS_OK"
+}

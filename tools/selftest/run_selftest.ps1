@@ -2,6 +2,9 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$RequestPath,
     [string]$Hero = "",
+    # Main scene to launch. Defaults to the normal game (main.tscn). Set to
+    # "res://scenes/minigame_test/minigame_test.tscn" for isolated minigame tests.
+    [string]$Scene = "res://scenes/main/main.tscn",
     [string[]]$ExtraUserArgs = @()
 )
 
@@ -54,7 +57,7 @@ if ($ExtraUserArgs -and $ExtraUserArgs.Count -gt 0) {
     $godotArgs += $ExtraUserArgs
     Write-Host ("User args: {0}" -f ($ExtraUserArgs -join " "))
 }
-$godotArgs += @("--selftest", "res://scenes/main/main.tscn")
+$godotArgs += @("--selftest", $Scene)
 # Use & call operator so args like `--ffa` pass through verbatim (Start-Process
 # mangles the `--` user-args separator). & blocks until Godot exits.
 & $GodotExe @godotArgs | Out-Null

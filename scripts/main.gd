@@ -308,6 +308,37 @@ func _physics_process(delta: float) -> void:
 	if GameRuntime.mode != GameRuntime.RuntimeMode.CLIENT:
 		_update_revives(delta)
 		_tick_ffa(delta)
+	# Selftest: when a local hero is inside an active minigame with bot_force on,
+	# drive their movement from the minigame's bot_tick so movement-based games
+	# (Treasure Dash) actually collect gems under selftest.
+	_apply_minigame_bot_force_move(delta)
+
+
+func _apply_minigame_bot_force_move(delta: float) -> void:
+	if _minigame_area == null or not is_instance_valid(_minigame_area):
+		return
+	var local_player := _local_player()
+	if local_player == null:
+		return
+	# Find the active minigame with bot_force on. In selftest there is at most one
+	# bot-forced minigame at a time; we drive the local player's movement from it.
+	var driving := false
+	var games: Array = _minigame_area.all_minigames()
+	for g in games:
+		if g == null or not is_instance_valid(g):
+			continue
+		if not bool(g.get("active")) or not bool(g.get("bot_force")):
+			continue
+		if not g.has_method("bot_tick"):
+			continue
+		var choice: Dictionary = g.bot_tick(delta)
+		var move: Vector2 = (choice.get("move", Vector2.ZERO) if choice.has("move") else Vector2.ZERO) as Vector2
+		local_player.minigame_move_override = move.limit_length(1.0)
+		if move.length_squared() > 0.04:
+			driving = true
+		break
+	if not driving:
+		local_player.minigame_move_override = Vector2.ZERO
 
 
 func _unhandled_input(event: InputEvent) -> void:

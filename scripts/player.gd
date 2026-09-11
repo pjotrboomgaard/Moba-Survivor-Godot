@@ -211,6 +211,10 @@ var network_target_position := Vector2.ZERO
 ## Self-test driver latch: once it injects a slot press, OFFLINE input stops overriding the
 ## externally-set command slots so scripted casts land. Cleared by `clear_external_command()`.
 var _external_command_latched := false
+## Minigame movement override: when non-zero, this vector is used as the move
+## input regardless of simulation mode (CPU or OFFLINE). Set by main.gd when a
+## minigame with bot_force is driving the local player.
+var minigame_move_override := Vector2.ZERO
 
 ## Hero abilities (see PlayerClass.ABILITIES). Each entry is {"id": String, "rank": int};
 ## the index into known_abilities is also the ability's slot (ability_1..ability_4, and the
@@ -934,7 +938,19 @@ func _physics_process(delta: float) -> void:
 	var ability_slots_held := command_ability_slots
 	var secondary_held := command_secondary
 	var jump_pressed := false
-	if simulation_mode == SimulationMode.CPU:
+	if minigame_move_override.length_squared() > 0.0:
+		# Minigame bot driving movement: use override regardless of simulation mode.
+		move_input = minigame_move_override.limit_length(1.0)
+		# In CPU mode we still need to run CpuBrain for abilities/aim.
+		if simulation_mode == SimulationMode.CPU:
+			var cpu := CpuBrain.think(self, delta)
+			command_aim = cpu.aim
+			attack_held = bool(cpu.attack)
+			ability_held = bool(cpu.ability)
+			ability_slots_held = cpu.ability_slots
+			secondary_held = bool(cpu.get("secondary", false))
+			jump_pressed = bool(cpu.get("jump", false))
+	elif simulation_mode == SimulationMode.CPU:
 		var cpu := CpuBrain.think(self, delta)
 		move_input = (cpu.move as Vector2).limit_length(1.0)
 		command_aim = cpu.aim
