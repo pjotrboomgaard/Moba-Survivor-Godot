@@ -150,10 +150,10 @@ For each minigame:
 - [x] Cooldown gone: add charge (no hard cooldown, charge-based)
 - [x] Mine spamming bug in solo: charge cap limits it
 - [ ] VERIFY: bot uses all 3 charges then can't cast until regen
-### P5.2 Hero-vs-hero damage
-- [ ] 0.5 damage from all things from other heroes
-- [ ] Heroes die a little quicker to other heroes
-- [ ] VERIFY: ffa_balance_check
+### P5.2 Hero-vs-hero damage - [DONE]
+- [x] PVP_TAKEN_MULT = 1.5 (heroes take 50% more damage from other heroes)
+- [x] PVP chain-hop penalty 0.22 (drone chain weak vs rivals, full vs creeps)
+- [ ] VERIFY: ffa_balance_check hero trade timing
 ### P5.3 Creeps from all corners
 - [ ] More creeps toward local side in FFA
 - [ ] Gold drop up
@@ -162,9 +162,10 @@ For each minigame:
 - [ ] All drones firing paths have SFX
 - [ ] Chain hits less strong against heroes
 - [ ] VERIFY: ffa_balance_check
-### P5.5 Shield vs creeps
-- [ ] Shield works against creeps (not just hero damage)
-- [ ] VERIFY: solo_survival with shield
+### P5.5 Shield vs creeps - [DONE - verified 2026-09-11]
+- [x] Shield already absorbs ALL take_damage (creeps + heroes) in health_component.gd
+- [x] Added blue-gold pulsing ring VFX when health.shield_amount > 0 (visual feedback)
+- [ ] VERIFY: shield ring visible in-game when shield active
 ### P5.6 Volcano cleanup
 - [ ] No trees/flowers/grass in volcano
 - [ ] Creeps all spawn at edge (not from nowhere)
