@@ -462,17 +462,21 @@ const TYPES: Array[Dictionary] = [
 		"radius": 15.0,
 		"max_health": 26.0,
 		"movement_speed": 120.0,
-		"contact_damage": 8.0,
-		"attack_interval": 0.8,
+		"contact_damage": 5.0,
+		"attack_interval": 1.0,
 		"attack_distance": 34.0,
 		"xp_value": 16,
 		"gold_value": 5,
 		"world_exclusive": true,
-		"teleport_interval": 3.5,
-		"teleport_range": 150.0,
+		## Volcano "dasher" balance: cinderlings used to teleport every 3.5s in groups of
+		## 2-4, so a screen-full of them would blink on top of the player and shred them.
+		## Slower teleport + smaller groups + lighter hits keep the *identity* (they still
+		## blink around) but stop the volcano from feeling like a dasher gauntlet.
+		"teleport_interval": 5.5,
+		"teleport_range": 130.0,
 		"unlock_wave": 1,
 		"cost": 1.3,
-		"weight": 1.8,
+		"weight": 1.2,
 		"formation": Formation.SCATTERED,
 		"group_min": 2,
 		"group_max": 4,
