@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/crash_cinematic_test.gd" id="1_test"]
+
+[node name="CrashCinematicTest" type="Node2D"]
+script = ExtResource("1_test")
+
+[node name="Crater" type="Node2D" parent="."]
+visible = false
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, 0)
+zoom = Vector2(0.22, 0.22)
+position_smoothing_enabled = false

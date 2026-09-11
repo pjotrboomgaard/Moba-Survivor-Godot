@@ -52,8 +52,25 @@ marked complete.
 - Keep the failing evidence (report + screenshot path) in your notes so progress is
   auditable.
 
+## Test visuals in an EMPTY isolated world
+
+For ANY visual / cinematic / VFX work (explosions, transitions, hero-ability
+presentations, minigames, new worlds), do NOT verify it inside the full main scene.
+The main scene's world, obstacles, HUD, and camera are too much noise to judge the
+effect. Instead:
+
+1. **Build an isolated empty-world scene** for the effect (flat ground + a camera,
+   no obstacles, no HUD, no enemies) that plays the effect on its own — e.g.
+   `scenes/crash_cinematic_test/crash_cinematic_test.tscn`.
+2. **Verify every phase there first** (self-contained screenshots at fixed
+   world-times + a `user://selftest_report.json` the scene writes and then
+   `get_tree().quit()`). Run it with
+   `run_selftest.ps1 -RequestPath ... -Scene res://scenes/<x>/<x>.tscn`.
+3. **Only after the isolated world looks correct**, bring the same effect into the
+   real world / main scene and re-verify there.
+
 ## Scope
 
 This applies to all feature work, balance tweaks, quest logic, upgrade paths, boss form,
-town quests, corpses, shadows, minimap, ability previews, and any other system in this
-project.
+town quests, corpses, shadows, minimap, ability previews, VFX, and any other system in
+this project.

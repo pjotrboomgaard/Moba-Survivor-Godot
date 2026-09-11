@@ -109,75 +109,209 @@ func _draw() -> void:
 		_draw_explosion()
 
 
-## Draw the spaceship viewed from behind: a blocky hull, two glowing engine nozzles,
-## and a bright exhaust plume streaming toward the camera (i.e. downward/forward in
-## screen space). The ship "faces away" — we see its rear and burning engines.
+## Draw the spaceship viewed from behind, in PIXEL ART. A chunky blocky hull, two
+## bright engine nozzles, and a thick exhaust plume flaring toward the camera.
+## The ship is drawn ~180px tall so it stays clearly visible while the camera is
+## zoomed way out (zoom 0.13). All shapes are axis-aligned rects for a pixel look.
 func _draw_ship() -> void:
-	# Hull (blocky, pixel-art look). Centre is 0,0.
-	var hull := Color(0.32, 0.35, 0.42)
-	var hull_dark := Color(0.20, 0.22, 0.28)
-	var hull_light := Color(0.50, 0.55, 0.64)
-	# Body — a chunky rounded diamond/keel seen from the back.
-	draw_rect(Rect2(-22, -10, 44, 26), hull, true)
-	draw_rect(Rect2(-30, -4, 12, 16), hull_dark, true)   # left fin
-	draw_rect(Rect2(18, -4, 12, 16), hull_dark, true)    # right fin
-	draw_rect(Rect2(-14, -18, 28, 10), hull, true)        # rear top plate
-	draw_rect(Rect2(-8, -22, 16, 6), hull_light, true)     # top highlight
-	# Rear window / cockpit glint (faint, since we see the back).
-	draw_rect(Rect2(-6, -14, 12, 6), Color(0.2, 0.3, 0.5, 0.6), true)
-	# Two engine nozzles at the rear (closest to camera -> bottom of sprite).
-	var eng := Color(0.15, 0.15, 0.18)
-	draw_rect(Rect2(-16, 12, 14, 12), eng, true)
-	draw_rect(Rect2(2, 12, 14, 12), eng, true)
-	# Engine glow (bright, hot core).
-	var glow := Color(0.9, 0.55, 0.2, 0.95)
-	var core := Color(1.0, 0.9, 0.6, 1.0)
-	for ex in [-9, 9]:
-		draw_circle(Vector2(ex, 20), 9.0, glow)
-		draw_circle(Vector2(ex, 20), 5.0, core)
-	# Exhaust plume: bright streaks flaring toward the camera (downward in screen).
-	var plume := Color(1.0, 0.7, 0.3, 0.8)
-	for ex in [-9, 9]:
-		draw_rect(Rect2(ex - 4, 24, 8, 26), plume, true)
-		draw_rect(Rect2(ex - 6, 24, 12, 12), Color(1.0, 0.85, 0.5, 0.95), true)
-		# Hot tip of the plume.
-		draw_circle(Vector2(ex, 50), 7.0, Color(1.0, 0.9, 0.6, 0.7))
-	# Motion: a faint trailing light behind the plume for speed.
-	draw_line(Vector2(0, 52), Vector2(0, 92), Color(1.0, 0.8, 0.5, 0.25), 3.0)
+	var hull := Color(0.42, 0.46, 0.55)
+	var hull_dark := Color(0.26, 0.28, 0.35)
+	var hull_light := Color(0.66, 0.70, 0.80)
+	var hull_edge := Color(0.12, 0.13, 0.17)
+	# Main body: a wide blocky fuselage (rear faces the camera).
+	draw_rect(Rect2(-56, -40, 112, 72), hull, true)
+	# Body shading: darker lower half.
+	draw_rect(Rect2(-56, 8, 112, 32), hull_dark, true)
+	# Top deck highlight strip.
+	draw_rect(Rect2(-48, -48, 96, 12), hull_light, true)
+	# Rear top plate (the "nose" pointing away from us).
+	draw_rect(Rect2(-32, -60, 64, 20), hull, true)
+	draw_rect(Rect2(-32, -60, 64, 6), hull_light, true)
+	# Side fins (blocky).
+	draw_rect(Rect2(-76, -8, 20, 44), hull_dark, true)
+	draw_rect(Rect2(56, -8, 20, 44), hull_dark, true)
+	draw_rect(Rect2(-76, -8, 20, 10), hull, true)
+	draw_rect(Rect2(56, -8, 20, 10), hull, true)
+	# Rear window / cockpit glint (we see the back, so faint).
+	draw_rect(Rect2(-16, -28, 32, 16), Color(0.35, 0.5, 0.75, 0.85), true)
+	draw_rect(Rect2(-12, -24, 24, 8), Color(0.7, 0.85, 1.0, 0.9), true)
+	# Crisp dark outline for contrast against the map.
+	draw_rect(Rect2(-56, -40, 112, 72), hull_edge, false)
+	draw_rect(Rect2(-32, -60, 64, 20), hull_edge, false)
+	# Two big engine nozzles at the rear (bottom of sprite = toward camera).
+	draw_rect(Rect2(-44, 32, 36, 24), Color(0.10, 0.10, 0.13), true)
+	draw_rect(Rect2(8, 32, 36, 24), Color(0.10, 0.10, 0.13), true)
+	# Engine glow: stacked bright squares (hot core to warm shell).
+	var glow1 := Color(1.0, 0.92, 0.60, 1.0)
+	var glow2 := Color(1.0, 0.55, 0.20, 1.0)
+	var glow3 := Color(0.90, 0.30, 0.10, 0.9)
+	for ex in [-26, 26]:
+		draw_rect(Rect2(ex - 20, 52, 40, 24), glow3, true)
+		draw_rect(Rect2(ex - 14, 52, 28, 24), glow2, true)
+		draw_rect(Rect2(ex - 8, 52, 16, 24), glow1, true)
+	# Exhaust plume: thick blocky columns flaring toward the camera (downward).
+	var plume_a := Color(1.0, 0.6, 0.25, 0.75)
+	var plume_b := Color(1.0, 0.82, 0.45, 0.9)
+	for ex in [-26, 26]:
+		draw_rect(Rect2(ex - 16, 76, 32, 38), plume_a, true)
+		draw_rect(Rect2(ex - 10, 76, 20, 38), plume_b, true)
+		draw_rect(Rect2(ex - 5, 76, 10, 38), Color(1.0, 0.95, 0.82, 0.9), true)
+		# Plume tip flare.
+		draw_rect(Rect2(ex - 20, 114, 40, 12), plume_a, true)
+	# Speed trail behind the plume.
+	draw_rect(Rect2(-12, 126, 24, 44), Color(1.0, 0.7, 0.4, 0.25), true)
 
 
-## Big red explosion at the impact point. `t` drives the shockwave + flash.
+## Big RED pixel-art explosion at the impact point — a classic retro starburst:
+## chunky, spiky, asymmetric, with a dark outline, hot white core, orange middle and
+## a deep-red outer shell. Phase A (0..0.55s): the starburst pops open and shimmers.
+## Phase B (0.55..1.8s): it expands, thins and fades as debris + smoke linger.
 func _draw_explosion() -> void:
 	var t := _explosion_t
-	# A single big RED blast: a large opaque red core that holds for ~0.5s then
-	# expands and fades into a shockwave. The core dominates the frame so the
-	# impact reads as "one big red explosion".
-	var flash_alpha := clampf(1.3 - t * 0.9, 0.0, 1.0)
-	var core_r := 140.0 + t * 380.0
-	# Solid red core (opaque while the flash is fresh).
-	draw_circle(Vector2.ZERO, core_r, Color(0.95, 0.25, 0.08, flash_alpha))
-	# Hot inner core.
-	draw_circle(Vector2.ZERO, core_r * 0.6, Color(1.0, 0.6, 0.2, flash_alpha))
-	# White-hot flash at the very centre (only in the first ~0.4s).
-	var hot_alpha := clampf(1.0 - t * 2.6, 0.0, 1.0)
-	draw_circle(Vector2.ZERO, core_r * 0.32, Color(1.0, 0.98, 0.9, hot_alpha))
-	# Expanding shockwave ring.
-	var ring_r := core_r * 1.15
-	var ring_a := clampf(1.0 - t / 1.2, 0.0, 1.0)
-	draw_arc(Vector2.ZERO, ring_r, 0.0, TAU, 64, Color(1.0, 0.5, 0.2, ring_a), 34.0, false)
-	draw_arc(Vector2.ZERO, ring_r * 0.85, 0.0, TAU, 48, Color(1.0, 0.8, 0.4, ring_a * 0.7), 14.0, false)
-	# Debris sparks flung outward.
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4242
-	for i in 40:
-		var ang := rng.randf() * TAU
-		var d := ring_r * rng.randf_range(0.4, 1.1)
-		var sz := rng.randf_range(2.0, 7.0)
-		draw_circle(Vector2.from_angle(ang) * d, sz,
-			Color(1.0, rng.randf_range(0.5, 0.9), 0.2, ring_a))
-	# Smoke puffs that linger after the flash.
-	var smoke_a := clampf(0.5 - (t - 0.5) * 0.4, 0.0, 0.5)
-	for i in 10:
-		var ang := TAU * float(i) / 10.0
-		draw_circle(Vector2.from_angle(ang) * (ring_r * 0.6), 18.0 + t * 20.0,
-			Color(0.15, 0.13, 0.12, smoke_a))
+	if t <= 0.55:
+		# Phase A — the chunky starburst pops open.
+		var p := t / 0.55
+		# Fast pop with a slight overshoot (expand to ~1.1 then settle).
+		var open := clampf(1.0 - (1.0 - p) * (1.0 - p) * 3.0, 0.0, 1.0)
+		var overshoot := 1.0 + 0.12 * sin(p * PI)
+		var fl := 1.0 + 0.05 * sin(t * 55.0)   # subtle flame flicker
+		var outer := 440.0 * (0.3 + 0.7 * open) * overshoot * fl
+		# Layers, outer (dark) -> inner (white-hot). Each is a jagged star polygon
+		# with slightly different rotation so the silhouettes don't line up.
+		_explosion_star(outer, 0.62, 18, 13, Color(0.30, 0.03, 0.02, 1.0))
+		_explosion_star(outer * 0.88, 0.66, 16, 7, Color(0.85, 0.12, 0.04, 1.0))
+		_explosion_star(outer * 0.66, 0.74, 13, 3, Color(1.0, 0.45, 0.08, 1.0))
+		_explosion_star(outer * 0.42, 0.80, 11, 2, Color(1.0, 0.72, 0.25, 1.0))
+		_explosion_star(outer * 0.24, 0.86, 9, 1, Color(1.0, 0.93, 0.75, 1.0))
+		# White-hot solid core.
+		_explosion_star(outer * 0.13, 0.9, 7, 0, Color(1.0, 1.0, 0.96, 1.0))
+		# Square debris chunks flung just past the spikes.
+		for i in 28:
+			var ang := TAU * float(i) / 28.0 + rng.randf_range(-0.15, 0.15)
+			var d := outer * (0.85 + rng.randf_range(0.0, 0.4))
+			var sz := rng.randf_range(14.0, 36.0)
+			var p2 := Vector2.from_angle(ang) * d
+			draw_rect(Rect2(p2.x - sz / 2.0, p2.y - sz / 2.0, sz, sz),
+				Color(1.0, rng.randf_range(0.4, 0.8), 0.1, 1.0), true)
+		# Dark smudges at the very outer edge.
+		for i in 12:
+			var ang := TAU * float(i) / 12.0 + 0.18
+			var d := outer * rng.randf_range(1.05, 1.3)
+			var sz := rng.randf_range(22.0, 44.0)
+			var p3 := Vector2.from_angle(ang) * d
+			draw_rect(Rect2(p3.x - sz / 2.0, p3.y - sz / 2.0, sz, sz),
+				Color(0.10, 0.08, 0.08, 0.75), true)
+	else:
+		# Phase B — expanding, thinning, fading.
+		var bt := t - 0.55
+		var expand := bt / 1.25
+		var a := clampf(1.0 - expand, 0.0, 1.0)
+		var outer := 440.0 * (1.0 + expand * 2.2)
+		var cA := Color(0.85, 0.12, 0.04, a * 0.55)
+		var cO := Color(1.0, 0.45, 0.08, a * 0.4)
+		_explosion_star(outer, 0.6, 16, 5, cA)
+		_explosion_star(outer * 0.7, 0.72, 11, 2, cO)
+		# Debris squares flung far.
+		for i in 44:
+			var ang := rng.randf() * TAU
+			var d := outer * rng.randf_range(0.5, 1.15)
+			var sz := rng.randf_range(6.0, 22.0)
+			var p2 := Vector2.from_angle(ang) * d
+			draw_rect(Rect2(p2.x - sz / 2.0, p2.y - sz / 2.0, sz, sz),
+				Color(1.0, rng.randf_range(0.4, 0.85), 0.15, a), true)
+		# Lingering blocky smoke puffs.
+		var smoke_a := clampf(0.55 - bt * 0.4, 0.0, 0.55)
+		for i in 14:
+			var ang := TAU * float(i) / 14.0
+			var p3 := Vector2.from_angle(ang) * (outer * 0.55)
+			var sz := 30.0 + bt * 40.0
+			draw_rect(Rect2(p3.x - sz / 2.0, p3.y - sz / 2.0, sz, sz),
+				Color(0.13, 0.11, 0.11, smoke_a), true)
+
+
+## Draws a jagged, chunky star polygon ("pixel explosion" silhouette).
+## `outer_r` = spike tip radius, `ratio` = inner/outer radius (lower = spikier),
+## `spikes` = number of points, `seed` = deterministic per-spike jitter offset.
+## Vertices are snapped to a grid so the edges read as blocky pixel-art, not smooth.
+func _explosion_star(outer_r: float, ratio: float, spikes: int, seed: int, color: Color) -> void:
+	if outer_r < 4.0:
+		return
+	var inner_r := outer_r * ratio
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 4242 + seed * 101
+	var pts := PackedVector2Array()
+	var total := spikes * 2
+	var snap := maxf(6.0, outer_r * 0.02)   # grid size for the blocky look
+	for i in total:
+		var is_tip := (i % 2) == 0
+		var base_ang := TAU * float(i) / float(total)
+		# Per-spike length jitter so the burst is asymmetric (not a perfect star).
+		var jitter := 1.0
+		if is_tip:
+			jitter = rng.randf_range(0.82, 1.18)
+		var radius := (outer_r if is_tip else inner_r) * jitter
+		var pt := Vector2.from_angle(base_ang) * radius
+		# Snap to grid for chunky pixel edges.
+		pt = Vector2(roundf(pt.x / snap) * snap, roundf(pt.y / snap) * snap)
+		pts.append(pt)
+	draw_colored_polygon(pts, color)
+
+
+## Draws a chunky pixel-art starburst: `points` spikes, each spike a small cluster of
+## stacked squares (so the silhouette is jagged/blocky, not a smooth star).
+## `ratio` = inner radius / outer radius. Centred at the node origin.
+func _pixel_starburst(outer: float, points: int, ratio: float, color: Color) -> void:
+	# 2n vertices alternating outer (spike tips) and inner.
+	# We draw each spike as a few stacked squares so it looks chunky/pixelated.
+	var inner := outer * ratio
+	var step := 6.0   # "pixel" chunk size
+	var i := 0
+	while i < points:
+		var a_mid := TAU * (float(i) + 0.5) / float(points)
+		var a_l := TAU * float(i) / float(points)
+		var a_r := TAU * (float(i) + 1.0) / float(points)
+		# Spike tip cluster (outer vertex).
+		var tip := Vector2.from_angle(a_mid) * outer
+		# Base vertices (inner).
+		var bl := Vector2.from_angle(a_l) * inner
+		var br := Vector2.from_angle(a_r) * inner
+		# Draw the spike as stacked squares from base to tip.
+		var n := int(outer / step)
+		for k in range(n + 1):
+			var f := float(k) / float(maxi(n, 1))
+			var pos := bl.lerp(br, f * 0.5 + 0.5 * f).lerp(tip, f)
+			# Simpler: lerp along the spike from base-centre to tip.
+			var base_c := (bl + br) * 0.5
+			var pos2 := base_c.lerp(tip, f)
+			var w := step * (1.4 - f * 0.7)
+			draw_rect(Rect2(pos2.x - w / 2.0, pos2.y - w / 2.0, w, w), color, true)
+		# Base fill (inner edge of the star).
+		var bc := (bl + br) * 0.5
+		var bw := step * 1.4
+		draw_rect(Rect2(bc.x - bw / 2.0, bc.y - bw / 2.0, bw, bw), color, true)
+		i += 1
+	# Fill the centre solidly so there is no hole.
+	var cfill := outer * ratio * 0.9
+	var n2 := int(cfill / step)
+	for k in range(n2 + 1):
+		draw_rect(Rect2(-step * 0.5, -step * 0.5, step, step), color, true)
+
+
+## Draws a blocky "burst" blob: a central square plus squares placed at the 45-degree
+## points and edges, approximating a rounded pixel-art circle made of blocks.
+func _blocky_burst(radius: float, color: Color) -> void:
+	var r := radius
+	# Central filled square.
+	draw_rect(Rect2(-r, -r, r * 2.0, r * 2.0), color, true)
+	# 45-degree corner squares to round the silhouette.
+	var c := r * 0.62
+	var off := r * 0.42
+	for p in [Vector2(off, off), Vector2(-off, off), Vector2(off, -off), Vector2(-off, -off)]:
+		draw_rect(Rect2(p.x - c, p.y - c, c * 2.0, c * 2.0), color, true)
+	# Mid-edge squares to fill out the diamond.
+	var e := r * 0.34
+	var eo := r * 0.82
+	for p in [Vector2(eo, 0.0), Vector2(-eo, 0.0), Vector2(0.0, eo), Vector2(0.0, -eo)]:
+		draw_rect(Rect2(p.x - e, p.y - e, e * 2.0, e * 2.0), color, true)

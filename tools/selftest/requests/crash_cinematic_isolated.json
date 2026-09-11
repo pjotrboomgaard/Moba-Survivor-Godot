@@ -1,0 +1,9 @@
+{
+  "hero": "arclight",
+  "comment": "P2.1a: opening crash-landing cinematic in an ISOLATED empty world (self-contained scene). Captures: empty zoomed-out map, ship mid-flight, big red pixel-art explosion, crater reveal, zoom-in.",
+  "time_scale": 1.0,
+  "checks": [
+    {"id": "started", "type": "log_contains", "value": "CRASH_CINEMATIC_TEST ready", "fail": "FAIL"},
+    {"id": "finished", "type": "log_contains", "value": "CRASH_CINEMATIC_TEST SUMMARY", "fail": "FAIL"}
+  ]
+}
