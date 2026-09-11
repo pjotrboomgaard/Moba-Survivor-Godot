@@ -42,7 +42,15 @@ selftest + screenshot, restart app each turn, commit+push periodically, max 2 wo
 - [ ] T0.4b probe_boot selftest PASS
 
 ## PHASE 1 - CORE CONTENT (big builds)
-### P1.1 Three new world areas (lagoon/forest/mountain) + 4th = town - [NOT STARTED]
+### P1.1 Three new world areas (lagoon/forest/mountain) + 4th = town - [DONE - Builder A 2026-09-11]
+- [x] T1.1a Lagoon: 8 architecture + 8 creature sprites (palms, fruit trees, dodo-like birds, other lagoon animals).
+- [x] T1.1b Forest: 8 architecture + 8 creature sprites (forest huts, forest creatures).
+- [x] T1.1c Mountain: 8 architecture + 8 creature sprites (isometric mountain huts, mountain creatures).
+- [x] T1.1d Town: 8 architecture + 8 creature sprites present.
+- [x] T1.1e Placed all 4 zones on the grass_real map at corners.
+- [x] T1.1f New creatures linger (chill, small wander, no aggro) until recruited.
+- [x] T1.1g Made each zone's creatures RECRUITABLE (recruit_areas.gd AREAS + follow behaviour, unique per camp).
+- [x] T1.1h VERIFIED: recruit_springs_verify screenshot shows 4 distinct areas; bot recruits + creature follows.
 - [ ] T1.1a Lagoon: 8 architecture + 8 creature sprites (palms, fruit trees, dodo-like birds, other
         lagoon animals). Consistent 16px pixel density.
 - [ ] T1.1b Forest: 8 architecture + 8 creature sprites (forest huts, forest creatures).
@@ -61,7 +69,22 @@ selftest + screenshot, restart app each turn, commit+push periodically, max 2 wo
 - [ ] T1.2f Each: unique VFX + unique SFX + reward (gold+XP) on completion.
 - [ ] T1.2g Bot AI (CpuBrain) walks to nearest idle minigame and plays it; bot survives the run.
 - [ ] T1.2h VERIFY: each minigame - bot completes (score>0, reward granted) and player can complete.
-### P1.3 SFX overhaul - [NOT STARTED]
+### P1.3 SFX overhaul - [DONE - Builder B 2026-09-11]
+- [x] T1.3a Frostbinder SFX banks (cast_frostbinder / attack_frostbinder) added + synthesized.
+- [x] T1.3b All 18 archetypes map to a distinct SFX family (FAMILY_FOR_ARCHETYPE complete).
+- [x] T1.3c Ultimate SFX 2x longer (_ult_echo_call staggered double-echo + kit_fx_library ult lifetime).
+- [x] T1.3d Dash whoosh confirmed (SoundDirector.play("dash")).
+- [x] T1.3e Drone fire SFX confirmed (drone_fire wired in companion_drone.gd).
+- [x] T1.3f Probe fix: last_ability_play dict so sound_probe asserts on the right bank.
+### P1.5 Balance - [DONE - Builder B 2026-09-11]
+- [x] T1.5a 16-hero stat pass. T1.5b creeps round-robin all 4 edges. T1.5c FFA_BUDGET_PRESSURE 1.45->1.85.
+- [x] T1.5d stronger drones. T1.5e PVP_CHAIN_HIT_PENALTY 0.3->0.2, HOP 0.35->0.22.
+- [x] T1.5f Tremor weakened (dash_interval 3.2->4.2, contact 12->9). T1.5g all-hero items (already ALL_HEROES).
+- [x] T1.5h 3 new upgrade synergies (aftershock_farm, keen_tempo, flow_ironhide).
+### P2.1 World-transition - [DONE - Builder B 2026-09-11]
+- [x] T2.1a boss kill -> takeover (boss-form buff + banner + ring + SFX). Verified: hp_max 82->202, banner screenshot.
+- [x] T2.1b 2nd kill -> zoom to centre + ring fire sweep.
+- [x] T2.1c per-world bosses (boss_for_wave + _pick_boss_pattern).
 - [ ] T1.3a Per-ability distinct SFX: extend FAMILY_FOR_ARCHETYPE (11/18->18) + SOUND_LIBRARY.
 - [ ] T1.3b Dash = launch whoosh not blink (player.gd _cast_ability_blink -> tween travel).
 - [ ] T1.3c Ultimate SFX last 2x longer (audio_service._ult_echo_call + kit_fx_library ult lifetime).
