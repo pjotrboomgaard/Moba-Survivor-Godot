@@ -31,12 +31,17 @@ _Last updated: 2026-09-11_
 > - **HARD RULE:** Test new VFX/features in an EMPTY isolated world first, then
 >   main scene. Applies to T3.13, T3.14 and all future VFX/features.
 >
-> **In progress:** T3.13 storm + T3.14 fire tree (isolated test scenes), hero↔tree
-> interaction. T1.5 hero balance (all heroes solo + FFA) ongoing.
-> **Done this batch:** T1.7 Volt bouncing Q (AREA_BOUNCE), Warden wards multi-charge,
-> Fissure bigger + multi-charge. T1.8 level-up diversification confirmed (4-choice
-> rarity-mixed offer, role pools). T1.10 per-world hero SFX banks present.
-> **Queued:** T3.4, T3.11, T3.12, biome-hazard re-verify.
+> **Done this batch (2026-09-12):** T1.7 Volt bouncing Q (AREA_BOUNCE), Warden wards
+> multi-charge, Fissure bigger + multi-charge. T1.8 level-up diversification confirmed.
+> T1.10 per-world hero SFX banks present. **T3.13 storm system + T3.14 fire-tree mechanic
+> BUILT + isolated-verified** (storm_test: 4 strikes, 3 trees burned, thunder SFX;
+> fire_tree_test: 2 ignited → spread → 2 charred stumps; all screenshots inspected).
+> **Hero↔tree interaction wired**: fire/lightning heroes ignite trees in ability radius
+> via `_ignite_trees_in_radius` → `arena.ignite_tree`. **T3.5/T3.6/T3.7 biome hazards**
+> (rain/black-lava/electro) committed + verified in-game. **Dance-disco minigame** verified
+> as a standalone game (score 98/60s, bot + creeps + floor + ball all visible).
+> **Queued:** T3.4 minigame pixel art (disco floor/ball/bot/creeps still vector), T3.11
+> recruit-creep behavior, T3.12 populate 4 areas, P1.3/P1.4 SFX + cards.
 
 This is the master plan. Each task has sub-requirements and must be validated in-game
 by the selftest harness (bot must survive; visual changes must be confirmed in
