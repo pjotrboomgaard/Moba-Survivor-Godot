@@ -1,0 +1,10 @@
+{
+  "hero": "tobor",
+  "biome": 1,
+  "comment": "Volcano biome: verify no trees/grass/flowers on lava terrain.",
+  "events": [
+    {"t": 1.0, "kind": "probe", "label": "volcano_probe"},
+    {"t": 1.5, "kind": "snap", "label": "volcano_view"},
+    {"t": 2.0, "kind": "report"}
+  ]
+}

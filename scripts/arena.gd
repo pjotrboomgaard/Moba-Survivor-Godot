@@ -1583,13 +1583,16 @@ func _random_scatter_type(rng: RandomNumberGenerator) -> Dictionary:
 func _ground_cover_sprites() -> Array[String]:
 	match GameRuntime.biome_id:
 		1:
-			return ["grass_tuft", "grass_wild", "volcano_rock_fiery", "volcano_obsidian", "lava_chunk"]
+			# Volcano: no grass, no flowers — only rocky/volcanic ground cover.
+			return ["volcano_rock_fiery", "volcano_obsidian", "lava_chunk", "volcano_rock_fiery", "volcano_obsidian"]
 		2:
-			return ["ice_snow_hill", "grass_bloom", "ice_frost_rock", "grass_flower", "ice_crystal"]
+			# Ice/water: no grass, no flowers — only ice/snow props.
+			return ["ice_snow_hill", "ice_frost_rock", "ice_crystal", "ice_snow_hill", "ice_frost_rock"]
 		3:
 			return ["crate_box", "barrel_keg", "vent_cap", "factory_mast", "factory_tower"]
 		4:
-			return ["bollard", "grass_tuft", "barrel_keg", "flower_patch", "docks_pole", "docks_barrel_stack", "town_house", "town_well", "town_house2", "town_cottage"]
+			# Docks: no random houses — towns are authored via the world editor, not scattered.
+			return ["bollard", "barrel_keg", "docks_pole", "docks_barrel_stack"]
 		_:
 			# Grass world: basic grass only. Flowers/bushes are placed manually
 			# via the world editor — no random scattering here.
@@ -1757,55 +1760,39 @@ func _tree_obstacle_type(rng: RandomNumberGenerator) -> Dictionary:
 func _plant_zone_props() -> void:
 	if terrain_zones.is_empty():
 		return
+	# Volcano and ice biomes: no trees — only rocks and terrain-specific props.
+	var biome := GameRuntime.biome_id if GameRuntime.uses_biomes() else 0
+	var no_trees := biome == 1 or biome == 2
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _layout_seed() + 131
 	for zone in terrain_zones:
 		var kind := str(zone.kind)
 		match kind:
-			"forest":
-				var trees := 42 if walk_pads.is_empty() else 18
+			"forest", "thicket", "mixed", "grass":
+				if no_trees:
+					continue
+				var trees := 42 if kind == "forest" else (16 if kind == "thicket" else (10 if kind == "mixed" else 6))
+				var spacing := TREE_SPACING if kind == "forest" else (96.0 if kind == "thicket" else (TREE_SPACING if kind == "mixed" else TREE_SPACING * 1.15))
 				for _i in trees:
-					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), TREE_SPACING)
-				for _i in 10:
-					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), TREE_SPACING * 0.82)
+					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), spacing)
+				if kind == "forest":
+					for _i in 10:
+						_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), TREE_SPACING * 0.82)
 			"rocks":
 				var extra := 14 if walk_pads.is_empty() else 6
 				for _i in extra:
 					_try_place_obstacle(_zone_sample(zone, rng), rng, {}, 80.0)
-			"thicket":
-				for _i in 16:
-					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), 96.0)
-			"mixed":
-				for _i in 10:
-					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), TREE_SPACING)
-			"grass":
-				for _i in 6:
-					_try_place_obstacle(_zone_sample(zone, rng), rng, _tree_obstacle_type(rng), TREE_SPACING * 1.15)
 
 
 func _decal_sprites_for_zone(kind: String) -> Array[String]:
 	var biome := GameRuntime.biome_id if GameRuntime.uses_biomes() else 0
 	match biome:
 		1:
-			match kind:
-				"forest", "thicket":
-					return ["grass_tuft", "grass_long", "grass_bloom"]
-				"rocks", "barren":
-					return ["rock_small", "grass_tuft"]
-				"flowers", "bloom":
-					return ["grass_bloom", "grass_flower"]
-				_:
-					return ["grass_tuft", "grass_long"]
+			# Volcano: no grass or flowers — volcanic rock and lava only.
+			return ["volcano_rock_fiery", "volcano_obsidian", "rock_small", "lava_chunk"]
 		2:
-			match kind:
-				"forest", "thicket":
-					return ["grass_tuft", "grass_long", "grass_wild"]
-				"rocks", "barren":
-					return ["rock_small", "grass_tuft"]
-				"flowers", "bloom":
-					return ["grass_flower", "grass_bloom"]
-				_:
-					return ["grass_tuft", "grass_flower"]
+			# Ice/water: no grass or flowers — ice/snow only.
+			return ["ice_snow_hill", "ice_frost_rock", "ice_crystal", "rock_small"]
 		3:
 			match kind:
 				"forest", "thicket":
