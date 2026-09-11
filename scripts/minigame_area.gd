@@ -52,6 +52,9 @@ func start(main_node: Node, arena_node: Node2D, recruit_areas: Node) -> void:
 	_spawn_minigame(10, Vector2.ZERO + Vector2(-half.x * 0.35, half.y * 0.55), Color("4de0f0"), "Ring Roll")
 	_spawn_minigame(11, Vector2.ZERO + Vector2(half.x * 0.35, -half.y * 0.55), Color("f0a04d"), "Creep Pinball")
 	_spawn_minigame(12, Vector2.ZERO + Vector2(0.0, half.y * 0.65), Color("f05090"), "Balloon Pop")
+	_spawn_minigame(13, Vector2.ZERO + Vector2(-half.x * 0.45, -half.y * 0.45), Color("40e080"), "Slime Splat")
+	_spawn_minigame(14, Vector2.ZERO + Vector2(half.x * 0.50, half.y * 0.30), Color("a080f0"), "Crystal Catch")
+	_spawn_minigame(15, Vector2.ZERO + Vector2(-half.x * 0.50, half.y * 0.35), Color("7dbb5a"), "Crate Stack")
 
 	_enabled = true
 
@@ -85,6 +88,12 @@ func _spawn_minigame(index: int, pos: Vector2, accent: Color, name: String) -> v
 			script = load("res://scripts/minigame_creep_pinball.gd")
 		12:
 			script = load("res://scripts/minigame_balloon_pop.gd")
+		13:
+			script = load("res://scripts/minigame_slime_splat.gd")
+		14:
+			script = load("res://scripts/minigame_crystal_catch.gd")
+		15:
+			script = load("res://scripts/minigame_crate_stack.gd")
 		_:
 			return
 	if script == null:
