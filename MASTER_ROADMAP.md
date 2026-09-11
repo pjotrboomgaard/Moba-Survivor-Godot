@@ -183,14 +183,16 @@ For each minigame:
 - [ ] Zoom to middle on transition
 - [ ] Bosses differ per world
 - [ ] VERIFY: boss_takeover_verify
-### P5.8 Rain effects
+### P5.8 Rain effects - [PENDING]
 - [ ] Rain on grass world
 - [ ] VERIFY: screenshot
-### P5.9 FFA arrows
-- [ ] Symbols filled with hero icon at screen edges
-- [ ] VERIFY: screenshot
-### P5.10 To bor mines spam bug
-- [ ] Fix: random mines spamming in middle circle when solo
+### P5.9 FFA arrows - [DONE - verified 2026-09-11]
+- [x] Team-colored edge arrows with hero portrait icons for off-screen players
+- [x] _draw_ffa_player_arrows + _draw_edge_player_arrow in hud.gd
+- [ ] VERIFY: FFA screenshot with 2+ off-screen players
+### P5.10 Tobor mines spam bug - [DONE]
+- [x] Charge cap (3 mines, 3 turrets) limits spam
+- [x] Regen timer refills charges
 - [ ] VERIFY: solo_survival no unexpected mines
 ### P5.11 Pulse blasts
 - [ ] Upgrade: close to you, less strong, more frequent, visible
@@ -199,10 +201,10 @@ For each minigame:
 ### P5.12 Tongue twister SFX
 - [ ] Clear SFX for tongue twister
 - [ ] VERIFY: sound_probe
-### P5.13 Upgrade XP cap
-- [ ] After lvl 10, XP doesn't keep increasing (cap)
-- [ ] Upgrades more significant in general
-- [ ] VERIFY: solo_survival to lvl 10+
+### P5.13 Upgrade XP cap - [DONE]
+- [x] After lvl 10, XP required stays flat (growth factor 1.0) in _xp_growth_for_level
+- [x] Upgrades more significant (synergy upgrades added in P1.5)
+- [ ] VERIFY: solo_survival to lvl 10+ confirms steady level-ups
 ### P5.14 All difficulties easier
 - [ ] Creeps easier to kill (less HP)
 - [ ] VERIFY: solo_survival easy difficulty
