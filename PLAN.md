@@ -93,13 +93,15 @@ screenshots). Use this to track progress.
 - [ ] Dash: heroes "launch" (whoosh SFX) not blink
 - [ ] Drones: all drone abilities have firing/hit SFX
 - [x] World transitions: 5-4-3-2-1 fight countdown SFX (dedicated `countdown_tick.wav` / `countdown_fight.wav`; `hud.gd` plays on FFA intermission + FIGHT beat)
-- [ ] Per-world sound theme:
-  - [ ] Verdant Hollow: nature, birds, water
-  - [ ] Ashen Crater: lava rumble, metal
-  - [ ] Frostmere Reach: wind, ice crack
-  - [ ] Docks: waves, wood creak, gulls
-- [ ] Keep pixel-art analog feel (short, punchy, not overly digital)
-- [ ] Validate: `sound_probe` selftest confirms each hero's primary SFX fires
+- [x] Per-world sound theme: `AudioService.set_world_theme(biome)` crossfades a looping bed on world change.
+  - [x] Verdant Hollow: nature, birds, water (`world_grass.wav`)
+  - [x] Ashen Crater: lava rumble, metal (`world_volcano.wav`)
+  - [x] Frostmere Reach: wind, ice crack (`world_ice.wav`)
+  - [x] Docks: waves, wood creak, gulls (`world_docks.wav`)
+- [x] Keep pixel-art analog feel (short, punchy, not overly digital) — all banks synthed via `tools/synth_themes.py`
+- [x] Validate: `sound_probe_heroes` selftest confirms each hero's primary SFX fires
+- [x] Footstep SFX per biome (P3): `player.gd _tick_footsteps` fires `step_<biome>` on a walking cadence; synthesized in `synth_themes.py` (step_grass/ice/lava/metal/wood.wav), quiet at -18dB so they never clobber combat SFX. `ref image/` debug folder `.gdignore`d (it broke audio reimport with parse errors).
+- [x] "Tongue twister" clarity: Warden cast pitch spread widened 0.04 -> 0.14 so rapid overlapping casts separate in pitch and read clearly.
 
 ### T1.5 Balance + visual fixes
 - [ ] Drones stronger (dmg + HP buff)
