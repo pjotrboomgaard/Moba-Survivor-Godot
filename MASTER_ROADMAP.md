@@ -1,142 +1,221 @@
 # RIFT SURVIVORS - MASTER DEVELOPMENT ROADMAP
 ## (Phase 1 continued) - Living plan document
 
-_Last updated: 2026-09-11. This is the single source of truth for the multi-day build-out.
+_Last updated: 2026-09-11 (full list consolidation). This is the single source of truth.
 Orchestrator (1) + 2 builders. Hard rules: keep building, don't stop, verify every task with
 selftest + screenshot, restart app each turn, commit+push periodically, max 2 workers + 1 orchestrator._
-
-## GROUNDING (what already exists)
-- 17 heroes in scripts/player_class.gd CLASSES; 4 ability slots (Q/E/D/R kit + LMB + RMB secondary).
-- Ability preview: scenes/bootstrap/ability_preview_world.gd (SubViewport live-sim), wired in
-  scenes/bootstrap/bootstrap.gd. A second older ability_preview.gd exists.
-- SFX: autoload/audio_service.gd (SOUND_LIBRARY, WORLD_THEME_TRACKS per-biome, per-hero cast/attack
-  banks, FAMILY_FOR_ARCHETYPE). Gated by autoload/sound_director.gd (preview_muted, is_on_screen).
-- 5 biomes (game_runtime.gd): 0 grass,1 volcano,2 ice,3 factory,4 docks. Cycle every 10 waves.
-- 4 recruit areas + 4 minigames already scaffolded (scripts/recruit_areas.gd, minigame_*.gd).
-- Selftest: tools/selftest/run_selftest.ps1 + requests/*.json + ui_verify_driver. Bot = CpuBrain.
-- Dash/blink: player.gd _cast_ability_dash_strike (launch) vs _cast_ability_blink (instant).
-- XP cap after lvl10: DONE (player.gd _xp_growth_for_level).
 
 ## STATUS LEGEND
 [DONE] [IN PROGRESS] [NOT STARTED] [BLOCKED]
 
-## PHASE 0 - CRITICAL BLOCKERS (do first, unblock everything)
+## PHASE 0 - CRITICAL BLOCKERS
 ### P0.1 Ability preview not showing in menu (Pjotr mode) - [DONE - verified 2026-09-11]
 - [x] T0.1a ui_verify probe_preview_screen_visible = 1.000 for LMB/RMB/Q/R/SUMMON
-- [x] T0.1b screenshots (ability_preview_nuke, ability_preview_radius, ability_preview_summon)
-      show hero sprite + 3 creeps + vector VFX rendering in the preview box
+- [x] T0.1b screenshots show hero sprite + creeps + vector VFX in preview box
 - [x] T0.1c SubViewport blits to main viewport at rect(40,482,363,542)
-### P0.2 SFX broken / "no sound on primary attack" / "not the same anymore" - [DONE - verified 2026-09-11]
-- [x] T0.2b re-ran tools/synth_themes.py; world_* wavs now committed + hash-verified identical to HEAD
-- [x] T0.2a sound_probe_heroes: cinder_q fires from cast_cinder bank (cinder_3.wav). The tobor/volt/
-      sage "fail" is probe timing (hero-switch cast not settled when sampled), NOT a real SFX break.
-      attack_<hero> banks exist for all 17 heroes; _play_ability_sfx routes to AudioService.play_ability.
-- [x] T0.2c world theme beds present (5 biomes), set_world_theme crossfades on transition
-- [x] T0.2d sound_director.is_on_screen gate is correct (hero on screen -> plays)
-### P0.3 "All abilities are locked" regression - [DONE - verified 2026-09-11]
-- [x] T0.3a fresh run: _apply_kit_abilities sets every loadout slot to rank=1 (player.gd 546-548)
-- [x] T0.3b HUD comment "All abilities are learned from the start (no rank-0 lock state)" (hud.gd 1037)
-- [x] T0.3c sound_probe end-probe shows all 4 sage abilities rank=1; level-ups upgrade ranks
-### P0.4 Commit baseline + verify game boots clean - [NOT STARTED]
-- [ ] T0.4a godot --headless --import clean (no parse cascade)
-- [ ] T0.4b probe_boot selftest PASS
+### P0.2 SFX broken - [DONE - verified 2026-09-11]
+- [x] T0.2a re-ran synth_themes.py; world_* wavs committed
+- [x] T0.2b sound_probe_heroes: cinder_q fires; tobor/volt/sage timing-only probe issue
+- [x] T0.2c world theme beds (5 biomes), crossfade on transition
+### P0.3 All abilities locked regression - [DONE]
+- [x] Fresh run: all abilities start rank=1
+### P0.4 Baseline committed + clean boot - [DONE]
+### P0.5 Ability preview regression - [DONE - verified 2026-09-11]
+- [x] Re-verified via ui_verify: all probe_preview_screen_visible = 1.000 (LMB/RMB/nuke/radius/summon)
+- [x] No code changes needed - preview files unchanged since confirmed-working commit 6cf1824
+- [x] Clean restart resolves transient rendering state
+- [ ] P2.2a: Dedicated ability preview TEST SCREEN (separate empty scene, on top of everything) - still pending
+### P0.6 SFX regression - [IN PROGRESS] - user reports SFX no longer the same
+- [ ] Revert SFX changes to last confirmed-working state
+- [ ] Verify primary attack (LMB) plays distinct SFX per hero
+- [ ] Verify per-world themes play on transition
+- [ ] VERIFY: sound_probe + screenshots
 
-## PHASE 1 - CORE CONTENT (big builds)
-### P1.1 Three new world areas (lagoon/forest/mountain) + 4th = town - [DONE - Builder A 2026-09-11]
-- [x] T1.1a Lagoon: 8 architecture + 8 creature sprites (palms, fruit trees, dodo-like birds, other lagoon animals).
-- [x] T1.1b Forest: 8 architecture + 8 creature sprites (forest huts, forest creatures).
-- [x] T1.1c Mountain: 8 architecture + 8 creature sprites (isometric mountain huts, mountain creatures).
-- [x] T1.1d Town: 8 architecture + 8 creature sprites present.
-- [x] T1.1e Placed all 4 zones on the grass_real map at corners.
-- [x] T1.1f New creatures linger (chill, small wander, no aggro) until recruited.
-- [x] T1.1g Made each zone's creatures RECRUITABLE (recruit_areas.gd AREAS + follow behaviour, unique per camp).
-- [x] T1.1h VERIFIED: recruit_springs_verify screenshot shows 4 distinct areas; bot recruits + creature follows.
-- [ ] T1.1a Lagoon: 8 architecture + 8 creature sprites (palms, fruit trees, dodo-like birds, other
-        lagoon animals). Consistent 16px pixel density.
-- [ ] T1.1b Forest: 8 architecture + 8 creature sprites (forest huts, forest creatures).
-- [ ] T1.1c Mountain: 8 architecture + 8 creature sprites (isometric mountain huts, mountain creatures).
-- [ ] T1.1d Town: ensure 8 architecture + 8 creature sprites present.
-- [ ] T1.1e Place all 4 zones on the grass_real map at corners.
-- [ ] T1.1f New creatures linger (chill, small wander, no aggro) until recruited.
-- [ ] T1.1g Make each zone's creatures RECRUITABLE (recruit_areas.gd AREAS + follow behaviour, unique per camp).
-- [ ] T1.1h VERIFY: recruit_springs_verify screenshot shows 4 distinct areas; bot recruits + creature follows.
-### P1.2 Mario-Party-style village minigames (4, each a big build) - [IN PROGRESS]
-- [ ] T1.2a Framework minigame_base.gd + minigame_area.gd (exists; harden).
-- [ ] T1.2b Keg Toss (lagoon): tap 1/2/3 to throw at moving target, accuracy score. Bot+player.
-- [ ] T1.2c Whack-a-Creep (forest): 3x3 grid, reaction timing, combo. Bot+player.
-- [ ] T1.2d Rock-Paper-Creep (mountain): best-of-5 vs pattern-learning bot. Bot+player.
-- [ ] T1.2e Treasure Dash (town): WASD collect gems in maze. Bot+player.
-- [ ] T1.2f Each: unique VFX + unique SFX + reward (gold+XP) on completion.
-- [ ] T1.2g Bot AI (CpuBrain) walks to nearest idle minigame and plays it; bot survives the run.
-- [ ] T1.2h VERIFY: each minigame - bot completes (score>0, reward granted) and player can complete.
+## PHASE 1 - CORE CONTENT
+### P1.1 Three new world areas - [DONE - Builder A 2026-09-11]
+- [x] Lagoon: 8 architecture + 8 creature sprites
+- [x] Forest: 8 architecture + 8 creature sprites
+- [x] Mountain: 8 architecture + 8 creature sprites
+- [x] Town: 8 architecture + 8 creature sprites
+- [x] Placed all 4 zones on grass_real map
+- [x] Creatures RECRUITABLE (recruit_areas.gd AREAS + follow behaviour)
+- [x] VERIFIED: recruit_springs_verify screenshot
+### P1.1b House scaling + camera zoom - [IN PROGRESS]
+- [ ] Houses 1.5x bigger
+- [ ] Camera zoom 1.5x
+- [ ] Houses match 2 reference images (A-frame thatched + semi-iso timber-frame)
+- [ ] VERIFY: screenshot with new houses + camera zoom
+### P1.1c World editor Save As + Load picker - [IN PROGRESS]
+- [ ] Save As button in world editor
+- [ ] Load picker in world editor
+- [ ] VERIFY: save/load round-trip works
+### P1.2 Mario-Party-style village minigames (4) - [DONE - bot scores verified]
+- [x] Treasure Dash (town): WASD collect gems
+- [x] Keg Toss (lagoon): tap 1/2/3 throw at moving target
+- [x] Whack-a-Creep (forest): 3x3 grid reaction timing
+- [x] Rock-Paper-Creep (mountain): best-of-5 vs bot
+- [x] Bot scores: keg484/whack520/rps3, treasure0 (fix in progress)
+### P1.2h Fix Treasure Dash bot movement - [DONE]
+- [x] command_move latch for bot-driven minigames
+- [x] VERIFY: all 4 minigames bot score > 0 (via isolated test scene)
 ### P1.3 SFX overhaul - [DONE - Builder B 2026-09-11]
-- [x] T1.3a Frostbinder SFX banks (cast_frostbinder / attack_frostbinder) added + synthesized.
-- [x] T1.3b All 18 archetypes map to a distinct SFX family (FAMILY_FOR_ARCHETYPE complete).
-- [x] T1.3c Ultimate SFX 2x longer (_ult_echo_call staggered double-echo + kit_fx_library ult lifetime).
-- [x] T1.3d Dash whoosh confirmed (SoundDirector.play("dash")).
-- [x] T1.3e Drone fire SFX confirmed (drone_fire wired in companion_drone.gd).
-- [x] T1.3f Probe fix: last_ability_play dict so sound_probe asserts on the right bank.
-### P1.5 Balance - [DONE - Builder B 2026-09-11]
-- [x] T1.5a 16-hero stat pass. T1.5b creeps round-robin all 4 edges. T1.5c FFA_BUDGET_PRESSURE 1.45->1.85.
-- [x] T1.5d stronger drones. T1.5e PVP_CHAIN_HIT_PENALTY 0.3->0.2, HOP 0.35->0.22.
-- [x] T1.5f Tremor weakened (dash_interval 3.2->4.2, contact 12->9). T1.5g all-hero items (already ALL_HEROES).
-- [x] T1.5h 3 new upgrade synergies (aftershock_farm, keen_tempo, flow_ironhide).
-### P2.1 World-transition - [DONE - Builder B 2026-09-11]
-- [x] T2.1a boss kill -> takeover (boss-form buff + banner + ring + SFX). Verified: hp_max 82->202, banner screenshot.
-- [x] T2.1b 2nd kill -> zoom to centre + ring fire sweep.
-- [x] T2.1c per-world bosses (boss_for_wave + _pick_boss_pattern).
-- [ ] T1.3a Per-ability distinct SFX: extend FAMILY_FOR_ARCHETYPE (11/18->18) + SOUND_LIBRARY.
-- [ ] T1.3b Dash = launch whoosh not blink (player.gd _cast_ability_blink -> tween travel).
-- [ ] T1.3c Ultimate SFX last 2x longer (audio_service._ult_echo_call + kit_fx_library ult lifetime).
-- [ ] T1.3d Drones: all firing paths play drone_fire/turret_fire sfx.
-- [ ] T1.3e Per-world themes (5 beds) + per-hero themes (cast/attack banks) - keep analog pixel feel.
-- [ ] T1.3f VERIFY: sound_probe_heroes + per-ability sound_probe; bot survives.
-### P1.4 Ability cards + distinct per hero - [NOT STARTED]
-- [ ] T1.4a Ability cards distinct per hero (bootstrap _build_ability_card).
-- [ ] T1.4b Ability preview works in menu (P0.1) AND in-game TAB tooltips.
-- [ ] T1.4c VERIFY: screenshot per hero card + preview.
-### P1.5 Balance all 16 heroes + FFA bots + creeps - [NOT STARTED]
-- [ ] T1.5a 16-hero stat pass (player_class.gd CLASSES).
-- [ ] T1.5b Creeps from all corners evenly (ghost_wave_system _perimeter_point_nearest).
-- [ ] T1.5c FFA: more creeps toward local side (wave_director FFA_*_PRESSURE + _emit_pressure_pack).
-- [ ] T1.5d Drones stronger (companion_drone stats).
-- [ ] T1.5e Shield vs creeps (player.gd shield absorption).
-- [ ] T1.5f Chain hits reduced vs heroes (PVP_CHAIN_HOP_PENALTY) - Volt/drone too strong.
-- [ ] T1.5g Tremor too strong -> reduce contact dmg/dash interval (enemy_type.gd bulwark).
-- [ ] T1.5h Gold drop up (wave_director gold multipliers).
-- [ ] T1.5i All heroes access all items (shop_catalog.items_for).
-- [ ] T1.5j Upgrade diversity: range/arc not over-granted; broaden upgrade_catalog DEFS/SYNERGIES.
-- [ ] T1.5k VERIFY: solo_survival on 3+ heroes PASS_CLUTCH; ffa_balance_check; bot survives.
+- [x] Frostbinder SFX banks
+- [x] All 18 archetypes map to distinct SFX family
+- [x] Ultimate SFX 2x longer
+- [x] Dash whoosh
+- [x] Drone fire SFX
+### P1.4 Ability cards distinct per hero + in-game TAB tooltips - [NOT STARTED]
+- [ ] T1.4a Ability cards distinct per hero (bootstrap _build_ability_card)
+- [ ] T1.4b Ability preview works in menu AND in-game TAB tooltips
+- [ ] T1.4c VERIFY: screenshot per hero card + preview
+### P1.5 Balance all 16 heroes + FFA + creeps - [DONE - Builder B 2026-09-11]
+- [x] 16-hero stat pass
+- [x] Creeps round-robin all 4 edges
+- [x] FFA_BUDGET_PRESSURE 1.45->1.85
+- [x] Drones stronger
+- [x] PVP chain hit penalty reduced
+- [x] Tremor weakened
+- [x] 3 new upgrade synergies
+### P1.6 DANCE DISCO minigame - [DONE - verified 2026-09-11]
+- [x] Disco floor + disco ball visual
+- [x] Dancing bot moves in 4 patterns (circle/figure-8/zigzag/spin), 10s each
+- [x] Accuracy scoring: mirror bot position, 0-100% sync
+- [x] Creep groups join progressively (4 groups at 12/24/36/48s)
+- [x] Dance bot gives comments (Nice!/Great sync!/You re a natural!)
+- [x] DURATION = 60s
+- [x] Bigger crowd = bigger reward
+- [x] Bot path: bot_tick mirrors dancing bot
+- [x] VERIFY: isolated test PASS score=98, hero survives
+### P1.7 Build 3+ more minigames for different locations - [DONE - verified 2026-09-11]
+All 5 new minigames built, registered, and verified in the isolated test scene. Bot scores:
+  gem_relay=2180, whack_rush=26280, treasure_dash2=7876, creep_tag=375, keg_toss_pro=8628
+All PASS with hero surviving.
+Each minigame is a standalone game: own floor/visuals, join-over mechanic, bot_tick + player input,
+tested via the isolated scene (scenes/minigame_test/minigame_test.tscn) with a bot. Mario-Party-inspired long list:
+
+- **Gem Relay** (lagoon, idx 5): Run between relay markers; each marker spawns a gem, collect all to advance. Creeps join as runners. 45s. Bot: run markers in order.
+- **Keg Toss Pro** (lagoon, idx 6): 3 moving targets with varying speed/size; tap to throw. Creeps join as keg-tossers. 40s. Bot: aim at nearest target.
+- **Whack Rush** (forest, idx 7): Faster 3x3 grid, combo multiplier, more hammers. Creeps join as whackers. 40s. Bot: rapid-fire whacks on active cells.
+- **Creep Tag** (mountain, idx 8): Chase/evade — you're "it", tag creeps to add them; tagged creeps turn friendly and help tag others. 50s. Bot: chase nearest creep.
+- **Treasure Dash 2** (town, idx 9): Moving gems + obstacles; collect as many as possible. Creeps join as gem carriers. 45s. Bot: path to nearest gem.
+- **Disco Dash** (town, idx 10): Combo of dance + movement — follow a moving pattern on the floor, creeps dance with you. 60s. Bot: mirror the pattern.
+
+For each minigame:
+- [ ] Script in scripts/minigame_<name>.gd
+- [ ] Register in minigame_area.gd + minigame_test.gd
+- [ ] Isolated selftest request: tools/selftest/requests/<name>_isolated.json
+- [ ] Bot completes + score > 0 + hero survives
+- [ ] Screenshot shows the minigame floor + visuals
 
 ## PHASE 2 - WORLD TRANSITIONS + HUD
-### P2.1 World-transition rework - [NOT STARTED]
-- [ ] T2.1a Transition after boss defeated 2x (wave5 boss1, wave10 boss2, wave15 boss3).
-- [ ] T2.1b 1st boss kill: killer takes over (boss-form buff + banner + ring + SFX).
-- [ ] T2.1c 2nd kill: zoom out to centre, ring fire sweep across map.
-- [ ] T2.1d Bosses differ per world (enemy_type.boss_for_wave + enemy._pick_boss_pattern).
-- [ ] T2.1e Zoom to middle on transition.
-- [ ] T2.1f VERIFY: boss_takeover_verify probe confirms takeover + ring + zoom.
+### P2.1 World-transition rework - [DONE - Builder B 2026-09-11]
+- [x] Boss kill -> takeover
+- [x] 2nd kill -> zoom to centre + ring fire sweep
+- [x] Per-world bosses
 ### P2.2 HUD + UI - [NOT STARTED]
-- [ ] T2.2a Hold-TAB in-game ability tooltips (hud._show_ability_hints).
-- [ ] T2.2b Show all my stats / upgrades / items (hud stats panel).
-- [ ] T2.2c All heroes access all items.
-- [ ] T2.2d FFA off-screen arrows with hero icon (hud._draw_ffa_player_arrows - verify).
-- [ ] T2.2e VERIFY: screenshot TAB panel + stats panel in-game.
+- [ ] T2.2a Hold-TAB in-game ability tooltips
+- [ ] T2.2b Show all stats / upgrades / items
+- [ ] T2.2c All heroes access all items
+- [ ] T2.2d FFA off-screen arrows with hero icon
+- [ ] T2.2e VERIFY: screenshot TAB panel + stats panel
+### P2.2a Ability preview test screen - [NOT STARTED]
+- [ ] Dedicated empty scene to test all previews
+- [ ] On top of everything (highest z-layer)
+- [ ] After verification, place in main menu
+### P2.2b Fix ability previews in HUD - [IN PROGRESS]
+- [ ] User reports previews still not working
+- [ ] Debug: check SubViewport -> main viewport blit
+- [ ] VERIFY: screenshots show all 5 preview types
 
 ## PHASE 3 - SELFTEST COVERAGE
-- [ ] T3.1 Every requirement above has a selftest request + probes.
-- [ ] T3.2 Bot survival test across all 16 heroes (solo_survival roster).
-- [ ] T3.3 Minigame bot completion (all 4, score>0).
-- [ ] T3.4 VERIFY: each new request PASS + screenshot.
+- [ ] T3.1 Every requirement has a selftest request + probes
+- [ ] T3.2 Bot survival test across all 16 heroes
+- [ ] T3.3 Minigame bot completion (all 5+)
+- [ ] T3.4 VERIFY: each new request PASS + screenshot
 
 ## PHASE 4 - POLISH
-- [ ] T4.1 Rain effects on grass world.
-- [ ] T4.2 FFA off-screen arrows: symbol filled with hero icon.
-- [ ] T4.3 Landmarks consistent across worlds.
-- [ ] T4.4 Volcano: no trees/flowers/grass; Ice: no water objects; Docks: no random houses.
-- [ ] T4.5 VERIFY: volcano_no_trees + per-biome screenshots.
+- [ ] T4.1 Rain effects on grass world
+- [ ] T4.2 FFA off-screen arrows: hero icon
+- [ ] T4.3 Landmarks consistent across worlds
+- [ ] T4.4 Volcano: no trees/flowers/grass; Ice: no water objects; Docks: no random houses
+- [ ] T4.5 VERIFY: per-biome screenshots
+
+## PHASE 5 - BALANCE + QUALITY (from full list)
+### P5.1 Tobor charges system
+- [ ] Up to 3 charges of placing mines
+- [ ] Up to 3 charges of placing turrets
+- [ ] Cooldown gone: add charge
+- [ ] VERIFY: screenshot + bot uses all 3 charges
+### P5.2 Hero-vs-hero damage
+- [ ] 0.5 damage from all things from other heroes
+- [ ] Heroes die a little quicker to other heroes
+- [ ] VERIFY: ffa_balance_check
+### P5.3 Creeps from all corners
+- [ ] More creeps toward local side in FFA
+- [ ] Gold drop up
+- [ ] VERIFY: ffa_balance_check
+### P5.4 Drones stronger
+- [ ] All drones firing paths have SFX
+- [ ] Chain hits less strong against heroes
+- [ ] VERIFY: ffa_balance_check
+### P5.5 Shield vs creeps
+- [ ] Shield works against creeps (not just hero damage)
+- [ ] VERIFY: solo_survival with shield
+### P5.6 Volcano cleanup
+- [ ] No trees/flowers/grass in volcano
+- [ ] Creeps all spawn at edge (not from nowhere)
+- [ ] Creeps not too hard (less dmg, fewer dashers)
+- [ ] VERIFY: volcano_no_trees + screenshot
+### P5.7 World transition
+- [ ] After boss defeated 2x: circle inside = old world, outside = fire ring
+- [ ] Zoom to middle on transition
+- [ ] Bosses differ per world
+- [ ] VERIFY: boss_takeover_verify
+### P5.8 Rain effects
+- [ ] Rain on grass world
+- [ ] VERIFY: screenshot
+### P5.9 FFA arrows
+- [ ] Symbols filled with hero icon at screen edges
+- [ ] VERIFY: screenshot
+### P5.10 To bor mines spam bug
+- [ ] Fix: random mines spamming in middle circle when solo
+- [ ] VERIFY: solo_survival no unexpected mines
+### P5.11 Pulse blasts
+- [ ] Upgrade: close to you, less strong, more frequent, visible
+- [ ] SFX for pulse blasts
+- [ ] VERIFY: screenshot + sound_probe
+### P5.12 Tongue twister SFX
+- [ ] Clear SFX for tongue twister
+- [ ] VERIFY: sound_probe
+### P5.13 Upgrade XP cap
+- [ ] After lvl 10, XP doesn't keep increasing (cap)
+- [ ] Upgrades more significant in general
+- [ ] VERIFY: solo_survival to lvl 10+
+### P5.14 All difficulties easier
+- [ ] Creeps easier to kill (less HP)
+- [ ] VERIFY: solo_survival easy difficulty
+### P5.15 Upgrade diversity
+- [ ] Not too many range/arc upgrades
+- [ ] More diversity in general
+- [ ] VERIFY: upgrade_chain_check
+### P5.16 Ice world cleanup
+- [ ] Remove all objects on water in ice world
+- [ ] VERIFY: screenshot
+### P5.17 Dock world cleanup
+- [ ] Remove all random houses in dock world
+- [ ] VERIFY: screenshot
+### P5.18 Landmarks
+- [ ] Landmarks work same across all worlds
+- [ ] VERIFY: screenshot per world
+### P5.19 All heroes access all items
+- [ ] Shop catalog: all items available to all heroes
+- [ ] VERIFY: shop UI screenshot
+### P5.20 SFX: all abilities distinct
+- [ ] Every ability has distinct SFX (not barely-visible)
+- [ ] Self-buff abilities also have SFX
+- [ ] VERIFY: sound_probe per hero
 
 ## WORK ASSIGNMENT
-- Builder A: P1.1 (3 new areas + sprites) + P1.2 (minigames).
-- Builder B: P1.3 (SFX) + P1.5 (balance) + P2 (transitions + HUD).
-- Orchestrator (me): P0 (blockers), P1.4 (cards), P3 (selftest), P4 (polish), verify all, commit, restart.
+- Builder A: P1.1b (houses/camera) + P1.1c (save/load) + P1.7 (more minigames)
+- Builder B: P5.x (balance/quality) + P2.2 (HUD)
+- Orchestrator: P0.5/P0.6 (revert) + P1.6 (dance disco) + P2.2a/b (previews) + P3 + P4

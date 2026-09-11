@@ -1,0 +1,13 @@
+{
+  "elapsed": 40.0155793333317,
+  "hero": "cinder",
+  "hero_hp": 90.0,
+  "hero_position": "(-43.46261, 22.78214)",
+  "min_hp": 90.0,
+  "minigame_index": 7,
+  "reason": "FINISHED",
+  "score": 26280,
+  "screenshot": "user://minigame_test_7.png",
+  "timer": -0.00724599999836371,
+  "verdict": "PASS_OK"
+}
