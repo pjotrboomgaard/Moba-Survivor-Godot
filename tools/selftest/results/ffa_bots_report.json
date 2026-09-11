@@ -1,10 +1,57 @@
 {
   "effects": [
     {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 1,
+      "t": 0.15
+    },
+    {
       "kind": "landmarks",
       "label": "ffa_landmarks",
-      "list": [],
-      "t": 0.804559
+      "list": [
+        {
+          "cooldown": 0.0,
+          "effect_id": "heal_all",
+          "fill": 0.0,
+          "hint": "Wild Spring",
+          "pos": "(1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "phase_cloak",
+          "fill": 0.0,
+          "hint": "Whispering Thicket",
+          "pos": "(-1764.0, 0.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "freeze_time",
+          "fill": 0.0,
+          "hint": "Root Stone",
+          "pos": "(0.0, 1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 0.0,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, -1176.0)",
+          "ready": true
+        },
+        {
+          "cooldown": 89.4328847575756,
+          "effect_id": "pulse_wipe",
+          "fill": 0.0,
+          "hint": "Grove Bell",
+          "pos": "(0.0, 0.0)",
+          "ready": false
+        }
+      ],
+      "t": 0.807136909090908
     },
     {
       "abilities": [
@@ -54,7 +101,7 @@
           },
           {
             "alive": true,
-            "class": "arclight",
+            "class": "pyra",
             "cpu": true,
             "kills": 0,
             "local": false,
@@ -67,7 +114,7 @@
           },
           {
             "alive": true,
-            "class": "bulwark",
+            "class": "slag",
             "cpu": true,
             "kills": 0,
             "local": false,
@@ -80,7 +127,7 @@
           },
           {
             "alive": true,
-            "class": "warden",
+            "class": "ember",
             "cpu": true,
             "kills": 0,
             "local": false,
@@ -100,16 +147,19 @@
       },
       "gold": 0,
       "hero": "tobor",
-      "hp": 118.9,
+      "hp": 130.5,
       "hp_frac": 1.0,
-      "hp_max": 118.9,
+      "hp_max": 130.5,
       "kind": "probe",
       "label": "ffa_start",
+      "last_sfx": "enemy_death",
       "last_tapped": -1,
       "level": 1,
-      "obstacle_count": 11,
+      "obstacle_count": 1266,
+      "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
+      "pending_upgrade_ids": [],
       "player_positions": {
         "1": {
           "locked": true,
@@ -128,9 +178,22 @@
           "pos": "(0.000001, -90.0)"
         }
       },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
       "pvp_invuln": 9.09999999999996,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
       "summons": 0,
-      "t": 0.904558999999999,
+      "t": 0.900757575757574,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
@@ -184,40 +247,40 @@
           },
           {
             "alive": true,
-            "class": "arclight",
+            "class": "pyra",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              32.0,
-              814.0
+              125.0,
+              598.0
             ],
             "team": "1"
           },
           {
             "alive": true,
-            "class": "bulwark",
+            "class": "slag",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 102,
             "pos": [
-              -844.0,
-              -19.0
+              -808.0,
+              23.0
             ],
             "team": "2"
           },
           {
             "alive": true,
-            "class": "warden",
+            "class": "ember",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              -35.0,
-              -836.0
+              -29.0,
+              -833.0
             ],
             "team": "3"
           }
@@ -228,18 +291,21 @@
           5600.0
         ]
       },
-      "gold": 0,
+      "gold": 44,
       "hero": "tobor",
-      "hp": 118.9,
+      "hp": 130.5,
       "hp_frac": 1.0,
-      "hp_max": 118.9,
+      "hp_max": 130.5,
       "kind": "probe",
       "label": "ffa_8s",
+      "last_sfx": "enemy_death",
       "last_tapped": -1,
       "level": 1,
-      "obstacle_count": 18,
+      "obstacle_count": 1273,
+      "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
+      "pending_upgrade_ids": [],
       "player_positions": {
         "1": {
           "locked": false,
@@ -247,20 +313,33 @@
         },
         "101": {
           "locked": false,
-          "pos": "(32.06943, 814.0177)"
+          "pos": "(124.6599, 597.9966)"
         },
         "102": {
           "locked": false,
-          "pos": "(-844.2928, -19.18455)"
+          "pos": "(-807.8646, 23.37164)"
         },
         "103": {
           "locked": false,
-          "pos": "(-35.13005, -835.5197)"
+          "pos": "(-29.07069, -833.0364)"
         }
       },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
       "pvp_invuln": 1.99999999999992,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
       "summons": 0,
-      "t": 8.00572784848502,
+      "t": 8.01159400000011,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
@@ -314,40 +393,40 @@
           },
           {
             "alive": true,
-            "class": "arclight",
+            "class": "pyra",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              848.0,
-              8.0
+              603.0,
+              39.0
             ],
             "team": "1"
           },
           {
             "alive": true,
-            "class": "bulwark",
+            "class": "slag",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 102,
             "pos": [
-              -823.0,
-              -144.0
+              417.0,
+              -11.0
             ],
             "team": "2"
           },
           {
             "alive": true,
-            "class": "warden",
+            "class": "ember",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              -216.0,
-              -150.0
+              -211.0,
+              -618.0
             ],
             "team": "3"
           }
@@ -358,18 +437,21 @@
           5600.0
         ]
       },
-      "gold": 113,
+      "gold": 44,
       "hero": "tobor",
-      "hp": 143.9,
+      "hp": 130.5,
       "hp_frac": 1.0,
-      "hp_max": 143.9,
+      "hp_max": 130.5,
       "kind": "probe",
       "label": "ffa_16s",
+      "last_sfx": "step_grass",
       "last_tapped": -1,
-      "level": 2,
-      "obstacle_count": 18,
+      "level": 1,
+      "obstacle_count": 1273,
+      "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
+      "pending_upgrade_ids": [],
       "player_positions": {
         "1": {
           "locked": false,
@@ -377,27 +459,40 @@
         },
         "101": {
           "locked": false,
-          "pos": "(848.0958, 7.514746)"
+          "pos": "(603.0472, 38.93354)"
         },
         "102": {
           "locked": false,
-          "pos": "(-823.2686, -143.6613)"
+          "pos": "(416.5891, -11.35458)"
         },
         "103": {
           "locked": false,
-          "pos": "(-216.2787, -150.2375)"
+          "pos": "(-211.2214, -618.0161)"
         }
       },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
       "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
       "summons": 0,
-      "t": 16.0079316666665,
+      "t": 16.005941,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
-      "xp": 38
+      "xp": 20
     }
   ],
-  "elapsed": 16.2078419999998,
+  "elapsed": 16.2019446666666,
   "enemies_spawned": 0,
   "hero_position": "(825.0, 0.0)",
   "player_class": "tobor",
@@ -430,40 +525,40 @@
         },
         {
           "alive": true,
-          "class": "arclight",
+          "class": "pyra",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 101,
           "pos": [
-            851.0,
-            14.0
+            603.0,
+            35.0
           ],
           "team": "1"
         },
         {
           "alive": true,
-          "class": "bulwark",
+          "class": "slag",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 102,
           "pos": [
-            -783.0,
-            -137.0
+            460.0,
+            -4.0
           ],
           "team": "2"
         },
         {
           "alive": true,
-          "class": "warden",
+          "class": "ember",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 103,
           "pos": [
-            -244.0,
-            -142.0
+            -211.0,
+            -618.0
           ],
           "team": "3"
         }
@@ -474,7 +569,7 @@
         5600.0
       ]
     },
-    "gold": 113,
+    "gold": 44,
     "hero_kills": 0,
     "hp_samples": [
       {
@@ -491,32 +586,28 @@
         "gold": 0,
         "hp": 1.0,
         "kills": 0,
-        "t": 5.15
+        "t": 5.16
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 0,
+        "gold": 44,
         "hp": 1.0,
         "kills": 0,
-        "t": 10.15
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 95,
+        "gold": 44,
         "hp": 1.0,
         "kills": 0,
         "t": 15.16
       }
     ],
-    "landmark_saves": 0,
-    "level": 2,
-    "level_upgrades": {
-      "2": [
-        "vitality"
-      ]
-    },
+    "landmark_saves": 1,
+    "level": 1,
+    "level_upgrades": {},
     "max_hp": 1.0,
     "min_hp": 1.0,
     "min_hp_late": 1.0,
@@ -525,29 +616,27 @@
     "quests_seen": {},
     "shop_buy_count": 0,
     "shop_buys": [],
-    "taken_upgrades": [
-      "vitality"
-    ],
+    "taken_upgrades": [],
     "until_wave": 20,
     "verdict": "PASS_OK",
     "wave": 1,
-    "xp": 38
+    "xp": 20
   },
   "shots": [
     {
       "label": "ffa_t0",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3180/ffa_t0_1.005_3180.png",
-      "t": 1.004559
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3907/ffa_t0_1.008_3907.png",
+      "t": 1.00757575757576
     },
     {
       "label": "ffa_t8",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10272/ffa_t8_8.104_10272.png",
-      "t": 8.10421269696987
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10982/ffa_t8_8.101_10982.png",
+      "t": 8.10055555555567
     },
     {
       "label": "ffa_t16",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_18265/ffa_t16_16.108_18265.png",
-      "t": 16.1079316666664
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_19001/ffa_t16_16.107_19001.png",
+      "t": 16.1065354242424
     }
   ]
 }

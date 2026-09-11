@@ -15,13 +15,13 @@
       "player_non_null": false,
       "player_was_playing": false,
       "stream_path": "",
-      "t": 0.701855
+      "t": 0.706777727272727
     },
     {
       "hp": 1.0,
       "kind": "landmark_save",
       "saves": 1,
-      "t": 0.74251
+      "t": 0.749127333333333
     },
     {
       "ability_id": "cinder_dragon_fire",
@@ -37,8 +37,8 @@
       "ok": true,
       "player_non_null": true,
       "player_was_playing": true,
-      "stream_path": "res://assets/audio/themes/cinder_3.wav",
-      "t": 1.60103433333333
+      "stream_path": "res://assets/audio/themes/cinder_2.wav",
+      "t": 1.60736166666666
     },
     {
       "ability_id": "volt_gust",
@@ -50,29 +50,29 @@
       "kind": "sound_probe",
       "label": "volt_q",
       "last_play_ability": "cinder_dragon_fire",
-      "last_play_sound_id": "countdown_tick",
+      "last_play_sound_id": "cast_cinder",
       "ok": false,
       "player_non_null": true,
       "player_was_playing": false,
-      "stream_path": "res://assets/audio/themes/countdown_tick.wav",
-      "t": 2.40248881818181
+      "stream_path": "res://assets/audio/themes/cinder_2.wav",
+      "t": 2.40650748484848
     },
     {
       "ability_id": "sage_petal_dance",
       "assert_ability_match": true,
-      "assert_bank_match": false,
+      "assert_bank_match": true,
       "assert_player_fired": true,
-      "assert_stream_from_bank": false,
+      "assert_stream_from_bank": true,
       "expected_bank": "cast_sage",
       "kind": "sound_probe",
       "label": "sage_q",
       "last_play_ability": "sage_petal_dance",
-      "last_play_sound_id": "countdown_tick",
-      "ok": false,
+      "last_play_sound_id": "cast_sage",
+      "ok": true,
       "player_non_null": true,
-      "player_was_playing": false,
-      "stream_path": "res://assets/audio/themes/countdown_tick.wav",
-      "t": 3.201242
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/sage.wav",
+      "t": 3.20753133333333
     },
     {
       "abilities": [
@@ -163,14 +163,14 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 3.60644566666667,
+      "t": 3.602183,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
       "xp": 0
     }
   ],
-  "elapsed": 3.80188578787879,
+  "elapsed": 3.80749566666666,
   "enemies_spawned": 0,
   "hero_position": "(112.0, 0.0)",
   "player_class": "sage",
@@ -182,11 +182,11 @@
     "casts": [
       {
         "ability_id": "cinder_dragon_fire",
-        "t": 1.40155724242424
+        "t": 1.407364
       },
       {
         "ability_id": "sage_petal_dance",
-        "t": 3.00626266666666
+        "t": 3.00833333333333
       }
     ],
     "creep_kills": 0,

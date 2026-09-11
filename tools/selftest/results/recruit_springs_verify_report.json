@@ -89,7 +89,7 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 1.00166678787879,
+      "t": 1.00154790909091,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
@@ -186,7 +186,7 @@
         "minions": 1
       },
       "summons": 0,
-      "t": 5.20144900000003,
+      "t": 5.2009636666667,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
@@ -247,8 +247,8 @@
       },
       "gold": 0,
       "hero": "arclight",
-      "hp": 88.55,
-      "hp_frac": 0.903571428571429,
+      "hp": 79.1,
+      "hp_frac": 0.807142857142857,
       "hp_max": 98.0,
       "kind": "probe",
       "label": "after_lagoon",
@@ -284,7 +284,7 @@
         "minions": 2
       },
       "summons": 0,
-      "t": 9.70158233333338,
+      "t": 9.70087733333341,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
@@ -315,7 +315,7 @@
         0.0,
         0.0,
         0.0,
-        188.199999999997
+        188.216666666664
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -343,10 +343,10 @@
           5600.0
         ]
       },
-      "gold": 196,
+      "gold": 204,
       "hero": "arclight",
-      "hp": 83.3,
-      "hp_frac": 0.85,
+      "hp": 79.1,
+      "hp_frac": 0.807142857142857,
       "hp_max": 98.0,
       "kind": "probe",
       "label": "after_forest",
@@ -383,7 +383,7 @@
         "minions": 3
       },
       "summons": 0,
-      "t": 14.2065303333332,
+      "t": 14.2064956666667,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
@@ -414,7 +414,7 @@
         0.0,
         0.0,
         0.0,
-        183.699999999993
+        183.71666666666
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -442,10 +442,10 @@
           5600.0
         ]
       },
-      "gold": 196,
+      "gold": 206,
       "hero": "arclight",
-      "hp": 83.3,
-      "hp_frac": 0.85,
+      "hp": 79.1,
+      "hp_frac": 0.807142857142857,
       "hp_max": 98.0,
       "kind": "probe",
       "label": "after_scorch",
@@ -483,217 +483,233 @@
         "minions": 4
       },
       "summons": 0,
-      "t": 18.7064196666666,
+      "t": 18.7007440000001,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
-      "xp": 4
+      "xp": 8
     }
   ],
-  "elapsed": 19.805987,
+  "elapsed": 19.8000000000001,
   "enemies_spawned": 0,
-  "hero_position": "(2423.783, 1640.993)",
+  "hero_position": "(2422.754, 1652.872)",
   "player_class": "arclight",
   "results": {
     "alive": true,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 38,
+    "cast_count": 42,
     "casts": [
       {
         "ability_id": "arclight_static_bolt",
-        "t": 1.25124833333333
+        "t": 1.259142
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 10.409855
+        "t": 10.4257575757576
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.4257575757576
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.4257575757576
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.4257575757576
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.4257575757576
       },
       {
         "ability_id": "arclight_blast_of_lightning",
-        "t": 19.7235445757576
+        "t": 19.7288122424244
       }
     ],
-    "creep_kills": 31,
+    "creep_kills": 35,
     "died": false,
     "errors": [
       "only beaten wave 0 / 20 (t=20)"
     ],
     "ffa": {},
-    "gold": 202,
+    "gold": 216,
     "hero_kills": 0,
     "hp_samples": [
       {
-        "enemies": 13,
+        "enemies": 14,
         "gold": 0,
         "hp": 1.0,
         "t": 0.15,
         "wave": 1
       },
       {
-        "enemies": 24,
+        "enemies": 28,
         "gold": 0,
         "hp": 0.9,
-        "t": 5.81,
+        "t": 5.82,
         "wave": 1
       },
       {
-        "enemies": 36,
+        "enemies": 40,
         "gold": 0,
-        "hp": 0.9,
+        "hp": 0.81,
         "t": 10.31,
         "wave": 1
       },
       {
-        "enemies": 41,
-        "gold": 196,
-        "hp": 0.85,
+        "enemies": 36,
+        "gold": 205,
+        "hp": 0.81,
         "t": 14.81,
         "wave": 1
       },
       {
-        "enemies": 45,
-        "gold": 196,
-        "hp": 0.85,
+        "enemies": 39,
+        "gold": 207,
+        "hp": 0.81,
         "t": 19.32,
         "wave": 1
       }
@@ -702,13 +718,13 @@
     "level": 1,
     "level_upgrades": {},
     "max_hp": 1.0,
-    "min_hp": 0.85,
+    "min_hp": 0.807142857142857,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 2,
     "quests_seen": {
-      "smash_idol": 1,
-      "stand_beacon": 1
+      "collect_shards": 1,
+      "stand_spring": 1
     },
     "shop_buy_count": 0,
     "shop_buys": [],
@@ -716,33 +732,33 @@
     "until_wave": 20,
     "verdict": "FAIL_NO_PROGRESS",
     "wave": 1,
-    "xp": 4
+    "xp": 12
   },
   "shots": [
     {
       "label": "boot",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3407/boot_0.508_3407.png",
-      "t": 0.507732151515152
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3412/boot_0.505_3412.png",
+      "t": 0.504726151515151
     },
     {
       "label": "town_area",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8507/town_area_5.605_8507.png",
-      "t": 5.60526433333337
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8503/town_area_5.601_8503.png",
+      "t": 5.60096333333338
     },
     {
       "label": "lagoon_area",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13007/lagoon_area_10.102_13007.png",
-      "t": 10.1015823333334
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13003/lagoon_area_10.102_13003.png",
+      "t": 10.1024124848485
     },
     {
       "label": "forest_area",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_17499/forest_area_14.607_17499.png",
-      "t": 14.6065303333332
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_17503/forest_area_14.606_17503.png",
+      "t": 14.6064956666666
     },
     {
       "label": "scorch_area",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_21998/scorch_area_19.106_21998.png",
-      "t": 19.1064036666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_22003/scorch_area_19.101_22003.png",
+      "t": 19.1007280000001
     }
   ]
 }

@@ -3,7 +3,7 @@
     {
       "command": "toggle_invulnerable",
       "kind": "dev_command",
-      "t": 0.216666666666667
+      "t": 0.238844
     },
     {
       "ability_id": "tobor_x",
@@ -19,25 +19,25 @@
       "ok": true,
       "player_non_null": true,
       "player_was_playing": true,
-      "stream_path": "res://assets/audio/themes/attack_tobor.wav",
-      "t": 0.709090909090909
+      "stream_path": "res://assets/audio/themes/attack_tobor_2.wav",
+      "t": 0.704631090909091
     },
     {
       "ability_id": "arclight_x",
-      "assert_ability_match": true,
-      "assert_bank_match": true,
+      "assert_ability_match": false,
+      "assert_bank_match": false,
       "assert_player_fired": true,
-      "assert_stream_from_bank": true,
+      "assert_stream_from_bank": false,
       "expected_bank": "attack_arclight",
       "kind": "sound_probe",
       "label": "primary_arclight",
       "last_play_ability": "arclight_static_bolt",
-      "last_play_sound_id": "attack_arclight",
-      "ok": true,
+      "last_play_sound_id": "step_grass",
+      "ok": false,
       "player_non_null": true,
-      "player_was_playing": false,
-      "stream_path": "res://assets/audio/themes/attack_arclight_2.wav",
-      "t": 1.506543
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/step_grass.wav",
+      "t": 1.501716
     },
     {
       "ability_id": "volt_x",
@@ -54,7 +54,7 @@
       "player_non_null": true,
       "player_was_playing": false,
       "stream_path": "res://assets/audio/themes/attack_volt.wav",
-      "t": 2.30647633333333
+      "t": 2.30195133333333
     },
     {
       "abilities": [
@@ -97,8 +97,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              628.0,
-              -2.0
+              623.0,
+              -10.0
             ],
             "team": ""
           }
@@ -111,15 +111,15 @@
       },
       "gold": 0,
       "hero": "bulwark",
-      "hp": 220.0,
+      "hp": 240.0,
       "hp_frac": 1.0,
-      "hp_max": 220.0,
+      "hp_max": 240.0,
       "kind": "probe",
       "label": "after_dash",
       "last_sfx": "dash",
       "last_tapped": 0,
       "level": 1,
-      "obstacle_count": 856,
+      "obstacle_count": 1266,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -127,7 +127,7 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(627.6752, -1.784902)"
+          "pos": "(623.332, -9.722865)"
         }
       },
       "pulse_interval": 0.0,
@@ -145,7 +145,7 @@
         "minions": 0
       },
       "summons": 3,
-      "t": 2.90523633333333,
+      "t": 2.90066833333334,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
@@ -161,12 +161,12 @@
       "kind": "sound_probe",
       "label": "cast_bulwark_fortify",
       "last_play_ability": "bulwark_heavyweight",
-      "last_play_sound_id": "attack_bulwark",
+      "last_play_sound_id": "step_grass",
       "ok": false,
       "player_non_null": true,
       "player_was_playing": false,
-      "stream_path": "res://assets/audio/themes/attack_bulwark.wav",
-      "t": 3.40675148484848
+      "stream_path": "res://assets/audio/themes/step_grass.wav",
+      "t": 3.4053130909091
     },
     {
       "abilities": [
@@ -209,8 +209,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              513.0,
-              -90.0
+              501.0,
+              -95.0
             ],
             "team": ""
           }
@@ -223,15 +223,15 @@
       },
       "gold": 0,
       "hero": "bulwark",
-      "hp": 220.0,
+      "hp": 240.0,
       "hp_frac": 1.0,
-      "hp_max": 220.0,
+      "hp_max": 240.0,
       "kind": "probe",
       "label": "shield_probe",
-      "last_sfx": "attack_bulwark",
+      "last_sfx": "step_grass",
       "last_tapped": 2,
       "level": 1,
-      "obstacle_count": 856,
+      "obstacle_count": 1266,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -239,7 +239,7 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(513.4593, -89.70023)"
+          "pos": "(501.3679, -94.77557)"
         }
       },
       "pulse_interval": 0.0,
@@ -257,7 +257,7 @@
         "minions": 0
       },
       "summons": 3,
-      "t": 3.70675148484848,
+      "t": 3.70535100000001,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
@@ -268,21 +268,21 @@
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 5.13898357575761
+      "t": 5.14525715151519
     },
     {
-      "cd_left": 10.1793333333332,
+      "cd_left": 10.1626666666666,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 2,
-      "t": 5.68974115151521
+      "t": 5.70280957575763
     },
     {
       "cd_left": 170.583333333332,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 6.24020866666675
+      "t": 6.25643978787885
     },
     {
       "abilities": [
@@ -309,7 +309,7 @@
         13.7586666666666,
         5.77666666666661,
         9.36266666666651,
-        170.316666666665
+        170.333333333331
       ],
       "enemies_alive": 1,
       "ffa": {
@@ -325,8 +325,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              302.0,
-              -135.0
+              332.0,
+              -214.0
             ],
             "team": ""
           }
@@ -339,15 +339,15 @@
       },
       "gold": 0,
       "hero": "bulwark",
-      "hp": 220.0,
+      "hp": 240.0,
       "hp_frac": 1.0,
-      "hp_max": 220.0,
+      "hp_max": 240.0,
       "kind": "probe",
       "label": "after_elite_dmg",
       "last_sfx": "attack_bulwark",
       "last_tapped": 0,
       "level": 1,
-      "obstacle_count": 856,
+      "obstacle_count": 1266,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -355,7 +355,7 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(302.261, -135.2517)"
+          "pos": "(332.4519, -213.9512)"
         }
       },
       "pulse_interval": 0.0,
@@ -373,83 +373,83 @@
         "minions": 0
       },
       "summons": 3,
-      "t": 6.50679300000009,
+      "t": 6.50648600000007,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
       "xp": 0
     },
     {
-      "cd_left": 13.4753333333332,
+      "cd_left": 13.4586666666666,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 6.79835866666677
+      "t": 6.81035933333341
     },
     {
-      "cd_left": 13.3253333333332,
+      "cd_left": 13.3086666666666,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 6.93864184848496
+      "t": 6.95417293939402
     },
     {
-      "cd_left": 4.92666666666661,
+      "cd_left": 4.90999999999994,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 7.35658166666679
+      "t": 7.36666666666676
     },
     {
-      "cd_left": 7.96266666666645,
+      "cd_left": 7.94599999999978,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 2,
-      "t": 7.91283990909106
+      "t": 7.91953990909102
     },
     {
       "cd_left": 168.366666666663,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 8.46505600000013
+      "t": 8.47340066666677
     },
     {
-      "cd_left": 11.2586666666665,
+      "cd_left": 11.2419999999998,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 9.01518366666677
+      "t": 9.02686666666677
     },
     {
-      "cd_left": 11.1086666666664,
+      "cd_left": 11.0919999999998,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 9.15676733333343
+      "t": 9.16929090909101
     },
     {
       "boss": "ravager",
-      "gold_after": 278,
+      "gold_after": 261,
       "kind": "kill_boss",
       "label": "boss_kill",
       "level_after": 1,
-      "t": 9.50668433333341,
-      "xp_after": 45
+      "t": 9.50199333333342,
+      "xp_after": 10
     },
     {
       "cd_left": 2.70999999999995,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 9.57082890909099
+      "t": 9.57698366666676
     },
     {
-      "cd_left": 5.74599999999979,
+      "cd_left": 5.72933333333312,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 2,
-      "t": 10.1234410000001
+      "t": 10.1352943333334
     },
     {
       "biome_id": 0,
@@ -467,12 +467,12 @@
       "last_boss_transition": {
         "biome_id": 0,
         "biome_name": "Verdant Hollow",
-        "center": "(329.1182, 24.34317)",
+        "center": "(373.819, -63.66992)",
         "source": "boss_death",
-        "t": 12371
+        "t": 13273
       },
       "ring_live": 1,
-      "t": 10.5026106666667,
+      "t": 10.5019463333334,
       "wave": 1
     },
     {
@@ -480,40 +480,40 @@
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 10.6775436666667
+      "t": 10.6924242424243
     },
     {
-      "cd_left": 9.04199999999968,
+      "cd_left": 9.02533333333301,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 11.2278720000001
+      "t": 11.2500000000001
     },
     {
-      "cd_left": 8.89199999999967,
+      "cd_left": 8.875333333333,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 11.3695330000001
+      "t": 11.3916666666667
     },
     {
       "cd_left": 0.493333333333289,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 11.7861830000001
+      "t": 11.8
     },
     {
       "cd_left": 3.52933333333313,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 2,
-      "t": 12.3444940000001
+      "t": 12.35
     }
   ],
-  "elapsed": 12.5028210000001,
+  "elapsed": 12.5,
   "enemies_spawned": 2,
-  "hero_position": "(-517.8021, -232.6954)",
+  "hero_position": "(-614.1962, -316.1074)",
   "player_class": "bulwark",
   "results": {
     "alive": true,
@@ -523,83 +523,83 @@
     "casts": [
       {
         "ability_id": "tobor_steam_keg",
-        "t": 0.83560606060606
+        "t": 0.839439
       },
       {
         "ability_id": "tobor_spider_mines",
-        "t": 0.844696969696969
+        "t": 0.847772333333333
       },
       {
         "ability_id": "arclight_static_bolt",
-        "t": 1.25664833333333
+        "t": 1.260783
       },
       {
         "ability_id": "volt_typhoon",
-        "t": 1.81474533333333
+        "t": 1.81925624242424
       },
       {
         "ability_id": "volt_gust",
-        "t": 2.50647633333333
+        "t": 2.51287878787879
       },
       {
         "ability_id": "bulwark_heavyweight",
-        "t": 2.92266057575757
+        "t": 2.92566833333334
       },
       {
         "ability_id": "bulwark_shockwave_strike",
-        "t": 3.47341815151514
+        "t": 3.48085684848485
       },
       {
         "ability_id": "bulwark_echo_slam",
-        "t": 4.03162133333332
+        "t": 4.03556533333334
       },
       {
         "ability_id": "bulwark_fissure",
-        "t": 4.72539266666668
+        "t": 4.73137133333336
       }
     ],
-    "creep_kills": 2,
+    "creep_kills": 1,
     "died": false,
     "errors": [
       "only beaten wave 0 / 2 (t=13)"
     ],
     "ffa": {},
-    "gold": 358,
+    "gold": 341,
     "hero_kills": 0,
     "hp_samples": [
       {
-        "enemies": 12,
+        "enemies": 13,
         "gold": 0,
         "hp": 1.0,
         "t": 0.15,
         "wave": 1
       },
       {
-        "enemies": 17,
+        "enemies": 18,
         "gold": 0,
         "hp": 1.0,
-        "t": 2.65,
+        "t": 2.66,
         "wave": 1
       },
       {
-        "enemies": 27,
+        "enemies": 29,
         "gold": 0,
         "hp": 1.0,
-        "t": 5.16,
+        "t": 5.17,
         "wave": 1
       },
       {
-        "enemies": 32,
-        "gold": 17,
+        "enemies": 33,
+        "gold": 0,
         "hp": 1.0,
-        "t": 7.66,
+        "t": 7.67,
         "wave": 1
       },
       {
-        "enemies": 36,
-        "gold": 358,
+        "enemies": 37,
+        "gold": 341,
         "hp": 1.0,
-        "t": 10.17,
+        "t": 10.18,
         "wave": 1
       }
     ],
@@ -607,16 +607,16 @@
     "level": 5,
     "level_upgrades": {
       "2": [
-        "gun_drone"
+        "plating"
       ],
       "3": [
         "sweep"
       ],
       "4": [
-        "reach"
+        "gun_drone"
       ],
       "5": [
-        "havoc"
+        "ironhide"
       ]
     },
     "max_hp": 1.0,
@@ -625,27 +625,27 @@
     "pressure_boosts": 0,
     "quest_types": 2,
     "quests_seen": {
-      "collect_shards": 1,
-      "ring_bell": 1
+      "collect_coins": 1,
+      "smash_shroom": 1
     },
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "gun_drone",
+      "plating",
       "sweep",
-      "reach",
-      "havoc"
+      "gun_drone",
+      "ironhide"
     ],
     "until_wave": 2,
     "verdict": "FAIL_NO_PROGRESS",
     "wave": 1,
-    "xp": 107
+    "xp": 72
   },
   "shots": [
     {
       "label": "boss_ring",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12574/boss_ring_10.007_12574.png",
-      "t": 10.0067833333334
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13476/boss_ring_10.002_13476.png",
+      "t": 10.0019703333334
     }
   ]
 }
