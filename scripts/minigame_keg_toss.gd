@@ -69,7 +69,8 @@ func _do_throw() -> void:
 	score += points
 	_throw_result = points
 	_result_flash = 1.0
-	AudioService.play("sfx_projectile")
+	AudioService.play("minigame_keg_toss")
+	_vfx_burst(Color(0.4, 0.9, 1.0), 16.0, 120.0)
 	if _throws >= THROW_COUNT:
 		_finish_with_reward()
 	queue_redraw()

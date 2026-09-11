@@ -93,7 +93,8 @@ func _try_hit(cell: int) -> void:
 		_flash_cell = cell
 		_flash_result = 1
 		_active_cell = -1
-		AudioService.play("sfx_projectile")
+		AudioService.play("minigame_whack")
+		_vfx_burst(Color(0.6, 0.9, 0.4), 40.0, 140.0)
 	else:
 		_combo = 0
 		_flash_cell = cell

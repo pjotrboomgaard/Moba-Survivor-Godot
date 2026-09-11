@@ -10,15 +10,6 @@ extends Node2D
 ## lines while sharing the lifecycle + UI banner/ring plumbing.
 ## No class_name to avoid circular dependency with Player at parse time.
 
-## Base for the village minigames. Each corner of the arena hosts one; the
-## player (or a CPU ally that walked in) calls `interact()` to start it, plays
-## for `DURATION`, and on finish the owner earns gold + XP through the same
-## path kills use (`player.add_gold` / `player.add_xp`).
-##
-## Subclasses must override `_reset()`, `on_input_event(event)`, `bot_tick(delta)`,
-## `_update_delta(delta)`, and `_draw_body()` to keep each minigame to ~100-200
-## lines while sharing the lifecycle + UI banner/ring plumbing.
-
 signal finished(owner_player: Player, score: int, rewards: Dictionary)
 
 const DURATION: float = 15.0
@@ -192,10 +183,18 @@ func _draw_body() -> void:
 	pass
 
 
+## Selftest/verify flag: when true, `_process` drives `bot_tick` every frame so
+## the game plays itself even when the owner is a human (used by minigame_verify
+## so a pinned local hero still earns score + reward without keyboard input).
+var bot_force := false
+
+
 func _process(delta: float) -> void:
 	if not active:
 		return
 	_update_delta(delta)
+	if bot_force:
+		bot_tick(delta)
 	timer -= delta
 	_banner_alpha = maxf(0.0, _banner_alpha - delta * 0.4)
 	_finished_flash = maxf(0.0, _finished_flash - delta * 1.2)
@@ -217,6 +216,51 @@ func _finish_with_reward() -> void:
 		owner_player.add_gold(REWARD_GOLD)
 		owner_player.add_xp(REWARD_XP)
 	AudioService.play("minigame_win")
+	_vfx_burst(Color(1.0, 0.95, 0.4), 24.0, 200.0)
+	_emit_finished()
+
+
+## Lightweight action VFX: spawn a small one-shot GPUParticles burst at a local
+## position with a unique color/count/speed per minigame so each game has a
+## distinct visual "pop" on its signature action.
+var _vfx: Array = []
+
+func _vfx_burst(color: Color, speed: float = 120.0, lifetime: float = 0.45) -> void:
+	var parts := CPUParticles2D.new()
+	parts.emitting = true
+	parts.one_shot = true
+	parts.amount = 14
+	parts.lifetime = lifetime
+	parts.explosiveness = 1.0
+	parts.direction = Vector2.ZERO
+	parts.spread = 180.0
+	parts.initial_velocity_min = speed * 0.5
+	parts.initial_velocity_max = speed
+	parts.gravity = Vector2(0.0, 40.0)
+	parts.scale_amount_min = 0.8
+	parts.scale_amount_max = 1.6
+	parts.texture = _make_vfx_texture(color)
+	parts.position = Vector2.ZERO
+	add_child(parts)
+	_vfx.append(parts)
+	var timer := get_tree().create_timer(lifetime + 0.1)
+	timer.timeout.connect(func() -> void:
+		if is_instance_valid(parts):
+			parts.queue_free()
+		_vfx.erase(parts)
+	)
+
+static func _make_vfx_texture(color: Color) -> ImageTexture:
+	var img := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	for y in 8:
+		for x in 8:
+			var d := Vector2(x - 3.5, y - 3.5).length()
+			if d <= 3.5:
+				img.set_pixel(x, y, Color(color.r, color.g, color.b, 1.0 - d / 4.5))
+	return ImageTexture.create_from_image(img)
+
+
+func _emit_finished() -> void:
 	finished.emit(owner_player, score, {"gold": REWARD_GOLD, "xp": REWARD_XP})
 	if is_inside_tree():
 		var main: Node = get_tree().get_first_node_in_group("main")

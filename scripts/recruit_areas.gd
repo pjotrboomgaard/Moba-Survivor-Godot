@@ -5,31 +5,36 @@ extends Node2D
 ## camps (creep_camp.gd): here the creeps are neutral and can be RECRUITED into
 ## the player's team after the player completes a simple on-site quest.
 ##
-##   top-left    -> Town     (wolf)   friendly town animal
-##   bottom-left -> Lagoon   (otter)  water elemental
-##   top-right   -> Forest   (boar)   forest beast
-##   bottom-right-> Scorch   (golem)  rocky construct
+##   top-left    -> Town       (wolf)     friendly town animal
+##   bottom-left -> Lagoon     (flamingo) tropical water bird
+##   top-right   -> Forest     (stag)     forest beast
+##   bottom-right-> Mountain   (goat)     alpine sure-footed goat
 ##
-## Each area shows its recruit creeps idle near a ground marker. Standing in the
-## area for BOND_SECONDS "befriends" them; on completion the creeps become
-## friendly_minion allies that follow the player and fight enemies + enemy heroes
-## + other teams' minions. Each player can recruit each area once.
+## Each area shows its recruit creeps idle near a ground marker, lingering and
+## doing a small wander (no aggro) until recruited. Standing in the area for
+## BOND_SECONDS "befriends" them; on completion the creeps become friendly_minion
+## allies that follow the player and fight enemies + enemy heroes + other teams'
+## minions. Each player can recruit each area once.
 
 const BOND_SECONDS := 3.0
 const BOND_RADIUS := 170.0
-## How many distinct recruit creeps stand in each area (2 each: a "lead" and a
-## "kit" so the areas read as a small camp, not a lone dot).
-const CREEPS_PER_AREA := 2
+## How many distinct recruit creeps stand in each area (3 each: a "lead", a "kit",
+## and a "scout" so the areas read as a small camp, not a lone dot).
+const CREEPS_PER_AREA := 3
 ## Recruit allies live long but not forever.
 const RECRUIT_LIFETIME := 120.0
 
 ## Area definitions: art id (recruit creature), structure art id (the themed camp
 ## building/prop shown at the area), display name, marker accent color.
+## Each area lists up to 3 candidate creature art ids: "art" is the lead recruit
+## (biggest, slot 0), "alt_1"/"alt_2" fill the smaller kit + scout slots. Each
+## slot is looked up in SideQuestArt; an empty id means that slot is skipped
+## (never a blank dot).
 const AREAS: Array[Dictionary] = [
-	{"name": "Town",   "art": "wolf",  "structure": "town_house",   "accent": Color("8fae6a"), "corner": Vector2(-1.0, -1.0)},
-	{"name": "Lagoon", "art": "otter", "structure": "lagoon_palm",  "accent": Color("5ad4ff"), "corner": Vector2(-1.0,  1.0)},
-	{"name": "Forest", "art": "boar",  "structure": "forest_camp",  "accent": Color("7dbb5a"), "corner": Vector2( 1.0, -1.0)},
-	{"name": "Scorch", "art": "golem", "structure": "scorch_rock",  "accent": Color("ff9a3d"), "corner": Vector2( 1.0,  1.0)},
+	{"name": "Town",     "art": "wolf",       "alt_1": "fox",    "alt_2": "raven",  "structure": "town_house",             "accent": Color("8fae6a"), "corner": Vector2(-1.0, -1.0)},
+	{"name": "Lagoon",   "art": "lagoon_flamingo", "alt_1": "lagoon_dodo", "alt_2": "lagoon_crab", "structure": "lagoon_palm_hut", "accent": Color("5ad4ff"), "corner": Vector2(-1.0,  1.0)},
+	{"name": "Forest",   "art": "forest_stag",  "alt_1": "forest_owl",  "alt_2": "forest_squirrel", "structure": "forest_hut",             "accent": Color("7dbb5a"), "corner": Vector2( 1.0, -1.0)},
+	{"name": "Mountain", "art": "mountain_goat","alt_1": "mountain_yeti", "alt_2": "mountain_wolf", "structure": "mountain_isometric_hut", "accent": Color("a8c8e0"), "corner": Vector2( 1.0,  1.0)},
 ]
 
 var _main: Node = null
@@ -136,11 +141,12 @@ func _make_marker(accent: Color) -> ImageTexture:
 func _spawn_recruits() -> void:
 	for i in _area_positions.size():
 		var sprites: Array = []
-		var art := str(AREAS[i]["art"])
 		var accent: Color = AREAS[i]["accent"]
+		# Per-slot art ids: slot 0 = "art" (lead), slot 1 = alt_1 (kit), slot 2 = alt_2 (scout).
+		var slot_arts := [str(AREAS[i]["art"]), str(AREAS[i].get("alt_1", "")), str(AREAS[i].get("alt_2", ""))]
 		for slot in CREEPS_PER_AREA:
-			# Two distinct-looking candidates of the same species: one bigger
-			# ("lead"), one smaller ("kit"), offset around the marker.
+			# Three distinct-looking creatures per camp: one bigger "lead" plus two
+			# smaller "kit"/"scout" of different species, offset around the marker.
 			var spr := Sprite2D.new()
 			spr.z_as_relative = false
 			spr.z_index = 6
@@ -153,7 +159,10 @@ func _spawn_recruits() -> void:
 			spr.set_meta("recruit_seed", float(randf() * 10.0))
 			spr.set_meta("area_index", i)
 			# Distinct silhouette per species via SideQuestArt.
-			var tex := SideQuestArt.texture(art)
+			var art: String = slot_arts[slot]
+			var tex := SideQuestArt.texture(art) if art != "" else null
+			if tex == null:
+				tex = SideQuestArt.texture(str(AREAS[i]["art"]))
 			if tex != null:
 				spr.texture = tex
 			else:
@@ -280,7 +289,7 @@ func _recruit_area(area_index: int, peer_id: int, player: Node2D) -> void:
 
 	# Spawn the recruited ally. Set art_id/stats BEFORE add_child so _build_sprite
 	# (run in _ready) picks up the correct species art, not the generic circle.
-	var art := str(AREAS[area_index]["art"])
+	var art: String = str(AREAS[area_index]["art"])
 	var accent: Color = AREAS[area_index]["accent"]
 	var MinionScript: Variant = load("res://scripts/friendly_minion.gd")
 	var minion: Variant = MinionScript.new()
@@ -312,12 +321,34 @@ func _announce(area_index: int, art: String) -> void:
 	match art:
 		"wolf":
 			label = "wolf pup"
+		"fox":
+			label = "town fox"
+		"raven":
+			label = "town raven"
 		"otter":
 			label = "lagoon otter"
 		"boar":
 			label = "forest boar"
 		"golem":
 			label = "scorch golem"
+		"lagoon_flamingo":
+			label = "lagoon flamingo"
+		"lagoon_dodo":
+			label = "lagoon dodo"
+		"lagoon_crab":
+			label = "lagoon crab"
+		"forest_stag":
+			label = "forest stag"
+		"forest_owl":
+			label = "forest owl"
+		"forest_squirrel":
+			label = "forest squirrel"
+		"mountain_goat":
+			label = "mountain goat"
+		"mountain_yeti":
+			label = "mountain yeti"
+		"mountain_wolf":
+			label = "mountain wolf"
 	# main owns the HUD; hand off the banner there (only the session authority /
 	# local player sees it, avoiding duplicate flashes in co-op).
 	if _main != null and _main.has_method("flash_recruit_joined"):

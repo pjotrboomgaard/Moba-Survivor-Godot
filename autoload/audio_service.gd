@@ -131,6 +131,10 @@ const SOUND_LIBRARY: Dictionary = {
 		preload("res://assets/audio/themes/astral.wav"),
 		preload("res://assets/audio/themes/astral_2.wav"),
 	],
+	"cast_frostbinder": [
+		preload("res://assets/audio/themes/frostbinder.wav"),
+		preload("res://assets/audio/themes/frostbinder_2.wav"),
+	],
 	"cast_rime": [
 		preload("res://assets/audio/themes/rime.wav"),
 		preload("res://assets/audio/themes/rime_2.wav"),
@@ -163,6 +167,7 @@ const SOUND_LIBRARY: Dictionary = {
 	"attack_volt": [preload("res://assets/audio/themes/attack_volt.wav")],
 	"attack_nebula": [preload("res://assets/audio/themes/attack_nebula.wav")],
 	"attack_astral": [preload("res://assets/audio/themes/attack_astral.wav")],
+	"attack_frostbinder": [preload("res://assets/audio/themes/attack_frostbinder.wav")],
 	"attack_rime": [preload("res://assets/audio/themes/attack_rime.wav")],
 	"sfx_projectile": [preload("res://assets/audio/sfx/sfx_projectile.ogg")],
 	# Summoned drones: a short zap when a turret fires. Reuses the shared projectile
@@ -190,8 +195,18 @@ const SOUND_LIBRARY: Dictionary = {
 	"step_wood": [preload("res://assets/audio/themes/step_wood.wav")],
 	# Village minigame completion stinger: a bright, celebratory chime.
 	"minigame_win": [preload("res://assets/audio/themes/minigame_win.wav")],
+	# Per-minigame action stingers (P1.2): each game's signature action has a
+	# unique one-shot so the four games read differently in the ears.
+	"minigame_keg_toss": [preload("res://assets/audio/themes/minigame_keg_toss.wav")],
+	"minigame_whack": [preload("res://assets/audio/themes/minigame_whack.wav")],
+	"minigame_rps": [preload("res://assets/audio/themes/minigame_rps.wav")],
+	"minigame_treasure": [preload("res://assets/audio/themes/minigame_treasure.wav")],
 }
 
+## P1.3: every archetype in the roster now maps to a distinct SFX family so each
+## hero's 4 abilities read differently in the ears. New families reuse shared .ogg
+## banks but each maps to a different family id (cone/radius/dash/heal/shield/force)
+## so the 18 archetypes are never silent.
 const FAMILY_FOR_ARCHETYPE := {
 	PlayerClass.Archetype.NUKE_BOLT: "sfx_projectile",
 	PlayerClass.Archetype.CHAIN_NUKE: "sfx_projectile",
@@ -199,11 +214,26 @@ const FAMILY_FOR_ARCHETYPE := {
 	PlayerClass.Archetype.RADIUS_BURST: "sfx_radius",
 	PlayerClass.Archetype.DASH_STRIKE: "sfx_dash",
 	PlayerClass.Archetype.BLINK: "sfx_dash",
+	PlayerClass.Archetype.BLINK_STRIKE: "sfx_dash",
 	PlayerClass.Archetype.SELF_HEAL: "sfx_heal",
 	PlayerClass.Archetype.AOE_HEAL: "sfx_heal",
 	PlayerClass.Archetype.SHIELD_BURST: "sfx_shield",
 	PlayerClass.Archetype.BUFF_SELF: "sfx_shield",
 	PlayerClass.Archetype.PUSH_PULL_BURST: "sfx_force",
+	## Storm-pull: a whirling gale that drags enemies in (Volt's kit).
+	PlayerClass.Archetype.STORM_PULL: "sfx_cone",
+	## Zone-channel: a lingering field that ticks (Rime's freezing field, Nebula's chronofield).
+	PlayerClass.Archetype.ZONE_CHANNEL: "sfx_radius",
+	## Summon-spirit: a familiar or ward appears on the field (Warden, Tobor turrets).
+	PlayerClass.Archetype.SUMMON_SPIRIT: "sfx_shield",
+	## Slam-taunt: a ground pound that also draws aggro (Bulwark).
+	PlayerClass.Archetype.SLAM_TAUNT: "sfx_force",
+	## Pit-slow: a cold ring that slows everything inside (Rime's chill).
+	PlayerClass.Archetype.PIT_SLOW: "sfx_heal",
+	## Attack-fury: a temporary attack-speed buff (self-buff, reads as a shield-up).
+	PlayerClass.Archetype.ATTACK_FURY: "sfx_shield",
+	## Spawn-wall: a linear wall of thorns/ice/bark that stuns along its line.
+	PlayerClass.Archetype.SPAWN_WALL: "sfx_force",
 }
 
 const VOLUME_DB := {
@@ -232,6 +262,7 @@ const VOLUME_DB := {
 	"cast_arclight": -8.0,
 	"cast_bulwark": -7.0,
 	"cast_warden": -8.0,
+	"cast_frostbinder": -8.0,
 	"cast_rime": -8.0,
 	"cast_tobor": -6.0,
 	"cast_cinder": -7.0,
@@ -260,6 +291,7 @@ const VOLUME_DB := {
 	"attack_volt": -10.0,
 	"attack_nebula": -10.0,
 	"attack_astral": -10.0,
+	"attack_frostbinder": -10.0,
 	"attack_rime": -10.0,
 	"countdown_tick": -6.0,
 	"countdown_fight": -4.0,
@@ -295,6 +327,7 @@ const PITCH_SPREAD := {
 	"cast_arclight": 0.05,
 	"cast_bulwark": 0.04,
 	"cast_warden": 0.14,
+	"cast_frostbinder": 0.05,
 	"cast_rime": 0.05,
 	"cast_tobor": 0.04,
 	"cast_cinder": 0.05,
@@ -397,9 +430,14 @@ var _world_theme_biome: int = -1
 ## Self-test/probe hooks: last_play_ability mirrors the ability_id passed to the latest
 ## play_ability call that actually fired a player; last_play records the sound id, the
 ## exact stream take, and the AudioStreamPlayer of the most recent play() so probes can
-## assert non-null and inspect which bank file was picked.
+## assert non-null and inspect which bank file was picked. last_ability_play mirrors the
+## same triple but ONLY for the most recent play_ability() call that actually fired a
+## hero bank/family take — it is never clobbered by unrelated play() calls (footsteps,
+## countdown ticks, etc.), so probes that read it right after a cast still see the
+## ability sound even when other SFX fire in between.
 var last_play_ability: String = ""
 var last_play: Dictionary = {}
+var last_ability_play: Dictionary = {}
 
 var _music_player: AudioStreamPlayer
 var _sfx_pool: Array[AudioStreamPlayer] = []
@@ -467,14 +505,20 @@ func play_ability(ability_id: String, is_ult: bool = false) -> AudioStreamPlayer
 				var echo := player
 				_ult_echo_call(bank, echo)
 			last_play_ability = ability_id
+			# Record the ability-specific take so probes can read it independently of
+			# unrelated play() calls that clobber last_play between the cast and probe.
+			last_ability_play = {"sound_id": bank, "stream": player.stream, "player": player}
 		return player
 	var info := PlayerClass.ability_info(ability_id)
 	if not info.is_empty():
 		var family := str(FAMILY_FOR_ARCHETYPE.get(int(info.get("archetype", -1)), ""))
 		if family != "" and SOUND_LIBRARY.has(family):
 			var fam_player := play(family)
-			if fam_player != null and is_ult:
-				fam_player.pitch_scale = 0.7
+			if fam_player != null:
+				if is_ult:
+					fam_player.pitch_scale = 0.7
+				last_play_ability = ability_id
+				last_ability_play = {"sound_id": family, "stream": fam_player.stream, "player": fam_player}
 			return fam_player
 	push_warning("[AudioService] no cast bank or family take for ability '%s'" % ability_id)
 	return null
@@ -483,22 +527,26 @@ func play_ability(ability_id: String, is_ult: bool = false) -> AudioStreamPlayer
 ## Re-triggers the same cast bank one beat later, stretched down, so the ultimate SFX
 ## reads as a long, heavy flourish rather than a single blip. Skips if muted/stopped.
 func _ult_echo_call(bank: String, _primary: AudioStreamPlayer) -> void:
-	var echo := AudioStreamPlayer.new()
-	add_child(echo)
-	echo.bus = "SFX"
-	echo.volume_db = float(VOLUME_DB.get(bank, -8.0)) - 3.0
-	echo.pitch_scale = 0.5
+	## P1.3c: the ultimate SFX now rings out for roughly 2x the normal-ability
+	## duration. Instead of a single short echo we fire TWO staggered, down-pitched
+	## echoes so the total sustain is ~2x the primary bank length. Skips if muted.
 	var takes: Array = SOUND_LIBRARY.get(bank, [])
-	if takes.is_empty():
-		echo.queue_free()
+	if takes.is_empty() or not sfx_enabled:
 		return
-	echo.stream = takes[0]
-	var timer := get_tree().create_timer(0.35)
-	timer.timeout.connect(func() -> void:
-		if echo.is_inside_tree() and sfx_enabled:
-			echo.play()
-		echo.free()
-)
+	for i in range(2):
+		var echo := AudioStreamPlayer.new()
+		add_child(echo)
+		echo.bus = "SFX"
+		echo.volume_db = float(VOLUME_DB.get(bank, -8.0)) - 3.0 - 2.0 * float(i)
+		echo.pitch_scale = 0.55 - 0.12 * float(i)
+		echo.stream = takes[0]
+		var delay := 0.28 + 0.42 * float(i)
+		var timer := get_tree().create_timer(delay)
+		timer.timeout.connect(func() -> void:
+			if echo.is_inside_tree() and sfx_enabled:
+				echo.play()
+			echo.queue_free()
+		)
 
 
 func play_music() -> void:

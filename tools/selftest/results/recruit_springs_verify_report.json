@@ -55,15 +55,15 @@
       },
       "gold": 0,
       "hero": "arclight",
-      "hp": 100.0,
+      "hp": 98.0,
       "hp_frac": 1.0,
-      "hp_max": 100.0,
+      "hp_max": 98.0,
       "kind": "probe",
       "label": "before",
       "last_sfx": "attack_arclight",
       "last_tapped": 1,
       "level": 1,
-      "obstacle_count": 667,
+      "obstacle_count": 1266,
       "pending_ability_ids": [],
       "pending_id": "arclight_chain_lightning",
       "pending_slot": 1,
@@ -89,46 +89,11 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 1.00833333333333,
+      "t": 1.00166678787879,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
       "xp": 0
-    },
-    {
-      "cd_left": 8.31993333333322,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 2,
-      "t": 3.46233233333333
-    },
-    {
-      "cd_left": 189.799999999998,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 3,
-      "t": 4.01233233333333
-    },
-    {
-      "cd_left": 19.6430000000001,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 4.56233233333336
-    },
-    {
-      "cd_left": 19.4930000000001,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 4.70399900000003
-    },
-    {
-      "cd_left": 36.3500000000001,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 5.11259200000005
     },
     {
       "abilities": [
@@ -152,10 +117,10 @@
       "biome_id": 0,
       "biome_name": "Verdant Hollow",
       "cds": [
-        18.9930000000002,
-        36.2500000000001,
-        6.56993333333321,
-        188.599999999997
+        0.0,
+        0.0,
+        6.58659999999988,
+        0.0
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -183,17 +148,17 @@
           5600.0
         ]
       },
-      "gold": 192,
+      "gold": 0,
       "hero": "arclight",
-      "hp": 91.0,
-      "hp_frac": 0.91,
-      "hp_max": 100.0,
+      "hp": 88.55,
+      "hp_frac": 0.903571428571429,
+      "hp_max": 98.0,
       "kind": "probe",
       "label": "after_town",
       "last_sfx": "enemy_shoot",
-      "last_tapped": 1,
-      "level": 2,
-      "obstacle_count": 667,
+      "last_tapped": 2,
+      "level": 1,
+      "obstacle_count": 1266,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -221,102 +186,11 @@
         "minions": 1
       },
       "summons": 0,
-      "t": 5.20425866666672,
+      "t": 5.20144900000003,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
-      "xp": 25
-    },
-    {
-      "cd_left": 36.2000000000001,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 5.25425866666672
-    },
-    {
-      "cd_left": 6.11993333333321,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 2,
-      "t": 5.66447000000007
-    },
-    {
-      "cd_left": 187.58333333333,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 3,
-      "t": 6.22061233333342
-    },
-    {
-      "cd_left": 17.4263333333336,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 6.77061233333345
-    },
-    {
-      "cd_left": 17.2930000000002,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 6.91227900000012
-    },
-    {
-      "cd_left": 34.1333333333336,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 7.32086933333348
-    },
-    {
-      "cd_left": 34.0000000000002,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 7.46279433333348
-    },
-    {
-      "cd_left": 3.90326666666655,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 2,
-      "t": 7.87112766666684
-    },
-    {
-      "cd_left": 185.383333333328,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 3,
-      "t": 8.42112766666682
-    },
-    {
-      "cd_left": 15.2263333333336,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 8.97112766666679
-    },
-    {
-      "cd_left": 15.0930000000003,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 9.11279433333345
-    },
-    {
-      "cd_left": 31.9333333333337,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 9.52112766666676
-    },
-    {
-      "cd_left": 31.8000000000004,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 9.66279433333342
+      "xp": 0
     },
     {
       "abilities": [
@@ -340,10 +214,10 @@
       "biome_id": 0,
       "biome_name": "Verdant Hollow",
       "cds": [
-        14.4930000000002,
-        31.7500000000004,
-        2.06993333333323,
-        184.099999999994
+        0.0,
+        0.0,
+        2.08659999999989,
+        0.0
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -371,17 +245,17 @@
           5600.0
         ]
       },
-      "gold": 192,
+      "gold": 0,
       "hero": "arclight",
-      "hp": 91.0,
-      "hp_frac": 0.91,
-      "hp_max": 100.0,
+      "hp": 88.55,
+      "hp_frac": 0.903571428571429,
+      "hp_max": 98.0,
       "kind": "probe",
       "label": "after_lagoon",
       "last_sfx": "scan",
-      "last_tapped": 1,
-      "level": 2,
-      "obstacle_count": 667,
+      "last_tapped": 2,
+      "level": 1,
+      "obstacle_count": 1266,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -405,93 +279,16 @@
         ],
         "arts": [
           "wolf",
-          "otter"
+          "lagoon_flamingo"
         ],
         "minions": 2
       },
       "summons": 0,
-      "t": 9.70446100000008,
+      "t": 9.70158233333338,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
-      "xp": 25
-    },
-    {
-      "cd_left": 1.70326666666656,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 2,
-      "t": 10.0711276666667
-    },
-    {
-      "cd_left": 183.183333333326,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 3,
-      "t": 10.6267906666667
-    },
-    {
-      "cd_left": 13.0096666666668,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 11.1848243333334
-    },
-    {
-      "cd_left": 12.8763333333335,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 11.326491
-    },
-    {
-      "cd_left": 29.7166666666672,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 11.7348243333333
-    },
-    {
-      "cd_left": 29.5833333333338,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 11.876491
-    },
-    {
-      "cd_left": 180.966666666658,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 3,
-      "t": 12.8348243333333
-    },
-    {
-      "cd_left": 10.8096666666667,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 13.3848243333332
-    },
-    {
-      "cd_left": 10.6763333333334,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 13.5264909999999
-    },
-    {
-      "cd_left": 27.5166666666673,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 13.9348243333332
-    },
-    {
-      "cd_left": 27.383333333334,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 14.0764909999999
+      "xp": 0
     },
     {
       "abilities": [
@@ -515,10 +312,10 @@
       "biome_id": 0,
       "biome_name": "Verdant Hollow",
       "cds": [
-        9.99300000000002,
-        27.2500000000006,
-        8.61993333333324,
-        179.59999999999
+        0.0,
+        0.0,
+        0.0,
+        188.199999999997
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -546,17 +343,17 @@
           5600.0
         ]
       },
-      "gold": 192,
+      "gold": 196,
       "hero": "arclight",
-      "hp": 91.0,
-      "hp_frac": 0.91,
-      "hp_max": 100.0,
+      "hp": 83.3,
+      "hp_frac": 0.85,
+      "hp_max": 98.0,
       "kind": "probe",
       "label": "after_forest",
-      "last_sfx": "scan",
-      "last_tapped": 2,
-      "level": 2,
-      "obstacle_count": 667,
+      "last_sfx": "xp",
+      "last_tapped": 3,
+      "level": 1,
+      "obstacle_count": 1266,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -580,101 +377,17 @@
         ],
         "arts": [
           "wolf",
-          "otter",
-          "boar"
+          "lagoon_flamingo",
+          "forest_stag"
         ],
         "minions": 3
       },
       "summons": 0,
-      "t": 14.2014909999999,
+      "t": 14.2065303333332,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
-      "xp": 25
-    },
-    {
-      "cd_left": 8.33659999999989,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 2,
-      "t": 14.4848243333332
-    },
-    {
-      "cd_left": 178.766666666656,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 3,
-      "t": 15.0428546666665
-    },
-    {
-      "cd_left": 8.60966666666662,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 15.5928973333332
-    },
-    {
-      "cd_left": 8.45966666666661,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 15.7345583333332
-    },
-    {
-      "cd_left": 25.3000000000007,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 16.1512083333332
-    },
-    {
-      "cd_left": 25.1666666666674,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 16.2928693333332
-    },
-    {
-      "cd_left": 6.11993333333321,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 2,
-      "t": 16.7095193333332
-    },
-    {
-      "cd_left": 176.533333333321,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 3,
-      "t": 17.2678303333332
-    },
-    {
-      "cd_left": 6.37633333333326,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 17.8261413333333
-    },
-    {
-      "cd_left": 6.22633333333326,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 17.9678023333333
-    },
-    {
-      "cd_left": 23.0666666666675,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 18.3844523333333
-    },
-    {
-      "cd_left": 22.9333333333342,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 18.5261133333333
+      "xp": 4
     },
     {
       "abilities": [
@@ -698,10 +411,10 @@
       "biome_id": 0,
       "biome_name": "Verdant Hollow",
       "cds": [
-        5.49299999999993,
-        22.7500000000009,
-        4.11993333333322,
-        175.099999999987
+        0.0,
+        0.0,
+        0.0,
+        183.699999999993
       ],
       "enemies_alive": 0,
       "ffa": {
@@ -729,17 +442,17 @@
           5600.0
         ]
       },
-      "gold": 192,
+      "gold": 196,
       "hero": "arclight",
-      "hp": 91.0,
-      "hp_frac": 0.91,
-      "hp_max": 100.0,
+      "hp": 83.3,
+      "hp_frac": 0.85,
+      "hp_max": 98.0,
       "kind": "probe",
       "label": "after_scorch",
       "last_sfx": "scan",
-      "last_tapped": 2,
-      "level": 2,
-      "obstacle_count": 667,
+      "last_tapped": 3,
+      "level": 1,
+      "obstacle_count": 1266,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -763,246 +476,273 @@
         ],
         "arts": [
           "wolf",
-          "otter",
-          "boar",
-          "golem"
+          "lagoon_flamingo",
+          "forest_stag",
+          "mountain_goat"
         ],
         "minions": 4
       },
       "summons": 0,
-      "t": 18.7011063333333,
+      "t": 18.7064196666666,
       "teleporters": [],
       "wave": 1,
       "wave_name": "First Contact",
-      "xp": 25
-    },
-    {
-      "cd_left": 3.88659999999989,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 2,
-      "t": 18.9427633333333
-    },
-    {
-      "cd_left": 174.299999999986,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 3,
-      "t": 19.5007575757576
+      "xp": 4
     }
   ],
-  "elapsed": 19.801523,
+  "elapsed": 19.805987,
   "enemies_spawned": 0,
-  "hero_position": "(2396.104, 1595.442)",
+  "hero_position": "(2423.783, 1640.993)",
   "player_class": "arclight",
   "results": {
     "alive": true,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 21,
+    "cast_count": 38,
     "casts": [
       {
         "ability_id": "arclight_static_bolt",
-        "t": 1.25
+        "t": 1.25124833333333
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_thundergods_wrath",
-        "t": 1.802228
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 10.409855
       },
       {
         "ability_id": "arclight_blast_of_lightning",
-        "t": 2.50075757575757
-      },
-      {
-        "ability_id": "arclight_chain_lightning",
-        "t": 3.05646606060606
-      },
-      {
-        "ability_id": "arclight_static_bolt",
-        "t": 12.2848243333333
+        "t": 19.7235445757576
       }
     ],
-    "creep_kills": 12,
+    "creep_kills": 31,
     "died": false,
     "errors": [
       "only beaten wave 0 / 20 (t=20)"
     ],
     "ffa": {},
-    "gold": 192,
+    "gold": 202,
     "hero_kills": 0,
     "hp_samples": [
       {
-        "enemies": 14,
+        "enemies": 13,
         "gold": 0,
         "hp": 1.0,
-        "t": 0.14,
-        "wave": 1
-      },
-      {
-        "enemies": 5,
-        "gold": 92,
-        "hp": 0.91,
-        "t": 2.65,
-        "wave": 1
-      },
-      {
-        "enemies": 16,
-        "gold": 192,
-        "hp": 0.91,
-        "t": 5.15,
-        "wave": 1
-      },
-      {
-        "enemies": 21,
-        "gold": 192,
-        "hp": 0.91,
-        "t": 7.65,
+        "t": 0.15,
         "wave": 1
       },
       {
         "enemies": 24,
-        "gold": 192,
-        "hp": 0.91,
-        "t": 10.17,
+        "gold": 0,
+        "hp": 0.9,
+        "t": 5.81,
         "wave": 1
       },
       {
-        "enemies": 44,
-        "gold": 192,
-        "hp": 0.91,
-        "t": 12.67,
+        "enemies": 36,
+        "gold": 0,
+        "hp": 0.9,
+        "t": 10.31,
         "wave": 1
       },
       {
-        "enemies": 46,
-        "gold": 192,
-        "hp": 0.91,
-        "t": 15.18,
+        "enemies": 41,
+        "gold": 196,
+        "hp": 0.85,
+        "t": 14.81,
         "wave": 1
       },
       {
-        "enemies": 46,
-        "gold": 192,
-        "hp": 0.91,
-        "t": 17.68,
+        "enemies": 45,
+        "gold": 196,
+        "hp": 0.85,
+        "t": 19.32,
         "wave": 1
       }
     ],
     "landmark_saves": 0,
-    "level": 2,
-    "level_upgrades": {
-      "2": [
-        "chain"
-      ]
-    },
+    "level": 1,
+    "level_upgrades": {},
     "max_hp": 1.0,
-    "min_hp": 0.91,
+    "min_hp": 0.85,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 2,
     "quests_seen": {
-      "collect_coins": 1,
-      "rescue_scout": 1
+      "smash_idol": 1,
+      "stand_beacon": 1
     },
     "shop_buy_count": 0,
     "shop_buys": [],
-    "taken_upgrades": [
-      "chain"
-    ],
+    "taken_upgrades": [],
     "until_wave": 20,
     "verdict": "FAIL_NO_PROGRESS",
     "wave": 1,
-    "xp": 25
+    "xp": 4
   },
   "shots": [
     {
       "label": "boot",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3124/boot_0.508_3124.png",
-      "t": 0.507686909090909
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3407/boot_0.508_3407.png",
+      "t": 0.507732151515152
     },
     {
       "label": "town_area",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8215/town_area_5.604_8215.png",
-      "t": 5.60425866666674
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8507/town_area_5.605_8507.png",
+      "t": 5.60526433333337
     },
     {
       "label": "lagoon_area",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12715/lagoon_area_10.104_12715.png",
-      "t": 10.1044610000001
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13007/lagoon_area_10.102_13007.png",
+      "t": 10.1015823333334
     },
     {
       "label": "forest_area",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_17198/forest_area_14.601_17198.png",
-      "t": 14.6014909999998
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_17499/forest_area_14.607_17499.png",
+      "t": 14.6065303333332
     },
     {
       "label": "scorch_area",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_21699/scorch_area_19.101_21699.png",
-      "t": 19.1010903333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_21998/scorch_area_19.106_21998.png",
+      "t": 19.1064036666667
     }
   ]
 }

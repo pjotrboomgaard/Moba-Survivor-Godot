@@ -31,7 +31,8 @@ func _update_delta(delta: float) -> void:
 		if rel.distance_to(_gems[i]) <= COLLECT_RADIUS:
 			_collected += 1
 			score += 1
-			AudioService.play("sfx_heal")
+			AudioService.play("minigame_treasure")
+			_vfx_burst(Color(1.0, 0.85, 0.3), 14.0, 90.0)
 			_gems.remove_at(i)
 			# Respawn a new gem to keep the count constant
 			_spawn_gem()

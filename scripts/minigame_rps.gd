@@ -76,13 +76,16 @@ func _resolve_round() -> void:
 		_wins_player += 1
 		score += 1
 		_last_result = "WIN!"
-		AudioService.play("sfx_heal")
+		AudioService.play("minigame_rps")
+		_vfx_burst(Color(0.5, 0.7, 0.9), 20.0, 100.0)
 	elif result == "lose":
 		_wins_bot += 1
 		_last_result = "LOSE"
-		AudioService.play("sfx_shield")
+		AudioService.play("minigame_rps")
+		_vfx_burst(Color(1.0, 0.5, 0.5), 16.0, 90.0)
 	else:
 		_last_result = "TIE"
+		_vfx_burst(Color(0.9, 0.9, 0.4), 12.0, 80.0)
 	queue_redraw()
 	# Check match end
 	if _wins_player >= ROUNDS_TO_WIN or _wins_bot >= ROUNDS_TO_WIN:

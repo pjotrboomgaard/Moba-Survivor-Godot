@@ -400,6 +400,10 @@ func _process(delta: float) -> void:
 				_record_minigame_probe(str(event.get("label", "minigame")), int(event.get("index", -1)))
 			"start_minigame":
 				_start_minigame_event(int(event.get("index", 0)))
+			"minigame_bot_force":
+				# Toggle bot_force on a minigame so it plays itself via bot_tick
+				# each frame (used to verify bot playability without a CPU brain).
+				_minigame_bot_force_event(int(event.get("index", 0)), bool(event.get("on", true)))
 			"fps_probe":
 				_record_fps(str(event.get("label", "fps")))
 			"biome_probe":
@@ -840,6 +844,25 @@ func _start_minigame_event(index: int) -> void:
 		"t": _elapsed,
 		"started": result != null,
 	})
+
+
+## Toggle bot_force on a minigame so it plays itself via bot_tick each frame.
+## Used to verify bot playability without a CPU brain driving the game.
+func _minigame_bot_force_event(index: int, on: bool) -> void:
+	var host_main: Variant = _host_main
+	if host_main == null:
+		_active_effects.append({"kind": "minigame_bot_force", "index": index, "on": on, "t": _elapsed, "error": "no host"})
+		return
+	var ma: Variant = host_main.get("_minigame_area")
+	if ma == null or not is_instance_valid(ma):
+		_active_effects.append({"kind": "minigame_bot_force", "index": index, "on": on, "t": _elapsed, "error": "no minigame_area"})
+		return
+	var g: Variant = ma.call("get_minigame", index)
+	if g == null or not is_instance_valid(g):
+		_active_effects.append({"kind": "minigame_bot_force", "index": index, "on": on, "t": _elapsed, "error": "no minigame at index"})
+		return
+	g.set("bot_force", on)
+	_active_effects.append({"kind": "minigame_bot_force", "index": index, "on": on, "t": _elapsed})
 
 
 ## Count of live obstacle nodes in the arena. 0 (or a suspiciously low number)
@@ -1344,7 +1367,11 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 	var bank := "cast_%s" % prefix if not is_primary_attack_probe else "attack_%s" % prefix
 	entry["expected_bank"] = bank
 	var last_ability: String = AudioService.last_play_ability
-	var last: Dictionary = AudioService.last_play
+	# Use the ability-specific record (last_ability_play) when available so that
+	# unrelated play() calls (footsteps, countdown ticks) that fire between the cast
+	# and this probe do not clobber the bank/stream assertions.
+	var ability_rec: Dictionary = AudioService.last_ability_play
+	var last: Dictionary = ability_rec if not ability_rec.is_empty() else AudioService.last_play
 	var sound_id := str(last.get("sound_id", ""))
 	var player: AudioStreamPlayer = last.get("player", null)
 	var stream: AudioStream = last.get("stream", null)

@@ -326,6 +326,40 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif _near_shop_stand and not hud.upgrade_panel.visible and not hud.escape_menu.visible and not hud.dev_panel.visible and not hud.codex_panel.visible:
 			hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 			_cpu_auto_shop()
+	# Forward gameplay input to the active village minigame (number keys / WASD /
+	# mouse) so a human standing at the pad can actually play it. Returns early so
+	# the keys don't also fire an ability.
+	if _route_minigame_input(event):
+		return
+
+## If the local hero is standing at an ACTIVE minigame, hand the raw input event
+## straight to that minigame (its on_input_event handles keys 1-9, WASD, mouse)
+## and swallow it so abilities don't fire. Returns true when the event was consumed.
+func _route_minigame_input(event: InputEvent) -> bool:
+	if _minigame_area == null or not is_instance_valid(_minigame_area):
+		return false
+	var local_player := _local_player()
+	if local_player == null:
+		return false
+	var active: Node2D = _minigame_area.active_minigame_at(local_player.global_position, 170.0)
+	if active == null or not bool(active.get("active")):
+		return false
+	active.on_input_event(event)
+	# Movement keys are also normal movement; let them drive the hero (Treasure
+	# Dash reads the hero position), so only swallow the ability / interact keys.
+	if event is InputEventKey:
+		var keycode: int = (event as InputEventKey).physical_keycode
+		if event.pressed and not event.echo and (keycode >= KEY_1 and keycode <= KEY_9):
+			get_viewport().set_input_as_handled()
+			return true
+		if event.pressed and not event.echo and (
+			keycode == KEY_F or keycode == KEY_SPACE or keycode == KEY_R):
+			get_viewport().set_input_as_handled()
+			return true
+	if event is InputEventMouseButton:
+		get_viewport().set_input_as_handled()
+		return true
+	return false
 
 
 func _register_with_server() -> void:
