@@ -352,7 +352,9 @@ func _check_grass_restored() -> void:
 	# mushrooms now bake), so we assert independence: well under ice's count and
 	# positive.
 	var placed: int = int(ed.get("_placed"))
-	_check("grass_save_independent_of_other_worlds", placed > 0 and placed < 1000, "placed=%d (grass save, independent of ice)" % placed)
+	# Threshold: grass's saved world is dense (~1200+ props incl. ground-cover top-up) but
+	# clearly independent of ice's 6000+ props. We assert a positive, well-under-ice count.
+	_check("grass_save_independent_of_other_worlds", placed > 0 and placed < 3000, "placed=%d (grass save, independent of ice)" % placed)
 
 
 func _screenshot(label: String) -> void:
