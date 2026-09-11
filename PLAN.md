@@ -37,7 +37,11 @@ _Last updated: 2026-09-11_
 > BUILT + isolated-verified** (storm_test: 4 strikes, 3 trees burned, thunder SFX;
 > fire_tree_test: 2 ignited → spread → 2 charred stumps; all screenshots inspected).
 > **Hero↔tree interaction wired**: fire/lightning heroes ignite trees in ability radius
-> via `_ignite_trees_in_radius` → `arena.ignite_tree`. **T3.5/T3.6/T3.7 biome hazards**
+> via `_ignite_trees_in_radius` → `arena.ignite_tree`. **T3.4 partial: dance-disco
+> minigame converted to pixel-art** (checkerboard disco floor, faceted pixel disco ball,
+> blocky pixel bot + creeps) — verified standalone (score 98, all visuals inspected).
+> **All 16 minigames verified functional as standalone games** in the isolated
+> minigame_test world (bot-driven, scores positive, no crashes). **T3.5/T3.6/T3.7 biome hazards**
 > (rain/black-lava/electro) committed + verified in-game. **Dance-disco minigame** verified
 > as a standalone game (score 98/60s, bot + creeps + floor + ball all visible).
 > **Queued:** T3.4 minigame pixel art (disco floor/ball/bot/creeps still vector), T3.11
