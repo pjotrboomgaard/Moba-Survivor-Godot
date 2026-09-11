@@ -1,0 +1,9 @@
+{
+  "hero": "arclight",
+  "comment": "T3.14: fire tree mechanic in an ISOLATED empty world (self-contained scene). Ignites a central tree, verifies fire spread to neighbours + burn-out to a charred stump. Captures: one burning, spread, burned out.",
+  "time_scale": 1.0,
+  "checks": [
+    {"id": "started", "type": "log_contains", "value": "FIRE_TREE_TEST ready", "fail": "FAIL"},
+    {"id": "finished", "type": "log_contains", "value": "FIRE_TREE_TEST SUMMARY", "fail": "FAIL"}
+  ]
+}

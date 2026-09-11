@@ -1,0 +1,25 @@
+{
+  "scene": "storm_test",
+  "shots": [
+    {
+      "label": "storm_start",
+      "path": "user://storm_run_1789166055/storm_start_0.41.png"
+    },
+    {
+      "label": "strike_bolt",
+      "path": "user://storm_run_1789166055/strike_bolt_1.06.png"
+    },
+    {
+      "label": "multi_impact",
+      "path": "user://storm_run_1789166055/multi_impact_2.61.png"
+    },
+    {
+      "label": "storm_end",
+      "path": "user://storm_run_1789166055/storm_end_6.51.png"
+    }
+  ],
+  "strikes_fired": 4,
+  "thunder_played": true,
+  "trees_burned": 3,
+  "verdict": "PASS"
+}

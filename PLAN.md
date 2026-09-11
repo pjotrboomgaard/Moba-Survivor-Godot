@@ -19,13 +19,21 @@ _Last updated: 2026-09-11_
 >   factory electro ground
 > - T1.10 Non-robot hero SFX redo (world-themed, pixel-art-analog, per-ability distinct)
 > - T3.4 Minigame pixel art (all minigames pixel-art only)
-> - T3.3 Isometric architecture + creature art at tree/rock detail level (in progress)
+> - T3.3 Isometric architecture + creature art at tree/rock detail level
 > - T3.5 Rain effect, T3.6 Volcano black lava, T3.7 Factory electro, T3.8 SFX redo,
 >   T3.9 Hero role + multi-charge, T3.10 Upgrade diversification, T3.11 Recruit creep
 >   behavior test, T3.12 Use new sprites to populate 4 areas on empty map
 >
-> **In progress:** T1.5 hero balance (all heroes solo + FFA), T3.3 isometric art.
-> **Queued:** T1.7–T1.10, T3.4–T3.12.
+> **New tasks added 2026-09-12:**
+> - T3.13 Storm system (night, strikes trees, per-biome effects, thunder SFX)
+> - T3.14 Fire tree mechanic (pixel-art fire tree, spreads to nearby trees,
+>   replace with dead-tree stomp)
+> - **HARD RULE:** Test new VFX/features in an EMPTY isolated world first, then
+>   main scene. Applies to T3.13, T3.14 and all future VFX/features.
+>
+> **In progress:** T1.5 hero balance (all heroes solo + FFA), T3.3 isometric art,
+> T1.7 Volt bouncing Q (in progress).
+> **Queued:** T1.7–T1.10, T3.4–T3.14.
 
 This is the master plan. Each task has sub-requirements and must be validated in-game
 by the selftest harness (bot must survive; visual changes must be confirmed in
@@ -154,6 +162,8 @@ screenshots). Use this to track progress.
 ### T2.1 Map + rendering
 - [x] Flowers/grasses not only in middle — scatter everywhere (grass_real top-up) — verified via `grass_edges_verify.json` screenshots showing grass/flowers at all 4 map edges
 - [ ] Rain effects (check chat history for the earlier rain feature)
+- [ ] Storm event (night, lightning strikes trees/objects, per-biome unique effects) — see T3.13
+- [ ] Fire tree mechanic: set tree on fire, spreads to nearby trees/surroundings, burns out to dead tree — see T3.14
 - [x] No trees in lava when entering volcano world — `arena.gd` skips trees in biomes 1/2
 - [x] All creeps that "come out of nowhere" in volcano → spawn at map edge only (`_pick_map_edge_position`)
 - [x] Volcano creeps: too much damage / too many dashers → cinderling softened (contact 8→5, interval 0.8→1.0, teleport 3.5→5.5s, range 150→130, weight 1.8→1.2)
@@ -178,6 +188,8 @@ screenshots). Use this to track progress.
 - [ ] Consistent pixel density (16px base, nearest-neighbor filter)
 - [ ] Animated creatures: walk cycles, idle bob
 - [ ] "Chill" lingering NPCs: idle + small wander
+- [ ] **Fire tree** (T3.14) — pixel-art burning tree (flames layered on the trunk,
+      2-3 frame flicker) + a charred "dead tree stomp" sprite for the burned-out state
 
 ### T3.3 Isometric architecture + creature art at tree/rock detail level
 **User direction (2026-09-11):** Houses / props / architecture for the new areas
@@ -330,16 +342,102 @@ using the new isometric art.
 - [ ] Screenshot at 4× zoom → confirm all new art renders correctly and reads as
       the same art pass as the trees/rocks
 
+### T3.13 Storm system (night + strikes trees) — NEW 2026-09-12
+**User direction (2026-09-12):** Add a storm weather event. Storm happens at
+night and lightning can strike a tree (and other objects). Give the storm its own
+unique effects on each map/biome. Find sound effects for the rain phase and the
+storm phase (thunder).
+
+- [ ] Storm trigger: occasional (random, longer than rain — ~15-25s bursts),
+      tied to night/day cycle OR random; storm implies darkness + rain + thunder
+- [ ] Lightning strikes: bolt falls from sky to a random point; can hit a tree
+      (set it on fire / burn it down, see T3.14), a rock, the ground, a creep,
+      or a player. Damage on hit.
+- [ ] Storm visuals: heavy rain overlay (reuse rain, denser + faster), darkened
+      ambient, lightning flash (full-screen white flash on strike + glow),
+      jagged lightning-bolt VFX from sky to impact point
+- [ ] Per-biome unique storm effect: grass = thunder + burn trees; volcano =
+      "lava sparks / ash lightning"; ice = "frozen lightning / crack ice";
+      factory = "surge / electro storm"; docks = "lightning over water"
+- [ ] SFX: thunder rumble (delayed after flash), crack of the strike, rain loop
+      reuse; all synthed via `tools/synth_themes.py`
+- [ ] Player safety: lightning warns ~0.5s before impact (glowing reticle) so it
+      is dodgeable
+- [ ] Test on EMPTY isolated world first (per new hard rule), then in main scene
+- [ ] Verify: forced-storm dev command → screenshot shows lightning flash + bolt
+      + struck tree on fire + thunder SFX
+
+### T3.14 Fire tree / burning tree mechanic — NEW 2026-09-12
+**User direction (2026-09-12):** A pixel-art fire tree. When you set a tree on
+fire, the fire spreads to nearby trees/surroundings and they take damage. Replace
+the tree with a "dead tree stomp" (charred/dead tree) when it burns out. Test on
+empty map FIRST, then full map (per new hard rule).
+
+- [ ] Pixel-art fire tree sprite (flames layered on the tree, 2-3 frame flicker)
+- [ ] `tree.on_fire` state: burning tree takes damage over time, emits fire VFX
+- [ ] Fire spread: after N seconds, fire spreads to adjacent trees within radius
+      (chain reaction); surroundings (grass/props) take small damage
+- [ ] Burned-out tree → replaced with a "dead tree / stomp" sprite (charred trunk)
+- [ ] Fire can hurt players/creeps that stand in it (small DOT)
+- [ ] Sources: storm lightning strike (T3.13), hero fire abilities, future interactions
+- [ ] Test on EMPTY isolated world first (per new hard rule), then in main scene
+- [ ] Verify: screenshot shows a burning tree, a spreading fire to neighbor, and a
+      charred dead tree after burn-out
+
+### HARD RULE — Test new things on an EMPTY isolated world first (NEW 2026-09-12)
+**User direction (2026-09-12):** For every new visual/cinematic/VFX/mechanic
+feature, build and verify it in an empty isolated world scene FIRST (flat ground +
+camera, no obstacles/HUD/enemies noise). Only after it looks correct there, bring
+it into the real world / main scene and re-verify. This applies to ALL new VFX,
+abilities, weather, minigames, and world features going forward.
+
+- [ ] Apply to T3.13 (storm) and T3.14 (fire tree) and all future VFX/features
+- [ ] Isolated test scenes: `scenes/<feature>_test/<feature>_test.tscn` pattern
+- [ ] Each isolated scene writes a `user://selftest_report.json` + fixed-time
+      screenshots, then `get_tree().quit()`
+
 ---
 
 ## ORCHESTRATION PLAN
 
-Per the user's hard rule: **max 2 builders + 1 orchestrator (me), no questions, keep going.**
+### HARD RULES (non-negotiable)
+1. **Never ask the user questions.** If something is ambiguous, pick the most
+   sensible interpretation that matches the user's stated intent and keep going.
+2. **Always keep building.** Never stop mid-list. If one task is blocked or done,
+   immediately move to the next task on this plan. Do not end a turn with idle
+   work while tasks remain.
+3. **1 orchestrator + up to 2 builders.** The orchestrator (this chat) plans,
+   validates, restarts the app, and commits. Builders implement features in
+   parallel. Max 2 builders at a time.
 
-- **Builder A**: T1.2 (4 new areas + sprites) + T1.3 (mini-games framework)
-- **Builder B**: T1.4 (SFX overhaul) + T1.5 (balance + visual fixes)
-- **Orchestrator (me)**: T0.1 (preview fix), T0.2 (test fix), coordinate, validate,
+- **Builder A**: current active feature build (storm/fire-tree, etc.)
+- **Builder B**: SFX / balance / pixel-art work
+- **Orchestrator (me)**: plan, coordinate, validate via selftest screenshots,
   restart app, commit.
 
 Each builder works in its own git worktree (best-of-n-runner) to avoid conflicts.
 I merge + verify + run selftests after each builder lands.
+
+### HARD RULE — Test new VFX/features in an EMPTY isolated world FIRST
+(added 2026-09-12) For any new visual/cinematic/VFX/mechanic feature, build and
+verify it in an empty isolated world scene first (flat ground + camera, no
+obstacles/HUD/enemies). Only after it looks correct there, bring it into the
+real world/main scene and re-verify. Applies to ALL new VFX, abilities, weather,
+minigames, and world features. See T3.13/T3.14 for worked examples.
+
+### Hero ↔ tree interaction (NEW 2026-09-12)
+**User direction:** More heroes should interact with trees via their abilities.
+Fire / lightning / storm-themed heroes can set trees on fire or kill trees in
+different ways. After isolated-world testing, verify against the **existing
+forest and its trees**.
+
+- [ ] Fire-world heroes (Cinder, Ember/Pyra) — abilities ignite trees in their
+      blast/zone (tree catches fire, spreads per T3.14)
+- [ ] Lightning/storm heroes (Volt, Arclight) — lightning abilities strike trees
+      on fire or shatter/char them
+- [ ] Any hero with a "kill tree" style hit (heavy AoE) — trees in the area take
+      damage and can be felled to a dead-stump state
+- [ ] Trees have a shared `Tree` interaction API: `ignite(pos)`, `damage(amount)`,
+      `is_burning`, `burn_out_to_stump()`
+- [ ] Verify in isolated world scene with the forest trees, then re-verify in the
+      real `grass_real` forest area

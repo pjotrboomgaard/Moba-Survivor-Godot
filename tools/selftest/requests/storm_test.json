@@ -1,0 +1,9 @@
+{
+  "hero": "arclight",
+  "comment": "T3.13: storm system in an ISOLATED empty world (self-contained scene). Forces a storm: heavy rain + darkening, warning reticles, jagged lightning bolts, tree ignition, scorch decals, thunder SFX. Captures: storm start, strike bolt, multi-impact, storm end.",
+  "time_scale": 1.0,
+  "checks": [
+    {"id": "started", "type": "log_contains", "value": "STORM_TEST ready", "fail": "FAIL"},
+    {"id": "finished", "type": "log_contains", "value": "STORM_TEST SUMMARY", "fail": "FAIL"}
+  ]
+}

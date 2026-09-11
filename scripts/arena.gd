@@ -1301,6 +1301,48 @@ const RAIN_DURATION_MAX := 15.0
 var _rain_active := false
 var _rain_remaining := 0.0
 
+## Storm event (T3.13): occasional, lasts ~15-25s, drops lightning strikes that
+## can hit trees (setting them on fire via T3.14), rocks, creeps, or players.
+## The storm implies darkness + heavier rain + thunder SFX + a per-biome effect.
+var _storm_active := false
+var _storm_timer := 30.0          # seconds until the next storm onset
+const STORM_ONSET_MIN := 40.0
+const STORM_ONSET_MAX := 90.0
+const STORM_DURATION_MIN := 15.0
+const STORM_DURATION_MAX := 25.0
+var _storm_remaining := 0.0
+const STORM_STRIKE_INTERVAL := 2.2  # seconds between lightning strikes during a storm
+const STORM_STRIKE_DAMAGE := 28.0
+const STORM_WARNING_LEAD := 0.5     # seconds the strike reticle shows before impact
+## T3.13: in-flight strike + bolt VFX state, resolved each frame.
+var _storm_strike_timer := 0.0
+var _storm_pending_strike: Vector2 = Vector2.ZERO
+var _storm_pending_strike_at := 0.0  # world-clock t the bolt will land
+var _storm_active_strike: Dictionary = {}  # { pos, age } once fired, for bolt VFX
+var _storm_flash := 0.0
+var _storm_bolts: Array[Dictionary] = []   # { pos, born, biome } for jagged-bolt VFX
+const _STRIKE_BOLT_LIFE := 0.22
+## Impact decals (scorch/splash/sparks): { pos, born, kind, biome }
+var _storm_impacts: Array[Dictionary] = []
+const _IMPACT_LIFE := 1.4
+const _TREE_STRIKE_RADIUS := 40.0
+const _UNIT_STRIKE_RADIUS := 50.0
+## Monotonic arena clock (seconds) used for storm/fire VFX phase (jitter, pulses).
+var _arena_time := 0.0
+
+## T3.14 Fire-tree mechanic: trees that are currently burning. Keyed by tree
+## global_position (Quantized to int grid so re-spawned identical positions don't
+## collide). Each value: { burn_time, spread_done }.
+var _burning_trees: Dictionary = {}
+const _FIRE_SPREAD_AFTER := 3.5
+const _FIRE_SPREAD_RADIUS := 70.0
+const _FIRE_BURNOUT := 7.5
+const _FIRE_DOT_RADIUS := 30.0
+const _FIRE_DOT_DPS := 5.0
+## Burned-out tree positions, kept forever (until next rebuild) so we keep
+## painting the charred stumps in _draw().
+var _dead_trees: Array[Vector2] = []
+
 ## Volcano black-lava phase: while true, lava hazard_at() reports no damage.
 var _lava_cooled := false
 var _lava_cool_timer := 20.0       # seconds until the next cooling onset
@@ -1331,6 +1373,7 @@ func _spawn_biome_weather() -> void:
 func _update_biome_weather(delta: float) -> void:
 	if not GameRuntime.uses_biomes():
 		return
+	_arena_time += delta
 	# Rain (all biomes).
 	if _rain_active:
 		_rain_remaining -= delta
@@ -1372,7 +1415,315 @@ func _update_biome_weather(delta: float) -> void:
 				_electro_origin = _random_walkable_hazard_spot() if _random_walkable_hazard_spot() != null else Vector2.ZERO
 				_electro_timer = randf_range(ELECTRO_ONSET_MIN, ELECTRO_ONSET_MAX)
 				_play_electro_sfx()
+		# Storm event (T3.13): occasional 15-25s bursts with lightning strikes.
+		_update_storm(delta)
+		# Fire trees (T3.14): burning trees tick, spread to neighbours, burn out.
+		_update_burning_trees(delta)
 		queue_redraw()
+
+
+## T3.13: storm lifecycle. Occasional onset (40-90s), then 15-25s of darkness +
+## heavy rain + periodic lightning strikes. A strike warns with a reticle for
+## STORM_WARNING_LEAD seconds before landing and resolving its target.
+func _update_storm(delta: float) -> void:
+	# Decay the full-screen flash.
+	if _storm_flash > 0.0:
+		_storm_flash = maxf(_storm_flash - delta * 4.0, 0.0)
+	# Prune finished bolt VFX + impact decals.
+	for b in _storm_bolts:
+		if _time_now() - float(b.born) > _STRIKE_BOLT_LIFE:
+			_storm_bolts.erase(b)
+	for im in _storm_impacts:
+		if _time_now() - float(im.born) > _IMPACT_LIFE:
+			_storm_impacts.erase(im)
+
+	if _storm_active:
+		_storm_remaining -= delta
+		if _storm_remaining <= 0.0:
+			_set_storm(false)
+		# Schedule the next strike: warn now, land STORM_WARNING_LEAD later.
+		_storm_strike_timer -= delta
+		if _storm_strike_timer <= 0.0 and _storm_pending_strike_at <= 0.0:
+			var spot := _random_strike_spot()
+			_storm_pending_strike = spot
+			_storm_pending_strike_at = _time_now() + STORM_WARNING_LEAD
+			_storm_strike_timer = STORM_STRIKE_INTERVAL
+		# Fire the pending strike once its impact time arrives.
+		if _storm_pending_strike_at > 0.0 and _time_now() >= _storm_pending_strike_at:
+			_fire_storm_strike(_storm_pending_strike)
+			_storm_pending_strike_at = 0.0
+	else:
+		_storm_timer -= delta
+		if _storm_timer <= 0.0:
+			_set_storm(true)
+
+
+func _set_storm(active: bool) -> void:
+	if _storm_active == active:
+		return
+	_storm_active = active
+	if active:
+		_storm_remaining = randf_range(STORM_DURATION_MIN, STORM_DURATION_MAX)
+		_storm_strike_timer = 0.0   # fire the first strike immediately
+		_storm_pending_strike_at = 0.0
+		_storm_timer = randf_range(STORM_ONSET_MIN, STORM_ONSET_MAX)
+	else:
+		_storm_remaining = 0.0
+		_storm_pending_strike_at = 0.0
+		_storm_timer = randf_range(STORM_ONSET_MIN, STORM_ONSET_MAX)
+	# The storm drives the heavier rain profile on the weather node.
+	if _biome_weather == null:
+		_spawn_biome_weather()
+	if _biome_weather != null:
+		_biome_weather.set_storm_active(active)
+		# Keep the rain overlay visible for the whole storm.
+		_biome_weather.set_rain_active(active or _rain_active)
+
+
+## Dev hook (T3.13): immediately start a storm + schedule a couple of strikes so
+## the selftest / user can observe it on demand.
+func debug_force_storm() -> void:
+	if not _storm_active:
+		_set_storm(true)
+	_storm_strike_timer = 0.0
+	_storm_pending_strike_at = 0.0
+	print("[Arena] storm forced on (duration %.1fs)" % _storm_remaining)
+
+
+func _random_strike_spot() -> Vector2:
+	# Prefer near a tree so strikes read as "hitting something"; fall back to a
+	# random walkable point.
+	var tree := _random_alive_tree()
+	if tree != Vector2.INF:
+		var rng := RandomNumberGenerator.new()
+		rng.randomize()
+		var ang := rng.randf() * TAU
+		var dist := rng.randf_range(0.0, 24.0)
+		return _snap_feature_to_ground(tree + Vector2.from_angle(ang) * dist)
+	var spot := _random_walkable_hazard_spot()
+	return spot if spot != null else Vector2.ZERO
+
+
+func _fire_storm_strike(pos: Vector2) -> void:
+	_storm_flash = 1.0
+	_storm_bolts.append({ "pos": pos, "born": _time_now(), "biome": GameRuntime.biome_id })
+	# Per-biome impact accent.
+	match GameRuntime.biome_id:
+		1:  # volcano: lava spark scorch
+			_storm_impacts.append({ "pos": pos, "born": _time_now(), "kind": "spark", "biome": 1 })
+		4:  # docks: water splash + steam
+			_storm_impacts.append({ "pos": pos, "born": _time_now(), "kind": "splash", "biome": 4 })
+		_:
+			_storm_impacts.append({ "pos": pos, "born": _time_now(), "kind": "scorch", "biome": GameRuntime.biome_id })
+	# Target resolution: tree -> creep -> player -> scorch.
+	var tree := _nearest_alive_tree(pos, _TREE_STRIKE_RADIUS)
+	if tree != Vector2.INF:
+		if GameRuntime.biome_id != 1:  # volcano has no tree fire
+			ignite_tree(tree)
+			return
+	var enemy := _nearest_enemy(pos, _UNIT_STRIKE_RADIUS)
+	if enemy != null:
+		_damage_node(enemy, STORM_STRIKE_DAMAGE, GameRuntime.biome_id == 2)
+		return
+	var player := _nearest_player(pos, _UNIT_STRIKE_RADIUS)
+	if player != null:
+		_damage_node(player, STORM_STRIKE_DAMAGE, false)
+	# Thunder SFX: sharp crack now, deep rumble ~0.4s later.
+	_play_theme_stream("res://assets/audio/themes/thunder_crack.wav")
+	get_tree().create_timer(0.4).timeout.connect(_play_thunder_rumble)
+
+
+func _play_thunder_rumble() -> void:
+	_play_theme_stream("res://assets/audio/themes/thunder_rumble.wav")
+
+
+func _time_now() -> float:
+	var tree := get_tree()
+	if tree == null:
+		return 0.0
+	return tree.get_time()
+
+
+func _nearest_alive_tree(pos: Vector2, radius: float) -> Vector2:
+	var best := Vector2.INF
+	var best_d := radius
+	for o in obstacles:
+		if not is_instance_valid(o):
+			continue
+		var sid := o.sprite_id
+		if not sid.begins_with("tree"):
+			continue
+		if _is_tree_burning(o.global_position):
+			continue
+		var d := o.global_position.distance_to(pos)
+		if d <= best_d:
+			best_d = d
+			best = o.global_position
+	return best
+
+
+func _random_alive_tree() -> Vector2:
+	var candidates: Array[Vector2] = []
+	for o in obstacles:
+		if not is_instance_valid(o):
+			continue
+		if not o.sprite_id.begins_with("tree"):
+			continue
+		if _is_tree_burning(o.global_position):
+			continue
+		candidates.append(o.global_position)
+	if candidates.is_empty():
+		return Vector2.INF
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	return candidates[rng.randi() % candidates.size()]
+
+
+func _nearest_enemy(pos: Vector2, radius: float) -> Node:
+	var best: Node = null
+	var best_d := radius
+	for en in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(en):
+			continue
+		var e := en as Node2D
+		if e == null:
+			continue
+		var eh = en.get("health")
+		if eh == null or eh.is_dead:
+			continue
+		var d: float = e.global_position.distance_to(pos)
+		if d <= best_d:
+			best_d = d
+			best = en
+	return best
+
+
+func _nearest_player(pos: Vector2, radius: float) -> Node:
+	var best: Node = null
+	var best_d := radius
+	for pn in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(pn) or not pn.get("active"):
+			continue
+		var p := pn as Node2D
+		if p == null:
+			continue
+		var h = pn.get("health")
+		if h == null or h.is_dead:
+			continue
+		var d: float = p.global_position.distance_to(pos)
+		if d <= best_d:
+			best_d = d
+			best = pn
+	return best
+
+
+func _damage_node(node: Node, amount: float, apply_slow: bool) -> void:
+	if node == null or not is_instance_valid(node):
+		return
+	var h = node.get("health")
+	if h != null:
+		h.take_damage(amount, self)
+	if apply_slow and node.has_method("apply_slow"):
+		node.apply_slow(0.5, 1.5)
+
+
+## T3.14: burn-out + spread + DOT for every currently-burning tree.
+func _update_burning_trees(delta: float) -> void:
+	if _burning_trees.is_empty():
+		return
+	for key in _burning_trees.keys():
+		var info: Dictionary = _burning_trees[key]
+		info.burn_time = float(info.burn_time) + delta
+		# Spread to the nearest alive tree once, after SPREAD_AFTER seconds.
+		if float(info.burn_time) >= _FIRE_SPREAD_AFTER and not bool(info.get("spread_done", false)):
+			info.spread_done = true
+			var pos: Vector2 = _tree_pos_from_key(key)
+			var near := _nearest_alive_tree(pos, _FIRE_SPREAD_RADIUS)
+			if near != Vector2.INF:
+				ignite_tree(near)
+		# Fire DOT on nearby units.
+		var pos: Vector2 = _tree_pos_from_key(key)
+		_tick_fire_dot(pos, delta)
+		# Burn out -> dead stump.
+		if float(info.burn_time) >= _FIRE_BURNOUT:
+			_burning_trees.erase(key)
+			_add_dead_tree(_tree_pos_from_key(key))
+			# Remove the obstacle node so the tree is no longer drawn/solid.
+			_remove_tree_at(_tree_pos_from_key(key))
+			print("[Arena] tree at %s burned out to stump" % str(pos))
+	queue_redraw()
+
+
+## T3.14 public API: set a tree at world `pos` on fire.
+func ignite_tree(pos: Vector2) -> void:
+	if _is_tree_burning(pos):
+		return
+	var tree_pos := _snap_to_tree(pos)
+	if tree_pos == Vector2.INF:
+		return
+	_burning_trees[tree_pos] = { "burn_time": 0.0, "spread_done": false }
+	print("[Arena] ignited tree at %s" % str(tree_pos))
+	queue_redraw()
+
+
+func _is_tree_burning(pos: Vector2) -> bool:
+	for key in _burning_trees:
+		if _tree_pos_from_key(key).distance_to(pos) < 4.0:
+			return true
+	return false
+
+
+## Snap an arbitrary world position to the closest real tree obstacle.
+func _snap_to_tree(pos: Vector2) -> Vector2:
+	var best := Vector2.INF
+	var best_d := _TREE_STRIKE_RADIUS
+	for o in obstacles:
+		if not is_instance_valid(o):
+			continue
+		if not o.sprite_id.begins_with("tree"):
+			continue
+		var d := o.global_position.distance_to(pos)
+		if d <= best_d:
+			best_d = d
+			best = o.global_position
+	return best
+
+
+func _tree_pos_from_key(key: Vector2) -> Vector2:
+	return key
+
+
+func _add_dead_tree(pos: Vector2) -> void:
+	if not _dead_trees.has(pos):
+		_dead_trees.append(pos)
+
+
+func _remove_tree_at(pos: Vector2) -> void:
+	for o in obstacles:
+		if is_instance_valid(o) and o.global_position.distance_to(pos) < 4.0:
+			obstacles.erase(o)
+			o.queue_free()
+			return
+
+
+func _tick_fire_dot(pos: Vector2, delta: float) -> void:
+	var r_sq := _FIRE_DOT_RADIUS * _FIRE_DOT_RADIUS
+	for p in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(p) or not p.get("active"):
+			continue
+		var h = p.get("health")
+		if h == null or h.is_dead:
+			continue
+		if pos.distance_squared_to(p.global_position) <= r_sq:
+			h.take_damage(_FIRE_DOT_DPS * delta, self)
+	for e in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(e):
+			continue
+		var eh = e.get("health")
+		if eh == null or eh.is_dead:
+			continue
+		if pos.distance_squared_to(e.global_position) <= r_sq:
+			eh.take_damage(_FIRE_DOT_DPS * 0.6 * delta, self)
 
 
 func _set_rain(active: bool) -> void:
@@ -2396,6 +2747,13 @@ func _draw() -> void:
 	_draw_cooled_lava_overlay()
 	_draw_electro_ground()
 	_draw_night_glow_overlays()
+	# T3.14 fire trees + T3.13 storm VFX (bolts, reticle, flash, impact decals).
+	if _burning_trees.size() > 0:
+		_draw_burning_trees()
+	if _dead_trees.size() > 0:
+		_draw_dead_trees()
+	if _storm_active or _storm_flash > 0.01 or _storm_bolts.size() > 0 or _storm_impacts.size() > 0:
+		_draw_storm_fx()
 	if GameRuntime.uses_biomes():
 		# Biome accent rims match the desaturated tiles in tobor_world_art.gd (roughly
 		# 30% gray mixed in) so the arena frame no longer pops against a muted floor.
@@ -2855,6 +3213,147 @@ func _draw_night_glow_overlays() -> void:
 					var grow := 8.0 + band * 8.0
 					var alpha := 0.20 - band * 0.06
 					draw_rect(rect.grow(grow), Color(glow.r, glow.g, glow.b, maxf(0.0, alpha)), true)
+
+
+## T3.14: paint flames on top of each burning tree. Trees are drawn as real
+## Obstacle sprites; the fire is a lightweight VFX pass over the tree position.
+func _draw_burning_trees() -> void:
+	for key in _burning_trees:
+		var pos: Vector2 = _tree_pos_from_key(key)
+		_draw_fire_vfx(pos, _burning_trees[key].burn_time)
+
+
+## Charred dead-tree stumps for trees that have burned out (T3.14).
+func _draw_dead_trees() -> void:
+	for pos in _dead_trees:
+		_draw_dead_tree_stump(pos)
+
+
+func _draw_fire_vfx(pos: Vector2, burn_time: float) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(burn_time * 12.0)
+	# The tree canopy is ~2.15x pixel-zoom tall above the base; flames sit in the
+	# upper-mid of the trunk.
+	var base_y := pos.y - 46.0
+	var cols: Array[Color] = [
+		Color(1.0, 0.45, 0.05, 0.85),
+		Color(1.0, 0.65, 0.10, 0.80),
+		Color(1.0, 0.85, 0.25, 0.90),
+	]
+	for i in 8:
+		var fx := pos.x + rng.randf_range(-9.0, 9.0) + sin(burn_time * 10.0 + i) * 4.0
+		var fy := base_y - rng.randf_range(0.0, 34.0)
+		var r := rng.randf_range(9.0, 18.0) * (1.0 + 0.2 * sin(burn_time * 14.0 + i))
+		draw_circle(Vector2(fx, fy), r, cols[i % cols.size()])
+	draw_circle(Vector2(pos.x, base_y + 6.0), 12.0, Color(1.0, 0.9, 0.4, 0.9))
+	# Embers drifting up.
+	for i in 4:
+		var rise := fposmod(burn_time * 24.0 + float(i) * 5.0, 20.0)
+		var ey: float = base_y - rng.randf_range(10.0, 60.0) - rise
+		var ex := pos.x + rng.randf_range(-20.0, 20.0)
+		draw_circle(Vector2(ex, ey), 2.0, Color(1.0, 0.7, 0.2, 0.6))
+
+
+## Charred trunk silhouette for a burned-out tree (T3.14).
+func _draw_dead_tree_stump(pos: Vector2) -> void:
+	var trunk := Color(0.12, 0.09, 0.06)
+	# Ground char.
+	draw_circle(pos, 16.0, Color(0.05, 0.04, 0.03, 0.55))
+	# Burnt trunk (shorter than a live tree).
+	draw_rect(Rect2(pos.x - 5.0, pos.y - 30.0, 10.0, 32.0), trunk)
+	# Broken branch stubs.
+	draw_line(Vector2(pos.x, pos.y - 18.0), Vector2(pos.x - 12.0, pos.y - 28.0), trunk, 4.0)
+	draw_line(Vector2(pos.x, pos.y - 12.0), Vector2(pos.x + 10.0, pos.y - 22.0), trunk, 3.0)
+	# Faint lingering ember glow at the base.
+	draw_circle(pos, 6.0, Color(0.45, 0.18, 0.05, 0.35))
+
+
+## T3.13: full storm VFX pass — pending-strike warning reticle, jagged lightning
+## bolts, impact decals (scorch/splash/sparks), and the full-screen white flash.
+func _draw_storm_fx() -> void:
+	# Impact decals (under the bolts so a bolt reading over the scorch).
+	for im in _storm_impacts:
+		_draw_storm_impact(im)
+	# Jagged lightning bolts.
+	for b in _storm_bolts:
+		_draw_lightning_bolt(b)
+	# Pending strike warning reticle.
+	if _storm_pending_strike_at > 0.0:
+		var since := _time_now() - (_storm_pending_strike_at - STORM_WARNING_LEAD)
+		var t := clampf(since / STORM_WARNING_LEAD, 0.0, 1.0)
+		_draw_strike_reticle(_storm_pending_strike, t)
+	# Full-screen white flash.
+	if _storm_flash > 0.01:
+		var vp := get_viewport().get_visible_rect().size
+		draw_rect(Rect2(-vp * 0.5, vp), Color(1.0, 1.0, 1.0, _storm_flash * 0.55), true)
+
+
+func _draw_strike_reticle(pos: Vector2, t: float) -> void:
+	var pulse := 0.5 + 0.5 * sin(_arena_time * 24.0)
+	var r := 44.0 * (1.0 - 0.25 * t)
+	draw_circle(pos, r, Color(1.0, 0.85, 0.3, 0.25 + 0.25 * pulse))
+	draw_arc(pos, r, 0.0, TAU, 40, Color(1.0, 0.9, 0.4, 0.6 + 0.3 * pulse), 3.0, true)
+	var c := Color(1.0, 0.9, 0.5, 0.7)
+	draw_line(pos + Vector2(-8.0, 0.0), pos + Vector2(8.0, 0.0), c, 2.0)
+	draw_line(pos + Vector2(0.0, -8.0), pos + Vector2(0.0, 8.0), c, 2.0)
+
+
+## Per-biome bolt colour: volcano=ash/orange, ice=frozen blue, factory=electro,
+## docks=pale, grass=white-blue.
+func _bolt_color(biome: int) -> Color:
+	match biome:
+		1: return Color(1.0, 0.55, 0.2, 0.95)
+		2: return Color(0.75, 0.9, 1.0, 0.95)
+		3: return Color(0.55, 0.85, 1.0, 0.95)
+		4: return Color(0.9, 0.95, 1.0, 0.95)
+	return Color(0.85, 0.95, 1.0, 0.95)
+
+
+func _draw_lightning_bolt(b: Dictionary) -> void:
+	var pos: Vector2 = b.pos
+	var age: float = _time_now() - float(b.born)
+	var fade := 1.0 - clampf(age / _STRIKE_BOLT_LIFE, 0.0, 1.0)
+	if fade <= 0.01:
+		return
+	var top := Vector2(pos.x + 18.0, pos.y - 620.0)
+	var p1 := top.lerp(pos, 0.34) + Vector2(sin(_arena_time * 60.0) * 26.0, 0.0)
+	var p2 := top.lerp(pos, 0.67) + Vector2(sin(_arena_time * 60.0 + 7.0) * 22.0, 0.0)
+	var col := _bolt_color(int(b.get("biome", 0)))
+	col.a = col.a * fade
+	draw_line(top, p1, col, 5.0)
+	draw_line(p1, p2, col, 4.0)
+	draw_line(p2, pos, col, 3.0)
+	# Bright core.
+	var core := col; core.a = minf(1.0, col.a + 0.3)
+	draw_line(top, pos, core, 2.0)
+	# Impact glow.
+	draw_circle(pos, 24.0, Color(col.r, col.g, col.b, 0.5 * fade))
+
+
+func _draw_storm_impact(im: Dictionary) -> void:
+	var pos: Vector2 = im.pos
+	var age: float = _time_now() - float(im.born)
+	var fade := 1.0 - clampf(age / _IMPACT_LIFE, 0.0, 1.0)
+	if fade <= 0.01:
+		return
+	var kind := str(im.get("kind", "scorch"))
+	match kind:
+		"spark":
+			# Volcano ash-lava spark: orange scorch.
+			draw_circle(pos, 30.0, Color(0.05, 0.03, 0.02, 0.55 * fade))
+			draw_circle(pos, 14.0, Color(1.0, 0.4, 0.1, 0.5 * fade))
+			for i in 6:
+				var a := TAU * float(i) / 6.0 + age * 3.0
+				draw_line(pos, pos + Vector2.from_angle(a) * (18.0 + 10.0 * age), Color(1.0, 0.5, 0.15, 0.5 * fade), 2.0)
+		"splash":
+			# Docks: expanding ring + pale steam.
+			var rr := 20.0 + age * 90.0
+			draw_arc(pos, rr, 0.0, TAU, 32, Color(0.75, 0.9, 1.0, 0.55 * fade), 3.0, true)
+			draw_circle(pos, 12.0, Color(0.85, 0.95, 1.0, 0.4 * fade))
+		_:
+			# Default scorch.
+			draw_circle(pos, 34.0, Color(0.05, 0.04, 0.04, 0.6 * fade))
+			draw_arc(pos, 34.0, 0.0, TAU, 40, Color(0.3, 0.25, 0.2, 0.5 * fade), 2.0, true)
 
 
 func _draw_lava_rect(rect: Rect2, tile: Texture2D, rim: Color) -> void:
