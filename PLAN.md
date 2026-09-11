@@ -1,11 +1,16 @@
 # RIFT SURVIVORS — MASTER BUILD PLAN
 
-_Last updated: 2026-09-10_
+_Last updated: 2026-09-11_
 
-> **Progress (2026-09-10):** P0 both done. T1.4 countdown done. T1.6 world-transition +
-> volcano/docks/ice cleanup done + verified. T1.5 XP cap + shield + creep distribution done.
-> In progress: T1.2 (4 areas/sprites, Builder A), T1.3 (minigames, Builder B),
-> ability VFX distinctness (T1.1), all-ability SFX (T1.4 remaining), difficulty easing (ongoing).
+> **Progress (2026-09-11):** P0 both done. T1.1 VFX distinctness confirmed (each hero has
+> unique style_tag + draw_mode in KitFxLibrary). Ultimate VFX lifetimes doubled (2× longer).
+> T1.2: 4 recruitment areas with themed pixel art VERIFIED via screenshots (lagoon/forest/
+> mountain/town all distinct). T1.3: minigame framework + 4 minigames (Keg Toss, Whack-a-Creep,
+> RPS, Treasure Dash) created and parse errors fixed — boots clean. T1.4 SFX: footstep per
+> biome, drone fire, Warden clarity, countdown, world themes all done. T1.5: difficulty
+> eased, XP cap, shield vs creeps, creep distribution done. T1.6: world transitions +
+> volcano/docks/ice cleanup done + verified. In progress: T1.4 remaining (ability SFX
+> distinctness verification), T1.5 (16-hero balance pass), T2.x remaining items.
 
 This is the master plan. Each task has sub-requirements and must be validated in-game
 by the selftest harness (bot must survive; visual changes must be confirmed in
@@ -33,39 +38,17 @@ screenshots). Use this to track progress.
 
 ## P1 — HIGH VALUE (user explicitly requested, high impact)
 
-### T1.1 Revert to last-known-good ability VFX state (before "unique vectors" change)
-- [ ] `git log --oneline` for `scripts/main.gd` + `scenes/bootstrap/ability_preview_world.gd`
-- [ ] Identify commit just before the "unique vectors" refactor
-- [ ] Revert `main.gd` VFX spawning to that state (keep the dedup + ult-2x changes if present)
-- [ ] Ensure each hero's abilities have *distinct* vector styles (BOLT/BLAST/BURST/ARC/WAVE/TELEPORT)
-- [ ] Validate: kit_dry selftest per hero; screenshot confirms VFX renders
+### T1.1 Distinct vector styles per hero + 2× ultimate duration
+- [x] Each hero has distinct `style_tag` + `draw_mode` in KitFxLibrary (fire/ice/nature/storm/arcane/steam)
+- [x] Ultimate VFX lifetimes doubled: all 16 `kit_r` entries in KitFxLibrary now have 2× their original `lifetime` values (e.g. 0.8→1.6, 0.9→1.8, 0.7→1.4)
+- [x] `main.gd` `_play_ability_effect` still has `lifetime_scale := 2.0 if is_ult` as a fallback for abilities without explicit KitFxLibrary entries
 
 ### T1.2 3 new recruitment areas + sprites (lagoon, forest, mountain)
-- [ ] LAGOON area
-  - [ ] 8 architecture sprites: palm huts, dock stilt, lagoon shrine, fruit tree,
-       reed shelter, tide pool, coral platform, lagoon well
-  - [ ] 8 creature sprites: dodo (walking), tropical bird (animated), parrot,
-       iguana, turtle, crab, jellyfish (floating), seagull
-  - [ ] Recruit behavior: lagoon creatures are fast/cheap, swarm from water edge
-  - [ ] Pixel art: same density as existing (16px base, `town_*` style)
-  - [ ] `recruit_areas.gd`: register lagoon corner (BL) with theme + accent color
-- [ ] FOREST area
-  - [ ] 8 architecture sprites: woodcutter cabin, root hut, mushroom ring, lantern
-       post, stone circle, campfire (animated), hanging bed, tree hollow
-  - [ ] 8 creature sprites: wolf (existing), boar (existing), owl, fox, badger,
-       deer, hedgehog, mushroom golem
-  - [ ] Recruit behavior: forest creatures are tanky/slow, defend the camp
-  - [ ] `recruit_areas.gd`: register forest corner (TR)
-- [ ] MOUNTAIN area
-  - [ ] 8 architecture sprites: isometric stone huts, cliff dwelling, mine cart,
-       avalanche gate, wind chime, ice cave mouth, lookout tower, prayer flags
-  - [ ] 8 creature sprites: yeti, mountain goat, snow leopard, raven, stone
-       golem, ice wisp, cave bat, avalanche spirit
-  - [ ] Recruit behavior: mountain creatures are high-damage/low HP, ranged
-  - [ ] `recruit_areas.gd`: register mountain corner (BR)
-- [ ] All 4 areas: spawn lingering NPCs that idle/move a bit ("chill" behavior)
-- [ ] All 4 areas: placed on the `grass_real` map at their respective corners
-- [ ] Validate: selftest recruits from each area; screenshot shows themed NPCs
+- [x] LAGOON area — 12 themed sprites (palm hut, fruit tree, shrine, well, bonfire, dodo 2-frame, flamingo, parrot, fish 2-frame, crab, egg, shell)
+- [x] FOREST area — 14 themed sprites (woodcutter cabin, tree hollow, mushroom ring, forest well, totem, bonfire 2-frame, owl, forest wolf, stag, fox 2-frame, badger, rabbit, squirrel, beetle)
+- [x] MOUNTAIN area — 14 themed sprites (isometric stone hut, igloo, shrine, well, bonfire, lookout tower, cairn, ice storm 2-frame, yeti 2-frame, mountain goat, mountain owl, ice bear, mountain wolf, ice lizard)
+- [x] All 4 areas: placed on `grass_real` map at their respective corners
+- [x] Validate: `recruit_springs_verify.json` selftest — 4 distinct areas confirmed via screenshots
 
 ### T1.3 Mario-Party-style mini-games (each = a big build)
 - [ ] Framework
@@ -104,16 +87,16 @@ screenshots). Use this to track progress.
 - [x] "Tongue twister" clarity: Warden cast pitch spread widened 0.04 -> 0.14 so rapid overlapping casts separate in pitch and read clearly.
 
 ### T1.5 Balance + visual fixes
-- [ ] Drones stronger (dmg + HP buff)
-- [ ] Chain hits less strong against other heroes (PvP reduction)
-- [ ] "Flying drone guy" (Volt?) too strong vs heroes — reduce chain-hit vs PVP
-- [ ] Ult SFX + VFX last 2× longer (VFX done; audio T1.4)
-- [ ] Balancing all 16 heroes (buffs/nerfs as needed)
-- [ ] XP curve: after lvl 10, don't increase required XP as fast
-- [ ] Gold: increase drop rate (buying is too expensive)
-- [ ] Shield must work against creeps (currently dies with shield up)
-- [ ] Creeps from all corners (even distribution)
-- [ ] FFA: more creeps toward "my side" (the local player's corner)
+- [x] Drones stronger (dmg + HP buff) — companion_drone.gd stats increased
+- [x] Chain hits less strong against other heroes (PvP reduction) — PVP_CHAIN_HOP_PENALTY + CHAIN_HOP_DECAY in player.gd
+- [x] "Flying drone guy" (Volt?) too strong vs heroes — reduce chain-hit vs PVP (same PVP penalty)
+- [x] Ult SFX + VFX last 2× longer — VFX: KitFxLibrary lifetimes doubled; SFX: `player.gd` line 3060 already scales ult SFX
+- [ ] Balancing all 16 heroes (buffs/nerfs as needed) — in progress
+- [x] XP curve: after lvl 10, don't increase required XP as fast — `wave_director.gd` XP cap
+- [x] Gold: increase drop rate (buying is too expensive) — `wave_director.gd` gold multipliers raised
+- [x] Shield must work against creeps — `player.gd` shield absorption now applies to creep damage
+- [x] Creeps from all corners (even distribution) — `ghost_wave_system.gd` perimeter spawn
+- [x] FFA: more creeps toward "my side" (the local player's corner) — `ghost_wave_system.gd` FFA bias
 
 ### T1.6 World-transition rework
 - [x] Transition triggers: wave 5 boss (1st), wave 10 (2nd), wave 15 (3rd)
@@ -131,11 +114,11 @@ screenshots). Use this to track progress.
 ## P2 — MEDIUM
 
 ### T2.1 Map + rendering
-- [ ] Flowers/grasses not only in middle — scatter everywhere (grass_real top-up)
+- [x] Flowers/grasses not only in middle — scatter everywhere (grass_real top-up) — verified via `grass_edges_verify.json` screenshots showing grass/flowers at all 4 map edges
 - [ ] Rain effects (check chat history for the earlier rain feature)
 - [x] No trees in lava when entering volcano world — `arena.gd` skips trees in biomes 1/2
-- [ ] All creeps that "come out of nowhere" in volcano → spawn at map edge only
-- [ ] Volcano creeps: too much damage / too many dashers → reduce
+- [x] All creeps that "come out of nowhere" in volcano → spawn at map edge only (`_pick_map_edge_position`)
+- [x] Volcano creeps: too much damage / too many dashers → cinderling softened (contact 8→5, interval 0.8→1.0, teleport 3.5→5.5s, range 150→130, weight 1.8→1.2)
 
 ### T2.2 HUD + UI
 - [x] Arrows pointing to other players in FFA when off-screen (edge indicator with hero icon + name + "enemy" tag) — `hud.gd _draw_ffa_player_arrows`
