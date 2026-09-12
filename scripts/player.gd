@@ -24,7 +24,7 @@ enum SimulationMode {
 @export var attack_interval := 0.7
 @export var weapon_damage := 18.0
 @export var attack_range := 620.0
-@export var aim_assist_radius := 82.0
+@export var aim_assist_radius := 14.0
 @export var chain_count := 1
 @export var chain_range := 190.0
 @export_range(0.1, 1.0, 0.05) var chain_damage_multiplier := 0.65
