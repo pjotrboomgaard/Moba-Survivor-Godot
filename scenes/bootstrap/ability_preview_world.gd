@@ -164,6 +164,8 @@ func _notification(what: int) -> void:
 func _build_stage() -> void:
 	# A subtle ground so the world reads as a place, without clutter.
 	var ground := Node2D.new()
+	ground.name = "StageGround"
+	ground.set_meta("preview_stage", true)
 	ground.set_script(_make_ground_script())
 	_world.add_child(ground)
 
@@ -218,13 +220,28 @@ func _restart() -> void:
 
 
 func _clear_world() -> void:
+	# Free the tracked hero + creeps explicitly (they may hold pending state /
+	# connected signals we want released cleanly).
 	if _hero != null and is_instance_valid(_hero):
-		_hero.queue_free()
+		_hero.free()
 	_hero = null
 	for c in _creeps:
 		if c != null and is_instance_valid(c):
-			c.queue_free()
+			c.free()
 	_creeps.clear()
+	# Synchronously free ANY other dynamic children of the preview world (summons,
+	# throw projectiles, lightning/burst VFX, stray projectiles, LMB dots) so NOTHING
+	# leaks into the next ability's preview when the user hovers a different ability.
+	# Keep only the permanent stage: the ground disc and the preview camera.
+	# (Copy the child list first — freeing children invalidates the live array.)
+	var children := _world.get_children()
+	for child in children:
+		if child is Camera2D:
+			continue
+		if child.has_meta("preview_stage"):
+			continue
+		child.free()
+
 
 
 func _spawn_hero() -> void:
