@@ -8,10 +8,13 @@ _Last updated: 2026-09-12_
 >    the first frame. Set to `2` (ALWAYS). Verified via `screenshot_diagnostic2` (isolated scene
 >    proves real `Player`/`Enemy` scenes render sprites inside a SubViewport) and `ability_preview_test`
 >    (all 17 heroes' LMB+Q previews show hero sprite + creeps + VFX).
-> 2. **All trees gone from all maps** — root cause: `arena.gd _build_field()` was missing the
->    `_build_terrain_zones()` + `_plant_zone_props()` calls (dead code that got dropped), so trees
->    were never planted. Restored both calls. Verified: `probe_boot` obstacle_count 93 (was ~30),
->    solo-survival screenshots show trees/rocks/flowers scattered across the grass map.
+> 2. **All trees gone from all maps** — REAL root cause: the Pjotr game loads the saved
+>    `user://world_editor_level_grass_real.json` in `Arena.rebuild()` → `_apply_editor_level_if_any()`,
+>    and that file had been over-stripped (only ~40 trees / ~13 rocks, from an old clean/populate
+>    run). The procedural scatter was fine; the *saved level* that overrides it was sparse.
+>    Fix: restored the dense `world_editor_level.json` (459 trees / 191 rocks) onto
+>    `world_editor_level_grass_real.json`. Verified via Pjotr probe: obstacle_count 856,
+>    breakdown shows 459 trees + 191 rocks now loading in live Pjotr grass.
 > 3. **World editor load: "loads map but stays in same biome"** — root cause: `_load_named_map()`
 >    called `apply_saved_level()` (swaps obstacles only) without switching the arena's theme/biome.
 >    Now reads the saved `biome` field (or infers from the map stem) and, when it differs, calls

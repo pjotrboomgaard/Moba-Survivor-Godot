@@ -2080,6 +2080,81 @@ func _fill_circle_line(ring: Line2D, center: Vector2, radius: float) -> void:
 	ring.points = points
 
 
+## Throw/lob visual: a small glowing projectile arcs from `from` to `to` over
+## `travel_time` seconds. Used to sell the "throwing" animation for instant-placement
+## abilities (turret, mines) so the player sees the object leave the caster's hands
+## rather than it appearing at the target. Mirrors the Steam Keg lob.
+func _spawn_throw_projectile(ability_id: String, from: Vector2, to: Vector2, travel_time: float = 0.3, arc_height: float = 50.0) -> void:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+	# A dedicated Node2D with its own _draw that follows the arc — lighter than
+	# reusing the full projectile pipeline, and works in any scene root.
+	var thrower := Node2D.new()
+	thrower.z_index = 26
+	scene_root.add_child(thrower)
+	var hero := PlayerClass.by_id(class_id)
+	var col := Color(str(hero.get("effect_color", "#ffffff")))
+	thrower.set_meta("from", from)
+	thrower.set_meta("to", to)
+	thrower.set_meta("t", 0.0)
+	thrower.set_meta("travel", travel_time)
+	thrower.set_meta("arc", arc_height)
+	thrower.set_meta("color", col)
+	thrower.set_meta("ability_id", ability_id)
+	var script := _make_throw_script()
+	if script != null:
+		thrower.set_script(script)
+		thrower.call("setup", from, to, travel_time, arc_height, col)
+
+
+## Caches the dynamically-built throw script (built once per Player instance).
+var _throw_script_cache: GDScript = null
+func _make_throw_script() -> GDScript:
+	if _throw_script_cache != null and is_instance_valid(_throw_script_cache):
+		return _throw_script_cache
+	var code := """
+extends Node2D
+var _from: Vector2
+var _to: Vector2
+var _t: float = 0.0
+var _travel: float = 0.3
+var _arc: float = 50.0
+var _color: Color = Color.WHITE
+func setup(from: Vector2, to: Vector2, travel: float, arc: float, color: Color) -> void:
+	_from = from
+	_to = to
+	_travel = travel
+	_arc = arc
+	_color = color
+	_t = 0.0
+	position = from
+func _process(delta: float) -> void:
+	_t += delta
+	var f := clampf(_t / _travel, 0.0, 1.0)
+	var pos := _from.lerp(_to, f)
+	# Parabolic arc: add vertical (y, screen-up is -y) offset peaking mid-flight.
+	pos.y -= _arc * (4.0 * f * (1.0 - f))
+	position = pos
+	queue_redraw()
+	if f >= 1.0:
+		queue_free()
+func _draw() -> void:
+	# Glowing orb with a short trail.
+	var a := 1.0 - (_t / _travel) * 0.4
+	draw_circle(Vector2.ZERO, 9.0, Color(_color.r, _color.g, _color.b, a * 0.95))
+	draw_circle(Vector2.ZERO, 4.0, Color(1.0, 1.0, 1.0, a))
+"""
+	var src := GDScript.new()
+	src.source_code = code
+	var err := src.reload()
+	if err != OK:
+		push_error("_spawn_throw_projectile: throw script compile error: %s" % src.get_last_error_message())
+		return null
+	_throw_script_cache = src
+	return src
+
+
 ## Aftermath: a brief superheated puff (not Energy Field's hex containment pulse).
 func _spawn_steam_cloud(center: Vector2, radius: float, duration: float) -> void:
 	_spawn_steam_puff(center, radius, duration)
@@ -2135,6 +2210,9 @@ func _cast_ability_wrench_turret(data: Dictionary, values: Dictionary, _rank: in
 	if class_id == "tobor" and _turret_charge_left <= 0:
 		return  # no turret charge left
 	var landing := _ability_aim_center(values.range)
+	# Show the "throwing the turret" animation: a lobbed projectile arcs from the
+	# caster to the landing point (same visual language as the Steam Keg throw).
+	_spawn_throw_projectile("tobor_steam_turret", global_position, landing)
 	_spawn_summon(data, values, landing)
 	if class_id == "tobor":
 		_turret_charge_left -= 1
@@ -2160,6 +2238,9 @@ func _cast_ability_wrench_mines(data: Dictionary, values: Dictionary, rank: int)
 			break
 	if snap != null:
 		center = snap.global_position
+	# Show the "throwing mines" animation: a lobbed projectile arcs from the caster
+	# toward the scatter centre (same visual language as the Steam Keg throw).
+	_spawn_throw_projectile("tobor_spider_mines", global_position, center)
 	for index in mine_count:
 		var point := center
 		if mine_count > 1:
