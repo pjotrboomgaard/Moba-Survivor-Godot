@@ -1,0 +1,9 @@
+{
+  "hero": "arclight",
+  "comment": "T3.7: factory electro ground in a clean isolated world. Crackling patch appears + fades.",
+  "time_scale": 1.0,
+  "checks": [
+    {"id": "started", "type": "log_contains", "value": "ELECTRO_TEST ready", "fail": "FAIL"},
+    {"id": "finished", "type": "log_contains", "value": "ELECTRO_TEST SUMMARY", "fail": "FAIL"}
+  ]
+}
