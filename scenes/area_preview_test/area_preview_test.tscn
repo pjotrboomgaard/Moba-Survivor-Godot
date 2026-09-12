@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/area_preview_test.gd" id="1_test"]
+
+[node name="AreaPreviewTest" type="Node2D"]
+script = ExtResource("1_test")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, 0)
+zoom = Vector2(0.7, 0.7)
+position_smoothing_enabled = false

@@ -1,0 +1,4 @@
+{
+  "comment": "T3.12: 4 themed areas (lagoon/forest/mountain/town) dressed with new pixel-art sprites on an otherwise-empty map. Isolated scene writes report + screenshots, then quits.",
+  "scene": "res://scenes/area_preview_test/area_preview_test.tscn"
+}

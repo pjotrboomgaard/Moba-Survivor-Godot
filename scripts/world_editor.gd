@@ -52,6 +52,9 @@ const OBSTACLE_SPEC := {
 	"bollard": {"radius": 10.0, "lift": 20.0},
 	"vent_cap": {"radius": 16.0, "lift": 6.0},
 	"town_house": {"radius": 22.0, "lift": 12.0},
+	"town_house2": {"radius": 20.0, "lift": 10.0},
+	"town_house3": {"radius": 24.0, "lift": 12.0},
+	"town_cottage": {"radius": 18.0, "lift": 8.0},
 	"town_shop": {"radius": 26.0, "lift": 12.0},
 	"town_church": {"radius": 20.0, "lift": 16.0},
 	"town_well": {"radius": 14.0, "lift": 6.0},
@@ -126,7 +129,8 @@ const THEME := ["lava_chunk", "ice_crystal", "crate_box", "barrel_keg", "bollard
 ## recruit areas (Town, Lagoon, Forest, Mountain) plus the Town animals.
 const RECRUIT_AREA_SPRITES := [
 	# Town
-	"town_house", "town_shop", "town_church", "town_well",
+	"town_house", "town_house2", "town_house3", "town_cottage",
+	"town_shop", "town_church", "town_well",
 	"wolf", "fox", "raven", "otter", "boar", "golem",
 	# Lagoon
 	"lagoon_palm_hut", "lagoon_fruit_tree", "lagoon_shrine",
@@ -161,7 +165,8 @@ const ASSET_LABELS := {
 	"ice_geyser": "Geyser", "ice_fall": "Ice fall", "aurora_spire": "Aurora",
 	"factory_stack": "Smokestack", "spark_coil": "Spark coil", "warning_lamp": "Lamp",
 	"docks_wave": "Waves", "lighthouse": "Lighthouse", "dock_lantern": "Lantern",
-	"town_house": "House", "town_shop": "Shop", "town_church": "Church", "town_well": "Well",
+	"town_house": "House", "town_house2": "House 2", "town_house3": "House 3", "town_cottage": "Cottage",
+	"town_shop": "Shop", "town_church": "Church", "town_well": "Well",
 	"lagoon_palm_hut": "Palm hut", "lagoon_fruit_tree": "Fruit tree", "lagoon_shrine": "Lagoon shrine",
 	"lagoon_well": "Lagoon well", "lagoon_bonfire": "Lagoon fire", "lagoon_palm": "Palm",
 	"lagoon_dodo": "Dodo", "lagoon_flamingo": "Flamingo", "lagoon_parrot": "Parrot",
