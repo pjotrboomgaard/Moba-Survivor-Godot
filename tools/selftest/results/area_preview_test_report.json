@@ -1,0 +1,33 @@
+{
+  "areas": [
+    {
+      "center": "(-400.0, -400.0)",
+      "name": "Lagoon",
+      "sprites_placed": 8
+    },
+    {
+      "center": "(400.0, -400.0)",
+      "name": "Forest",
+      "sprites_placed": 8
+    },
+    {
+      "center": "(-400.0, 400.0)",
+      "name": "Mountain",
+      "sprites_placed": 8
+    },
+    {
+      "center": "(400.0, 400.0)",
+      "name": "Town",
+      "sprites_placed": 8
+    }
+  ],
+  "scene": "area_preview_test",
+  "shots": [
+    {
+      "label": "areas_full",
+      "path": "user://area_preview_run_1789174984/areas_full_0.61.png"
+    }
+  ],
+  "sprite_count": 32,
+  "verdict": "PASS"
+}

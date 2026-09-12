@@ -1,12 +1,6 @@
 {
   "effects": [
     {
-      "hp": 1.0,
-      "kind": "landmark_save",
-      "saves": 1,
-      "t": 0.15
-    },
-    {
       "games": [
         {
           "active": false,
@@ -43,23 +37,131 @@
           "pos": "(2520.0, 1680.0)",
           "score": 0,
           "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Gem Relay",
+          "index": 5,
+          "pos": "(-1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss Pro",
+          "index": 6,
+          "pos": "(1890.0, 1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack Rush",
+          "index": 7,
+          "pos": "(2310.0, -980.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Tag",
+          "index": 8,
+          "pos": "(-2310.0, 700.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Treasure Dash 2",
+          "index": 9,
+          "pos": "(1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Ring Roll",
+          "index": 10,
+          "pos": "(-1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Pinball",
+          "index": 11,
+          "pos": "(1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Balloon Pop",
+          "index": 12,
+          "pos": "(0.0, 1820.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Slime Splat",
+          "index": 13,
+          "pos": "(-1890.0, -1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crystal Catch",
+          "index": 14,
+          "pos": "(2100.0, 840.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crate Stack",
+          "index": 15,
+          "pos": "(-2100.0, 980.0)",
+          "score": 0,
+          "timer": 15.0
         }
       ],
       "kind": "minigame",
       "label": "initial_state",
-      "t": 0.500757575757576
+      "t": 0.502626
     },
     {
       "index": 0,
       "kind": "start_minigame",
       "started": true,
-      "t": 1.00141466666667
+      "t": 1.00270466666667
     },
     {
       "index": 0,
       "kind": "minigame_bot_force",
       "on": true,
-      "t": 1.00141466666667
+      "t": 1.00270466666667
     },
     {
       "games": [
@@ -70,12 +172,12 @@
           "index": 0,
           "pos": "(-2520.0, -1680.0)",
           "score": 0,
-          "timer": 14.4999183333333
+          "timer": 14.499725
         }
       ],
       "kind": "minigame",
       "label": "treasure_started",
-      "t": 1.50149633333333
+      "t": 1.50297966666666
     },
     {
       "games": [
@@ -85,13 +187,13 @@
           "id": "Treasure Dash",
           "index": 0,
           "pos": "(-2520.0, -1680.0)",
-          "score": 0,
-          "timer": 7.99208544444454
+          "score": 1,
+          "timer": 8.00060033333368
         }
       ],
       "kind": "minigame",
       "label": "treasure_mid",
-      "t": 8.00932922222231
+      "t": 8.0021043333335
     },
     {
       "games": [
@@ -101,31 +203,31 @@
           "id": "Treasure Dash",
           "index": 0,
           "pos": "(-2520.0, -1680.0)",
-          "score": 0,
-          "timer": -0.00497333333324799
+          "score": 25,
+          "timer": -0.000453666666503903
         }
       ],
       "kind": "minigame",
       "label": "treasure_late",
-      "t": 16.0063880000001
+      "t": 16.003158333333
     },
     {
       "index": 0,
       "kind": "minigame_bot_force",
       "on": false,
-      "t": 16.5037323333334
+      "t": 16.503158333333
     },
     {
       "index": 1,
       "kind": "minigame_bot_force",
       "on": true,
-      "t": 17.0068181818182
+      "t": 17.0028639999997
     },
     {
       "index": 1,
       "kind": "start_minigame",
       "started": true,
-      "t": 17.0068181818182
+      "t": 17.0028639999997
     },
     {
       "games": [
@@ -141,7 +243,7 @@
       ],
       "kind": "minigame",
       "label": "keg_started",
-      "t": 17.5034284848485
+      "t": 17.5028666666664
     },
     {
       "games": [
@@ -157,7 +259,7 @@
       ],
       "kind": "minigame",
       "label": "keg_mid",
-      "t": 25.0015073333331
+      "t": 25.0024906666663
     },
     {
       "games": [
@@ -173,25 +275,25 @@
       ],
       "kind": "minigame",
       "label": "keg_late",
-      "t": 31.5065439999996
+      "t": 31.5024906666659
     },
     {
       "index": 1,
       "kind": "minigame_bot_force",
       "on": false,
-      "t": 32.0012746666662
+      "t": 32.0024906666659
     },
     {
       "index": 2,
       "kind": "minigame_bot_force",
       "on": true,
-      "t": 32.5014339999995
+      "t": 32.5067323333326
     },
     {
       "index": 2,
       "kind": "start_minigame",
       "started": true,
-      "t": 32.5014339999995
+      "t": 32.5067323333326
     },
     {
       "games": [
@@ -202,12 +304,12 @@
           "index": 2,
           "pos": "(2520.0, -1680.0)",
           "score": 10,
-          "timer": 14.494353
+          "timer": 14.498755
         }
       ],
       "kind": "minigame",
       "label": "whack_started",
-      "t": 33.0070809999995
+      "t": 33.0079773333326
     },
     {
       "games": [
@@ -218,12 +320,12 @@
           "index": 2,
           "pos": "(2520.0, -1680.0)",
           "score": 220,
-          "timer": 5.49917366666671
+          "timer": 5.4996710000002
         }
       ],
       "kind": "minigame",
       "label": "whack_mid",
-      "t": 42.0022603333318
+      "t": 42.0070613333322
     },
     {
       "games": [
@@ -234,30 +336,30 @@
           "index": 2,
           "pos": "(2520.0, -1680.0)",
           "score": 520,
-          "timer": -0.00515299999993457
+          "timer": -0.000328999999860666
         }
       ],
       "kind": "minigame",
       "label": "whack_late",
-      "t": 47.506586999998
+      "t": 47.5070613333319
     },
     {
       "index": 2,
       "kind": "minigame_bot_force",
       "on": false,
-      "t": 48.0095238095218
+      "t": 48.0070613333318
     },
     {
       "index": 3,
       "kind": "minigame_bot_force",
       "on": true,
-      "t": 48.5039913333314
+      "t": 48.5080296666652
     },
     {
       "index": 3,
       "kind": "start_minigame",
       "started": true,
-      "t": 48.5039913333314
+      "t": 48.5080296666652
     },
     {
       "games": [
@@ -268,12 +370,12 @@
           "index": 3,
           "pos": "(2520.0, 1680.0)",
           "score": 0,
-          "timer": 14.5029907777778
+          "timer": 14.4996963333334
         }
       ],
       "kind": "minigame",
       "label": "rps_started",
-      "t": 49.0010005555536
+      "t": 49.0083333333318
     },
     {
       "games": [
@@ -284,12 +386,12 @@
           "index": 3,
           "pos": "(2520.0, 1680.0)",
           "score": 0,
-          "timer": 12.5793198888889
+          "timer": 8.96036400000022
         }
       ],
       "kind": "minigame",
       "label": "rps_mid",
-      "t": 58.0043063333318
+      "t": 58.0058606666651
     },
     {
       "games": [
@@ -300,18 +402,18 @@
           "index": 3,
           "pos": "(2520.0, 1680.0)",
           "score": 0,
-          "timer": 12.5793198888889
+          "timer": 8.96036400000022
         }
       ],
       "kind": "minigame",
       "label": "rps_late",
-      "t": 63.5040776666653
+      "t": 63.5056406666653
     },
     {
       "index": 3,
       "kind": "minigame_bot_force",
       "on": false,
-      "t": 64.0035675925914
+      "t": 64.0056206666653
     },
     {
       "games": [
@@ -321,8 +423,8 @@
           "id": "Treasure Dash",
           "index": 0,
           "pos": "(-2520.0, -1680.0)",
-          "score": 0,
-          "timer": -0.00497333333324799
+          "score": 25,
+          "timer": -0.000453666666503903
         },
         {
           "active": false,
@@ -340,7 +442,7 @@
           "index": 2,
           "pos": "(2520.0, -1680.0)",
           "score": 520,
-          "timer": -0.00515299999993457
+          "timer": -0.000328999999860666
         },
         {
           "active": false,
@@ -349,17 +451,125 @@
           "index": 3,
           "pos": "(2520.0, 1680.0)",
           "score": 0,
-          "timer": 12.5793198888889
+          "timer": 8.96036400000022
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Gem Relay",
+          "index": 5,
+          "pos": "(-1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss Pro",
+          "index": 6,
+          "pos": "(1890.0, 1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack Rush",
+          "index": 7,
+          "pos": "(2310.0, -980.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Tag",
+          "index": 8,
+          "pos": "(-2310.0, 700.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Treasure Dash 2",
+          "index": 9,
+          "pos": "(1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Ring Roll",
+          "index": 10,
+          "pos": "(-1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Pinball",
+          "index": 11,
+          "pos": "(1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Balloon Pop",
+          "index": 12,
+          "pos": "(0.0, 1820.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Slime Splat",
+          "index": 13,
+          "pos": "(-1890.0, -1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crystal Catch",
+          "index": 14,
+          "pos": "(2100.0, 840.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crate Stack",
+          "index": 15,
+          "pos": "(-2100.0, 980.0)",
+          "score": 0,
+          "timer": 15.0
         }
       ],
       "kind": "minigame",
       "label": "all_final",
-      "t": 65.0021556666654
+      "t": 65.0054693333326
     }
   ],
-  "elapsed": 66.0091006666653,
+  "elapsed": 66.0054693333334,
   "enemies_spawned": 0,
-  "hero_position": "(2255.875, 1544.082)",
+  "hero_position": "(2247.125, 1543.535)",
   "player_class": "tobor",
   "results": {
     "alive": true,
@@ -369,22 +579,22 @@
     "casts": [
       {
         "ability_id": "tobor_energy_field",
-        "t": 7.5115408181819
-      },
-      {
-        "ability_id": "tobor_steam_keg",
-        "t": 8.06357164646473
+        "t": 7.51613266666682
       },
       {
         "ability_id": "tobor_spider_mines",
-        "t": 8.84545454545463
+        "t": 8.04377100000017
       },
       {
         "ability_id": "tobor_steam_turret",
-        "t": 8.97260066666675
+        "t": 8.04377100000017
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 8.33543766666682
       }
     ],
-    "creep_kills": 10,
+    "creep_kills": 14,
     "died": false,
     "errors": [],
     "ffa": {
@@ -400,47 +610,47 @@
           "local": true,
           "peer": 1,
           "pos": [
-            2256.0,
+            2247.0,
             1544.0
           ],
           "team": ""
         },
         {
           "alive": true,
-          "class": "pyra",
+          "class": "arclight",
           "cpu": true,
-          "kills": 0,
+          "kills": 1,
           "local": false,
           "peer": 101,
           "pos": [
-            3108.0,
-            -1808.0
+            490.0,
+            -219.0
           ],
           "team": "1"
         },
         {
-          "alive": true,
-          "class": "slag",
+          "alive": false,
+          "class": "bulwark",
           "cpu": true,
-          "kills": 0,
+          "kills": 2,
           "local": false,
           "peer": 102,
           "pos": [
-            -108.0,
-            156.0
+            283.0,
+            193.0
           ],
           "team": "2"
         },
         {
           "alive": true,
-          "class": "ember",
+          "class": "warden",
           "cpu": true,
-          "kills": 2,
+          "kills": 0,
           "local": false,
           "peer": 103,
           "pos": [
-            -278.0,
-            -703.0
+            2756.0,
+            1632.0
           ],
           "team": "3"
         }
@@ -451,7 +661,7 @@
         5600.0
       ]
     },
-    "gold": 436,
+    "gold": 587,
     "hero_kills": 0,
     "hp_samples": [
       {
@@ -473,7 +683,7 @@
       {
         "alive": true,
         "class": "tobor",
-        "gold": 46,
+        "gold": 78,
         "hp": 1.0,
         "kills": 0,
         "t": 10.15
@@ -481,7 +691,7 @@
       {
         "alive": true,
         "class": "tobor",
-        "gold": 124,
+        "gold": 105,
         "hp": 1.0,
         "kills": 0,
         "t": 15.16
@@ -489,43 +699,46 @@
       {
         "alive": true,
         "class": "tobor",
-        "gold": 173,
-        "hp": 0.93,
+        "gold": 441,
+        "hp": 0.91,
         "kills": 0,
-        "t": 32.04
+        "t": 32.03
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 226,
+        "gold": 495,
+        "hp": 0.85,
+        "kills": 0,
+        "t": 48.04
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 585,
         "hp": 0.78,
         "kills": 0,
-        "t": 48.06
-      },
-      {
-        "alive": true,
-        "class": "tobor",
-        "gold": 405,
-        "hp": 0.71,
-        "kills": 0,
-        "t": 64.05
+        "t": 64.03
       }
     ],
-    "landmark_saves": 1,
-    "level": 4,
+    "landmark_saves": 0,
+    "level": 5,
     "level_upgrades": {
       "2": [
-        "push_drone"
+        "blast"
       ],
       "3": [
-        "gold_vein"
+        "aftershock"
       ],
       "4": [
+        "keen_eye"
+      ],
+      "5": [
         "gun_drone"
       ]
     },
     "max_hp": 1.0,
-    "min_hp": 0.237299310344828,
+    "min_hp": 0.78447724137931,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 0,
@@ -533,55 +746,56 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "push_drone",
-      "gold_vein",
+      "blast",
+      "aftershock",
+      "keen_eye",
       "gun_drone"
     ],
     "until_wave": 20,
     "verdict": "PASS_OK",
-    "wave": 2,
-    "xp": 114
+    "wave": 3,
+    "xp": 150
   },
   "shots": [
     {
       "label": "treasure_active",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7928/treasure_active_5.002_7928.png",
-      "t": 5.00150833333336
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7982/treasure_active_5.007_7982.png",
+      "t": 5.00667800000004
     },
     {
       "label": "treasure_late",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_19428/treasure_late_16.504_19427.png",
-      "t": 16.5037323333334
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_19465/treasure_late_16.503_19465.png",
+      "t": 16.503158333333
     },
     {
       "label": "keg_active",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_23936/keg_active_21.007_23936.png",
-      "t": 21.0070076666665
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_23965/keg_active_21.003_23965.png",
+      "t": 21.0027266666665
     },
     {
       "label": "keg_late",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_34919/keg_late_32.001_34919.png",
-      "t": 32.0012746666662
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_34956/keg_late_32.002_34956.png",
+      "t": 32.0024906666659
     },
     {
       "label": "whack_active",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_39919/whack_active_37.004_39919.png",
-      "t": 37.0037878787868
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_39973/whack_active_37.008_39973.png",
+      "t": 37.0083333333324
     },
     {
       "label": "whack_late",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_50920/whack_late_48.010_50920.png",
-      "t": 48.0095238095218
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_50956/whack_late_48.007_50956.png",
+      "t": 48.0070613333318
     },
     {
       "label": "rps_active",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_55929/rps_active_53.008_55929.png",
-      "t": 53.008123666665
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_55965/rps_active_53.006_55965.png",
+      "t": 53.0059846666649
     },
     {
       "label": "rps_late",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_66916/rps_late_64.004_66916.png",
-      "t": 64.0035675925914
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_66956/rps_late_64.006_66956.png",
+      "t": 64.0056206666653
     }
   ]
 }

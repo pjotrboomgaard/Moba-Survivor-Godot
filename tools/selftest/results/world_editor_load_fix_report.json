@@ -89,7 +89,7 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 1.006947,
+      "t": 1.00721066666667,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -107,7 +107,7 @@
       "xp": 0
     }
   ],
-  "elapsed": 2.00314566666666,
+  "elapsed": 2.00833233333333,
   "enemies_spawned": 0,
   "hero_position": "(72.0, 0.0)",
   "player_class": "tobor",
@@ -144,13 +144,13 @@
   "shots": [
     {
       "label": "boot_early",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3669/boot_early_0.507_3669.png",
-      "t": 0.506559666666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3478/boot_early_0.507_3478.png",
+      "t": 0.506900666666667
     },
     {
       "label": "boot_late",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4678/boot_late_1.507_4677.png",
-      "t": 1.507086
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4478/boot_late_1.507_4478.png",
+      "t": 1.507359
     }
   ]
 }

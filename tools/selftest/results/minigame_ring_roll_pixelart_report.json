@@ -1,0 +1,13 @@
+{
+  "elapsed": 45.0144216666685,
+  "hero": "arclight",
+  "hero_hp": 98.0,
+  "hero_position": "(105.4658, 101.2047)",
+  "min_hp": 98.0,
+  "minigame_index": 10,
+  "reason": "FINISHED",
+  "score": 96,
+  "screenshot": "user://minigame_test_10.png",
+  "timer": -0.0060886666679811,
+  "verdict": "PASS_OK"
+}

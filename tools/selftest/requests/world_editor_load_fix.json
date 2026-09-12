@@ -1,0 +1,9 @@
+{
+  "hero": "tobor",
+  "biome": 0,
+  "comment": "Verify the world-editor load fix: with no saved map on disk, entering the editor and loading the default map must fall back to live arena props instead of 'map not found'. Snap after boot to confirm the editor rendered props.",
+  "events": [
+    {"t": 0.5, "kind": "snap", "label": "editor_boot"},
+    {"t": 1.5, "kind": "probe", "label": "editor_probe"}
+  ]
+}
