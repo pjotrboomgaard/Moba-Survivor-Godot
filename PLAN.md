@@ -372,6 +372,17 @@ or other creeps after a minigame is done.
 ### T3.12 Use new sprites to build 4 areas on an empty map
 **User direction (2026-09-11):** After building all the isometric sprites, use
 them to populate the 4 recruitment areas on an otherwise empty map (the isolated
+
+- [x] **VERIFIED 2026-09-12:** `area_preview_test.json` isolated scene renders all 4
+      themed areas (Lagoon, Forest, Mountain, Town) with 8 sprites each (32 total)
+      — palm huts, fruit trees, treehouses, totems, ice huts, igloos, lookout
+      towers, and town houses/church/well + creatures. Screenshot
+      `area_preview_full.png` confirms all 4 areas read as distinct themed zones
+      with the new isometric pixel-art sprite sets.
+- [x] P2.1b: New town sprites (`town_house2`, `town_house3`, `town_cottage`) added to
+      world editor `OBSTACLE_SPEC` + `RECRUIT_AREA_SPRITES` + `ASSET_LABELS` so all
+      4 areas' architecture is selectable in the world editor.
+
 test scene). Each area should show its house + props + 3 creature variants, all
 using the new isometric art.
 
