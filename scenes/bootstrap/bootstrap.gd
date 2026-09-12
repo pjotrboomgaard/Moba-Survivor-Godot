@@ -1415,8 +1415,10 @@ func _show_rmb_hover(hero_id: String) -> void:
 	# so show a full card: name, what it does, whether it's charged, and its cooldown.
 	if ability_hero_header != null:
 		ability_hero_header.text = ("RMB  ·  " + sec_name).to_upper()
+	# RMB description in the panel body (not a gray native tooltip at the cursor).
 	if ability_hover_body != null:
-		ability_hover_body.visible = false
+		ability_hover_body.visible = true
+		ability_hover_body.text = _rmb_description(hero_id, sec_name, sec_desc, sec_charge)
 	# Rendered preview: the hero bot performs its RMB secondary on the standing creeps.
 	if ability_preview != null:
 		ability_preview.visible = true
@@ -1424,6 +1426,16 @@ func _show_rmb_hover(hero_id: String) -> void:
 		ability_preview_world.reload(hero_id, -2)
 	ability_panel.visible = true
 	_raise_ability_hover()
+
+
+## RMB secondary description + stats, rendered in the panel body.
+func _rmb_description(hero_id: String, sec_name: String, sec_desc: String, sec_charge: bool) -> String:
+	var body := "[color=#f4f0e6]%s[/color]" % sec_desc
+	body += "\n\n[color=#9fb3d1]Charged: %s   Cooldown: ~%.0fs[/color]" % [
+		"yes (hold to build)" if sec_charge else "no",
+		float(PlayerClass.SECONDARY_COOLDOWN),
+	]
+	return body
 
 
 func _lmb_tooltip(hero_id: String) -> String:
@@ -1563,14 +1575,29 @@ func _show_lmb_hover(hero_id: String) -> void:
 		var lmb_icon := SpriteLibrary.texture_for("spark")
 		ability_hover_icon.texture = lmb_icon if lmb_icon != null else SpriteLibrary.texture_for(hero_id)
 		ability_hover_icon.visible = true
+	# LMB description in the panel body (not a gray native tooltip at the cursor).
 	if ability_hover_body != null:
-		ability_hover_body.visible = false
+		ability_hover_body.visible = true
+		ability_hover_body.text = _lmb_description(hero_id)
 	# Rendered preview: the hero bot performs its LMB primary on the standing creeps.
 	if ability_preview != null:
 		ability_preview.visible = true
 	if ability_preview_world != null:
 		ability_preview_world.reload(hero_id, -1)
 	ability_panel.visible = true
+
+
+## LMB primary-attack description + stats, rendered in the panel body.
+func _lmb_description(hero_id: String) -> String:
+	var hero_data := PlayerClass.by_id(hero_id)
+	var weapon_name := str(hero_data.get("weapon_name", "Primary Attack"))
+	var dmg := int(hero_data.get("weapon_damage", 0))
+	var cd := float(hero_data.get("attack_interval", 0.0))
+	var rng := int(hero_data.get("attack_range", 0))
+	var desc := "Deals [b]%d[/b] damage every [b]%.1f[/b]s" % [dmg, cd]
+	if rng > 150:
+		desc += " at [b]%d[/b] range" % rng
+	return "[color=#f4f0e6]%s[/color]" % desc
 
 
 func _show_ability_hover(ability_id: String) -> void:
@@ -1582,8 +1609,12 @@ func _show_ability_hover(ability_id: String) -> void:
 	if ability_hover_icon != null:
 		ability_hover_icon.texture = SpriteLibrary.texture_for(ability_id)
 		ability_hover_icon.visible = true
+	# Show the ability description in the panel body (NOT a native gray tooltip
+	# that follows the mouse). The header carries name+tag, the body carries the
+	# full substituted description + stat line.
 	if ability_hover_body != null:
-		ability_hover_body.visible = false
+		ability_hover_body.visible = true
+		ability_hover_body.text = _ability_tooltip_body(ability_id)
 	# Rendered preview: drive the hero bot to cast this ability on the standing creeps.
 	if ability_preview != null:
 		ability_preview.visible = true
@@ -1591,6 +1622,34 @@ func _show_ability_hover(ability_id: String) -> void:
 		var slot := _ability_slot_index_for(PlayerProfile.selected_class_id, ability_id)
 		ability_preview_world.reload(PlayerProfile.selected_class_id, slot)
 	ability_panel.visible = true
+
+
+## Full substituted description + stats block for the panel body (used by the
+## ability hover, NOT the native tooltip which would create a gray box at the
+## mouse position).
+func _ability_tooltip_body(ability_id: String) -> String:
+	var info: Dictionary = PlayerClass.ABILITIES.get(ability_id, {})
+	if info.is_empty():
+		return ability_id
+	var values := PlayerClass.ability_values(ability_id, 1)
+	var stats: Array[String] = []
+	if values.has("cooldown"):
+		stats.append("CD %.0fs" % float(values.cooldown))
+	if values.has("power") and float(values.power) > 0.0:
+		stats.append("PWR %d" % int(values.power))
+	if values.has("range") and float(values.range) > 0.0:
+		stats.append("RNG %d" % int(values.range))
+	if values.has("radius") and float(values.radius) > 0.0:
+		stats.append("AoE %d" % int(values.radius))
+	if values.has("dash_distance") and float(values.dash_distance) > 0.0:
+		stats.append("Dash %d" % int(values.dash_distance))
+	if values.has("duration") and float(values.duration) > 0.0:
+		stats.append("%.1fs up" % float(values.duration))
+	var desc := _substitute_placeholders(str(info.get("description", "")), ability_id, info)
+	var lines: Array[String] = ["[color=#f4f0e6]%s[/color]" % desc]
+	if not stats.is_empty():
+		lines.append("[color=9fb3d1]%s[/color]" % "  |  ".join(stats))
+	return "\n".join(lines)
 
 
 func _hide_ability_hover() -> void:
