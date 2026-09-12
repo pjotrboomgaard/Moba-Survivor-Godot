@@ -3312,7 +3312,10 @@ func _ignite_trees_in_radius(center: Vector2, radius: float) -> int:
 	for o in obstacles:
 		if not is_instance_valid(o):
 			continue
-		var sprite_id: String = str(o.get("sprite_id", ""))
+		# Obstacle extends StaticBody2D; read sprite_id directly (Object.get only
+		# takes one arg — the 2-arg Dictionary.get form is not valid here).
+		var sid: Variant = o.get("sprite_id")
+		var sprite_id: String = str(sid if sid != null else "")
 		if not sprite_id.begins_with("tree"):
 			continue
 		var opos: Vector2 = o.global_position
