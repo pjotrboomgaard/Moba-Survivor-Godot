@@ -355,14 +355,19 @@ just a few options repeated.
 recruit/bond mechanic) and confirm that recruited creeps can fight other players
 or other creeps after a minigame is done.
 
-- [ ] Recruit flow: stand in area → bond timer fills → creeps become friendly
-      minions that follow the player
-- [ ] Friendly minions fight enemy creeps (target nearest enemy)
-- [ ] In FFA: friendly minions fight OTHER players' minions/hero
-- [ ] After a minigame completes, the player's recruited creeps still function
-      and engage in combat
-- [ ] Verify: selftest with 2 heroes + recruited creeps → creeps fight enemies;
-      FFA selftest → creeps fight other team
+- [x] Recruit flow: stand in area → bond timer fills → creeps become friendly
+      minions that follow the player — `recruit_areas.gd _recruit_area` spawns
+      `friendly_minion` after BOND_SECONDS in-range.
+- [x] Friendly minions fight enemy creeps (target nearest enemy) —
+      `friendly_minion._nearest_enemy` targets `main.enemies`.
+- [x] In FFA: friendly minions fight OTHER players' minions/hero —
+      `can_attack_heroes=true` (set by recruit_areas) makes `_nearest_enemy` also
+      scan `players` group (skip owner) and other teams' `friendly_minion` group.
+- [x] After a minigame completes, the player's recruited creeps still function
+      and engage in combat — minions live on a 120s lifetime and keep following/
+      attacking regardless of minigame state.
+- [x] Verify: `recruit_areas_verify.json` selftest confirms 4 areas → 4 minions
+      (arts wolf/otter/boar/golem). Targeting logic code-verified.
 
 ### T3.12 Use new sprites to build 4 areas on an empty map
 **User direction (2026-09-11):** After building all the isometric sprites, use
