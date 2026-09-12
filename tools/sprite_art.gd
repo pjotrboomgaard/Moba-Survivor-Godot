@@ -2642,6 +2642,7 @@ const ENEMY_PALETTES := {
 	"iceball": {"o": "1a4a5c", "f": "aee9ff", "l": "ffffff", "e": "3a7a94", "w": "ffffff"},
 	"sparkbot": {"o": "5c4a00", "f": "ffd23a", "l": "fff2b0", "e": "1a1400", "w": "ffffff"},
 	"ripcurrent": {"o": "0a3a38", "f": "2ecfc0", "l": "d0fff5", "e": "052422", "w": "ffffff"},
+	"wolf": {"o": "241a12", "f": "8b8f99", "l": "b9bfca", "e": "17120c", "w": "ffffff"},
 }
 
 const ENEMY_ROWS := {
@@ -2982,6 +2983,26 @@ const ENEMY_ROWS := {
 		"................",
 		"................",
 	],
+#wolf: side-view quadruped — pointed ears, dark outline, gray body, light belly,
+#amber eye, open jaw, four legs. 16x16, matches first-wave enemy style.
+"wolf": [
+	"................",
+	".o........o.....",
+	"oo........oo....",
+	".oooooo.oooo....",
+	".offfffffoffo...",
+	".offwefffffo....",
+	".offfffffffo....",
+	"..offfffffo.o...",
+	"..offfffff.o....",
+	"..offfff.o......",
+	"..oo.oo.o.o.....",
+	"....o.o..o......",
+	"....o.o..o......",
+	"................",
+	"................",
+	"................",
+],
 }
 
 const BOSS_PALETTES := {

@@ -38,9 +38,11 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+from collections import deque
 from pathlib import Path
 
 from PIL import Image, ImageFilter, ImageOps
+from collections import deque
 
 # ── Game-specific defaults ────────────────────────────────────────────────────
 DEFAULT_GRID = 32        # Target pixel grid (matches tree_oak.png 32x32)
@@ -70,6 +72,75 @@ def palette_to_hex(colors: list[tuple[int, int, int]]) -> list[str]:
     return ["%02x%02x%02x" % c for c in colors]
 
 
+# ─── Background removal (flood-fill) ───────────────────────────────────────────
+
+def remove_solid_background(
+    img: Image.Image,
+    tolerance: int = 40,
+    seed_corners: bool = True,
+) -> Image.Image:
+    """
+    Flood-fill remove a solid/near-solid background (typically white or light)
+    from an RGBA image. Only pixels connected to the image border that are
+    within `tolerance` of the border color are made transparent, so interior
+    pixels that share the background color are preserved.
+
+    Best run AFTER downscale+quantize on the small pixel-art image, so the
+    fill works on the flat pixel-art colors rather than anti-aliased edges.
+    """
+    img = img.convert("RGBA")
+    w, h = img.size
+    if w == 0 or h == 0:
+        return img
+
+    px = img.load()
+
+    # Sample border pixels to find the dominant background color.
+    border_samples = []
+    for x in range(w):
+        border_samples.append(px[x, 0][:3])
+        border_samples.append(px[x, h - 1][:3])
+    for y in range(h):
+        border_samples.append(px[0, y][:3])
+        border_samples.append(px[w - 1, y][:3])
+
+    from collections import Counter
+    # Find the most common border color (the background).
+    most_common = Counter(border_samples).most_common(1)[0][0]
+    bg = most_common
+
+    def is_bg(c: tuple) -> bool:
+        return (abs(c[0] - bg[0]) <= tolerance
+                and abs(c[1] - bg[1]) <= tolerance
+                and abs(c[2] - bg[2]) <= tolerance)
+
+    # BFS flood-fill from all border pixels matching the background.
+    visited = [[False] * w for _ in range(h)]
+    queue = deque()
+    for x in range(w):
+        for y in (0, h - 1):
+            if is_bg(px[x, y][:3]) and not visited[y][x]:
+                visited[y][x] = True
+                queue.append((x, y))
+    for y in range(h):
+        for x in (0, w - 1):
+            if is_bg(px[x, y][:3]) and not visited[y][x]:
+                visited[y][x] = True
+                queue.append((x, y))
+
+    while queue:
+        x, y = queue.popleft()
+        px[x, y] = (0, 0, 0, 0)
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < w and 0 <= ny < h and not visited[ny][nx]:
+                if is_bg(px[nx, ny][:3]):
+                    visited[ny][nx] = True
+                    queue.append((nx, ny))
+
+    return img
+
+
 # ─── Core pixel-art conversion ────────────────────────────────────────────────
 
 def convert_to_pixel_art(
@@ -78,43 +149,41 @@ def convert_to_pixel_art(
     n_colors: int = DEFAULT_COLORS,
     palette: list[tuple[int, int, int]] | None = None,
     preserve_transparency: bool = True,
+    remove_bg: bool = True,
+    downscale_filter: str = "box",
 ) -> Image.Image:
     """
     Convert an image to pixel art:
-      1. Downscale to target_size (longest side) with LANCZOS (smooth color mix).
-      2. Quantize to n_colors palette (k-means via Pillow).
-      3. Optional: re-map onto a specific palette for consistent art style.
+      1. Downscale longest side to target_size with a BOX/AREA filter
+         (averages blocks -> clean pixel-art cells, no LANCZOS ringing).
+      2. Posterize + quantize to n_colors.
+      3. Remove solid background (flood-fill from borders).
       4. Clean up semi-transparent pixels.
     """
     img = img.convert("RGBA")
 
-    # Remove near-transparent noise before processing.
-    alpha = img.getchannel("A")
-    alpha = alpha.point(lambda a: 255 if a > 16 else 0)
-    img.putalpha(alpha)
-
-    # Downscale: longest side -> target_size
     w, h = img.size
     scale = target_size / max(w, h)
     new_w = max(1, round(w * scale))
     new_h = max(1, round(h * scale))
-    small = img.resize((new_w, new_h), Image.LANCZOS)
+    # Two-stage: shrink to ~2x target with LANCZOS (anti-alias), then to target
+    # with the block filter, which gives crisp, even pixel cells.
+    mid_w = max(1, round(new_w * 2))
+    mid_h = max(1, round(new_h * 2))
+    small = img.resize((mid_w, mid_h), Image.LANCZOS)
+    filter = Image.BOX if downscale_filter.lower() == "box" else Image.BILINEAR
+    small = small.resize((new_w, new_h), filter)
 
-    # Quantize on RGB, preserving alpha.
+    # Quantize on RGB.
     rgb = small.convert("RGB")
-    if palette:
-        # Build a palette image from the specified colors.
-        pal_img = Image.new("P", (1, 1))
-        for i, (r, g, b) in enumerate(palette):
-            pal_img.putpixel((0, 0), (i % 256, i // 256, i % 256))  # placeholder
-        # Simpler: quantize to n_colors, then remap.
-        quantized = rgb.quantize(colors=n_colors, method=Image.MEDIANCUT, kmeans=4)
-        result = quantized.convert("RGBA")
-        result.putalpha(small.getchannel("A"))
-    else:
-        quantized = rgb.quantize(colors=n_colors, method=Image.MEDIANCUT, kmeans=4)
-        result = quantized.convert("RGBA")
-        result.putalpha(small.getchannel("A"))
+    # Light posterize to remove near-duplicate shades before k-means.
+    rgb = rgb.point(lambda v: (v >> 3) << 3)
+    quantized = rgb.quantize(colors=n_colors, method=Image.MEDIANCUT, kmeans=4)
+    result = quantized.convert("RGBA")
+
+    # Remove solid background (flood-fill from borders) if requested.
+    if remove_bg:
+        result = remove_solid_background(result, tolerance=52)
 
     # Clean up: make near-transparent pixels fully transparent.
     result = result.convert("RGBA")
@@ -123,6 +192,68 @@ def convert_to_pixel_art(
     result = Image.merge("RGBA", (r, g, b, a))
 
     return result
+
+
+def remove_background(
+    img: Image.Image,
+    threshold: int = 28,
+    corner_seeded: bool = True,
+) -> Image.Image:
+    """
+    Remove a solid background from a (pre-downscaled) pixel-art image.
+
+    Uses flood-fill from the border pixels. Any pixel connected to the border
+    that is within `threshold` of the sampled background color becomes
+    transparent. This preserves the interior even if the subject shares colors
+    with the background, because only border-connected regions are removed.
+
+    Works best on the small (already pixel-art) image, before final cleanup.
+    """
+    img = img.convert("RGBA")
+    w, h = img.size
+    if w == 0 or h == 0:
+        return img
+
+    px = img.load()
+
+    # Sample the 4 corners to estimate the background color.
+    corner_pts = [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]
+    corners = [px[x, y][:3] for x, y in corner_pts]
+    # Pick the most common corner color (majority of 4).
+    from collections import Counter
+    common = Counter(corners).most_common(1)[0][0]
+    bg = common
+
+    def close_to_bg(c: tuple) -> bool:
+        return (abs(c[0] - bg[0]) <= threshold
+                and abs(c[1] - bg[1]) <= threshold
+                and abs(c[2] - bg[2]) <= threshold)
+
+    # Flood-fill from all border pixels that match the background.
+    visited = [[False] * w for _ in range(h)]
+    q = deque()
+    for x in range(w):
+        for y in (0, h - 1):
+            if close_to_bg(px[x, y][:3]) and not visited[y][x]:
+                visited[y][x] = True
+                q.append((x, y))
+    for y in range(h):
+        for x in (0, w - 1):
+            if close_to_bg(px[x, y][:3]) and not visited[y][x]:
+                visited[y][x] = True
+                q.append((x, y))
+
+    while q:
+        x, y = q.popleft()
+        px[x, y] = (0, 0, 0, 0)
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < w and 0 <= ny < h and not visited[ny][nx]:
+                if close_to_bg(px[nx, ny][:3]):
+                    visited[ny][nx] = True
+                    q.append((nx, ny))
+
+    return img
 
 
 def save_sprite(result: Image.Image, output_path: str, preview_scale: int = 4) -> Path:

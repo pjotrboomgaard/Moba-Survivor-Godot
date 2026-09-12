@@ -1,0 +1,8 @@
+{
+  "hero": "tobor",
+  "biome": 0,
+  "comment": "Isolated forged-wolf check: render wolf.png (sprite_forge hand-authored grid) side by side with first-wave enemies grunt/swarmling/spitter/brute at in-game scale to confirm style match.",
+  "events": [
+    {"t": 0.5, "kind": "probe", "label": "start"}
+  ]
+}

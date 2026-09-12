@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/wolf_forged_test.gd" id="1_test"]
+
+[node name="WolfForgedTest" type="Node2D"]
+script = ExtResource("1_test")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(3.0, 3.0)
+position_smoothing_enabled = false

@@ -1,0 +1,19 @@
+{
+  "enemy_ids": [
+    "grunt",
+    "swarmling",
+    "spitter",
+    "brute",
+    "wolf"
+  ],
+  "scale": 5.0,
+  "scene": "wolf_forged_test",
+  "shot": "user://wolf_forged_test.png",
+  "verdict": "PASS",
+  "wolf_png_exists": true,
+  "wolf_texture_loaded": true,
+  "wolf_texture_size": [
+    16,
+    16
+  ]
+}
