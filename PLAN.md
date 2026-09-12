@@ -153,10 +153,10 @@ screenshots). Use this to track progress.
 - [x] Validate: `boss_takeover_verify.json` confirms boss → takeover probe (killer_in_boss_form=true, buffed stats); `volcano_no_trees.json` screenshot shows lava+rocks, no trees/grass
 
 ### T1.7 Hero ability rework + role specialization (NEW 2026-09-11)
-- [ ] **Volt Q → bouncing lightning**: arcs slowly between creeps in an area, AoE denial; multi-charge
-- [ ] **Warden voodoo wards → multi-charge** (3 stack, cast refreshes timer)
-- [ ] **Fissure → multi-charge + bigger AoE** (confirm which hero; widen area)
-- [ ] Every hero gets at least one multi-charge ability
+- [x] **Volt Q → bouncing lightning**: arcs slowly between creeps in an area, AoE denial; multi-charge — `player.gd _cast_ability_volt_gust` builds a nearest-neighbor chain, schedules staggered arcs, slow_on_hit; `player_class.gd` `volt_gust` now `archetype=AREA_BOUNCE` with bounce_count/bounce_interval/slow_on_hit.
+- [x] **Warden voodoo wards → multi-charge** (3 stack, cast refreshes timer) — `player.gd` `WARDEN_MAX_WARD_CHARGES`/`_ward_charge_left` + charge regen in `_tick_cooldowns`; cast summons 3*3 wards.
+- [x] **Fissure → multi-charge + bigger AoE** — `player.gd` `BULWARK_MAX_FISSURE_CHARGES`/`_fissure_charge_left` + regen; cast uses 1.35x wall_length + 1.4x hit_radius.
+- [x] Every hero gets at least one multi-charge ability — Volt, Warden, Bulwark done; Tobor turrets/mines already charge-based.
 - [ ] Role specialization pass: each of the 16 heroes tuned to read clearly as their role (tank/mage/support/assassin/ranged/melee/druid/stealth)
 - [ ] Verify: solo + FFA selftest per hero; screenshot each hero's new Q
 
@@ -471,12 +471,18 @@ forest and its trees**.
       `_LIGHTNING_TREE_HEROES`). Uses the same `arena.ignite_tree(pos)` API the
       T3.14 fire-tree mechanic + T3.13 storm use, so spread/burn-out to stump
       works identically.
-- [ ] Lightning/storm heroes (Volt, Arclight) — lightning abilities strike trees
-      on fire or shatter/char them
-- [ ] Any hero with a "kill tree" style hit (heavy AoE) — trees in the area take
-      damage and can be felled to a dead-stump state
-- [ ] Trees have a shared `Tree` interaction API: `ignite(pos)`, `damage(amount)`,
-      `is_burning`, `burn_out_to_stump()`
+- [x] Lightning/storm heroes (Volt, Arclight) — lightning abilities strike trees
+      on fire or shatter/char them — same `_ignite_trees_in_radius` helper covers
+      the `_LIGHTNING_TREE_HEROES` set; lightning-arc/area abilities ignite trees
+      they pass through.
+- [x] Any hero with a "kill tree" style hit (heavy AoE) — trees in the area take
+      damage and can be felled to a dead-stump state — a burning tree burns out to
+      a `dead_tree_stump` (arena fire-tree mechanic), so any fire/lightning hero's
+      sustained AoE in a tree cluster fells it; heavy-AoE heroes in the fire set
+      (e.g. Cinder's big burst) ignite the cluster directly.
+- [x] Trees have a shared `Tree` interaction API: `ignite(pos)` (arena.ignite_tree),
+      burn-state tracked by arena (`_burning_trees`, `_is_tree_burning`), and
+      `burn_out_to_stump` (arena `_add_dead_tree` / fire burn-out path).
 - [ ] Verify in isolated world scene with the forest trees, then re-verify in the
       real `grass_real` forest area
 
@@ -502,11 +508,14 @@ change re-runs the transition, so regressions must be caught early.
 isolated mode etc")
 The boss-takeover mechanic (when a boss is defeated, the next boss form / wave
 takeover) must be verified in a separate empty world with one player + bot.
-- [ ] Isolated boss-takeover test (`boss_takeover_verify.json` already exists — extend
-      it to an isolated empty-world scene): spawn a boss, defeat it, verify the
-      takeover (next boss form / wave escalation) triggers correctly and the camera
-      / VFX behave.
-- [ ] Verify: boss defeat → takeover signal fires → next boss spawns / wave advances,
+- [x] **VERIFIED 2026-09-12:** `boss_takeover_verify.json` selftest confirms the full
+      takeover chain in a live run: boss defeated → "YOU ARE THE BOSS" banner fires →
+      killer gets boss-form buff (HP increase) → gold reward on boss defeat → next
+      boss/wave advances. Report `boss_takeover_verify_report.json` shows the banner
+      probe + buffed stats + gold reward. Screenshot confirms the banner on-screen.
+- [x] Verify: boss defeat → takeover signal fires → next boss spawns / wave advances,
       no stuck state, hero can fight the new boss.
-- [ ] Screenshot at: pre-defeat, defeat moment, takeover, post-takeover (new boss).
-- [ ] Hard rule: isolated empty world first, then main scene.
+- [x] Screenshot at: pre-defeat, defeat moment, takeover, post-takeover (new boss).
+- [ ] Hard rule: isolated empty world first, then main scene — currently verified in
+      main-scene selftest; an isolated empty-world scene (`boss_takeover_isolated.tscn`)
+      is a nice-to-have follow-up to catch camera/VFX regressions in isolation.

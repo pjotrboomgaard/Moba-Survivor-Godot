@@ -2574,6 +2574,8 @@ func _cast_ability_volt_gust(data: Dictionary, values: Dictionary, _rank: int) -
 	# Emit the cast VFX + SFX now so the player sees the ability land.
 	_emit_ability_cast(PackedVector2Array([center, Vector2(gust_radius, 0.0)]))
 	_spawn_ability_zone_pulse(center, gust_radius, bounce_interval * chain.size() + 0.3)
+	# Hero↔tree: lightning heroes strike trees within the gust area, igniting them.
+	_ignite_trees_in_radius(center, gust_radius)
 	# Schedule each bounce. Each bounce: damage + slow the target, and draw a
 	# lightning arc from the previous position to this one. `self` is implicit
 	# in lambdas so no extra capture is needed.
