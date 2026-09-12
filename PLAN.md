@@ -466,6 +466,37 @@ empty map FIRST, then full map (per new hard rule).
 - [ ] Verify: screenshot shows a burning tree, a spreading fire to neighbor, and a
       charred dead tree after burn-out
 
+### T3.15 Recruit/minigame creep-follow + combat isolated test — NEW 2026-09-12
+**User direction (2026-09-12):** Test in an ISOLATED environment that (a) a
+minigame is won, (b) creeps are won over, and (c) the recruited creeps FOLLOW
+the player and FIGHT nearby enemies after the minigame is done.
+
+- [ ] Isolated empty-world scene: hero + a recruit area + a minigame target + 3
+      enemy creeps at range
+- [ ] Minigame completes (bot drives it) → recruited creeps spawn as friendly
+      minions
+- [ ] Friendly minions follow the hero (track `hero.global_position` within leash)
+- [ ] When 2+ enemy creeps approach, the recruited minions engage and kill them
+- [ ] Screenshot at each phase: (1) minigame in progress, (2) creeps recruited +
+      following, (3) minions fighting nearby enemies
+- [ ] Verify report: minion count, follow distance, enemy-creep kill count
+
+### T3.16 Verify-all-with-pixel-art + screenshots hard rule — NEW 2026-09-12
+**User direction (2026-09-12):** Every new sprite/prop/creature/area/ability/
+weather feature must be (1) verified in an isolated world FIRST with the final
+pixel-art asset, and (2) re-verified in the full in-game scene. A screenshot must
+be captured and committed at EACH verification step so the user can review later.
+
+- [ ] Isolated verification: `scenes/<feature>_test/<feature>_test.tscn` with the
+      final pixel-art sprite(s); screenshot + `user://selftest_report.json`
+- [ ] In-game verification: load the full biome/area with the sprite in place;
+      screenshot the region at 4× zoom
+- [ ] Commit both screenshots under `tools/selftest/results/<feature>_*.png` and
+      reference them in the report JSON
+- [ ] Applies to: T3.1 (4 areas × 8 arch + 8 creatures), T3.3 (isometric houses +
+      creatures), T3.4 (minigame pixel art), T3.5 (rain), T3.6 (black lava),
+      T3.7 (electro ground), T3.13 (storm), T3.14 (fire tree), T3.15 (recruit)
+
 ### HARD RULE — Test new things on an EMPTY isolated world first (NEW 2026-09-12)
 **User direction (2026-09-12):** For every new visual/cinematic/VFX/mechanic
 feature, build and verify it in an empty isolated world scene FIRST (flat ground +
@@ -506,6 +537,21 @@ verify it in an empty isolated world scene first (flat ground + camera, no
 obstacles/HUD/enemies). Only after it looks correct there, bring it into the
 real world/main scene and re-verify. Applies to ALL new VFX, abilities, weather,
 minigames, and world features. See T3.13/T3.14 for worked examples.
+
+### HARD RULE — Screenshots of all verified things (NEW 2026-09-12)
+(added 2026-09-12, user: "add hard rule that you make screenshots of all verified
+things so i can see later") For EVERY task that is marked verified/completed,
+commit a screenshot (or screenshots) proving the result:
+- Isolated world: at least one screenshot of the feature working in the isolated
+  empty-world test scene (flat ground + camera, no noise).
+- In-game: at least one screenshot showing the feature in the full running game
+  (correct biome, correct region, correct timing).
+- All screenshots live under `tools/selftest/results/<feature>_*.png` (committed
+  to git so the user can review later).
+- The selftest report JSON must reference each screenshot path.
+- A task is NOT "verified" without both isolated + in-game screenshots on disk.
+This pairs with the isolated-world-first rule: isolated screenshots prove the
+feature works in isolation, in-game screenshots prove it integrates.
 
 ### Hero ↔ tree interaction (NEW 2026-09-12)
 **User direction:** More heroes should interact with trees via their abilities.

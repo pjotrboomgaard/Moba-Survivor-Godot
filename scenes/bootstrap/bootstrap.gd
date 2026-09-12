@@ -1416,15 +1416,7 @@ func _show_rmb_hover(hero_id: String) -> void:
 	if ability_hero_header != null:
 		ability_hero_header.text = ("RMB  ·  " + sec_name).to_upper()
 	if ability_hover_body != null:
-		var body := sec_desc
-		body += "\n\n[color=#9fb3d1]Charged: %s   Cooldown: ~%.0fs[/color]" % [
-			"yes (hold to build)" if sec_charge else "no",
-			float(PlayerClass.SECONDARY_COOLDOWN),
-		]
-		ability_hover_body.text = body
-	elif ability_hero_blurb != null:
-		ability_hero_blurb.visible = true
-		ability_hero_blurb.text = sec_name
+		ability_hover_body.visible = false
 	# Rendered preview: the hero bot performs its RMB secondary on the standing creeps.
 	if ability_preview != null:
 		ability_preview.visible = true
@@ -1572,16 +1564,7 @@ func _show_lmb_hover(hero_id: String) -> void:
 		ability_hover_icon.texture = lmb_icon if lmb_icon != null else SpriteLibrary.texture_for(hero_id)
 		ability_hover_icon.visible = true
 	if ability_hover_body != null:
-		var dmg := int(hero_data.get("weapon_damage", 0))
-		var cd := float(hero_data.get("attack_interval", 0))
-		var rng := int(hero_data.get("attack_range", 0))
-		var desc := "Deals [b]%d[/b] damage every [b]%.1f[/b]s" % [dmg, cd]
-		if rng > 150:
-			desc += " at [b]%d[/b] range" % rng
-		ability_hover_body.text = desc
-	elif ability_hero_blurb != null:
-		ability_hero_blurb.visible = true
-		ability_hero_blurb.text = "%s — primary attack" % weapon_name
+		ability_hover_body.visible = false
 	# Rendered preview: the hero bot performs its LMB primary on the standing creeps.
 	if ability_preview != null:
 		ability_preview.visible = true
@@ -1600,10 +1583,7 @@ func _show_ability_hover(ability_id: String) -> void:
 		ability_hover_icon.texture = SpriteLibrary.texture_for(ability_id)
 		ability_hover_icon.visible = true
 	if ability_hover_body != null:
-		ability_hover_body.text = _format_ability_tooltip(ability_id)
-	elif ability_hero_blurb != null:
-		ability_hero_blurb.visible = true
-		ability_hero_blurb.text = _format_ability_tooltip(ability_id).replace("[b]", "").replace("[/b]", "").replace("[color=9fb3d1]", "").replace("[/color]", "")
+		ability_hover_body.visible = false
 	# Rendered preview: drive the hero bot to cast this ability on the standing creeps.
 	if ability_preview != null:
 		ability_preview.visible = true
