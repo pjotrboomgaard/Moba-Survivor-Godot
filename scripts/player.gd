@@ -102,6 +102,14 @@ var movement_locked := false
 ## a hardcoded value.
 var _base_camera_zoom := Vector2.ONE
 var facing_direction := Vector2.RIGHT
+## When set, ability/projectile spawns parent to this Node instead of
+## get_tree().current_scene. The ability-preview SubViewport uses this so
+## effects land inside the preview viewport rather than the main menu scene.
+var vfx_parent_override: Node = null
+func _vfx_parent() -> Node:
+	if vfx_parent_override != null and is_instance_valid(vfx_parent_override):
+		return vfx_parent_override
+	return get_tree().current_scene
 var aim_world_position := Vector2.RIGHT * 100.0
 var current_xp := 0
 var level := 1
@@ -1922,7 +1930,7 @@ func _spawn_summon(data: Dictionary, values: Dictionary, position: Vector2) -> v
 	sum.owner_damage_type = int(damage_type)
 	sum.position = position
 	sum.expired.connect(_on_summon_expired)
-	get_tree().current_scene.add_child(sum)
+	_vfx_parent().add_child(sum)
 	active_summons.append(sum)
 	# Enforce the cap: expire the oldest one if the caster already has a full set out.
 	# Turret-style summons get a much higher ceiling (MAX_ACTIVE_TURRETS) so Tobor can
@@ -1988,7 +1996,7 @@ func _detonate_wrench_keg(data: Dictionary, values: Dictionary, center: Vector2,
 ## Brief ring flash ahead of the blast so the fuse reads as HoN's "get out of the circle"
 ## timing window.
 func _spawn_keg_warning_ring(center: Vector2, radius: float, duration: float, color: Color = Color(1.0, 0.72, 0.3, 0.9)) -> void:
-	var scene_root := get_tree().current_scene
+	var scene_root := _vfx_parent()
 	if scene_root == null:
 		return
 	var ring := Line2D.new()
@@ -2009,7 +2017,7 @@ func _spawn_keg_warning_ring(center: Vector2, radius: float, duration: float, co
 func _register_pending_hazard(center: Vector2, radius: float, duration: float, kind: String) -> void:
 	if not is_inside_tree():
 		return
-	var scene_root := get_tree().current_scene
+	var scene_root := _vfx_parent()
 	if scene_root == null:
 		return
 	var marker := Node2D.new()
@@ -2040,7 +2048,7 @@ func _knock_away_from(target: Node2D, center: Vector2, kick: float) -> void:
 
 ## Detonation: a filled shockwave that grows out of the keg.
 func _spawn_keg_blast_wave(center: Vector2, radius: float) -> void:
-	var scene_root := get_tree().current_scene
+	var scene_root := _vfx_parent()
 	if scene_root == null:
 		return
 	var holder := Node2D.new()
@@ -2080,12 +2088,12 @@ func _fill_circle_line(ring: Line2D, center: Vector2, radius: float) -> void:
 	ring.points = points
 
 
-## Throw/lob visual: a small glowing projectile arcs from `from` to `to` over
-## `travel_time` seconds. Used to sell the "throwing" animation for instant-placement
-## abilities (turret, mines) so the player sees the object leave the caster's hands
-## rather than it appearing at the target. Mirrors the Steam Keg lob.
-func _spawn_throw_projectile(ability_id: String, from: Vector2, to: Vector2, travel_time: float = 0.3, arc_height: float = 50.0) -> void:
-	var scene_root := get_tree().current_scene
+## Throw/lob visual: a visible projectile (the keg / mine / turret) arcs from `from` to
+## `to` over `travel_time` seconds. Used to sell the "throwing" animation for
+## instant-placement abilities (turret, mines) so the player sees the object leave the
+## caster's hands rather than it appearing at the target. Mirrors the Steam Keg lob.
+func _spawn_throw_projectile(ability_id: String, from: Vector2, to: Vector2, travel_time: float = 0.55, arc_height: float = 70.0) -> void:
+	var scene_root := _vfx_parent()
 	if scene_root == null:
 		return
 	# A dedicated Node2D with its own _draw that follows the arc — lighter than
@@ -2095,6 +2103,9 @@ func _spawn_throw_projectile(ability_id: String, from: Vector2, to: Vector2, tra
 	scene_root.add_child(thrower)
 	var hero := PlayerClass.by_id(class_id)
 	var col := Color(str(hero.get("effect_color", "#ffffff")))
+	# Use the actual summon body sprite if available so the thrown object reads as the
+	# real keg/mine/turret, not just a generic orb.
+	var body_sprite := _throw_body_sprite(ability_id)
 	thrower.set_meta("from", from)
 	thrower.set_meta("to", to)
 	thrower.set_meta("t", 0.0)
@@ -2102,10 +2113,23 @@ func _spawn_throw_projectile(ability_id: String, from: Vector2, to: Vector2, tra
 	thrower.set_meta("arc", arc_height)
 	thrower.set_meta("color", col)
 	thrower.set_meta("ability_id", ability_id)
+	thrower.set_meta("body_sprite", body_sprite)
 	var script := _make_throw_script()
 	if script != null:
 		thrower.set_script(script)
-		thrower.call("setup", from, to, travel_time, arc_height, col)
+		thrower.call("setup", from, to, travel_time, arc_height, col, body_sprite)
+
+
+## Resolve the summon body sprite for a thrown ability, if one exists.
+func _throw_body_sprite(ability_id: String) -> Texture2D:
+	match ability_id:
+		"tobor_steam_turret":
+			return SpriteLibrary.texture_for("tobor_turret_body")
+		"tobor_spider_mines":
+			return SpriteLibrary.texture_for("tobor_mine_body")
+		"tobor_steam_keg":
+			return SpriteLibrary.texture_for("tobor_keg_body")
+	return null
 
 
 ## Caches the dynamically-built throw script (built once per Player instance).
@@ -2118,16 +2142,20 @@ extends Node2D
 var _from: Vector2
 var _to: Vector2
 var _t: float = 0.0
-var _travel: float = 0.3
-var _arc: float = 50.0
+var _travel: float = 0.55
+var _arc: float = 70.0
 var _color: Color = Color.WHITE
-func setup(from: Vector2, to: Vector2, travel: float, arc: float, color: Color) -> void:
+var _body: Texture2D = null
+var _trail: Array = []
+func setup(from: Vector2, to: Vector2, travel: float, arc: float, color: Color, body: Texture2D = null) -> void:
 	_from = from
 	_to = to
 	_travel = travel
 	_arc = arc
 	_color = color
+	_body = body
 	_t = 0.0
+	_trail = []
 	position = from
 func _process(delta: float) -> void:
 	_t += delta
@@ -2135,15 +2163,25 @@ func _process(delta: float) -> void:
 	var pos := _from.lerp(_to, f)
 	# Parabolic arc: add vertical (y, screen-up is -y) offset peaking mid-flight.
 	pos.y -= _arc * (4.0 * f * (1.0 - f))
+	_trail.append(pos)
+	if _trail.size() > 8:
+		_trail.pop_front()
 	position = pos
 	queue_redraw()
 	if f >= 1.0:
 		queue_free()
 func _draw() -> void:
-	# Glowing orb with a short trail.
-	var a := 1.0 - (_t / _travel) * 0.4
-	draw_circle(Vector2.ZERO, 9.0, Color(_color.r, _color.g, _color.b, a * 0.95))
-	draw_circle(Vector2.ZERO, 4.0, Color(1.0, 1.0, 1.0, a))
+	var a := 1.0 - (_t / _travel) * 0.5
+	# Trail: fading circles along the recent path.
+	for i in _trail.size():
+		var t_alpha := a * (0.10 + 0.55 * float(i) / float(max(1, _trail.size() - 1)))
+		var r := lerpf(3.0, 10.0, float(i) / float(max(1, _trail.size() - 1)))
+		draw_circle(_trail[i], r, Color(_color.r, _color.g, _color.b, t_alpha))
+	# Main body: the real summon sprite if available, else a big glowing orb.
+	if _body != null:
+		draw_texture_rect(_body, Rect2(Vector2(-20.0, -20.0), Vector2(40.0, 40.0)), false)
+	draw_circle(Vector2.ZERO, 13.0, Color(_color.r, _color.g, _color.b, a * 0.95))
+	draw_circle(Vector2.ZERO, 7.0, Color(1.0, 1.0, 1.0, a))
 """
 	var src := GDScript.new()
 	src.source_code = code
@@ -2168,7 +2206,7 @@ func _spawn_steam_cloud(center: Vector2, radius: float, duration: float) -> void
 
 ## Soft fire/steam wisps — concentric fading rings, no hex walls or lightning cracks.
 func _spawn_steam_puff(center: Vector2, radius: float, duration: float) -> void:
-	var scene_root := get_tree().current_scene
+	var scene_root := _vfx_parent()
 	if scene_root == null:
 		return
 	var steam := Color(1.0, 0.55, 0.22, 0.75)
@@ -2281,7 +2319,7 @@ func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2)
 	sum.seek_range = float(data.get("seek_range", 260.0))
 	sum._arm_timer = sum.arm_delay
 	sum.expired.connect(_on_summon_expired)
-	get_tree().current_scene.add_child(sum)
+	_vfx_parent().add_child(sum)
 	SoundDirector.play_ability("tobor_spider_mines", global_position)
 	active_summons.append(sum)
 	# No hard cap on total active mines — the ability cooldown is the only pacing gate.
@@ -2414,7 +2452,7 @@ func _cast_ability_bulwark_fissure(data: Dictionary, values: Dictionary, _rank: 
 ## collision mask, so they walk through as HoN intends; the caster never moves. Fades out
 ## near death so it visually crumbles instead of popping.
 func _spawn_fissure_wall(origin: Vector2, direction: Vector2, length: float, segments: int, duration: float) -> void:
-	var scene_root := get_tree().current_scene
+	var scene_root := _vfx_parent()
 	if scene_root == null:
 		return
 	var wall_root := Node2D.new()
@@ -2529,7 +2567,7 @@ func _cast_ability_pyra_sticky_bomb(data: Dictionary, values: Dictionary, _rank:
 	# Pop everything inside the blast away from the centre so the trap reads like a shell burst.
 	sum.explosion_knockback = 260.0
 	sum.expired.connect(_on_summon_expired)
-	get_tree().current_scene.add_child(sum)
+	_vfx_parent().add_child(sum)
 	SoundDirector.play_ability("pyra_sticky_bomb", global_position)
 	active_summons.append(sum)
 	while active_summons.size() > MAX_ACTIVE_SUMMONS:
@@ -3331,7 +3369,7 @@ static func _ability_id_has_projectile(ability_id: String) -> bool:
 
 ## Spawn a friendly lobbed projectile. Purely visual; doesn't deal damage itself.
 func _spawn_ability_projectile(ability_id: String, from_position: Vector2, to_position: Vector2, travel_time: float = 0.32, arc_height: float = 42.0, persist: bool = false) -> ProjectileSprite:
-	var scene_root := get_tree().current_scene
+	var scene_root := _vfx_parent()
 	if scene_root == null:
 		return null
 	var projectile := ProjectileSpriteScene.instantiate() as ProjectileSprite
@@ -3344,7 +3382,7 @@ func _spawn_ability_projectile(ability_id: String, from_position: Vector2, to_po
 ## Persistent pulsing zone for ultimates that carry a slow/stun on-hit. The fx burst is
 ## ~0.4s; this keeps the ring visible for the slow duration so you can actually read it.
 func _spawn_ability_zone_pulse(position: Vector2, radius: float, duration: float) -> void:
-	var scene_root := get_tree().current_scene
+	var scene_root := _vfx_parent()
 	if scene_root == null:
 		return
 	var zone := ZonePulseScene.instantiate() as ZonePulse
@@ -3595,7 +3633,7 @@ func _cast_ability_dash_strike(data: Dictionary, values: Dictionary) -> void:
 ## Cinder's Dragon Fire leaves a burning strip along the dash line. The trail ticks damage
 ## onto anything still standing in it a moment later, reading as "the path keeps burning".
 func _spawn_fire_trail(origin: Vector2, destination: Vector2, tick_power: float) -> void:
-	var scene_root := get_tree().current_scene
+	var scene_root := _vfx_parent()
 	if scene_root == null:
 		return
 	var length := origin.distance_to(destination)

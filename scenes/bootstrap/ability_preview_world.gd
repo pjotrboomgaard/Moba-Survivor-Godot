@@ -238,6 +238,10 @@ func _spawn_hero() -> void:
 	p.global_position = Vector2(HERO_X, 0.0)
 	if p.camera != null:
 		p.camera.enabled = false
+	# Route all ability/projectile spawns (summons, lobs, projectiles) INTO this
+	# SubViewport's world instead of the main menu scene, so turrets/mines/kegs
+	# are visible in the preview.
+	p.vfx_parent_override = _world
 	p.set_authority_command(Vector2.ZERO, Vector2(CREEP_START_X, 0.0), false, false, [false, false, false, false], false)
 	p.health.current_health = p.health.max_health
 	# Spawn the vector cast animation + pixel-art VFX INSIDE this SubViewport's

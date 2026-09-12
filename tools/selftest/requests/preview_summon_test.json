@@ -1,0 +1,6 @@
+{
+  "comment": "Verify that Tobor's W (turret) and E (mines) summons land INSIDE the ability preview SubViewport (not the main menu scene). Counts SummonEntity nodes in the preview's _world vs the scene root.",
+  "events": [
+    {"t": 0.0, "kind": "probe", "label": "boot"}
+  ]
+}
