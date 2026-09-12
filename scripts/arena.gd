@@ -1492,6 +1492,39 @@ func debug_force_storm() -> void:
 	print("[Arena] storm forced on (duration %.1fs)" % _storm_remaining)
 
 
+## Dev hook (T3.5): immediately start rain for the default duration so the
+## selftest / user can observe the rain overlay + SFX on demand.
+func debug_force_rain() -> void:
+	if not _rain_active:
+		_set_rain(true)
+		_rain_remaining = 8.0
+	print("[Arena] rain forced on (duration %.1fs)" % _rain_remaining)
+
+
+## Dev hook (T3.6): immediately enter the volcano black-lava phase so the
+## selftest / user can observe the darkened pools + no-damage walk on demand.
+func debug_force_black_lava() -> void:
+	if not _lava_cooled:
+		_lava_cooled = true
+		_lava_cool_remaining = 8.0
+		_lava_cool_timer = 20.0
+		_play_lava_cool_sfx()
+	print("[Arena] black lava forced on (duration %.1fs)" % _lava_cool_remaining)
+
+
+## Dev hook (T3.7): immediately start the factory electro-ground phase at the
+## arena centre so the selftest / user can observe the crackling patch + damage
+## ticks on demand.
+func debug_force_electro() -> void:
+	if not _electro_active:
+		_electro_active = true
+		_electro_remaining = 5.0
+		_electro_origin = Vector2.ZERO
+		_electro_timer = 20.0
+		_play_electro_sfx()
+	print("[Arena] electro ground forced on (duration %.1fs)" % _electro_remaining)
+
+
 func _random_strike_spot() -> Vector2:
 	# Prefer near a tree so strikes read as "hitting something"; fall back to a
 	# random walkable point.

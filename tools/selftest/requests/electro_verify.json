@@ -1,0 +1,12 @@
+{
+  "hero": "arclight",
+  "biome": 3,
+  "comment": "T3.7: factory electro ground. Force electro on, capture crackling patch.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "electro_before"},
+    {"t": 1.5, "kind": "dev_command", "command": "force_electro"},
+    {"t": 2.5, "kind": "snap", "label": "electro_active"},
+    {"t": 3.0, "kind": "report"}
+  ]
+}

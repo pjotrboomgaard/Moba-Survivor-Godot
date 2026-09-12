@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "biome": 1,
+  "comment": "T3.6: volcano black-lava phase. Force black lava on, capture darkened pools.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "lava_normal"},
+    {"t": 1.5, "kind": "dev_command", "command": "force_black_lava"},
+    {"t": 3.5, "kind": "snap", "label": "lava_black"},
+    {"t": 4.0, "kind": "report"}
+  ]
+}

@@ -2853,6 +2853,15 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 			# Test hook: replay the opening crash-landing cinematic on demand.
 			_opening_cinematic_playing = false
 			play_opening_cinematic()
+		"force_rain":
+			if arena is Arena:
+				(arena as Arena).debug_force_rain()
+		"force_black_lava":
+			if arena is Arena:
+				(arena as Arena).debug_force_black_lava()
+		"force_electro":
+			if arena is Arena:
+				(arena as Arena).debug_force_electro()
 		"mission_warp":
 			# Test hook: run the cinematic ring-of-fire world transition on demand.
 			# Record the current (old) biome, advance to the next one, rebuild the

@@ -1,0 +1,12 @@
+{
+  "hero": "arclight",
+  "biome": 0,
+  "comment": "T3.5: rain overlay + SFX in grass world. Force rain on, capture streaks.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "rain_before"},
+    {"t": 1.5, "kind": "dev_command", "command": "force_rain"},
+    {"t": 3.0, "kind": "snap", "label": "rain_active"},
+    {"t": 3.5, "kind": "report"}
+  ]
+}
