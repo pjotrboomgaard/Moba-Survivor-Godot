@@ -108,6 +108,9 @@ var level := 1
 ## First level is a handful of grunt orbs; later levels stretch so wave 20 still has picks left.
 const BASE_XP_REQUIRED := 80
 const XP_GROWTH := 1.17
+## P1.17: pulse blast is a frequent, weak nudge — scale per-hit damage down so it
+## clears/softens surrounding creeps without dealing a full weapon swing's worth.
+const PULSE_BLAST_DAMAGE_FACTOR := 0.4
 var xp_required := BASE_XP_REQUIRED
 var gold := 0
 var gold_multiplier := 1.0
@@ -4286,8 +4289,13 @@ func _tick_pulse_blast(delta: float) -> void:
 	if pulse_timer < pulse_interval:
 		return
 	pulse_timer = 0.0
+	# P1.17: pulse blast is a frequent, WEAK chip-damage burst — not a full
+	# weapon swing. Scale damage down so it reads as "nudge + clear" rather than
+	# a free big hit. Upgrades (Heartbeat/Supernova) shorten the interval, not
+	# boost the per-hit damage, so the blast stays a visible but modest effect.
+	var pulse_dmg := weapon_damage * PULSE_BLAST_DAMAGE_FACTOR
 	for target in _pvp_hosts_in_radius(global_position, pulse_radius):
-		_weapon_hit(target, weapon_damage)
+		_weapon_hit(target, pulse_dmg)
 	# Make the pulse blast visibly and audibly register: a quick expanding ring at the
 	# player's feet plus a short "whoosh" stinger so the Metronome/Heartbeat/Supernova
 	# upgrade is obvious the moment it fires (previously it was a bare staff-cast blip).
@@ -4839,12 +4847,12 @@ func apply_upgrade(upgrade_id: String) -> void:
 		"gold_vein":
 			gold_multiplier += 0.25
 		"metronome":
-			_set_pulse_interval(20.0)
-		"heartbeat":
 			_set_pulse_interval(12.0)
+		"heartbeat":
+			_set_pulse_interval(8.0)
 			pulse_radius = maxf(pulse_radius, 220.0)
 		"supernova":
-			_set_pulse_interval(8.0)
+			_set_pulse_interval(5.0)
 			pulse_radius = maxf(pulse_radius, 300.0)
 		"gun_drone", "push_drone", "ember_sprite", "heat_gust", "thorn_sprite", "vine_tether", "spark_sprite", "gale_push", "frost_drone", "laser_drone", "shield_drone":
 			_add_companion(upgrade_id)
