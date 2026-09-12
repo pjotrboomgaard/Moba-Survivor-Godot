@@ -166,6 +166,12 @@ screenshots). Use this to track progress.
 - [x] Shield must work against creeps — `player.gd` shield absorption now applies to creep damage
 - [x] Creeps from all corners (even distribution) — `ghost_wave_system.gd` perimeter spawn
 - [x] FFA: more creeps toward "my side" (the local player's corner) — `ghost_wave_system.gd` FFA bias
+- [ ] **Remove aim-snap / aim-assist (NEW 2026-09-12, user: "when ingame abilities dont need to snap to enemies like the attack sometimes does. remove the whole snap thing. where you target things it should be targeted, no aim assist both abilities and auto attacks.")**
+  - Remove `aim_assist_radius` snap in auto-attacks: `_find_primary_target` / `_find_secondary_target` (player.gd) currently pull the beam to the nearest enemy within `aim_assist_radius`. Change so the beam/projectile flies to the exact aim point (`aim_world_position`); hit-detection stays distance/radius based but does not re-aim the shot.
+  - Remove ability snap: `_ability_aim_center` (player.gd ~3506) snaps the center to `_nearest_enemy_in_range(max_range)`; make it use `aim_world_position` clamped to range only.
+  - Audit each cast using `_nearest_enemy_in_range` as a *targeting* choice (line 1513, 2380, 2760, 2897, 3001, 3195, 3587) and switch any that aim the effect to the raw aim point. Keep legitimate nearest-target picks only where the ability is inherently single-target-on-nearest (document each decision).
+  - CPU bots keep their own targeting (`cpu_lock_target`) — this change only affects the local player's aim.
+  - Verify: isolated `combat_vfx_test` with aim point off any enemy shows the blast lands at the aim point, not on the nearest creep; screenshot.
 
 ### T1.6 World-transition rework
 - [x] Transition triggers: wave 5 boss (1st), wave 10 (2nd), wave 15 (3rd)
@@ -408,6 +414,7 @@ them to populate the 4 recruitment areas on an otherwise empty map (the isolated
 - [x] P2.1b: New town sprites (`town_house2`, `town_house3`, `town_cottage`) added to
       world editor `OBSTACLE_SPEC` + `RECRUIT_AREA_SPRITES` + `ASSET_LABELS` so all
       4 areas' architecture is selectable in the world editor.
+- [x] **Map versioning (NEW 2026-09-12, user: "make a backup of the grass_real map so i can go back and make sure the maps are also loaded to git")** — all `world_editor_level_*.json` maps are now committed to `assets/maps/` (git-tracked). `world_editor_level_grass_real_BACKUP_20260912.json` preserves the dense grass map. Tools: `tools/backup_maps.ps1` (snapshot live user:// maps into assets/maps/ with an optional dated suffix) and `tools/restore_map.ps1 -Map <name> [-BackupDate MMDDYYYY]` (copy a git backup back over the live file).
 
 test scene). Each area should show its house + props + 3 creature variants, all
 using the new isometric art.
