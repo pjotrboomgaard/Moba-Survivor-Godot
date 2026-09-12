@@ -1,0 +1,8 @@
+{
+  "scene": "hero_sprites_test",
+  "description": "Isolated test rendering all 16 hero body sprites at game scale, verifying none fall back to the blue-circle default (the 'blue wisp' bug). Captures screenshot + report with per-hero texture sizes.",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "hero_sprites_test.png",
+  "notes": "Verify visually: every hero shows a real pixel-art body sprite with a correct 40x40 (or tobor 32x32) size label under it. No hero should be a small blue circle or a red 'MISSING' marker. The Ember hero must specifically show its 40x40 fire-wisp sprite, not a tiny 8x8 or blue circle."
+}

@@ -673,6 +673,75 @@ abilities, weather, minigames, and world features going forward.
 
 ---
 
+## P3-EXT — NEW TASKS ADDED 2026-09-12 (latest batch)
+
+### T3.23 Pixel-art style method: AI-assisted + hand-drawn, keep ALL candidates
+**User direction (2026-09-12):** "Do both hand-drawn and AI pixel art and keep
+ALL sprites you make so I can select later. Figure out the method yourself. Make
+sure AI-assisted prompts fit the proper game style and the required grid
+(16x16 for creatures, 32x32 for bigger objects). Prompt the AI to produce pixel
+art within the required grid."
+- [ ] **Method decision (DONE 2026-09-12):** Confirmed via 4 wolf attempts that
+      text-to-pixel-art (Pollinations flux) produces muddy, unreadable silhouettes
+      — NOT game-ready. The reliable method matching first-wave creeps is the
+      **hand-authored 16x16 grid** in `tools/sprite_art.gd` baked by
+      `sprite_forge.tscn`. Keep BOTH approaches running:
+      - Hand-drawn grid (primary, game-ready): `sprite_art.gd` ENEMY_ROWS.
+      - AI-assisted pipeline (experimental, keep as candidates):
+        `tools/pixel_art/pixel_art_pipeline.py` (grid-prompted, 16/32 grid,
+        16-color quantize, flood-fill bg removal).
+- [ ] Keep every generated candidate in `tools/pixel_art/test_output/` (wolf_ai,
+      wolf_ai32, wolf_ai2, wolf_gamestyle, wolf_topdown, wolf_final) so the user
+      can select later.
+- [ ] Prompt formula that reads most game-like (use for future AI runs):
+      "top-down/side pixel art <creature>, 16-bit retro game sprite, thick black
+      outline, chunky blocky pixels, flat saturated colors, small game enemy icon,
+      no background, clean white background, no shadow, no ground, centered."
+- [ ] Add `--game-style` prompt wrapper + `remove_solid_background` (flood-fill)
+      to the pipeline so AI candidates come out transparent and grid-conforming.
+
+### T3.24 Nerf over-large hero attack splash (match to Tobor's)
+**User direction (2026-09-12):** "Some heroes have way too high attack splash,
+more similar to Tobor's."
+- [ ] Survey all 17 heroes' LMB primary attack `splash_radius` / AOE values in
+      `player_class.gd` / ability defs.
+- [ ] Flag heroes whose splash is far above the median; scale down to be closer
+      to Tobor's (reference baseline).
+- [ ] Isolated verify: cast LMB on a cluster of creeps, screenshot the affected
+      radius for a nerfed hero + Tobor side-by-side.
+
+### T3.25 Remove/rework blue wisp on hero movement
+**User direction (2026-09-12):** "Almost all heroes transform into a blue wisp
+while moving."
+- [ ] Find the movement VFX (blue wisp) in `player.gd` / `player_class.gd` /
+      ability VFX. Identify which heroes trigger it.
+- [ ] Remove or rework so it does not read as the hero turning into a blue wisp
+      during normal movement.
+- [ ] Isolated verify: move each affected hero, screenshot, confirm normal body
+      sprite shows during movement (no wisp).
+
+### T3.26 Fix opening crash cinematic: lock movement until ship lands
+**User direction (2026-09-12):** "You can already move before the ship is
+exploded and landed in the opening sequence."
+- [ ] In the opening crash-cinematic (P2.1a), disable player input/movement until
+      the explosion + crater-form + camera-zoom-in completes.
+- [ ] Confirm game input unlocks only at the end of the sequence.
+- [ ] Isolated verify: run opening sequence, attempt to move during crash → no
+      movement; after landing → movement works.
+
+### T3.27 Fix opening sequence grass texture rendering
+**User direction (2026-09-12):** "Opening sequence doesn't render all textures
+on grass properly."
+- [ ] Reproduce in the isolated crash-cinematic scene: inspect grass tiles during
+      the zoomed-out world view.
+- [ ] Root-cause: likely tiles not generated/placed for the full map, or the
+      zoom-out exposes untextured area. Fix tile generation to cover the whole
+      world before the zoom-out.
+- [ ] Isolated verify: full-map overhead view shows continuous grass texture,
+      no gaps/bare area.
+
+---
+
 ## ORCHESTRATION PLAN
 
 ### HARD RULES (non-negotiable)

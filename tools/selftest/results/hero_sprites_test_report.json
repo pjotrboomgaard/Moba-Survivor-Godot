@@ -1,0 +1,91 @@
+{
+  "bad": [],
+  "heroes": [
+    "arclight",
+    "bulwark",
+    "warden",
+    "cinder",
+    "pyra",
+    "slag",
+    "ember",
+    "thorn",
+    "willow",
+    "stump",
+    "sage",
+    "volt",
+    "nebula",
+    "astral",
+    "rime",
+    "tobor"
+  ],
+  "scale": 5.0,
+  "scene": "hero_sprites_test",
+  "shot": "user://hero_sprites_test.png",
+  "sizes": {
+    "arclight": [
+      40,
+      40
+    ],
+    "astral": [
+      40,
+      40
+    ],
+    "bulwark": [
+      40,
+      40
+    ],
+    "cinder": [
+      40,
+      40
+    ],
+    "ember": [
+      40,
+      40
+    ],
+    "nebula": [
+      40,
+      40
+    ],
+    "pyra": [
+      40,
+      40
+    ],
+    "rime": [
+      40,
+      40
+    ],
+    "sage": [
+      40,
+      40
+    ],
+    "slag": [
+      40,
+      40
+    ],
+    "stump": [
+      40,
+      40
+    ],
+    "thorn": [
+      40,
+      40
+    ],
+    "tobor": [
+      32,
+      32
+    ],
+    "volt": [
+      40,
+      40
+    ],
+    "warden": [
+      40,
+      40
+    ],
+    "willow": [
+      40,
+      40
+    ]
+  },
+  "verdict": "PASS"
+}
