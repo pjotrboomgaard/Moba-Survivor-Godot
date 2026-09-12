@@ -1283,13 +1283,36 @@ func _load_named_map(name: String) -> void:
 		_show_status("invalid map file: %s" % name)
 		push_warning("[WorldEditor] Invalid level file: %s" % path)
 		return
+	# A saved map may belong to a different biome than the editor is currently
+	# dressed for (e.g. loading "volcano" while the editor booted in grass).
+	# apply_saved_level() only swaps obstacles — it does NOT re-theme the arena.
+	# So if the map's stem resolves to a biome, switch to it (set_biome +
+	# dress_from_runtime_biome) BEFORE applying, so the world actually changes
+	# theme instead of showing volcano rocks on a grass field.
+	var map_biome_id := -1
+	var map_key := str((parsed as Dictionary).get("biome", ""))
+	if not map_key.is_empty():
+		map_biome_id = GameRuntime.parse_biome(map_key)
+	if map_biome_id < 0:
+		# No explicit biome in the file: infer from the stem ("volcano.json").
+		map_biome_id = GameRuntime.parse_biome(stem)
+	if map_biome_id >= 0 and map_biome_id != GameRuntime.biome_id:
+		GameRuntime.set_biome(map_biome_id, true)
+		_placed_nodes.clear()
+		_placed = 0
+		_erased = 0
+		_undo_stack.clear()
+		if arena != null and arena.has_method("dress_from_runtime_biome"):
+			arena.dress_from_runtime_biome()
+		elif arena != null and arena.has_method("rebuild"):
+			arena.rebuild()
 	if arena is Arena:
 		(arena as Arena).apply_saved_level(parsed as Dictionary)
 	_adopt_arena_props()
 	_undo_stack.clear()
 	_refresh_status()
 	_show_status("loaded %s (%d props)" % [name, _placed])
-	print("[WorldEditor] Loaded named map -> %s" % path)
+	print("[WorldEditor] Loaded named map -> %s (biome=%d)" % [path, GameRuntime.biome_id])
 
 
 ## The on-disk path for a bare map stem, without assuming a ".json" suffix.

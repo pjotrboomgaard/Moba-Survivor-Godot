@@ -1,0 +1,11 @@
+{
+  "scene": "res://scenes/screenshot_diagnostic2/screenshot_diagnostic2.tscn",
+  "duration": 10,
+  "hero": "arclight",
+  "mode": "solo_survival",
+  "expected": [
+    {"name": "subviewport_size", "kind": "scalar", "path": "screenshot_diagnostic2.subviewport_size", "gte": 300},
+    {"name": "subviewport_has_content", "kind": "scalar", "path": "screenshot_diagnostic2.has_content", "eq": true},
+    {"name": "hero_sprite_has_texture", "kind": "scalar", "path": "screenshot_diagnostic2.hero_sprite_has_texture", "eq": true}
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "comment": "Isolated diagnostic: does a SubViewport blitted via SubViewportTexture into a TextureRect actually render content? A single 128x128 red square sits inside a SubViewport at the center. If the blit works, the main window shows a big red square. Probes: subviewport_size, subviewport_has_content, blit_rect_visible.",
+  "scene": "res://scenes/screenshot_diagnostic/screenshot_diagnostic.tscn",
+  "duration": 10,
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "expected": [
+    {"name": "subviewport_size", "kind": "scalar", "path": "screenshot_diagnostic.subviewport_size", "gte": 300},
+    {"name": "subviewport_has_content", "kind": "scalar", "path": "screenshot_diagnostic.has_content", "eq": true},
+    {"name": "blit_rect_has_texture", "kind": "scalar", "path": "screenshot_diagnostic.blit_has_texture", "eq": true}
+  ]
+}

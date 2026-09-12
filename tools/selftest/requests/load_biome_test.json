@@ -1,0 +1,11 @@
+{
+  "scene": "res://scenes/load_biome_test/load_biome_test.tscn",
+  "duration": 8,
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "comment": "Isolated test for load-biome fix: arena boots grass, then set_biome(2)+dress_from_runtime_biome must re-theme to STORM_COURT.",
+  "expected": [
+    {"name": "biome_switched", "kind": "scalar", "path": "load_biome_test.biome_switched", "eq": true},
+    {"name": "correct_world", "kind": "scalar", "path": "load_biome_test.correct_world", "eq": true}
+  ]
+}

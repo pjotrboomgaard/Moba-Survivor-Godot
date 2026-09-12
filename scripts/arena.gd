@@ -1123,9 +1123,11 @@ func _build_field() -> void:
 		_snap_shop_stand_to_pad()
 	# Pre-editor layout: scattered rocks/spires plus flower tufts on one ground tile.
 	# The world editor stamps extra props on top of this base; it does not strip it.
+	_build_terrain_zones()
 	_scatter_obstacles()
 	_pack_pad_rocks()
 	_plant_cover_rocks()
+	_plant_zone_props()
 	_scatter_ground_cover()
 	_clear_crater_props()
 	var shop_stand := SHOP_STAND_SCENE.instantiate() as Node2D

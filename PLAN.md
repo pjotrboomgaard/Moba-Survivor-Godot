@@ -2,6 +2,21 @@
 
 _Last updated: 2026-09-12_
 
+> **BUG-FIX BATCH (2026-09-12):** Three user-reported bugs fixed:
+> 1. **Ability preview not rendering in menu** (T0.1) — root cause: `ability_preview_world.tscn`
+>    had `render_target_update_mode = 0` (OFFICIAL), so the SubViewport never re-rendered after
+>    the first frame. Set to `2` (ALWAYS). Verified via `screenshot_diagnostic2` (isolated scene
+>    proves real `Player`/`Enemy` scenes render sprites inside a SubViewport) and `ability_preview_test`
+>    (all 17 heroes' LMB+Q previews show hero sprite + creeps + VFX).
+> 2. **All trees gone from all maps** — root cause: `arena.gd _build_field()` was missing the
+>    `_build_terrain_zones()` + `_plant_zone_props()` calls (dead code that got dropped), so trees
+>    were never planted. Restored both calls. Verified: `probe_boot` obstacle_count 93 (was ~30),
+>    solo-survival screenshots show trees/rocks/flowers scattered across the grass map.
+> 3. **World editor load: "loads map but stays in same biome"** — root cause: `_load_named_map()`
+>    called `apply_saved_level()` (swaps obstacles only) without switching the arena's theme/biome.
+>    Now reads the saved `biome` field (or infers from the map stem) and, when it differs, calls
+>    `GameRuntime.set_biome()` + `arena.dress_from_runtime_biome()` BEFORE applying the saved level.
+>
 > **Progress (2026-09-11):** P0 both done. T1.1 VFX distinctness confirmed (each hero has
 > unique style_tag + draw_mode in KitFxLibrary). Ultimate VFX lifetimes doubled (2× longer).
 > T1.2: 4 recruitment areas with themed pixel art VERIFIED via screenshots (lagoon/forest/
@@ -62,15 +77,23 @@ screenshots). Use this to track progress.
 
 ## P0 — CRITICAL (blocks everything)
 
-### T0.1 Fix ability preview not showing in menu (Pjotr mode)
-- [ ] Reproduce: select a hero, hover an ability slot → preview SubViewport must render
-- [ ] Root-cause: check `bootstrap.gd` hero-select flow (Pjotr mode) vs OFFLINE mode
-- [ ] Verify `ability_preview_world.reload()` is called on hero change + slot hover
-- [ ] Confirm `render_target_update_mode = ALWAYS` in the tscn
-- [ ] Confirm `_ensure_preview_rect()` runs and TextureRect is added to layout
-- [ ] Confirm `SoundDirector.preview_muted = true` so no audio in menu
-- [ ] Validate: UI-verify screenshot shows hero + creeps + VFX in the preview box
-- [ ] Validate: no preview sound while hovering
+### T0.1 Fix ability preview not showing in menu (Pjotr mode) — DONE (verified 2026-09-12)
+- [x] Reproduce: select a hero, hover an ability slot → preview SubViewport must render
+- [x] Root-cause: `ability_preview_world.tscn` had `render_target_update_mode = 0`
+      (OFFICIAL) so the SubViewport never re-rendered its content after the first
+      frame. Set to `2` (ALWAYS).
+- [x] Verified SubViewport→TextureRect blit pipeline works: isolated
+      `screenshot_diagnostic` / `screenshot_diagnostic2` scenes (in the repo) prove
+      the mechanism + that real `Player`/`Enemy` scenes render their sprites inside
+      a SubViewport (`SpriteLibrary.texture_for` returns valid textures there; a
+      `SCRIPT ERROR` on an invalid SubViewport property had been aborting a helper
+      early and hiding this — fixed in the diagnostics).
+- [x] `ability_preview_test` scene now shows all 17 heroes' LMB + Q previews with
+      hero sprite + creeps + VFX (screenshot inspected, not just report JSON).
+- [x] `render_target_update_mode = ALWAYS` confirmed in the tscn.
+- [x] `SoundDirector.preview_muted = true` on hover.
+- [x] Hover wiring intact: LMB/RMB + 4 kit slot buttons `mouse_entered` →
+      `_show_*_hover` → `ability_preview_world.reload(hero_id, slot)`.
 
 ### T0.2 Fix grass_save_independent_of_other_worlds test threshold
 - [ ] `ui_verify_driver.gd` expects `<500` placed; now top-up adds ~400 more → `<800`

@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 2,
+  "duration": 20,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "Verify tree/rock/flower props are scattered across the grass map (fix for 'all trees gone'). Captures snaps at t=8 and t=14 for visual inspection.",
+  "events": [
+    {"t": 8.0, "kind": "snap", "label": "trees_early"},
+    {"t": 14.0, "kind": "snap", "label": "trees_late"}
+  ]
+}
