@@ -159,35 +159,49 @@ func on_input_event(event: InputEvent) -> void:
 
 
 func _draw_body() -> void:
-	# Town plaza floor (stone)
-	draw_circle(Vector2.ZERO, ARENA_RADIUS + 20.0, Color(0.28, 0.25, 0.2, 0.55))
-	draw_arc(Vector2.ZERO, ARENA_RADIUS, 0.0, TAU, 48, Color(0.5, 0.45, 0.35, 0.5), 3.0)
+	# Town plaza floor (stone) — chunky square panel + boundary frame.
+	var floor_half := ARENA_RADIUS + 10.0
+	draw_rect(Rect2(Vector2(-floor_half, -floor_half), Vector2(floor_half * 2.0, floor_half * 2.0)), Color(0.28, 0.25, 0.2, 0.55))
+	var bh := ARENA_RADIUS
+	var border_col := Color(0.5, 0.45, 0.35, 0.5)
+	draw_rect(Rect2(Vector2(-bh, -bh), Vector2(bh * 2.0, 3.0)), border_col)
+	draw_rect(Rect2(Vector2(-bh, bh - 3.0), Vector2(bh * 2.0, 3.0)), border_col)
+	draw_rect(Rect2(Vector2(-bh, -bh + 3.0), Vector2(3.0, bh * 2.0 - 6.0)), border_col)
+	draw_rect(Rect2(Vector2(bh - 3.0, -bh + 3.0), Vector2(3.0, bh * 2.0 - 6.0)), border_col)
 
-	# Obstacles
+	# Obstacles — chunky rocky blocks (body + darker core).
 	for o in _obstacles:
 		var op: Vector2 = o.get("pos", Vector2.ZERO)
-		draw_circle(op, OBSTACLE_RADIUS, Color(0.5, 0.15, 0.15, 0.95))
-		draw_circle(op, OBSTACLE_RADIUS * 0.5, Color(0.3, 0.1, 0.1, 0.9))
+		var ob := OBSTACLE_RADIUS
+		draw_rect(Rect2(op + Vector2(-ob, -ob), Vector2(ob * 2.0, ob * 2.0)), Color(0.5, 0.15, 0.15, 0.95))
+		draw_rect(Rect2(op + Vector2(-ob * 0.5, -ob * 0.5), Vector2(ob, ob)), Color(0.3, 0.1, 0.1, 0.9))
 
-	# Gems
+	# Gems — chunky 3-piece pixel gem.
 	for g in _gems:
 		var gp: Vector2 = g.get("pos", Vector2.ZERO)
 		var bob := sin(Time.get_ticks_msec() * 0.008 + gp.x * 0.01) * 3.0
-		draw_circle(gp + Vector2(0.0, bob), GEM_RADIUS, Color(1.0, 0.85, 0.2, 0.95))
-		draw_circle(gp + Vector2(0.0, bob - 3.0), 4.0, Color(1.0, 1.0, 0.6, 0.7))
+		var gp2 := gp + Vector2(0.0, bob)
+		var s := GEM_RADIUS
+		draw_rect(Rect2(gp2 + Vector2(-s * 0.7, -s * 0.7), Vector2(s * 1.4, s * 1.4)), Color(1.0, 0.85, 0.2, 0.95))
+		draw_rect(Rect2(gp2 + Vector2(-s * 0.7, -s * 1.1), Vector2(s * 1.4, s * 0.4)), Color(1.0, 0.95, 0.4, 0.9))
+		draw_rect(Rect2(gp2 + Vector2(-s * 0.5, -s * 1.5), Vector2(s * 1.0, s * 0.4)), Color(1.0, 1.0, 0.6, 0.7))
 
-	# Creeps
+	# Creeps — blocky body + head + eyes.
 	for c in _creeps:
 		var cp: Vector2 = c.get("pos", Vector2.ZERO)
 		var cc: Color = c.get("color", Color.WHITE)
 		var bob := sin(float(c.get("bob", 0.0))) * 3.0
-		draw_circle(cp + Vector2(0.0, bob), 11.0, cc)
-		draw_circle(cp + Vector2(0.0, bob) + Vector2(0.0, -5.0), 4.0, Color(1.0, 1.0, 1.0, 0.6))
+		var cb := cp + Vector2(0.0, bob)
+		draw_rect(Rect2(cb + Vector2(-9.0, -4.0), Vector2(18.0, 18.0)), cc)
+		draw_rect(Rect2(cb + Vector2(-6.0, -16.0), Vector2(12.0, 12.0)), cc.lightened(0.2))
+		draw_rect(Rect2(cb + Vector2(-4.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
+		draw_rect(Rect2(cb + Vector2(2.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
 
-	# Player marker
+	# Player marker — chunky square.
 	if owner_player != null and is_instance_valid(owner_player):
 		var rel := owner_player.global_position - global_position
-		draw_circle(rel, 14.0, Color(0.4, 0.8, 1.0, 0.95))
+		draw_rect(Rect2(rel + Vector2(-13.0, -13.0), Vector2(26.0, 26.0)), Color(0.4, 0.8, 1.0, 0.95))
+		draw_rect(Rect2(rel + Vector2(-6.0, -6.0), Vector2(12.0, 12.0)), Color(0.4, 0.8, 1.0, 0.5))
 
 	# Combo text
 	if _combo > 1:

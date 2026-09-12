@@ -1254,6 +1254,19 @@ func _load_named_map(name: String) -> void:
 			path = aliased
 			file = FileAccess.open(path, FileAccess.READ)
 	if file == null:
+		# A typed biome alias with no saved file: fall back to the live arena's
+		# already-dressed procedural props instead of dead-ending on "map not found".
+		# This is the common case — the user types a world name and wants *that*
+		# world's default content, not a specific saved layout.
+		var alias_resolved := _resolve_alias_to_map(stem)
+		var biome_key := GameRuntime.biome_key()
+		if not alias_resolved.is_empty() or stem == biome_key:
+			_adopt_arena_props()
+			_refresh_status()
+			_show_status("no saved map '%s' — loaded live %s props (%d)" % [
+				stem, GameRuntime.biome_name(), _placed])
+			print("[WorldEditor] No saved file for '%s'; adopted live arena props" % stem)
+			return
 		# Be explicit about what's available so the user can't be stuck on a dead end.
 		var available := ", ".join(_list_saved_maps())
 		_show_status("map not found: %s  (available: %s)" % [stem, available if not available.is_empty() else "none"])
@@ -1407,7 +1420,15 @@ func _load_pick(name: String, panel: Control) -> void:
 func _load_default_map() -> void:
 	var path := _save_path_for_current_world()
 	if not FileAccess.file_exists(path):
-		_show_status("no saved map for this biome")
+		# No authored/saved default file on disk for this biome yet. The arena is
+		# already dressed with its procedural props (from dress_from_runtime_biome
+		# on boot / world switch), so adopt those as the editable set instead of
+		# dead-ending on "no saved map". This is what makes the default entry in the
+		# Load picker work even before the user has ever saved this biome.
+		_adopt_arena_props()
+		_refresh_status()
+		_show_status("no saved default map for %s — using live arena props (%d)" % [GameRuntime.biome_name(), _placed])
+		print("[WorldEditor] No default file for biome; adopted live arena props")
 		return
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:

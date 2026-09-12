@@ -128,27 +128,39 @@ func on_input_event(_event: InputEvent) -> void:
 	pass
 
 func _draw_body() -> void:
-	# Lagoon water floor.
-	draw_circle(Vector2.ZERO, 170.0, Color(0.1, 0.3, 0.4, 0.5))
-	# Balloons.
+	# Lagoon water floor — a chunky square panel.
+	var floor_half := 160.0
+	draw_rect(Rect2(Vector2(-floor_half, -floor_half), Vector2(floor_half * 2.0, floor_half * 2.0)), Color(0.1, 0.3, 0.4, 0.5))
+	# Balloons — chunky balloon (rounded-square body + small knot + pixel string).
 	for b in _balloons:
 		var bp: Vector2 = b.get("pos", Vector2.ZERO)
 		var bc: Color = b.get("color", Color.WHITE)
 		var sway := sin(Time.get_ticks_msec() * 0.003 + float(bp.x) * 0.02) * 4.0
-		draw_circle(bp + Vector2(sway, 0.0), BALLOON_RADIUS, bc)
-		draw_circle(bp + Vector2(sway - 4.0, -5.0), 4.0, Color(1.0, 1.0, 1.0, 0.5))
-		draw_line(bp + Vector2(sway, BALLOON_RADIUS), bp + Vector2(sway * 0.5, BALLOON_RADIUS + 18.0), Color(0.8, 0.8, 0.8, 0.4), 1.5)
-	# Creeps.
+		var bpos := bp + Vector2(sway, 0.0)
+		var br := BALLOON_RADIUS
+		# Body: chunky rounded square (core + 4 corners trimmed via side blocks).
+		draw_rect(Rect2(bpos + Vector2(-br * 0.8, -br), Vector2(br * 1.6, br * 1.6)), bc)
+		# Highlight: a small top-left bright block.
+		draw_rect(Rect2(bpos + Vector2(-br * 0.7, -br * 0.9), Vector2(br * 0.5, br * 0.4)), Color(1.0, 1.0, 1.0, 0.4))
+		# Knot: a tiny dark block below the body.
+		draw_rect(Rect2(bpos + Vector2(-2.5, br - 2.0), Vector2(5.0, 4.0)), bc.darkened(0.3))
+		# String: a thin pixel column below the knot.
+		draw_rect(Rect2(bpos + Vector2(0.0, br + 2.0), Vector2(2.0, 16.0)), Color(0.8, 0.8, 0.8, 0.4))
+	# Creeps — blocky body + head + eyes.
 	for c in _creeps:
 		var cp: Vector2 = c.get("pos", Vector2.ZERO)
 		var cc: Color = c.get("color", Color.WHITE)
 		var bob := sin(float(c.get("bob", 0.0))) * 3.0
-		draw_circle(cp + Vector2(0.0, bob), 11.0, cc)
-		draw_circle(cp + Vector2(0.0, bob) + Vector2(0.0, -5.0), 4.0, Color(1.0, 1.0, 1.0, 0.6))
-	# Player marker.
+		var cb := cp + Vector2(0.0, bob)
+		draw_rect(Rect2(cb + Vector2(-9.0, -4.0), Vector2(18.0, 18.0)), cc)
+		draw_rect(Rect2(cb + Vector2(-6.0, -16.0), Vector2(12.0, 12.0)), cc.lightened(0.2))
+		draw_rect(Rect2(cb + Vector2(-4.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
+		draw_rect(Rect2(cb + Vector2(2.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
+	# Player marker — chunky square.
 	if owner_player != null and is_instance_valid(owner_player):
 		var rel := owner_player.global_position - global_position
-		draw_circle(rel, 14.0, Color(0.5, 0.9, 0.95, 0.95))
+		draw_rect(Rect2(rel + Vector2(-13.0, -13.0), Vector2(26.0, 26.0)), Color(0.5, 0.9, 0.95, 0.95))
+		draw_rect(Rect2(rel + Vector2(-6.0, -6.0), Vector2(12.0, 12.0)), Color(0.5, 0.9, 0.95, 0.5))
 	# Combo + score.
 	var combo_text := "x%d" % _combo if _combo >= 2 else ""
 	draw_string(ThemeDB.fallback_font, Vector2(-60.0, -FIELD_H * 0.55),

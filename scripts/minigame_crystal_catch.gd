@@ -172,12 +172,14 @@ func on_input_event(event: InputEvent) -> void:
 
 
 func _draw_body() -> void:
+	# Snow particles — small pixel squares.
 	for i in 8:
 		var sx := fmod(sin(_snow_time * 0.5 + float(i) * 1.7) * 100.0, ARENA_RADIUS)
 		var sy := fmod(_snow_time * 20.0 + float(i) * 60.0, ARENA_RADIUS * 2.0) - ARENA_RADIUS
 		var snow_alpha := 0.3 * (1.0 - absf(sy) / ARENA_RADIUS)
-		draw_circle(Vector2(sx, sy), 2.0, Color(1.0, 1.0, 1.0, snow_alpha))
+		draw_rect(Rect2(Vector2(sx - 2.0, sy - 2.0), Vector2(4.0, 4.0)), Color(1.0, 1.0, 1.0, snow_alpha))
 
+	# Crystals — chunky diamond made of 4 stacked rects (diamond silhouette).
 	for c in _crystals:
 		if not c.get("alive", false):
 			continue
@@ -190,26 +192,34 @@ func _draw_body() -> void:
 		]
 		var col: Color = crystal_colors[c_type]
 		var s := 12.0
-		var p1 := pos + Vector2(0, -s)
-		var p2 := pos + Vector2(s * 0.7, 0)
-		var p3 := pos + Vector2(0, s)
-		var p4 := pos + Vector2(-s * 0.7, 0)
-		draw_colored_polygon([p1, p2, p3, p4], col)
-		var s2 := s * 0.5
-		var i1 := pos + Vector2(0, -s2)
-		var i2 := pos + Vector2(s2 * 0.7, 0)
-		var i3 := pos + Vector2(0, s2)
-		var i4 := pos + Vector2(-s2 * 0.7, 0)
-		draw_colored_polygon([i1, i2, i3, i4], Color(col.r, col.g, col.b, 0.5))
+		# Diamond: 4 horizontal bars stacked, narrowing toward the point.
+		draw_rect(Rect2(pos + Vector2(-s * 0.7, -s), Vector2(s * 1.4, s * 0.35)), col)  # top point
+		draw_rect(Rect2(pos + Vector2(-s * 0.9, -s * 0.5), Vector2(s * 1.8, s * 0.55)), col)  # widest
+		draw_rect(Rect2(pos + Vector2(-s * 0.6, s * 0.05), Vector2(s * 1.2, s * 0.55)), col)  # lower
+		draw_rect(Rect2(pos + Vector2(-s * 0.3, s * 0.6), Vector2(s * 0.6, s * 0.4)), col)  # bottom point
+		# Inner highlight.
+		var s2 := s * 0.4
+		draw_rect(Rect2(pos + Vector2(-s2, -s2), Vector2(s2 * 2.0, s2 * 1.5)), Color(col.r, col.g, col.b, 0.5))
 
+	# Helper creatures — chunky body + head.
 	for h in _helpers:
 		var hp: Vector2 = h.get("pos", Vector2.ZERO)
 		var hc: Color = h.get("color", Color.WHITE)
 		var bob := sin(_snow_time * 2.0 + hp.x * 0.03) * 3.0
-		draw_circle(hp + Vector2(0.0, bob), 10.0, hc)
+		var hb := hp + Vector2(0.0, bob)
+		draw_rect(Rect2(hb + Vector2(-8.0, -3.0), Vector2(16.0, 16.0)), hc)
+		draw_rect(Rect2(hb + Vector2(-5.0, -13.0), Vector2(10.0, 10.0)), hc.lightened(0.15))
+		draw_rect(Rect2(hb + Vector2(-3.5, -9.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
+		draw_rect(Rect2(hb + Vector2(1.0, -9.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
 
+	# Catch flash — a chunky square frame.
 	if _catch_flash > 0.0:
-		draw_arc(Vector2.ZERO, ARENA_RADIUS * 0.6, 0.0, TAU, 32, Color(0.8, 0.9, 1.0, _catch_flash * 0.3), 3.0)
+		var fs := ARENA_RADIUS * 0.6
+		var col := Color(0.8, 0.9, 1.0, _catch_flash * 0.3)
+		draw_rect(Rect2(Vector2(-fs, -fs), Vector2(fs * 2.0, 3.0)), col)
+		draw_rect(Rect2(Vector2(-fs, fs - 3.0), Vector2(fs * 2.0, 3.0)), col)
+		draw_rect(Rect2(Vector2(-fs, -fs + 3.0), Vector2(3.0, fs * 2.0 - 6.0)), col)
+		draw_rect(Rect2(Vector2(fs - 3.0, -fs + 3.0), Vector2(3.0, fs * 2.0 - 6.0)), col)
 
 	if _comment_timer > 0.0 and _comment_text != "":
 		var alpha := clampf(_comment_timer / 3.0, 0.0, 1.0)

@@ -115,30 +115,40 @@ func on_input_event(event: InputEvent) -> void:
 
 
 func _draw_body() -> void:
-	# Mountain floor (rocky, grey-blue)
-	draw_circle(Vector2.ZERO, ARENA_RADIUS + 20.0, Color(0.2, 0.22, 0.28, 0.55))
-	draw_arc(Vector2.ZERO, ARENA_RADIUS, 0.0, TAU, 48, Color(0.5, 0.5, 0.6, 0.4), 3.0)
+	# Mountain floor (rocky, grey-blue) — a chunky square panel.
+	var floor_half := ARENA_RADIUS + 10.0
+	draw_rect(Rect2(Vector2(-floor_half, -floor_half), Vector2(floor_half * 2.0, floor_half * 2.0)), Color(0.2, 0.22, 0.28, 0.55))
+	# Arena boundary — a chunky square frame.
+	var bh := ARENA_RADIUS
+	var border_col := Color(0.5, 0.5, 0.6, 0.4)
+	draw_rect(Rect2(Vector2(-bh, -bh), Vector2(bh * 2.0, 3.0)), border_col)
+	draw_rect(Rect2(Vector2(-bh, bh - 3.0), Vector2(bh * 2.0, 3.0)), border_col)
+	draw_rect(Rect2(Vector2(-bh, -bh + 3.0), Vector2(3.0, bh * 2.0 - 6.0)), border_col)
+	draw_rect(Rect2(Vector2(bh - 3.0, -bh + 3.0), Vector2(3.0, bh * 2.0 - 6.0)), border_col)
 
-	# Creeps
+	# Creeps — blocky body + head + eyes (tagged = friendly green).
 	for c in _creeps:
 		var cp: Vector2 = c.get("pos", Vector2.ZERO)
 		var cc: Color = c.get("color", Color.WHITE)
 		var tagged: bool = c.get("tagged", false)
 		if tagged:
 			cc = Color(0.3, 1.0, 0.5, 0.9)
-		draw_circle(cp, CREEP_RADIUS, cc)
+		var cr := CREEP_RADIUS
+		draw_rect(Rect2(cp + Vector2(-cr * 0.7, -cr * 0.4), Vector2(cr * 1.4, cr * 1.4)), cc)
+		draw_rect(Rect2(cp + Vector2(-cr * 0.5, -cr * 1.1), Vector2(cr * 1.0, cr * 0.9)), cc.lightened(0.15))
 		# Eyes
-		var eye_off := (c.get("vel") as Vector2).normalized() * 4.0
-		draw_circle(cp + eye_off + Vector2(-3, -4), 2.5, Color(0.1, 0.1, 0.1))
-		draw_circle(cp + eye_off + Vector2(3, -4), 2.5, Color(0.1, 0.1, 0.1))
+		var eye_off := (c.get("vel") as Vector2).normalized() * 3.0
+		draw_rect(Rect2(cp + eye_off + Vector2(-4.0, -3.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.1))
+		draw_rect(Rect2(cp + eye_off + Vector2(2.0, -3.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.1))
 		if tagged:
 			draw_string(ThemeDB.fallback_font, cp + Vector2(-12, -22), "x",
 				HORIZONTAL_ALIGNMENT_CENTER, 24, 11, Color(0.3, 1.0, 0.5, 0.9))
 
-	# Player marker
+	# Player marker — chunky square "IT!"
 	if owner_player != null and is_instance_valid(owner_player):
 		var rel := owner_player.global_position - global_position
-		draw_circle(rel, 15.0, Color(1.0, 0.6, 0.2, 0.95))
+		draw_rect(Rect2(rel + Vector2(-13.0, -13.0), Vector2(26.0, 26.0)), Color(1.0, 0.6, 0.2, 0.95))
+		draw_rect(Rect2(rel + Vector2(-6.0, -6.0), Vector2(12.0, 12.0)), Color(1.0, 0.8, 0.5, 0.5))
 		draw_string(ThemeDB.fallback_font, rel + Vector2(-14, -28), "IT!",
 			HORIZONTAL_ALIGNMENT_CENTER, 28, 13, Color(1.0, 0.6, 0.2, 0.9))
 

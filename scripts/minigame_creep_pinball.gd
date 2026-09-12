@@ -146,20 +146,37 @@ func _draw_body() -> void:
 	draw_rect(Rect2(-FIELD_W * 0.5, -FIELD_H * 0.5, 4.0, FIELD_H + 60.0), Color(0.5, 0.5, 0.6, 0.8))
 	draw_rect(Rect2(FIELD_W * 0.5 - 4.0, -FIELD_H * 0.5, 4.0, FIELD_H + 60.0), Color(0.5, 0.5, 0.6, 0.8))
 	draw_rect(Rect2(-FIELD_W * 0.5, -FIELD_H * 0.5, FIELD_W, 4.0), Color(0.5, 0.5, 0.6, 0.8))
-	# Pockets.
-	draw_arc(Vector2(-FIELD_W * 0.5 + POCKET_W * 0.5, PADDLE_Y + 40.0), POCKET_W * 0.45, 0.0, PI, 16, Color(1.0, 0.4, 0.3, 0.8), 3.0, true)
-	draw_arc(Vector2(0.0, PADDLE_Y + 40.0), POCKET_W * 0.35, 0.0, PI, 16, Color(1.0, 0.8, 0.2, 0.8), 3.0, true)
-	draw_arc(Vector2(FIELD_W * 0.5 - POCKET_W * 0.5, PADDLE_Y + 40.0), POCKET_W * 0.45, 0.0, PI, 16, Color(1.0, 0.4, 0.3, 0.8), 3.0, true)
+	# Pockets — chunky square pockets (3 side blocks + open top) instead of arcs.
+	var pocket_half := POCKET_W * 0.45
+	var pocket_h := 14.0
+	var py := PADDLE_Y + 40.0
+	# Left pocket.
+	var plx := -FIELD_W * 0.5 + POCKET_W * 0.5
+	draw_rect(Rect2(plx - pocket_half - 3.0, py, 3.0, pocket_h), Color(1.0, 0.4, 0.3, 0.8))
+	draw_rect(Rect2(plx + pocket_half, py, 3.0, pocket_h), Color(1.0, 0.4, 0.3, 0.8))
+	draw_rect(Rect2(plx - pocket_half - 3.0, py + pocket_h, pocket_half * 2.0 + 6.0, 3.0), Color(1.0, 0.4, 0.3, 0.8))
+	# Center pocket.
+	var pcx := 0.0
+	draw_rect(Rect2(pcx - pocket_half * 0.8 - 3.0, py, 3.0, pocket_h), Color(1.0, 0.8, 0.2, 0.8))
+	draw_rect(Rect2(pcx + pocket_half * 0.8, py, 3.0, pocket_h), Color(1.0, 0.8, 0.2, 0.8))
+	draw_rect(Rect2(pcx - pocket_half * 0.8 - 3.0, py + pocket_h, pocket_half * 1.6 + 6.0, 3.0), Color(1.0, 0.8, 0.2, 0.8))
+	# Right pocket.
+	var prx := FIELD_W * 0.5 - POCKET_W * 0.5
+	draw_rect(Rect2(prx - pocket_half - 3.0, py, 3.0, pocket_h), Color(1.0, 0.4, 0.3, 0.8))
+	draw_rect(Rect2(prx + pocket_half, py, 3.0, pocket_h), Color(1.0, 0.4, 0.3, 0.8))
+	draw_rect(Rect2(prx - pocket_half - 3.0, py + pocket_h, pocket_half * 2.0 + 6.0, 3.0), Color(1.0, 0.4, 0.3, 0.8))
 	# Paddle.
 	draw_rect(Rect2(_paddle_x - PADDLE_W * 0.5, PADDLE_Y - PADDLE_H * 0.5, PADDLE_W, PADDLE_H), Color(0.5, 0.9, 1.0, 0.95))
-	# Creeps.
+	# Creeps — chunky blocky creeps (body + head + eye highlight).
 	for c in _creeps:
 		if not bool(c.get("alive", true)):
 			continue
 		var cp: Vector2 = c.get("pos", Vector2.ZERO)
 		var cc: Color = c.get("color", Color.WHITE)
-		draw_circle(cp, CREEP_RADIUS, cc)
-		draw_circle(cp + Vector2(0.0, -3.0), 3.5, Color(1.0, 1.0, 1.0, 0.7))
+		var cr := CREEP_RADIUS
+		draw_rect(Rect2(cp + Vector2(-cr, -cr * 0.7), Vector2(cr * 2.0, cr * 1.8)), cc)
+		draw_rect(Rect2(cp + Vector2(-cr * 0.7, -cr * 1.4), Vector2(cr * 1.4, cr * 1.0)), cc.lightened(0.15))
+		draw_rect(Rect2(cp + Vector2(-3.5, -cr * 1.2), Vector2(7.0, 4.0)), Color(1.0, 1.0, 1.0, 0.7))
 	# Score + comment.
 	draw_string(ThemeDB.fallback_font, Vector2(-50.0, -FIELD_H * 0.5 - 15.0),
 		"Score %d" % score, HORIZONTAL_ALIGNMENT_CENTER, 100, 14, Color(0.9, 0.9, 0.5, 0.9))

@@ -115,38 +115,53 @@ func _check_comment() -> void:
 
 
 func _draw_body() -> void:
-	# Water-ish floor
-	draw_circle(Vector2.ZERO, RING_RADIUS + 30.0, Color(0.1, 0.25, 0.35, 0.5))
+	# Water-ish floor — a chunky square panel.
+	var floor_half := RING_RADIUS + 20.0
+	draw_rect(Rect2(Vector2(-floor_half, -floor_half), Vector2(floor_half * 2.0, floor_half * 2.0)), Color(0.1, 0.25, 0.35, 0.5))
 
-	# Markers
+	# Markers — chunky squares; active one gets a pulsing square frame.
 	for i in _markers.size():
 		var mp := _markers[i]
 		var is_active := i == _active_marker
 		var col := Color(0.2, 0.9, 0.7, 0.95) if is_active else Color(0.3, 0.5, 0.6, 0.6)
-		draw_circle(mp, MARKER_RADIUS, col)
+		var mr := MARKER_RADIUS
+		draw_rect(Rect2(mp + Vector2(-mr, -mr), Vector2(mr * 2.0, mr * 2.0)), col)
 		if is_active:
 			var pulse := 1.0 + 0.2 * sin(Time.get_ticks_msec() * 0.006)
-			draw_arc(mp, MARKER_RADIUS + 8.0 * pulse, 0.0, TAU, 24, Color(0.3, 1.0, 0.8, 0.5), 3.0)
+			var ph := (MARKER_RADIUS + 10.0) * pulse
+			var fc := Color(0.3, 1.0, 0.8, 0.5)
+			var bar := 3.0
+			draw_rect(Rect2(mp + Vector2(-ph, -ph), Vector2(ph * 2.0, bar)), fc)
+			draw_rect(Rect2(mp + Vector2(-ph, ph - bar), Vector2(ph * 2.0, bar)), fc)
+			draw_rect(Rect2(mp + Vector2(-ph, -ph + bar), Vector2(bar, ph * 2.0 - bar * 2.0)), fc)
+			draw_rect(Rect2(mp + Vector2(ph - bar, -ph + bar), Vector2(bar, ph * 2.0 - bar * 2.0)), fc)
 
-	# Gem
+	# Gem — chunky 3-piece gem (core + top facet + bottom facet).
 	if _gem_spawned:
 		var gem_col := Color(1.0, 0.9, 0.2, 0.95)
 		var bob := sin(Time.get_ticks_msec() * 0.008) * 4.0
-		draw_circle(_gem_pos + Vector2(0.0, bob), GEM_RADIUS, gem_col)
-		draw_circle(_gem_pos + Vector2(0.0, bob - 3.0), 4.0, Color(1.0, 1.0, 0.6, 0.7))
+		var gp := _gem_pos + Vector2(0.0, bob)
+		var s := GEM_RADIUS
+		draw_rect(Rect2(gp + Vector2(-s * 0.7, -s * 0.7), Vector2(s * 1.4, s * 1.4)), gem_col)
+		draw_rect(Rect2(gp + Vector2(-s * 0.7, -s * 1.1), Vector2(s * 1.4, s * 0.4)), gem_col.lightened(0.25))
+		draw_rect(Rect2(gp + Vector2(-s * 0.5, -s * 1.6), Vector2(s * 1.0, s * 0.4)), Color(1.0, 1.0, 0.6, 0.7))
 
-	# Creeps
+	# Creeps — blocky body + head + eyes.
 	for c in _creeps:
 		var cp: Vector2 = c.get("pos", Vector2.ZERO)
 		var cc: Color = c.get("color", Color.WHITE)
 		var bob := sin(float(c.get("bob", 0.0))) * 3.0
-		draw_circle(cp + Vector2(0.0, bob), 11.0, cc)
-		draw_circle(cp + Vector2(0.0, bob) + Vector2(0.0, -5.0), 4.0, Color(1.0, 1.0, 1.0, 0.6))
+		var cb := cp + Vector2(0.0, bob)
+		draw_rect(Rect2(cb + Vector2(-9.0, -4.0), Vector2(18.0, 18.0)), cc)
+		draw_rect(Rect2(cb + Vector2(-6.0, -16.0), Vector2(12.0, 12.0)), cc.lightened(0.2))
+		draw_rect(Rect2(cb + Vector2(-4.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
+		draw_rect(Rect2(cb + Vector2(2.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
 
-	# Player marker
+	# Player marker — chunky square.
 	if owner_player != null and is_instance_valid(owner_player):
 		var rel := owner_player.global_position - global_position
-		draw_circle(rel, 14.0, Color(0.4, 0.8, 1.0, 0.95))
+		draw_rect(Rect2(rel + Vector2(-13.0, -13.0), Vector2(26.0, 26.0)), Color(0.4, 0.8, 1.0, 0.95))
+		draw_rect(Rect2(rel + Vector2(-6.0, -6.0), Vector2(12.0, 12.0)), Color(0.4, 0.8, 1.0, 0.5))
 
 	# Progress text
 	draw_string(ThemeDB.fallback_font, Vector2(-50.0, -RING_RADIUS - 50.0),

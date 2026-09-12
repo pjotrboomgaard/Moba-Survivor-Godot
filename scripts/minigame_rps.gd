@@ -142,14 +142,20 @@ func _draw_body() -> void:
 func _draw_pick(x: float, pick: int) -> void:
 	var col: Color = PICK_COLORS[pick] if pick >= 0 else Color(0.5, 0.5, 0.5)
 	draw_rect(Rect2(x - 26.0, -10.0, 52.0, 36.0), Color(col.r, col.g, col.b, 0.7))
-	# Symbol
+	# Symbol — chunky pixel-art shapes (T3.4 minigames use pixel art only).
 	match pick:
-		0:  # rock
-			draw_circle(Vector2(x, 8.0), 10.0, Color(0.3, 0.2, 0.15, 0.95))
-		1:  # paper
+		0:  # rock — a 3x3 blocky stone
+			for rx in 3:
+				for ry in 3:
+					var rp := Vector2(x, 8.0) + Vector2(rx - 1.0, ry - 1.0) * 8.0
+					draw_rect(Rect2(rp - Vector2(3.0, 3.0), Vector2(6.0, 6.0)), Color(0.3, 0.2, 0.15, 0.95))
+		1:  # paper — a chunky sheet of paper
 			draw_rect(Rect2(x - 10.0, -2.0, 20.0, 22.0), Color(0.95, 0.95, 0.9, 0.95))
-		2:  # scissors
-			draw_arc(Vector2(x - 4.0, 8.0), 9.0, 0.0, TAU, 16, Color(0.2, 0.2, 0.2, 0.9), 2.5)
-			draw_arc(Vector2(x + 4.0, 8.0), 9.0, 0.0, TAU, 16, Color(0.2, 0.2, 0.2, 0.9), 2.5)
+			draw_rect(Rect2(x - 7.0, 3.0, 14.0, 3.0), Color(0.5, 0.5, 0.55, 0.6))
+			draw_rect(Rect2(x - 7.0, 9.0, 14.0, 3.0), Color(0.5, 0.5, 0.55, 0.6))
+		2:  # scissors — two chunky crossed blades
+			draw_rect(Rect2(x - 8.0, 0.0, 5.0, 16.0), Color(0.2, 0.2, 0.2, 0.9))
+			draw_rect(Rect2(x + 3.0, 0.0, 5.0, 16.0), Color(0.2, 0.2, 0.2, 0.9))
+			draw_rect(Rect2(x - 2.0, 10.0, 4.0, 4.0), Color(0.4, 0.4, 0.45, 0.9))
 		_:
 			pass

@@ -77,19 +77,30 @@ func _do_throw() -> void:
 
 
 func _draw_body() -> void:
-	# Draw the target ring (oscillating)
+	# Target (oscillating) — chunky pixel-art ring + bullseye + track.
 	var target_x := _target_phase * TARGET_AMPLITUDE
 	var target_pos := Vector2(target_x, -20.0)
 	var target_size := 28.0
-	# Target ring
-	draw_arc(target_pos, target_size, 0.0, TAU, 32, Color(0.4, 0.9, 1.0, 0.9), 3.0)
-	# Center dot
-	draw_circle(target_pos, 6.0, Color(0.4, 0.9, 1.0, 0.95))
-	# Track
-	draw_line(Vector2(-TARGET_AMPLITUDE, -20.0), Vector2(TARGET_AMPLITUDE, -20.0),
-		Color(0.3, 0.6, 0.8, 0.4), 2.0)
-	# Mark center (bullseye)
-	draw_arc(Vector2(0.0, -20.0), 4.0, 0.0, TAU, 16, Color(1.0, 1.0, 0.3, 0.8), 1.5)
+	# Target ring: a chunky square ring (4 sides) made of rects.
+	var ring_col := Color(0.4, 0.9, 1.0, 0.9)
+	var half := target_size
+	draw_rect(Rect2(target_pos + Vector2(-half, -half), Vector2(target_size * 2.0, 4.0)), ring_col)  # top
+	draw_rect(Rect2(target_pos + Vector2(-half, half - 4.0), Vector2(target_size * 2.0, 4.0)), ring_col)  # bottom
+	draw_rect(Rect2(target_pos + Vector2(-half, -half + 4.0), Vector2(4.0, target_size * 2.0 - 8.0)), ring_col)  # left
+	draw_rect(Rect2(target_pos + Vector2(half - 4.0, -half + 4.0), Vector2(4.0, target_size * 2.0 - 8.0)), ring_col)  # right
+	# Center dot (bullseye) — a chunky square.
+	draw_rect(Rect2(target_pos + Vector2(-6.0, -6.0), Vector2(12.0, 12.0)), Color(0.4, 0.9, 1.0, 0.95))
+	# Track — a chunky horizontal bar made of segments.
+	var track_col := Color(0.3, 0.6, 0.8, 0.4)
+	var seg_w := 12.0
+	var start_x := -TARGET_AMPLITUDE
+	var end_x := TARGET_AMPLITUDE
+	var nseg := int(ceil((end_x - start_x) / seg_w))
+	for s in nseg:
+		var sx := start_x + s * seg_w
+		draw_rect(Rect2(sx, -20.0 - 2.0, minf(seg_w - 2.0, end_x - sx), 4.0), track_col)
+	# Mark center (bullseye) — a chunky square.
+	draw_rect(Rect2(Vector2(0.0, -20.0) + Vector2(-4.0, -4.0), Vector2(8.0, 8.0)), Color(1.0, 1.0, 0.3, 0.8))
 	# Throw count
 	var text := "Throw %d/%d" % [_throws, THROW_COUNT]
 	draw_string(ThemeDB.fallback_font, Vector2(-60.0, 20.0), text,

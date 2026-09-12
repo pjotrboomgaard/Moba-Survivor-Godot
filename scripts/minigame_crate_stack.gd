@@ -155,20 +155,30 @@ func on_input_event(event: InputEvent) -> void:
 
 
 func _draw_body() -> void:
-	# Falling leaf particles
+	# Falling leaf particles — small pixel squares.
 	for i in 10:
 		var lx := fmod(sin(_leaf_time * 0.4 + float(i) * 1.9) * 120.0, ARENA_RADIUS)
 		var ly := fmod(_leaf_time * 30.0 + float(i) * 50.0, ARENA_RADIUS * 2.0) - ARENA_RADIUS
 		var la := 0.25 * (1.0 - absf(ly) / ARENA_RADIUS)
-		draw_circle(Vector2(lx, ly), 2.5, Color(0.5, 0.8, 0.3, la))
+		draw_rect(Rect2(Vector2(lx - 2.5, ly - 2.5), Vector2(5.0, 5.0)), Color(0.5, 0.8, 0.3, la))
 
-	# Crates
+	# Crates — chunky crate (body + border + pixel X-brace via two thin diagonal blocks).
 	for c in _crates:
 		var pos: Vector2 = c.get("pos", Vector2.ZERO)
+		# Crate body.
 		draw_rect(Rect2(pos.x - 12.0, pos.y - 12.0, 24.0, 24.0), Color(0.6, 0.45, 0.25, 0.95))
-		draw_rect(Rect2(pos.x - 12.0, pos.y - 12.0, 24.0, 24.0), Color(0.4, 0.3, 0.15, 0.9), false, 2.0)
-		draw_line(Vector2(pos.x - 8.0, pos.y - 8.0), Vector2(pos.x + 8.0, pos.y + 8.0), Color(0.35, 0.25, 0.12, 0.8), 2.0)
-		draw_line(Vector2(pos.x + 8.0, pos.y - 8.0), Vector2(pos.x - 8.0, pos.y + 8.0), Color(0.35, 0.25, 0.12, 0.8), 2.0)
+		# Border (4 side bars).
+		var bcol := Color(0.4, 0.3, 0.15, 0.9)
+		draw_rect(Rect2(pos.x - 12.0, pos.y - 12.0, 24.0, 3.0), bcol)
+		draw_rect(Rect2(pos.x - 12.0, pos.y + 9.0, 24.0, 3.0), bcol)
+		draw_rect(Rect2(pos.x - 12.0, pos.y - 9.0, 3.0, 18.0), bcol)
+		draw_rect(Rect2(pos.x + 9.0, pos.y - 9.0, 3.0, 18.0), bcol)
+		# X-brace: two short diagonal pixel blocks.
+		var xcol := Color(0.35, 0.25, 0.12, 0.8)
+		for d in 4:
+			var off := d * 3.5 - 7.0
+			draw_rect(Rect2(pos.x + off - 2.0, pos.y + off - 2.0, 4.0, 4.0), xcol)
+			draw_rect(Rect2(pos.x - off - 2.0, pos.y + off - 2.0, 4.0, 4.0), xcol)
 
 	# Stack indicator at center
 	if _stack_height > 0:
@@ -176,17 +186,25 @@ func _draw_body() -> void:
 			var sy := 20.0 + s * 10.0
 			draw_rect(Rect2(-10.0, sy, 20.0, 8.0), Color(0.55, 0.4, 0.2, 0.7))
 
-	# Helper critters
+	# Helper critters — chunky body + head.
 	for h in _helpers:
 		var hp: Vector2 = h.get("pos", Vector2.ZERO)
 		var hc: Color = h.get("color", Color.WHITE)
 		var hop := sin(_leaf_time * 4.0 + hp.x * 0.05) * 4.0
-		draw_circle(hp + Vector2(0.0, hop), 9.0, hc)
-		draw_arc(hp + Vector2(6.0, hop - 4.0), 6.0, -1.0, 1.5, 8, hc, 2.5)
+		var hb := hp + Vector2(0.0, hop)
+		draw_rect(Rect2(hb + Vector2(-7.0, -3.0), Vector2(14.0, 14.0)), hc)
+		draw_rect(Rect2(hb + Vector2(-5.0, -12.0), Vector2(10.0, 9.0)), hc.lightened(0.15))
+		draw_rect(Rect2(hb + Vector2(-3.5, -8.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
+		draw_rect(Rect2(hb + Vector2(1.0, -8.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
 
-	# Stack flash
+	# Stack flash — chunky square frame.
 	if _stack_flash > 0.0:
-		draw_arc(Vector2.ZERO, 50.0, 0.0, TAU, 32, Color(0.5, 1.0, 0.4, _stack_flash * 0.4), 4.0)
+		var fs := 50.0
+		var col := Color(0.5, 1.0, 0.4, _stack_flash * 0.4)
+		draw_rect(Rect2(Vector2(-fs, -fs), Vector2(fs * 2.0, 4.0)), col)
+		draw_rect(Rect2(Vector2(-fs, fs - 4.0), Vector2(fs * 2.0, 4.0)), col)
+		draw_rect(Rect2(Vector2(-fs, -fs + 4.0), Vector2(4.0, fs * 2.0 - 8.0)), col)
+		draw_rect(Rect2(Vector2(fs - 4.0, -fs + 4.0), Vector2(4.0, fs * 2.0 - 8.0)), col)
 
 	# Comment
 	if _comment_timer > 0.0 and _comment_text != "":

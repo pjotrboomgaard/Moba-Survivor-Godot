@@ -193,40 +193,54 @@ func on_input_event(event: InputEvent) -> void:
 
 
 func _draw_body() -> void:
-	# Lagoon water tiles (subtle animated ripples)
+	# Lagoon water tiles — chunky square water tiles with a pixel border.
 	var shimmer := 0.5 + 0.5 * sin(_water_shimmer * 2.0)
 	for t in _tiles:
 		var ripple_col := Color(0.15, 0.4, 0.55, 0.25 + 0.1 * shimmer)
-		draw_circle(t, 30.0, ripple_col)
-		draw_arc(t, 30.0, 0.0, TAU, 24, Color(0.3, 0.6, 0.8, 0.2), 1.5)
+		var th := 30.0
+		draw_rect(Rect2(t + Vector2(-th, -th), Vector2(th * 2.0, th * 2.0)), ripple_col)
+		# Border (4 side bars)
+		var bc := Color(0.3, 0.6, 0.8, 0.2)
+		draw_rect(Rect2(t + Vector2(-th, -th), Vector2(th * 2.0, 2.0)), bc)
+		draw_rect(Rect2(t + Vector2(-th, th - 2.0), Vector2(th * 2.0, 2.0)), bc)
+		draw_rect(Rect2(t + Vector2(-th, -th + 2.0), Vector2(2.0, th * 2.0 - 4.0)), bc)
+		draw_rect(Rect2(t + Vector2(th - 2.0, -th + 2.0), Vector2(2.0, th * 2.0 - 4.0)), bc)
 
-	# Slimes
+	# Slimes — chunky squishy blob: layered square body + brighter inner block + eyes.
 	for s in _slimes:
 		var pos: Vector2 = s.get("pos", Vector2.ZERO)
 		var scale: float = s.get("scale", 1.0)
 		var slime_col := Color(0.3, 0.85, 0.4, 0.9 * scale)
-		# Body (squishy blob)
 		var wobble := 1.0 + 0.1 * sin(_water_shimmer * 4.0 + pos.x * 0.05)
-		draw_circle(pos, 16.0 * scale * wobble, slime_col)
-		draw_circle(pos, 10.0 * scale * wobble, Color(0.5, 1.0, 0.6, 0.5 * scale))
+		var w := 16.0 * scale * wobble
+		# Body (layered rects to read squishy)
+		draw_rect(Rect2(pos + Vector2(-w, -w * 0.8), Vector2(w * 2.0, w * 1.8)), slime_col)
+		draw_rect(Rect2(pos + Vector2(-w * 0.7, -w * 0.5), Vector2(w * 1.4, w * 1.2)), Color(0.5, 1.0, 0.6, 0.5 * scale))
 		# Eyes
 		if scale > 0.5:
-			draw_circle(pos + Vector2(-5.0 * scale, -3.0 * scale), 2.5 * scale, Color(0.1, 0.3, 0.1))
-			draw_circle(pos + Vector2(5.0 * scale, -3.0 * scale), 2.5 * scale, Color(0.1, 0.3, 0.1))
+			draw_rect(Rect2(pos + Vector2(-7.0 * scale, -5.0 * scale), Vector2(3.5 * scale, 3.5 * scale)), Color(0.1, 0.3, 0.1))
+			draw_rect(Rect2(pos + Vector2(3.5 * scale, -5.0 * scale), Vector2(3.5 * scale, 3.5 * scale)), Color(0.1, 0.3, 0.1))
 
-	# Helper critters
+	# Helper critters — chunky body + head.
 	for h in _helpers:
 		var hp: Vector2 = h.get("pos", Vector2.ZERO)
 		var hc: Color = h.get("color", Color.WHITE)
 		var bounce := sin(_water_shimmer * 3.0 + hp.x * 0.02) * 3.0
-		draw_circle(hp + Vector2(0.0, bounce), 10.0, hc)
-		# Little tail
+		var hb := hp + Vector2(0.0, bounce)
+		draw_rect(Rect2(hb + Vector2(-8.0, -3.0), Vector2(16.0, 16.0)), hc)
+		draw_rect(Rect2(hb + Vector2(-5.0, -13.0), Vector2(10.0, 10.0)), hc.lightened(0.15))
+		# Little tail — a short pixel block.
 		var tail_dir := Vector2.from_angle(_water_shimmer + hp.y * 0.01)
-		draw_line(hp + Vector2(0.0, bounce), hp + Vector2(0.0, bounce) + tail_dir * 8.0, hc, 2.0)
+		draw_rect(Rect2(hb + tail_dir * 8.0 - Vector2(2.0, 2.0), Vector2(4.0, 4.0)), hc)
 
-	# Splat flash
+	# Splat flash — a chunky square frame flash.
 	if _splat_flash > 0.0:
-		draw_arc(Vector2.ZERO, ARENA_RADIUS, 0.0, TAU, 32, Color(0.4, 1.0, 0.5, _splat_flash * 0.3), 3.0)
+		var fs := ARENA_RADIUS
+		var col := Color(0.4, 1.0, 0.5, _splat_flash * 0.3)
+		draw_rect(Rect2(Vector2(-fs, -fs), Vector2(fs * 2.0, 3.0)), col)
+		draw_rect(Rect2(Vector2(-fs, fs - 3.0), Vector2(fs * 2.0, 3.0)), col)
+		draw_rect(Rect2(Vector2(-fs, -fs + 3.0), Vector2(3.0, fs * 2.0 - 6.0)), col)
+		draw_rect(Rect2(Vector2(fs - 3.0, -fs + 3.0), Vector2(3.0, fs * 2.0 - 6.0)), col)
 
 	# Comment
 	if _comment_timer > 0.0 and _comment_text != "":

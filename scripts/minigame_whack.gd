@@ -125,19 +125,20 @@ func _draw_body() -> void:
 		var key_label := str(i + 1)
 		draw_string(ThemeDB.fallback_font, c + Vector2(-8.0, 10.0), key_label,
 			HORIZONTAL_ALIGNMENT_LEFT, 20, 12, Color(0.7, 0.9, 0.5, 0.5))
-	# Active creep
+	# Active creep — chunky blocky pixel-art creep (body + head + eyes + timer bar).
 	if _active_cell >= 0:
 		var c: Vector2 = CELLS[_active_cell]
-		# Creep body (simple blob)
 		var bounce := 1.0 + 0.1 * sin(Time.get_ticks_msec() * 0.012)
-		draw_circle(c, 14.0 * bounce, Color(0.6, 0.8, 0.4, 0.95))
-		draw_circle(c + Vector2(0.0, -4.0), 8.0 * bounce, Color(0.8, 1.0, 0.6, 0.9))
-		# Eyes
-		draw_circle(c + Vector2(-5.0, -3.0), 2.5, Color(0.1, 0.1, 0.1, 0.9))
-		draw_circle(c + Vector2(5.0, -3.0), 2.5, Color(0.1, 0.1, 0.1, 0.9))
-		# Timer arc around creep
+		# Body (20x18) + head (14x14) + eyes (3x3), scaled by bounce.
+		var cs := bounce
+		draw_rect(Rect2(c + Vector2(-10.0 * cs, -4.0 * cs), Vector2(20.0 * cs, 18.0 * cs)), Color(0.6, 0.8, 0.4, 0.95))
+		draw_rect(Rect2(c + Vector2(-7.0 * cs, -16.0 * cs), Vector2(14.0 * cs, 14.0 * cs)), Color(0.8, 1.0, 0.6, 0.9))
+		draw_rect(Rect2(c + Vector2(-4.0 * cs, -11.0 * cs), Vector2(3.0 * cs, 3.0 * cs)), Color(0.1, 0.1, 0.1, 0.9))
+		draw_rect(Rect2(c + Vector2(2.0 * cs, -11.0 * cs), Vector2(3.0 * cs, 3.0 * cs)), Color(0.1, 0.1, 0.1, 0.9))
+		# Timer bar: a chunky horizontal block that depletes.
 		var frac := clampf(_creep_timer / CREEP_LIFE, 0.0, 1.0)
-		draw_arc(c, 22.0, -PI / 2.0, -PI / 2.0 + TAU * frac, 24, Color(1.0, 0.8, 0.3, 0.7), 2.0)
+		var bar_w := 40.0 * (1.0 - frac)
+		draw_rect(Rect2(c + Vector2(-20.0, 18.0), Vector2(bar_w, 4.0)), Color(1.0, 0.8, 0.3, 0.7))
 	# Flash result
 	if _flash_cell >= 0 and _flash_result != 0:
 		var c: Vector2 = CELLS[_flash_cell]

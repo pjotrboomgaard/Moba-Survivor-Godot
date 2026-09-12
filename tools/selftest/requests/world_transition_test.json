@@ -1,0 +1,17 @@
+{
+  "hero": "arclight",
+  "comment": "P2.1: cinematic ring-of-fire world transition. Trigger mission_warp dev command, capture before/during/after the sweep to verify both worlds visible + zoom out/in.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "pre_transition"},
+    {"t": 1.5, "kind": "dev_command", "command": "mission_warp"},
+    {"t": 2.0, "kind": "probe", "label": "transition_zoomout"},
+    {"t": 2.3, "kind": "snap", "label": "transition_mid_sweep"},
+    {"t": 3.0, "kind": "probe", "label": "transition_sweep"},
+    {"t": 4.5, "kind": "snap", "label": "transition_reveal"},
+    {"t": 7.5, "kind": "dev_command", "command": "biome_auto"},
+    {"t": 8.0, "kind": "probe", "label": "transition_after"},
+    {"t": 8.5, "kind": "snap", "label": "post_transition"},
+    {"t": 9.0, "kind": "report"}
+  ]
+}

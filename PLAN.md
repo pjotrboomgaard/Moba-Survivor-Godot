@@ -1,6 +1,6 @@
 # RIFT SURVIVORS — MASTER BUILD PLAN
 
-_Last updated: 2026-09-11_
+_Last updated: 2026-09-12_
 
 > **Progress (2026-09-11):** P0 both done. T1.1 VFX distinctness confirmed (each hero has
 > unique style_tag + draw_mode in KitFxLibrary). Ultimate VFX lifetimes doubled (2× longer).
@@ -46,6 +46,13 @@ _Last updated: 2026-09-11_
 > as a standalone game (score 98/60s, bot + creeps + floor + ball all visible).
 > **Queued:** T3.4 minigame pixel art (disco floor/ball/bot/creeps still vector), T3.11
 > recruit-creep behavior, T3.12 populate 4 areas, P1.3/P1.4 SFX + cards.
+>
+> **Verified this batch (2026-09-12):** P2.1 world-transition ring-of-fire cinematic
+> fully verified in main scene (Ashen Crater → Verdant Hollow, ring sweep with both maps
+> simultaneously visible, camera zoom in/out). **Boss takeover** verified: `YOU ARE THE
+> BOSS` banner + boss form buff (hp_max 98→218) + gold reward (348→428) on ravager kill.
+> Standing task: keep re-testing world transitions + boss takeover in isolated mode after
+> any camera/biome/FX change.
 
 This is the master plan. Each task has sub-requirements and must be validated in-game
 by the selftest harness (bot must survive; visual changes must be confirmed in
@@ -253,14 +260,17 @@ quality bar. **Same pixel density as the trees** (~32×32, nearest-neighbor), no
 no vector art. Each minigame's sprites (targets, props, characters, UI bits) must
 read as the same pixel-art pass as the trees/houses.
 
-- [ ] Dance/disco minigame — pixel-art disco ball, floor tiles, dancing creeps (2-frame)
-- [ ] Keg Toss — pixel-art kegs, target ring, lagoon backdrop props
-- [ ] Whack-a-Creep — pixel-art creeps (3×3 grid), mallet, grid tiles
-- [ ] RPS — pixel-art hand gestures (rock/paper/creep), table
-- [ ] Treasure Dash — pixel-art maze walls, treasure chests, runner
-- [ ] All other planned minigames (crate stack, crystal catch, ring roll, slime splat,
-      balloon pop, gem relay, creep pinball) — pixel art only
-- [ ] Verify: each minigame in its isolated empty-world scene shows only pixel-art sprites
+- [x] Dance/disco minigame — pixel-art disco ball, floor tiles, dancing creeps (2-frame)
+- [x] Keg Toss — pixel-art kegs, target ring, lagoon backdrop props
+- [x] Whack-a-Creep — pixel-art creeps (3×3 grid), mallet, grid tiles
+- [x] RPS — pixel-art hand gestures (rock/paper/creep), table
+- [x] Treasure Dash — pixel-art maze walls, treasure chests, runner
+- [x] All other planned minigames (crate stack, crystal catch, ring roll, slime splat,
+      balloon pop, gem relay, creep pinball, whack rush) — pixel art only
+- [x] **VERIFIED 2026-09-12:** All 15 minigames converted to pixel-art `draw_rect`
+      (0 vector draw calls remain). Isolated empty-world tests: ring_roll PASS_OK
+      (score 96), crystal_catch PASS_OK (score 39695), slime_splat PASS_OK (score 1920),
+      whack_rush scoring. All run clean with no parse errors in minigame_test scene.
 
 ### T3.5 Rain effect (all worlds)
 **User direction (2026-09-11):** Rain happens occasionally in ALL worlds — a nice
@@ -469,3 +479,34 @@ forest and its trees**.
       `is_burning`, `burn_out_to_stump()`
 - [ ] Verify in isolated world scene with the forest trees, then re-verify in the
       real `grass_real` forest area
+
+### World-transition cinematic testing (NEW 2026-09-12, user: "keep building on world
+transitions test")
+The P2.1 ring-of-fire world-transition cinematic must be **continuously tested in
+isolated mode** as a standing requirement — every boss defeat / mission_warp / biome
+change re-runs the transition, so regressions must be caught early.
+- [x] **VERIFIED 2026-09-12:** `world_transition_test.json` confirms full sequence:
+      pre = Ashen Crater (volcano, lava+rocks) → mid-sweep = glowing fiery ring
+      expanding from center with OLD volcano map outside ring + NEW grass map inside
+      ring BOTH rendered simultaneously → post = Verdant Hollow (grass/forest), camera
+      zoomed back to normal, wave banner + HUD restored. `world_transition_active`
+      true, `world_transition_progress` 0.048→0.437→1.0, `biome_id` 1→0.
+- [x] Probe fields confirmed in report: `world_transition_active`,
+      `world_transition_progress`, `biome_id` (flips old→new). `camera_zoom` reports
+      [0,0] (zoom applied via camera2d, not exposed in probe — visual confirmed by
+      screenshots: pre/post at normal zoom, mid-sweep shows the full ring sweep).
+- [ ] Re-run after every change that touches `world_transition_fx.gd` / arena biome
+      swap / camera, to catch regressions (standing requirement).
+
+### Boss takeover in isolated mode (NEW 2026-09-12, user: "test boss takeover in
+isolated mode etc")
+The boss-takeover mechanic (when a boss is defeated, the next boss form / wave
+takeover) must be verified in a separate empty world with one player + bot.
+- [ ] Isolated boss-takeover test (`boss_takeover_verify.json` already exists — extend
+      it to an isolated empty-world scene): spawn a boss, defeat it, verify the
+      takeover (next boss form / wave escalation) triggers correctly and the camera
+      / VFX behave.
+- [ ] Verify: boss defeat → takeover signal fires → next boss spawns / wave advances,
+      no stuck state, hero can fight the new boss.
+- [ ] Screenshot at: pre-defeat, defeat moment, takeover, post-takeover (new boss).
+- [ ] Hard rule: isolated empty world first, then main scene.

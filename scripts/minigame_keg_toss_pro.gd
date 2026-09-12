@@ -155,37 +155,52 @@ func on_input_event(event: InputEvent) -> void:
 
 
 func _draw_body() -> void:
-	# Lagoon floor (water-ish)
-	draw_circle(Vector2.ZERO, 240.0, Color(0.1, 0.3, 0.4, 0.5))
-	draw_arc(Vector2.ZERO, 240.0, 0.0, TAU, 48, Color(0.3, 0.7, 0.8, 0.4), 3.0)
+	# Lagoon floor (water-ish) — a chunky square panel.
+	var floor_half := 230.0
+	draw_rect(Rect2(Vector2(-floor_half, -floor_half), Vector2(floor_half * 2.0, floor_half * 2.0)), Color(0.1, 0.3, 0.4, 0.5))
+	# Track — a chunky horizontal bar.
+	var track_col := Color(0.6, 0.5, 0.3, 0.5)
+	var seg_w := 16.0
+	var nseg := int(ceil((TRACK_HALF * 2.0) / seg_w))
+	for s in nseg:
+		var sx := -TRACK_HALF + s * seg_w
+		draw_rect(Rect2(sx, TRACK_Y - 2.0, minf(seg_w - 2.0, TRACK_HALF * 2.0 - (s * seg_w)), 4.0), track_col)
 
-	# Track
-	draw_line(Vector2(-TRACK_HALF, TRACK_Y), Vector2(TRACK_HALF, TRACK_Y),
-		Color(0.6, 0.5, 0.3, 0.5), 3.0)
-
-	# Barrels
+	# Barrels — chunky wooden barrels (body + 3 horizontal bands + top lid).
 	for b in _barrels:
 		var bp: Vector2 = b.get("pos", Vector2.ZERO)
-		draw_circle(bp, BARREL_RADIUS, Color(0.6, 0.4, 0.2, 0.95))
-		draw_circle(bp, BARREL_RADIUS * 0.55, Color(0.8, 0.6, 0.3, 0.9))
+		var br := BARREL_RADIUS
+		draw_rect(Rect2(bp + Vector2(-br * 0.8, -br), Vector2(br * 1.6, br * 2.0)), Color(0.6, 0.4, 0.2, 0.95))
+		# Bands (3 horizontal dark strips).
+		var band_col := Color(0.4, 0.25, 0.12, 0.9)
+		draw_rect(Rect2(bp + Vector2(-br * 0.8, -br * 0.6), Vector2(br * 1.6, 4.0)), band_col)
+		draw_rect(Rect2(bp + Vector2(-br * 0.8, -2.0), Vector2(br * 1.6, 4.0)), band_col)
+		draw_rect(Rect2(bp + Vector2(-br * 0.8, br * 0.6 - 4.0), Vector2(br * 1.6, 4.0)), band_col)
+		# Top lid.
+		draw_rect(Rect2(bp + Vector2(-br * 0.6, -br - 4.0), Vector2(br * 1.2, 5.0)), Color(0.8, 0.6, 0.3, 0.9))
 
-	# Kegs in flight
+	# Kegs in flight — chunky square kegs.
 	for kg in _kegs:
 		var kp: Vector2 = kg.get("pos", Vector2.ZERO)
-		draw_circle(kp, KEG_RADIUS, Color(0.9, 0.7, 0.3, 0.95))
+		draw_rect(Rect2(kp + Vector2(-KEG_RADIUS, -KEG_RADIUS), Vector2(KEG_RADIUS * 2.0, KEG_RADIUS * 2.0)), Color(0.9, 0.7, 0.3, 0.95))
+		draw_rect(Rect2(kp + Vector2(-KEG_RADIUS * 0.5, -KEG_RADIUS * 0.5), Vector2(KEG_RADIUS, KEG_RADIUS)), Color(0.7, 0.5, 0.2, 0.6))
 
-	# Creeps
+	# Creeps — blocky body + head + eyes.
 	for c in _creeps:
 		var cp: Vector2 = c.get("pos", Vector2.ZERO)
 		var cc: Color = c.get("color", Color.WHITE)
 		var bob := sin(float(c.get("bob", 0.0))) * 3.0
-		draw_circle(cp + Vector2(0.0, bob), 11.0, cc)
-		draw_circle(cp + Vector2(0.0, bob) + Vector2(0.0, -5.0), 4.0, Color(1.0, 1.0, 1.0, 0.6))
+		var cb := cp + Vector2(0.0, bob)
+		draw_rect(Rect2(cb + Vector2(-9.0, -4.0), Vector2(18.0, 18.0)), cc)
+		draw_rect(Rect2(cb + Vector2(-6.0, -16.0), Vector2(12.0, 12.0)), cc.lightened(0.2))
+		draw_rect(Rect2(cb + Vector2(-4.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
+		draw_rect(Rect2(cb + Vector2(2.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
 
-	# Player marker
+	# Player marker — chunky square.
 	if owner_player != null and is_instance_valid(owner_player):
 		var rel := owner_player.global_position - global_position
-		draw_circle(rel, 14.0, Color(0.4, 0.8, 1.0, 0.95))
+		draw_rect(Rect2(rel + Vector2(-13.0, -13.0), Vector2(26.0, 26.0)), Color(0.4, 0.8, 1.0, 0.95))
+		draw_rect(Rect2(rel + Vector2(-6.0, -6.0), Vector2(12.0, 12.0)), Color(0.4, 0.8, 1.0, 0.5))
 
 	# Combo
 	if _combo > 1:

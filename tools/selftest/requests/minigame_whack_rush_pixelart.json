@@ -1,0 +1,6 @@
+{
+  "hero": "tobor",
+  "minigame_index": 7,
+  "time_scale": 1.0,
+  "comment": "T3.4: verify whack_rush minigame after pixel-art conversion runs clean + scores in the isolated empty-world minigame_test scene."
+}

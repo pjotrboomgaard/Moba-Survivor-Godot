@@ -136,41 +136,54 @@ func on_input_event(event: InputEvent) -> void:
 
 
 func _draw_body() -> void:
-	# Forest floor
-	draw_circle(Vector2.ZERO, GRID * CELL * 0.5 + 30.0, Color(0.1, 0.3, 0.15, 0.55))
+	# Forest floor — a chunky square panel.
+	var floor_half := GRID * CELL * 0.5 + 20.0
+	draw_rect(Rect2(Vector2(-floor_half, -floor_half), Vector2(floor_half * 2.0, floor_half * 2.0)), Color(0.1, 0.3, 0.15, 0.55))
 
 	# Grid cells (subtle)
 	for cell in GRID * GRID:
 		draw_rect(Rect2(_grid_cell_pos(cell) - Vector2(CELL * 0.45, CELL * 0.45),
 			Vector2(CELL * 0.9, CELL * 0.9)), Color(0.2, 0.4, 0.2, 0.15))
 
-	# Targets
+	# Targets — chunky blocky target (outer square + inner square + eye).
 	for t in _targets:
 		if not bool(t.get("alive", false)):
 			continue
 		var tp: Vector2 = t.get("pos", Vector2.ZERO)
 		var age := _elapsed_local() - float(t.get("born", 0.0))
 		var flash := 1.0 if age < TARGET_LIFETIME * 0.5 else 0.6
-		draw_circle(tp, 22.0, Color(0.9, 0.6, 0.2, flash))
-		draw_circle(tp, 12.0, Color(1.0, 0.85, 0.3, flash))
+		# Outer blocky ring (4 bars) + inner core.
+		var s := 22.0
+		draw_rect(Rect2(tp + Vector2(-s, -s), Vector2(s * 2.0, 5.0)), Color(0.9, 0.6, 0.2, flash))  # top
+		draw_rect(Rect2(tp + Vector2(-s, s - 5.0), Vector2(s * 2.0, 5.0)), Color(0.9, 0.6, 0.2, flash))  # bottom
+		draw_rect(Rect2(tp + Vector2(-s, -s + 5.0), Vector2(5.0, s * 2.0 - 10.0)), Color(0.9, 0.6, 0.2, flash))  # left
+		draw_rect(Rect2(tp + Vector2(s - 5.0, -s + 5.0), Vector2(5.0, s * 2.0 - 10.0)), Color(0.9, 0.6, 0.2, flash))  # right
+		# Inner core block.
+		draw_rect(Rect2(tp + Vector2(-12.0, -12.0), Vector2(24.0, 24.0)), Color(1.0, 0.85, 0.3, flash))
+		# Eye.
+		draw_rect(Rect2(tp + Vector2(-4.0, -4.0), Vector2(8.0, 8.0)), Color(0.2, 0.1, 0.05, flash))
 
 	# Combo text
 	if _combo > 1:
 		draw_string(ThemeDB.fallback_font, Vector2(-40.0, -GRID * CELL * 0.5 - 30.0),
 			"COMBO x%d" % _combo, HORIZONTAL_ALIGNMENT_CENTER, 80, 16, Color(1.0, 0.9, 0.3, 0.9))
 
-	# Creeps
+	# Creeps — blocky body + head + eyes.
 	for c in _creeps:
 		var cp: Vector2 = c.get("pos", Vector2.ZERO)
 		var cc: Color = c.get("color", Color.WHITE)
 		var bob := sin(float(c.get("bob", 0.0))) * 3.0
-		draw_circle(cp + Vector2(0.0, bob), 11.0, cc)
-		draw_circle(cp + Vector2(0.0, bob) + Vector2(0.0, -5.0), 4.0, Color(1.0, 1.0, 1.0, 0.6))
+		var cb := cp + Vector2(0.0, bob)
+		draw_rect(Rect2(cb + Vector2(-9.0, -4.0), Vector2(18.0, 18.0)), cc)
+		draw_rect(Rect2(cb + Vector2(-6.0, -16.0), Vector2(12.0, 12.0)), cc.lightened(0.2))
+		draw_rect(Rect2(cb + Vector2(-4.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
+		draw_rect(Rect2(cb + Vector2(2.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
 
-	# Player marker
+	# Player marker — chunky square.
 	if owner_player != null and is_instance_valid(owner_player):
 		var rel := owner_player.global_position - global_position
-		draw_circle(rel, 14.0, Color(0.4, 0.8, 1.0, 0.95))
+		draw_rect(Rect2(rel + Vector2(-13.0, -13.0), Vector2(26.0, 26.0)), Color(0.4, 0.8, 1.0, 0.95))
+		draw_rect(Rect2(rel + Vector2(-6.0, -6.0), Vector2(12.0, 12.0)), Color(0.4, 0.8, 1.0, 0.5))
 
 
 func _finish_with_reward() -> void:

@@ -85,30 +85,26 @@ func _draw_body() -> void:
 	draw_rect(Rect2(-hw, hh - 2.0, hw * 2.0, 2.0), border)
 	draw_rect(Rect2(-hw, -hh, 2.0, hh * 2.0), border)
 	draw_rect(Rect2(hw - 2.0, -hh, 2.0, hh * 2.0), border)
-	# Corner markers
+	# Corner markers — chunky squares.
 	var corner_col := Color(0.6, 0.7, 0.8, 0.5)
 	for cx in [-hw, hw]:
 		for cy in [-hh, hh]:
-			draw_circle(Vector2(cx, cy), 4.0, corner_col)
-	# Gems
+			draw_rect(Rect2(Vector2(cx - 5.0, cy - 5.0), Vector2(10.0, 10.0)), corner_col)
+	# Gems — chunky 3-piece pixel gem (core + top facet + bottom facet).
 	var gem_col := Color(1.0, 0.85, 0.3, 0.95)
 	for g in _gems:
 		var s := GEM_RADIUS
-		var p1 := g + Vector2(0.0, -s)
-		var p2 := g + Vector2(s * 0.7, 0.0)
-		var p3 := g + Vector2(0.0, s)
-		var p4 := g + Vector2(-s * 0.7, 0.0)
-		var poly := PackedVector2Array([p1, p2, p3, p4])
-		draw_colored_polygon(poly, gem_col)
-		draw_circle(g, 4.0, Color(1.0, 1.0, 1.0, 0.6))
-		# Sparkle ring
-		draw_arc(g, s + 6.0, 0.0, TAU, 20, Color(1.0, 0.9, 0.4, 0.3), 1.5)
-	# Player marker (relative position)
+		draw_rect(Rect2(g + Vector2(-s * 0.7, -s * 0.7), Vector2(s * 1.4, s * 1.4)), gem_col)
+		draw_rect(Rect2(g + Vector2(-s * 0.7, -s * 1.1), Vector2(s * 1.4, s * 0.4)), gem_col.lightened(0.25))
+		draw_rect(Rect2(g + Vector2(-s * 0.5, s * 0.6), Vector2(s * 1.0, s * 0.4)), gem_col.darkened(0.15))
+		# Sparkle pixel.
+		draw_rect(Rect2(g + Vector2(-3.0, -3.0), Vector2(6.0, 6.0)), Color(1.0, 1.0, 1.0, 0.6))
+	# Player marker (relative position) — chunky square.
 	if owner_player != null and is_instance_valid(owner_player):
 		var rel := owner_player.global_position - global_position
 		if rel.length() < BOUNDS * 1.2:
-			draw_circle(rel, 12.0, Color(0.4, 0.9, 0.6, 0.95))
-			draw_arc(rel, 16.0, 0.0, TAU, 24, Color(0.4, 0.9, 0.6, 0.5), 2.0)
+			draw_rect(Rect2(rel + Vector2(-11.0, -11.0), Vector2(22.0, 22.0)), Color(0.4, 0.9, 0.6, 0.95))
+			draw_rect(Rect2(rel + Vector2(-5.0, -5.0), Vector2(10.0, 10.0)), Color(0.4, 0.9, 0.6, 0.5))
 	# Count
 	draw_string(ThemeDB.fallback_font, Vector2(-60.0, BOUNDS + 20.0),
 		"Gems: %d / %d" % [_collected, GEM_COUNT],
