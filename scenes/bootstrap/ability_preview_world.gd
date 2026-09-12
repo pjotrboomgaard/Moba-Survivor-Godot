@@ -422,7 +422,7 @@ func _do_cast() -> void:
 		var mid := _creeps[_creeps.size() / 2]
 		if mid != null:
 			_hero.aim_world_position = mid.global_position
-			var dir := (_hero.global_position.position_to(mid.global_position))
+			var dir := mid.global_position - _hero.global_position
 			if dir.length_squared() > 0.0:
 				_hero.facing_direction = dir.normalized()
 	# Clear cooldowns so the cast always lands for the loop.
