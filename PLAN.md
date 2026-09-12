@@ -496,6 +496,153 @@ the player and FIGHT nearby enemies after the minigame is done.
       following, (3) minions fighting nearby enemies
 - [ ] Verify report: minion count, follow distance, enemy-creep kill count
 
+### T3.17 Remove "old pixel-art explosion" VFX from abilities (NEW 2026-09-12)
+**User direction (2026-09-12):** "All abilities that use an old pixel art
+explosion should no longer do that. Like tremor third ability." — Any ability
+that still spawns a generic/procedural "explosion" visual (draw_circle burst,
+hand-rolled pixel-art explosion sprite, etc.) must be replaced with a
+proper themed VFX (or pixel-art asset, once built). Audit every ability in
+`PlayerClass.ABILITIES` for the `explosion` / `blast` / `burst` VFX hooks and
+re-target each to the hero's themed VFX.
+
+- [ ] Audit all `Archetype.*` + `ability_vfx` hooks in `player.gd` for
+      generic-explosion VFX (search `_cast_ability`, `_explode`, `explosion`,
+      `blast`, `burst` call sites).
+- [ ] Replace each generic explosion with hero-themed VFX (fire for fire heroes,
+      electric arc for Volt/Arclight, ice shard for Rime/Frost, etc.).
+- [ ] **Tremor third ability (ultimate)** — replace its generic explosion with
+      a proper seismic / fissure VFX (see T3.18).
+- [ ] Verify: isolated ability_vfx_test scene captures each affected ability's
+      new VFX in a clean empty world; no generic explosion remains.
+
+### T3.18 Redo all Joule (Tremor) abilities with proper vector art + pixel-art fissure
+**User direction (2026-09-12):** "Redo all effects of joule." + "Redo the
+tremor fissure, with a pixel art fissure." Joule is the hero formerly known as
+the "tremor" class (see `PlayerClass.CLASSES` entry with `world` 3 / rock
+theming). Its abilities need:
+- [ ] All 4 abilities re-them'd with proper **vector art** VFX (not pixel art —
+      per the hero-ability = vector art rule; see the global "pixel art vs
+      vector art" rule in the header of this plan).
+- [ ] **Fissure ability (2nd ability, "fissure" / "fissure_grow"):** redo with a
+      **pixel-art fissure** sprite (cracked-earth ground texture, 2-3 frame
+      animation, same pixel density as the trees ~32x32, nearest-neighbor).
+      Deferred with the T3.1 pixel-art batch; for now use a placeholder
+      vector fissure.
+- [ ] Redo the fissure so it is *bigger* (user: "make fissure bigger") — current
+      radius ~120px, target ~180px.
+- [ ] Verify: isolated ability_vfx_test captures each Joule ability; the fissure
+      is visibly bigger than before; no generic explosion.
+
+### T3.19 Redo names of ALL abilities (copyright-safe rewording pass #2)
+**User direction (2026-09-12):** "Redo names of all abilities like you were
+redoing the descriptions." Every ability's `name` field must be reworded to
+avoid any HoN/LoL/DoTA copyright similarity. The descriptions pass is done;
+the names pass is not. Examples to check: "Blast of Lightning" →
+"Static Storm"; "Chain Lightning" → "Arc Cascade"; "Thundergod's Wrath" →
+"Tempest Call"; etc. All 15+ heroes × 4 abilities each.
+- [ ] Renamed + reworded in `PlayerClass.ABILITIES` (name field).
+- [ ] All `SECONDARY_NAMES` (RMB ability names) also reworded.
+- [ ] All `ABILITIES[aid]["name"]` display strings updated in:
+      - `hud.gd` ability hint panel (hold-TAB card titles)
+      - `bootstrap.gd` ability panel cards (in-menu)
+      - `bootstrap.gd` hover tooltips
+      - `player_class.gd` `ability_description()` / `ability_info()` outputs
+      - Any other display surface (codex, upgrade panel, level-up card)
+- [ ] No ability name contains "Thundergod", "Steam Keg", "Spider Mine",
+      "Frostbite", "Chain Lightning", "Blizzard", or any other HoN/LoL/DoTA
+      exact match.
+- [ ] Verify: isolated ability_panel_test + menu hover both show the new names;
+      grep the codebase for the old names returns 0 hits.
+
+### T3.20 Fix menu ability-panel hover regression (NEW 2026-09-12)
+**User direction (2026-09-12):** "There was a hover over in the ability which
+opened ability panel, with an icon and preview, there the description is gone
+now. But there is also a gray box appearing right on top of the ability with
+description etc. This one should be removed. So in ability panel in menu. But
+not gray hover box directly at mouse position."
+Two regressions in the menu (bootstrap.gd) ability hover:
+- [ ] (a) The menu ability-panel (left-side panel with hero name, blurb, cards,
+      + live preview SubViewport) used to show the full description for the
+      hovered ability in `ability_hover_body`. It's gone now. Restore: when the
+      user hovers an ability slot, `ability_hero_header` shows the ability name
+      and `ability_hover_body` shows the full substituted description + stats.
+      The live preview SubViewport (`ability_preview`) stays visible at the
+      bottom of the panel.
+- [ ] (b) The Godot-native `tooltip_text` on the ability slot buttons
+      (`loadout_slots[slot].tooltip_text = _ability_tooltip(want)`) is creating
+      a gray tooltip box that follows the mouse cursor. Remove all
+      `tooltip_text` assignments on the LMB/RMB/Q/E/D/R slot buttons in the
+      bootstrap (they duplicate the info in the panel). The panel + preview is
+      the single source of truth.
+- [ ] Verify: isolated bootstrap-hover test — hover an ability slot in the
+      menu, screenshot shows: (1) the left ability-panel with header +
+      description + live preview visible, (2) NO gray tooltip box following the
+      mouse cursor. Both conditions must hold simultaneously.
+
+### T3.21 All abilities that place objects: use pixel-art or keep vector
+**User direction (2026-09-12):** "All abilities that place something in game
+(turret, mines, wards, etc.) should remain, or become pixel art instead of a
+vector."
+- [ ] Audit all "place object" abilities: Tobor's turrets + drone mines, Thorn's
+      bramble snare, Rime's rime ward, Willow's vine tangle, Oak's bark,
+      Warden's ward light, any other "leave a thing on the ground" ability.
+- [ ] For each: decide vector (keep) vs pixel-art (convert). Default to
+      pixel-art if the object is a "thing you can walk around / stand near"
+      (turret, mine, ward, tree). Keep vector if it's a transient VFX (spark,
+      bolt, arc).
+- [ ] Pixel-art versions go in the T3.1 batch (deferred until after minigames).
+      Until then, mark each one with a TODO in the plan + a placeholder
+      vector-art sprite so gameplay works.
+- [ ] Verify: isolated ability_vfx_test captures each placed object; screenshot
+      shows the pixel-art sprite (or the marked placeholder) at the correct
+      world position + scale.
+
+### T3.22 Pixel-art generation pipeline (LLM-assisted) — RESEARCH + BUILD
+**User direction (2026-09-12):** "You need to find a way to make more detailed
+and beautiful pixel art, by finding sprites first, convert those with some kind
+of pixel-art converter. Find online some kind of app or write a code to convert
+found sprites to pixel art. That also makes use of an LLM in some way. Like an
+img generation tool for pixel art. To make existing img into pixel art. And
+then make into fitting code and pixel art for game, with same pixel density,
+high detail level etc. You can build a whole pipeline to do this right. Research
+internet to find a good way to make pixel art using LLM tools."
+- [ ] **RESEARCH (this week):** Survey the 2026 state of the art:
+      - Online pixel-art converters / quantizers (e.g. PixelPerfection,
+        Aseprite's palette export, `pxr` CLI, `palettizer`).
+      - LLM-driven image-to-pixel-art pipelines: SDXL + LoRA for pixel art,
+        `pixel-art-diffusion` (diffusers pipeline), `pixelart.py`, Stable
+        Diffusion "pixel art" checkpoiints, FLUX + pixel LoRA, Krita + AI
+        plugin, Aseprite + LLM-assisted palette.
+      - Free / open-source tools: `img2pix`, `Piskel`, `LibreSprite`, `Piskel`,
+        `Pixilart` (web), `Pixello` (AI upscaler).
+      - LLM image-gen options: gpt-image-2 (OpenAI), nano-banana (Gemini 2.0
+        Flash image gen), DALL-E 3, FLUX.1, SD3.5, SDXL-turbo + pixel LoRA.
+- [ ] **PIPELINE (build this week):** `tools/pixel_art/pipeline.py`:
+      1. **Ingest** — take an input image (PNG/JPG, found online or generated).
+      2. **Downscale** — to the target pixel density (32x32 for trees / houses,
+         16x16 for creatures, 64x64 for props) using Lanczos + dither.
+      3. **Quantize** — to a fixed palette (use the existing tree palette as the
+         reference: 12-16 colors, layered shading, highlight/shadow/speckle).
+      4. **LLM refine (optional)** — if a pixel-art-specific image model is
+         available (gpt-image-2, nano-banana, or a local SDXL + pixel LoRA),
+         generate a refined version at the same density; compare + pick best.
+      5. **Export** — write PNG + a Godot `Sprite` resource + a Godot `.gd`
+         loader stub that adds the texture to `SpriteLibrary`.
+      6. **Verify** — run an isolated test scene that loads the new sprite and
+         captures a screenshot at 4x zoom.
+- [ ] **APPLY** — run the pipeline on:
+      - All 4 recruit-area architecture sets (lagoon, forest, mountain, town).
+      - All 4 recruit-area creature sets.
+      - The fire-tree animated flame frames (T3.14 "animated pixel-art fire"
+        task).
+      - Any ability "placed object" sprites that T3.21 marked pixel-art.
+- [ ] **DOC** — write `tools/pixel_art/README.md` documenting the pipeline +
+      how to re-run it for new assets.
+- [ ] **HARD RULE:** No hand-drawn `draw_rect` / `draw_circle` "fake pixel art"
+      for any recruit-area / creature / architecture sprite after this task.
+      All must go through the pipeline (or be imported from a real pixel-art
+      source).
+
 ### T3.16 Verify-all-with-pixel-art + screenshots hard rule — NEW 2026-09-12
 **User direction (2026-09-12):** Every new sprite/prop/creature/area/ability/
 weather feature must be (1) verified in an isolated world FIRST with the final

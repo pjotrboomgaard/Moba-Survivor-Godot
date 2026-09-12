@@ -1,0 +1,28 @@
+{
+  "errors": [],
+  "expected_ability_names": [
+    "Blast of Lightning",
+    "Chain Lightning",
+    "Thundergod's Wrath"
+  ],
+  "hint_has_description_text": true,
+  "hint_panel_found": true,
+  "scene": "ability_panel_test",
+  "shots": [
+    {
+      "label": "panel_static",
+      "path": "user://ability_panel_run_1789240198/panel_static_1.00.png"
+    },
+    {
+      "label": "panel_hint_descriptions",
+      "path": "user://ability_panel_run_1789240198/panel_hint_descriptions_2.50.png"
+    },
+    {
+      "label": "panel_hover_tooltip",
+      "path": "user://ability_panel_run_1789240198/panel_hover_tooltip_3.50.png"
+    }
+  ],
+  "tooltip_has_description_text": false,
+  "tooltip_visible": false,
+  "verdict": "PASS"
+}
