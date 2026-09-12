@@ -1,0 +1,11 @@
+{
+  "hero": "tobor",
+  "biome": 0,
+  "comment": "Grass biome: capture obstacle breakdown by sprite_id to diagnose why trees/rocks are missing from the live map.",
+  "events": [
+    {"t": 2.0, "kind": "probe", "label": "grass_probe"},
+    {"t": 2.5, "kind": "biome_probe", "label": "grass_biome_breakdown"},
+    {"t": 3.0, "kind": "snap", "label": "grass_view"},
+    {"t": 3.5, "kind": "report"}
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "active_fx_events": 0,
+  "elapsed": 7.64166666666681,
+  "hero": "arclight",
+  "scene": "combat_vfx_test",
+  "screenshots": [
+    "user://combat_vfx_arclight_lmb_blast.png",
+    "user://combat_vfx_arclight_rmb_charging.png",
+    "user://combat_vfx_arclight_rmb_release.png",
+    "user://combat_vfx_arclight_q_cast.png"
+  ],
+  "verdict": "FAIL_NO_VFX"
+}

@@ -59,11 +59,11 @@
       "hp_frac": 1.0,
       "hp_max": 90.0,
       "kind": "probe",
-      "label": "boot_probe",
+      "label": "grass_probe",
       "last_sfx": "",
       "last_tapped": -1,
       "level": 1,
-      "obstacle_count": 856,
+      "obstacle_count": 93,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -89,7 +89,7 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 1.00075757575758,
+      "t": 2.00602366666666,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -105,9 +105,50 @@
       "wave": 1,
       "wave_name": "First Contact",
       "xp": 0
+    },
+    {
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "kind": "biome_probe",
+      "label": "grass_biome_breakdown",
+      "obstacles": [
+        {
+          "count": 38,
+          "id": "tree_fir"
+        },
+        {
+          "count": 1,
+          "id": "tree_oak"
+        },
+        {
+          "count": 1,
+          "id": "tree_palm"
+        },
+        {
+          "count": 8,
+          "id": "rock_large"
+        },
+        {
+          "count": 3,
+          "id": "spire"
+        },
+        {
+          "count": 32,
+          "id": "rock_small"
+        },
+        {
+          "count": 9,
+          "id": "boulder"
+        },
+        {
+          "count": 1,
+          "id": "rock_jagged"
+        }
+      ],
+      "t": 2.50602366666666
     }
   ],
-  "elapsed": 2.00349554545454,
+  "elapsed": 3.50587166666666,
   "enemies_spawned": 0,
   "hero_position": "(72.0, 0.0)",
   "player_class": "tobor",
@@ -143,14 +184,9 @@
   },
   "shots": [
     {
-      "label": "boot_early",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3843/boot_early_0.508_3842.png",
-      "t": 0.507814666666667
-    },
-    {
-      "label": "boot_late",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4834/boot_late_1.506_4834.png",
-      "t": 1.505861
+      "label": "grass_view",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6162/grass_view_3.006_6162.png",
+      "t": 3.00648799999999
     }
   ]
 }

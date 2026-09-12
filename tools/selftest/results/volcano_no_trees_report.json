@@ -1,24 +1,6 @@
 {
   "effects": [
     {
-      "hp": 1.0,
-      "kind": "landmark_save",
-      "saves": 1,
-      "t": 0.745773151515151
-    },
-    {
-      "hp": 1.0,
-      "kind": "landmark_save",
-      "saves": 2,
-      "t": 0.745773151515151
-    },
-    {
-      "hp": 1.0,
-      "kind": "landmark_save",
-      "saves": 3,
-      "t": 0.745773151515151
-    },
-    {
       "abilities": [
         {
           "id": "tobor_steam_keg",
@@ -59,7 +41,7 @@
             "local": true,
             "peer": 1,
             "pos": [
-              112.0,
+              72.0,
               0.0
             ],
             "team": ""
@@ -73,15 +55,15 @@
       },
       "gold": 0,
       "hero": "tobor",
-      "hp": 82.0,
+      "hp": 90.0,
       "hp_frac": 1.0,
-      "hp_max": 82.0,
+      "hp_max": 90.0,
       "kind": "probe",
       "label": "volcano_probe",
-      "last_sfx": "enemy_death",
+      "last_sfx": "",
       "last_tapped": -1,
       "level": 1,
-      "obstacle_count": 1067,
+      "obstacle_count": 882,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -89,7 +71,7 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(112.0, 0.0)"
+          "pos": "(72.0, 0.0)"
         }
       },
       "pulse_interval": 0.0,
@@ -107,16 +89,27 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 1.00568857575757,
+      "t": 1.00075757575757,
       "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
       "wave": 1,
       "wave_name": "First Contact",
       "xp": 0
     }
   ],
-  "elapsed": 2.00502133333333,
+  "elapsed": 2.00653172727272,
   "enemies_spawned": 0,
-  "hero_position": "(112.0, 0.0)",
+  "hero_position": "(72.0, 0.0)",
   "player_class": "tobor",
   "results": {
     "alive": true,
@@ -131,7 +124,7 @@
     "gold": 0,
     "hero_kills": 0,
     "hp_samples": [],
-    "landmark_saves": 3,
+    "landmark_saves": 0,
     "level": 1,
     "level_upgrades": {},
     "max_hp": 0.0,
@@ -151,8 +144,8 @@
   "shots": [
     {
       "label": "volcano_view",
-      "path": "C:/Users/pjotr/AppData/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4218/volcano_view_1.507_4218.png",
-      "t": 1.50681818181818
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4783/volcano_view_1.503_4783.png",
+      "t": 1.50263966666666
     }
   ]
 }

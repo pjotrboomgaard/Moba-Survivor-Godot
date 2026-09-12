@@ -1,0 +1,21 @@
+{
+  "hero": "arclight",
+  "biome": 0,
+  "until_wave": 1,
+  "duration": 25,
+  "danger_hp": 0.4,
+  "recover_hp": 0.6,
+  "comment": "Isolated combat VFX test: verify LMB projectile/blast and RMB charge-release are visually rendered for Arclight in an empty grass world. Spawns creeps, holds LMB/RMB, snaps mid-attack.",
+  "events": [
+    {"t": 1.0, "kind": "probe", "label": "boot"},
+    {"t": 1.5, "kind": "spawn", "at": [150, -40], "type": "grunt"},
+    {"t": 1.5, "kind": "spawn", "at": [150, 40], "type": "grunt"},
+    {"t": 1.5, "kind": "spawn", "at": [220, 0], "type": "hound"},
+    {"t": 2.0, "kind": "snap", "label": "pre_attack"},
+    {"t": 2.5, "kind": "primary_hold", "duration": 1.0},
+    {"t": 3.0, "kind": "snap", "label": "lmb_blast"},
+    {"t": 4.5, "kind": "secondary_hold", "duration": 0.8},
+    {"t": 5.5, "kind": "snap", "label": "rmb_charge"},
+    {"t": 6.5, "kind": "report"}
+  ]
+}

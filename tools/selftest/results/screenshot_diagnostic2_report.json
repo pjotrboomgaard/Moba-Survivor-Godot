@@ -1,0 +1,10 @@
+{
+  "elapsed": 6.00173100000007,
+  "has_content": true,
+  "hero_sprite_has_texture": true,
+  "nontransparent": 180000,
+  "scene": "screenshot_diagnostic2",
+  "screenshot": "user://screenshot_diagnostic2.png",
+  "total": 180000,
+  "verdict": "PASS_OK"
+}

@@ -59,7 +59,7 @@
       "hp_frac": 1.0,
       "hp_max": 90.0,
       "kind": "probe",
-      "label": "boot_probe",
+      "label": "pjotr_grass_probe",
       "last_sfx": "",
       "last_tapped": -1,
       "level": 1,
@@ -89,7 +89,7 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 1.00075757575758,
+      "t": 2.00462633333333,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -105,9 +105,66 @@
       "wave": 1,
       "wave_name": "First Contact",
       "xp": 0
+    },
+    {
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "kind": "biome_probe",
+      "label": "pjotr_grass_breakdown",
+      "obstacles": [
+        {
+          "count": 220,
+          "id": "tree_oak"
+        },
+        {
+          "count": 18,
+          "id": "tree_pine"
+        },
+        {
+          "count": 218,
+          "id": "tree_fir"
+        },
+        {
+          "count": 10,
+          "id": "tree_maple"
+        },
+        {
+          "count": 23,
+          "id": "tree_cypress"
+        },
+        {
+          "count": 8,
+          "id": "tree_willow"
+        },
+        {
+          "count": 9,
+          "id": "tree_palm"
+        },
+        {
+          "count": 69,
+          "id": "boulder"
+        },
+        {
+          "count": 88,
+          "id": "rock_small"
+        },
+        {
+          "count": 83,
+          "id": "spire"
+        },
+        {
+          "count": 70,
+          "id": "rock_large"
+        },
+        {
+          "count": 40,
+          "id": "rock_jagged"
+        }
+      ],
+      "t": 2.50462633333333
     }
   ],
-  "elapsed": 2.00349554545454,
+  "elapsed": 3.50814696969696,
   "enemies_spawned": 0,
   "hero_position": "(72.0, 0.0)",
   "player_class": "tobor",
@@ -143,14 +200,9 @@
   },
   "shots": [
     {
-      "label": "boot_early",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3843/boot_early_0.508_3842.png",
-      "t": 0.507814666666667
-    },
-    {
-      "label": "boot_late",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4834/boot_late_1.506_4834.png",
-      "t": 1.505861
+      "label": "pjotr_grass_view",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6448/pjotr_grass_view_3.005_6448.png",
+      "t": 3.00470466666666
     }
   ]
 }

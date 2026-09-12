@@ -1,0 +1,13 @@
+{
+  "active_fx_events": 1,
+  "elapsed": 7.61604400000014,
+  "hero": "cinder",
+  "scene": "combat_vfx_test",
+  "screenshots": [
+    "user://combat_vfx_cinder_lmb_blast.png",
+    "user://combat_vfx_cinder_rmb_charging.png",
+    "user://combat_vfx_cinder_rmb_release.png",
+    "user://combat_vfx_cinder_q_cast.png"
+  ],
+  "verdict": "FAIL_NO_VFX"
+}

@@ -264,6 +264,11 @@ func _spawn_hero() -> void:
 	# Spawn the vector cast animation + pixel-art VFX INSIDE this SubViewport's
 	# world so the preview shows the actual ability animation, not just hero+creeps.
 	p.ability_cast.connect(_on_preview_ability_cast)
+	# Also mirror LMB (staff_cast) and RMB (secondary_fx) so their real weapon /
+	# secondary VFX render inside the preview instead of spawning off-screen in the
+	# main menu scene.
+	p.staff_cast.connect(_on_preview_staff_cast)
+	p.secondary_fx.connect(_on_preview_secondary_fx)
 
 
 func _spawn_creeps() -> void:
@@ -317,6 +322,54 @@ func _on_preview_ability_cast(ability_id: String, effect_style: int, points: Pac
 			_world.add_child(vfx)
 
 
+## LMB weapon blast VFX inside the preview SubViewport (mirror of main.gd).
+func _on_preview_staff_cast(_effect_kind: String, points: PackedVector2Array) -> void:
+	var class_data := PlayerClass.by_id(_effect_kind)
+	if class_data.is_empty():
+		return
+	var effect := LightningScene.instantiate() as LightningEffect
+	effect.style = int(class_data.effect_style)
+	effect.main_color = Color(class_data.effect_color)
+	effect.chain_color = Color(class_data.effect_secondary)
+	if effect.style == PlayerClass.EffectStyle.BLAST:
+		effect.lifetime = 0.28
+		effect.draw_mode = "simple_circle"
+	effect.points = points
+	_world.add_child(effect)
+
+
+## RMB secondary VFX inside the preview SubViewport (mirror of main.gd._play_secondary_fx).
+func _on_preview_secondary_fx(class_id: String, style: int, points: PackedVector2Array) -> void:
+	var class_data := PlayerClass.by_id(class_id)
+	if class_data.is_empty():
+		return
+	var effect := LightningScene.instantiate() as LightningEffect
+	effect.style = style
+	effect.main_color = Color(class_data.effect_color)
+	effect.chain_color = Color(class_data.effect_secondary)
+	if style == PlayerClass.EffectStyle.BLAST or style == PlayerClass.EffectStyle.BURST:
+		effect.lifetime = 0.48
+	elif style == PlayerClass.EffectStyle.TELEPORT:
+		effect.lifetime = 0.42
+	else:
+		effect.lifetime = 0.4
+	var kit_style := KitFxLibrary.kit_visual("%s_%s" % [class_id, str(class_data.get("secondary", ""))])
+	if not kit_style.is_empty():
+		var primary := str(kit_style.get("primary_color", ""))
+		var secondary := str(kit_style.get("secondary_color", ""))
+		if primary != "":
+			effect.main_color = Color(primary)
+		if secondary != "":
+			effect.chain_color = Color(secondary)
+		effect.ribbon_count = int(kit_style.get("ribbon_count", effect.ribbon_count))
+		effect.pulse_count = int(kit_style.get("pulse_count", effect.pulse_count))
+		var style_tag := str(kit_style.get("style", ""))
+		if style_tag != "":
+			effect.style_tag = style_tag
+	effect.points = points
+	_world.add_child(effect)
+
+
 ## Stand a creep still: zero its speed so it doesn't wander off-frame. We keep its
 ## physics on so it still renders its HP bar, flashes on hit, and (realistically) can
 ## fight back a little. The hero's HP is re-topped each loop so it never dies.
@@ -363,85 +416,30 @@ func _do_cast() -> void:
 	if _hero == null:
 		return
 	_aim_at_creeps()
+	# Make sure the hero is facing the aim point so weapon blasts fly toward the
+	# creeps (several weapon casts use facing_direction for their impact point).
+	if _creeps.size() >= 1:
+		var mid := _creeps[_creeps.size() / 2]
+		if mid != null:
+			_hero.aim_world_position = mid.global_position
+			var dir := (_hero.global_position.position_to(mid.global_position))
+			if dir.length_squared() > 0.0:
+				_hero.facing_direction = dir.normalized()
 	# Clear cooldowns so the cast always lands for the loop.
 	_hero.ability_cooldowns = [0.0, 0.0, 0.0, 0.0]
 	_hero.secondary_cooldown = 0.0
+	# Attack charge full + zeroed out so the LMB blast is at full strength and lands
+	# immediately rather than starting a charged wind-up.
+	_hero.attack_charge = 0.0
+	_hero.attack_cooldown = 0.0
 	match ability_slot:
-		-1:  # LMB: hold the primary attack — spawn a visual projectile in the SubViewport.
-			_hero.command_attack = true
-			_spawn_lmb_projectile()
-		-2:  # RMB: fire the secondary.
-			_hero.command_secondary = true
+		-1:  # LMB: fire the real primary attack directly (real weapon VFX).
+			_hero._perform_attack()
+		-2:  # RMB: fire the real secondary directly (real secondary VFX).
+			_hero._cast_secondary()
 		_:   # Q/E/D/R kit ability: tap to arm + confirm.
 			_hero.scripted_tap_ability(ability_slot)
 			_hero.scripted_tap_ability(ability_slot)
-
-
-## Spawn a visual LMB projectile that flies from the hero to the nearest creep.
-## This is purely cosmetic — it runs inside the SubViewport world so the user
-## sees the weapon's shot animation in the ability preview.
-func _spawn_lmb_projectile() -> void:
-	if _hero == null or _creeps.is_empty():
-		return
-	var target := _creeps[0]
-	if target == null:
-		return
-	var origin := _hero.global_position
-	var dest := target.global_position
-	var direction := (dest - origin).normalized()
-	var dist := origin.distance_to(dest)
-	var speed := 900.0  # px/s — fast enough to read as a "shot"
-	var duration := dist / speed
-
-	# Simple visual: a small glowing dot that moves and fades out.
-	var proj := Node2D.new()
-	proj.position = origin
-	proj.z_index = 15
-	_world.add_child(proj)
-	_make_projectile_script(direction, dist, duration, _hero, proj)
-
-
-## Build and apply the GDScript that animates a single LMB projectile from
-## origin to target. The script self-moves, self-draws, and self-frees.
-func _make_projectile_script(direction: Vector2, dist: float, duration: float, hero: Player, proj: Node2D) -> void:
-	var color := _get_weapon_color()
-	var src_text := """
-extends Node2D
-var _dir: Vector2
-var _dist: float
-var _duration: float
-var _t: float = 0.0
-var _color: Color
-
-func setup(d: Vector2, dist: float, dur: float, color: Color) -> void:
-	_dir = d
-	_dist = dist
-	_duration = dur
-	_color = color
-
-func _process(delta: float) -> void:
-	_t += delta
-	if _t >= _duration:
-		queue_free()
-		return
-	position += _dir * (_dist * delta / _duration)
-	queue_redraw()
-
-func _draw() -> void:
-	draw_circle(Vector2.ZERO, 6.0, _color)
-	draw_circle(Vector2.ZERO, 3.0, Color(1.0, 1.0, 1.0, 0.9))
-"""
-	var script := GDScript.new()
-	script.source_code = src_text
-	script.reload(true)
-	proj.set_script(script)
-	proj.call("setup", direction, dist, duration, color)
-
-
-## Return the hero's primary weapon color for the projectile dot.
-func _get_weapon_color() -> Color:
-	var class_data := PlayerClass.by_id(hero_class_id)
-	return Color(class_data.effect_color) if not class_data.is_empty() else Color.WHITE
 
 
 func _reset_creeps() -> void:

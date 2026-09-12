@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "biome": 0,
+  "comment": "Pjotr-mode grass biome: capture obstacle breakdown to confirm trees/rocks are present in the live Pjotr game.",
+  "extra_user_args": ["--pjotr"],
+  "events": [
+    {"t": 2.0, "kind": "probe", "label": "pjotr_grass_probe"},
+    {"t": 2.5, "kind": "biome_probe", "label": "pjotr_grass_breakdown"},
+    {"t": 3.0, "kind": "snap", "label": "pjotr_grass_view"},
+    {"t": 3.5, "kind": "report"}
+  ]
+}

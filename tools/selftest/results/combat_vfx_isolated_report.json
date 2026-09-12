@@ -1,0 +1,15 @@
+{
+  "active_fx_events": 1,
+  "elapsed": 9.02369200000018,
+  "hero": "tobor",
+  "scene": "combat_vfx_test",
+  "screenshots": [
+    "user://combat_vfx_tobor_lmb_blast.png",
+    "user://combat_vfx_tobor_rmb_charging.png",
+    "user://combat_vfx_tobor_rmb_release.png",
+    "user://combat_vfx_tobor_q_cast.png",
+    "user://combat_vfx_tobor_tobor_turret_throw.png",
+    "user://combat_vfx_tobor_tobor_mines_throw.png"
+  ],
+  "verdict": "FAIL_NO_VFX"
+}

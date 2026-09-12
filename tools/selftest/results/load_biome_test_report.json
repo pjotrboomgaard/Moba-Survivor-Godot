@@ -1,0 +1,11 @@
+{
+  "biome_switched": true,
+  "correct_world": true,
+  "expected_world": 3,
+  "hazards_after": 0,
+  "scene": "load_biome_test",
+  "screenshot": "user://load_biome_test.png",
+  "verdict": "PASS_OK",
+  "world_after": 3,
+  "world_before": 2
+}
