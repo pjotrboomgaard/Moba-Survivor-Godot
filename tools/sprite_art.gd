@@ -3173,7 +3173,9 @@ const ICON_PALETTES := {
 	"pendant": {"o": "0d2b1a", "f": "3f9e57", "l": "8fe08f"},
 	"prism": {"o": "3d1a63", "f": "b06bff", "l": "e2c4ff"},
 	"aegis": {"o": "6b5405", "f": "ffd35a", "l": "fff4c2"},
-	"ember": {"o": "6b2f05", "f": "ff7a29", "l": "ffd0a8"},
+	# Renamed from "ember" — that key collided with the HERO_ROWS "ember" hero
+	# sprite (40x40) and the icon (8x8) was overwriting the hero on every forge.
+	"ember_spark": {"o": "6b2f05", "f": "ff7a29", "l": "ffd0a8"},
 	"frostbite": {"o": "0a2233", "f": "a8dcff", "l": "ffffff"},
 	"lodestone": {"o": "0d4a44", "f": "3fd0c0", "l": "c2fff6"},
 	"rapid": {"o": "6b5405", "f": "ffd35a", "l": "fff4c2"},
@@ -3250,7 +3252,7 @@ const ICON_ROWS := {
 		"..offo..",
 		"...oo...",
 	],
-	"ember": [
+	"ember_spark": [
 		"...f....",
 		"..fff...",
 		".fflff..",
@@ -5161,6 +5163,14 @@ static func all_sprites() -> Dictionary:
 
 static func _collect(sprites: Dictionary, rows_by_name: Dictionary, palettes: Dictionary) -> void:
 	for sprite_name in rows_by_name:
+		# Guard: don't let a later/smaller sprite (e.g. an 8x8 icon) clobber a
+		# larger hero/creature sprite of the same name. Heroes are collected first
+		# and should always win over icons of the same key.
+		if sprites.has(sprite_name):
+			var existing_rows: Array = sprites[sprite_name].rows
+			var new_rows: Array = rows_by_name[sprite_name]
+			if existing_rows.size() >= new_rows.size():
+				continue
 		sprites[sprite_name] = {
 			"rows": rows_by_name[sprite_name],
 			"palette": palettes[sprite_name],

@@ -3337,6 +3337,8 @@ func play_opening_cinematic() -> void:
 		_spawn_initial_wave()
 		return
 	_opening_cinematic_playing = true
+	# Freeze the player(s) so nobody can move/attack while the crash cinematic plays.
+	_set_players_locked(true)
 	_shake_cameras(4.0, 0.3)
 	# Hide the crater while the map is being "dropped" (for grass/volcano where it exists).
 	if arena is Arena:
@@ -3361,6 +3363,8 @@ func play_opening_cinematic() -> void:
 	_opening_ship.call("play", start_pos, Vector2.ZERO, _on_opening_impact)
 	await _opening_ship.finished
 	_opening_cinematic_playing = false
+	# Restore control now that the ship has landed and the camera is zooming in.
+	_set_players_locked(false)
 	if is_instance_valid(_opening_ship):
 		_opening_ship.queue_free()
 	_opening_ship = null
