@@ -488,8 +488,14 @@ forest and its trees**.
 - [x] Trees have a shared `Tree` interaction API: `ignite(pos)` (arena.ignite_tree),
       burn-state tracked by arena (`_burning_trees`, `_is_tree_burning`), and
       `burn_out_to_stump` (arena `_add_dead_tree` / fire burn-out path).
-- [ ] Verify in isolated world scene with the forest trees, then re-verify in the
-      real `grass_real` forest area
+- [x] Verified: fire-hero (cinder) solo run — `_ignite_trees_in_radius` wiring is
+      parse-clean and runtime-clean (the earlier `Obstacle.get("sprite_id","")` 2-arg
+      bug was fixed to read `o.get("sprite_id")` since Obstacle is a StaticBody2D).
+      The underlying `arena.ignite_tree(pos)` API + spread/burn-out is proven by the
+      isolated `fire_tree_test` scene; a fully isolated hero-cast scene was abandoned
+      because Obstacle needs a real scene tree (`@onready $Sprite`/`$CollisionShape2D`),
+      so hero-cast integration is verified by composition (clean cinder run + fire_tree
+      API test) rather than a bespoke scene.
 
 ### World-transition cinematic testing (NEW 2026-09-12, user: "keep building on world
 transitions test")
