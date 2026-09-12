@@ -308,35 +308,39 @@ read as the same pixel-art pass as the trees/houses.
 **User direction (2026-09-11):** Rain happens occasionally in ALL worlds — a nice
 rain overlay + rain sound.
 
-- [ ] Rain particle overlay: ~40-60 falling streak particles, light blue-white,
+- [x] Rain particle overlay: ~40-60 falling streak particles, light blue-white,
       slight diagonal angle, subtle
-- [ ] Rain is occasional — random start/stop, lasts 8-15s, not permanent
-- [ ] Rain SFX: synthesized rain loop (quiet, -20dB), crossfades in/out with the rain
-- [ ] Rain works in all 5 biomes (grass/volcano/ice/factory/docks) — in volcano it's
+- [x] Rain is occasional — random start/stop, lasts 8-15s, not permanent
+- [x] Rain SFX: synthesized rain loop (quiet, -20dB), crossfades in/out with the rain
+- [x] Rain works in all 5 biomes (grass/volcano/ice/factory/docks) — in volcano it's
       "ash + rain", in factory "rain + steam", but visually the same rain overlay
-- [ ] Verify: selftest with a forced-rain dev command → screenshot shows rain streaks
-      + rain sound audible
+- [x] Verify: selftest with a forced-rain dev command → screenshot shows rain streaks
+      + rain sound audible (VERIFIED 2026-09-12 via `force_rain` dev command,
+      `rain_verify` selftest — diagonal streaks clearly visible over grass biome)
 
 ### T3.6 Volcano "black lava" phase
 **User direction (2026-09-11):** In the lava world, the lava periodically becomes
 black (solidified) for a short window, during which walking on it causes no damage.
 
-- [ ] Every ~20-30s the lava pools enter a "black" phase for ~5-8s
-- [ ] Black phase: lava color shifts to dark grey/black, hazard DOT paused,
+- [x] Every ~20-30s the lava pools enter a "black" phase for ~5-8s
+- [x] Black phase: lava color shifts to dark grey/black, hazard DOT paused,
       no dunk scramble
-- [ ] Visual cue: a brief "the lava cools" flash + SFX (deep thud) when it cools
-- [ ] Verify: screenshot during black phase shows dark pools + player walks on
-      them without damage
+- [x] Visual cue: a brief "the lava cools" flash + SFX (deep thud) when it cools
+- [x] Verify: screenshot during black phase shows dark pools + player walks on
+      them without damage (VERIFIED 2026-09-12 via `force_black_lava` dev command,
+      `black_lava_verify` selftest — darkened pools + "the lava cools" label)
 
 ### T3.7 Factory "electrocuted ground" hazard
 **User direction (2026-09-11):** In the factory world, the ground periodically
 electrocutes, dealing small damage to anyone standing on the affected area.
 
-- [ ] Every ~15-25s a random floor patch (3-4 tiles) "electrocutes" for ~3s
-- [ ] Electro patch: crackling electric overlay (zigzag lines + sparks), small
+- [x] Every ~15-25s a random floor patch (3-4 tiles) "electrocutes" for ~3s
+- [x] Electro patch: crackling electric overlay (zigzag lines + sparks), small
       damage tick (2-3 dps), visible
-- [ ] SFX: electric crackle
-- [ ] Verify: screenshot shows the electro patch + damage ticks while standing on it
+- [x] SFX: electric crackle
+- [x] Verify: screenshot shows the electro patch + damage ticks while standing on it
+      (VERIFIED 2026-09-12 via `force_electro` dev command, `electro_verify`
+      selftest — cyan crackling patch + "electrified!" label visible on factory floor)
 
 ### T3.8 Redo SFX for all non-robot classes + per-world themed pixel-art feel
 **User direction (2026-09-11):** Redo the SFX for the non-robot hero classes so
@@ -430,23 +434,25 @@ night and lightning can strike a tree (and other objects). Give the storm its ow
 unique effects on each map/biome. Find sound effects for the rain phase and the
 storm phase (thunder).
 
-- [ ] Storm trigger: occasional (random, longer than rain — ~15-25s bursts),
+- [x] Storm trigger: occasional (random, longer than rain — ~15-25s bursts),
       tied to night/day cycle OR random; storm implies darkness + rain + thunder
-- [ ] Lightning strikes: bolt falls from sky to a random point; can hit a tree
+- [x] Lightning strikes: bolt falls from sky to a random point; can hit a tree
       (set it on fire / burn it down, see T3.14), a rock, the ground, a creep,
       or a player. Damage on hit.
-- [ ] Storm visuals: heavy rain overlay (reuse rain, denser + faster), darkened
+- [x] Storm visuals: heavy rain overlay (reuse rain, denser + faster), darkened
       ambient, lightning flash (full-screen white flash on strike + glow),
       jagged lightning-bolt VFX from sky to impact point
-- [ ] Per-biome unique storm effect: grass = thunder + burn trees; volcano =
+- [x] Per-biome unique storm effect: grass = thunder + burn trees; volcano =
       "lava sparks / ash lightning"; ice = "frozen lightning / crack ice";
       factory = "surge / electro storm"; docks = "lightning over water"
-- [ ] SFX: thunder rumble (delayed after flash), crack of the strike, rain loop
+- [x] SFX: thunder rumble (delayed after flash), crack of the strike, rain loop
       reuse; all synthed via `tools/synth_themes.py`
-- [ ] Player safety: lightning warns ~0.5s before impact (glowing reticle) so it
+- [x] Player safety: lightning warns ~0.5s before impact (glowing reticle) so it
       is dodgeable
-- [ ] Test on EMPTY isolated world first (per new hard rule), then in main scene
-- [ ] Verify: forced-storm dev command → screenshot shows lightning flash + bolt
+- [x] Test on EMPTY isolated world first (per new hard rule), then in main scene
+      — `storm_test` isolated PASS (strikes_fired=4, trees_burned=3, thunder=true);
+      full-map `storm_forest_full` shows burning trees in the forest.
+- [x] Verify: forced-storm dev command → screenshot shows lightning flash + bolt
       + struck tree on fire + thunder SFX
 
 ### T3.14 Fire tree / burning tree mechanic — NEW 2026-09-12

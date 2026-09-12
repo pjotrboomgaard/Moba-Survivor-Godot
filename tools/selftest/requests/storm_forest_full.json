@@ -1,0 +1,14 @@
+{
+  "hero": "arclight",
+  "biome": 0,
+  "comment": "Storm->fire->forest spread in FULL grass map. Force storm; lightning should strike trees and fire should spread to neighbors, killing ~10 trees and leaving stumps. Wait long enough for spread.",
+  "time_scale": 2.0,
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "forest_before"},
+    {"t": 1.5, "kind": "dev_command", "command": "force_storm"},
+    {"t": 8.0, "kind": "snap", "label": "storm_strikes"},
+    {"t": 15.0, "kind": "snap", "label": "fire_spreading"},
+    {"t": 25.0, "kind": "snap", "label": "stumps_after"},
+    {"t": 28.0, "kind": "report"}
+  ]
+}
