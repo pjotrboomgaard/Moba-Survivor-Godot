@@ -1,0 +1,9 @@
+{
+  "hero": "arclight",
+  "comment": "T3.5: rain overlay in a clean isolated world. No HUD, no enemies - just the rain effect and streaks.",
+  "time_scale": 1.0,
+  "checks": [
+    {"id": "started", "type": "log_contains", "value": "RAIN_TEST ready", "fail": "FAIL"},
+    {"id": "finished", "type": "log_contains", "value": "RAIN_TEST SUMMARY", "fail": "FAIL"}
+  ]
+}

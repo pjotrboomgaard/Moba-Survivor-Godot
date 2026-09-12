@@ -252,6 +252,15 @@ screenshots). Use this to track progress.
 - [ ] "Chill" lingering NPCs: idle + small wander
 - [ ] **Fire tree** (T3.14) — pixel-art burning tree (flames layered on the trunk,
       2-3 frame flicker) + a charred "dead tree stomp" sprite for the burned-out state
+- [ ] **Animated pixel-art fire frames** (NEW 2026-09-12, deferred with the pixel-art
+      batch): the burning-tree effect must use 2-3 *hand-authored pixel-art flame
+      frames* (flicker) that cycle in a sprite animation, NOT a procedural
+      `draw_circle` flame overlay. The current implementation uses a procedural
+      circle-based flame in `storm_test.gd` / `fire_tree_test.gd` / `arena.gd`
+      `_draw_flames`-style code; replace with real pixel-art flame frames baked
+      into the tree sprite set (`fire_frame_0`, `fire_frame_1`, `fire_frame_2`).
+      Verify in isolated mode: the flame must visibly flicker between frames on a
+      burning tree (screenshots at 3+ consecutive frames showing different shapes).
 
 ### T3.3 Isometric architecture + creature art at tree/rock detail level
 **User direction (2026-09-11):** Houses / props / architecture for the new areas
@@ -528,6 +537,24 @@ abilities, weather, minigames, and world features going forward.
 3. **1 orchestrator + up to 2 builders.** The orchestrator (this chat) plans,
    validates, restarts the app, and commits. Builders implement features in
    parallel. Max 2 builders at a time.
+4. **EVERYTHING is tested in ISOLATED mode FIRST** (NEW 2026-09-12, reinforced).
+   ALL features — VFX, weather, abilities, cinematics, minigames, world
+   features, sprites — must be verified in a clean, EMPTY isolated scene
+   (`scenes/<feature>_test/<feature>_test.tscn`) BEFORE touching/claiming the
+   full in-game scene. Isolated scene = flat ground + camera, no HUD, no
+   enemies, no obstacles noise. The isolated run writes
+   `user://selftest_report.json` + fixed-time screenshots, then quits. Only
+   after the isolated run looks correct does the feature get brought into the
+   main scene and re-verified there. No feature is "done" on the strength of a
+   report JSON or a single ambiguous screenshot — the isolated screenshot must
+   clearly and unambiguously show the intended effect.
+5. **Ability descriptions must be visible in the in-game ability panel**
+   (NEW 2026-09-12, reinforced). Ability names + reworded descriptions must
+   appear in the permanent HUD ability panel (Q/E/D/R + LMB/RMB tooltips), not
+   ONLY in the hover-over preview. If a previous edit moved descriptions to be
+   hover-only, that is a regression — descriptions must be shown in the panel
+   at all times. Renamed/reworded descriptions (copyright-safe) must be
+   verified in the panel, not just the hover.
 
 - **Builder A**: current active feature build (storm/fire-tree, etc.)
 - **Builder B**: SFX / balance / pixel-art work
