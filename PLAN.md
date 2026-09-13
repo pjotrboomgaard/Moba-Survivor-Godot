@@ -262,8 +262,13 @@ screenshots). Use this to track progress.
       pool (Bulwark tank: plating/ironhide/vitality; Warden support: flow/choir;
       Cinder fire: ember_sprite/heat_gust; Volt: spark_sprite/chain; ...) so a
       hero only ever sees role-appropriate stats.
-- [ ] Verify: each hero solo → level-up UI shows 4 varied options (spot-check
+- [x] Verify: each hero solo → level-up UI shows 4 varied options (spot-check
       tobor/bulwark/warden/cinder via selftest screenshots)
+      _STATUS (2026-09-13): `upgrade_offer_icons_v2.json` run for tobor shows
+      3 distinct offer panels, each with 4 varied options (Grip, Long Haft,
+      Mending Thread, Furnace / +30% damage, +30% move speed, Rime +30% damage,
+      +5% move speed / +12% attack range, +20% attack speed, +50% move speed,
+      +25% attack speed). Icons render correctly. _
 
 ### T1.9 Biome hazards: rain + black lava + factory electro (NEW 2026-09-11)
 - [x] Rain overlay + rain SFX in all worlds (occasional, 8-15s bursts) — see T3.5

@@ -397,6 +397,10 @@ func _process(delta: float) -> void:
 		next_wave_timer_label.text = "auto in %ds" % ceili(_next_wave_countdown)
 	_refresh_ability()
 	_refresh_ability_bar()
+	# T3.52: refresh the ability hint panel every frame while TAB is held, so
+	# description changes when the mouse moves over a different slot.
+	if _ability_hint_visible and _ability_hint_panel != null:
+		_show_ability_hints(true)
 	_refresh_ability_icons()
 	_refresh_fps_counter()
 	_refresh_item_icons()
@@ -498,8 +502,9 @@ func _build_stats_text() -> String:
 	return "\n".join(lines)
 
 
-## Hold-TAB: pop up a compact card listing every owned ability's name + description so
+## Hold-TAB: pop up a compact card listing owned abilities' name + description so
 ## the player can reference their kit without leaving the fight.
+## T3.52: only show the description of the ability being hovered; others show name + rank only.
 var _ability_hint_panel: PanelContainer = null
 var _ability_hint_text: RichTextLabel = null
 var _ability_hint_visible := false
@@ -515,21 +520,41 @@ func _show_ability_hints(on: bool) -> void:
 	_ability_hint_panel.visible = on
 	if not on:
 		return
+	# T3.52: detect which ability slot the mouse is hovering over (if any).
+	var hovered_slot := _detect_hovered_ability_slot()
 	var sb: Array[String] = []
 	for entry in bound_player.known_abilities:
+		var slot_index := bound_player.known_abilities.find(entry)
 		var ability_id := str(entry.id)
 		var rank := int(entry.get("rank", 1))
 		var info := PlayerClass.ability_info(ability_id)
 		var name := str(info.get("name", ability_id))
-		var desc := str(info.get("description", ""))
-		# Substitute the {placeholder} tokens with rank-1 numbers so the card reads clean.
-		desc = _substitute_ability_placeholders(desc, ability_id)
 		var cooldown := float(PlayerClass.ability_values(ability_id, rank).get("cooldown", 0.0))
 		var cd_text := (" (CD %.0fs)" % cooldown) if cooldown > 0.0 else ""
+		var is_hovered := (hovered_slot >= 0 and slot_index == hovered_slot)
 		sb.append("[b][color=ffd166]%s[/color][/b] [color=9fb3d1]rank %d%s[/color]" % [name, rank, cd_text])
-		sb.append("[color=f4f0e6]%s[/color]" % desc)
+		if is_hovered:
+			# T3.52: show full description only for the hovered ability.
+			var desc := str(info.get("description", ""))
+			desc = _substitute_ability_placeholders(desc, ability_id)
+			sb.append("[color=f4f0e6]%s[/color]" % desc)
 		sb.append("")
 	_ability_hint_text.text = "\n".join(sb)
+
+
+## T3.52: Determine which ability slot index the mouse is hovering over, or -1 if none.
+func _detect_hovered_ability_slot() -> int:
+	if ability_icon_row == null:
+		return -1
+	var mouse_pos := get_global_mouse_position()
+	for i in ability_icon_slots.size():
+		var root: Control = ability_icon_slots[i].root
+		if root == null:
+			continue
+		var rect := root.get_global_rect()
+		if rect.has_point(mouse_pos):
+			return i
+	return -1
 
 
 func _substitute_ability_placeholders(template: String, ability_id: String) -> String:

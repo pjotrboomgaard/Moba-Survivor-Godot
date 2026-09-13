@@ -3,7 +3,7 @@
     {
       "actual": 5,
       "kind": "force_level",
-      "t": 0.506285666666667,
+      "t": 0.5,
       "target": 2
     },
     {
@@ -11,12 +11,12 @@
       "index": 0,
       "kind": "pick_upgrade",
       "pending_size": 0,
-      "t": 1.40151515151515
+      "t": 1.402403
     },
     {
       "actual": 5,
       "kind": "force_level",
-      "t": 2.00396,
+      "t": 2.0054333030303,
       "target": 4
     },
     {
@@ -24,47 +24,47 @@
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 2.362541
+      "t": 2.36408733333333
     },
     {
       "cd_left": 22.0180000000001,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 2.50601233333333
+      "t": 2.50601066666666
     },
     {
       "error": "index out of range",
       "index": 0,
       "kind": "pick_upgrade",
       "pending_size": 0,
-      "t": 2.9050243030303
+      "t": 2.90562748484848
     },
     {
-      "cd_left": 15.0933333333334,
+      "cd_left": 15.0766666666667,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 2.91411521212121
+      "t": 2.92229415151515
     },
     {
       "cd_left": 14.9433333333333,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 3.05558981818182
+      "t": 3.06427266666666
     },
     {
       "cd_left": 16.5033333333335,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 2,
-      "t": 3.46784366666667
+      "t": 3.47263233333333
     },
     {
       "actual": 8,
       "kind": "force_level",
-      "t": 3.50497566666667,
+      "t": 3.50159366666666,
       "target": 6
     },
     {
@@ -79,33 +79,33 @@
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 4.21222383164984
+      "t": 4.21108566666667
     },
     {
       "error": "index out of range",
       "index": 0,
       "kind": "pick_upgrade",
       "pending_size": 0,
-      "t": 4.40056166666668
+      "t": 4.40608033333334
     },
     {
       "cd_left": 19.9013333333336,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 4.62118133333335
+      "t": 4.61731066666668
     },
     {
       "cd_left": 19.7680000000003,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 4.76399190909094
+      "t": 4.76200763636365
     }
   ],
-  "elapsed": 5.00522124242428,
+  "elapsed": 5.00751015151518,
   "enemies_spawned": 0,
-  "hero_position": "(-117.9577, -391.9677)",
+  "hero_position": "(-119.7835, -390.8517)",
   "player_class": "tobor",
   "results": {
     "alive": true,
@@ -115,19 +115,19 @@
     "casts": [
       {
         "ability_id": "tobor_steam_keg",
-        "t": 0.835862666666666
+        "t": 0.837878787878787
       },
       {
         "ability_id": "tobor_spider_mines",
-        "t": 0.844196
+        "t": 0.84621212121212
       },
       {
         "ability_id": "tobor_steam_turret",
-        "t": 1.25833333333333
+        "t": 1.25723833333333
       },
       {
         "ability_id": "tobor_energy_field",
-        "t": 1.95444733333333
+        "t": 1.95467572727272
       }
     ],
     "creep_kills": 0,
@@ -140,17 +140,17 @@
     "hero_kills": 0,
     "hp_samples": [
       {
-        "enemies": 13,
+        "enemies": 14,
         "gold": 0,
         "hp": 1.0,
         "t": 0.15,
         "wave": 1
       },
       {
-        "enemies": 17,
+        "enemies": 24,
         "gold": 0,
         "hp": 1.0,
-        "t": 2.65,
+        "t": 2.66,
         "wave": 1
       }
     ],
@@ -158,16 +158,16 @@
     "level": 8,
     "level_upgrades": {
       "2": [
-        "keen_eye"
+        "havoc"
       ],
       "3": [
-        "gun_drone"
+        "blast"
       ],
       "4": [
-        "rapid"
+        "push_drone"
       ],
       "5": [
-        "blast"
+        "rapid"
       ],
       "6": [
         "push_drone"
@@ -176,28 +176,27 @@
         "vitality"
       ],
       "8": [
-        "keen_eye"
+        "gun_drone"
       ]
     },
     "max_hp": 1.0,
     "min_hp": 1.0,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
-    "quest_types": 2,
+    "quest_types": 1,
     "quests_seen": {
-      "dance_circle": 1,
-      "ring_bell": 1
+      "stand_spring": 1
     },
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "keen_eye",
-      "gun_drone",
-      "rapid",
+      "havoc",
       "blast",
       "push_drone",
+      "rapid",
+      "push_drone",
       "vitality",
-      "keen_eye"
+      "gun_drone"
     ],
     "until_wave": 20,
     "verdict": "FAIL_NO_PROGRESS",
@@ -207,18 +206,18 @@
   "shots": [
     {
       "label": "offer_1_open",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4626/offer_1_open_1.004_4626.png",
-      "t": 1.00395966666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4419/offer_1_open_1.008_4419.png",
+      "t": 1.00757575757576
     },
     {
       "label": "offer_2_open",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6134/offer_2_open_2.506_6134.png",
-      "t": 2.50601233333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5911/offer_2_open_2.506_5910.png",
+      "t": 2.50601066666666
     },
     {
       "label": "offer_3_open",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7626/offer_3_open_4.000_7626.png",
-      "t": 4.00033200000001
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7410/offer_3_open_4.005_7410.png",
+      "t": 4.00523196969697
     }
   ]
 }
