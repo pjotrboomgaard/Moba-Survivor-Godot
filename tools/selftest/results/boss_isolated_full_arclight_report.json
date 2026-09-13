@@ -1,0 +1,879 @@
+{
+  "effects": [
+    {
+      "hp": 1.0,
+      "kind": "landmark_save",
+      "saves": 1,
+      "t": 0.15
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              90.0,
+              0.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "astral",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              0.0,
+              90.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "rime",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -90.0,
+              0.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              0.0,
+              -90.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "arclight",
+      "hp": 142.1,
+      "hp_frac": 1.0,
+      "hp_max": 142.1,
+      "kind": "probe",
+      "label": "pre",
+      "last_sfx": "enemy_death",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 864,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(90.0, 0.0)"
+        },
+        "101": {
+          "locked": true,
+          "pos": "(-0.000004, 90.0)"
+        },
+        "102": {
+          "locked": true,
+          "pos": "(-90.0, -0.000008)"
+        },
+        "103": {
+          "locked": true,
+          "pos": "(0.000001, -90.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 9.49999999999998,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 0.505570242424242,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 1,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              300.0,
+              0.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "astral",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              0.0,
+              300.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "rime",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -300.0,
+              0.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              0.0,
+              -300.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "arclight",
+      "hp": 132.65,
+      "hp_frac": 0.933497536945813,
+      "hp_max": 142.1,
+      "kind": "probe",
+      "label": "boss_spawned",
+      "last_sfx": "countdown_tick",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 871,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(300.0, 0.0)"
+        },
+        "101": {
+          "locked": true,
+          "pos": "(-0.000013, 300.0)"
+        },
+        "102": {
+          "locked": true,
+          "pos": "(-300.0, -0.000026)"
+        },
+        "103": {
+          "locked": true,
+          "pos": "(0.000004, -300.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 6.99999999999991,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 3.00714285714285,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "boss": "ravager",
+      "gold_after": 392,
+      "kind": "kill_boss",
+      "label": "takeover_kill",
+      "level_after": 1,
+      "t": 4.00321666666666,
+      "xp_after": 10
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": true,
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 43.8294083030304,
+      "creep_kills": 1,
+      "cross_cd": 0.0,
+      "hero_kills": 0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "after_takeover",
+      "movement_speed": 500.25,
+      "slam_cd": 0.0,
+      "t": 5.5009513636364,
+      "volley_cd": 0.0,
+      "weapon_damage": 46.8
+    },
+    {
+      "cross_cd_after": 0.0,
+      "kind": "bossform_attack",
+      "slam_cd_after": 3.0,
+      "t": 6.50612266666673,
+      "volley_cd_after": 0.0,
+      "which": "slam"
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": false,
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 42.3239520000001,
+      "creep_kills": 1,
+      "cross_cd": 0.0,
+      "hero_kills": 0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "after_slam",
+      "movement_speed": 500.25,
+      "slam_cd": 2.499715,
+      "t": 7.00640766666675,
+      "volley_cd": 0.0,
+      "weapon_damage": 46.8
+    },
+    {
+      "cross_cd_after": 2.6,
+      "kind": "bossform_attack",
+      "slam_cd_after": 1.50377,
+      "t": 8.00235266666677,
+      "volley_cd_after": 0.0,
+      "which": "cross"
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": false,
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 40.8199892962964,
+      "creep_kills": 1,
+      "cross_cd": 2.0919822962963,
+      "hero_kills": 0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "after_cross",
+      "movement_speed": 500.25,
+      "slam_cd": 0.995752296296292,
+      "t": 8.51037037037047,
+      "volley_cd": 0.0,
+      "weapon_damage": 46.8
+    },
+    {
+      "cross_cd_after": 1.10033838095238,
+      "kind": "bossform_attack",
+      "slam_cd_after": 0.00410838095237709,
+      "t": 9.50201428571438,
+      "volley_cd_after": 3.5,
+      "which": "volley"
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": false,
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 39.3227313703703,
+      "creep_kills": 1,
+      "cross_cd": 0.594724370370368,
+      "hero_kills": 0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "after_volley",
+      "movement_speed": 500.25,
+      "slam_cd": 0.0,
+      "t": 10.0076282962964,
+      "volley_cd": 2.99438598941799,
+      "weapon_damage": 46.8
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": false,
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 36.3301836666664,
+      "creep_kills": 5,
+      "cross_cd": 0.0,
+      "hero_kills": 0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "creep_kill_check",
+      "movement_speed": 435.0,
+      "slam_cd": 0.0,
+      "t": 13.0001760000001,
+      "volley_cd": 0.00183828571428438,
+      "weapon_damage": 46.8
+    },
+    {
+      "boss_form_hero_kills_after": 1,
+      "boss_form_hero_kills_before": 0,
+      "hero_kills_after": 1,
+      "hero_kills_before": 0,
+      "in_boss_form_after": true,
+      "kind": "bossform_kill_bot",
+      "label": "bot_kill_1",
+      "reverted": false,
+      "t": 14.039393939394,
+      "target_class": "astral",
+      "was_in_boss_form": true
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": true,
+      "boss_form_hero_kills": 1,
+      "boss_form_timer": 34.8303596666664,
+      "creep_kills": 5,
+      "cross_cd": 0.0,
+      "hero_kills": 1,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "after_bot_kill_1",
+      "movement_speed": 435.0,
+      "slam_cd": 0.0,
+      "t": 14.5,
+      "volley_cd": 0.0,
+      "weapon_damage": 46.8
+    },
+    {
+      "boss_form_hero_kills_after": 2,
+      "boss_form_hero_kills_before": 1,
+      "hero_kills_after": 2,
+      "hero_kills_before": 1,
+      "in_boss_form_after": true,
+      "kind": "bossform_kill_bot",
+      "label": "bot_kill_2",
+      "reverted": false,
+      "t": 15.0371666666667,
+      "target_class": "rime",
+      "was_in_boss_form": true
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": true,
+      "boss_form_hero_kills": 2,
+      "boss_form_timer": 33.8232176666664,
+      "creep_kills": 5,
+      "cross_cd": 0.0,
+      "hero_kills": 2,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "after_bot_kill_2",
+      "movement_speed": 435.0,
+      "slam_cd": 0.0,
+      "t": 15.507142,
+      "volley_cd": 0.0,
+      "weapon_damage": 46.8
+    },
+    {
+      "boss_form_hero_kills_after": 0,
+      "boss_form_hero_kills_before": 2,
+      "hero_kills_after": 3,
+      "hero_kills_before": 2,
+      "in_boss_form_after": false,
+      "kind": "bossform_kill_bot",
+      "label": "bot_kill_3",
+      "reverted": true,
+      "t": 16.0370833333333,
+      "target_class": "tobor",
+      "was_in_boss_form": true
+    },
+    {
+      "enemies_alive": 80,
+      "kills_after": 5,
+      "kills_before": 1,
+      "kind": "primary_probe",
+      "label": "primary_hold",
+      "t": 16.065957
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": true,
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 0.0,
+      "creep_kills": 5,
+      "cross_cd": 0.0,
+      "hero_kills": 3,
+      "in_boss_form": false,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "post_revert",
+      "movement_speed": 300.0,
+      "slam_cd": 0.0,
+      "t": 16.5068626666667,
+      "volley_cd": 0.0,
+      "weapon_damage": 18.0
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 3,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              820.0,
+              3.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": false,
+            "class": "astral",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              -194.0,
+              325.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": false,
+            "class": "rime",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              46.0,
+              -165.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": false,
+            "class": "tobor",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              228.0,
+              -83.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 2165,
+      "hero": "arclight",
+      "hp": 277.65,
+      "hp_frac": 0.967084639498432,
+      "hp_max": 287.1,
+      "kind": "probe",
+      "label": "post",
+      "last_sfx": "xp",
+      "last_tapped": -1,
+      "level": 5,
+      "obstacle_count": 871,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(819.7007, 2.616797)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(-193.6189, 325.3852)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(45.53241, -164.6824)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(228.2729, -83.15425)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 17.0050076666667,
+      "teleporters": [],
+      "transition": {
+        "biome_id": 0,
+        "biome_name": "Verdant Hollow",
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "center": "(592.0549, 0.0)",
+        "ring_live": 0,
+        "source": "boss_death",
+        "t": 7592,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 2,
+      "wave_name": "Growing Numbers",
+      "xp": 142
+    }
+  ],
+  "elapsed": 18.0050875757575,
+  "enemies_spawned": 6,
+  "hero_position": "(819.7007, 2.616797)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 5,
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": false,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": false,
+          "kills": 3,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            820.0,
+            3.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": false,
+          "class": "astral",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            -194.0,
+            325.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": false,
+          "class": "rime",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            46.0,
+            -165.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": false,
+          "class": "tobor",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            228.0,
+            -83.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 2177,
+    "hero_kills": 3,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 472,
+        "hp": 0.97,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 472,
+        "hp": 0.97,
+        "kills": 0,
+        "t": 10.15
+      },
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 1575,
+        "hp": 0.97,
+        "kills": 2,
+        "t": 15.16
+      }
+    ],
+    "landmark_saves": 1,
+    "level": 6,
+    "level_upgrades": {
+      "2": [
+        "heavy"
+      ],
+      "3": [
+        "volt"
+      ],
+      "4": [
+        "keen_eye"
+      ],
+      "5": [
+        "vitality"
+      ],
+      "6": [
+        "vitality"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 0.933497536945813,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "heavy",
+      "volt",
+      "keen_eye",
+      "vitality",
+      "vitality"
+    ],
+    "until_wave": 20,
+    "verdict": "PASS_KILLS",
+    "wave": 2,
+    "xp": 11
+  },
+  "shots": [
+    {
+      "label": "takeover_banner",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8293/takeover_banner_5.007_8293.png",
+      "t": 5.0071466666667
+    },
+    {
+      "label": "boss_form_combat",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13777/boss_form_combat_10.507_13777.png",
+      "t": 10.5071605555556
+    },
+    {
+      "label": "boss_form_killing_creeps",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_16782/boss_form_killing_creeps_13.503_16782.png",
+      "t": 13.502782962963
+    }
+  ]
+}

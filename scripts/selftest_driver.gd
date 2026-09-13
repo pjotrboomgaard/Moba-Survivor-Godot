@@ -1349,7 +1349,7 @@ func _kill_cpu_hero(label: String) -> void:
 		return
 	var target: Player = null
 	for node in get_tree().get_nodes_in_group("players"):
-		if node is Player and node != _player and node.is_cpu() and node.active:
+		if node is Player and node != _player and node.is_cpu() and node.active and not (node.health != null and node.health.is_dead):
 			target = node as Player
 			break
 	if target == null:
@@ -1358,11 +1358,20 @@ func _kill_cpu_hero(label: String) -> void:
 	var hero_kills_before := _player.hero_kills
 	var boss_kills_before := _player.boss_form_hero_kills
 	var was_boss_form := _player.in_boss_form
+	# Neutralize the target's own cheat-death/Aegis so the kill lands deterministically.
+	if target.has_method("try_cheat_death"):
+		target.set("aegis_charges_left", 0)
+		target.set("aegis_charges", 0)
 	target.pvp_invuln_timer = 0.0
 	if target.health != null:
 		target.health.last_damage_source = _player
-		target.health.take_damage(target.health.current_health + 10.0, _player)
-	await get_tree().process_frame
+		# Large flat damage so the kill lands even through damage_taken_multiplier
+		# (e.g. bulwark's 0.62 resist) or any shield.
+		target.health.take_damage(99999.0, _player)
+	# Wait for the `died` signal to propagate through main.gd's `_on_ffa_player_died`
+	# (which increments hero_kills / boss_form_hero_kills) before we read counters.
+	for _i in 4:
+		await get_tree().process_frame
 	_active_effects.append({
 		"kind": "bossform_kill_bot",
 		"label": label,

@@ -1072,26 +1072,33 @@ kill other creeps and bots."
 - [x] **VERIFIED 2026-09-13** (`boss_isolated_full.json`, FFA 1 local + 3 CPU bots,
       hero arclight): spawn `ravager` (hp_mult 0.05) at t=1s → `kill_boss` at t=4s
       attributed to the local player → `_on_boss_death` fires `grant_boss_form` +
-      `_grant_boss_takeover` → "YOU ARE THE BOSS!" banner + `bossform_probe
-      after_takeover` shows `in_boss_form=true`, `weapon_damage` 18.0→46.8 (×1.8),
-      `movement_speed` 345→500.25 (×1.45). `bossform_attack` slam/cross/volley each
-      fire with correct cooldowns (slam_cd 3.0, cross_cd 2.6, volley_cd 3.5) and no
-      SCRIPT ERROR in the log tail.
+      `_grant_boss_takeover`. `bossform_probe after_takeover` shows
+      `in_boss_form=true`, `weapon_damage` 26.0→46.8 (×1.8),
+      `movement_speed` 345→500.25 (×1.45), `boss_form_timer` ~43.8s.
+      `bossform_attack` slam/cross/volley each fire with correct cooldowns
+      (slam_cd 3.0, cross_cd 2.6, volley_cd 3.5) and no SCRIPT ERROR in the log tail.
 - [x] Boss-form abilities fire via the hotkey path (`_update_ability_slots`
       boss-form override → `_boss_form_slam/_cross/_volley`), all three confirmed by
       `bossform_probe` post-attack (CDs set then decay; `abilities_still_castable`
       true throughout — no cooldown lockup).
 - [x] Boss-form hero kills regular creeps: 5 grunts (hp_mult 0.1) spawned at t=11s,
-      `primary_hold` 3s of LMB auto-attack → `creep_kills` incremented (report
-      `results.creep_kills`), confirmed in `bossform_probe creep_kill_check`.
+      `primary_hold` 3s of LMB auto-attack → `creep_kills` incremented (probe
+      `creep_kill_check` shows `creep_kills=5`, `results.creep_kills=5`, both
+      ≥ 3), confirmed in screenshot `boss_form_killing_creeps_13.503_16782.png`.
 - [x] Boss-form hero kills a CPU bot hero (FFA): new driver event
       `bossform_kill_bot` (`_kill_cpu_hero`) deterministically lands a hero-kill on a
       CPU rival with the local player as `last_damage_source`; `main.gd`
       `_on_ffa_player_died` increments `hero_kills` and (while in boss form)
       `boss_form_hero_kills`, reverting the form at the 3-hero-kill threshold.
-      `bossform_probe after_bot_kill_*` / `post_revert` track the counter.
-- [x] Screenshot each phase: `takeover_banner` (banner + buffed hero),
-      `boss_form_combat` (hazards on screen), `boss_form_killing_creeps`.
+      All 3 bot kills confirmed: `bot_kill_1` target=astral `hero_kills 0→1`,
+      `bot_kill_2` target=rime `hero_kills 1→2`, `bot_kill_3` target=tobor
+      `hero_kills 2→3`, `boss_form_hero_kills 2→3` → `reverted=true`,
+      `post_revert` probe shows `in_boss_form=false`, `weapon_damage` back to
+      18.0, `movement_speed` back to 300.0.
+- [x] Screenshot each phase: `takeover_banner` (t=5s), `boss_form_combat`
+      (slam/cross hazards on screen, t=10.5s), `boss_form_killing_creeps`
+      (t=13.5s) — see `selftest_selftest_run_8293`, `selftest_selftest_run_13777`,
+      `selftest_selftest_run_16782` under `user://` (Roaming Godot app_userdata).
 - [x] Report probes extended: `bossform_probe` now also reports `creep_kills`,
       `hero_kills`, `abilities_still_castable` (kit or boss CDs all ready),
       `kit_all_ready`, `boss_all_ready`.
