@@ -52,12 +52,28 @@ marked complete.
 - Keep the failing evidence (report + screenshot path) in your notes so progress is
   auditable.
 
+## HARD RULE — isolated first, then full
+
+Test every mechanic in an ISOLATED context (clean deterministic FFA arena, or a
+dedicated empty-world `.tscn`) BEFORE running it in the full / FFA game. Do not
+declare a mechanic working on the strength of an FFA/full-scene run alone. If the
+mechanic cannot be isolated cleanly, say so explicitly and isolate the parts that
+can. Only after the isolated pass is green, re-verify in the full game.
+
+## HARD RULE — multiple screenshots, read ALL of them
+
+Verify with MULTIPLE screenshots covering every distinct phase of the task — never
+rely on a single screenshot. Before marking a task done, open EACH captured
+`.png` with the Read tool and reason about what is actually shown (not what you
+expected). A task is not verified until every screenshot in its batch has been
+opened and checked against the acceptance criteria.
+
 ## Test visuals in an EMPTY isolated world
 
 For ANY visual / cinematic / VFX work (explosions, transitions, hero-ability
 presentations, minigames, new worlds), do NOT verify it inside the full main scene.
 The main scene's world, obstacles, HUD, and camera are too much noise to judge the
-effect. Instead:
+    effect. Instead:
 
 1. **Build an isolated empty-world scene** for the effect (flat ground + a camera,
    no obstacles, no HUD, no enemies) that plays the effect on its own — e.g.
