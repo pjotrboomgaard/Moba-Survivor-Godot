@@ -398,6 +398,8 @@ func _process(delta: float) -> void:
 				_record_probe(str(event.get("label", "probe")))
 			"minigame":
 				_record_minigame_probe(str(event.get("label", "minigame")), int(event.get("index", -1)))
+			"recruit_probe":
+				_record_recruit_probe(str(event.get("label", "recruits")))
 			"start_minigame":
 				_start_minigame_event(int(event.get("index", 0)))
 			"minigame_bot_force":
@@ -499,6 +501,13 @@ func _process(delta: float) -> void:
 							_player.revert_boss_form()
 					if not _player.in_boss_form:
 						_active_effects.append({"kind": "bossform_kill", "reverted": true, "t": _elapsed})
+			"bossform_kill_bot":
+				# Kill a CPU rival hero in FFA so the local player's hero_kills counter
+				# (and boss_form_hero_kills) actually increments via the real damage path.
+				# Bypasses pvp_invuln so the kill lands deterministically. If the local
+				# hero is in boss form, the main.gd _on_ffa_player_died path will call
+				# boss_form_register_hero_kill and revert after 3 hero kills.
+				_kill_cpu_hero(str(event.get("label", "bot_kill")))
 			"kill_boss":
 				# Find the alive boss enemy and damage it to death (as if the player killed it),
 				# so we can verify the boss-death reward / takeover / transition path.
@@ -783,6 +792,44 @@ func _recruit_probe() -> Dictionary:
 	return {"minions": minions, "arts": arts, "area_positions": area_pos}
 
 
+## Detailed per-minion recruit probe (T3.15): records count of live friendly_minion
+## nodes, each minion's global position + distance-to-hero + aliveness, plus the
+## recruit-area positions and the hero's position. A dedicated `recruit_probe`
+## event kind so a selftest can assert the leash/follow behaviour explicitly.
+func _record_recruit_probe(label: String) -> void:
+	var minions: Array = []
+	var alive := 0
+	for m in get_tree().get_nodes_in_group("friendly_minion"):
+		if is_instance_valid(m):
+			alive += 1
+			var pos: Vector2 = (m as Node2D).global_position if m is Node2D else Vector2.ZERO
+			var dist_to_hero := 0.0
+			if _player != null:
+				dist_to_hero = pos.distance_to(_player.global_position)
+			minions.append({
+				"pos": [snappedf(pos.x, 1.0), snappedf(pos.y, 1.0)],
+				"dist_to_hero": snappedf(dist_to_hero, 1.0),
+				"alive": true,
+			})
+	var hero_pos: Array = [snappedf(_player.global_position.x, 1.0), snappedf(_player.global_position.y, 1.0)] if _player != null else []
+	var area_pos: Array = []
+	var host_main: Variant = _host_main
+	if host_main != null:
+		var ra: Variant = host_main.get("_recruit_areas")
+		if ra != null and is_instance_valid(ra) and ra.has_method("area_positions"):
+			for p in (ra as Node).area_positions():
+				area_pos.append([snappedf(float(p.x), 1.0), snappedf(float(p.y), 1.0)])
+	_active_effects.append({
+		"kind": "recruit_probe",
+		"label": label,
+		"t": _elapsed,
+		"minions": alive,
+		"minion_details": minions,
+		"hero_pos": hero_pos,
+		"area_positions": area_pos,
+	})
+
+
 ## Probe the minigame system: reports which minigames are active, their scores,
 ## and whether any has finished. If `index` >= 0, reports only that minigame.
 func _record_minigame_probe(label: String, index: int) -> void:
@@ -1004,6 +1051,16 @@ func _record_secondary_probe(label: String) -> void:
 func _record_bossform_probe(label: String) -> void:
 	if _player == null:
 		return
+	# Abilities still castable: true when the hero-kit cooldowns are all drained OR the
+	# boss-form 3-attack cooldowns are all drained (boss form overrides the kit, so any
+	# set at 0 means the player has a usable attack). This is the "no cooldown lockup"
+	# signal a T3.34 test asserts on.
+	var kit_all_ready := true
+	for cd in _player.ability_cooldowns:
+		if float(cd) > 0.0:
+			kit_all_ready = false
+			break
+	var boss_all_ready := (_player._boss_slam_cd <= 0.0 and _player._boss_cross_cd <= 0.0 and _player._boss_volley_cd <= 0.0)
 	_active_effects.append({
 		"kind": "bossform_probe",
 		"label": label,
@@ -1016,6 +1073,11 @@ func _record_bossform_probe(label: String) -> void:
 		"volley_cd": _player._boss_volley_cd,
 		"movement_speed": _player.movement_speed,
 		"weapon_damage": _player.weapon_damage,
+		"creep_kills": _player.creep_kills,
+		"hero_kills": _player.hero_kills,
+		"abilities_still_castable": kit_all_ready or boss_all_ready,
+		"kit_all_ready": kit_all_ready,
+		"boss_all_ready": boss_all_ready,
 	})
 
 
@@ -1273,6 +1335,46 @@ func _kill_alive_boss(label: String) -> void:
 		"xp_after": int(_player.current_xp) if _player != null else 0,
 		"level_after": int(_player.level) if _player != null else 0,
 		"t": _elapsed,
+	})
+
+
+## Deterministically kill a CPU rival hero (FFA) with the local player attributed
+## as the damage source. Bypasses pvp_invuln so the kill lands even during spawn
+## protection. The real main.gd `_on_ffa_player_died` path then increments
+## hero_kills and (while in boss form) boss_form_hero_kills, reverting the form
+## once the threshold is hit.
+func _kill_cpu_hero(label: String) -> void:
+	if _player == null:
+		_active_effects.append({"kind": "bossform_kill_bot", "label": label, "error": "no local player", "t": _elapsed})
+		return
+	var target: Player = null
+	for node in get_tree().get_nodes_in_group("players"):
+		if node is Player and node != _player and node.is_cpu() and node.active:
+			target = node as Player
+			break
+	if target == null:
+		_active_effects.append({"kind": "bossform_kill_bot", "label": label, "error": "no live CPU rival found", "t": _elapsed})
+		return
+	var hero_kills_before := _player.hero_kills
+	var boss_kills_before := _player.boss_form_hero_kills
+	var was_boss_form := _player.in_boss_form
+	target.pvp_invuln_timer = 0.0
+	if target.health != null:
+		target.health.last_damage_source = _player
+		target.health.take_damage(target.health.current_health + 10.0, _player)
+	await get_tree().process_frame
+	_active_effects.append({
+		"kind": "bossform_kill_bot",
+		"label": label,
+		"t": _elapsed,
+		"target_class": target.class_id,
+		"was_in_boss_form": was_boss_form,
+		"hero_kills_before": hero_kills_before,
+		"hero_kills_after": _player.hero_kills,
+		"boss_form_hero_kills_before": boss_kills_before,
+		"boss_form_hero_kills_after": _player.boss_form_hero_kills,
+		"in_boss_form_after": _player.in_boss_form,
+		"reverted": was_boss_form and not _player.in_boss_form,
 	})
 
 

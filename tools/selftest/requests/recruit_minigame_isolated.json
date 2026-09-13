@@ -1,0 +1,28 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "comment": "T3.15 Recruit/minigame creep-follow + combat isolated test. half=4200x2800, recruit area 0 (Town) at 0.60*half = (-2520,-1680). Pin the hero at the Town recruit area for ~3.5s to BOND (BOND_SECONDS=3, BOND_RADIUS=170), unpin and walk to test leash/follow. Start minigame 0 (Treasure Dash, Town corner) with bot_force so it drives itself to completion (~15s). After completion a friendly_minion (wolf) should spawn near the hero and follow. Then spawn 3 grunts nearby and verify the recruited minion engages + kills them (creep_kills > 0). FAIL_NO_PROGRESS verdict expected for a short run.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 0.5, "kind": "probe", "label": "start"},
+    {"t": 1.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.0, "kind": "unpin"},
+    {"t": 5.2, "kind": "walk_to", "at": [300.0, 0.0], "timeout": 8.0},
+    {"t": 6.0, "kind": "probe", "label": "after_bond"},
+    {"t": 7.0, "kind": "recruit_probe", "label": "recruits_after_bond"},
+    {"t": 9.0, "kind": "start_minigame", "index": 0},
+    {"t": 9.2, "kind": "minigame_bot_force", "index": 0, "on": true},
+    {"t": 10.0, "kind": "snap", "label": "minigame_in_progress"},
+    {"t": 24.5, "kind": "minigame", "index": 0, "label": "minigame_done"},
+    {"t": 25.5, "kind": "snap", "label": "recruited_following"},
+    {"t": 26.0, "kind": "recruit_probe", "label": "recruits_after_minigame"},
+    {"t": 27.0, "kind": "spawn", "at": [100.0, 0.0], "type": "grunt"},
+    {"t": 27.2, "kind": "spawn", "at": [140.0, 60.0], "type": "grunt"},
+    {"t": 27.4, "kind": "spawn", "at": [80.0, -80.0], "type": "grunt"},
+    {"t": 28.0, "kind": "snap", "label": "minions_fighting"},
+    {"t": 36.0, "kind": "probe", "label": "post_combat"},
+    {"t": 36.0, "kind": "recruit_probe", "label": "recruits_post_combat"},
+    {"t": 37.0, "kind": "snap", "label": "post_combat_snap"},
+    {"t": 38.0, "kind": "report"}
+  ]
+}
