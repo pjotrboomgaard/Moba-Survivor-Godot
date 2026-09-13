@@ -1,0 +1,1269 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        8.78659999999991,
+        190.799999999999
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              493.0,
+              -31.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 81,
+      "hero": "arclight",
+      "hp": 98.0,
+      "hp_frac": 1.0,
+      "hp_max": 98.0,
+      "kind": "probe",
+      "label": "wave1",
+      "last_sfx": "attack_arclight",
+      "last_tapped": 1,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "arclight_chain_lightning",
+      "pending_slot": 1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(493.3925, -31.07022)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 3.00164899999999,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "cd_left": 8.31993333333322,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 3.46885133333332
+    },
+    {
+      "advanced": true,
+      "kind": "skip_wave",
+      "t": 3.50218466666666,
+      "wave_after": 2,
+      "wave_before": 1
+    },
+    {
+      "cd_left": 189.783333333332,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.0196089090909
+    },
+    {
+      "cd_left": 6.11993333333321,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 5.66960890909098
+    },
+    {
+      "cd_left": 187.58333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.21960890909101
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        4.78659999999988,
+        186.799999999996
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -427.0,
+              -625.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 81,
+      "hero": "arclight",
+      "hp": 98.0,
+      "hp_frac": 1.0,
+      "hp_max": 98.0,
+      "kind": "probe",
+      "label": "wave2",
+      "last_sfx": "step_grass",
+      "last_tapped": 0,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "arclight_blast_of_lightning",
+      "pending_slot": 0,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(-426.5157, -625.1297)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 7.00294224242438,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 2,
+      "wave_name": "Growing Numbers",
+      "xp": 0
+    },
+    {
+      "advanced": true,
+      "kind": "skip_wave",
+      "t": 7.50294224242441,
+      "wave_after": 3,
+      "wave_before": 2
+    },
+    {
+      "cd_left": 3.91993333333322,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 7.86960890909109
+    },
+    {
+      "cd_left": 185.383333333328,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 8.41960890909107
+    },
+    {
+      "cd_left": 1.71993333333323,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 10.069608909091
+    },
+    {
+      "cd_left": 183.183333333326,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 10.6196089090909
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.786599999999896,
+        182.799999999993
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -1378.0,
+              -1185.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 81,
+      "hero": "arclight",
+      "hp": 98.0,
+      "hp_frac": 1.0,
+      "hp_max": 98.0,
+      "kind": "probe",
+      "label": "wave3",
+      "last_sfx": "attack_arclight",
+      "last_tapped": 1,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "arclight_chain_lightning",
+      "pending_slot": 1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(-1377.522, -1184.652)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 11.0029422424243,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 3,
+      "wave_name": "Acid Rain",
+      "xp": 0
+    },
+    {
+      "advanced": true,
+      "kind": "skip_wave",
+      "t": 11.5029422424242,
+      "wave_after": 4,
+      "wave_before": 3
+    },
+    {
+      "cd_left": 180.983333333325,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 12.8196089090908
+    },
+    {
+      "cd_left": 8.33659999999989,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 14.4696089090907
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        20.1930000000001,
+        37.4500000000001,
+        7.80326666666654,
+        178.79999999999
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -2025.0,
+              -1570.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 81,
+      "hero": "arclight",
+      "hp": 60.2,
+      "hp_frac": 0.614285714285714,
+      "hp_max": 98.0,
+      "kind": "probe",
+      "label": "wave4",
+      "last_sfx": "hurt",
+      "last_tapped": 1,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(-2025.087, -1569.563)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 15.002942242424,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 4,
+      "wave_name": "The Swarm",
+      "xp": 0
+    },
+    {
+      "cd_left": 178.783333333323,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 15.0196089090907
+    },
+    {
+      "advanced": true,
+      "kind": "skip_wave",
+      "t": 15.502942242424,
+      "wave_after": 5,
+      "wave_before": 4
+    },
+    {
+      "gold": 81,
+      "hp": 0.517857142857143,
+      "kind": "wave_mark",
+      "t": 15.5112755757573,
+      "wave": 5
+    },
+    {
+      "cd_left": 19.6263333333334,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 15.5696089090907
+    },
+    {
+      "cd_left": 19.4930000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 15.7112755757573
+    },
+    {
+      "cd_left": 36.3333333333334,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 16.1196089090906
+    },
+    {
+      "cd_left": 36.2000000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 16.2612755757573
+    },
+    {
+      "cd_left": 6.13659999999988,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 16.6696089090906
+    },
+    {
+      "cd_left": 176.583333333321,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 17.2196089090906
+    },
+    {
+      "cd_left": 17.4263333333336,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 17.7696089090905
+    },
+    {
+      "cd_left": 17.2930000000002,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 17.9112755757572
+    },
+    {
+      "cd_left": 34.1333333333336,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 18.3196089090905
+    },
+    {
+      "cd_left": 34.0000000000002,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 18.4612755757572
+    },
+    {
+      "cd_left": 3.93659999999989,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 18.8696089090905
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        16.1930000000003,
+        33.4500000000003,
+        3.80326666666655,
+        174.799999999986
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -1303.0,
+              -664.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 81,
+      "hero": "arclight",
+      "hp": 50.75,
+      "hp_frac": 0.517857142857143,
+      "hp_max": 98.0,
+      "kind": "probe",
+      "label": "wave5_boss",
+      "last_sfx": "attack_arclight",
+      "last_tapped": 1,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(-1303.209, -663.8566)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 19.0029422424238,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 5,
+      "wave_name": "The Ravager",
+      "xp": 0
+    },
+    {
+      "cd_left": 174.383333333319,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 19.4196089090904
+    },
+    {
+      "advanced": true,
+      "kind": "skip_wave",
+      "t": 19.5029422424238,
+      "wave_after": 6,
+      "wave_before": 5
+    },
+    {
+      "cd_left": 15.2263333333336,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 19.9696089090904
+    },
+    {
+      "cd_left": 15.0930000000003,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 20.1112755757571
+    },
+    {
+      "cd_left": 31.9333333333337,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 20.5196089090904
+    },
+    {
+      "cd_left": 31.8000000000004,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 20.661275575757
+    },
+    {
+      "cd_left": 1.73659999999989,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 21.0696089090904
+    },
+    {
+      "cd_left": 172.183333333318,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 21.6302476666661
+    },
+    {
+      "cd_left": 13.0263333333335,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 22.1827573333328
+    },
+    {
+      "cd_left": 12.8763333333335,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 22.3293689999994
+    },
+    {
+      "cd_left": 29.7166666666672,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 22.7343164242419
+    },
+    {
+      "cd_left": 29.5833333333338,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 22.8797576666661
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        12.1930000000001,
+        29.4500000000005,
+        0.0,
+        170.799999999983
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              -658.0,
+              254.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 86,
+      "hero": "arclight",
+      "hp": 50.75,
+      "hp_frac": 0.517857142857143,
+      "hp_max": 98.0,
+      "kind": "probe",
+      "label": "wave6_newworld",
+      "last_sfx": "attack_arclight",
+      "last_tapped": 1,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(-658.1024, 254.4948)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 23.0018513333328,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 6,
+      "wave_name": "Wings",
+      "xp": 20
+    },
+    {
+      "cd_left": 169.933333333316,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 23.8833333333327
+    },
+    {
+      "cd_left": 10.7596666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 24.4462302222216
+    },
+    {
+      "cd_left": 10.6096666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 24.5883512558916
+    },
+    {
+      "cd_left": 27.4666666666673,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 24.999154666666
+    },
+    {
+      "cd_left": 27.3166666666673,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 25.1408039999994
+    },
+    {
+      "cd_left": 8.26993333333322,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 25.5504429999993
+    },
+    {
+      "cd_left": 167.699999999981,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 26.1087553333326
+    },
+    {
+      "cd_left": 8.54299999999995,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 26.6587553333326
+    },
+    {
+      "cd_left": 8.39299999999994,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 26.8004219999993
+    },
+    {
+      "hp": 0.421428571428571,
+      "kind": "landmark_save",
+      "saves": 1,
+      "t": 27.1837553333326
+    },
+    {
+      "cd_left": 25.2500000000007,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 27.2087553333326
+    },
+    {
+      "cd_left": 25.1000000000008,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 27.3504219999992
+    },
+    {
+      "cd_left": 6.06993333333321,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 27.7587553333325
+    },
+    {
+      "cd_left": 165.499999999979,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 28.3087553333325
+    },
+    {
+      "cd_left": 6.34299999999993,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 28.8587553333325
+    },
+    {
+      "cd_left": 6.19299999999993,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 29.0004219999991
+    },
+    {
+      "cd_left": 23.0500000000009,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 29.4087553333324
+    },
+    {
+      "cd_left": 22.9000000000009,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 29.5504219999991
+    },
+    {
+      "cd_left": 3.86993333333322,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 29.9587553333324
+    }
+  ],
+  "elapsed": 30.0004219999991,
+  "enemies_spawned": 0,
+  "hero_position": "(-70.72813, 399.4706)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 23,
+    "casts": [
+      {
+        "ability_id": "arclight_static_bolt",
+        "t": 1.26142596969697
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81216366666666
+      },
+      {
+        "ability_id": "arclight_static_bolt",
+        "t": 12.2696089090909
+      },
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 13.5112755757575
+      },
+      {
+        "ability_id": "arclight_chain_lightning",
+        "t": 14.0612755757574
+      },
+      {
+        "ability_id": "arclight_static_bolt",
+        "t": 23.2851846666661
+      }
+    ],
+    "creep_kills": 21,
+    "died": false,
+    "errors": [
+      "only beaten wave 0 / 6 (t=30)"
+    ],
+    "ffa": {},
+    "gold": 95,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "enemies": 13,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 0.15,
+        "wave": 1
+      },
+      {
+        "enemies": 6,
+        "gold": 81,
+        "hp": 1.0,
+        "t": 2.65,
+        "wave": 1
+      },
+      {
+        "enemies": 11,
+        "gold": 81,
+        "hp": 1.0,
+        "t": 5.15,
+        "wave": 2
+      },
+      {
+        "enemies": 18,
+        "gold": 81,
+        "hp": 1.0,
+        "t": 7.65,
+        "wave": 3
+      },
+      {
+        "enemies": 28,
+        "gold": 81,
+        "hp": 1.0,
+        "t": 10.16,
+        "wave": 3
+      },
+      {
+        "enemies": 39,
+        "gold": 81,
+        "hp": 1.0,
+        "t": 12.67,
+        "wave": 4
+      },
+      {
+        "enemies": 58,
+        "gold": 81,
+        "hp": 0.52,
+        "t": 15.18,
+        "wave": 4
+      },
+      {
+        "enemies": 60,
+        "gold": 81,
+        "hp": 0.52,
+        "t": 17.69,
+        "wave": 5
+      },
+      {
+        "enemies": 62,
+        "gold": 81,
+        "hp": 0.52,
+        "t": 20.19,
+        "wave": 6
+      },
+      {
+        "enemies": 70,
+        "gold": 86,
+        "hp": 0.52,
+        "t": 22.7,
+        "wave": 6
+      },
+      {
+        "enemies": 73,
+        "gold": 89,
+        "hp": 0.52,
+        "t": 25.21,
+        "wave": 6
+      },
+      {
+        "enemies": 73,
+        "gold": 95,
+        "hp": 0.42,
+        "t": 27.71,
+        "wave": 6
+      }
+    ],
+    "landmark_saves": 1,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 0.421428571428571,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 2,
+    "quests_seen": {
+      "chase_butterfly": 1,
+      "visit_vista": 1
+    },
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 6,
+    "verdict": "FAIL_NO_PROGRESS",
+    "wave": 6,
+    "xp": 42
+  },
+  "shots": []
+}

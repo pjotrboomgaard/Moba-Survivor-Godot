@@ -1,0 +1,163 @@
+{
+  "effects": [
+    {
+      "actual": 5,
+      "kind": "force_level",
+      "t": 0.505860818181818,
+      "target": 3
+    },
+    {
+      "actual": 5,
+      "kind": "force_level",
+      "t": 1.50204866666666,
+      "target": 4
+    },
+    {
+      "cd_left": 22.1513333333335,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.36818181818181
+    },
+    {
+      "actual": 5,
+      "kind": "force_level",
+      "t": 2.50378787878787,
+      "target": 5
+    },
+    {
+      "cd_left": 22.0180000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.51287878787878
+    },
+    {
+      "cd_left": 15.0766666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.92100133333333
+    },
+    {
+      "cd_left": 14.9266666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 3.08333333333333
+    },
+    {
+      "cd_left": 16.5033333333335,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 3.47783572727273
+    }
+  ],
+  "elapsed": 3.502894,
+  "enemies_spawned": 0,
+  "hero_position": "(333.7676, -119.2393)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 4,
+    "casts": [
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 0.844696969696969
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 0.844696969696969
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 1.255209
+      },
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 1.952863
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [
+      "only beaten wave 0 / 20 (t=4)"
+    ],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "enemies": 12,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 0.15,
+        "wave": 1
+      },
+      {
+        "enemies": 18,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 2.65,
+        "wave": 1
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 5,
+    "level_upgrades": {
+      "2": [
+        "keen_eye"
+      ],
+      "3": [
+        "heavy"
+      ],
+      "4": [
+        "keen_eye"
+      ],
+      "5": [
+        "heavy"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 2,
+    "quests_seen": {
+      "collect_fireflies": 1,
+      "town_fox": 1
+    },
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "keen_eye",
+      "heavy",
+      "keen_eye",
+      "heavy"
+    ],
+    "until_wave": 20,
+    "verdict": "FAIL_NO_PROGRESS",
+    "wave": 1,
+    "xp": 87
+  },
+  "shots": [
+    {
+      "label": "offer_panel_v1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4253/offer_panel_v1_1.005_4253.png",
+      "t": 1.00476133333333
+    },
+    {
+      "label": "offer_panel_v2",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5253/offer_panel_v2_2.003_5253.png",
+      "t": 2.002863
+    },
+    {
+      "label": "offer_panel_v3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6262/offer_panel_v3_3.008_6262.png",
+      "t": 3.00833333333333
+    }
+  ]
+}
