@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "comment": "T3.35 items 4+5: hold TAB should show hero stats + taken upgrades alongside the ability-hint panel, and the ability description must NOT overlap the ability slot icons. Force level-ups to give Tobor several upgrades first, then drive the hold-TAB HUD state directly via hud._show_ability_hints(true) + hud._show_tab_stats(true) since the selftest driver can't simulate a physical TAB keypress. Screenshot the result.",
+  "events": [
+    {"t": 0.5, "kind": "force_level", "levels": 5},
+    {"t": 1.5, "kind": "hud_tab", "show": true, "label": "tab_on"},
+    {"t": 2.0, "kind": "snap", "label": "tab_hud"},
+    {"t": 2.5, "kind": "hud_tab", "show": false, "label": "tab_off"},
+    {"t": 3.0, "kind": "snap", "label": "tab_hud_hidden"},
+    {"t": 3.5, "kind": "report"}
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "comment": "T3.35 item 2: verify Tobor's Steam Turret (authored lifetime ~20s) and Spider Mines persist for their authored duration and do NOT vanish early. Tobor's default 4 slots are Q=steam_keg, E=spider_mines, R=energy_field, 4th=steam_turret. Cast slot 3 (turret) at t=0.5 and slot 1 (spider mines) at t=1.5; probe summon counts at t0/+10s/+20s/+30s. A real turret placed at t=0.5 must still be present at t=21.5 (within its ~20s authored lifetime + a small buffer).",
+  "events": [
+    {"t": 0.3, "kind": "aim", "at": [120, 0]},
+    {"t": 0.45, "kind": "cast", "slot": 3},
+    {"t": 0.55, "kind": "cast", "slot": 3},
+    {"t": 1.0, "kind": "probe", "label": "turret_t0"},
+    {"t": 1.5, "kind": "aim", "at": [-120, 0]},
+    {"t": 1.7, "kind": "cast", "slot": 1},
+    {"t": 2.2, "kind": "probe", "label": "mines_t0"},
+    {"t": 12.0, "kind": "probe", "label": "turret_t10"},
+    {"t": 22.0, "kind": "probe", "label": "turret_t20"},
+    {"t": 23.5, "kind": "snap", "label": "turret_mines_field"},
+    {"t": 32.0, "kind": "probe", "label": "turret_t30"},
+    {"t": 33.0, "kind": "report"}
+  ]
+}

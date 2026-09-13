@@ -1,0 +1,17 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "comment": "T3.35 item 1 v2: level up to force a pending offer, screenshot the panel BEFORE picking (so icons are visible), then pick to close it. Repeated 3x with different levels to sample multiple offer mixes. Each snap happens while the panel is still open.",
+  "events": [
+    {"t": 0.5, "kind": "force_level", "levels": 2},
+    {"t": 1.0, "kind": "snap", "label": "offer_1_open"},
+    {"t": 1.4, "kind": "pick_upgrade", "index": 0},
+    {"t": 2.0, "kind": "force_level", "levels": 4},
+    {"t": 2.5, "kind": "snap", "label": "offer_2_open"},
+    {"t": 2.9, "kind": "pick_upgrade", "index": 0},
+    {"t": 3.5, "kind": "force_level", "levels": 6},
+    {"t": 4.0, "kind": "snap", "label": "offer_3_open"},
+    {"t": 4.4, "kind": "pick_upgrade", "index": 0},
+    {"t": 5.0, "kind": "report"}
+  ]
+}

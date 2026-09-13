@@ -1,0 +1,17 @@
+{
+  "hero": "arclight",
+  "mode": "ffa",
+  "ffa_all_bots": false,
+  "comment": "T3.35 item 7: grant boss form, fire all three boss attacks (slam/cross/volley), and after each one a sound_probe confirms AudioService.last_play records 'boss_attack' as the most recent sound fired. This proves the new deep boss SFX is actually wired into _boss_form_slam/_cross/_volley and fires on every boss-form attack, not just some.",
+  "events": [
+    { "t": 0.5, "kind": "bossform_grant", "boss": "ravager" },
+    { "t": 1.0, "kind": "probe", "label": "bossform_granted" },
+    { "t": 1.5, "kind": "bossform_attack", "which": "slam" },
+    { "t": 2.0, "kind": "sound_probe", "label": "slam_sfx", "ability_id": "boss_form" },
+    { "t": 2.5, "kind": "bossform_attack", "which": "cross" },
+    { "t": 3.0, "kind": "sound_probe", "label": "cross_sfx", "ability_id": "boss_form" },
+    { "t": 3.5, "kind": "bossform_attack", "which": "volley" },
+    { "t": 4.0, "kind": "sound_probe", "label": "volley_sfx", "ability_id": "boss_form" },
+    { "t": 4.5, "kind": "report" }
+  ]
+}

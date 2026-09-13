@@ -1,0 +1,14 @@
+{
+  "hero": "arclight",
+  "mode": "solo_survival",
+  "until_wave": 1,
+  "duration": 15,
+  "comment": "T3.36 item 11: verify the between-wave intermission is now 7s (normal) not 10s. Use dev skip_wave to force through waves rapidly, then watch the wave counter WITHOUT pressing skip, to see how long the natural intermission takes to elapse before the next wave starts. Record probe times to measure the actual gap.",
+  "events": [
+    {"t": 0.5, "kind": "probe", "label": "wave_start_1"},
+    {"t": 1.0, "kind": "dev_command", "command": "skip_wave"},
+    {"t": 1.5, "kind": "probe", "label": "wave_start_2"},
+    {"t": 12.5, "kind": "probe", "label": "natural_intermission_check"},
+    {"t": 14.0, "kind": "report"}
+  ]
+}

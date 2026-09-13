@@ -1,0 +1,14 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "comment": "T3.35 item 1: verify the PICK 1 2 3 4 upgrade-offer panel shows the CORRECT per-item icon (not a blue wisp fallback). Force level-ups to open the offer panel, screenshot it, and probe that the offered tokens resolve to a non-null texture via UpgradeCatalog.texture()/SpriteLibrary.",
+  "events": [
+    {"t": 0.5, "kind": "force_level", "levels": 3},
+    {"t": 1.0, "kind": "snap", "label": "offer_panel_v1"},
+    {"t": 1.5, "kind": "force_level", "levels": 4},
+    {"t": 2.0, "kind": "snap", "label": "offer_panel_v2"},
+    {"t": 2.5, "kind": "force_level", "levels": 5},
+    {"t": 3.0, "kind": "snap", "label": "offer_panel_v3"},
+    {"t": 3.5, "kind": "report"}
+  ]
+}

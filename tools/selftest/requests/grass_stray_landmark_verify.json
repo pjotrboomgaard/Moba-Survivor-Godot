@@ -1,0 +1,11 @@
+{
+  "hero": "tobor",
+  "biome": 0,
+  "comment": "T3.35 item 8: verify the grass world has NO pulse_wipe landmark at [0,0] (the 'Grove Bell' stray) and NO tree_cypress at [369,-1223] / [-259,-855] and NO tree_oak at [-295,-1414]. biome_probe gives obstacle breakdown; landmarks probe gives landmark list. Also snapshot for visual confirmation.",
+  "events": [
+    { "t": 1.0, "kind": "landmarks", "label": "grass_landmarks" },
+    { "t": 1.5, "kind": "biome_probe", "label": "grass_biome_breakdown" },
+    { "t": 2.0, "kind": "snap", "label": "grass_view" },
+    { "t": 2.5, "kind": "report" }
+  ]
+}

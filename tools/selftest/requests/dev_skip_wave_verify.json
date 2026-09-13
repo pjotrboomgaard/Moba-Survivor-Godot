@@ -1,0 +1,17 @@
+{
+  "hero": "arclight",
+  "mode": "solo_survival",
+  "until_wave": 1,
+  "duration": 8,
+  "comment": "T3.36 item 10: verify the dev panel 'Skip to next wave' button actually advances the wave. Probe current wave before, invoke the skip_wave dev command (same path the button is wired to, via _apply_dev_command), probe wave after - must be strictly greater. Also screenshot the dev panel itself so the button is visibly present in the UI (dev_toggle key opens the panel, then snap).",
+  "events": [
+    {"t": 0.5, "kind": "probe", "label": "wave_before"},
+    {"t": 1.0, "kind": "dev_command", "command": "skip_wave"},
+    {"t": 1.5, "kind": "probe", "label": "wave_after_skip1"},
+    {"t": 2.0, "kind": "dev_command", "command": "skip_wave"},
+    {"t": 2.5, "kind": "probe", "label": "wave_after_skip2"},
+    {"t": 3.5, "kind": "dev_command", "command": "dev_toggle"},
+    {"t": 4.0, "kind": "snap", "label": "dev_panel_visible"},
+    {"t": 5.0, "kind": "report"}
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "ffa_all_bots": false,
+  "comment": "T3.35 item 9: FFA solo-to... test. Local player is Tobor (the only non-CPU hero); 3 CPU rivals are spawned by the driver. Probe total summon/turret/mine counts over time — in a healthy solo-FFA with only the local Tobor casting wrench abilities, ALL active summons must belong to the local player (owner_peer_id == 1). If any summon has a different owner_peer_id, that means a CPU bot auto-cast a turret/mine and leaked it into the shared world — the bug this test is meant to catch. Also: the local player never auto-casts (input is driver-driven, not CpuBrain), so any turret/mine present in the world must have been placed by the local Tobor explicitly. We verify by checking owner_peer_id on every SummonEntity node in the tree.",
+  "events": [
+    { "t": 1.0, "kind": "probe", "label": "ffa_start" },
+    { "t": 6.0, "kind": "probe", "label": "ffa_6s" },
+    { "t": 12.0, "kind": "probe", "label": "ffa_12s" },
+    { "t": 20.0, "kind": "probe", "label": "ffa_20s" },
+    { "t": 22.0, "kind": "report" }
+  ]
+}

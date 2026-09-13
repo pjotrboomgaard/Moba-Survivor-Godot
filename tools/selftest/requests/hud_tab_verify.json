@@ -1,0 +1,19 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "until_wave": 3,
+  "duration": 20,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "T3.35 item 4+5: verify hold-TAB shows hero stats + taken upgrades (stats_panel) ALONGSIDE the ability hint card (_ability_hint_panel), without overlapping the ability slot icons. Take a snap BEFORE hud_tab (panel hidden), one AFTER enabling it (both panels visible), one AFTER disabling (both hidden again).",
+  "events": [
+    { "t": 0.5, "kind": "force_level", "levels": 2 },
+    { "t": 1.0, "kind": "pick_upgrade", "index": 0 },
+    { "t": 1.6, "kind": "snap", "label": "tab_before" },
+    { "t": 2.0, "kind": "hud_tab", "show": true },
+    { "t": 2.4, "kind": "snap", "label": "tab_held" },
+    { "t": 3.4, "kind": "hud_tab", "show": false },
+    { "t": 3.8, "kind": "snap", "label": "tab_released" },
+    { "t": 4.5, "kind": "report" }
+  ]
+}
