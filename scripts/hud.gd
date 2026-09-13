@@ -400,7 +400,10 @@ func _process(delta: float) -> void:
 	# T3.52: refresh the ability hint panel every frame while TAB is held, so
 	# description changes when the mouse moves over a different slot.
 	if _ability_hint_visible and _ability_hint_panel != null:
-		_show_ability_hints(true)
+		var hovered := _detect_hovered_ability_slot()
+		if hovered != _last_hovered_ability_slot:
+			_last_hovered_ability_slot = hovered
+			_show_ability_hints(true)
 	_refresh_ability_icons()
 	_refresh_fps_counter()
 	_refresh_item_icons()
@@ -508,6 +511,7 @@ func _build_stats_text() -> String:
 var _ability_hint_panel: PanelContainer = null
 var _ability_hint_text: RichTextLabel = null
 var _ability_hint_visible := false
+var _last_hovered_ability_slot := -1
 
 func _show_ability_hints(on: bool) -> void:
 	_ensure_ability_hint_panel()
@@ -519,22 +523,32 @@ func _show_ability_hints(on: bool) -> void:
 	_ability_hint_visible = on
 	_ability_hint_panel.visible = on
 	if not on:
+		_last_hovered_ability_slot = -1
 		return
 	# T3.52: detect which ability slot the mouse is hovering over (if any).
 	var hovered_slot := _detect_hovered_ability_slot()
+	if hovered_slot < 0:
+		# No ability hovered — hide the ability panel, show only stats.
+		_ability_hint_text.text = ""
+		return
 	var sb: Array[String] = []
-	for entry in bound_player.known_abilities:
-		var slot_index := bound_player.known_abilities.find(entry)
+	for slot_index in bound_player.known_abilities.size():
+		var entry = bound_player.known_abilities[slot_index]
+		var is_hovered := (slot_index == hovered_slot)
 		var ability_id := str(entry.id)
 		var rank := int(entry.get("rank", 1))
 		var info := PlayerClass.ability_info(ability_id)
 		var name := str(info.get("name", ability_id))
-		var cooldown := float(PlayerClass.ability_values(ability_id, rank).get("cooldown", 0.0))
-		var cd_text := (" (CD %.0fs)" % cooldown) if cooldown > 0.0 else ""
-		var is_hovered := (hovered_slot >= 0 and slot_index == hovered_slot)
-		sb.append("[b][color=ffd166]%s[/color][/b] [color=9fb3d1]rank %d%s[/color]" % [name, rank, cd_text])
-		if is_hovered:
-			# T3.52: show full description only for the hovered ability.
+		if not is_hovered:
+			# Non-hovered abilities: just name + rank, no description.
+			var cooldown := float(PlayerClass.ability_values(ability_id, rank).get("cooldown", 0.0))
+			var cd_text := (" (CD %.0fs)" % cooldown) if cooldown > 0.0 else ""
+			sb.append("[color=6b7a8d]%s[/color] [color=5a6570]rank %d%s[/color]" % [name, rank, cd_text])
+		else:
+			# T3.52: hovered ability shows full description.
+			var cooldown := float(PlayerClass.ability_values(ability_id, rank).get("cooldown", 0.0))
+			var cd_text := (" (CD %.0fs)" % cooldown) if cooldown > 0.0 else ""
+			sb.append("[b][color=ffd166]%s[/color][/b] [color=9fb3d1]rank %d%s[/color]" % [name, rank, cd_text])
 			var desc := str(info.get("description", ""))
 			desc = _substitute_ability_placeholders(desc, ability_id)
 			sb.append("[color=f4f0e6]%s[/color]" % desc)
@@ -546,7 +560,7 @@ func _show_ability_hints(on: bool) -> void:
 func _detect_hovered_ability_slot() -> int:
 	if ability_icon_row == null:
 		return -1
-	var mouse_pos := get_global_mouse_position()
+	var mouse_pos := get_viewport().get_mouse_position()
 	for i in ability_icon_slots.size():
 		var root: Control = ability_icon_slots[i].root
 		if root == null:
@@ -611,6 +625,27 @@ func _ensure_ability_hint_panel() -> void:
 	_ability_hint_panel.add_theme_stylebox_override("panel", bg)
 	_ability_hint_panel.add_child(_ability_hint_text)
 	add_child(_ability_hint_panel)
+	_refresh_ability_hint_style()
+
+
+## T2.2: Color the ability hint panel border with the hero's accent color so each
+## hero's cards are visually distinct at a glance.
+func _refresh_ability_hint_style() -> void:
+	if _ability_hint_panel == null:
+		return
+	var accent := Color("8899aa")
+	if bound_player != null:
+		accent = Color(str(PlayerClass.by_id(str(bound_player.class_id)).get("accent_color", "8899aa")))
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.04, 0.05, 0.08, 0.88)
+	bg.set_corner_radius_all(6)
+	bg.content_margin_left = 10.0
+	bg.content_margin_right = 10.0
+	bg.content_margin_top = 8.0
+	bg.content_margin_bottom = 8.0
+	bg.border_color = Color(accent.r, accent.g, accent.b, 0.65)
+	bg.set_border_width_all(2)
+	_ability_hint_panel.add_theme_stylebox_override("panel", bg)
 
 
 ## T3.35: hold-TAB should also surface the hero's live stats + the upgrades taken
@@ -1253,6 +1288,7 @@ func bind_player(player: Player) -> void:
 	if bound_player == player:
 		return
 	bound_player = player
+	_refresh_ability_hint_style()
 	var health := player.health
 	health.health_changed.connect(_on_health_changed)
 	player.xp_changed.connect(_on_xp_changed)

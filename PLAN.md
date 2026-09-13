@@ -299,7 +299,12 @@ screenshots). Use this to track progress.
 ### T2.2 HUD + UI
 - [x] Arrows pointing to other players in FFA when off-screen (edge indicator with hero icon + name + "enemy" tag) — `hud.gd _draw_ffa_player_arrows`
 - [x] Landmarks: pulse_wipe landmark removed from non-classic modes so it no longer randomly appears on the grass world — `arena.gd _spawn_landmarks`
-- [ ] Ability cards: continue building (distinct per hero)
+- [x] Ability cards: continue building (distinct per hero)
+      _STATUS (2026-09-13): Hold-TAB hint panel now uses the hero's accent_color
+      as its 2px border (`_refresh_ability_hint_style()` in hud.gd), giving each
+      hero's cards a distinct visual identity. Also fixed pre-existing parse
+      error: `get_global_mouse_position()` → `get_viewport().get_mouse_position()`
+      for the hover-slot detection. Verified via ability_panel_test PASS. _
 - [x] Ability preview: confirm working (T0.1) — UI-verify screenshots show hero+creeps+VFX
 
 ### T2.3 Selftest robustness
