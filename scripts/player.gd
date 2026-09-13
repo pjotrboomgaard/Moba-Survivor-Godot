@@ -450,6 +450,8 @@ func _boss_form_slam() -> void:
 	var arena_root := get_parent()
 	if arena_root == null:
 		return
+	# T3.35 item 7: every boss-form attack fires the shared deep boss SFX.
+	SoundDirector.play("boss_attack", global_position)
 	var dmg := weapon_damage * 2.5
 	var radius := 90.0 + 8.0 * _boss_form_phase()
 	var ring := radius * 2.0 + 90.0
@@ -467,6 +469,8 @@ func _boss_form_cross() -> void:
 	if not in_boss_form or _boss_cross_cd > 0.0:
 		return
 	_boss_cross_cd = 2.6
+	# T3.35 item 7: every boss-form attack fires the shared deep boss SFX.
+	SoundDirector.play("boss_attack", global_position)
 	var dmg := weapon_damage * 2.0
 	var toward := facing_direction.angle()
 	var angles: Array[float] = [toward, toward + PI * 0.5]
@@ -481,6 +485,8 @@ func _boss_form_volley() -> void:
 	if not in_boss_form or _boss_volley_cd > 0.0:
 		return
 	_boss_volley_cd = 3.5
+	# T3.35 item 7: every boss-form attack fires the shared deep boss SFX.
+	SoundDirector.play("boss_attack", global_position)
 	var arena_root := get_parent()
 	if arena_root == null or not arena_root.has_method("spawn_player_projectile"):
 		return
@@ -4011,6 +4017,12 @@ func _commit_wall() -> void:
 
 
 func _cast_secondary() -> void:
+	# T3.35 item 6: every RMB/secondary release fires a per-hero stinger, distinct
+	# from the LMB primary bank (attack_<hero>) so the two read differently by ear.
+	# CPU bots are skipped (same gating as the primary-attack SFX) so FFA runs
+	# don't stack four rival secondaries at once.
+	if simulation_mode != SimulationMode.CPU:
+		SoundDirector.play("attack_secondary_%s" % class_id, global_position)
 	match secondary_kind:
 		"wall":
 			_commit_wall()
@@ -5201,6 +5213,10 @@ func _draw() -> void:
 		_draw_secondary_charge_indicator()
 	if aim_indicator_visible and is_local_player and not _pending_ability_id.is_empty():
 		_draw_aim_indicator()
+	# T3.38: subtle auto-attack range indicator for the local hero only. Very low alpha
+	# so it reads as a hint, not a solid target line, and doesn't obscure the world.
+	if is_local_player:
+		_draw_attack_range_indicator()
 	# Absorb shield indicator: a soft blue-gold ring around the hero when a shield
 	# is active, so the player can see it's up and roughly how much is left.
 	if health != null and health.shield_amount > 0.0:
@@ -5317,3 +5333,15 @@ func _draw_aim_indicator() -> void:
 			var local_target := to_local(candidate.global_position)
 			draw_arc(local_target, 18.0, 0.0, TAU, 24, Color(1.0, 0.85, 0.4, 0.9 * pulse), 2.4, true)
 			draw_line(local_center, local_target, Color(1.0, 0.85, 0.4, 0.6), 1.6, true)
+
+
+## T3.38: very subtle, always-on (for the local hero) ring showing the primary auto-attack
+## range, so the player can tell at a glance how far their LMB reaches without it turning
+## into a loud target line like the ability aim indicator. Deliberately low alpha and thin
+## so it reads as a hint, not a distraction.
+func _draw_attack_range_indicator() -> void:
+	var r := attack_range
+	if r <= 0.0:
+		return
+	draw_arc(Vector2.ZERO, r, 0.0, TAU, 96, Color(1.0, 1.0, 1.0, 0.06), 2.0, true)
+	draw_arc(Vector2.ZERO, r * 0.985, 0.0, TAU, 96, Color(accent_color.r, accent_color.g, accent_color.b, 0.10), 1.0, true)

@@ -252,12 +252,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_released("show_stats"):
 		stats_panel.visible = false
 		return
-	# Hold TAB to see every ability's card in-game (name + description + rank).
+	# Hold TAB to see every ability's card in-game (name + description + rank) AND the
+	# hero's live stats + taken-upgrades list. T3.35: previously only the ability card
+	# showed; now the stats panel is shown too, refreshed every frame by _process.
 	if event.is_action_pressed("hold_abilities"):
 		_show_ability_hints(true)
+		_show_tab_stats(true)
 		return
 	if event.is_action_released("hold_abilities"):
 		_show_ability_hints(false)
+		_show_tab_stats(false)
 		return
 	if OS.is_debug_build() and event.is_action_pressed("dev_toggle"):
 		dev_panel.visible = not dev_panel.visible
@@ -384,6 +388,10 @@ func _process(delta: float) -> void:
 		_refresh_dev_panel()
 	if stats_panel.visible:
 		stats_text.text = _build_stats_text()
+		# Keep the tab-stats flag in sync in case the panel is hidden some other way
+		# (e.g. escape menu) while the user still has TAB held — refresh so it stays live.
+		if _tab_stats_held and not Input.is_action_pressed("hold_abilities"):
+			_show_tab_stats(false)
 	if next_wave_timer_label.visible:
 		_next_wave_countdown = maxf(0.0, _next_wave_countdown - delta)
 		next_wave_timer_label.text = "auto in %ds" % ceili(_next_wave_countdown)
@@ -551,9 +559,13 @@ func _ensure_ability_hint_panel() -> void:
 	_ability_hint_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_ability_hint_panel.anchor_left = 1.0
 	_ability_hint_panel.anchor_right = 1.0
-	_ability_hint_panel.offset_left = -360.0
-	_ability_hint_panel.offset_top = 210.0
-	_ability_hint_panel.offset_right = -20.0
+	# T3.35: the ability icon row sits at x=1190..1252, y=236..500 (right edge of the
+	# screen). The hint panel must NOT overlap those icons — its right edge stops at
+	# x=1170 (offset_right = -130 from screen right at 1280 wide viewport) so the
+	# description text never covers the slot icons while TAB is held.
+	_ability_hint_panel.offset_left = -950.0
+	_ability_hint_panel.offset_top = 130.0
+	_ability_hint_panel.offset_right = -130.0
 	_ability_hint_panel.offset_bottom = 640.0
 	_ability_hint_panel.visible = false
 	_ability_hint_text = RichTextLabel.new()
@@ -574,6 +586,26 @@ func _ensure_ability_hint_panel() -> void:
 	_ability_hint_panel.add_theme_stylebox_override("panel", bg)
 	_ability_hint_panel.add_child(_ability_hint_text)
 	add_child(_ability_hint_panel)
+
+
+## T3.35: hold-TAB should also surface the hero's live stats + the upgrades taken
+## this run, not just the ability card. The existing stats_panel (normally shown on
+## SHIFT hold) is repurposed for this: it appears alongside the ability hint panel
+## while TAB is held and is refreshed every frame by _process (which already updates
+## stats_text.text whenever stats_panel.visible).
+var _tab_stats_held := false
+
+func _show_tab_stats(on: bool) -> void:
+	_tab_stats_held = on
+	if stats_panel == null:
+		return
+	if on:
+		stats_panel.visible = true
+		stats_text.text = _build_stats_text()
+	elif not Input.is_action_pressed("show_stats"):
+		# Only hide when the user isn't also holding the dedicated stats key, so the
+		# two paths (SHIFT stats / TAB stats) don't fight over the panel.
+		stats_panel.visible = false
 
 
 ## Track the upgrades picked this run so the stats panel can list them on demand.

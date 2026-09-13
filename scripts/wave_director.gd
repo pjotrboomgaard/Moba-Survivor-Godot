@@ -230,8 +230,11 @@ const IMPROVISED_NAMES := {
 	Archetype.BOSS: ["Boss", "The Reckoning", "Apex"],
 }
 
-const INTERMISSION_SECONDS := 10.0
-const SHOP_INTERMISSION_SECONDS := 30.0
+## T3.36: the user asked for waves to start sooner. Shorten the normal breather from
+## 10s to 7s; keep the shop intermission a bit longer (30s -> 22s) so the shop still
+## gets breathing room but no longer drags.
+const INTERMISSION_SECONDS := 7.0
+const SHOP_INTERMISSION_SECONDS := 22.0
 ## The shop opens after every other boss (waves 10, 20, 30, ...).
 const SHOP_WAVE_INTERVAL := 10
 ## Wave groups arrive faster now so each wave clears quicker — the user wants waves that

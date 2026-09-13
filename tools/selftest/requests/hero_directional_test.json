@@ -1,0 +1,8 @@
+{
+  "comment": "T3.38: verify the newly cut 4-directional sprites for bulwark/warden/arclight + subtle auto-attack range ring.",
+  "scene": "res://scenes/hero_directional_test/hero_directional_test.tscn",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "hero_directional_test.png",
+  "notes": "3 hero columns (Tremor/bulwark, Totem/warden, Joule/arclight) each showing front/back/side/left 32x32 sprites, plus a live bulwark at bottom showing its subtle auto-attack range ring. No red MISSING markers; ring visible but subtle."
+}

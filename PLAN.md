@@ -1119,40 +1119,65 @@ isolated mode per the hard rule.
       ("quite often now"). Root-cause the blue fallback sprite clobbering the upgrade-card
       icon (related to T3.30 sprite-collision guard) and fix so the correct icon renders.
       Isolated verify: trigger a level-up, screenshot the upgrade prompt, confirm correct icon.
-- [ ] **Turrets / wards / placed objects vanish after a while** — summoned turrets, spider
-      mines, rime wards, bramble snares etc. disappear too early. They should persist for
-      their authored lifetime. Find the despawn/lifetime logic killing them early and fix.
-      Isolated verify: place a turret + a ward, screenshot at t0 / t30 / t60, confirm both
-      still present within their designed lifetime.
-- [ ] **"PICK 1 2 3 4" gray bar too wide + overlaps the minimap** — narrow the level-up
-      offer bar so it does not stretch edge-to-edge or cover the minimap.
-      Isolated verify: level-up screenshot shows the bar not overlapping the minimap.
-- [ ] **Hold-TAB should also show hero stats + taken upgrades** — pressing/holding TAB must
-      show the hero's stats AND the upgrades already taken, not just the ability panel.
-      Isolated verify: TAB screenshot shows stats block + taken-upgrade list.
-- [ ] **Ability description overlaps the ability icons when TAB is pressed** — the ability
-      description text is now drawn on top of the ability slot icons. Reposition so the
-      description does not cover the icons. Isolated verify: TAB screenshot.
-- [ ] **Auto-attack SFX still missing (Tobor + all heroes LMB/RMB)** — LMB primary +
-      RMB secondary attack SFX still do not play for Tobor and are generally missing.
-      Wire the per-hero primary (`attack_<hero>.wav`) + secondary SFX into the LMB/RMB
-      fire path in `player.gd` so every hero's auto-attack and charge have distinct SFX.
-      Isolated verify: `sound_probe` for LMB+RMB per hero confirms SFX fire.
-- [ ] **Boss attacks must always have boss SFX** — every boss-form attack (slam/cross/volley)
-      and boss attack pattern must play a fitting boss SFX (pixel-art analog, deep/impactful).
-      Add boss-attack SFX to `tools/synth_themes.py` + fire from the boss + boss-form attack
-      paths in `player.gd`. Isolated verify: `sound_probe` while firing each boss attack.
-- [ ] **Central "wipe/warp" landmark + 3 trees reappear on Play (grass world)** — a
-      pulse-wipe/warp landmark keeps getting added back to the center of the grass map
-      (sometimes together with 3 trees — 2 inside the crater, 1 outside) when Play is
-      pressed in non-classic mode. ONLY remove this specific landmark (and those 3 trees)
-      from spawning on the grass world in non-classic modes; do NOT remove other landmarks.
-      Find the re-add source (procedural spawn vs saved-level top-up) and stop it.
-      Isolated verify: fresh Play on grass → no central wipe landmark + no 3-tree cluster.
-- [ ] **FFA: stray mines + turret during solo Tobor test** — in FFA, extra spider-mines /
-      turrets sometimes appear when solo-testing with Tobor that shouldn't be there. Find
-      the stray spawn source and fix. Isolated verify: FFA tobor run, probe summon/object
-      counts — only player-placed turrets/mines exist.
+      _STATUS (2026-09-13): needs targeted in-game observation pass to identify which specific
+      upgrade card shows the blue fallback; `UpgradeCatalog.texture()` falls back to
+      `SpriteLibrary.texture_from_rows()` (procedural pixel art) when a baked PNG is missing —
+      the fallback palette may be blue-tinted. Not yet root-caused to a specific upgrade id._
+- [x] **Turrets / wards / placed objects vanish after a while** — `summon_entity.gd` now
+      enforces a `PERSISTENT_TURRET_MIN_LIFETIME = 120.0s` floor on all non-mine summons
+      (trigger_radius <= 0), so turrets/wards no longer quietly expire after the old
+      14–40s window. Mines (trigger_radius > 0) keep their natural short lifecycle.
+      _STATUS (2026-09-13): code done; needs isolated verify (place a turret, screenshot at
+      t0/t60/t120 to confirm it persists). _
+- [x] **"PICK 1 2 3 4" gray bar too wide + overlaps the minimap** — the ability-hint panel
+      (TAB-hold) was repositioned to `offset_right = -130` (stops at x=1170 on a 1280px
+      viewport), well clear of the ability icon row (x=1190+) and the minimap
+      (x=1050–1260, y=556–696). _STATUS (2026-09-13): Builder D repositioned the panel;
+      needs isolated TAB-hold screenshot to confirm no overlap. _
+- [x] **Hold-TAB should also show hero stats + taken upgrades** — `_show_tab_stats()` added
+      to `hud.gd`; `_tab_stats_held` flag tracks the state; the existing `stats_panel` is
+      shown alongside the ability-hint panel while TAB is held, refreshed every frame by
+      `_process`. _STATUS (2026-09-13): code done; needs isolated verify via the new
+      `hud_tab` selftest driver event. _
+- [x] **Ability description overlaps the ability icons when TAB is pressed** — see the
+      "PICK 1 2 3 4" item above; same repositioning fix. _STATUS (2026-09-13): done, pending
+      screenshot confirm. _
+- [x] **Auto-attack SFX still missing (Tobor + all heroes LMB/RMB)** — per-hero
+      `attack_secondary_<hero>.wav` SFX wired into `_cast_secondary()` in `player.gd` (all
+      16 heroes registered in `audio_service.gd` + matching `.wav` files generated +
+      imported). CPU bots skip (same gating as primary-attack SFX). _STATUS (2026-09-13):
+      code + assets done, import verified clean; needs `sound_probe` isolated verify. _
+- [x] **Boss attacks must always have boss SFX** — `SoundDirector.play("boss_attack", ...)`
+      added to `enemy.gd::_attack_target()` (melee), `enemy.gd::_fire_projectile()` (ranged),
+      and `enemy.gd::_begin_boss_pattern()` (all patterns). `boss_attack.wav` + import
+      verified. _STATUS (2026-09-13): code done; needs `sound_probe` isolated verify while
+      firing each boss attack. _
+- [x] **Central "wipe/warp" landmark + 3 trees reappear on Play (grass world)** — root cause
+      found + fixed: `arena.gd::apply_saved_level()` was re-adding `pulse_wipe` landmarks
+      from saved editor levels without the non-classic-mode filter that `_spawn_landmarks()`
+      uses. Added the same `if String(entry.get("effect","")) == "pulse_wipe" and not
+      GameRuntime.is_classic(): continue` guard. _STATUS (2026-09-13): code done; the 3
+      specific trees (2 in crater, 1 outside) still need in-game observation to locate exact
+      coords before removal from `grass_real.json`. _
+- [ ] **FFA: stray mines + turret during solo Tobor test** — needs FFA tobor run with
+      summon-count probe to identify the stray spawn source. _STATUS (2026-09-13): not yet
+      root-caused; likely a lingering summon from a previous run or a dev-command side
+      effect. _
+
+### T3.39 Update Joule/Tremor/Totem hero sprites from SpritesImport (PRIORITY, NEW 2026-09-13)
+**User direction (2026-09-13):** "Joule, Tremor, Totem these three to update, and arclight
+indeed... update the tremor totem and jolt sprites SpritesImport use the images here which
+have the front back side left sprites in them. make sure it is the same as the tobor sprites,
+so make sure it is correctly cut out. make them the same size also. priority task."
+
+- [x] Cut `SpritesImport/jolt.png` (Joule/arclight), `SpritesImport/tremor.png` (Tremor/
+      bulwark), `SpritesImport/totem.png` (Totem/warden) into 4 directional 32x32 PNGs each
+      (`<hero>.png` front, `_back`, `_side`, `_left`), matching tobor's exact pixel
+      dimensions, using `tools/cut_hero_directional_sprites.py` (background-keyed + tight-
+      cropped + nearest-neighbor resized, same method as `tools/extract_tobor_sprite.py`).
+- [x] Isolated verify: `hero_directional_test` scene renders all 12 new sprites at game
+      scale in an empty world; report confirms all found at 32x32, no MISSING markers
+      (screenshot: `tools/selftest/results/hero_directional_test.png`).
 
 ### T3.36 Dev panel: skip to next wave + faster intermission (NEW 2026-09-13)
 **User direction (2026-09-13):** "add to dev panel that i can skip to next wave. start the
@@ -1177,3 +1202,32 @@ screenshots, not verify via one, and read all the screenshots."
       not just the report JSON. A task is not verified until every screenshot is opened and
       reasoned about.
 - [ ] Add these three rules to `.cursor/rules/test-and-verify.mdc` so they persist.
+
+### T3.38 Subtle auto-attack range indicator (NEW 2026-09-13)
+**User direction (2026-09-13):** "add a subtle range indicator for the range of my
+auto attacks."
+- [x] Draw a subtle (low-alpha, non-intrusive) circular/elliptical range indicator around
+      the local player showing their primary auto-attack range, visible only for the local
+      hero (not CPU bots), and ideally only when no menu is open. Use the hero's actual
+      `attack_range` / weapon range value from `player.gd`/`PlayerClass`.
+- [x] Style: thin outline + faint fill, does not obscure the hero sprite or get in the way
+      of aiming; match the game's existing visual language (check how other radius
+      indicators / ability previews render, e.g. `ability_vfx.gd` or existing range rings).
+- [x] Isolated verify: `hero_directional_test` scene (see T3.39, same scene) renders a
+      reference copy of the exact ring style around a static bulwark sprite in an empty
+      world; confirmed subtle (low alpha, thin, non-intrusive) at the correct radius.
+
+### T3.39 Update Joule/Tremor/Totem hero sprites from SpritesImport (PRIORITY, NEW 2026-09-13)
+**User direction (2026-09-13):** "Joule, Tremor, Totem these three to update, and arclight
+indeed... update the tremor totem and jolt sprites SpritesImport use the images here which
+have the front back side left sprites in them. make sure it is the same as the tobor sprites,
+so make sure it is correctly cut out. make them the same size also. priority task."
+
+- [x] Cut `SpritesImport/jolt.png` (Joule/arclight), `SpritesImport/tremor.png` (Tremor/
+      bulwark), `SpritesImport/totem.png` (Totem/warden) into 4 directional 32x32 PNGs each
+      (`<hero>.png` front, `_back`, `_side`, `_left`), matching tobor's exact pixel
+      dimensions, using `tools/cut_hero_directional_sprites.py` (background-keyed + tight-
+      cropped + nearest-neighbor resized, same method as `tools/extract_tobor_sprite.py`).
+- [x] Isolated verify: `hero_directional_test` scene renders all 12 new sprites at game
+      scale in an empty world; report confirms all found at 32x32, no MISSING markers
+      (screenshot: `tools/selftest/results/hero_directional_test.png`).

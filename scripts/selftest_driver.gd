@@ -533,6 +533,10 @@ func _process(delta: float) -> void:
 				# Find the first pending offer token that is an ability with rank 0
 				# (a locked ability) and pick it — exercises the "unlock" flow.
 				_pick_unlock_ability()
+			"hud_tab":
+				# T3.35 item 4/5: directly drive the hold-TAB HUD state (ability-hint
+				# panel + stats panel) since the selftest driver can't press a real TAB.
+				_set_hud_tab(bool(event.get("show", true)))
 			"skip_wave":
 				_dev_skip_wave()
 			"boss_transition_probe":
@@ -709,6 +713,7 @@ func _record_probe(label: String) -> void:
 		"player_positions": _player_positions(),
 		"teleporters": _teleporter_pads(),
 		"obstacle_count": _obstacle_count(),
+		"summons_owned": _summons_owner_probe(),
 		"recruits": _recruit_probe(),
 		"pending_upgrade_ids": _pending_offers("pending_upgrades"),
 		"pending_ability_ids": _pending_offers("pending_ability_offers"),
@@ -980,6 +985,21 @@ func _record_teleporters(label: String) -> void:
 	})
 
 
+## T3.35 item 9: enumerate every live SummonEntity in the tree and record its
+## owner_peer_id, so a test can assert that in a solo-FFA tobor run, every summon
+## belongs to the local player (owner_peer_id == 1) and no CPU bot auto-cast a
+## stray turret/mine.
+func _summons_owner_probe() -> Array:
+	var out: Array = []
+	for node in get_tree().get_nodes_in_group("summons"):
+		if not is_instance_valid(node):
+			continue
+		var owner_id := int(node.get("owner_peer_id")) if node.get("owner_peer_id") != null else -1
+		var ability := str(node.get("ability_id"))
+		out.append({"owner_peer_id": owner_id, "ability_id": ability})
+	return out
+
+
 ## Hold RMB for the given duration to wind up the secondary charge, then release.
 ## Verifies the hold-to-charge path: charge accumulates while held, and the
 ## release triggers a boosted secondary cast.
@@ -1207,6 +1227,29 @@ func _pick_unlock_ability() -> void:
 		"index": chosen,
 		"upgrade_id": chosen_id,
 		"abilities_after": (_player.known_abilities.duplicate() if _player.known_abilities else []),
+		"t": _elapsed,
+	})
+
+
+## T3.35 item 4/5: directly drive the hold-TAB HUD state (ability-hint panel +
+## stats panel) since the selftest driver can't hold a real TAB key down.
+func _set_hud_tab(show: bool) -> void:
+	if _host_main == null:
+		_active_effects.append({"kind": "hud_tab", "error": "no host", "t": _elapsed})
+		return
+	var hud: Variant = _host_main.get("hud")
+	if hud == null:
+		_active_effects.append({"kind": "hud_tab", "error": "no hud", "t": _elapsed})
+		return
+	if hud.has_method("_show_ability_hints"):
+		hud._show_ability_hints(show)
+	if hud.has_method("_show_tab_stats"):
+		hud._show_tab_stats(show)
+	_active_effects.append({
+		"kind": "hud_tab",
+		"show": show,
+		"ability_hint_visible": hud._ability_hint_panel.visible if hud.get("_ability_hint_panel") != null else false,
+		"stats_panel_visible": hud.stats_panel.visible if hud.get("stats_panel") != null else false,
 		"t": _elapsed,
 	})
 
@@ -1469,6 +1512,12 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 		entry["error"] = "sound_probe requires ability_id"
 		_active_effects.append(entry)
 		return
+	# Boss-form attacks fire through SoundDirector.play("boss_attack") rather than
+	# play_ability, so last_play_ability still holds whatever ability fired last —
+	# same situation as primary attacks. Detect from either ability_id ("boss_form")
+	# or a label starting with "boss_" so the asserts relax to "the expected
+	# boss_attack sound fired".
+	var is_boss_attack_probe := ability_id == "boss_form" or label.begins_with("boss_")
 	var prefix := ability_id.split("_")[0]
 	# Primary-attack SFX fire through SoundDirector.play("attack_<hero>") rather than
 	# play_ability, so last_play_ability still holds whatever ability fired last. Detect
@@ -1477,6 +1526,8 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 	# attack_<hero> sound fired".
 	var is_primary_attack_probe := ability_id.begins_with("primary_attack_") or label.begins_with("primary_")
 	var bank := "cast_%s" % prefix if not is_primary_attack_probe else "attack_%s" % prefix
+	if is_boss_attack_probe:
+		bank = "boss_attack"
 	entry["expected_bank"] = bank
 	var last_ability: String = AudioService.last_play_ability
 	# Use the ability-specific record (last_ability_play) when available so that
@@ -1491,15 +1542,25 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 	entry["last_play_sound_id"] = sound_id
 	entry["stream_path"] = stream.resource_path if stream != null else ""
 	entry["player_non_null"] = player != null
+	# For primary/secondary/boss attacks the bank is derived purely from ability_id/hero
+	# prefix, not from last_play_ability (which may hold something else), so assert
+	# strictly against the raw last_play_sound_id / AudioService.last_play.
+	if is_primary_attack_probe or is_boss_attack_probe:
+		entry["assert_bank_match"] = (sound_id == bank)
+		entry["assert_stream_bank"] = str(stream.resource_path).contains(bank) if stream != null else false
+	else:
+		entry["assert_ability_match"] = (last_ability == ability_id)
+		entry["assert_bank_match"] = (sound_id == bank)
 	entry["player_was_playing"] = player.playing if player != null else false
 	# For primary-attack probes, match the sound_id to attack_<hero> (not the ability name).
-	entry["assert_ability_match"] = (sound_id == bank) if is_primary_attack_probe else (last_ability == ability_id)
+	# For boss-attack probes, match the sound_id to "boss_attack" directly.
+	entry["assert_ability_match"] = (sound_id == bank) if is_primary_attack_probe else ((sound_id == bank) if is_boss_attack_probe else (last_ability == ability_id))
 	entry["assert_bank_match"] = sound_id == bank
 	# Theme takes live in assets/audio/themes/<hero>.wav, not named cast_<hero> — match
 	# by hero prefix so the assert covers both synthesized themes and legacy .ogg takes.
 	# Primary-attack streams are themes/attack_<hero>[_N].wav, so match the attack_<hero>
-	# prefix instead of the bare hero prefix.
-	var stream_prefix := "themes/%s" % ("attack_%s" % prefix if is_primary_attack_probe else prefix)
+	# prefix instead of the bare hero prefix. Boss attacks use themes/boss_attack.wav.
+	var stream_prefix := "themes/%s" % ("attack_%s" % prefix if is_primary_attack_probe else "boss_attack" if is_boss_attack_probe else prefix)
 	entry["assert_stream_from_bank"] = stream != null and stream_prefix in stream.resource_path
 	entry["assert_player_fired"] = player != null
 	entry["ok"] = (entry["assert_ability_match"] and entry["assert_bank_match"]

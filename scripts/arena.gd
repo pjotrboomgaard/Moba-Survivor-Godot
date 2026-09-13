@@ -542,6 +542,11 @@ func apply_saved_level(data: Dictionary) -> void:
 	for entry in data.get("landmarks", []):
 		if typeof(entry) != TYPE_DICTIONARY:
 			continue
+		# T3.35 item 8: apply the same non-classic filter _spawn_landmarks() uses so a
+		# saved-level pulse_wipe landmark (e.g. the grass "Grove Bell") does NOT reappear
+		# on Play in Pjotr mode even if it was baked into an old save file.
+		if String(entry.get("effect", "")) == "pulse_wipe" and not GameRuntime.is_classic():
+			continue
 		var lp: Array = entry.get("pos", [0.0, 0.0])
 		add_landmark_at(
 			Vector2(float(lp[0]), float(lp[1])),

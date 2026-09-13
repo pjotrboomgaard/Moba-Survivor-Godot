@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "duration": 25,
+  "comment": "T3.36: verify the intermission is now 7s (was 10s). Watch the next_wave_timer_label countdown between waves 1 and 2 - should reach 0 in ~7s, not ~10s.",
+  "events": [
+    {"kind": "probe", "label": "wave1", "t": 3.0},
+    {"kind": "probe", "label": "intermission_watch", "t": 12.0},
+    {"kind": "probe", "label": "wave2_check", "t": 15.0},
+    {"kind": "report", "t": 22.0}
+  ]
+}

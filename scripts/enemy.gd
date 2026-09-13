@@ -986,6 +986,9 @@ func _begin_boss_pattern() -> void:
 	strike_damage *= 0.85 + 0.2 * float(boss_phase)
 	if _solo_boss_fight():
 		strike_damage *= SOLO_BOSS_HAZARD_DAMAGE_MULT
+	# T3.35 item 9: every boss pattern attack must carry the boss SFX, not just the
+	# plain per-interval _attack_target()/_fire_projectile() strikes.
+	SoundDirector.play("boss_attack", global_position)
 	match pattern:
 		"dash":
 			winding_up = true
@@ -1285,6 +1288,10 @@ func _fire_projectile() -> void:
 	if attack_cooldown > 0.0 or projectile_damage <= 0.0:
 		return
 	attack_cooldown = attack_interval / WorldClock.night_attack_mult
+	# T3.35 item 9: ranged boss attacks also need the boss SFX, matching the melee
+	# path in _attack_target().
+	if is_boss:
+		SoundDirector.play("boss_attack", global_position)
 	# _begin_boss_pattern's strike/slam damage already gets SOLO_BOSS_HAZARD_DAMAGE_MULT, but
 	# this plain per-attack_interval volley didn't — for a ranged boss like Stormcaller (7
 	# projectiles every 0.9s) that's the actual continuous damage source, not the patterns,
@@ -1756,6 +1763,10 @@ func _attack_target() -> void:
 		if retaliation_timer > 0.0:
 			interval /= 1.5
 		attack_cooldown = interval
+		# T3.35 item 9: boss attacks must always carry the distinctive boss SFX so
+		# the player hears the threat level even without watching the screen closely.
+		if is_boss:
+			SoundDirector.play("boss_attack", global_position)
 		# Visual: a quick lunge toward the target to telegraph the hit.
 		if not is_boss:
 			_play_melee_dash()
