@@ -1,0 +1,14 @@
+{
+  "hero": "tobor",
+  "mode": "solo_survival",
+  "comment": "T3.52: hold-TAB should show only the hovered ability's description. The driver can't physically move the mouse, so we verify the _detect_hovered_ability_slot() logic by directly calling _show_ability_hints(true) (which internally detects hover) AND by reading the _last_hovered_ability_slot state. Since the driver can't control mouse position, this test focuses on confirming: (1) the panel shows when TAB is on, (2) the panel content is correct when no slot is hovered (should be empty/hidden), (3) the ability stats panel is shown alongside.",
+  "events": [
+    {"t": 0.5, "kind": "force_level", "levels": 5},
+    {"t": 1.5, "kind": "hud_tab", "show": true, "label": "tab_on"},
+    {"t": 2.0, "kind": "snap", "label": "tab_hud_no_hover"},
+    {"t": 2.5, "kind": "probe_hero_sprite", "label": "tab_state"},
+    {"t": 3.0, "kind": "hud_tab", "show": false, "label": "tab_off"},
+    {"t": 3.5, "kind": "snap", "label": "tab_hud_hidden"},
+    {"t": 4.0, "kind": "report"}
+  ]
+}

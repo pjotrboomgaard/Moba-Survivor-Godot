@@ -1,0 +1,11 @@
+{
+  "hero": "tobor",
+  "time_scale": 1.0,
+  "comment": "T3.44: verify the 3x creep budget (budget_for_wave vs pre-fix formula) and multi-direction spawn distribution. wave_probe queries the live WaveDirector + spawn-edge picker; snaps capture the live enemy field.",
+  "events": [
+    {"t": 3.0, "kind": "wave_probe", "wave": 1, "waves_ahead": 2},
+    {"t": 3.5, "kind": "snap", "label": "wave1_field"},
+    {"t": 7.0, "kind": "snap", "label": "wave1_spawns"},
+    {"t": 8.0, "kind": "report"}
+  ]
+}

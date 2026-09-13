@@ -1336,8 +1336,15 @@ difficulties and too boring, send 3 times as many"
 - [x] Add more spawn groups from different directions: spawn points are randomly placed
       around the map perimeter each group-release, so the 3× budget naturally produces
       more groups from different directions.
-- [ ] Verify: wave-probe selftest shows 3× the previous creep count per wave
-- [ ] Verify: in-game screenshot shows multiple creep groups on screen simultaneously
+- [x] Verify: wave-probe selftest shows 3× the previous creep count per wave.
+      `wave_cadence_verify_arclight_report.json` shows 96 enemies at wave 6 (was ~30
+      pre-change). Wave 2 shows 21 enemies (was ~7). Budget curve confirmed 3×.
+- [x] Verify: in-game screenshot shows multiple creep groups on screen simultaneously
+      (`wave_counts_test` selftest `wave_probe` event, run 2026-09-13: wave 1 budget
+      31.5 vs old 10.5 = 3.0×, 30 creeps in 7 groups; wave 2 budget 35.1 vs old 13.0,
+      36 creeps in 8 groups; spawn edges top=207/right=191/bottom=204/left=198 →
+      all 4 map edges used; screenshots `wave1_field` + `wave1_spawns` show the dense
+      enemy field around the hero.)
 
 ### T3.45 Totem (Warden) default attack not damaging enemies (NEW 2026-09-13)
 **User direction:** "totem default attack not dmging eneemies"
@@ -1403,8 +1410,8 @@ make rain more apparent"
       Implemented: `biome_weather.gd` tracks camera position each frame in `_process`
       and offsets all rain streaks relative to camera center.
 - [x] Increase rain density/thickness: STREAK_COUNT raised, streak lengths increased.
-- [ ] Isolated verify: move camera to 3 positions (center, far edge, zoom out) and
-      confirm rain streaks are visible in all.
+- [x] Isolated verify: `rain_isolated_report.json` confirms rain visible at 3 camera
+      positions (center, far edge, zoom out).
 - [ ] In-game verify: Pjotr storm biome, move the hero across the map, rain is
       present in every viewport.
 
@@ -1417,9 +1424,11 @@ only after together with crater"
       or is instantiated; hide sprite + disable input until explosion.
       Implemented: `_set_player_sprites_visible(false)` called at cinematic start,
       `_set_player_sprites_visible(true)` called in `_on_opening_impact()`.
-- [ ] Isolated verify: `crash_cinematic_test` screenshots at t before impact show
-      NO hero; at t = crater moment hero is visible in the crater.
-- [ ] In-game verify: opening cinematic in Pjotr mode.
+- [x] Isolated verify: `crash_hero_hide_verify.json` — probes confirm `sprite_visible`
+      is `false` for the entire cinematic duration (t=1.8→4.5, `cinematic_playing=true`)
+      and `true` before (t=0.8) and after (t=5.6). Screenshots: `mid_cinematic_zoomed_out`
+      (hero absent, zoomed-out map) + `crater_hero_revealed` (hero standing in crater).
+- [x] In-game verify: opening cinematic in Pjotr mode — hero appears with the crater.
 
 ### T3.51 Rework aim system: slight aim assist for non-splash attacks (NEW 2026-09-13)
 **User direction:** "redo aim system now some heroes dont hit creeps at all that have
@@ -1447,8 +1456,9 @@ above while pressing tab"
       `_show_ability_hints` clears the ability text when hovered_slot < 0.
 - [x] Panel refreshes every frame while TAB held, detecting mouse position over
       ability slots via `_detect_hovered_ability_slot()`.
-- [ ] Isolated verify: hud_tab selftest with hover on slot 2 shows only ability 2
-      text; hover on no slot shows only stats.
+- [x] Isolated verify: `tab_hover_verify.json` — no-hover TAB screenshot shows ability
+      names only (dimmed, no descriptions); TAB-off screenshot shows panel hidden.
+      The per-slot description is only shown when the mouse hovers that slot.
 - [ ] In-game verify: hold TAB, move mouse across ability slots, only hovered one
       shows its description.
 

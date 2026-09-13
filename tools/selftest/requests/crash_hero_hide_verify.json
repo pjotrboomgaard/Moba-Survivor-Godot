@@ -1,0 +1,19 @@
+{
+  "hero": "arclight",
+  "mode": "solo_survival",
+  "comment": "T3.50: verify the hero sprite is HIDDEN during the opening crash cinematic and only appears together with the crater at impact. Timeline: dev_command at t=1.0 starts cinematic; ship launches ~1.0s later; impact ~t=2.6; explosion ends ~t=4.4; cinematic finishes ~t=4.5. probe_hero_sprite reports sprite_visible + cinematic_playing. The key assertion: sprite_visible is false for the ENTIRE duration of the cinematic (t=1.0 to t=4.5), then becomes true afterward.",
+  "events": [
+    {"t": 0.5, "kind": "snap", "label": "pre_cinematic_hero_visible"},
+    {"t": 0.8, "kind": "probe_hero_sprite", "label": "before_cinematic"},
+    {"t": 1.0, "kind": "dev_command", "command": "open_cinematic"},
+    {"t": 1.7, "kind": "snap", "label": "mid_cinematic_zoomed_out"},
+    {"t": 1.8, "kind": "probe_hero_sprite", "label": "mid_cinematic"},
+    {"t": 2.4, "kind": "snap", "label": "ship_near_impact"},
+    {"t": 2.5, "kind": "probe_hero_sprite", "label": "just_before_impact"},
+    {"t": 3.0, "kind": "snap", "label": "crater_hero_revealed"},
+    {"t": 3.1, "kind": "probe_hero_sprite", "label": "mid_explosion"},
+    {"t": 5.5, "kind": "snap", "label": "post_cinematic_game"},
+    {"t": 5.6, "kind": "probe_hero_sprite", "label": "post_cinematic"},
+    {"t": 6.0, "kind": "report"}
+  ]
+}

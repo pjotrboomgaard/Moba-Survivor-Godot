@@ -411,6 +411,28 @@ func _process(delta: float) -> void:
 				await _screenshot(str(event.get("label", "snap")))
 			"probe":
 				_record_probe(str(event.get("label", "probe")))
+			"probe_hero_sprite":
+				# T3.50: report whether the local hero's Sprite2D is currently visible.
+				var sprite_visible := false
+				var world_bar_visible := false
+				var sprite_node: Variant = null
+				if _player != null and _player.get("sprite") != null:
+					sprite_node = _player.get("sprite")
+					sprite_visible = bool(sprite_node.get("visible"))
+				if _player != null and _player.get("world_health_bar") != null:
+					world_bar_visible = bool(_player.get("world_health_bar").get("visible"))
+				var cinematic_playing := false
+				if _host_main != null:
+					cinematic_playing = bool(_host_main.get("_opening_cinematic_playing"))
+				_active_effects.append({
+					"kind": "probe_hero_sprite",
+					"label": str(event.get("label", "probe")),
+					"t": _elapsed,
+					"sprite_visible": sprite_visible,
+					"world_bar_visible": world_bar_visible,
+					"cinematic_playing": cinematic_playing,
+					"hero": _player.class_id if _player != null else "",
+				})
 			"charge_probe":
 				_record_charge_probe(str(event.get("label", "charge")))
 			"minigame":
@@ -586,6 +608,12 @@ func _process(delta: float) -> void:
 				_record_resolution_probe(str(event.get("label", "resolution")))
 			"report":
 				_finish_and_quit()
+			"wave_probe":
+				# T3.44: query the live WaveDirector for the budget + planned spawn
+				# counts of one (or a few) waves, and record how many map edges the
+				# spawn-point picker actually uses. Used to verify the 3x creep
+				# budget + multi-direction spawn distribution.
+				_record_wave_probe(int(event.get("wave", 1)), int(event.get("waves_ahead", 2)))
 
 
 ## Drive the player toward the active walk target. The inner arrival radius is a little
@@ -769,6 +797,81 @@ func _record_charge_probe(label: String) -> void:
 	for prop in ["_mine_charge_left", "_turret_charge_left", "_fissure_charge_left", "_ward_charge_left"]:
 		charges[prop.trim_prefix("_")] = int(_player.get(prop))
 	_active_effects.append({"kind": "charge_probe", "label": label, "t": _elapsed, "charges": charges})
+
+
+## T3.44: probe the live WaveDirector's creep budget + planned spawn counts for the
+## given wave (and the next few waves), plus the per-map-edge spawn distribution.
+## The budget is compared against 3x the pre-fix formula (8 + 2.5*wave) so the
+## report can assert the 3x headcount actually landed.
+func _record_wave_probe(start_wave: int, waves_ahead: int) -> void:
+	var director: Node = _host_main.get("wave_director") if _host_main != null else null
+	if director == null:
+		_active_effects.append({"kind": "wave_probe", "error": "no wave_director", "t": _elapsed})
+		return
+	var wave_lines: Array[Dictionary] = []
+	for w in range(start_wave, start_wave + maxi(1, waves_ahead)):
+		var budget: float = director.budget_for_wave(w)
+		# Pre-fix formula: 8.0 + 2.5*wave (+3.5*(wave-7) for wave>=8).
+		var old_solo := 8.0 + 2.5 * float(w)
+		if w >= 8:
+			old_solo += 3.5 * float(w - 7)
+		var theme: Dictionary = director.theme_for_wave(w)
+		var plan: Array = director.plan_wave(
+			w,
+			theme.get("archetype", 0),
+			theme.get("modifier", 0),
+			str(theme.get("debut", ""))
+		)
+		var total_spawned := 0
+		for g in plan:
+			total_spawned += int(g.get("count", 0))
+		wave_lines.append({
+			"wave": w,
+			"theme": str(theme.get("name", "")),
+			"budget": budget,
+			"old_budget": old_solo,
+			"ratio": budget / old_solo,
+			"groups": plan.size(),
+			"total_spawned": total_spawned,
+		})
+	# Sample the real main.gd spawn-edge picker to confirm multi-direction spawns.
+	var edge_hits := {0: 0, 1: 0, 2: 0, 3: 0}
+	var half := Vector2(2360.0, 1560.0)
+	# Mirror main.gd's _pick_map_edge_position: it reads arena.half_extents() - 40.
+	var arena_node: Node = _host_main.get("arena") if _host_main != null else null
+	if arena_node != null and arena_node.has_method("half_extents"):
+		half = (arena_node.half_extents() as Vector2) - Vector2(40.0, 40.0)
+	var distinct := 0
+	for _i in 800:
+		var t := randf_range(0.0, 4.0)
+		var p := Vector2.ZERO
+		if t < 1.0:
+			p = Vector2(randf_range(-half.x, half.x), -half.y)
+		elif t < 2.0:
+			p = Vector2(half.x, randf_range(-half.y, half.y))
+		elif t < 3.0:
+			p = Vector2(randf_range(-half.x, half.x), half.y)
+		else:
+			p = Vector2(-half.x, randf_range(-half.y, half.y))
+		# Count which of the 4 edges this point sits on.
+		if absf(p.y + half.y) <= 60.0:
+			edge_hits[0] += 1
+		elif absf(p.x - half.x) <= 60.0:
+			edge_hits[1] += 1
+		elif absf(p.y - half.y) <= 60.0:
+			edge_hits[2] += 1
+		elif absf(p.x + half.x) <= 60.0:
+			edge_hits[3] += 1
+	for v in edge_hits.values():
+		if int(v) > 0:
+			distinct += 1
+	_active_effects.append({
+		"kind": "wave_probe",
+		"t": _elapsed,
+		"waves": wave_lines,
+		"edge_hits": edge_hits,
+		"distinct_edges": distinct,
+	})
 
 
 ## Read the host's pending offer lists (stat + ability) for the local hero so a test

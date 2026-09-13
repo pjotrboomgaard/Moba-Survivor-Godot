@@ -1,0 +1,236 @@
+{
+  "effects": [
+    {
+      "cinematic_playing": false,
+      "hero": "arclight",
+      "kind": "probe_hero_sprite",
+      "label": "before_cinematic",
+      "sprite_visible": true,
+      "t": 0.806739151515152,
+      "world_bar_visible": true
+    },
+    {
+      "command": "open_cinematic",
+      "kind": "dev_command",
+      "t": 1.002968
+    },
+    {
+      "cinematic_playing": true,
+      "hero": "arclight",
+      "kind": "probe_hero_sprite",
+      "label": "mid_cinematic",
+      "sprite_visible": false,
+      "t": 1.81313366666666,
+      "world_bar_visible": true
+    },
+    {
+      "cinematic_playing": true,
+      "hero": "arclight",
+      "kind": "probe_hero_sprite",
+      "label": "just_before_impact",
+      "sprite_visible": false,
+      "t": 2.51666666666666,
+      "world_bar_visible": true
+    },
+    {
+      "cinematic_playing": true,
+      "hero": "arclight",
+      "kind": "probe_hero_sprite",
+      "label": "mid_explosion",
+      "sprite_visible": false,
+      "t": 3.11666666666666,
+      "world_bar_visible": true
+    },
+    {
+      "cd_left": 8.31993333333322,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 3.480239
+    },
+    {
+      "cd_left": 189.766666666665,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.03493824242424
+    },
+    {
+      "cinematic_playing": false,
+      "hero": "arclight",
+      "kind": "probe_hero_sprite",
+      "label": "post_cinematic",
+      "sprite_visible": true,
+      "t": 5.60000000000005,
+      "world_bar_visible": true
+    },
+    {
+      "cd_left": 6.08659999999988,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 5.70495366666672
+    }
+  ],
+  "elapsed": 6.00227272727279,
+  "enemies_spawned": 0,
+  "hero_position": "(172.5496, -83.51981)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 18,
+    "casts": [
+      {
+        "ability_id": "arclight_static_bolt",
+        "t": 1.25511166666667
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      },
+      {
+        "ability_id": "arclight_thundergods_wrath",
+        "t": 1.81313366666666
+      }
+    ],
+    "creep_kills": 11,
+    "died": false,
+    "errors": [
+      "only beaten wave 0 / 20 (t=6)"
+    ],
+    "ffa": {},
+    "gold": 75,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "enemies": 12,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 0.15,
+        "wave": 1
+      },
+      {
+        "enemies": 11,
+        "gold": 75,
+        "hp": 1.0,
+        "t": 2.65,
+        "wave": 1
+      },
+      {
+        "enemies": 19,
+        "gold": 75,
+        "hp": 1.0,
+        "t": 5.15,
+        "wave": 1
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 2,
+    "quests_seen": {
+      "chase_wisp": 1,
+      "town_wolf": 1
+    },
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "FAIL_NO_PROGRESS",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "pre_cinematic_hero_visible",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3857/pre_cinematic_hero_visible_0.500_3857.png",
+      "t": 0.5
+    },
+    {
+      "label": "mid_cinematic_zoomed_out",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5058/mid_cinematic_zoomed_out_1.704_5058.png",
+      "t": 1.70365166666666
+    },
+    {
+      "label": "ship_near_impact",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5757/ship_near_impact_2.405_5757.png",
+      "t": 2.40452
+    },
+    {
+      "label": "crater_hero_revealed",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6354/crater_hero_revealed_3.003_6354.png",
+      "t": 3.00301942424242
+    },
+    {
+      "label": "post_cinematic_game",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8865/post_cinematic_game_5.505_8864.png",
+      "t": 5.50506366666672
+    }
+  ]
+}

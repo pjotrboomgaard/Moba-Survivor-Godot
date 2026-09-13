@@ -1,0 +1,81 @@
+{
+  "effects": [
+    {
+      "distinct_edges": 4,
+      "edge_hits": {
+        "0": 207,
+        "1": 191,
+        "2": 204,
+        "3": 198
+      },
+      "kind": "wave_probe",
+      "t": 3.00757499999999,
+      "waves": [
+        {
+          "budget": 31.5,
+          "groups": 7,
+          "old_budget": 10.5,
+          "ratio": 3.0,
+          "theme": "First Contact",
+          "total_spawned": 30,
+          "wave": 1
+        },
+        {
+          "budget": 35.1,
+          "groups": 8,
+          "old_budget": 13.0,
+          "ratio": 2.7,
+          "theme": "Growing Numbers",
+          "total_spawned": 36,
+          "wave": 2
+        }
+      ]
+    }
+  ],
+  "elapsed": 8.00474112121226,
+  "enemies_spawned": 0,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "wave1_field",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6833/wave1_field_3.504_6833.png",
+      "t": 3.50409381818181
+    },
+    {
+      "label": "wave1_spawns",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10333/wave1_spawns_7.004_10333.png",
+      "t": 7.0038517878789
+    }
+  ]
+}

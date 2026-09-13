@@ -1,28 +1,53 @@
 {
-  "errors": [],
-  "expected_ability_names": [
-    "Static Blast",
-    "Arc Cascade",
-    "Tempest Call"
-  ],
-  "hint_has_description_text": true,
-  "hint_panel_found": true,
-  "scene": "ability_panel_test",
-  "shots": [
+  "attacks_fired": 6,
+  "damage_log": [
     {
-      "label": "panel_static",
-      "path": "user://ability_panel_run_1789328722/panel_static_1.01.png"
+      "attack_index": 1,
+      "enemy_hp": 191.306,
+      "enemy_max_hp": 200.0,
+      "t": 2.00633566666666
     },
     {
-      "label": "panel_hint_descriptions",
-      "path": "user://ability_panel_run_1789328722/panel_hint_descriptions_2.51.png"
+      "attack_index": 2,
+      "enemy_hp": 182.612,
+      "enemy_max_hp": 200.0,
+      "t": 2.61466899999999
     },
     {
-      "label": "panel_hover_tooltip",
-      "path": "user://ability_panel_run_1789328722/panel_hover_tooltip_3.51.png"
+      "attack_index": 3,
+      "enemy_hp": 173.918,
+      "enemy_max_hp": 200.0,
+      "t": 3.21666666666666
+    },
+    {
+      "attack_index": 4,
+      "enemy_hp": 165.224,
+      "enemy_max_hp": 200.0,
+      "t": 3.81723966666666
+    },
+    {
+      "attack_index": 5,
+      "enemy_hp": 156.53,
+      "enemy_max_hp": 200.0,
+      "t": 4.42306666666667
+    },
+    {
+      "attack_index": 6,
+      "enemy_hp": 147.836,
+      "enemy_max_hp": 200.0,
+      "t": 5.02500000000002
     }
   ],
-  "tooltip_has_description_text": false,
-  "tooltip_visible": false,
+  "elapsed": 6.50000000000008,
+  "enemy_final_hp": 147.836,
+  "enemy_start_hp": 200.0,
+  "hero": "warden",
+  "scene": "warden_attack_test",
+  "screenshots": [
+    "user://warden_attack_before_2719.png",
+    "user://warden_attack_mid_5702.png",
+    "user://warden_attack_end_7202.png"
+  ],
+  "total_damage": 52.1639999999999,
   "verdict": "PASS"
 }
