@@ -1,0 +1,8 @@
+{
+  "comment": "T3.39 hard-rule verification: bot-controlled heroes walking in ISOLATED mode. For each of arclight/bulwark/warden (+tobor control) the test spawns a real Player node, drives it with set_authority_command while moving, and reports the live texture size/path actually on the sprite node. PASS requires no hero to fall back to the blue-wisp circle and every new-sprite hero to load an 80x80 texture.",
+  "scene": "res://scenes/bot_sprite_walk_test/bot_sprite_walk_test.tscn",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "bot_sprite_walk_test.png",
+  "notes": "Read the texture_report: arclight/bulwark/warden must each show 80x80 with a res://assets/sprites path and has_sprite=true. tobor (control) shows 32x32 composed. fallback_heroes must be [] and verdict PASS. Screenshot shows the four heroes mid/just-after walk."
+}

@@ -301,6 +301,16 @@ func set_shop_hint_visible(show: bool) -> void:
 		arrow.visible = false
 
 
+## T3.50: Show/hide the hero sprite (used by the opening cinematic).
+func set_sprite_visible(vis: bool) -> void:
+	if sprite != null:
+		sprite.visible = vis
+	if world_health_bar != null:
+		world_health_bar.visible = vis and not GameRuntime.is_dedicated_server()
+	if _respawn_label != null:
+		_respawn_label.visible = false
+
+
 func _process(_delta: float) -> void:
 	if camera != null and _shake_time > 0.0:
 		_shake_time = maxf(0.0, _shake_time - _delta)
@@ -338,6 +348,12 @@ func apply_class(next_class_id: String) -> void:
 	attack_interval = class_data.attack_interval * 0.5
 	weapon_damage = class_data.weapon_damage
 	attack_range = class_data.attack_range
+	# T1.5 (2026-09-13): aim-assist was fully removed, but that left beam weapons
+	# (Warden's Mending Bolt, Arclight) unable to hit single-target creeps whose
+	# centres sit a few px off the aim line — so the default attack dealt 0 damage
+	# in practice (T3.45 / T3.51). Restoring the class-configured assist radius
+	# gives a *slight* snap (warden 14, arclight ~12 px) that makes non-splash
+	# hits reliable again without the full magnetic-snap feel.
 	aim_assist_radius = class_data.aim_assist_radius
 	chain_count = class_data.chain_count
 	chain_range = class_data.chain_range
@@ -596,10 +612,15 @@ func _facing_texture() -> Texture2D:
 		return SpriteLibrary.texture_for(class_id)
 	var base_name := class_id if _tobor_facing == "front" else "%s_%s" % [class_id, _tobor_facing]
 	# Walk frames are authored as "<facing>_w1..3"; frame 0 is the standing base sprite.
+	# Only use a walk frame when a real PNG exists for it — otherwise the lookup
+	# falls through to SideQuestArt's default (a 16px shard glyph) and the hero
+	# renders as a tiny blob instead of its actual sprite.
 	if _walk_cycle_phase > 0:
-		var walk_texture := SpriteLibrary.texture_for("%s_w%d" % [base_name, _walk_cycle_phase])
-		if walk_texture != null:
-			return walk_texture
+		var walk_name := "%s_w%d" % [base_name, _walk_cycle_phase]
+		if SpriteLibrary.png_exists(walk_name):
+			var walk_texture := SpriteLibrary.texture_for(walk_name)
+			if walk_texture != null:
+				return walk_texture
 	if _tobor_facing == "front":
 		return SpriteLibrary.texture_for(class_id)
 	var texture := SpriteLibrary.texture_for(base_name)
@@ -678,30 +699,23 @@ func _update_gait(delta: float, moving: bool) -> void:
 	if hovering or sprite == null:
 		return
 	if moving:
-		_tobor_walk_phase += delta * (9.0 if class_id == "arclight" else 5.2)
+		# T3.48: arclight cycle slowed to default 5.2 (was 9.0 — too fast/wobbly).
+		_tobor_walk_phase += delta * 5.2
 	else:
 		_tobor_walk_phase = 0.0
+	# T3.48 + T3.54 (2026-09-13): NO wobble at all.
+	# Arclight, Bulwark, and every other hero walks with a flat, steady glide.
+	# No hop, no squash, no tilt. The walk-frame animation (if a sprite walk
+	# cycle exists) still plays — only the sprite offset / rotation / scale
+	# modulation is removed.
 	var hop := 0.0
 	var tilt := 0.0
 	var squash := 1.0
-	if class_id == "arclight" and moving:
-		hop = -sin(fmod(_tobor_walk_phase, 1.0) * PI) * 4.0
-	elif class_id == "bulwark" and moving:
-		var cycle := fmod(_tobor_walk_phase, 1.0)
-		if cycle < 0.38:
-			var lift := sin((cycle / 0.38) * PI)
-			hop = -5.0 * lift
-			squash = 1.0 - 0.05 * lift
-		else:
-			var land := (cycle - 0.38) / 0.62
-			hop = 2.4 * (1.0 - land)
-			squash = 1.0 + (0.1 if land < 0.22 else 0.0)
-		tilt = sin(cycle * TAU) * 0.05
-	sprite.offset = Vector2(0.0, hop)
-	sprite.rotation = tilt
+	sprite.offset = Vector2(0.0, 0.0)
+	sprite.rotation = 0.0
 	var base := _hero_sprite_scale()
-	sprite.scale = Vector2(base.x * (2.0 - squash), base.y * squash)
-	_place_health_bar(hop)
+	sprite.scale = Vector2(base.x, base.y)
+	_place_health_bar(0.0)
 
 
 func _place_health_bar(hop: float) -> void:
@@ -1925,9 +1939,13 @@ func _cast_ability_summon_spirit(data: Dictionary, values: Dictionary) -> void:
 func _spawn_summon(data: Dictionary, values: Dictionary, position: Vector2) -> void:
 	var sum := SummonEntityScene.instantiate() as SummonEntity
 	var hero := PlayerClass.by_id(class_id)
+	# T3.35 item 9: use this player's own peer id (local=1, CPU bots=FFA_CPU_PEER_BASE+n),
+	# NOT multiplayer.get_unique_id() — the latter returns the local host's id (1) for
+	# every player instance in a single-process FFA game, so CPU-bot summons were
+	# misattributed to the local player.
 	sum.setup(
 		_casting_ability_id,
-		multiplayer.get_unique_id() if has_node("/root/NetworkService") else 0,
+		owner_peer_id,
 		float(values.get("power", 8.0)),
 		float(values.get("duration", 4.0)),
 		0.32,
@@ -2304,7 +2322,7 @@ func _spawn_wrench_mine(data: Dictionary, values: Dictionary, position: Vector2)
 	var hero := PlayerClass.by_id(class_id)
 	sum.setup(
 		_casting_ability_id,
-		multiplayer.get_unique_id() if has_node("/root/NetworkService") else 0,
+		owner_peer_id,  # T3.35 item 9: attribute the mine to this player, not the host
 		float(values.get("power", 60.0)),
 		float(values.get("duration", 40.0)),
 		99.0,
@@ -2556,7 +2574,7 @@ func _cast_ability_pyra_sticky_bomb(data: Dictionary, values: Dictionary, _rank:
 	var hero := PlayerClass.by_id(class_id)
 	sum.setup(
 		_casting_ability_id,
-		multiplayer.get_unique_id() if has_node("/root/NetworkService") else 0,
+		owner_peer_id,  # T3.35 item 9: attribute the sticky bomb to this player, not the host
 		float(values.get("power", 75.0)),
 		# HoN's Sticky Bomb lives ~10 s; pull the fuse from data so rank/kind tweaks can stretch it.
 		maxf(float(data.get("summon_lifetime", 10.0)), 4.0),
@@ -4449,7 +4467,11 @@ func _cast_chain_bolt() -> void:
 	var saved_range := chain_range
 	chain_range = maxf(chain_range, 48.0) * _charge_size_mult()
 	var primary := _find_primary_pvp_target()
-	var points := PackedVector2Array([global_position])
+	# T3.47: Arclight's bolt originates from the staff tip, not body centre.
+	var origin := global_position
+	if class_id == "arclight":
+		origin = global_position + facing_direction * 18.0 + Vector2(0, -8)
+	var points := PackedVector2Array([origin])
 	if primary == null:
 		points.append(_charge_lock_impact if _charge_lock_impact != Vector2.ZERO else global_position + facing_direction * minf(attack_range, 180.0))
 		staff_cast.emit(class_id, points)
@@ -4522,7 +4544,11 @@ func _cast_mending_bolt() -> void:
 	var primary := _find_primary_pvp_target()
 	if primary == null:
 		primary = _find_primary_target()
-	var points := PackedVector2Array([global_position])
+	# T3.47: Warden's mending bolt originates from the staff tip, not body centre.
+	var origin := global_position
+	if class_id == "warden":
+		origin = global_position + facing_direction * 18.0 + Vector2(0, -8)
+	var points := PackedVector2Array([origin])
 	var impact := _charge_lock_impact if _charge_lock_impact != Vector2.ZERO else (primary.global_position if primary != null else global_position + facing_direction * minf(attack_range, 180.0))
 	if primary == null:
 		points.append(impact)

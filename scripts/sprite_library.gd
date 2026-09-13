@@ -121,6 +121,14 @@ static func has_cache(key: String) -> bool:
 	return _cache.has(key)
 
 
+## True if a real PNG file exists on disk for this sprite name. Used to gate
+## walk-frame lookups so a missing frame does not fall through to the
+## procedural SideQuestArt default (a 16px shard glyph).
+static func png_exists(sprite_name: String) -> bool:
+	var path := "%s/%s.png" % [SPRITE_DIRECTORY, sprite_name]
+	return FileAccess.file_exists(path)
+
+
 static func cached(key: String) -> Texture2D:
 	return _cache.get(key) as Texture2D
 

@@ -1,0 +1,23 @@
+{
+  "hero": "tobor",
+  "comment": "T3.35: trigger level-up to observe the upgrade offer panel and check for blue fallback sprites on icons. Force multiple level-ups to see different upgrade cards.",
+  "events": [
+    {"t": 0.2, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.5, "kind": "spawn", "at": [80, 0], "type": "slime"},
+    {"t": 0.5, "kind": "spawn", "at": [80, 40], "type": "slime"},
+    {"t": 0.5, "kind": "spawn", "at": [80, -40], "type": "slime"},
+    {"t": 0.5, "kind": "spawn", "at": [120, 0], "type": "hound"},
+    {"t": 0.5, "kind": "spawn", "at": [120, 40], "type": "hound"},
+    {"t": 0.5, "kind": "spawn", "at": [120, -40], "type": "hound"},
+    {"t": 1.0, "kind": "primary_hold", "duration": 4.0},
+    {"t": 5.0, "kind": "snap", "label": "after_first_waves"},
+    {"t": 5.5, "kind": "spawn", "at": [80, 0], "type": "slime"},
+    {"t": 5.5, "kind": "spawn", "at": [80, 40], "type": "slime"},
+    {"t": 5.5, "kind": "spawn", "at": [120, 0], "type": "hound"},
+    {"t": 5.5, "kind": "spawn", "at": [120, 40], "type": "hound"},
+    {"t": 5.5, "kind": "spawn", "at": [120, -40], "type": "hound"},
+    {"t": 6.0, "kind": "primary_hold", "duration": 4.0},
+    {"t": 10.0, "kind": "snap", "label": "after_second_waves"},
+    {"t": 11.0, "kind": "report"}
+  ]
+}

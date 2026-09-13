@@ -1,0 +1,507 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              90.0,
+              0.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              0.0,
+              90.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -90.0,
+              0.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              0.0,
+              -90.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "arclight",
+      "hp": 262.1,
+      "hp_frac": 1.0,
+      "hp_max": 262.1,
+      "kind": "probe",
+      "label": "bossform_granted",
+      "last_sfx": "wave_start",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(90.0, 0.0)"
+        },
+        "101": {
+          "locked": true,
+          "pos": "(-0.000004, 90.0)"
+        },
+        "102": {
+          "locked": true,
+          "pos": "(-90.0, -0.000008)"
+        },
+        "103": {
+          "locked": true,
+          "pos": "(0.000001, -90.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 9.49999999999998,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 0.504132333333334,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              90.0,
+              0.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              0.0,
+              90.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -90.0,
+              0.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              0.0,
+              -90.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "arclight",
+      "hp": 262.1,
+      "hp_frac": 1.0,
+      "hp_max": 262.1,
+      "kind": "probe",
+      "label": "bossform_granted",
+      "last_sfx": "wave_start",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(90.0, 0.0)"
+        },
+        "101": {
+          "locked": true,
+          "pos": "(-0.000004, 90.0)"
+        },
+        "102": {
+          "locked": true,
+          "pos": "(-90.0, -0.000008)"
+        },
+        "103": {
+          "locked": true,
+          "pos": "(0.000001, -90.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 8.99999999999995,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 1.00647966666667,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "cross_cd_after": 0.0,
+      "kind": "bossform_attack",
+      "slam_cd_after": 3.0,
+      "t": 1.50443966666666,
+      "volley_cd_after": 0.0,
+      "which": "slam"
+    },
+    {
+      "ability_id": "boss_form",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "boss_attack",
+      "kind": "sound_probe",
+      "label": "slam_sfx",
+      "last_play_ability": "",
+      "last_play_sound_id": "boss_attack",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/boss_attack.wav",
+      "t": 2.00672233333333
+    },
+    {
+      "cross_cd_after": 2.6,
+      "kind": "bossform_attack",
+      "slam_cd_after": 1.999011,
+      "t": 2.50542866666666,
+      "volley_cd_after": 0.0,
+      "which": "cross"
+    },
+    {
+      "ability_id": "boss_form",
+      "assert_ability_match": false,
+      "assert_bank_match": false,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "boss_attack",
+      "kind": "sound_probe",
+      "label": "cross_sfx",
+      "last_play_ability": "",
+      "last_play_sound_id": "countdown_tick",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/countdown_tick.wav",
+      "t": 3.007169
+    },
+    {
+      "cross_cd_after": 1.59935833333334,
+      "kind": "bossform_attack",
+      "slam_cd_after": 0.998369333333336,
+      "t": 3.50607033333333,
+      "volley_cd_after": 3.5,
+      "which": "volley"
+    },
+    {
+      "ability_id": "boss_form",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "boss_attack",
+      "kind": "sound_probe",
+      "label": "volley_sfx",
+      "last_play_ability": "",
+      "last_play_sound_id": "boss_attack",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/boss_attack.wav",
+      "t": 4.00537506060606
+    }
+  ],
+  "elapsed": 4.50286506060607,
+  "enemies_spawned": 0,
+  "hero_position": "(615.0, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [
+      "never fought: casts=0 gold=0 kills=0 creep_kills=0"
+    ],
+    "ffa": {
+      "all_bots": false,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": false,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            615.0,
+            0.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": true,
+          "class": "arclight",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            0.0,
+            615.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            -615.0,
+            0.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            0.0,
+            -615.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "arclight",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "FAIL_IDLE",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": []
+}

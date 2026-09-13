@@ -48,7 +48,7 @@
           },
           {
             "alive": true,
-            "class": "cinder",
+            "class": "arclight",
             "cpu": true,
             "kills": 0,
             "local": false,
@@ -61,7 +61,7 @@
           },
           {
             "alive": true,
-            "class": "pyra",
+            "class": "bulwark",
             "cpu": true,
             "kills": 0,
             "local": false,
@@ -74,7 +74,7 @@
           },
           {
             "alive": true,
-            "class": "slag",
+            "class": "warden",
             "cpu": true,
             "kills": 0,
             "local": false,
@@ -141,7 +141,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 1.00151133333333,
+      "t": 1.00194666666667,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -206,7 +206,7 @@
           },
           {
             "alive": true,
-            "class": "cinder",
+            "class": "arclight",
             "cpu": true,
             "kills": 0,
             "local": false,
@@ -219,7 +219,7 @@
           },
           {
             "alive": true,
-            "class": "pyra",
+            "class": "bulwark",
             "cpu": true,
             "kills": 0,
             "local": false,
@@ -232,7 +232,7 @@
           },
           {
             "alive": true,
-            "class": "slag",
+            "class": "warden",
             "cpu": true,
             "kills": 0,
             "local": false,
@@ -260,7 +260,7 @@
       "last_sfx": "countdown_tick",
       "last_tapped": -1,
       "level": 1,
-      "obstacle_count": 875,
+      "obstacle_count": 868,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -299,7 +299,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 6.00440500000007,
+      "t": 6.0033363333334,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -357,47 +357,47 @@
             "local": true,
             "peer": 1,
             "pos": [
-              825.0,
-              0.0
+              828.0,
+              -7.0
             ],
             "team": ""
           },
           {
             "alive": true,
-            "class": "cinder",
+            "class": "arclight",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              218.0,
-              1179.0
+              611.0,
+              119.0
             ],
             "team": "1"
           },
           {
             "alive": true,
-            "class": "pyra",
+            "class": "bulwark",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 102,
             "pos": [
-              -1101.0,
-              44.0
+              -988.0,
+              -2.0
             ],
             "team": "2"
           },
           {
             "alive": true,
-            "class": "slag",
+            "class": "warden",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              138.0,
-              -528.0
+              285.0,
+              -51.0
             ],
             "team": "3"
           }
@@ -408,17 +408,17 @@
           5600.0
         ]
       },
-      "gold": 26,
+      "gold": 0,
       "hero": "tobor",
-      "hp": 102.78,
-      "hp_frac": 0.787586206896552,
+      "hp": 130.5,
+      "hp_frac": 1.0,
       "hp_max": 130.5,
       "kind": "probe",
       "label": "ffa_12s",
       "last_sfx": "step_grass",
       "last_tapped": -1,
-      "level": 1,
-      "obstacle_count": 875,
+      "level": 3,
+      "obstacle_count": 868,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -426,19 +426,19 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(825.0, 0.0)"
+          "pos": "(828.1383, -6.71541)"
         },
         "101": {
           "locked": false,
-          "pos": "(218.1661, 1178.892)"
+          "pos": "(611.0507, 119.4783)"
         },
         "102": {
           "locked": false,
-          "pos": "(-1101.148, 43.86927)"
+          "pos": "(-988.1157, -1.732482)"
         },
         "103": {
           "locked": false,
-          "pos": "(137.6073, -528.3027)"
+          "pos": "(285.0153, -50.70451)"
         }
       },
       "pulse_interval": 0.0,
@@ -458,12 +458,52 @@
       "summons": 0,
       "summons_owned": [
         {
-          "ability_id": "pyra_sticky_bomb",
+          "ability_id": "warden_voodoo_wards",
           "owner_peer_id": 1,
-          "time_left": 116.583228999999
+          "time_left": 119.916097
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 119.916097
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 119.916097
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 119.916097
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 119.916097
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 119.916097
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 119.916097
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 119.916097
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 119.916097
         }
       ],
-      "t": 12.0044850000001,
+      "t": 12.0043503333333,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -478,7 +518,7 @@
       },
       "wave": 2,
       "wave_name": "Growing Numbers",
-      "xp": 48
+      "xp": 12
     },
     {
       "abilities": [
@@ -521,47 +561,47 @@
             "local": true,
             "peer": 1,
             "pos": [
-              766.0,
-              22.0
+              828.0,
+              -7.0
             ],
             "team": ""
           },
           {
             "alive": true,
-            "class": "cinder",
+            "class": "arclight",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 101,
             "pos": [
-              148.0,
-              1996.0
+              869.0,
+              -21.0
             ],
             "team": "1"
           },
           {
             "alive": true,
-            "class": "pyra",
+            "class": "bulwark",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 102,
             "pos": [
-              -1311.0,
-              0.0
+              -1062.0,
+              -22.0
             ],
             "team": "2"
           },
           {
             "alive": true,
-            "class": "slag",
+            "class": "warden",
             "cpu": true,
             "kills": 0,
             "local": false,
             "peer": 103,
             "pos": [
-              106.0,
-              -351.0
+              560.0,
+              145.0
             ],
             "team": "3"
           }
@@ -572,17 +612,17 @@
           5600.0
         ]
       },
-      "gold": 121,
+      "gold": 30,
       "hero": "tobor",
-      "hp": 18.93204,
-      "hp_frac": 0.145073103448276,
+      "hp": 130.5,
+      "hp_frac": 1.0,
       "hp_max": 130.5,
       "kind": "probe",
       "label": "ffa_20s",
-      "last_sfx": "enemy_death",
+      "last_sfx": "attack_warden",
       "last_tapped": -1,
-      "level": 2,
-      "obstacle_count": 875,
+      "level": 3,
+      "obstacle_count": 868,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -590,19 +630,19 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(765.8964, 21.81356)"
+          "pos": "(828.1383, -6.71541)"
         },
         "101": {
           "locked": false,
-          "pos": "(147.7447, 1995.538)"
+          "pos": "(869.1006, -20.55275)"
         },
         "102": {
           "locked": false,
-          "pos": "(-1311.425, -0.453848)"
+          "pos": "(-1062.12, -21.67724)"
         },
         "103": {
           "locked": false,
-          "pos": "(105.9748, -350.936)"
+          "pos": "(559.5223, 144.638)"
         }
       },
       "pulse_interval": 0.0,
@@ -622,12 +662,52 @@
       "summons": 0,
       "summons_owned": [
         {
-          "ability_id": "pyra_sticky_bomb",
+          "ability_id": "warden_voodoo_wards",
           "owner_peer_id": 1,
-          "time_left": 108.582036000004
+          "time_left": 111.916316999994
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 111.916316999994
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 111.916316999994
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 111.916316999994
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 111.916316999994
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 111.916316999994
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 111.916316999994
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 111.916316999994
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 111.916316999994
         }
       ],
-      "t": 20.005677666667,
+      "t": 20.0041303333329,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -642,21 +722,225 @@
       },
       "wave": 2,
       "wave_name": "Growing Numbers",
-      "xp": 48
+      "xp": 12
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              828.0,
+              -7.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": false,
+            "class": "arclight",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              898.0,
+              -307.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              793.0,
+              -51.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              619.0,
+              201.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 68,
+      "hero": "tobor",
+      "hp": 130.5,
+      "hp_frac": 1.0,
+      "hp_max": 130.5,
+      "kind": "probe",
+      "label": "ffa_30s",
+      "last_sfx": "attack_warden",
+      "last_tapped": -1,
+      "level": 3,
+      "obstacle_count": 868,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(828.1383, -6.71541)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(898.191, -306.668)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(792.9426, -51.24565)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(618.9119, 201.2132)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 101.912683999988
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 101.912683999988
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 101.912683999988
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 101.912683999988
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 101.912683999988
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 101.912683999988
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 101.912683999988
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 101.912683999988
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 1,
+          "time_left": 101.912683999988
+        }
+      ],
+      "t": 30.0077633333324,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 2,
+      "wave_name": "Growing Numbers",
+      "xp": 22
     }
   ],
-  "elapsed": 22.0055976666671,
+  "elapsed": 32.0059282121202,
   "enemies_spawned": 0,
-  "hero_position": "(758.0929, 32.26133)",
+  "hero_position": "(840.0486, -10.4209)",
   "player_class": "tobor",
   "results": {
-    "alive": false,
+    "alive": true,
     "beaten_wave": 0,
     "build": "",
     "cast_count": 0,
     "casts": [],
     "creep_kills": 0,
-    "died": true,
+    "died": false,
     "errors": [],
     "ffa": {
       "all_bots": false,
@@ -664,54 +948,54 @@
       "enabled": true,
       "heroes": [
         {
-          "alive": false,
+          "alive": true,
           "class": "tobor",
           "cpu": false,
           "kills": 0,
           "local": true,
           "peer": 1,
           "pos": [
-            758.0,
-            32.0
+            840.0,
+            -10.0
           ],
           "team": ""
         },
         {
-          "alive": true,
-          "class": "cinder",
+          "alive": false,
+          "class": "arclight",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 101,
           "pos": [
-            343.0,
-            2145.0
+            898.0,
+            -307.0
           ],
           "team": "1"
         },
         {
           "alive": true,
-          "class": "pyra",
+          "class": "bulwark",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 102,
           "pos": [
-            -1090.0,
-            0.0
+            820.0,
+            -44.0
           ],
           "team": "2"
         },
         {
           "alive": true,
-          "class": "slag",
+          "class": "warden",
           "cpu": true,
           "kills": 0,
           "local": false,
           "peer": 103,
           "pos": [
-            106.0,
-            -351.0
+            608.0,
+            264.0
           ],
           "team": "3"
         }
@@ -722,7 +1006,7 @@
         5600.0
       ]
     },
-    "gold": 61,
+    "gold": 75,
     "hero_kills": 0,
     "hp_samples": [
       {
@@ -744,37 +1028,56 @@
       {
         "alive": true,
         "class": "tobor",
-        "gold": 26,
-        "hp": 0.79,
+        "gold": 0,
+        "hp": 1.0,
         "kills": 0,
-        "t": 10.15
+        "t": 10.16
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 121,
-        "hp": 0.79,
+        "gold": 0,
+        "hp": 1.0,
         "kills": 0,
         "t": 15.16
       },
       {
         "alive": true,
         "class": "tobor",
-        "gold": 121,
-        "hp": 0.09,
+        "gold": 30,
+        "hp": 1.0,
         "kills": 0,
-        "t": 20.16
+        "t": 20.17
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 49,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 25.18
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 68,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 30.18
       }
     ],
     "landmark_saves": 0,
-    "level": 2,
+    "level": 3,
     "level_upgrades": {
       "2": [
-        "push_drone"
+        "rapid"
+      ],
+      "3": [
+        "aftershock"
       ]
     },
     "max_hp": 1.0,
-    "min_hp": 0.0,
+    "min_hp": 1.0,
     "min_hp_late": 1.0,
     "pressure_boosts": 0,
     "quest_types": 0,
@@ -782,12 +1085,13 @@
     "shop_buy_count": 0,
     "shop_buys": [],
     "taken_upgrades": [
-      "push_drone"
+      "rapid",
+      "aftershock"
     ],
     "until_wave": 20,
-    "verdict": "WARN_DEAD",
+    "verdict": "PASS_OK",
     "wave": 2,
-    "xp": 48
+    "xp": 22
   },
   "shots": []
 }

@@ -1,0 +1,33 @@
+{
+  "hero": "arclight",
+  "mode": "solo_survival",
+  "until_wave": 11,
+  "duration": 60,
+  "danger_hp": 0.42,
+  "recover_hp": 0.56,
+  "comment": "T3.32 follow-up: verify boss waves at 5 AND 10 both spawn the boss archetype, and that world 1 (waves 1-10) uses grass-themed names while wave 11 switches to volcano-themed names. Skip waves rapidly to reach wave 10 within the duration window.",
+  "events": [
+    {"kind": "probe", "label": "wave1", "t": 2.0},
+    {"kind": "skip_wave", "t": 2.5},
+    {"kind": "probe", "label": "wave2", "t": 3.5},
+    {"kind": "skip_wave", "t": 4.0},
+    {"kind": "probe", "label": "wave3", "t": 5.0},
+    {"kind": "skip_wave", "t": 5.5},
+    {"kind": "probe", "label": "wave4", "t": 6.5},
+    {"kind": "skip_wave", "t": 7.0},
+    {"kind": "probe", "label": "wave5_boss", "t": 8.0},
+    {"kind": "skip_wave", "t": 8.5},
+    {"kind": "probe", "label": "wave6", "t": 9.5},
+    {"kind": "skip_wave", "t": 10.0},
+    {"kind": "probe", "label": "wave7", "t": 11.0},
+    {"kind": "skip_wave", "t": 11.5},
+    {"kind": "probe", "label": "wave8", "t": 12.5},
+    {"kind": "skip_wave", "t": 13.0},
+    {"kind": "probe", "label": "wave9", "t": 14.0},
+    {"kind": "skip_wave", "t": 14.5},
+    {"kind": "probe", "label": "wave10_boss", "t": 15.5},
+    {"kind": "skip_wave", "t": 16.0},
+    {"kind": "probe", "label": "wave11_newworld", "t": 17.0},
+    {"kind": "report", "t": 25.0}
+  ]
+}

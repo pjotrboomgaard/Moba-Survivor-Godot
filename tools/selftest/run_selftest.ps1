@@ -5,7 +5,12 @@ param(
     # Main scene to launch. Defaults to the normal game (main.tscn). Set to
     # "res://scenes/minigame_test/minigame_test.tscn" for isolated minigame tests.
     [string]$Scene = "res://scenes/main/main.tscn",
-    [string[]]$ExtraUserArgs = @()
+    [string[]]$ExtraUserArgs = @(),
+    # Before/after comparison (T3.37 hard rule). When set to an existing PNG, after the
+    # run completes the runner diffs this "before" image against the "after" (the run's
+    # own screenshot) and writes diff.png + diff_report.json next to the result. Pass a
+    # path to a prior run's screenshot to prove the change actually landed on screen.
+    [string]$BeforeShot = ""
 )
 
 # Self-test runner: stages the request JSON, launches the game windowed on main.tscn,
@@ -87,6 +92,55 @@ if (Test-Path $ReportOut) {
     if ($Hero) { $baseName = $baseName + "_" + $Hero }
     $ReportCopy = Join-Path $ResultsDir ($baseName + "_report.json")
     Copy-Item $ReportOut $ReportCopy -Force
+
+    # T3.35/T3.36: copy the actual screenshot PNGs out of the run's temp user:// dir so
+    # they can be inspected with the Read tool (rule: screenshot-analysis.mdc).
+    $reportText = Get-Content $ReportOut -Raw
+    $shotsDir = Join-Path $ResultsDir $baseName
+    if ($reportText -match '"path"\s*:\s*"([^"]+\.png)"') {
+        $allMatches = [regex]::Matches($reportText, '"path"\s*:\s*"([^"]+\.png)"')
+        if ($allMatches.Count -gt 0) {
+            if (-not (Test-Path $shotsDir)) { New-Item -ItemType Directory -Path $shotsDir -Force | Out-Null }
+            foreach ($m in $allMatches) {
+                $src = $m.Groups[1].Value -replace '\\', '\'
+                # user:// was already globalized by Godot when written, so this is an absolute path.
+                if (Test-Path $src) {
+                    $fileName = [IO.Path]::GetFileName($src)
+                    $dest = Join-Path $shotsDir $fileName
+                    Copy-Item $src $dest -Force
+                    Write-Host ("Shot copied: " + $dest)
+                }
+            }
+            Write-Host ("Screenshots dir: " + $shotsDir)
+        }
+    } else {
+        Write-Host "No screenshot paths found in report"
+    }
+
+    # Before/after diff (T3.37 hard rule). When -BeforeShot is provided and the run
+    # produced at least one screenshot, diff every screenshot against the "before"
+    # image and write diff_<name>.png + diff_report.json next to the results so the
+    # change is unambiguous.
+    if ($BeforeShot -and (Test-Path $BeforeShot)) {
+        $beforeResolved = (Resolve-Path $BeforeShot).Path
+        $diffTool = Join-Path $ProjectRoot "tools\diff_screenshots.py"
+        if (Test-Path $diffTool) {
+            if (Test-Path $shotsDir) {
+                Get-ChildItem -Path $shotsDir -Filter "*.png" | ForEach-Object {
+                    $afterName = $_.Name
+                    $diffOut = Join-Path $shotsDir ("diff_" + $afterName)
+                    $diffReport = Join-Path $shotsDir ("diff_" + [IO.Path]::GetFileNameWithoutExtension($afterName) + "_report.json")
+                    Write-Host ("Diffing: " + $beforeResolved + " vs " + $_.FullName)
+                    & python $diffTool $beforeResolved $_.FullName --out $diffOut --report $diffReport 2>&1 | ForEach-Object { Write-Host $_ }
+                }
+            } else {
+                Write-Host "Warning: -BeforeShot given but no screenshots were copied; nothing to diff."
+            }
+        } else {
+            Write-Host "Warning: diff tool not found at $diffTool"
+        }
+    }
+
     Write-Host "Report copied: $ReportCopy"
     Write-Host "`n=== SELF-TEST REPORT ==="
     Get-Content $ReportOut

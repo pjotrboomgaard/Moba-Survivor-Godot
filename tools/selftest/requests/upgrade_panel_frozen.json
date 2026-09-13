@@ -1,0 +1,9 @@
+{
+  "hero": "tobor",
+  "comment": "T3.35: force-show the upgrade panel with known IDs to screenshot the icons.",
+  "events": [
+    {"t": 0.5, "kind": "force_upgrade_panel", "ids": ["rapid", "scholar", "vitality", "keen_eye"]},
+    {"t": 2.0, "kind": "snap", "label": "upgrade_panel"},
+    {"t": 3.0, "kind": "report"}
+  ]
+}

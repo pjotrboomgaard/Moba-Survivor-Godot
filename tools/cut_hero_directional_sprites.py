@@ -1,109 +1,160 @@
-"""Cut 4-directional hero sprites (front/back/side/left) out of a 4-panel sprite sheet.
+"""Cut 4-directional hero sprites from SpritesImport sheets.
 
-Mirrors the method used for Tobor's own directional sprites (see
-tools/extract_tobor_sprite.py): background keying + tight crop, but generalized to
-any sheet laid out as 4 equal-width vertical slices. Each slice is keyed to a
-transparent background, tightly cropped to the character's bounding box, then
-nearest-neighbor resized to TARGET_SIZE (32x32, matching tobor.png) so all heroes
-render at the same on-screen density.
+Layout (user-confirmed, left to right in source sheet):
+  col0 = FRONT (face visible, facing camera)
+  col1 = BACK (back of body, no face)
+  col2 = LEFT profile (hero's left side faces viewer)
+  col3 = RIGHT profile (hero's right side faces viewer)
 
-Slice order in the sheet: front, back, side, left.
-Output files:  <hero>.png (front), <hero>_back.png, <hero>_side.png, <hero>_left.png
+Keying: flood-fill from the cell border with a TIGHT threshold (25) to remove
+only the solid white background. No erosion — the flood fill alone handles the
+white bg without eating into the silhouette. A 4px pad is kept around the
+silhouette so it doesn't touch the 80x80 canvas edge.
 """
 from pathlib import Path
 from PIL import Image
+from collections import deque
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = ROOT / "SpritesImport"
 OUT_DIR = ROOT / "assets" / "sprites"
-TARGET_SIZE = 32
 
-# Map source sheet filename -> in-game hero class_id.
 JOBS = [
+    ("jolt2.png", "arclight"),
     ("tremor.png", "bulwark"),
-    ("totem.png", "warden"),
-    ("jolt.png", "arclight"),
+    ("totem2.png", "warden"),
 ]
 
-SLICE_NAMES = ["front", "back", "side", "left"]
+SHEET_CELLS = {
+    "jolt.png": {
+        "cols": [(51, 352), (371, 666), (730, 930), (1005, 1207)],
+    },
+    "jolt2.png": {
+        "cols": [(47, 358), (366, 672), (723, 936), (999, 1214)],
+    },
+    "tremor.png": {
+        "cols": [(69, 368), (450, 688), (780, 910), (1025, 1185)],
+    },
+    "totem.png": {
+        "cols": [(105, 353), (374, 618), (713, 922), (1044, 1184)],
+    },
+    "totem2.png": {
+        "cols": [(105, 355), (373, 620), (711, 927), (1042, 1187)],
+    },
+}
+
+# col index -> output direction name
+# User-confirmed layout (left to right): front, back, left, right
+DIRECTIONS = [
+    ("front", 0),
+    ("back",  1),
+    ("left",  2),
+    ("right", 3),
+]
+
+TARGET_SIZE = 32
+PAD_PX = 2        # small padding kept around the silhouette
+BG_TOL = 20       # L1 distance threshold for bg flood fill (conservative: keeps silhouette intact)
 
 
-def background_color(im: Image.Image, slice_box: tuple) -> tuple:
-    """Sample the top-left corner of the slice as the assumed flat background color."""
-    sub = im.crop(slice_box)
+def flood_key_white(sub: Image.Image) -> Image.Image:
+    """Make border-connected near-white pixels transparent (single pass)."""
+    sub = sub.convert("RGBA")
     px = sub.load()
-    # Median of a 10x10 sample in the top-left corner (usually background, not character).
-    samples = []
-    for y in range(0, min(10, sub.size[1])):
-        for x in range(0, min(10, sub.size[0])):
-            r, g, b, _a = px[x, y]
-            samples.append((r, g, b))
-    if not samples:
-        return (0, 0, 0)
-    samples.sort(key=lambda c: c[0] + c[1] + c[2])
-    return samples[len(samples) // 2]
+    w, h = sub.size
+    visited = [[False] * w for _ in range(h)]
 
+    def is_bg(x, y):
+        r, g, b, _ = px[x, y]
+        return abs(r - 255) + abs(g - 255) + abs(b - 255) <= BG_TOL * 3
 
-def key_out(im: Image.Image, bg: tuple, thresh: int = 48) -> Image.Image:
-    im = im.convert("RGBA")
-    px = im.load()
-    w, h = im.size
+    q = deque()
+    for x in range(w):
+        for y in (0, h - 1):
+            if not visited[y][x] and is_bg(x, y):
+                q.append((x, y)); visited[y][x] = True
     for y in range(h):
-        for x in range(w):
-            r, g, b, a = px[x, y]
-            d = abs(r - bg[0]) + abs(g - bg[1]) + abs(b - bg[2])
-            if d <= thresh:
-                px[x, y] = (0, 0, 0, 0)
-    return im
+        for x in (0, w - 1):
+            if not visited[y][x] and is_bg(x, y):
+                q.append((x, y)); visited[y][x] = True
+    while q:
+        x, y = q.popleft()
+        px[x, y] = (0, 0, 0, 0)
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < w and 0 <= ny < h and not visited[ny][nx] and is_bg(nx, ny):
+                visited[ny][nx] = True
+                q.append((nx, ny))
+    return sub
 
 
-def tight_crop(im: Image.Image) -> Image.Image:
+def crop_with_pad(im: Image.Image, pad: int = PAD_PX) -> Image.Image:
+    """Crop to the silhouette bounding box, keeping `pad` pixels of margin."""
     px = im.load()
     w, h = im.size
     xs, ys = [], []
     for y in range(h):
         for x in range(w):
-            if px[x, y][3] > 20:
-                xs.append(x)
-                ys.append(y)
+            if px[x, y][3] > 30:
+                xs.append(x); ys.append(y)
     if not xs:
         return im
-    return im.crop((min(xs), min(ys), max(xs) + 1, max(ys) + 1))
+    x0, x1 = max(0, min(xs) - pad), min(w, max(xs) + 1 + pad)
+    y0, y1 = max(0, min(ys) - pad), min(h, max(ys) + 1 + pad)
+    return im.crop((x0, y0, x1, y1))
 
 
 def resize_to_square(img: Image.Image, size: int = TARGET_SIZE) -> Image.Image:
-    """Nearest-neighbor resize into a square canvas, character centered, preserving
-    pixel-art crispness (no smoothing)."""
+    """Downscale to a square canvas (32×32 to match tobor).
+
+    Process:
+    1. Create a clean binary silhouette (alpha > 128 → opaque, else transparent)
+    2. Downscale the silhouette with NEAREST → stays solid, no gaps
+    3. Downscale the RGB colors with LANCZOS → preserves color detail
+    4. Composite: solid silhouette alpha + LANCZOS colors
+    5. Center in the 32×32 canvas (bottom-aligned like tobor sprites)
+    """
+    # Step 1: Keep the sprite fully intact — the anti-aliased grey border is part
+    # of the sprite and must NOT be removed. Downscale RGB+alpha with LANCZOS.
     w, h = img.size
-    # Scale so the longer edge fits within `size`, keeping aspect ratio.
-    scale = size / max(w, h)
-    new_w, new_h = max(1, int(round(w * scale))), max(1, int(round(h * scale)))
-    resized = img.resize((new_w, new_h), Image.NEAREST)
-    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    ox = (size - new_w) // 2
-    oy = (size - new_h) // 2
-    canvas.paste(resized, (ox, oy))
-    return canvas
+    mid = 64
+    scale1 = mid / max(w, h)
+    m1_w, m1_h = max(1, int(round(w * scale1))), max(1, int(round(h * scale1)))
+    step1 = img.resize((m1_w, m1_h), Image.LANCZOS)
+    # Render into a square that is 2px larger than the target so we can shrink
+    # by 1px on every side afterward.
+    big = size + 2
+    scale2 = big / max(m1_w, m1_h)
+    m2_w, m2_h = max(1, int(round(m1_w * scale2))), max(1, int(round(m1_h * scale2)))
+    step2 = step1.resize((m2_w, m2_h), Image.LANCZOS)
+
+    # Step 2: Center the sprite on a (size+2) canvas, then crop the central
+    # `size x size` region -> the sprite is effectively shrunk by 1px all
+    # around, which prevents internal gaps at the seams.
+    big_canvas = Image.new("RGBA", (big, big), (0, 0, 0, 0))
+    big_canvas.paste(step2, ((big - m2_w) // 2, (big - m2_h) // 2), step2)
+    final = big_canvas.crop((1, 1, 1 + size, 1 + size))
+    return final
 
 
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for filename, hero in JOBS:
+        spec = SHEET_CELLS[filename]
         src = SRC_DIR / filename
-        im = Image.open(src).convert("RGBA")
-        w, h = im.size
-        q = w // 4
-        for i, slice_name in enumerate(SLICE_NAMES):
-            slice_box = (i * q, 0, (i + 1) * q, h)
-            sub = im.crop(slice_box)
-            bg = background_color(im, slice_box)
-            keyed = key_out(sub, bg)
-            cropped = tight_crop(keyed)
-            final = resize_to_square(cropped, TARGET_SIZE)
-            suffix = "" if slice_name == "front" else "_" + slice_name
+        im = Image.open(src).convert("RGB")
+        W, H = im.size
+        for direction, col_idx in DIRECTIONS:
+            x0, x1 = spec["cols"][col_idx]
+            cell = im.crop((x0, 0, x1, H))
+            keyed = flood_key_white(cell)
+            cropped = crop_with_pad(keyed)
+            final = resize_to_square(cropped)
+            suffix = "" if direction == "front" else "_" + direction
             out_path = OUT_DIR / f"{hero}{suffix}.png"
             final.save(out_path)
-            print(f"{filename} slice[{i}] ({slice_name}) bg~{bg} -> {out_path.name} {final.size}")
+            print(f"{filename} {direction:6s} (col{col_idx}) -> {out_path.name} "
+                  f"crop={cropped.size} final={final.size}")
 
 
 if __name__ == "__main__":

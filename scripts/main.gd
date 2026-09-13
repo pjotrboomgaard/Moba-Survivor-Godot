@@ -34,6 +34,8 @@ const GhostWaveSystem := preload("res://scripts/ghost_wave_system.gd")
 var _opening_ship: Node2D = null
 ## True while the opening crash-landing cinematic is playing; wave 1 spawn waits.
 var _opening_cinematic_playing := false
+## Selftest: when true, level-up upgrade/ability offers are held open for screenshots.
+var _freeze_offers := false
 ## One-shot helper so the many `game_over = true` sites can flip the ghost trickle
 ## off without every caller remembering to reach for the node.
 func _set_ghosts_game_over(dead: bool) -> void:
@@ -2659,7 +2661,7 @@ func _offer_next_upgrade(peer_id: int) -> void:
 		_advance_offer(peer_id)
 		return
 	pending_upgrades[peer_id] = upgrade_ids
-	if leveled_player.is_cpu() or _selftest_active():
+	if leveled_player.is_cpu() or (_selftest_active() and not _selftest_freeze_offers()):
 		_apply_upgrade_choice(peer_id, str(upgrade_ids[0]))
 		return
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
@@ -2674,7 +2676,7 @@ func _offer_stat_turn(peer_id: int, leveled_player: Player) -> void:
 		_advance_offer(peer_id)
 		return
 	pending_upgrades[peer_id] = upgrade_ids
-	if leveled_player.is_cpu() or _selftest_active():
+	if leveled_player.is_cpu() or (_selftest_active() and not _selftest_freeze_offers()):
 		_apply_upgrade_choice(peer_id, str(upgrade_ids[0]))
 		return
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
@@ -2691,7 +2693,7 @@ func _offer_ability_turn(peer_id: int, leveled_player: Player) -> void:
 		_advance_offer(peer_id)
 		return
 	pending_ability_offers[peer_id] = ability_ids
-	if leveled_player.is_cpu() or _selftest_active():
+	if leveled_player.is_cpu() or (_selftest_active() and not _selftest_freeze_offers()):
 		_apply_ability_choice(peer_id, str(ability_ids[0]))
 		return
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE or peer_id == 1:
@@ -2821,6 +2823,11 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 	if command.begins_with("resolution:"):
 		_apply_resolution_command(command)
 		return
+	# Global commands that don't need a player reference.
+	match command:
+		"freeze_offers":
+			_freeze_offers = true
+			return
 	var player := players.get(peer_id) as Player
 	if player == null:
 		return
@@ -3335,6 +3342,8 @@ func play_opening_cinematic() -> void:
 	_opening_cinematic_playing = true
 	# Freeze the player(s) so nobody can move/attack while the crash cinematic plays.
 	_set_players_locked(true)
+	# T3.50: Hide all hero sprites until the ship impacts.
+	_set_player_sprites_visible(false)
 	_shake_cameras(4.0, 0.3)
 	# Hide the crater while the map is being "dropped" (for grass/volcano where it exists).
 	if arena is Arena:
@@ -3372,6 +3381,8 @@ func play_opening_cinematic() -> void:
 func _on_opening_impact() -> void:
 	if arena is Arena:
 		(arena as Arena).set_crater_unlocked(true)
+	# T3.50: Reveal hero sprites at the moment of impact.
+	_set_player_sprites_visible(true)
 	_shake_cameras(16.0, 0.6)
 	_play_sound("explosion")
 	# Zoom back into the crater where the hero(es) are standing.
@@ -3399,6 +3410,13 @@ func _dev_skip_wave() -> void:
 	if game_over:
 		return
 	wave_director.force_next_wave()
+
+
+## T3.50: Hide/show all player sprites during the opening cinematic.
+func _set_player_sprites_visible(visible: bool) -> void:
+	for p in players.values():
+		if is_instance_valid(p) and p is Player:
+			(p as Player).set_sprite_visible(visible)
 
 
 func _build_snapshot() -> Dictionary:
@@ -3628,6 +3646,12 @@ func _selftest_active() -> bool:
 	return OS.has_feature("selftest") or "--selftest" in OS.get_cmdline_args()
 
 
+## True when the selftest driver has asked us to hold upgrade/ability offers open
+## (used by the "freeze_offers" event so a screenshot can capture the panel).
+func _selftest_freeze_offers() -> bool:
+	return _freeze_offers
+
+
 ## Attach the SelfTestDriver child only when a request file exists. Skipping the call
 ## entirely is the safety: no driver => no weirdness even if the request file lingers.
 const _SelfTestDriverScript := preload("res://scripts/selftest_driver.gd")
@@ -3638,6 +3662,7 @@ func _right_selftest_boot() -> void:
 	var driver := _SelfTestDriverScript.from_request()
 	if driver == null:
 		return
+	driver.name = "SelfTestDriver"
 	add_child(driver)
 	print("[main.gd] SelfTestDriver attached")
 

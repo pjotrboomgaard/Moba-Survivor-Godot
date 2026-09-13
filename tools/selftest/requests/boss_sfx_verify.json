@@ -1,0 +1,16 @@
+{
+  "hero": "tobor",
+  "comment": "T3.35: verify boss attack SFX. Grant boss form, fire slam/cross/volley, probe boss_attack sound each time.",
+  "events": [
+    {"t": 0.2, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.5, "kind": "bossform_grant", "boss": "brute"},
+    {"t": 1.0, "kind": "bossform_attack", "which": "slam"},
+    {"t": 1.5, "kind": "sound_probe", "label": "boss_slam", "ability_id": "boss_form"},
+    {"t": 2.0, "kind": "bossform_attack", "which": "cross"},
+    {"t": 2.5, "kind": "sound_probe", "label": "boss_cross", "ability_id": "boss_form"},
+    {"t": 3.0, "kind": "bossform_attack", "which": "volley"},
+    {"t": 3.5, "kind": "sound_probe", "label": "boss_volley", "ability_id": "boss_form"},
+    {"t": 4.0, "kind": "snap", "label": "boss_form_active"},
+    {"t": 4.5, "kind": "report"}
+  ]
+}

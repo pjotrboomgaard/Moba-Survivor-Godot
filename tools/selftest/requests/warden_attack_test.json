@@ -1,0 +1,17 @@
+{
+  "hero": "warden",
+  "mode": "",
+  "biome": 0,
+  "events": [
+    {"t": 0.0, "kind": "wait", "duration": 1.0},
+    {"t": 1.0, "kind": "spawn", "at": [200, 0], "type": "grunt", "hp_mult": 1.0, "spd_mult": 0.0},
+    {"t": 1.5, "kind": "snap", "label": "before_attack"},
+    {"t": 2.0, "kind": "aim", "at": [200, 0]},
+    {"t": 2.5, "kind": "primary_attack"},
+    {"t": 3.0, "kind": "primary_attack"},
+    {"t": 3.5, "kind": "primary_attack"},
+    {"t": 4.0, "kind": "primary_attack"},
+    {"t": 4.5, "kind": "snap", "label": "after_attack"},
+    {"t": 5.0, "kind": "probe", "label": "warden_attack_done"}
+  ]
+}

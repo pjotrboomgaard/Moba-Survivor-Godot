@@ -1,0 +1,17 @@
+{
+  "hero": "warden",
+  "comment": "T3.46: verify summons no longer persist for 120s. Cast Voodoo Wards (slot 3) at t=0.8, probe at t=15/40/45/50 to confirm the ward expires around 45s (PERSISTENT_TURRET_MIN_LIFETIME=45s). Also verify the ward is visible (summon sprite in scene).",
+  "events": [
+    {"t": 0.2, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.5, "kind": "aim", "at": [120, 0]},
+    {"t": 0.8, "kind": "cast", "slot": 3},
+    {"t": 1.5, "kind": "probe", "label": "ward_placed"},
+    {"t": 2.0, "kind": "snap", "label": "ward_fresh"},
+    {"t": 15.0, "kind": "probe", "label": "t15s"},
+    {"t": 40.0, "kind": "probe", "label": "t40s"},
+    {"t": 44.0, "kind": "probe", "label": "t44s"},
+    {"t": 46.0, "kind": "probe", "label": "t46s"},
+    {"t": 46.5, "kind": "snap", "label": "ward_expired_or_fading"},
+    {"t": 48.0, "kind": "report"}
+  ]
+}

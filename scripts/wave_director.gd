@@ -312,7 +312,7 @@ const DIFFICULTY_HEALTH_MULTIPLIERS := {
 }
 
 const CLASSIC_SPAWN_INTERVAL := 1.4
-const DEBUT_COUNT := 2
+const DEBUT_COUNT := 6
 
 var wave := 0
 var archetype: Archetype = Archetype.STANDARD
@@ -526,18 +526,13 @@ func health_multiplier_for_wave(target_wave: int) -> float:
 
 
 func budget_for_wave(target_wave: int) -> float:
-	# Roughly double the old headcount at every wave (base 12->24, per-wave growth 2.6->6.0 —
-	# more than double, so the curve keeps getting steeper instead of just shifting up by a
-	# flat amount) on top of the doubled per-enemy health above, so both axes compound.
-	# Eased the early-wave floor (12 + 4*w) so waves 1-5 are survivable for a fresh hero;
-	# the steeper climb still kicks in from wave 6 onward (12 + 4*w keeps pace, but the
-	# 4-per-wave growth is halved from 8 so the late curve is not exponential).
-	# Gradual headcount: early waves stay small and focused (short, single-focus fights),
-	# growing slowly so each wave reads as a distinct "type of fight" rather than an endless
-	# swarm. The steeper climb only kicks in from wave 8 onward.
-	var solo_budget := 8.0 + 2.5 * float(target_wave)
+	# T3.44 (2026-09-13): user requested 3× the previous headcount across all waves.
+	# Previous formula: 8.0 + 2.5 * wave (with +3.5*(wave-7) from wave 8 onward).
+	# New formula: 3× that base, so wave 1 = 24, wave 5 = 57, wave 10 = 75+.
+	# This makes every wave substantially busier and less boring.
+	var solo_budget := 24.0 + 7.5 * float(target_wave)
 	if target_wave >= 8:
-		solo_budget += 3.5 * float(target_wave - 7)
+		solo_budget += 10.5 * float(target_wave - 7)
 	if _solo_pressure_active(target_wave):
 		solo_budget *= SOLO_BUDGET_PRESSURE
 	if GameRuntime.is_ffa():
@@ -593,9 +588,10 @@ func _desired_live() -> int:
 	# Cap climbs from wave 1 so every stage stays busy, not just the late run.
 	# FFA has 4 players each running their own AI + wave director, so cap lower
 	# to avoid lag from too many enemies simultaneously.
-	var live_cap := mini(24 + int(float(wave) * 2.0), 60)
+	# T3.44: raised cap to 120 (was 60) to match the 3× budget increase.
+	var live_cap := mini(48 + int(float(wave) * 4.0), 120)
 	if GameRuntime.is_ffa():
-		live_cap = mini(live_cap, 50)
+		live_cap = mini(live_cap, 80)
 	return clampi(floor_n, 4, live_cap)
 
 

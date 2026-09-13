@@ -1,0 +1,224 @@
+{
+  "effects": [
+    {
+      "actual": 5,
+      "kind": "force_level",
+      "t": 0.506285666666667,
+      "target": 2
+    },
+    {
+      "error": "index out of range",
+      "index": 0,
+      "kind": "pick_upgrade",
+      "pending_size": 0,
+      "t": 1.40151515151515
+    },
+    {
+      "actual": 5,
+      "kind": "force_level",
+      "t": 2.00396,
+      "target": 4
+    },
+    {
+      "cd_left": 22.1680000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.362541
+    },
+    {
+      "cd_left": 22.0180000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.50601233333333
+    },
+    {
+      "error": "index out of range",
+      "index": 0,
+      "kind": "pick_upgrade",
+      "pending_size": 0,
+      "t": 2.9050243030303
+    },
+    {
+      "cd_left": 15.0933333333334,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.91411521212121
+    },
+    {
+      "cd_left": 14.9433333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 3.05558981818182
+    },
+    {
+      "cd_left": 16.5033333333335,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 3.46784366666667
+    },
+    {
+      "actual": 8,
+      "kind": "force_level",
+      "t": 3.50497566666667,
+      "target": 6
+    },
+    {
+      "cd_left": 189.899999999998,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.06666666666667
+    },
+    {
+      "cd_left": 189.749999999998,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.21222383164984
+    },
+    {
+      "error": "index out of range",
+      "index": 0,
+      "kind": "pick_upgrade",
+      "pending_size": 0,
+      "t": 4.40056166666668
+    },
+    {
+      "cd_left": 19.9013333333336,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 4.62118133333335
+    },
+    {
+      "cd_left": 19.7680000000003,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 4.76399190909094
+    }
+  ],
+  "elapsed": 5.00522124242428,
+  "enemies_spawned": 0,
+  "hero_position": "(-117.9577, -391.9677)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 4,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 0.835862666666666
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 0.844196
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 1.25833333333333
+      },
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 1.95444733333333
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [
+      "only beaten wave 0 / 20 (t=5)"
+    ],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "enemies": 13,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 0.15,
+        "wave": 1
+      },
+      {
+        "enemies": 17,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 2.65,
+        "wave": 1
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 8,
+    "level_upgrades": {
+      "2": [
+        "keen_eye"
+      ],
+      "3": [
+        "gun_drone"
+      ],
+      "4": [
+        "rapid"
+      ],
+      "5": [
+        "blast"
+      ],
+      "6": [
+        "push_drone"
+      ],
+      "7": [
+        "vitality"
+      ],
+      "8": [
+        "keen_eye"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 2,
+    "quests_seen": {
+      "dance_circle": 1,
+      "ring_bell": 1
+    },
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "keen_eye",
+      "gun_drone",
+      "rapid",
+      "blast",
+      "push_drone",
+      "vitality",
+      "keen_eye"
+    ],
+    "until_wave": 20,
+    "verdict": "FAIL_NO_PROGRESS",
+    "wave": 1,
+    "xp": 61
+  },
+  "shots": [
+    {
+      "label": "offer_1_open",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4626/offer_1_open_1.004_4626.png",
+      "t": 1.00395966666667
+    },
+    {
+      "label": "offer_2_open",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6134/offer_2_open_2.506_6134.png",
+      "t": 2.50601233333333
+    },
+    {
+      "label": "offer_3_open",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7626/offer_3_open_4.000_7626.png",
+      "t": 4.00033200000001
+    }
+  ]
+}

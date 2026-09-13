@@ -1,0 +1,8 @@
+{
+  "comment": "T3.39 re-verify: on-disk vs runtime sprite comparison for Joule/Tremor/Totem. Flags stale import cache or missing texture.",
+  "scene": "res://scenes/hero_sprite_compare_test/hero_sprite_compare_test.tscn",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "hero_sprite_compare_test.png",
+  "notes": "For each hero+direction: left = raw on-disk PNG, right = Godot runtime load. Labels show WxH for each. MISMATCH flag if sizes differ or runtime is NULL. All 40x40 + no flags = PASS."
+}

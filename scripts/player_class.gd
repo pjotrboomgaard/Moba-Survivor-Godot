@@ -669,7 +669,7 @@ const SUPPORT_AURA_RADIUS := 220.0
 const SUPPORT_HEAL_PER_SECOND := 3.0
 const SUPPORT_DAMAGE_BONUS := 0.15
 const BULWARK_TAUNT_RADIUS := 260.0
-const FROST_BURST_RADIUS := 150.0
+const FROST_BURST_RADIUS := 65.0
 const FROST_SLOW_FACTOR := 0.55
 const FROST_SLOW_DURATION := 2.5
 const CONE_HALF_ANGLE_DEGREES := 36.0
@@ -702,7 +702,7 @@ const WALL_THICKNESS := 28.0
 ## menu's RMB tooltip looks them up here by secondary_kind. "charge" is true when the
 ## ability builds up before it can fire (the HUD shows a charge bar while it fills).
 const SECONDARY_INFO: Dictionary = {
-	"repulse":     {"name": "Repulse Nova",     "charge": false, "desc": "Right-click detonates a knockback blast that shoves nearby enemies away, peeling you off a pack."},
+	"repulse":     {"name": "Repulse Blast",     "charge": false, "desc": "Right-click detonates a knockback blast that shoves nearby enemies away, peeling you off a pack."},
 	"volt_mend":   {"name": "Volt Mend",        "charge": false, "desc": "Right-click zaps yourself for a burst of healing and a brief shield."},
 	"wall":        {"name": "Drawn Wall",       "charge": false, "desc": "Right-click builds a short wall in front of you that blocks enemies and creeps."},
 	"vine_tangle": {"name": "Vine Tangle",       "charge": false, "desc": "Right-click snags nearby enemies with vines, rooting them in place for a moment."},
@@ -717,7 +717,7 @@ const SECONDARY_INFO: Dictionary = {
 	"gale_gust":   {"name": "Gale Gust",        "charge": false, "desc": "Right-click whips up a gust that shoves nearby enemies and drags them back."},
 	"time_skip":   {"name": "Time Skip",        "charge": false, "desc": "Right-click blinks you forward a short distance, leaving a brief afterimage."},
 	"ward_light":  {"name": "Ward of Light",    "charge": false, "desc": "Right-click projects a shield of light around you that absorbs damage."},
-	"glacial_nova":{"name": "Glacial Nova",     "charge": true,  "desc": "Right-click (hold) gathers a glacial nova; release to unleash a burst of frost that damages and slows enemies."},
+	"glacial_nova":{"name": "Glacial Burst",    "charge": true,  "desc": "Right-click (hold) gathers a glacial burst; release to unleash a burst of frost that damages and slows enemies."},
 	"rime_ward":   {"name": "Rime Ward",        "charge": false, "desc": "Right-click plants a frost ward that slows and chills enemies who step near it."},
 }
 
@@ -856,7 +856,7 @@ const ARCHETYPE_NAMES := {
 const ABILITIES: Dictionary = {
 	# --- Tobor (Wrench / Engineer) ---------------------------------------------------------
 	"tobor_steam_keg": {
-		"name": "Steam Keg", "archetype": Archetype.NUKE_BOLT,
+		"name": "Pressurized Cask", "archetype": Archetype.NUKE_BOLT,
 		"description": "Lobs a steam keg at the target location. On impact, deals {power} Magic damage in a {radius}-unit radius and stuns enemies for {stun_duration}s. The keg travels along an arc up to {range} range.",
 		"cooldown_base": 8.0, "cooldown_per_rank": -0.8, "cooldown_min": 4.5,
 		"power_base": 55.0, "power_per_rank": 14.0, "range": 560.0, "radius": 160.0,
@@ -864,7 +864,7 @@ const ABILITIES: Dictionary = {
 		"knockback_on_hit": 380.0, "fuse_delay": 0.55, "keg_range": 560.0,
 	},
 	"tobor_spider_mines": {
-		"name": "Spider Mines", "archetype": Archetype.SUMMON_SPIRIT,
+		"name": "Trap Weavers", "archetype": Archetype.SUMMON_SPIRIT,
 		"description": "Plants proximity mines that arm after a short delay, then crawl toward the nearest enemy. On detonation they deal {power} damage in a wide blast — far more against bosses.",
 		"cooldown_base": 11.0, "cooldown_per_rank": -0.9, "cooldown_min": 6.5,
 		"power_base": 42.0, "power_per_rank": 10.0, "range": 1200.0,
@@ -897,7 +897,7 @@ const ABILITIES: Dictionary = {
 	},
 	"tobor_keg_lob": {
 		"name": "Keg Lob", "archetype": Archetype.NUKE_BOLT,
-		"description": "Lobs an unpressurized keg up to {range} range. On impact, deals {power} Magic damage in a {radius}-unit radius. Less elegant than the Steam Keg — still loud.",
+		"description": "Lobs an unpressurized cask up to {range} range. On impact, deals {power} Magic damage in a {radius}-unit radius. Less elegant than the Pressurized Cask — still loud.",
 		"cooldown_base": 4.5, "cooldown_per_rank": -0.4, "cooldown_min": 2.5,
 		"power_base": 45.0, "power_per_rank": 12.0, "range": 520.0, "radius": 180.0,
 	},
@@ -950,20 +950,20 @@ const ABILITIES: Dictionary = {
 	},
 	# --- Arclight (Joule / Thunderbringer) -----------------------------------------------
 	"arclight_blast_of_lightning": {
-		"name": "Blast of Lightning", "archetype": Archetype.NUKE_BOLT,
+		"name": "Static Blast", "archetype": Archetype.NUKE_BOLT,
 		"description": "Smites a target up to {range} range with a bolt from the heavens, dealing {power} Magic damage.",
 		"cooldown_base": 7.0, "cooldown_per_rank": -0.7, "cooldown_min": 3.8,
 		"power_base": 110.0, "power_per_rank": 28.0, "range": 640.0,
 	},
 	"arclight_chain_lightning": {
-		"name": "Chain Lightning", "archetype": Archetype.CHAIN_NUKE,
+		"name": "Arc Cascade", "archetype": Archetype.CHAIN_NUKE,
 		"description": "Looses a bolt at the target that leaps to {chain_count} additional foes, dealing {power} Magic damage per jump.",
 		"cooldown_base": 10.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.5,
 		"power_base": 50.0, "power_per_rank": 13.0, "range": 620.0,
 		"chain_count": 5, "chain_range": 240.0,
 	},
 	"arclight_thundergods_wrath": {
-		"name": "Thundergod's Wrath", "archetype": Archetype.RADIUS_BURST,
+		"name": "Tempest Call", "archetype": Archetype.RADIUS_BURST,
 		"description": "Calls down a global lightning strike on every visible enemy, dealing {power} Magic damage and stunning for {stun_duration}s.",
 		"cooldown_base": 50.0, "cooldown_per_rank": -4.2, "cooldown_min": 30.0,
 		"power_base": 180.0, "power_per_rank": 45.0, "range": 0.0, "radius": 999.0,
@@ -983,7 +983,7 @@ const ABILITIES: Dictionary = {
 		"chain_count": 4, "chain_range": 220.0,
 	},
 	"arclight_ion_storm": {
-		"name": "Ion Storm", "archetype": Archetype.RADIUS_BURST,
+		"name": "Static Storm", "archetype": Archetype.RADIUS_BURST,
 		"description": "Discharges a ring of lightning around yourself, dealing {power} Magic damage to every enemy within {radius} units.",
 		"cooldown_base": 7.0, "cooldown_per_rank": -0.8, "cooldown_min": 3.8,
 		"power_base": 24.0, "power_per_rank": 7.0, "range": 0.0, "radius": 170.0,
@@ -1016,7 +1016,7 @@ const ABILITIES: Dictionary = {
 		"stun_on_hit": {"duration": 1.1},
 	},
 	"arclight_ball_lightning": {
-		"name": "Ball Lightning", "archetype": Archetype.DASH_STRIKE,
+		"name": "Volt Dash", "archetype": Archetype.DASH_STRIKE,
 		"description": "Becomes a bolt and streaks forward {dash_distance} units, dealing {power} Magic damage to everything in your path.",
 		"cooldown_base": 8.0, "cooldown_per_rank": -0.8, "cooldown_min": 4.5,
 		"power_base": 34.0, "power_per_rank": 9.0, "dash_distance": 320.0, "radius": 60.0,
@@ -1225,7 +1225,7 @@ const ABILITIES: Dictionary = {
 		"power_base": 0.0, "power_per_rank": 0.0, "dash_distance": 280.0,
 	},
 	"warden_natures_wrath": {
-		"name": "Nature's Wrath", "archetype": Archetype.NUKE_BOLT,
+		"name": "Seismic Quake", "archetype": Archetype.NUKE_BOLT,
 		"description": "Curses every enemy within {range} range, dealing {power} Magic damage and exposing them to +{mark_pct} damage taken for {mark_duration}s.",
 		"cooldown_base": 9.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.0,
 		"power_base": 16.0, "power_per_rank": 4.0, "range": 500.0,
@@ -1895,7 +1895,7 @@ const ABILITIES: Dictionary = {
 	},
 	# --- Volt -------------------------------------------------------------------------------
 	"volt_gust": {
-		"name": "Arc Lightning", "archetype": Archetype.AREA_BOUNCE,
+		"name": "Volt Arc", "archetype": Archetype.AREA_BOUNCE,
 		"description": "Drops a slow-bouncing arc of lightning between creeps in a {radius} area, dealing {power} Magic damage each bounce and holding the frontline. Bounces up to {bounce_count} times.",
 		"cooldown_base": 7.0, "cooldown_per_rank": -0.7, "cooldown_min": 3.8,
 		"power_base": 16.0, "power_per_rank": 5.0, "radius": 320.0,
@@ -2125,7 +2125,7 @@ const ABILITIES: Dictionary = {
 		"power_base": 30.0, "power_per_rank": 8.0, "range": 520.0,
 	},
 	"astral_wisp_nova": {
-		"name": "Wisp Nova", "archetype": Archetype.BLINK,
+		"name": "Wisp Burst", "archetype": Archetype.BLINK,
 		"description": "Bursts outward in every direction. Teleports {dash_distance} units and deals {power} Magic damage around your exit.",
 		"cooldown_base": 10.0, "cooldown_per_rank": -0.9, "cooldown_min": 5.5,
 		"power_base": 28.0, "power_per_rank": 7.0, "dash_distance": 250.0, "radius": 180.0,

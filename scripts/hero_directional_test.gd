@@ -21,9 +21,9 @@ const HEROES := [
 ]
 const FACES := [
 	{"name": "front", "suffix": ""},
-	{"name": "back", "suffix": "_back"},
-	{"name": "side", "suffix": "_side"},
 	{"name": "left", "suffix": "_left"},
+	{"name": "right", "suffix": "_right"},
+	{"name": "back", "suffix": "_back"},
 ]
 const SCALE := 5.0
 

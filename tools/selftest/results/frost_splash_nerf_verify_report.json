@@ -1,0 +1,156 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "pyra_sticky_bomb",
+          "rank": 1
+        },
+        {
+          "id": "pyra_boom_dust",
+          "rank": 1
+        },
+        {
+          "id": "pyra_bombardment",
+          "rank": 1
+        },
+        {
+          "id": "pyra_air_strike",
+          "rank": 1
+        }
+      ],
+      "attack_range": 640.0,
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "blast_radius": 0.0,
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "pyra",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              59.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "frost_burst_radius": 65.0,
+      "gold": 12,
+      "hero": "pyra",
+      "hp": 78.0,
+      "hp_frac": 0.742857142857143,
+      "hp_max": 105.0,
+      "kind": "probe",
+      "label": "after_frost",
+      "last_sfx": "attack_pyra",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(58.9547, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 3.503132,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "weapon_damage": 19.0,
+      "xp": 20
+    }
+  ],
+  "elapsed": 4.506993,
+  "enemies_spawned": 2,
+  "hero_position": "(58.9547, 0.0)",
+  "player_class": "pyra",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 12,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 20
+  },
+  "shots": [
+    {
+      "label": "frost_splash_result",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7290/frost_splash_result_4.002_7290.png",
+      "t": 4.00170533333333
+    }
+  ]
+}

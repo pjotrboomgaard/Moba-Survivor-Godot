@@ -848,7 +848,25 @@ func _make_kit_icon_slot(parent: Control, key_text: String, compact: bool = fals
 	hotkey.offset_bottom = 42.0
 	hotkey.visible = false
 	slot.add_child(hotkey)
-	return {"root": slot, "icon": icon, "bar": cd_bar, "key": key_label, "name": name_label, "hotkey": hotkey, "bind": key_text}
+
+	# T3.35: multi-charge badge — shows remaining charges (e.g. "×3") for abilities
+	# that can be cast multiple times before cooldown (Tobor turret/mines, Bulwark
+	# fissure, Warden ward). Hidden when charges <= 1 or not a multi-charge ability.
+	var charge_label := Label.new()
+	charge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	charge_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	charge_label.add_theme_font_size_override("font_size", 12)
+	charge_label.add_theme_color_override("font_color", Color(0.4, 0.85, 1.0, 1.0))
+	charge_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.9))
+	charge_label.add_theme_constant_override("shadow_size", 3)
+	charge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	charge_label.offset_top = 2.0
+	charge_label.offset_right = 60.0
+	charge_label.offset_bottom = 16.0
+	charge_label.visible = false
+	slot.add_child(charge_label)
+
+	return {"root": slot, "icon": icon, "bar": cd_bar, "key": key_label, "name": name_label, "hotkey": hotkey, "charge": charge_label, "bind": key_text}
 
 
 func _apply_kit_cooldown(nodes: Dictionary, remaining: float, cooldown_max: float, _ready_key: String = "") -> void:
@@ -864,6 +882,48 @@ func _apply_kit_cooldown(nodes: Dictionary, remaining: float, cooldown_max: floa
 		bar.value = 0.0
 		icon.modulate = Color.WHITE
 		key_label.text = ""
+
+
+## T3.35: show a "×N" charge badge on charge-pooled abilities (Tobor turret/mines,
+## Bulwark fissure, Warden ward). Returns the live charge count for the given
+## ability id, or 0 if the ability isn't charge-pooled (in which case the badge
+## is hidden).
+func _charge_count_for(ability_id: String) -> int:
+	if bound_player == null:
+		return 0
+	var prop := ""
+	match ability_id:
+		"tobor_spider_mines":
+			prop = "_mine_charge_left"
+		"tobor_steam_turret":
+			prop = "_turret_charge_left"
+		"bulwark_fissure":
+			prop = "_fissure_charge_left"
+		"warden_voodoo_wards":
+			prop = "_ward_charge_left"
+		_:
+			return 0
+	if bound_player == null:
+		return 0
+	return int(bound_player.get(prop))
+
+
+func _apply_charge_badge(nodes: Dictionary, ability_id: String) -> void:
+	var charge_label: Label = nodes.get("charge") as Label
+	if charge_label == null:
+		return
+	var charges := _charge_count_for(ability_id)
+	# Only show the badge when the ability actually has a charge pool (>1 means
+	# there's something meaningful to communicate; 0 means "out of charges" and
+	# the cooldown bar already signals that).
+	if charges >= 1:
+		charge_label.text = "×%d" % charges
+		charge_label.visible = true
+		charge_label.add_theme_color_override("font_color",
+			Color(1.0, 0.4, 0.4, 1.0) if charges == 1 else Color(0.4, 0.85, 1.0, 1.0))
+	else:
+		charge_label.text = ""
+		charge_label.visible = false
 
 
 func _secondary_icon_id(kind: String) -> String:
@@ -1073,6 +1133,8 @@ func _refresh_ability_icons() -> void:
 		var values := PlayerClass.ability_values(ability_id, int(entry.get("rank", 1)))
 		var cooldown_max := maxf(0.01, float(values.get("cooldown", 1.0)))
 		_apply_kit_cooldown(nodes, remaining, cooldown_max)
+		# T3.35: multi-charge badge (×N) for charge-pooled abilities.
+		_apply_charge_badge(nodes, ability_id)
 		var armed: bool = int(bound_player.get("_pending_ability_slot")) == slot
 		if remaining <= 0.0 and armed:
 			icon.modulate = Color(1.15, 1.1, 0.85, 1.0)

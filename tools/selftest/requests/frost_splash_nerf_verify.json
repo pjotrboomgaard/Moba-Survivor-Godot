@@ -1,0 +1,45 @@
+{
+  "hero": "pyra",
+  "comment": "Verify FROST_BURST_RADIUS nerf: Pyra auto-attack blast radius should now be 65 (was 150). Spawn 2 grunts at 50px and 100px from impact; only the 50px grunt should be hit by the frost burst.",
+  "events": [
+    {
+      "t": 0.02,
+      "kind": "spawn",
+      "at": [80, 0],
+      "type": "grunt",
+      "hp_mult": 99.0
+    },
+    {
+      "t": 0.02,
+      "kind": "spawn",
+      "at": [140, 0],
+      "type": "grunt",
+      "hp_mult": 99.0
+    },
+    {
+      "t": 0.10,
+      "kind": "aim",
+      "at": [100, 0]
+    },
+    {
+      "t": 0.15,
+      "kind": "primary_hold",
+      "duration": 3.2
+    },
+    {
+      "t": 3.5,
+      "kind": "probe",
+      "label": "after_frost"
+    },
+    {
+      "t": 4.0,
+      "kind": "snap",
+      "label": "frost_splash_result"
+    },
+    {
+      "t": 4.5,
+      "kind": "report"
+    }
+  ],
+  "expected_frost_burst_radius": 65.0
+}

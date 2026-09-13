@@ -1,0 +1,499 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              90.0,
+              0.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              0.0,
+              90.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              -90.0,
+              0.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              0.0,
+              -90.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "tobor",
+      "hp": 130.5,
+      "hp_frac": 1.0,
+      "hp_max": 130.5,
+      "kind": "probe",
+      "label": "ffa_start",
+      "last_sfx": "",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": true,
+          "pos": "(90.0, 0.0)"
+        },
+        "101": {
+          "locked": true,
+          "pos": "(-0.000004, 90.0)"
+        },
+        "102": {
+          "locked": true,
+          "pos": "(-90.0, -0.000008)"
+        },
+        "103": {
+          "locked": true,
+          "pos": "(0.000001, -90.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 8.98333333333328,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 1.03184733333333,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 4,
+        "enabled": true,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              825.0,
+              0.0
+            ],
+            "team": ""
+          },
+          {
+            "alive": true,
+            "class": "bulwark",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 101,
+            "pos": [
+              -17.0,
+              555.0
+            ],
+            "team": "1"
+          },
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 102,
+            "pos": [
+              595.0,
+              -83.0
+            ],
+            "team": "2"
+          },
+          {
+            "alive": true,
+            "class": "cinder",
+            "cpu": true,
+            "kills": 0,
+            "local": false,
+            "peer": 103,
+            "pos": [
+              616.0,
+              -41.0
+            ],
+            "team": "3"
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "tobor",
+      "hp": 130.5,
+      "hp_frac": 1.0,
+      "hp_max": 130.5,
+      "kind": "probe",
+      "label": "ffa_15s",
+      "last_sfx": "sfx_radius",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 868,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(825.0, 0.0)"
+        },
+        "101": {
+          "locked": false,
+          "pos": "(-16.58059, 554.7454)"
+        },
+        "102": {
+          "locked": false,
+          "pos": "(595.4994, -83.41986)"
+        },
+        "103": {
+          "locked": false,
+          "pos": "(615.6048, -40.63647)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 102,
+          "time_left": 119.464238666667
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 102,
+          "time_left": 119.464238666667
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 102,
+          "time_left": 119.464238666667
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 102,
+          "time_left": 119.464238666667
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 102,
+          "time_left": 119.464238666667
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 102,
+          "time_left": 119.464238666667
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 102,
+          "time_left": 119.464238666667
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 102,
+          "time_left": 119.464238666667
+        },
+        {
+          "ability_id": "warden_voodoo_wards",
+          "owner_peer_id": 102,
+          "time_left": 119.464238666667
+        }
+      ],
+      "t": 15.0003316666667,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 2,
+      "wave_name": "Growing Numbers",
+      "xp": 40
+    }
+  ],
+  "elapsed": 16.0365043333333,
+  "enemies_spawned": 0,
+  "hero_position": "(825.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [
+      "never fought: casts=0 gold=6 kills=0 creep_kills=0"
+    ],
+    "ffa": {
+      "all_bots": false,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": false,
+          "kills": 0,
+          "local": true,
+          "peer": 1,
+          "pos": [
+            825.0,
+            0.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 101,
+          "pos": [
+            -17.0,
+            555.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 102,
+          "pos": [
+            702.0,
+            -47.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "cinder",
+          "cpu": true,
+          "kills": 0,
+          "local": false,
+          "peer": 103,
+          "pos": [
+            616.0,
+            -23.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 6,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.16
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.23
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 15.25
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "FAIL_IDLE",
+    "wave": 2,
+    "xp": 40
+  },
+  "shots": []
+}

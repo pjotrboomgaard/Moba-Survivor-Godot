@@ -1,0 +1,11 @@
+{
+  "hero": "tobor",
+  "comment": "T3.35: verify TAB-hold shows the hero stats + upgrades panel. Hold TAB for 3s, screenshot, confirm panel is visible with stats text.",
+  "events": [
+    {"t": 0.5, "kind": "hud_tab", "show": true},
+    {"t": 1.5, "kind": "snap", "label": "tab_held_stats"},
+    {"t": 3.0, "kind": "hud_tab", "show": false},
+    {"t": 4.0, "kind": "snap", "label": "tab_released"},
+    {"t": 5.0, "kind": "report"}
+  ]
+}

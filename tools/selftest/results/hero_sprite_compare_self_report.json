@@ -1,0 +1,10 @@
+{
+  "before": "tools/selftest/results/hero_directional_test.png",
+  "after": "tools/selftest/results/hero_directional_test.png",
+  "out": "tools/selftest/results/hero_sprite_compare_self.png",
+  "changed_pixels": 0,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.0,
+  "bbox": null,
+  "has_change": false
+}

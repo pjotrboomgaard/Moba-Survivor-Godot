@@ -19,12 +19,12 @@
   "scene": "blue_wisp_walk_test",
   "shot": "user://blue_wisp_walk_test.png",
   "texture_sizes": {
-    "arclight": "16x16",
-    "cinder": "16x16",
-    "ember": "16x16",
-    "rime": "16x16",
+    "arclight": "32x32",
+    "cinder": "40x40",
+    "ember": "40x40",
+    "rime": "40x40",
     "tobor": "32x32",
-    "volt": "16x16"
+    "volt": "40x40"
   },
   "verdict": "PASS"
 }

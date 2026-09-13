@@ -271,6 +271,87 @@ ATTACK_RECIPES = {
     ],
 }
 
+# T3.35 item 6: per-hero RMB (secondary) SFX banks. Distinct timbre from the
+# primary `attack_<hero>` bank (a deeper, more "charged" release) so the player
+# can tell LMB vs RMB apart by ear. Mirrors ATTACK_RECIPES key-for-key.
+SECONDARY_RECIPES = {
+    "tobor": [
+        [dict(wave="square", f0=150, f1=60, dur=0.24, amp=0.58, duty=0.30),
+         dict(wave="crackle", f0=700, f1=220, dur=0.20, amp=0.40),
+         dict(wave="whoosh", f0=500, f1=160, dur=0.22, amp=0.30)],
+    ],
+    "frostbinder": [
+        [dict(wave="chime", f0=1400, f1=800, dur=0.22, amp=0.50, partials=[1.0, 2.0]),
+         dict(wave="crackle", f0=2200, f1=1100, dur=0.18, amp=0.34)],
+    ],
+    "arclight": [
+        [dict(wave="zap_noise", f0=3600, f1=700, dur=0.22, amp=0.60),
+         dict(wave="saw", f0=1800, f1=420, dur=0.20, amp=0.36)],
+    ],
+    "bulwark": [
+        [dict(wave="square", f0=90, f1=38, dur=0.28, amp=0.64, duty=0.42),
+         dict(wave="saw", f0=70, f1=32, dur=0.24, amp=0.42)],
+    ],
+    "warden": [
+        [dict(wave="chime", f0=520, f1=300, dur=0.26, amp=0.52, partials=[1.0, 1.5, 2.0]),
+         dict(wave="square", f0=110, f1=55, dur=0.20, amp=0.34, duty=0.25)],
+    ],
+    "cinder": [
+        [dict(wave="whoosh", f0=350, f1=1400, dur=0.24, amp=0.56),
+         dict(wave="crackle", f0=900, f1=300, dur=0.20, amp=0.42)],
+    ],
+    "pyra": [
+        [dict(wave="saw", f0=300, f1=1300, dur=0.22, amp=0.54),
+         dict(wave="crackle", f0=1100, f1=500, dur=0.16, amp=0.38)],
+    ],
+    "slag": [
+        [dict(wave="saw", f0=80, f1=40, dur=0.28, amp=0.60),
+         dict(wave="crackle", f0=220, f1=90, dur=0.22, amp=0.44)],
+    ],
+    "ember": [
+        [dict(wave="crackle", f0=1600, f1=600, dur=0.22, amp=0.52),
+         dict(wave="chime", f0=800, f1=500, dur=0.18, amp=0.38, partials=[1.0, 2.0])],
+    ],
+    "thorn": [
+        [dict(wave="whoosh", f0=900, f1=200, dur=0.22, amp=0.55),
+         dict(wave="crackle", f0=1400, f1=350, dur=0.16, amp=0.36)],
+    ],
+    "willow": [
+        [dict(wave="chime", f0=1300, f1=750, dur=0.22, amp=0.52, partials=[1.0, 1.5, 2.6])],
+    ],
+    "stump": [
+        [dict(wave="square", f0=180, f1=70, dur=0.22, amp=0.55, duty=0.26),
+         dict(wave="whoosh", f0=240, f1=60, dur=0.20, amp=0.42)],
+    ],
+    "sage": [
+        [dict(wave="chime", f0=1500, f1=1100, dur=0.24, amp=0.52, partials=[1.0, 2.0, 3.0])],
+    ],
+    "volt": [
+        [dict(wave="zap_noise", f0=5200, f1=900, dur=0.18, amp=0.62),
+         dict(wave="saw", f0=2800, f1=560, dur=0.16, amp=0.36)],
+    ],
+    "nebula": [
+        [dict(wave="chime", f0=560, f1=360, dur=0.24, amp=0.50, partials=[1.0, 1.26, 2.0])],
+    ],
+    "astral": [
+        [dict(wave="chime", f0=820, f1=480, dur=0.24, amp=0.52, partials=[1.0, 1.5, 2.5])],
+    ],
+    "rime": [
+        [dict(wave="chime", f0=1700, f1=900, dur=0.22, amp=0.52, partials=[1.0, 2.0]),
+         dict(wave="crackle", f0=3000, f1=1500, dur=0.16, amp=0.34)],
+    ],
+}
+
+# T3.35 item 7: boss-form attack SFX. One shared deep/impactful stinger for all
+# three boss attacks (slam / cross / volley) — a heavy, resonant impact that fits
+# the pixel-art aesthetic. Written as `boss_attack.wav` in the themes dir.
+BOSS_ATTACK_RECIPE = [
+    [dict(wave="square", f0=70, f1=32, dur=0.55, amp=0.72, duty=0.38),
+     dict(wave="saw", f0=50, f1=28, dur=0.50, amp=0.48),
+     dict(wave="crackle", f0=400, f1=120, dur=0.42, amp=0.34),
+     dict(wave="sine", f0=160, f1=70, dur=0.40, amp=0.30)],
+]
+
 # 5-4-3-2-1 fight countdown stingers. The tick is a short, dry, analog "tock"
 # (like a pixel-art clock hand clicking over a notch); the fight stinger is a
 # low, rising war-drum hit that resolves into a bright chime so the player
@@ -475,6 +556,18 @@ def main():
             write_wav(path, synthesize(take, rng))
             written += 1
             print("wrote %s" % path)
+    # T3.35 item 6: per-hero RMB secondary SFX banks.
+    for hero, takes in SECONDARY_RECIPES.items():
+        for i, take in enumerate(takes):
+            suffix = "" if i == 0 else "_%d" % (i + 1)
+            path = os.path.join(OUT_DIR, "secondary_" + hero + suffix + ".wav")
+            write_wav(path, synthesize(take, rng))
+            written += 1
+            print("wrote %s" % path)
+    # T3.35 item 7: boss-form attack SFX (slam/cross/volley shared stinger).
+    write_wav(os.path.join(OUT_DIR, "boss_attack.wav"), synthesize(BOSS_ATTACK_RECIPE[0], rng))
+    written += 1
+    print("wrote assets/audio/themes/boss_attack.wav")
     # Countdown SFX live at the top level of the themes dir (not per-hero).
     for name, takes in COUNTDOWN_RECIPES.items():
         for i, take in enumerate(takes):

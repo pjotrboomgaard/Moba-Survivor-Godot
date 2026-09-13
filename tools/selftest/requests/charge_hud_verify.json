@@ -1,0 +1,10 @@
+{
+  "hero": "tobor",
+  "comment": "T3.35: verify multi-charge HUD badge. Tobor starts with full turret+mine charges. Probe charge_probe to confirm HUD shows ×3 badges.",
+  "events": [
+    {"t": 0.2, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.5, "kind": "charge_probe", "label": "initial_charges"},
+    {"t": 1.0, "kind": "snap", "label": "charge_hud_initial"},
+    {"t": 1.5, "kind": "report"}
+  ]
+}

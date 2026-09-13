@@ -76,6 +76,11 @@ var _quest_last_count := 0
 ## completes quests instead of ignoring them while enemies are nearby.
 var _quest_focus_until := 0.0
 var _quest_last_switch_t := 0.0
+var _freeze_offers := false
+## Public flag read by main.gd's _selftest_freeze_offers().
+var freeze_offers := false
+
+
 const QUEST_FOCUS_WINDOW := 14.0   # seconds to spend on a quest when it's time
 const QUEST_CHECK_INTERVAL := 15.0 # seconds between forced quest-priority switches
 
@@ -331,17 +336,20 @@ func _count_nodes_by_type(node: Node, by_type: Dictionary) -> void:
 
 
 func _process(delta: float) -> void:
+	_elapsed += delta
 	if get_tree().paused:
 		_resolve_paused_offers()
-		return
+		if not _freeze_offers:
+			return
+		# Frozen: un-pause so the normal event loop below can capture screenshots.
+		# The game will re-pause on the next level-up if another offer appears.
+		get_tree().paused = false
 	# Track frames over a 1s window for a meaningful FPS sample.
 	_frame_count += 1
 	if _elapsed - _fps_window_start >= 1.0:
 		_last_fps = float(_frame_count) / maxf(0.001, _elapsed - _fps_window_start)
 		_frame_count = 0
 		_fps_window_start = _elapsed
-	_elapsed += delta
-	if _elapsed - _debug_last_tick >= 5.0:
 		print("[std] tick t=%.1f wave=%d beaten=%d hp=%.2f xp=%d/%d lv=%d" % [
 			_elapsed,
 			int(_host_main.get("current_wave") if _host_main else 0),
@@ -377,7 +385,14 @@ func _process(delta: float) -> void:
 				if _player != null:
 					_player.aim_world_position = _event_vec(event, "at", _player.global_position + Vector2.RIGHT * 120.0)
 			"cast":
-				await _inject_input(int(event.get("slot", 0)))
+				var cast_slot := int(event.get("slot", 0))
+				var cast_ability := _ability_id_at(cast_slot)
+				if _needs_confirm(cast_ability):
+					await _inject_input(cast_slot)
+					await get_tree().create_timer(0.15).timeout
+					await _inject_input(cast_slot)
+				else:
+					await _inject_input(cast_slot)
 			"hero":
 				# Swap hero mid-run so one request can probe several heroes' banks.
 				# Waits several frames so apply_class repopulates known_abilities +
@@ -396,6 +411,8 @@ func _process(delta: float) -> void:
 				await _screenshot(str(event.get("label", "snap")))
 			"probe":
 				_record_probe(str(event.get("label", "probe")))
+			"charge_probe":
+				_record_charge_probe(str(event.get("label", "charge")))
 			"minigame":
 				_record_minigame_probe(str(event.get("label", "minigame")), int(event.get("index", -1)))
 			"recruit_probe":
@@ -539,6 +556,20 @@ func _process(delta: float) -> void:
 				_set_hud_tab(bool(event.get("show", true)))
 			"skip_wave":
 				_dev_skip_wave()
+			"freeze_offers":
+				freeze_offers = bool(event.get("on", true))
+				_freeze_offers = freeze_offers
+			"force_upgrade_panel":
+				# Directly show the upgrade panel with the given IDs for screenshot purposes.
+				var ids: Array = event.get("ids", [])
+				var id_strs: Array[String] = []
+				for i in ids.size():
+					id_strs.append(str(ids[i]))
+				if _host_main != null and _player != null:
+					var hud_node: Node = _host_main.get("hud")
+					if hud_node != null and hud_node.has_method("show_upgrade_ids"):
+						hud_node.show_upgrade_ids(_player, id_strs, false)
+				_active_effects.append({"kind": "force_upgrade_panel", "ids": id_strs, "t": _elapsed})
 			"boss_transition_probe":
 				_record_boss_transition_probe(str(event.get("label", "boss_transition")))
 			"boss_transition_kill":
@@ -720,8 +751,24 @@ func _record_probe(label: String) -> void:
 		"pulse_interval": float(_player.pulse_interval),
 		"pulse_radius": float(_player.pulse_radius),
 		"pulse_last_sfx": str(_player.pulse_last_sfx),
+		"blast_radius": float(_player.blast_radius),
+		"frost_burst_radius": float(_player.frost_burst_radius),
+		"attack_range": float(_player.attack_range),
+		"weapon_damage": float(_player.weapon_damage),
 		"last_sfx": str(AudioService.last_play.get("sound_id", "")) if AudioService.last_play != null else "",
 	})
+
+
+## T3.35: report the live multi-charge counters for the local hero's charge-pooled
+## abilities (Tobor turret/mines, Bulwark fissure, Warden ward). Used to verify the
+## HUD "xN" badge shows the correct count as charges are consumed.
+func _record_charge_probe(label: String) -> void:
+	if _player == null:
+		return
+	var charges := {}
+	for prop in ["_mine_charge_left", "_turret_charge_left", "_fissure_charge_left", "_ward_charge_left"]:
+		charges[prop.trim_prefix("_")] = int(_player.get(prop))
+	_active_effects.append({"kind": "charge_probe", "label": label, "t": _elapsed, "charges": charges})
 
 
 ## Read the host's pending offer lists (stat + ability) for the local hero so a test
@@ -996,7 +1043,8 @@ func _summons_owner_probe() -> Array:
 			continue
 		var owner_id := int(node.get("owner_peer_id")) if node.get("owner_peer_id") != null else -1
 		var ability := str(node.get("ability_id"))
-		out.append({"owner_peer_id": owner_id, "ability_id": ability})
+		var time_left := float(node.get("time_left")) if node.get("time_left") != null else -1.0
+		out.append({"owner_peer_id": owner_id, "ability_id": ability, "time_left": time_left})
 	return out
 
 
@@ -1514,20 +1562,30 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 		return
 	# Boss-form attacks fire through SoundDirector.play("boss_attack") rather than
 	# play_ability, so last_play_ability still holds whatever ability fired last —
-	# same situation as primary attacks. Detect from either ability_id ("boss_form")
-	# or a label starting with "boss_" so the asserts relax to "the expected
-	# boss_attack sound fired".
+	# same situation as primary/secondary attacks. Detect from either ability_id
+	# ("boss_form") or a label starting with "boss_".
 	var is_boss_attack_probe := ability_id == "boss_form" or label.begins_with("boss_")
-	var prefix := ability_id.split("_")[0]
 	# Primary-attack SFX fire through SoundDirector.play("attack_<hero>") rather than
-	# play_ability, so last_play_ability still holds whatever ability fired last. Detect
-	# a primary-attack probe from either the ability_id ("primary_attack_<hero>") OR the
-	# label ("primary_<hero>") so we relax the ability/bank asserts to just "the expected
-	# attack_<hero> sound fired".
-	var is_primary_attack_probe := ability_id.begins_with("primary_attack_") or label.begins_with("primary_")
-	var bank := "cast_%s" % prefix if not is_primary_attack_probe else "attack_%s" % prefix
+	# play_ability. Detect from ability_id ("primary_attack_<hero>") or label prefix.
+	var is_primary_attack_probe := ability_id.begins_with("primary_attack_") or label.begins_with("lmb_")
+	# Secondary-attack SFX fire through SoundDirector.play("attack_secondary_<hero>")
+	# rather than play_ability. Detect from ability_id ("secondary_attack_<hero>") or
+	# label prefix.
+	var is_secondary_attack_probe := ability_id.begins_with("secondary_attack_") or label.begins_with("rmb_")
+	# Derive the hero prefix from the last component of ability_id (e.g. "primary_attack_tobor" -> "tobor").
+	var hero_parts := ability_id.split("_")
+	var hero := hero_parts[hero_parts.size() - 1] if hero_parts.size() >= 2 else ""
+	# Determine the expected sound_id bank:
+	var bank := ""
 	if is_boss_attack_probe:
 		bank = "boss_attack"
+	elif is_primary_attack_probe:
+		bank = "attack_%s" % hero
+	elif is_secondary_attack_probe:
+		bank = "attack_secondary_%s" % hero
+	else:
+		# Regular ability cast: the cast_<hero> bank.
+		bank = "cast_%s" % hero
 	entry["expected_bank"] = bank
 	var last_ability: String = AudioService.last_play_ability
 	# Use the ability-specific record (last_ability_play) when available so that
@@ -1542,26 +1600,23 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 	entry["last_play_sound_id"] = sound_id
 	entry["stream_path"] = stream.resource_path if stream != null else ""
 	entry["player_non_null"] = player != null
-	# For primary/secondary/boss attacks the bank is derived purely from ability_id/hero
-	# prefix, not from last_play_ability (which may hold something else), so assert
-	# strictly against the raw last_play_sound_id / AudioService.last_play.
-	if is_primary_attack_probe or is_boss_attack_probe:
+	# For primary/secondary/boss attacks, last_play_ability is irrelevant (they fire via
+	# SoundDirector.play, not play_ability), so we assert strictly on sound_id == bank
+	# AND the stream path containing the expected bank name.
+	var is_attack_probe := is_primary_attack_probe or is_secondary_attack_probe or is_boss_attack_probe
+	if is_attack_probe:
+		entry["assert_ability_match"] = (sound_id == bank)
 		entry["assert_bank_match"] = (sound_id == bank)
-		entry["assert_stream_bank"] = str(stream.resource_path).contains(bank) if stream != null else false
+		entry["assert_stream_bank"] = (str(stream.resource_path).contains(bank)) if stream != null else false
 	else:
 		entry["assert_ability_match"] = (last_ability == ability_id)
 		entry["assert_bank_match"] = (sound_id == bank)
+		entry["assert_stream_bank"] = (str(stream.resource_path).contains(bank)) if stream != null else false
 	entry["player_was_playing"] = player.playing if player != null else false
-	# For primary-attack probes, match the sound_id to attack_<hero> (not the ability name).
-	# For boss-attack probes, match the sound_id to "boss_attack" directly.
-	entry["assert_ability_match"] = (sound_id == bank) if is_primary_attack_probe else ((sound_id == bank) if is_boss_attack_probe else (last_ability == ability_id))
-	entry["assert_bank_match"] = sound_id == bank
-	# Theme takes live in assets/audio/themes/<hero>.wav, not named cast_<hero> — match
-	# by hero prefix so the assert covers both synthesized themes and legacy .ogg takes.
-	# Primary-attack streams are themes/attack_<hero>[_N].wav, so match the attack_<hero>
-	# prefix instead of the bare hero prefix. Boss attacks use themes/boss_attack.wav.
-	var stream_prefix := "themes/%s" % ("attack_%s" % prefix if is_primary_attack_probe else "boss_attack" if is_boss_attack_probe else prefix)
-	entry["assert_stream_from_bank"] = stream != null and stream_prefix in stream.resource_path
+	# Theme takes live in assets/audio/themes/<hero>.wav (or attack_<hero>.wav,
+	# attack_secondary_<hero>.wav, boss_attack.wav for attacks) — check the stream
+	# path contains the expected bank substring.
+	entry["assert_stream_from_bank"] = (str(stream.resource_path).contains(bank)) if stream != null else false
 	entry["assert_player_fired"] = player != null
 	entry["ok"] = (entry["assert_ability_match"] and entry["assert_bank_match"]
 		and entry["assert_stream_from_bank"] and entry["assert_player_fired"])
@@ -2374,6 +2429,8 @@ func _pick_upgrade_by_build(offered: Array) -> String:
 
 
 func _resolve_paused_offers() -> void:
+	if _freeze_offers:
+		return
 	if _host_main == null or _player == null:
 		get_tree().paused = false
 		return

@@ -1,0 +1,22 @@
+{
+  "hero": "warden",
+  "comment": "T3.45: Verify Warden's LMB auto-attack deals damage to enemies (aim assist restored).",
+  "events": [
+    {"t": 0.3, "kind": "spawn", "at": [100, 0], "type": "grunt"},
+    {"t": 0.3, "kind": "spawn", "at": [100, 20], "type": "grunt"},
+    {"t": 0.3, "kind": "spawn", "at": [100, -20], "type": "grunt"},
+
+    {"t": 0.5, "kind": "hero", "id": "warden"},
+    {"t": 0.6, "kind": "aim", "at": [100, 5]},
+    {"t": 0.7, "kind": "primary_hold", "duration": 0.6},
+    {"t": 1.5, "kind": "probe", "label": "warden_lmb_probe"},
+
+    {"t": 2.0, "kind": "hero", "id": "arclight"},
+    {"t": 2.1, "kind": "aim", "at": [100, 5]},
+    {"t": 2.2, "kind": "primary_hold", "duration": 0.6},
+    {"t": 3.0, "kind": "probe", "label": "arclight_lmb_probe"},
+
+    {"t": 3.5, "kind": "snap", "label": "warden_arclight_done"},
+    {"t": 4.0, "kind": "report"}
+  ]
+}

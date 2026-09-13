@@ -16,6 +16,7 @@
     {"kind": "bossform_probe", "label": "after_cross", "t": 8.5},
     {"kind": "bossform_attack", "which": "volley", "t": 9.5},
     {"kind": "bossform_probe", "label": "after_volley", "t": 10.0},
+    {"kind": "sound_probe", "label": "boss_sfx_after_volley", "ability_id": "boss_form", "t": 10.2},
     {"kind": "snap", "label": "boss_form_combat", "t": 10.5},
     {"kind": "spawn", "label": "grunt1", "type": "grunt", "hp_mult": 0.1, "at": [100, 0], "t": 11.0},
     {"kind": "spawn", "label": "grunt2", "type": "grunt", "hp_mult": 0.1, "at": [110, 20], "t": 11.1},

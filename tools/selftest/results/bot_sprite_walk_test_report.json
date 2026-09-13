@@ -1,0 +1,42 @@
+{
+  "fallback_heroes": [],
+  "heroes": [
+    "arclight",
+    "bulwark",
+    "warden",
+    "tobor"
+  ],
+  "scene": "bot_sprite_walk_test",
+  "shot": "user://bot_sprite_walk_test.png",
+  "texture_report": {
+    "arclight": {
+      "facing": "right",
+      "has_sprite": true,
+      "path": "res://assets/sprites/arclight_right.png",
+      "sig": "32_32_0000175d",
+      "size": "32x32"
+    },
+    "bulwark": {
+      "facing": "right",
+      "has_sprite": true,
+      "path": "res://assets/sprites/bulwark_right.png",
+      "sig": "32_32_00001b5f",
+      "size": "32x32"
+    },
+    "tobor": {
+      "facing": "right",
+      "has_sprite": true,
+      "path": "none",
+      "sig": "32_32_0000186b",
+      "size": "32x32"
+    },
+    "warden": {
+      "facing": "right",
+      "has_sprite": true,
+      "path": "res://assets/sprites/warden_right.png",
+      "sig": "32_32_000017ba",
+      "size": "32x32"
+    }
+  },
+  "verdict": "PASS"
+}

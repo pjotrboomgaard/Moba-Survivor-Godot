@@ -1,0 +1,77 @@
+{
+  "effects": [
+    {
+      "command": "toggle_invulnerable",
+      "kind": "dev_command",
+      "t": 0.272152333333334
+    },
+    {
+      "enemies_alive": 18,
+      "kills_after": 6,
+      "kills_before": 0,
+      "kind": "primary_probe",
+      "label": "primary_hold",
+      "t": 2.429094
+    },
+    {
+      "enemies_alive": 18,
+      "kills_after": 11,
+      "kills_before": 6,
+      "kind": "primary_probe",
+      "label": "primary_hold",
+      "t": 7.911157
+    }
+  ],
+  "elapsed": 11.006082,
+  "enemies_spawned": 11,
+  "hero_position": "(57.97488, -4.00362)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 11,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 66,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 2,
+    "level_upgrades": {
+      "2": [
+        "aftershock"
+      ]
+    },
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "aftershock"
+    ],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 30
+  },
+  "shots": [
+    {
+      "label": "after_first_waves",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11825/after_first_waves_5.027_11825.png",
+      "t": 5.02693566666666
+    },
+    {
+      "label": "after_second_waves",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_17620/after_second_waves_10.006_17620.png",
+      "t": 10.006431
+    }
+  ]
+}

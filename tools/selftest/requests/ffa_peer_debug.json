@@ -1,0 +1,11 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "ffa_all_bots": false,
+  "comment": "T3.35: debug - check actual owner_peer_id of each FFA player and their summons. The Warden (peer 103) should have owner_peer_id=103, not 1.",
+  "events": [
+    {"t": 1.0, "kind": "probe", "label": "ffa_start"},
+    {"t": 15.0, "kind": "probe", "label": "ffa_15s"},
+    {"t": 16.0, "kind": "report"}
+  ]
+}

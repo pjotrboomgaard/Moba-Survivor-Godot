@@ -1,0 +1,13 @@
+{
+  "active_fx_events": 0,
+  "elapsed": 7.61882933333348,
+  "hero": "warden",
+  "scene": "combat_vfx_test",
+  "screenshots": [
+    "user://combat_vfx_warden_lmb_blast.png",
+    "user://combat_vfx_warden_rmb_charging.png",
+    "user://combat_vfx_warden_rmb_release.png",
+    "user://combat_vfx_warden_q_cast.png"
+  ],
+  "verdict": "FAIL_NO_VFX"
+}

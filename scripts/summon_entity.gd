@@ -60,12 +60,16 @@ var _turret_sfx_cooldown: float = 0.0
 @onready var _shadow: Polygon2D = $Shadow
 
 
-## T3.35 item 2: persistent anchored summons (turrets/wards — no trigger_radius) get a
-## much longer floor on their lifetime so a placed Steam Turret / Toxin Ward / Sapling
+## T3.35 item 2 / T3.46: persistent anchored summons (turrets/wards — no trigger_radius)
+## get a longer floor on their lifetime so a placed Steam Turret / Toxin Ward / Sapling
 ## Turret etc. doesn't quietly vanish mid-fight after the old 14–40s window. Mines and
 ## other contact-detonation traps keep their natural short lifecycle (they're meant to
 ## go off, not persist).
-const PERSISTENT_TURRET_MIN_LIFETIME := 120.0
+## T3.46: reduced from 120s → 45s so that in solo mode the summons don't persist so
+## long that they trivialise waves (the 120s floor made up to 6 turrets last 2 min
+## each, which the user reported as "hidden mines killing creeps"). 45s is still
+## 2-3× the natural 15-20s durations, enough to avoid mid-fight vanish.
+const PERSISTENT_TURRET_MIN_LIFETIME := 45.0
 
 
 func setup(p_ability_id: String, p_owner_peer_id: int, p_power: float, p_lifetime: float, p_interval: float, p_tint: Color) -> void:
