@@ -15,7 +15,7 @@ func _ready() -> void:
 	_test_hero_secondaries()
 	_test_attack_upgrade_pools()
 	_test_warden_aura()
-	_test_frostbinder_slow()
+	_test_rime_slow()
 	_test_taunt_priority()
 	_test_class_replication()
 	_test_enemy_types()
@@ -206,13 +206,13 @@ func _test_attack_upgrade_pools() -> void:
 	var arclight: Array = PlayerClass.by_id("arclight").upgrades
 	var bulwark: Array = PlayerClass.by_id("bulwark").upgrades
 	var warden: Array = PlayerClass.by_id("warden").upgrades
-	var frostbinder: Array = PlayerClass.by_id("frostbinder").upgrades
+	var rime: Array = PlayerClass.by_id("rime").upgrades
 	_check("blast" in tobor and "aftershock" in tobor, "Tobor upgrades should grow the blast")
 	_check(not ("chain" in tobor), "Tobor should not share Arclight's lightning chain upgrade")
 	_check("chain" in arclight and "volt" in arclight, "Arclight upgrades should grow the lightning chain")
 	_check("reach" in bulwark and "sweep" in bulwark, "Bulwark upgrades should grow the slam arc")
 	_check("flow" in warden and "lash" in warden, "Warden upgrades should grow the mending lash")
-	_check("depth" in frostbinder and "shatter" in frostbinder and "rime" in frostbinder, "Frostbinder upgrades should grow the frost burst")
+	_check("depth" in rime and "shatter" in rime and "rime" in rime, "Rime upgrades should grow the frost burst")
 	var tank := _make_player("bulwark")
 	var before_arc := tank.cone_half_angle_degrees
 	tank.apply_upgrade("sweep")
@@ -238,8 +238,8 @@ func _test_warden_aura() -> void:
 	_cleanup([warden, ally, far_ally])
 
 
-func _test_frostbinder_slow() -> void:
-	var player := _make_player("frostbinder")
+func _test_rime_slow() -> void:
+	var player := _make_player("rime")
 	var target := _make_enemy(Vector2(200.0, 0.0))
 	_aim(player, target)
 	player._perform_attack()
@@ -260,8 +260,8 @@ func _test_taunt_priority() -> void:
 
 func _test_class_replication() -> void:
 	var proxy := _make_player("arclight")
-	proxy.apply_network_state({"class_id": "frostbinder", "position": Vector2.ZERO})
-	_check(proxy.class_id == "frostbinder", "Player did not adopt the replicated class id")
+	proxy.apply_network_state({"class_id": "rime", "position": Vector2.ZERO})
+	_check(proxy.class_id == "rime", "Player did not adopt the replicated class id")
 	_check(is_equal_approx(proxy.health.max_health, 130.0), "Replicated class did not apply its stats")
 
 	var snapshot := proxy.snapshot()
@@ -394,7 +394,7 @@ func _test_damage_counters() -> void:
 	_check(impact_vs_armour > lightning_vs_armour, "Impact must beat lightning against armour")
 	_check(impact_vs_flier < COUNTER_TEST_HIT, "A ground slam should barely touch fliers")
 
-	var frost_vs_stalker := _damage_dealt("frostbinder", "stalker")
+	var frost_vs_stalker := _damage_dealt("rime", "stalker")
 	var impact_vs_stalker := _damage_dealt("bulwark", "stalker")
 	_check(frost_vs_stalker > impact_vs_stalker, "Frost must be the answer to stalkers")
 
@@ -1167,9 +1167,9 @@ func _test_tobor_chant_matching() -> void:
 	_check(boarded.get_width() == bare.get_width(), "Gear overlays must keep the same canvas")
 	_check(SpriteLibrary.tobor_menu_backdrop() != null, "Tobor menu backdrop must render")
 	_check(ResourceLoader.exists("res://assets/ui/tobor_world_bg.png"), "Tobor world background image is missing")
-	_check(PlayerClass.by_id("arclight").name == "Diord", "Arclight's display name should be Diord (droid backwards)")
-	_check(PlayerClass.by_id("bulwark").name == "Romra", "Bulwark's display name should be Romra (armor backwards)")
-	_check(PlayerClass.by_id("warden").name == "Enord", "Warden's display name should be Enord (drone backwards)")
+	_check(PlayerClass.by_id("arclight").name == "Joule", "Arclight's display name should be Joule")
+	_check(PlayerClass.by_id("bulwark").name == "Tremor", "Bulwark's display name should be Tremor")
+	_check(PlayerClass.by_id("warden").name == "Totem", "Warden's display name should be Totem")
 	for class_id in ["tobor", "arclight", "bulwark", "warden"]:
 		_check(SpriteLibrary.menu_backdrop_for(class_id) != null, "Hero %s has no menu backdrop" % class_id)
 
@@ -1218,7 +1218,8 @@ func _test_ability_learn_and_upgrade() -> void:
 	player.learn_ability("arclight_static_bolt")
 	_check(player.known_abilities[0].rank == 1, "Learning an already-known ability again must be a no-op, not a duplicate")
 
-	for _step in PlayerClass.MAX_ABILITY_RANK:
+	# Upgrade loop: start at rank 1, need MAX_ABILITY_RANK - 1 upgrades to reach the cap.
+	for _step in PlayerClass.MAX_ABILITY_RANK - 1:
 		player.upgrade_ability("arclight_static_bolt")
 	_check(player.known_abilities[0].rank == PlayerClass.MAX_ABILITY_RANK, "Static Bolt should cap out at MAX_ABILITY_RANK, got %d" % int(player.known_abilities[0].rank))
 	_cleanup([player])
@@ -1405,10 +1406,10 @@ func _test_boss_arena_hazards() -> void:
 
 
 func _test_hero_shop_identity() -> void:
-	_check(PlayerClass.playable_ids().size() == 4, "Playable roster must stay the four lobby heroes")
-	_check("tobor" in PlayerClass.playable_ids() and "warden" in PlayerClass.playable_ids(), "Playable roster is missing a lobby hero")
+	_check(PlayerClass.playable_ids().size() == 16, "Playable roster must be the sixteen heroes")
+	_check("tobor" in PlayerClass.playable_ids() and "rime" in PlayerClass.playable_ids(), "Playable roster is missing a hero")
 	var cpu_ids := PlayerClass.cpu_ally_ids("tobor")
-	_check(cpu_ids.size() == 3 and "tobor" not in cpu_ids, "CPU allies should fill the other three roles")
+	_check(cpu_ids.size() == 15 and "tobor" not in cpu_ids, "CPU allies should fill the other fifteen roles")
 	_check("hoverboard" not in _shop_ids_for("warden"), "Enord must not see a skateboard")
 	_check("romp" not in _shop_ids_for("arclight"), "Diord must not see a jetpack")
 	_check("sjaal" not in _shop_ids_for("bulwark"), "Romra must not see wings")

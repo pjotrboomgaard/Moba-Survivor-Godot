@@ -3,7 +3,7 @@
     {
       "command": "mission_warp",
       "kind": "dev_command",
-      "t": 1.50171
+      "t": 1.54724533333333
     },
     {
       "abilities": [
@@ -94,7 +94,7 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 2.00833333333333,
+      "t": 2.03333333333333,
       "teleporters": [],
       "transition": {
         "biome_id": 1,
@@ -108,9 +108,9 @@
         "center": "(0.0, 0.0)",
         "ring_live": 0,
         "source": "mission_warp",
-        "t": 5045,
+        "t": 7847,
         "world_transition_active": true,
-        "world_transition_progress": 0.050130307674408
+        "world_transition_progress": 0.0461079217493534
       },
       "wave": 1,
       "wave_name": "First Contact",
@@ -205,7 +205,7 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 3.00224733333333,
+      "t": 3.11666666666667,
       "teleporters": [],
       "transition": {
         "biome_id": 1,
@@ -219,9 +219,9 @@
         "center": "(0.0, 0.0)",
         "ring_live": 0,
         "source": "mission_warp",
-        "t": 5045,
+        "t": 7847,
         "world_transition_active": true,
-        "world_transition_progress": 0.439768016338348
+        "world_transition_progress": 0.460496634244919
       },
       "wave": 1,
       "wave_name": "First Contact",
@@ -230,7 +230,7 @@
     {
       "command": "biome_auto",
       "kind": "dev_command",
-      "t": 7.50027933333348
+      "t": 7.564506
     },
     {
       "abilities": [
@@ -295,7 +295,7 @@
       "last_sfx": "explosion",
       "last_tapped": -1,
       "level": 1,
-      "obstacle_count": 93,
+      "obstacle_count": 856,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -321,7 +321,7 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 8.00577600000016,
+      "t": 8.08333333333333,
       "teleporters": [],
       "transition": {
         "biome_id": 1,
@@ -335,7 +335,7 @@
         "center": "(0.0, 0.0)",
         "ring_live": 0,
         "source": "mission_warp",
-        "t": 5045,
+        "t": 7847,
         "world_transition_active": false,
         "world_transition_progress": 1.0
       },
@@ -344,7 +344,7 @@
       "xp": 0
     }
   ],
-  "elapsed": 9.00554100000012,
+  "elapsed": 9.04473666666666,
   "enemies_spawned": 0,
   "hero_position": "(72.0, 0.0)",
   "player_class": "arclight",
@@ -381,23 +381,23 @@
   "shots": [
     {
       "label": "pre_transition",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3999/pre_transition_1.002_3999.png",
-      "t": 1.00167333333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6438/pre_transition_1.000_6438.png",
+      "t": 1.00022048148148
     },
     {
       "label": "transition_mid_sweep",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5741/transition_mid_sweep_2.302_5741.png",
-      "t": 2.30234033333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8850/transition_mid_sweep_2.374_8850.png",
+      "t": 2.373727
     },
     {
       "label": "transition_reveal",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7941/transition_reveal_4.502_7941.png",
-      "t": 4.50199900000002
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11228/transition_reveal_4.581_11228.png",
+      "t": 4.58067766666667
     },
     {
       "label": "post_transition",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11957/post_transition_8.506_11957.png",
-      "t": 8.50577600000013
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_15962/post_transition_8.633_15962.png",
+      "t": 8.63333333333333
     }
   ]
 }

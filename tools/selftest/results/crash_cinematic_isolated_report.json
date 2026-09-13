@@ -1,34 +1,40 @@
 {
   "crater_revealed": true,
+  "grass_rendered_zoomed_out": true,
+  "note": "Zoomed-out full-map frames must show scattered grass/flower ground cover from t=0 (T3.31).",
   "scene": "crash_cinematic_test",
   "shots": [
     {
       "label": "empty_zoomed_out",
-      "path": "user://crash_cinematic_run_1789172780/empty_zoomed_out_0.40.png"
+      "path": "user://crash_cinematic_run_1789249744/empty_zoomed_out_0.40.png"
+    },
+    {
+      "label": "grass_zoomed_out",
+      "path": "user://crash_cinematic_run_1789249744/grass_zoomed_out_0.90.png"
     },
     {
       "label": "ship_far",
-      "path": "user://crash_cinematic_run_1789172780/ship_far_1.20.png"
+      "path": "user://crash_cinematic_run_1789249744/ship_far_1.20.png"
     },
     {
       "label": "ship_midflight",
-      "path": "user://crash_cinematic_run_1789172780/ship_midflight_1.70.png"
+      "path": "user://crash_cinematic_run_1789249744/ship_midflight_1.70.png"
     },
     {
       "label": "explosion_peak",
-      "path": "user://crash_cinematic_run_1789172780/explosion_peak_2.35.png"
+      "path": "user://crash_cinematic_run_1789249744/explosion_peak_2.35.png"
     },
     {
       "label": "explosion_expand",
-      "path": "user://crash_cinematic_run_1789172780/explosion_expand_2.80.png"
+      "path": "user://crash_cinematic_run_1789249744/explosion_expand_2.80.png"
     },
     {
       "label": "crater_revealed",
-      "path": "user://crash_cinematic_run_1789172780/crater_revealed_3.60.png"
+      "path": "user://crash_cinematic_run_1789249744/crater_revealed_3.60.png"
     },
     {
       "label": "zoomed_in_crater",
-      "path": "user://crash_cinematic_run_1789172780/zoomed_in_crater_4.60.png"
+      "path": "user://crash_cinematic_run_1789249744/zoomed_in_crater_4.60.png"
     }
   ],
   "verdict": "PASS"

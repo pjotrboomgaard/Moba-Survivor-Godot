@@ -1,0 +1,8 @@
+{
+  "scene": "wolf_compare",
+  "description": "Isolated side-by-side comparison of the hand-drawn wolf (sprite_forge) vs AI pipeline wolf candidates, with existing first-wave enemies as style reference.",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "wolf_compare.png",
+  "notes": "Verify visually: row 1 shows 5 wolf candidates (hand-drawn first, then 4 AI versions), row 2 shows grunt/swarmling/spitter/brute for style comparison. The user picks which wolf to keep. All should be clean, readable pixel art at game scale."
+}

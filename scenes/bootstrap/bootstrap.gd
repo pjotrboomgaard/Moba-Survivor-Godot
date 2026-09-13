@@ -1248,7 +1248,10 @@ func _refresh_loadout_panel() -> void:
 			lmb_slot_button.add_child(t)
 			lmb_tag = t
 		lmb_tag.text = "LMB"
-		lmb_slot_button.tooltip_text = "%s: %s" % [weapon_name, _lmb_tooltip(hero_id)]
+		# No native tooltip: hover is handled by the ability panel (name + description
+		# + live preview in the panel body). A gray native tooltip at the cursor is a
+		# visual regression the user explicitly asked to remove.
+		lmb_slot_button.tooltip_text = ""
 	# RMB button: secondary ability icon. Every hero has a right-click secondary
 	# (a `secondary_kind` like "repulse", not an entry in the ABILITIES table), so this
 	# is always populated. The secondary icon reuses the shared secondary sprite when
@@ -1286,7 +1289,8 @@ func _refresh_loadout_panel() -> void:
 			rmb_slot_button.add_child(t)
 			rmb_tag = t
 		rmb_tag.text = "RMB"
-		rmb_slot_button.tooltip_text = sec_tooltip
+		# No native tooltip: the RMB panel body shows the full description + cooldown.
+		rmb_slot_button.tooltip_text = ""
 	var slot_names := ["Q", "E", "D", "R"]
 	for slot_index in loadout_slots.size():
 		var button := loadout_slots[slot_index] as Button
@@ -1308,7 +1312,9 @@ func _refresh_loadout_panel() -> void:
 		var tag_ok := button.get_node_or_null("SlotTag") as Label
 		if tag_ok != null:
 			tag_ok.text = label
-		button.tooltip_text = _ability_tooltip(want)
+		# No native tooltip on the Q/E/D/R slot buttons: the ability panel (with
+		# icon + description + live preview) is the only hover surface.
+		button.tooltip_text = ""
 
 
 func _hero_ability_ids(hero_id: String) -> Array[String]:

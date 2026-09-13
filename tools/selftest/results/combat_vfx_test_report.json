@@ -89,7 +89,7 @@
         "minions": 0
       },
       "summons": 0,
-      "t": 1.00767533333333,
+      "t": 1.040888,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -107,39 +107,39 @@
       "xp": 0
     },
     {
-      "enemies_alive": 16,
+      "enemies_alive": 15,
       "kills_after": 0,
       "kills_before": 0,
       "kind": "primary_probe",
       "label": "primary_hold",
-      "t": 4.27946266666667
+      "t": 2.78423066666667
     },
     {
-      "charge_t": 0.273809523809524,
-      "enemies_alive": 16,
+      "charge_t": 0.238095238095238,
+      "enemies_alive": 15,
       "kind": "secondary_probe",
       "label": "mid_charge",
-      "secondary_charge": 0.383333333333333,
+      "secondary_charge": 0.333333333333333,
       "secondary_charge_max": 1.4,
       "secondary_cooldown": 0.0,
       "secondary_cooldown_max": 10.0,
       "secondary_kind": "volt_mend",
-      "t": 4.8969196666667
+      "t": 4.88132466666667
     },
     {
-      "charge_t": 0.55952380952381,
-      "enemies_alive": 16,
+      "charge_t": 0.535714285714286,
+      "enemies_alive": 15,
       "kind": "secondary_probe",
       "label": "post_release",
-      "secondary_charge": 0.783333333333334,
+      "secondary_charge": 0.750000000000001,
       "secondary_charge_max": 1.4,
       "secondary_cooldown": 0.0,
       "secondary_cooldown_max": 10.0,
       "secondary_kind": "volt_mend",
-      "t": 5.29691966666672
+      "t": 5.29654633333333
     }
   ],
-  "elapsed": 6.5076970000001,
+  "elapsed": 6.53335833333333,
   "enemies_spawned": 3,
   "hero_position": "(72.0, 0.0)",
   "player_class": "arclight",
@@ -176,18 +176,18 @@
   "shots": [
     {
       "label": "pre_attack",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5447/pre_attack_2.006_5447.png",
-      "t": 2.00595166666666
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7800/pre_attack_2.017_7800.png",
+      "t": 2.01666666666667
     },
     {
       "label": "lmb_blast",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6457/lmb_blast_3.008_6457.png",
-      "t": 3.007852
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8850/lmb_blast_3.045_8850.png",
+      "t": 3.04499566666667
     },
     {
       "label": "rmb_charge",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8947/rmb_charge_5.506_8947.png",
-      "t": 5.50601057575764
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11471/rmb_charge_5.566_11471.png",
+      "t": 5.566383
     }
   ]
 }

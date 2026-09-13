@@ -1,0 +1,28 @@
+{
+  "baked_props": 5888,
+  "notes": [],
+  "scene": "grass_zoom_test",
+  "shots": [
+    {
+      "label": "zoomed_in_start",
+      "path": "user://grass_zoom_run_1789248288/zoomed_in_start_0.50.png"
+    },
+    {
+      "label": "zoomed_out_map",
+      "path": "user://grass_zoom_run_1789248288/zoomed_out_map_2.50.png"
+    },
+    {
+      "label": "zoomed_out_edges",
+      "path": "user://grass_zoom_run_1789248288/zoomed_out_edges_5.50.png"
+    },
+    {
+      "label": "zoomed_in_center",
+      "path": "user://grass_zoom_run_1789248288/zoomed_in_center_8.50.png"
+    },
+    {
+      "label": "zoomed_in_corner",
+      "path": "user://grass_zoom_run_1789248288/zoomed_in_corner_10.50.png"
+    }
+  ],
+  "verdict": "PASS"
+}

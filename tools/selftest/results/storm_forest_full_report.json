@@ -1,0 +1,65 @@
+{
+  "effects": [
+    {
+      "command": "force_storm",
+      "kind": "dev_command",
+      "t": 1.51273715151515
+    }
+  ],
+  "elapsed": 28.0131453333331,
+  "enemies_spawned": 0,
+  "hero_position": "(494.5091, -499.8483)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 1,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 6,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": [
+    {
+      "label": "forest_before",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4075/forest_before_1.016_4075.png",
+      "t": 1.01572242424243
+    },
+    {
+      "label": "storm_strikes",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7566/storm_strikes_8.011_7566.png",
+      "t": 8.01087666666665
+    },
+    {
+      "label": "fire_spreading",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11058/fire_spreading_15.000_11058.png",
+      "t": 15.0000000000002
+    },
+    {
+      "label": "stumps_after",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_16068/stumps_after_25.011_16068.png",
+      "t": 25.0114166666664
+    }
+  ]
+}

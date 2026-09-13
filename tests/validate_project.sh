@@ -72,7 +72,7 @@ if ! rg -q '^class_name PlayerClass$' scripts/player_class.gd; then
   exit 1
 fi
 
-for class_id in arclight bulwark warden frostbinder; do
+for class_id in arclight bulwark warden rime; do
   if ! rg -q "\"id\": \"${class_id}\"" scripts/player_class.gd; then
     echo "Missing player class: ${class_id}" >&2
     exit 1
@@ -227,7 +227,7 @@ if ! rg -q 'func try_cheat_death' scripts/player.gd; then
   exit 1
 fi
 
-for sprite in arclight bulwark warden frostbinder grunt swarmling spitter drifter brute stalker bomber hexer sentinel splitter charger summoner ravager stormcaller spit bolt spark xp_orb coin; do
+for sprite in arclight bulwark warden rime grunt swarmling spitter drifter brute stalker bomber hexer sentinel splitter charger summoner ravager stormcaller spit bolt spark xp_orb coin; do
   if [[ ! -f "assets/sprites/${sprite}.png" ]]; then
     echo "Missing pixel art: assets/sprites/${sprite}.png (run tools/sprite_forge.tscn)" >&2
     exit 1

@@ -205,42 +205,6 @@ const KIT_VISUALS: Dictionary = {
 		"draw_mode": "orbit_rings",
 		"lifetime": 1.1,
 	},
-	# ── Frostbinder ──────────────────────────────────────────────────────────
-	"frostbinder_ice_spike": {
-		"primary_color": "a8dcff",
-		"secondary_color": "6f8dff",
-		"pulse_count": 1,
-		"ribbon_count": 3,
-		"style": "ice",
-		"draw_mode": "ice_spike",
-		"lifetime": 0.26,
-	},
-	"frostbinder_frost_nova": {
-		"primary_color": "a8dcff",
-		"secondary_color": "dbe9ff",
-		"pulse_count": 3,
-		"ribbon_count": 2,
-		"style": "ice",
-		"draw_mode": "shard_burst",
-		"lifetime": 0.5,
-	},
-	"frostbinder_glacial_cone": {
-		"primary_color": "7ba9ff",
-		"secondary_color": "a8dcff",
-		"pulse_count": 4,
-		"ribbon_count": 5,
-		"style": "ice",
-		"draw_mode": "ice_cone",
-		"lifetime": 2.8,
-	},
-	"frostbinder_rime_barrage": {
-		"primary_color": "a8dcff",
-		"secondary_color": "dbe9ff",
-		"pulse_count": 2,
-		"ribbon_count": 4,
-		"style": "ice",
-		"lifetime": 0.4,
-	},
 	# ── Cinder (Blaze / Pyro) ────────────────────────────────────────────────
 	"cinder_dragon_fire": {
 		"primary_color": "ffb347",

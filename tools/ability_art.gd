@@ -44,7 +44,7 @@ static func _accent_for(ability_id: String) -> String:
 		return "ff8a3d"
 	if ability_id.begins_with("warden"):
 		return "d9ff8a"
-	if ability_id.begins_with("frostbinder"):
+	if ability_id.begins_with("rime"):
 		return "c8f0ff"
 	if ability_id.begins_with("tobor"):
 		return "e05a28"
@@ -58,7 +58,7 @@ static func _ember_for(ability_id: String) -> String:
 		return "ffcc88"
 	if ability_id.begins_with("warden"):
 		return "b8ffb0"
-	if ability_id.begins_with("frostbinder"):
+	if ability_id.begins_with("rime"):
 		return "ffffff"
 	if ability_id.begins_with("tobor"):
 		return "ff9a28"

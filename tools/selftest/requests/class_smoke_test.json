@@ -1,0 +1,6 @@
+# Headless class smoke test (no selftest request; verifies all 16 heroes incl. rime,
+# and that removed frostbinder is no longer in the roster).
+{
+  "scene": "res://tests/class_smoke_test.gd",
+  "timeout_sec": 60
+}

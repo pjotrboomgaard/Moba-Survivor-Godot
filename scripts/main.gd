@@ -2348,9 +2348,6 @@ const VECTOR_ONLY_KIT_IDS := {
 	"warden_life_drain": PlayerClass.EffectStyle.WAVE,
 	"warden_voodoo_wards": PlayerClass.EffectStyle.BURST,
 	# Caldera
-	"frostbinder_ice_spike": PlayerClass.EffectStyle.BOLT,
-	"frostbinder_frost_nova": PlayerClass.EffectStyle.BURST,
-	"frostbinder_glacial_cone": PlayerClass.EffectStyle.ARC,
 	"cinder_dragon_fire": PlayerClass.EffectStyle.BLAST,
 	"cinder_fiery_assault": PlayerClass.EffectStyle.BURST,
 	"cinder_pillar_of_flame": PlayerClass.EffectStyle.BURST,
@@ -2421,7 +2418,6 @@ const VECTOR_ONLY_KIT_IDS := {
 	# Dash/blink archetypes → themed TELEPORT blink (vanish ring, motion streak, appear ring)
 	"arclight_ball_lightning": PlayerClass.EffectStyle.TELEPORT,
 	"bulwark_iron_charge": PlayerClass.EffectStyle.TELEPORT,
-	"frostbinder_rime_barrage": PlayerClass.EffectStyle.TELEPORT,
 	"pyra_molten_charge": PlayerClass.EffectStyle.TELEPORT,
 	"slag_magma_charge": PlayerClass.EffectStyle.TELEPORT,
 	"ember_phoenix_dash": PlayerClass.EffectStyle.TELEPORT,

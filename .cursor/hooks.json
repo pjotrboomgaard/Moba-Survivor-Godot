@@ -10,6 +10,9 @@
     "stop": [
       {
         "command": ".cursor/hooks/restart-app.ps1"
+      },
+      {
+        "command": ".cursor/hooks/alert.ps1"
       }
     ]
   }

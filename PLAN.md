@@ -2,6 +2,45 @@
 
 _Last updated: 2026-09-12_
 
+> **2026-09-12 (latest) — World transition re-verified in isolated mode:**
+> - **World transition (mission_warp)** — `world_transition_test` selftest: 4 screenshots
+>   confirm the full sequence. Pre: Verdant Hollow (green). Mid-sweep: camera zoomed
+>   out to full-map overhead with ring-of-fire active, both maps visible. Reveal: Ashen
+>   Crater (volcanic) revealed inside the ring. Post: Verdant Hollow restored after
+>   the transition completes. Biome correctly switches 0→1→back. Player stays locked
+>   during transition (pos unchanged at 72,0), unlocks after.
+> - **Crash-landing cinematic (opening)** — `crash_cinematic_isolated` selftest: full
+>   real arena (grass, trees, rocks) renders at zoomed-out start. Ship approaches from
+>   above, crashes, red explosion, crater forms. Zooms back in to player in crater.
+>   Grass/flowers visible throughout — T3.31 fix confirmed.
+> - **T3.29 Frostbinder removal — VERIFIED** — 16-hero roster confirmed. No remaining
+>   `frostbinder` references in core scripts. Rime (Glacier) is the sole frost hero.
+> - App restarted with `--pjotr` so the user can verify the Frostbinder removal live.
+>
+> **2026-09-12 (late) batch:**
+> - **T3.29 Remove Frostbinder hero (COMPLETE)** — removed `frostbinder` from
+>   `PlayerClass.CLASSES` roster entries, `shop_catalog.gd` ALL_HEROES + all
+>   per-hero alias entries, `class_smoke_test.gd` (renamed all `frostbinder`
+>   refs → `rime`), `validate_project.sh`, `hero_roster_lmb_rmb.json`, and
+>   `sprite_art.gd` (palette + ability shapes + tone maps). Rime (Glacier)
+>   remains the active frost hero. All 16-hero roster now:
+>   tobor/arclight/bulwark/warden/cinder/pyra/slag/ember/thorn/willow/stump/sage/
+>   volt/nebula/astral/rime.
+> - **class_smoke_test stale-assertion fixes** — updated `playable_ids()` size
+>   check (4→16), `cpu_ally_ids` expected count, and ability-ID references that
+>   were renamed in the copyright-safe rewording pass. Re-run to confirm green.
+> - **T3.30 Blue wisp on movement — VERIFIED FIXED** — `blue_wisp_walk_test`
+>   isolated: all 6 tested heroes (arclight/cinder/ember/volt/rime/tobor)
+>   render their real 40×40 / 32×32 pixel-art body sprites while walking, no
+>   blue-circle fallback. Root cause was an 8×8 icon sprite clobbering the
+>   hero's body texture; fixed in `sprite_art.gd` `_collect` guard.
+> - **T3.31 Grass renders from start during crash zoom-out — VERIFIED** —
+>   `_baked_cull_rect()` in `arena.gd` now returns the full arena rect (+margin),
+>   so all ground cover renders at t=0 regardless of camera zoom. Isolated
+>   `crash_cinematic_test` (real arena + ship crash) shows grass/trees/rocks
+>   fully visible at the zoomed-out start, throughout the crash, and at the
+>   zoomed-in crater.
+
 > **BUG-FIX BATCH (2026-09-12):** Three user-reported bugs fixed:
 > 1. **Ability preview not rendering in menu** (T0.1) — root cause: `ability_preview_world.tscn`
 >    had `render_target_update_mode = 0` (OFFICIAL), so the SubViewport never re-rendered after
@@ -19,6 +58,30 @@ _Last updated: 2026-09-12_
 >    called `apply_saved_level()` (swaps obstacles only) without switching the arena's theme/biome.
 >    Now reads the saved `biome` field (or infers from the map stem) and, when it differs, calls
 >    `GameRuntime.set_biome()` + `arena.dress_from_runtime_biome()` BEFORE applying the saved level.
+>
+> **2026-09-12 (late) batch:**
+> - **T3.29 Remove Frostbinder hero (COMPLETE)** — removed `frostbinder` from
+>   `PlayerClass.CLASSES` roster entries, `shop_catalog.gd` ALL_HEROES + all
+>   per-hero alias entries, `class_smoke_test.gd` (renamed all `frostbinder`
+>   refs → `rime`), `validate_project.sh`, `hero_roster_lmb_rmb.json`, and
+>   `sprite_art.gd` (palette + ability shapes + tone maps). Rime (Glacier)
+>   remains the active frost hero. All 16-hero roster now:
+>   tobor/arclight/bulwark/warden/cinder/pyra/slag/ember/thorn/willow/stump/sage/
+>   volt/nebula/astral/rime.
+> - **class_smoke_test stale-assertion fixes** — updated `playable_ids()` size
+>   check (4→16), `cpu_ally_ids` expected count, and ability-ID references that
+>   were renamed in the copyright-safe rewording pass. Re-run to confirm green.
+> - **T3.30 Blue wisp on movement — VERIFIED FIXED** — `blue_wisp_walk_test`
+>   isolated: all 6 tested heroes (arclight/cinder/ember/volt/rime/tobor)
+>   render their real 40×40 / 32×32 pixel-art body sprites while walking, no
+>   blue-circle fallback. Root cause was an 8×8 icon sprite clobbering the
+>   hero's body texture; fixed in `sprite_art.gd` `_collect` guard.
+> - **T3.31 Grass renders from start during crash zoom-out — VERIFIED** —
+>   `_baked_cull_rect()` in `arena.gd` now returns the full arena rect (+margin),
+>   so all ground cover renders at t=0 regardless of camera zoom. Isolated
+>   `crash_cinematic_test` (real arena + ship crash) shows grass/trees/rocks
+>   fully visible at the zoomed-out start, throughout the crash, and at the
+>   zoomed-in crater.
 >
 > **Progress (2026-09-11):** P0 both done. T1.1 VFX distinctness confirmed (each hero has
 > unique style_tag + draw_mode in KitFxLibrary). Ultimate VFX lifetimes doubled (2× longer).
@@ -740,6 +803,114 @@ on grass properly."
 - [ ] Isolated verify: full-map overhead view shows continuous grass texture,
       no gaps/bare area.
 
+### P3-EXT-2 — NEW TASKS ADDED 2026-09-12 (hero-art + balance batch)
+
+### T3.28 Redo all hero art to match the Tobor (steam turret) style
+**User direction (2026-09-12):** "Look at the tobor sprites. I think they are
+bigger, more detailed pixel art — Tobor sprites work really well. Redo ALL hero
+art. Fire heroes should be more like elementals. The Verdant Wilds should be more
+creatures. The Storm Court ones actually look okay, but take out the Frostbinder
+hero completely (remove this hero from the game). Only Glacier (rime) needs to
+be redone among Storm Court. Make it so all hero art is redone and closer to the
+Tobor style."
+- [ ] Audit all 16 hero body sprites + covers (`assets/sprites/<hero>.png`,
+      `assets/covers/<hero>.png`); use Tobor's body+cover as the reference bar
+      (bigger, more detailed, clearly readable at game scale).
+- [ ] Fire heroes (Cinder/Blaze, Ember, Pyra, Slag) → **elemental** style:
+      flame/ember bodies, glowing cores, no humanoid "character" — read as living
+      fire elementals.
+- [ ] Verdant Wilds heroes (Thorn, Willow, Stump, Sage) → **creature** style:
+      clearly animal/plant-creature bodies (stag, owl, boar, fox, tree-spirit),
+      not humanoid silhouettes.
+- [ ] Storm Court: keep the 4 that look okay (Volt, Arclight/Joule, Nebula,
+      Astral); **REDO Rime/Glacier** to the Tobor detail bar.
+- [ ] **REMOVE Frostbinder hero completely** from the game (see T3.29).
+- [ ] Redo all 16 (post-Frostbinder-removal = 15) hero body + cover sprites
+      via `tools/sprite_art.gd` grids + pipeline; bake via `sprite_forge`.
+- [ ] Isolated verify: `hero_sprites_test` scene re-runs, every hero reads at
+      the Tobor detail level; screenshot committed.
+
+### T3.29 Remove Frostbinder hero completely
+**User direction (2026-09-12):** "Take out the Frostbinder hero completely,
+remove this hero from the game."
+- [ ] Remove `frostbinder` from `PlayerClass.CLASSES`, `ALL_CLASSES` list,
+      `FAMILY_FOR_ARCHETYPE` / SFX banks, `ShopCatalog` hero list + per-class
+      upgrade rows, `assets/covers/frostbinder.png`, `assets/sprites/frostbinder*.png`,
+      `assets/audio/themes/frostbinder*.wav`, `assets/audio/sfx/cast_frostbinder.ogg`.
+- [ ] Remove from `tests/class_smoke_test.gd` (`_test_frostbinder_slow`,
+      `by_id("frostbinder")` references).
+- [ ] Update hero count 17 → 16 everywhere the count is referenced.
+- [ ] Verify: hero select list shows no Frostbinder; solo+FFA selftests don't
+      reference it; no dangling load errors. Isolated verify with a hero-list
+      dump.
+
+### T3.30 Blue-wisp-on-movement still broken — isolate a moving bot
+**User direction (2026-09-12):** "Movement with the blue sprite is not fixed yet.
+Test a bot moving in isolation to see what's up."
+- [ ] Build an ISOLATED test: spawn a single bot hero in an empty world, force it
+      to move for N seconds, screenshot at multiple timestamps, confirm the body
+      sprite (not a blue wisp/fallback circle) is visible DURING movement.
+- [ ] Root-cause the blue wisp: likely a movement/ability VFX (dash trail,
+      `EffectStyle`, or a leftover `draw_circle` glow) tinted blue, OR a hero whose
+      body sprite fails to load so the fallback blue circle shows while moving.
+      (Ember was already fixed via the sprite-collision guard — verify ALL heroes.)
+- [ ] Fix so NO hero reads as a blue wisp while moving. Isolated screenshot per
+      affected hero, in-game screenshot after.
+
+### T3.31 Flowers/grass stop rendering / not rendered when zoomed out during crash
+**User direction (2026-09-12):** "At some point the flowers and bushes stop
+rendering in game or it's bugged — disappears and appears again. Make it so the
+flowers and grasses texture just get rendered from the start for the whole map.
+When it's zoomed out and the ship is crashing it should already be rendered. And
+then you zoom in and it's still rendered. Now it's not when zoomed out when the
+ship is crashing. Also sometimes stops rendering. It should be easy to just have
+the background texture correctly."
+- [ ] Root-cause: grass/flower tiles likely rendered via `arena` `_draw_*` that
+      culls by camera viewport (only tiles near the camera are drawn) → when
+      zoomed out far (opening cinematic) or when the viewport shifts, distant
+      tiles vanish / pop in. Fix: pre-render the ENTIRE map's ground-cover
+      (grass + flowers + bushes) ONCE into a single `CanvasTexture`/`AtlasTexture`
+      (or a static `CanvasItem` layer) so it's always visible regardless of zoom,
+      never culled, and stable through the crash-cinematic zoom-out + zoom-in.
+- [ ] Ensure the crash-cinematic zoom-out phase shows the full rendered grass
+      texture (no bare/uncut area, no popping).
+- [ ] Isolated verify: crash-cinematic scene zoomed out shows the whole map's
+      grass/flowers rendered (screenshot at the zoom-out frame), then zoomed-in
+      view still shows them. In-game verify: flowers never disappear during play.
+
+### T3.32 Wave director: names + boss waves + balance coherence
+**User direction (2026-09-12):** "Keep doing balance tests. Wave director fits
+with wave names and boss waves."
+- [ ] Each wave's spawn composition must MATCH its displayed wave name (e.g.
+      "Shooter Wave" spawns shooters, "Brute Wave" spawns brutes). No wave
+      named "X" that spawns unrelated creeps.
+- [ ] Boss waves (5/10/15/...) spawn the correct boss type for the current world
+      and are visually distinct (banner + boss spawn).
+- [ ] Early waves stay challenging but not over-diverse (single/dominant creep
+      type per early wave; diversity builds in gradually).
+- [ ] The dynamic creep spawner (difficulty scaler) must work WITH the wave
+      director, not override its intended composition — verify it adds pressure
+      of the SAME creep types the wave intends, not random new types.
+- [ ] Isolated verify: dump wave → (name, spawn composition, boss?) via a probe
+      for waves 1-15; assert name↔creep match + boss on 5/10/15. Screenshot the
+      wave banner per wave.
+
+### T3.33 Hero balance: all heroes ≈ same strength in FFA (incl. auto-attack)
+**User direction (2026-09-12):** "Do hero balance for all heroes in FFA, that
+they all get approximately the same strength. Keep building. Verify in isolation
+and then afterwards also in game. Also auto-attack."
+- [ ] Balance test harness: in FFA (multi-hero, bots), each hero plays the same
+      scenario; record a normalized "power" metric (kills, damage dealt,
+      damage taken, survival time, gold earned, waves survived).
+- [ ] Flag heroes whose power metric is far above/below the median; nerf over-
+      strong (splash, dmg, cd) / buff under-strong so the band is ~±15-20%.
+- [ ] **Auto-attack included**: per-hero LMB primary (dmg, interval, range,
+      splash) normalized — the "attack splash" over-large heroes from T3.24 feed
+      this.
+- [ ] Isolated verify: run the FFA balance harness per hero; commit a table of
+      power metrics. In-game verify: a full FFA session shows no hero
+      trivially dominating / trivially losing.
+
 ---
 
 ## ORCHESTRATION PLAN
@@ -869,3 +1040,20 @@ takeover) must be verified in a separate empty world with one player + bot.
 - [ ] Hard rule: isolated empty world first, then main scene — currently verified in
       main-scene selftest; an isolated empty-world scene (`boss_takeover_isolated.tscn`)
       is a nice-to-have follow-up to catch camera/VFX regressions in isolation.
+
+### T3.34 Boss isolated-mode full test (NEW 2026-09-13)
+**User direction (2026-09-13):** "Test the boss in isolated mode, the boss takeover,
+and also that u kill it, take it over, can use abilities, assign hotkeys, and can
+kill other creeps and bots."
+
+- [ ] Isolated empty-world scene (`boss_isolated_test`): spawn a boss, hero fights
+      and kills it, verifies takeover buff activates.
+- [ ] Verify hero can still use all 4 abilities (Q/E/D/R) + LMB/RMB during and
+      after boss form (hotkeys still work, no cooldown lockup).
+- [ ] Verify boss-form hero can kill regular creeps and CPU bot heroes while
+      in the buffed state.
+- [ ] Screenshot each phase: pre-kill, takeover banner, boss-form hero in combat,
+      post-takeover (buff expired, hero back to normal).
+- [ ] Report probes: `killer_in_boss_form`, `damage_dealt_multiplier`,
+      `abilities_still_castable` (count of successful casts post-takeover),
+      `creeps_killed_in_boss_form`, `bots_killed_in_boss_form`.

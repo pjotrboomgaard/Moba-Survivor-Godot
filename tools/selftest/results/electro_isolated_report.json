@@ -1,0 +1,23 @@
+{
+  "captured": 4,
+  "scene": "electro_test",
+  "shots": [
+    {
+      "label": "electro_off",
+      "path": "user://electro_run_1789239219/electro_off_0.51.png"
+    },
+    {
+      "label": "electro_peak",
+      "path": "user://electro_run_1789239219/electro_peak_1.61.png"
+    },
+    {
+      "label": "electro_peak2",
+      "path": "user://electro_run_1789239219/electro_peak2_3.01.png"
+    },
+    {
+      "label": "electro_fading",
+      "path": "user://electro_run_1789239219/electro_fading_4.51.png"
+    }
+  ],
+  "verdict": "PASS"
+}

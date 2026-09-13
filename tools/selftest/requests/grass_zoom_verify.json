@@ -1,0 +1,9 @@
+{
+  "comment": "T3.31: Verify grass/flower ground cover renders the full map at crash-cinematic zoom (0.13) and at normal play zoom (0.5). No bare/untextured patches, no cull-pop.",
+  "time_scale": 1.0,
+  "checks": [
+    {"id": "started", "type": "log_contains", "value": "GRASS_ZOOM_TEST ready", "fail": "FAIL"},
+    {"id": "finished", "type": "log_contains", "value": "GRASS_ZOOM_TEST SUMMARY", "fail": "FAIL"},
+    {"id": "has_props", "type": "log_contains", "value": "baked_props=", "fail": "FAIL"}
+  ]
+}

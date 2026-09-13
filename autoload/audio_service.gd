@@ -136,10 +136,6 @@ const SOUND_LIBRARY: Dictionary = {
 		preload("res://assets/audio/themes/astral.wav"),
 		preload("res://assets/audio/themes/astral_2.wav"),
 	],
-	"cast_frostbinder": [
-		preload("res://assets/audio/themes/frostbinder.wav"),
-		preload("res://assets/audio/themes/frostbinder_2.wav"),
-	],
 	"cast_rime": [
 		preload("res://assets/audio/themes/rime.wav"),
 		preload("res://assets/audio/themes/rime_2.wav"),
@@ -172,7 +168,6 @@ const SOUND_LIBRARY: Dictionary = {
 	"attack_volt": [preload("res://assets/audio/themes/attack_volt.wav")],
 	"attack_nebula": [preload("res://assets/audio/themes/attack_nebula.wav")],
 	"attack_astral": [preload("res://assets/audio/themes/attack_astral.wav")],
-	"attack_frostbinder": [preload("res://assets/audio/themes/attack_frostbinder.wav")],
 	"attack_rime": [preload("res://assets/audio/themes/attack_rime.wav")],
 	"sfx_projectile": [preload("res://assets/audio/sfx/sfx_projectile.ogg")],
 	# Summoned drones: a short zap when a turret fires. Reuses the shared projectile
@@ -267,7 +262,6 @@ const VOLUME_DB := {
 	"cast_arclight": -8.0,
 	"cast_bulwark": -7.0,
 	"cast_warden": -8.0,
-	"cast_frostbinder": -8.0,
 	"cast_rime": -8.0,
 	"cast_tobor": -6.0,
 	"cast_cinder": -7.0,
@@ -296,7 +290,6 @@ const VOLUME_DB := {
 	"attack_volt": -10.0,
 	"attack_nebula": -10.0,
 	"attack_astral": -10.0,
-	"attack_frostbinder": -10.0,
 	"attack_rime": -10.0,
 	"countdown_tick": -6.0,
 	"countdown_fight": -4.0,
@@ -332,7 +325,6 @@ const PITCH_SPREAD := {
 	"cast_arclight": 0.05,
 	"cast_bulwark": 0.04,
 	"cast_warden": 0.14,
-	"cast_frostbinder": 0.05,
 	"cast_rime": 0.05,
 	"cast_tobor": 0.04,
 	"cast_cinder": 0.05,

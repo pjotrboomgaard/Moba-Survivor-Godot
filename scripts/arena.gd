@@ -3064,19 +3064,17 @@ func _draw_decals() -> void:
 		print("[draw_decals] has ", baked_props.size(), " props but cull rect is empty. cull=", cull)
 
 
-## Camera-view rect (world space) with a small margin, used to skip draw calls for
-## baked props that are off-screen. Reuses the same camera resolution as obstacle culling.
+## Ground-cover cull rect (world space). Ground cover (grass / flowers / bushes / dirt
+## tiles) is static, camera-independent decoration: it must render the ENTIRE map from
+## t=0, whether the camera is zoomed in, zoomed out (the opening crash-cinematic
+## full-map overhead), or flying fast. Culling it to the camera viewport used to make
+## the far grass vanish at zoom-out and pop in/out on zoom changes ("disappears and
+## appears again"), so we deliberately cover the whole arena (+ margin) instead of
+## the camera view. The per-sprite visibility gates in _draw_one_decal (crater reveal,
+## walk-pads) are the only dynamic factors, so no per-frame culling is needed here.
 func _baked_cull_rect() -> Rect2:
-	var cam := _cull_camera()
-	if cam == null:
-		return Rect2(-1e9, -1e9, 2e9, 2e9)
-	var cam_pos: Vector2 = cam.get_global_position()
-	var vp: Vector2 = get_viewport().get_visible_rect().size
-	var zoom: Vector2 = cam.zoom
-	var margin := 200.0
-	var half_w := (vp.x * 0.5 / maxf(0.1, zoom.x)) + margin
-	var half_h := (vp.y * 0.5 / maxf(0.1, zoom.y)) + margin
-	return Rect2(cam_pos.x - half_w, cam_pos.y - half_h, half_w * 2.0, half_h * 2.0)
+	var margin := 64.0
+	return _arena_rect().grow(margin)
 
 
 func _draw_one_decal(sprite_name: String, spot: Vector2) -> void:

@@ -1,0 +1,367 @@
+{
+  "effects": [
+    {
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 0.0,
+      "cross_cd": 0.0,
+      "in_boss_form": false,
+      "kind": "bossform_probe",
+      "label": "before_grant",
+      "movement_speed": 300.0,
+      "slam_cd": 0.0,
+      "t": 0.508173,
+      "volley_cd": 0.0,
+      "weapon_damage": 18.0
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 2,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              72.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 0,
+      "hero": "arclight",
+      "hp": 218.0,
+      "hp_frac": 1.0,
+      "hp_max": 218.0,
+      "kind": "probe",
+      "label": "bossform_granted",
+      "last_sfx": "",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 856,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(72.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 0.608173,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 0
+    },
+    {
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 44.907647,
+      "cross_cd": 0.0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "label": "after_grant",
+      "movement_speed": 435.0,
+      "slam_cd": 0.0,
+      "t": 0.700526,
+      "volley_cd": 0.0,
+      "weapon_damage": 32.4
+    },
+    {
+      "cross_cd_after": 0.0,
+      "kind": "bossform_attack",
+      "slam_cd_after": 3.0,
+      "t": 2.00833333333333,
+      "volley_cd_after": 0.0,
+      "which": "slam"
+    },
+    {
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 43.4998396666668,
+      "cross_cd": 0.0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "label": "after_slam",
+      "movement_speed": 435.0,
+      "slam_cd": 2.9,
+      "t": 2.10833333333333,
+      "volley_cd": 0.0,
+      "weapon_damage": 32.4
+    },
+    {
+      "cross_cd_after": 2.6,
+      "kind": "bossform_attack",
+      "slam_cd_after": 1.50783433333334,
+      "t": 3.500499,
+      "volley_cd_after": 0.0,
+      "which": "cross"
+    },
+    {
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 42.0077050000002,
+      "cross_cd": 2.500031,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "label": "after_cross",
+      "movement_speed": 435.0,
+      "slam_cd": 1.40786533333334,
+      "t": 3.60046799999999,
+      "volley_cd": 0.0,
+      "weapon_damage": 32.4
+    },
+    {
+      "cross_cd_after": 0.593180000000006,
+      "kind": "bossform_attack",
+      "slam_cd_after": 0.0,
+      "t": 5.50731900000006,
+      "volley_cd_after": 3.5,
+      "which": "volley"
+    },
+    {
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 40.0008540000003,
+      "cross_cd": 0.493180000000007,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "label": "after_volley",
+      "movement_speed": 435.0,
+      "slam_cd": 0.0,
+      "t": 5.60731900000006,
+      "volley_cd": 3.4,
+      "weapon_damage": 32.4
+    },
+    {
+      "abilities": [
+        {
+          "id": "arclight_blast_of_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_chain_lightning",
+          "rank": 1
+        },
+        {
+          "id": "arclight_static_bolt",
+          "rank": 1
+        },
+        {
+          "id": "arclight_thundergods_wrath",
+          "rank": 1
+        }
+      ],
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "arclight",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              72.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "gold": 112,
+      "hero": "arclight",
+      "hp": 218.0,
+      "hp_frac": 1.0,
+      "hp_max": 218.0,
+      "kind": "probe",
+      "label": "bossform_state",
+      "last_sfx": "gold",
+      "last_tapped": -1,
+      "level": 2,
+      "obstacle_count": 863,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(72.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "t": 7.00595530303042,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "xp": 10
+    }
+  ],
+  "elapsed": 8.00735657575774,
+  "enemies_spawned": 2,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 112,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 2,
+    "level_upgrades": {
+      "2": [
+        "chain"
+      ]
+    },
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "chain"
+    ],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": [
+    {
+      "label": "bossform_hud",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7328/bossform_hud_1.200_7328.png",
+      "t": 1.20025366666667
+    },
+    {
+      "label": "slam_impact",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8726/slam_impact_2.600_8726.png",
+      "t": 2.60033999999999
+    },
+    {
+      "label": "cross_impact",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10228/cross_impact_4.100_10228.png",
+      "t": 4.10023466666667
+    },
+    {
+      "label": "volley_impact",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12232/volley_impact_6.105_12232.png",
+      "t": 6.10521933333342
+    }
+  ]
+}

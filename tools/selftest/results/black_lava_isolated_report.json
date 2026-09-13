@@ -1,0 +1,20 @@
+{
+  "captured": 3,
+  "pools": 3,
+  "scene": "black_lava_test",
+  "shots": [
+    {
+      "label": "lava_hot",
+      "path": "user://black_lava_run_1789239112/lava_hot_0.61.png"
+    },
+    {
+      "label": "lava_black",
+      "path": "user://black_lava_run_1789239112/lava_black_3.61.png"
+    },
+    {
+      "label": "lava_black2",
+      "path": "user://black_lava_run_1789239112/lava_black2_5.50.png"
+    }
+  ],
+  "verdict": "PASS"
+}

@@ -1,0 +1,8 @@
+{
+  "scene": "blue_wisp_walk_test",
+  "description": "Isolated test: spawn 6 heroes, drive them to walk, capture a screenshot mid-walk to verify the real pixel-art body sprite is visible (not a blue fallback circle/wisp).",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "blue_wisp_walk_test.png",
+  "notes": "Verify visually: each of the 6 heroes (arclight, cinder, ember, volt, rime, tobor) shows its distinct pixel-art body sprite while moving. No hero should be rendered as a blue circle/wisp. The texture_sizes in the report must show correct dimensions (40x40 for most, 32x32 for tobor). fallback_heroes must be 0."
+}

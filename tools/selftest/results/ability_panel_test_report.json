@@ -11,15 +11,15 @@
   "shots": [
     {
       "label": "panel_static",
-      "path": "user://ability_panel_run_1789240198/panel_static_1.00.png"
+      "path": "user://ability_panel_run_1789240568/panel_static_1.01.png"
     },
     {
       "label": "panel_hint_descriptions",
-      "path": "user://ability_panel_run_1789240198/panel_hint_descriptions_2.50.png"
+      "path": "user://ability_panel_run_1789240568/panel_hint_descriptions_2.51.png"
     },
     {
       "label": "panel_hover_tooltip",
-      "path": "user://ability_panel_run_1789240198/panel_hover_tooltip_3.50.png"
+      "path": "user://ability_panel_run_1789240568/panel_hover_tooltip_3.50.png"
     }
   ],
   "tooltip_has_description_text": false,

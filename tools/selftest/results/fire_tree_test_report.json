@@ -4,15 +4,15 @@
   "shots": [
     {
       "label": "t0_one_burning",
-      "path": "user://fire_tree_run_1789165837/t0_one_burning_0.60.png"
+      "path": "user://fire_tree_run_1789240786/t0_one_burning_0.61.png"
     },
     {
       "label": "t4_spread",
-      "path": "user://fire_tree_run_1789165837/t4_spread_4.50.png"
+      "path": "user://fire_tree_run_1789240786/t4_spread_4.51.png"
     },
     {
       "label": "t8_burned_out",
-      "path": "user://fire_tree_run_1789165837/t8_burned_out_9.50.png"
+      "path": "user://fire_tree_run_1789240786/t8_burned_out_9.50.png"
     }
   ],
   "trees_ignited": 2,

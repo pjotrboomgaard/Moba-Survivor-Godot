@@ -1,0 +1,30 @@
+{
+  "fallback_heroes": 0,
+  "heroes": [
+    "arclight",
+    "cinder",
+    "ember",
+    "volt",
+    "rime",
+    "tobor"
+  ],
+  "moving": [
+    "arclight",
+    "cinder",
+    "ember",
+    "volt",
+    "rime",
+    "tobor"
+  ],
+  "scene": "blue_wisp_walk_test",
+  "shot": "user://blue_wisp_walk_test.png",
+  "texture_sizes": {
+    "arclight": "16x16",
+    "cinder": "16x16",
+    "ember": "16x16",
+    "rime": "16x16",
+    "tobor": "32x32",
+    "volt": "16x16"
+  },
+  "verdict": "PASS"
+}

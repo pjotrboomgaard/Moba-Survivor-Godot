@@ -35,12 +35,12 @@
     {"t": 9.0, "kind": "cast", "slot": 0},
     {"t": 9.4, "kind": "probe", "label": "warden_done"},
 
-    {"t": 9.7, "kind": "hero", "id": "frostbinder"},
+    {"t": 9.7, "kind": "hero", "id": "rime"},
     {"t": 9.8, "kind": "aim", "at": [100, 0]},
     {"t": 9.9, "kind": "primary_hold", "duration": 0.6},
     {"t": 10.6, "kind": "secondary_hold", "duration": 0.6},
     {"t": 11.3, "kind": "cast", "slot": 0},
-    {"t": 11.7, "kind": "probe", "label": "frostbinder_done"},
+    {"t": 11.7, "kind": "probe", "label": "rime_done"},
 
     {"t": 12.0, "kind": "hero", "id": "cinder"},
     {"t": 12.1, "kind": "aim", "at": [100, 0]},
