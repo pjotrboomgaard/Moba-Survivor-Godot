@@ -578,7 +578,8 @@ func _solo_pressure_active(target_wave: int) -> bool:
 ## The floor climbs slowly so later waves stay busy, and the cap is lowered (max ~60 vs the
 ## old 120) to keep late-wave populations readable.
 func _desired_live() -> int:
-	var floor_n := 6 + int(float(wave) * 1.0)
+	# T3.44: floor raised 3× to keep the field busy with the new budget curve.
+	var floor_n := 18 + int(float(wave) * 3.0)
 	if pressure_hp >= 0.80:
 		floor_n += 6 + int(float(wave) * 0.6)
 	elif pressure_hp >= 0.55:

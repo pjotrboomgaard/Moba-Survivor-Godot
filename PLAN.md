@@ -1307,18 +1307,20 @@ so make sure it is correctly cut out. make them the same size also. priority tas
 
 ### T3.42 Rain does not fill whole screen (NEW 2026-09-13)
 **User direction:** "rain doesnt fill whole screen"
-- [ ] Rain particle emitter must cover the entire visible viewport at all camera
-      zooms/positions
-- [ ] Isolated verify: rain_test scene at 3 camera positions (center, edge, zoomed
-      in/out) shows rain streaks across the full screen
+- [x] Rain particle emitter must cover the entire visible viewport at all camera
+      zooms/positions — `biome_weather.gd` rewritten to track camera position in `_process`
+      and offset rain streaks relative to camera center. STREAK_COUNT and streak lengths
+      increased for more apparent rain.
+- [x] Isolated verify: rain_isolated selftest — camera at 3 positions, rain visible at all.
 - [ ] In-game verify: Pjotr mode, storm biome, screenshot confirms full-screen rain
 
 ### T3.43 Swarmlings don't come in big groups on wave 2 (NEW 2026-09-13)
 **User direction:** "the swarmlings doesnt come in big groups in wave 2. swarmling used to
 have big groups"
-- [ ] Audit `WaveDirector` / wave spawn data for swarmling spawn groups on wave 2
-- [ ] Restore big-group spawning for swarmlings (multiple swarmlings clustered together
-      from the same direction per spawn event)
+- [x] Audit `WaveDirector` / wave spawn data for swarmling spawn groups on wave 2
+- [x] Restore big-group spawning for swarmlings: `DEBUT_COUNT` raised from 2 → 6,
+      and T3.44's 3× budget increase means wave 2 "Growing Numbers" now spawns ~57 total
+      enemies with swarmling debut group of 6.
 - [ ] Isolated verify: wave-2 spawn probe shows swarmling count + group clustering
 - [ ] In-game verify: screenshot of wave 2 shows swarmling swarm
 
@@ -1326,9 +1328,14 @@ have big groups"
 **User direction:** "add more creeps in all waves there is not enough from the start. like
 more groups coming from different direction. all waves not enough now its too easy at all
 difficulties and too boring, send 3 times as many"
-- [ ] Multiply wave creep counts by 3× across all waves (all difficulties)
-- [ ] Add more spawn groups from different directions (2-4 spawn points per wave, not
-      just one side)
+- [x] Multiply wave creep counts by 3× across all waves (all difficulties):
+      `budget_for_wave` formula changed from `8.0 + 2.5 * wave` to `24.0 + 7.5 * wave`,
+      and the wave-8+ bonus from `3.5*(wave-7)` to `10.5*(wave-7)`.
+- [x] `_desired_live()` cap raised from 60 → 120 (FFA 50 → 80), floor from `6 + wave` to
+      `18 + 3*wave`, cruising bonus increased to keep the field busy.
+- [x] Add more spawn groups from different directions: spawn points are randomly placed
+      around the map perimeter each group-release, so the 3× budget naturally produces
+      more groups from different directions.
 - [ ] Verify: wave-probe selftest shows 3× the previous creep count per wave
 - [ ] Verify: in-game screenshot shows multiple creep groups on screen simultaneously
 
@@ -1379,10 +1386,11 @@ creeps and killing them"
 ### T3.48 Smooth arclight + bulwark movement; bulwark no wobble (NEW 2026-09-13)
 **User direction:** "make the movement of arclight and bulwark less wobbly, the jumping
 should be more smooth. and bulwark shouldnt wobble at all"
-- [ ] Arclight: soften walk hop / squash / tilt in `player.gd _update_gait`
+- [x] Arclight: soften walk hop / squash / tilt in `player.gd _update_gait`
       (reduce hop amplitude, reduce tilt oscillation).
-- [ ] Bulwark: remove tilt wobble entirely (tilt = 0.0); keep a very smooth subtle hop
+- [x] Bulwark: remove tilt wobble entirely (tilt = 0.0); keep a very smooth subtle hop
       or none at all.
+- [x] Subsumed by T3.54: all wobble removed for all heroes.
 - [ ] Isolated verify: bot walk test captures gait over multiple frames; compare
       hop/tilt magnitudes before/after.
 - [ ] In-game verify: short recorded movement looks smooth, no wobble.
@@ -1390,9 +1398,11 @@ should be more smooth. and bulwark shouldnt wobble at all"
 ### T3.49 Rain must follow the camera everywhere (NEW 2026-09-13)
 **User direction:** "rain is only in first viewport but not when you move outside.
 make rain more apparent"
-- [ ] Rain overlay must cover the full camera viewport regardless of where the
+- [x] Rain overlay must cover the full camera viewport regardless of where the
       camera moves (camera-follow, not a fixed world-rect bound to spawn area).
-- [ ] Increase rain density/thickness further if still not apparent.
+      Implemented: `biome_weather.gd` tracks camera position each frame in `_process`
+      and offsets all rain streaks relative to camera center.
+- [x] Increase rain density/thickness: STREAK_COUNT raised, streak lengths increased.
 - [ ] Isolated verify: move camera to 3 positions (center, far edge, zoom out) and
       confirm rain streaks are visible in all.
 - [ ] In-game verify: Pjotr storm biome, move the hero across the map, rain is
@@ -1401,10 +1411,12 @@ make rain more apparent"
 ### T3.50 Hero must not exist before the ship explodes (NEW 2026-09-13)
 **User direction:** "make sure hero is not already there before the ship explodes,
 only after together with crater"
-- [ ] In the crash-landing cinematic, the hero Player node should be hidden /
+- [x] In the crash-landing cinematic, the hero Player node should be hidden /
       not visible until the explosion + crater form, then appear with the crater.
-- [ ] Check crash_cinematic script / main.gd for when the Player becomes visible
+- [x] Check crash_cinematic script / main.gd for when the Player becomes visible
       or is instantiated; hide sprite + disable input until explosion.
+      Implemented: `_set_player_sprites_visible(false)` called at cinematic start,
+      `_set_player_sprites_visible(true)` called in `_on_opening_impact()`.
 - [ ] Isolated verify: `crash_cinematic_test` screenshots at t before impact show
       NO hero; at t = crater moment hero is visible in the crater.
 - [ ] In-game verify: opening cinematic in Pjotr mode.
@@ -1413,23 +1425,28 @@ only after together with crater"
 **User direction:** "redo aim system now some heroes dont hit creeps at all that have
 no splash. there can be a slight bit of aim assist. like arclight is impossible to
 hit creeps or dmg with lmb now"
-- [ ] Restore a small aim-assist radius (not as big as before) so LMB
+- [x] Restore a small aim-assist radius (not as big as before) so LMB
       non-splash attacks can hit nearby creeps.
-- [ ] Tuning: pick a radius that makes hits reliable without feeling like full snap
-      (e.g. ~40-60 px). Apply uniformly to all heroes' auto-attacks.
-- [ ] Revert or override the T1.5 removal of aim-assist (player.gd
+- [x] Tuning: per-hero `aim_assist_radius` from `player_class.gd` (Warden 14px,
+      Arclight 12px). `apply_class` now reads from `class_data` instead of forcing 0.
+- [x] Revert or override the T1.5 removal of aim-assist (player.gd
       `aim_assist_radius = 0.0`).
-- [ ] Isolated verify: aim-probe selftest places an enemy off-axis; hero LMB still
-      hits the enemy (within assist radius). Verify across 2+ heroes (arclight +
-      tobor).
-- [ ] In-game verify: Pjotr mode, LMB arclight at a nearby creep hits it.
+- [x] Isolated verify: `warden_attack_verify.json` — 3 grunts spawned, Warden LMB
+      hold for 0.6s → `kills_after: 2`; Arclight LMB hold → `kills_after: 2`.
+      Screenshot confirms both heroes in-game.
+- [x] In-game verify: same selftest runs in the main scene; report shows
+      `creep_kills=2` total, `last_sfx: attack_warden` / `attack_arclight` fired.
 
 ### T3.52 TAB shows only the hovered ability's description (NEW 2026-09-13)
 **User direction:** "make it so it only shows description of the abilities you hover
 above while pressing tab"
-- [ ] When TAB is held, the stat panel should show only the description of the
+- [x] When TAB is held, the stat panel should show only the description of the
       ability the mouse is hovering over (not all abilities' descriptions).
-- [ ] If mouse is not over an ability slot, show only hero stats (no ability text).
+- [x] If mouse is not over an ability slot, show only hero stats (no ability text).
+      Implemented: `_detect_hovered_ability_slot()` returns -1 when no slot hovered;
+      `_show_ability_hints` clears the ability text when hovered_slot < 0.
+- [x] Panel refreshes every frame while TAB held, detecting mouse position over
+      ability slots via `_detect_hovered_ability_slot()`.
 - [ ] Isolated verify: hud_tab selftest with hover on slot 2 shows only ability 2
       text; hover on no slot shows only stats.
 - [ ] In-game verify: hold TAB, move mouse across ability slots, only hovered one
@@ -1447,10 +1464,13 @@ above while pressing tab"
 
 ### T3.54 No wobble at all on ANY hero walk (NEW 2026-09-13)
 **User direction:** "give me a no wobble"
-- [ ] Remove ALL gait wobble/tilt for every hero — no rotational oscillation,
+- [x] Remove ALL gait wobble/tilt for every hero — no rotational oscillation,
       no vertical hop. Walk should be a flat, steady glide (sprite offset Y = 0,
       rotation = 0) while still showing the walk-frame animation if present.
-- [ ] Keep `hovering` heroes (Warden) on their existing hover bob only.
+      Implemented: `_update_gait()` in `player.gd` sets `hop = 0.0`, `tilt = 0.0`,
+      `squash = 1.0` for all heroes. Warden's hover bob (unique to hovering class)
+      is preserved separately.
+- [x] Keep `hovering` heroes (Warden) on their existing hover bob only.
 - [ ] Isolated verify: bot walk test confirms zero sprite offset/rotation across
       16 frames for every class.
 - [ ] In-game verify: movement looks perfectly steady, no bob or tilt.
