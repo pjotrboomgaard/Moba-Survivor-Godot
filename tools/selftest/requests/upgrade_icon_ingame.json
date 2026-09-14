@@ -1,0 +1,10 @@
+{
+  "hero": "arclight",
+  "comment": "T3.89 in-game: show the upgrade panel with the 4 previously-blue icons and confirm they now render distinct pixel art, not blue shards.",
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "ingame_panel_before"},
+    {"t": 1.4, "kind": "force_upgrade_panel", "ids": ["gun_drone", "push_drone", "scholar", "keen_eye"]},
+    {"t": 2.4, "kind": "snap", "label": "ingame_panel_after"},
+    {"t": 2.8, "kind": "report"}
+  ]
+}

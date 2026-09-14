@@ -1,0 +1,75 @@
+{
+  "captured": 2,
+  "icons": [
+    {
+      "id": "gun_drone",
+      "is_blue_shard": false,
+      "mean": [
+        0.779084980487823,
+        0.755816996097565,
+        0.57490199804306
+      ],
+      "null": false,
+      "size": [
+        8,
+        8
+      ]
+    },
+    {
+      "id": "push_drone",
+      "is_blue_shard": false,
+      "mean": [
+        0.624205529689789,
+        0.953211605548859,
+        0.763488829135895
+      ],
+      "null": false,
+      "size": [
+        8,
+        8
+      ]
+    },
+    {
+      "id": "scholar",
+      "is_blue_shard": false,
+      "mean": [
+        0.887481153011322,
+        0.825037717819214,
+        0.599095046520233
+      ],
+      "null": false,
+      "size": [
+        8,
+        8
+      ]
+    },
+    {
+      "id": "keen_eye",
+      "is_blue_shard": false,
+      "mean": [
+        0.972549021244049,
+        0.922281622886658,
+        0.689483046531677
+      ],
+      "null": false,
+      "size": [
+        8,
+        8
+      ]
+    }
+  ],
+  "scene": "upgrade_icon_test",
+  "shots": [
+    {
+      "label": "icons_iso_before",
+      "path": "user://upgrade_icon_run_1789423963/icons_iso_before_0.41.png",
+      "t": 0.411507333333334
+    },
+    {
+      "label": "icons_iso_after",
+      "path": "user://upgrade_icon_run_1789423963/icons_iso_after_0.91.png",
+      "t": 0.912664000000001
+    }
+  ],
+  "verdict": "PASS"
+}

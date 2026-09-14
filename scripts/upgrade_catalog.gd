@@ -262,14 +262,18 @@ static func rarity_of(upgrade_id: String) -> String:
 	return str(info(upgrade_id).get("rarity", "common"))
 
 
+## T3.89: check _ROWS FIRST (pixel-art per-upgrade icons). The old code called
+## SpriteLibrary.texture_for() first, which for upgrade ids with no dedicated PNG
+## falls through to SideQuestArt.texture() → default _SHARD (a blue crystal).
+## That blue shard is what the user saw as "blue for some upgrades without an
+## icon." Now the per-upgrade pixel-art rows are always used when available.
 static func texture(upgrade_id: String) -> Texture2D:
-	var baked := SpriteLibrary.texture_for(upgrade_id)
-	if baked != null:
-		return baked
 	var rows: Array = _ROWS.get(upgrade_id, [])
-	if rows.is_empty():
-		return null
-	return SpriteLibrary.texture_from_rows(rows, _P)
+	if not rows.is_empty():
+		return SpriteLibrary.texture_from_rows(rows, _P)
+	# No per-upgrade rows: fall back to a baked PNG (or SideQuestArt default).
+	var baked := SpriteLibrary.texture_for(upgrade_id)
+	return baked
 
 
 static func is_ability_token(token: String) -> bool:

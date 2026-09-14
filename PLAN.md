@@ -2075,16 +2075,26 @@ all heroes"
 - [ ] In-game verify: play a session, log the sequence of offered upgrades;
       confirm noticeably less repetition than baseline.
 
-### T3.89 Fix missing-icon upgrade (blue placeholder) (NEW 2026-09-14) _STATUS (2026-09-14): todo_
+### T3.89 Fix missing-icon upgrade (blue placeholder) (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "there is still a blue for some upgrades without an icon i
 think"
-- [ ] Find the blue/placeholder tile shown when an upgrade has no icon.
-- [ ] Identify which upgrade(s) lack an icon asset and assign a real icon (or a
-      themed placeholder) so no blue swatch is shown in the upgrade UI.
-- [ ] Isolated verify: `upgrade_icon_test` — enumerate every upgrade; assert each
-      resolves to a non-null, non-blue texture.
-- [ ] In-game verify: screenshot the level-up offer panel; confirm no blue
-      placeholder tile remains.
+- [x] Root cause: `UpgradeCatalog.texture()` called `SpriteLibrary.texture_for()`
+      FIRST; for ids with no dedicated PNG it fell through to `SideQuestArt.texture()`
+      → default `_SHARD` (blue crystal). Fixed: `texture()` now checks `_ROWS`
+      (per-upgrade pixel art) first, so every upgrade with rows uses its own art.
+      `push_drone` rows also redesigned to be visually distinct (green/grey, not
+      blue-diamond).
+- [x] Isolated verify `scenes/upgrade_icon_test/` (empty world, 4 icons):
+      mean-color analysis confirms all 4 are non-null, non-blue-shard:
+      gun_drone (0.78,0.76,0.57), push_drone (0.62,0.95,0.76),
+      scholar (0.89,0.83,0.60), keen_eye (0.97,0.92,0.69). Screenshots:
+      `tools/selftest/results/upgrade_icon/icons_iso_before.png`,
+      `icons_iso_after.png`, report `report.json` (verdict=PASS).
+- [x] In-game verify: `force_upgrade_panel` with the 4 ids — panel shows
+      Repulsor Drone / Gun Drone / Field Notes / Keen Eye with distinct correct
+      pixel-art icons, no blue shard. Screenshots:
+      `tools/selftest/results/upgrade_icon_ingame/ingame_panel_before.png`,
+      `ingame_panel_after.png`.
 
 ### T3.90 Tree regrow after 3 day/night cycles + 10s small→big morph (NEW 2026-09-14) _STATUS (2026-09-14): todo_
 **User direction:** "trees regrow after 3 day night cycles with a morph from
