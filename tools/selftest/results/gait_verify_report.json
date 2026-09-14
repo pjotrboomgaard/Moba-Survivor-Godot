@@ -1,0 +1,60 @@
+{
+  "heroes": [
+    {
+      "detail": "min=0.00 max=0.00 expected=within +/-0.75 (flat)",
+      "expected": "flat",
+      "hero": "arclight",
+      "max_offset": 0.0,
+      "min_offset": 0.0,
+      "passes": true,
+      "samples": 30
+    },
+    {
+      "detail": "min=-2.49 max=-0.03 expected=<-1.0 (heavy hop)",
+      "expected": "heavy_hop",
+      "hero": "bulwark",
+      "max_offset": -0.0261794608086348,
+      "min_offset": -2.48630475997925,
+      "passes": true,
+      "samples": 30
+    },
+    {
+      "detail": "min=-9.76 max=-6.50 expected=~-10px hover",
+      "expected": "flat",
+      "hero": "warden",
+      "max_offset": -6.50165939331055,
+      "min_offset": -9.75520038604736,
+      "passes": true,
+      "samples": 30
+    },
+    {
+      "detail": "min=-9.95 max=-0.00 expected=~-10px tobor hop",
+      "expected": "flat",
+      "hero": "tobor",
+      "max_offset": -0.0000000000000101063905508236,
+      "min_offset": -9.94521903991699,
+      "passes": true,
+      "samples": 30
+    }
+  ],
+  "scene": "gait_verify",
+  "screenshots": [
+    {
+      "label": "arclight_walk",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/gait_verify_arclight_walk.png"
+    },
+    {
+      "label": "bulwark_walk",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/gait_verify_bulwark_walk.png"
+    },
+    {
+      "label": "warden_walk",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/gait_verify_warden_walk.png"
+    },
+    {
+      "label": "tobor_walk",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/gait_verify_tobor_walk.png"
+    }
+  ],
+  "verdict": "PASS"
+}

@@ -217,35 +217,62 @@ func _draw_fallback_tree(pos: Vector2, burning_now: bool, burn_time: float) -> v
 
 
 func _draw_flames(pos: Vector2, size: Vector2, burn_time: float) -> void:
-	# 2-3 frame flicker via time-based jitter. Layers of orange/yellow circles.
-	var rng := RandomNumberGenerator.new()
-	rng.seed = int(burn_time * 12.0)
-	var base_y := pos.y - size.y * 0.35
-	var cols: Array[Color] = [
-		Color(1.0, 0.45, 0.05, 0.85),
-		Color(1.0, 0.65, 0.10, 0.80),
-		Color(1.0, 0.85, 0.25, 0.90),
-	]
-	for i in 7:
-		var jitter := rng.randf_range(-6.0, 6.0)
-		var fx := pos.x + jitter + sin(burn_time * 10.0 + i) * 4.0
-		var fy := base_y - rng.randf_range(0.0, 26.0)
-		var r := rng.randf_range(8.0, 16.0) * (1.0 + 0.2 * sin(burn_time * 14.0 + i))
-		draw_circle(Vector2(fx, fy), r, cols[i % cols.size()])
-	# Bright core.
-	draw_circle(Vector2(pos.x, base_y + 4), 10.0, Color(1.0, 0.9, 0.4, 0.9))
+	# T3.14: use pixel-art flame frames (fire_frame_0/1/2) with a 3-frame flicker.
+	var frame_idx := int(burn_time * 8.0) % 3
+	var frame_tex := SpriteLibrary.texture_for("fire_frame_%d" % frame_idx)
+	if frame_tex != null:
+		var base_y := pos.y - size.y * 0.35
+		var scale_factor := 2.2
+		var tw := frame_tex.get_width() * scale_factor
+		var th := frame_tex.get_height() * scale_factor
+		draw_texture_rect(
+			frame_tex,
+			Rect2(pos.x - tw * 0.5, base_y - th * 0.85, tw, th),
+			false
+		)
+		# Small procedural embers drifting up for extra life.
+		var rng := RandomNumberGenerator.new()
+		rng.seed = int(burn_time * 12.0) + 100
+		for i in 4:
+			var rise := fposmod(burn_time * 24.0 + float(i) * 5.0, 20.0)
+			var ey: float = base_y - rng.randf_range(10.0, 50.0) - rise
+			var ex := pos.x + rng.randf_range(-16.0, 16.0)
+			draw_circle(Vector2(ex, ey), 2.0, Color(1.0, 0.7, 0.2, 0.6))
+	else:
+		# Fallback: procedural circles.
+		var rng := RandomNumberGenerator.new()
+		rng.seed = int(burn_time * 12.0)
+		var base_y := pos.y - size.y * 0.35
+		var cols: Array[Color] = [
+			Color(1.0, 0.45, 0.05, 0.85),
+			Color(1.0, 0.65, 0.10, 0.80),
+			Color(1.0, 0.85, 0.25, 0.90),
+		]
+		for i in 7:
+			var jitter := rng.randf_range(-6.0, 6.0)
+			var fx := pos.x + jitter + sin(burn_time * 10.0 + i) * 4.0
+			var fy := base_y - rng.randf_range(0.0, 26.0)
+			var r := rng.randf_range(8.0, 16.0) * (1.0 + 0.2 * sin(burn_time * 14.0 + i))
+			draw_circle(Vector2(fx, fy), r, cols[i % cols.size()])
+		draw_circle(Vector2(pos.x, base_y + 4), 10.0, Color(1.0, 0.9, 0.4, 0.9))
 
 
 func _draw_dead_tree(t: Dictionary) -> void:
 	var pos: Vector2 = t.pos
-	# Charred trunk silhouette: dark grey/brown.
-	var trunk := Color(0.12, 0.09, 0.06)
-	draw_rect(Rect2(pos.x - 5, pos.y - 34, 10, 36), trunk)
-	# A few broken branches.
-	draw_line(Vector2(pos.x, pos.y - 20), Vector2(pos.x - 12, pos.y - 30), trunk, 4.0)
-	draw_line(Vector2(pos.x, pos.y - 14), Vector2(pos.x + 10, pos.y - 24), trunk, 3.0)
-	# Charred base glow fading out.
-	draw_circle(pos, 8.0, Color(0.4, 0.15, 0.05, 0.4))
+	# T3.14: use pixel-art dead_tree_stump sprite if available.
+	var tex := SpriteLibrary.texture_for("dead_tree_stump")
+	if tex != null:
+		var scale_factor := 1.8
+		var tw := tex.get_width() * scale_factor
+		var th := tex.get_height() * scale_factor
+		draw_texture_rect(tex, Rect2(pos.x - tw * 0.5, pos.y - th, tw, th), false)
+	else:
+		# Fallback: procedural charred trunk.
+		var trunk := Color(0.12, 0.09, 0.06)
+		draw_rect(Rect2(pos.x - 5, pos.y - 34, 10, 36), trunk)
+		draw_line(Vector2(pos.x, pos.y - 20), Vector2(pos.x - 12, pos.y - 30), trunk, 4.0)
+		draw_line(Vector2(pos.x, pos.y - 14), Vector2(pos.x + 10, pos.y - 24), trunk, 3.0)
+		draw_circle(pos, 8.0, Color(0.4, 0.15, 0.05, 0.4))
 
 
 ## ---- Report ----

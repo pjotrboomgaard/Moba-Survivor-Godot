@@ -1,0 +1,8 @@
+{
+  "comment": "T3.47/T3.53 isolated verify: Arclight LMB bolt originates from the staff tip, Warden LMB bolt originates from the hand. Both heroes aim right and fire one LMB; the test asserts the emitted staff_cast points[0] is offset +X and -Y from the body center (i.e. the hand/staff tip, not the body centre). Screenshots show the bolt's muzzle in-frame.",
+  "scene": "res://scenes/bolt_origin_test/bolt_origin_test.tscn",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "bolt_origin_test.png",
+  "notes": "report.heroes[arclight].passes and report.heroes[warden].passes must both be true. The screenshots must show the bolt leaving from the staff/hand tip, not the body centre."
+}

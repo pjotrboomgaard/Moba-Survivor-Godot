@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "biome": 6,
+  "time_scale": 1.0,
+  "comment": "T3.58: verify Creep Camps world (biome 6) — empty map with hostile creep camps scattered, no landmarks, enemy waves still spawn",
+  "events": [
+    {"t": 2.0, "kind": "probe", "label": "creep_camps_start"},
+    {"t": 4.0, "kind": "snap", "label": "creep_camps_field"},
+    {"t": 8.0, "kind": "snap", "label": "creep_camps_wave1"},
+    {"t": 10.0, "kind": "report"}
+  ]
+}

@@ -19,8 +19,10 @@
           "rank": 1
         }
       ],
+      "attack_range": 540.0,
       "biome_id": 0,
       "biome_name": "Verdant Hollow",
+      "blast_radius": 0.0,
       "cds": [
         0.0,
         0.0,
@@ -53,10 +55,11 @@
           5600.0
         ]
       },
+      "frost_burst_radius": 65.0,
       "gold": 12,
       "hero": "warden",
-      "hp": 144.875,
-      "hp_frac": 0.965833333333334,
+      "hp": 144.85,
+      "hp_frac": 0.965666666666668,
       "hp_max": 150.0,
       "kind": "probe",
       "label": "warden_lmb_probe",
@@ -71,7 +74,7 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(65.956, 3.60343)"
+          "pos": "(65.81119, 3.606026)"
         }
       },
       "pulse_interval": 0.0,
@@ -90,7 +93,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 1.50397466666666,
+      "t": 1.50097266666666,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -105,15 +108,16 @@
       },
       "wave": 1,
       "wave_name": "First Contact",
+      "weapon_damage": 11.0,
       "xp": 20
     },
     {
-      "enemies_alive": 19,
+      "enemies_alive": 16,
       "kills_after": 2,
       "kills_before": 0,
       "kind": "primary_probe",
       "label": "primary_hold",
-      "t": 1.89569933333333
+      "t": 1.89265233333333
     },
     {
       "abilities": [
@@ -134,8 +138,10 @@
           "rank": 1
         }
       ],
+      "attack_range": 620.0,
       "biome_id": 0,
       "biome_name": "Verdant Hollow",
+      "blast_radius": 0.0,
       "cds": [
         0.0,
         0.0,
@@ -156,8 +162,8 @@
             "local": true,
             "peer": 1,
             "pos": [
-              56.0,
-              9.0
+              55.0,
+              10.0
             ],
             "team": ""
           }
@@ -168,6 +174,7 @@
           5600.0
         ]
       },
+      "frost_burst_radius": 65.0,
       "gold": 18,
       "hero": "arclight",
       "hp": 91.7,
@@ -186,7 +193,7 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(55.61192, 9.411902)"
+          "pos": "(54.80604, 9.636723)"
         }
       },
       "pulse_interval": 0.0,
@@ -205,7 +212,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 3.00402766666666,
+      "t": 3.00140966666666,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -220,20 +227,21 @@
       },
       "wave": 1,
       "wave_name": "First Contact",
+      "weapon_damage": 18.0,
       "xp": 30
     },
     {
-      "enemies_alive": 19,
+      "enemies_alive": 20,
       "kills_after": 2,
       "kills_before": 2,
       "kind": "primary_probe",
       "label": "primary_hold",
-      "t": 3.4094839090909
+      "t": 3.39275833333333
     }
   ],
-  "elapsed": 4.00126699999999,
+  "elapsed": 4.00632003030302,
   "enemies_spawned": 3,
-  "hero_position": "(55.61192, 9.411902)",
+  "hero_position": "(54.80604, 9.636723)",
   "player_class": "arclight",
   "results": {
     "alive": true,
@@ -268,8 +276,8 @@
   "shots": [
     {
       "label": "warden_arclight_done",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6772/warden_arclight_done_3.501_6772.png",
-      "t": 3.50115057575757
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10132/warden_arclight_done_3.501_10132.png",
+      "t": 3.50109166666666
     }
   ]
 }

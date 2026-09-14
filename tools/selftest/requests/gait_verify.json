@@ -1,0 +1,8 @@
+{
+  "comment": "T3.54/T3.55 isolated verify: gait test for all heroes. non-bulwark heroes must stay flat (sprite offset within +-0.75px); bulwark must dip below -1.0px (heavy hop). 30 physics-frame samples per hero, screenshots show mid-walk pose.",
+  "scene": "res://scenes/gait_verify/gait_verify.tscn",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "gait_verify.png",
+  "notes": "report.heroes: each entry has min_offset/max_offset over 30 physics frames while walking. arclight/warden/tobor must have |offset| < 0.75 (flat). bulwark must have min_offset < -1.0 (heavy hop). All 4 screenshots show mid-walk poses."
+}

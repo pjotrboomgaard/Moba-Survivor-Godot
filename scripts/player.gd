@@ -661,8 +661,14 @@ func _update_tobor_visual(delta: float, move_input: Vector2) -> void:
 	if not FACING_CLASS_IDS.has(class_id):
 		return
 	# 4-frame walk cycle shared by every hero: phase steps 0→1→2→3→0 while moving, frozen at 0 standing.
+	# T3.55 (2026-09-13): Bulwark (the heavy hero) walks at a slower cadence than the
+	# other heroes so his footfalls read as weighty. This also drives the 4-frame
+	# walk-cycle selection so his animation matches the slower gait.
 	if moving:
-		_tobor_walk_phase += delta * 7.0
+		var gait_speed := 7.0
+		if class_id == "bulwark":
+			gait_speed = 4.6
+		_tobor_walk_phase += delta * gait_speed
 	else:
 		_tobor_walk_phase = 0.0
 	_walk_cycle_phase = int(_tobor_walk_phase) % 4 if moving else 0
@@ -673,11 +679,8 @@ func _update_tobor_visual(delta: float, move_input: Vector2) -> void:
 func _hero_sprite_scale() -> Vector2:
 	if sprite == null or sprite.texture == null:
 		return Vector2.ONE
+	# T3.65: All heroes use the same sprite scale so CPU allies match Tobor's size.
 	var boost := HERO_SCALE_BOOST
-	if class_id == "arclight" or class_id == "bulwark" or class_id == "warden":
-		boost *= 1.125
-	elif class_id != "tobor":
-		boost *= 1.25
 	if FACING_CLASS_IDS.has(class_id):
 		return SpriteLibrary.scale_for_radius(sprite.texture, BODY_RADIUS * 2.2 * boost)
 	if sprite.texture.get_width() >= 32:
@@ -694,28 +697,25 @@ func _paint_hero_facing() -> void:
 	sprite.scale = _hero_sprite_scale()
 
 
-## Arclight: tiny hop. Bulwark: slow heavy stomp. Warden stays on the hover bob.
-func _update_gait(delta: float, moving: bool) -> void:
+## Arclight: flat glide. Bulwark: slow, minimal heavy hop. Warden stays on the hover bob.
+func _update_gait(_delta: float, moving: bool) -> void:
 	if hovering or sprite == null:
 		return
-	if moving:
-		# T3.48: arclight cycle slowed to default 5.2 (was 9.0 — too fast/wobbly).
-		_tobor_walk_phase += delta * 5.2
-	else:
-		_tobor_walk_phase = 0.0
-	# T3.48 + T3.54 (2026-09-13): NO wobble at all.
-	# Arclight, Bulwark, and every other hero walks with a flat, steady glide.
-	# No hop, no squash, no tilt. The walk-frame animation (if a sprite walk
-	# cycle exists) still plays — only the sprite offset / rotation / scale
-	# modulation is removed.
+	# T3.54 (2026-09-13): flat glide for all heroes — no wobble.
+	# T3.55 (2026-09-13): Bulwark (the heavy hero) gets a VERY minimal, slow
+	# hop while moving to read as a heavy footfall. Amplitude is tiny (~2.5px)
+	# and the cycle is slow (0.5s per step) so it never reads as wobble. The
+	# walk-frame phase (_tobor_walk_phase) is advanced by _update_tobor_visual
+	# at the class's gait cadence, so this hop is synced to his slower steps.
 	var hop := 0.0
-	var tilt := 0.0
-	var squash := 1.0
-	sprite.offset = Vector2(0.0, 0.0)
+	if moving and class_id == "bulwark":
+		# Slow, subtle vertical bob: peaks ~2.5px above the baseline at mid-step.
+		hop = -sin(fmod(_tobor_walk_phase, 1.0) * PI) * 2.5
+	sprite.offset = Vector2(0.0, hop)
 	sprite.rotation = 0.0
 	var base := _hero_sprite_scale()
 	sprite.scale = Vector2(base.x, base.y)
-	_place_health_bar(0.0)
+	_place_health_bar(hop)
 
 
 func _place_health_bar(hop: float) -> void:
@@ -2484,21 +2484,116 @@ func _spawn_fissure_wall(origin: Vector2, direction: Vector2, length: float, seg
 	wall_root.z_index = 6
 	scene_root.add_child(wall_root)
 
-	# Visual ridge: jagged bright line with a hot core, so you can read where the earth split.
-	var ridge := Line2D.new()
-	ridge.default_color = Color(1.0, 0.82, 0.45, 0.9)
-	ridge.width = 10.0
-	ridge.z_index = 24
-	ridge.add_point(origin)
-	ridge.add_point(origin + direction * length)
-	wall_root.add_child(ridge)
+	# T3.56: Redo the fissure to read as a jagged earth-crack ridge.
+	# - Wide dark "excavated earth" band (drawn as a polygon) along the wall.
+	# - A bright orange/red molten core running down the center (the "glow").
+	# - Jagged side cracks branching off the main ridge.
+	# - Ember particles floating up out of the crack.
+	# All of these fade together over the last 0.8s.
+
+	# Perpendicular for offsets.
+	var perp := direction.rotated(PI / 2.0)
+	var half_width := 14.0  # half of the dark band width
+	var core_half_width := 4.0  # half of the molten core width
+
+	# Build jagged points along the main ridge for the dark band polygon.
+	# Each segment boundary gets a small random perpendicular jitter so the
+	# ridge looks broken/organic rather than a clean line.
+	var band_points_left: Array[Vector2] = []
+	var band_points_right: Array[Vector2] = []
+	var core_points: Array[Vector2] = []
+	var step_count := segments * 4 + 1  # fine sampling for jaggedness
+	for i in range(step_count + 1):
+		var t := float(i) / float(step_count)
+		var center_pos := origin + direction * (length * t)
+		# Jitter: small perpendicular offset that's consistent across all 3 lines.
+		var jitter_amp := 3.0
+		var jitter := perp * (jitter_amp * sin(float(i) * 2.7) + jitter_amp * 0.5 * sin(float(i) * 5.1 + 1.3))
+		var jittered := center_pos + jitter
+		band_points_left.append(jittered + perp * half_width)
+		band_points_right.append(jittered - perp * half_width)
+		core_points.append(jittered)
+
+	# Dark excavated-earth band: polygon between left and right edges.
+	var band_poly := PackedVector2Array()
+	for p in band_points_left:
+		band_poly.append(p)
+	for i in range(band_points_right.size() - 1, -1, -1):
+		band_poly.append(band_points_right[i])
+	var band := Node2D.new()
+	band.z_index = 23
+	band.set_script(_fissure_band_script())
+	(band as Node2D).set("polygon", band_poly)
+	wall_root.add_child(band)
+
+	# Molten core: a bright line down the center.
 	var core := Line2D.new()
-	core.default_color = Color(1.0, 0.97, 0.88, 0.95)
-	core.width = 2.5
+	core.default_color = Color(1.0, 0.55, 0.15, 0.95)
+	core.width = core_half_width * 2.0
 	core.z_index = 25
-	core.add_point(origin)
-	core.add_point(origin + direction * length)
+	core.antialiased = false
+	for p in core_points:
+		core.add_point(p)
 	wall_root.add_child(core)
+
+	# Hot inner highlight: a thinner, brighter line on top of the core.
+	var hot := Line2D.new()
+	hot.default_color = Color(1.0, 0.92, 0.7, 0.9)
+	hot.width = core_half_width
+	hot.z_index = 25
+	hot.antialiased = false
+	for p in core_points:
+		hot.add_point(p)
+	wall_root.add_child(hot)
+
+	# Jagged side cracks: short branch lines off the main ridge at irregular intervals.
+	var crack := Line2D.new()
+	crack.default_color = Color(0.9, 0.45, 0.1, 0.75)
+	crack.width = 2.0
+	crack.z_index = 24
+	crack.antialiased = false
+	for i in range(segments):
+		var t := (float(i) + 0.5) / float(segments)
+		var base_pos := origin + direction * (length * t)
+		var side_sign := 1.0 if i % 2 == 0 else -1.0
+		var crack_len := 14.0 + 8.0 * fmod(float(i) * 0.618, 1.0)
+		var start := base_pos + perp * (half_width * side_sign)
+		var end := start + direction * (10.0 * side_sign) + perp * (crack_len * side_sign)
+		crack.add_point(start)
+		crack.add_point(end)
+		# small gap between branches
+		crack.add_point(end + direction * 2.0)
+		crack.add_point(base_pos - direction * 2.0)
+	wall_root.add_child(crack)
+
+	# Ember particles: a GPUParticles2D floating up from the crack.
+	var embers := GPUParticles2D.new()
+	embers.z_index = 26
+	embers.amount = int(length / 8.0) + 12
+	embers.lifetime = 1.2
+	embers.one_shot = false
+	embers.emitting = true
+	# Position the emitters at the wall center. Emission is spread along the ridge
+	# via the process material's emission box extents (2D: Vector2 x,y).
+	embers.global_position = origin + direction * (length * 0.5)
+	# Build a simple procedural texture: a soft round ember.
+	var ember_tex := _make_ember_texture()
+	var process_mat := ParticleProcessMaterial.new()
+	process_mat.direction = Vector3(0.0, -1.0, 0.0)
+	process_mat.spread = 25.0
+	process_mat.emission_shape = 1  # EMISSION_SHAPE_RECTANGLE via raw int (enum not exposed)
+	process_mat.emission_box_extents = Vector3(length, 2.0, 0.0)
+	process_mat.initial_velocity_min = 12.0
+	process_mat.initial_velocity_max = 30.0
+	process_mat.gravity = Vector3(0.0, 6.0, 0.0)
+	process_mat.scale_min = 0.6
+	process_mat.scale_max = 1.4
+	var ramp_tex := GradientTexture1D.new()
+	ramp_tex.gradient = _make_ember_ramp()
+	process_mat.color_ramp = ramp_tex
+	embers.process_material = process_mat
+	embers.texture = ember_tex
+	wall_root.add_child(embers)
 
 	# Impassable segments: small StaticBody2D discs along the line, collision layer 16 —
 	# arenas already treat 16 as "blocks ground movement". No script needed; plain physics.
@@ -2517,11 +2612,77 @@ func _spawn_fissure_wall(origin: Vector2, direction: Vector2, length: float, seg
 		wall_root.add_child(segment)
 
 	# TTL: fade the visual over the last 0.8 s, then free the whole wall after `duration`.
-	var fade := ridge.create_tween()
+	var fade := wall_root.create_tween()
 	fade.tween_interval(maxf(duration - 0.8, 0.2))
-	fade.tween_property(ridge, "modulate:a", 0.0, 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	fade.parallel().tween_property(core, "modulate:a", 0.0, 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	fade.parallel().tween_property(hot, "modulate:a", 0.0, 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	fade.parallel().tween_property(crack, "modulate:a", 0.0, 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	fade.parallel().tween_property(band, "modulate:a", 0.0, 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	# Stop the embers 0.5s before the wall frees so they don't pop.
+	get_tree().create_timer(maxf(duration - 0.5, 0.1)).timeout.connect(func(): embers.emitting = false)
 	get_tree().create_timer(duration).timeout.connect(wall_root.queue_free)
+
+
+## Tiny Node2D script that draws a filled polygon (used for the fissure's dark earth band).
+var _fissure_band_cache: GDScript = null
+func _fissure_band_script() -> GDScript:
+	if _fissure_band_cache != null:
+		return _fissure_band_cache
+	var src := GDScript.new()
+	src.source_code = """
+extends Node2D
+var polygon: PackedVector2Array = PackedVector2Array()
+func _draw() -> void:
+	if polygon.size() < 3:
+		return
+	var fill := Color(0.12, 0.08, 0.05, 0.85)
+	draw_colored_polygon(polygon, fill)
+	var edge := Color(0.35, 0.22, 0.10, 0.9)
+	var pts := polygon
+	draw_polyline(pts, edge, 2.0, true)
+"""
+	var err := src.reload()
+	if err != OK:
+		push_error("_fissure_band_script compile: %s" % src.get_last_error_message())
+		return null
+	_fissure_band_cache = src
+	return src
+
+
+## 1x1 soft round ember texture (procedural — no external asset).
+var _ember_texture_cache: ImageTexture = null
+func _make_ember_texture() -> ImageTexture:
+	if _ember_texture_cache != null:
+		return _ember_texture_cache
+	var img := Image.create_empty(8, 8, false, Image.FORMAT_RGBA8)
+	for y in 8:
+		for x in 8:
+			var dx := float(x - 3.5) / 3.5
+			var dy := float(y - 3.5) / 3.5
+			var d := sqrt(dx * dx + dy * dy)
+			var a := clampf(1.0 - d, 0.0, 1.0)
+			a = a * a
+			img.set_pixel(x, y, Color(1.0, 0.85, 0.4, a))
+	_ember_texture_cache = ImageTexture.create_from_image(img)
+	return _ember_texture_cache
+
+
+## Gradient ramp for embers: bright orange-yellow → deep red → transparent.
+var _ember_ramp_cache: Gradient = null
+func _make_ember_ramp() -> Gradient:
+	if _ember_ramp_cache != null:
+		return _ember_ramp_cache
+	var g := Gradient.new()
+	var colors := PackedColorArray([
+		Color(1.0, 0.95, 0.6, 1.0),
+		Color(1.0, 0.6, 0.15, 1.0),
+		Color(0.8, 0.25, 0.05, 0.85),
+		Color(0.4, 0.1, 0.02, 0.0),
+	])
+	g.colors = colors
+	g.offsets = PackedFloat32Array([0.0, 0.35, 0.7, 1.0])
+	_ember_ramp_cache = g
+	return g
 
 
 ## Warden's Tongue Tied: Pollywog Priest's signature pull. Lashes out and yanks the CLOSeST

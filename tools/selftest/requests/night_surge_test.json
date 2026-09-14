@@ -1,0 +1,15 @@
+{
+  "comment": "T3.59: verify night surge + red eyes + 2x speed. Force night via dev command, capture screenshots before/after night transition, confirm extra creeps spawn and have red eyes.",
+  "scene": "res://scenes/main/main.tscn",
+  "hero": "tobor",
+  "expect_exit": 0,
+  "events": [
+    {"t": 1.0, "kind": "probe", "label": "day_state"},
+    {"t": 2.0, "kind": "snap", "label": "day_field"},
+    {"t": 3.0, "kind": "dev_command", "command": "force_night"},
+    {"t": 4.0, "kind": "probe", "label": "night_transition"},
+    {"t": 6.0, "kind": "snap", "label": "night_active"},
+    {"t": 8.0, "kind": "probe", "label": "night_surge_spawns"},
+    {"t": 10.0, "kind": "report"}
+  ]
+}

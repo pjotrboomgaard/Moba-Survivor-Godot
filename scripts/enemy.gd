@@ -834,8 +834,16 @@ func _process_camp_guardian(delta: float) -> void:
 		# Visual: face the target.
 		queue_redraw()
 	else:
-		# Out of leash: stop completely (no chase).
-		velocity = Vector2.ZERO
+		# Out of leash: return to camp home position (sentinel behavior).
+		# T3.58: instead of just stopping, walk back to the camp.
+		if is_camp_guardian and camp_guardian_home != Vector2.ZERO:
+			var home_dist := global_position.distance_to(camp_guardian_home)
+			if home_dist > 20.0:
+				velocity = global_position.direction_to(camp_guardian_home) * movement_speed * 0.7
+			else:
+				velocity = Vector2.ZERO
+		else:
+			velocity = Vector2.ZERO
 		# Reset the bolt timer so a fresh engage doesn't get an instant shot.
 		_camp_projectile_timer = 0.0
 
@@ -1867,6 +1875,9 @@ func _draw() -> void:
 	elif scrambling_out > 0.0:
 		fill = fill.lerp(Color("ff7a29"), 0.45)
 		outline = outline.lerp(Color("ffd36b"), 0.5)
+	# T3.59: red eyes at night
+	elif WorldClock.is_night:
+		fill = fill.lerp(Color("ff2222"), 0.25)
 
 	if aura_radius > 0.0:
 		var pulse := 0.5 + 0.5 * sin(aura_pulse * 3.0)
@@ -1899,9 +1910,15 @@ func _draw() -> void:
 			sprite.modulate = Color("5ab8ff") * Color(flicker, flicker, 1.0, 1.0)
 		elif slow_timer > 0.0:
 			sprite.modulate = Color("6fbfff")
+		elif WorldClock.is_night:
+			# T3.59: subtle red tint at night so night creeps read as dangerous.
+			sprite.modulate = Color(1.15, 0.82, 0.82, 1.0)
 		else:
 			sprite.modulate = Color.WHITE
 		_draw_status_overlays()
+		# T3.59: red glowing eyes at night — two small dots on the sprite.
+		if WorldClock.is_night:
+			_draw_night_eyes()
 		return
 
 	draw_circle(Vector2.ZERO, body_radius, fill)
@@ -1915,6 +1932,15 @@ func _draw() -> void:
 		draw_line(Vector2(-body_radius * 0.5, 0.0), Vector2(body_radius * 0.5, 0.0), outline, 2.5)
 		draw_line(Vector2(0.0, -body_radius * 0.5), Vector2(0.0, body_radius * 0.5), outline, 2.5)
 	_draw_status_overlays()
+
+
+## T3.59: red glowing eyes at night — two small bright dots on the upper body.
+func _draw_night_eyes() -> void:
+	var eye_color := Color(1.0, 0.15, 0.1, 0.95)
+	var r := maxf(1.5, body_radius * 0.12)
+	# Two eyes side by side, slightly above center
+	draw_circle(Vector2(-body_radius * 0.25, -body_radius * 0.45), r, eye_color)
+	draw_circle(Vector2(body_radius * 0.25, -body_radius * 0.45), r, eye_color)
 
 
 func _draw_status_overlays() -> void:

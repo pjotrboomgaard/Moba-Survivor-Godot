@@ -533,6 +533,10 @@ func budget_for_wave(target_wave: int) -> float:
 	var solo_budget := 24.0 + 7.5 * float(target_wave)
 	if target_wave >= 8:
 		solo_budget += 10.5 * float(target_wave - 7)
+	# T3.58: Creep Camps biome (6) is a camp-farm world — the 7 camps + their
+	# guardians are the main threat, so regular waves are reduced to ~40%.
+	if GameRuntime.uses_biomes() and GameRuntime.biome_id == 6:
+		solo_budget *= 0.40
 	if _solo_pressure_active(target_wave):
 		solo_budget *= SOLO_BUDGET_PRESSURE
 	if GameRuntime.is_ffa():
@@ -850,11 +854,10 @@ func plan_wave(target_wave: int, wave_archetype: Archetype, wave_modifier: Modif
 		Archetype.ELITE:
 			groups.append_array(_plan_elite(target_wave, budget, multiplier, speed_multiplier, available))
 		Archetype.SWARM:
-			var swarm_budget := budget * 1.15
+			# T3.63: swarm waves spawn 3× the normal budget so swarmlings come in
+			# massive coordinated packs (not small scattered pairs).
+			var swarm_budget := budget * 3.0
 			var swarm_form := EnemyType.Formation.PACK
-			if player_count == 1 and not GameRuntime.fill_cpu_allies:
-				swarm_budget = budget * 0.95
-				swarm_form = EnemyType.Formation.SCATTERED
 			groups.append_array(_plan_filtered(swarm_budget, multiplier, speed_multiplier, available, ["swarmling", "splitter", "grunt"], swarm_form))
 		Archetype.AIR_ASSAULT:
 			var air_form := EnemyType.Formation.RING

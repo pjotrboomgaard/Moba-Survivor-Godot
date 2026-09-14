@@ -142,7 +142,7 @@ const CLASSES: Array[Dictionary] = [
 		"movement_speed": 240.0,
 		"attack_interval": 0.95,
 		"weapon_damage": 19.0,
-		"attack_range": 115.0,
+		"attack_range": 57.5,
 		"aim_assist_radius": 14.0,
 		"chain_count": 0,
 		"chain_range": 0.0,

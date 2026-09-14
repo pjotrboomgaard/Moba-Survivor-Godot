@@ -81,6 +81,11 @@ func _fire() -> void:
 			if _fire_sfx_cooldown <= 0.0:
 				_fire_sfx_cooldown = 0.22
 				SoundDirector.play("drone_fire", global_position)
+			# T3.62: spawn a visible projectile from the drone toward the target.
+			var main := owner_player.get_parent()
+			if main != null and main.has_method("spawn_player_projectile"):
+				var dir := (target.global_position - global_position).normalized()
+				main.call("spawn_player_projectile", global_position, dir, owner_player)
 			owner_player._damage_enemy(target, power * (1.15 if kind == Kind.LASER else 1.0))
 			if kind == Kind.SPARK and target.has_method("apply_slow"):
 				target.apply_slow(0.85, 0.4)

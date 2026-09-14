@@ -1,0 +1,169 @@
+{
+  "effects": [
+    {
+      "actual": 5,
+      "kind": "force_level",
+      "t": 0.5,
+      "target": 5
+    },
+    {
+      "ability_hint_visible": true,
+      "kind": "hud_tab",
+      "show": true,
+      "stats_panel_visible": true,
+      "t": 1.50683621212121
+    },
+    {
+      "cd_left": 22.1846666666668,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.36609066666666
+    },
+    {
+      "cd_left": 22.0346666666668,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.50767166666666
+    },
+    {
+      "cinematic_playing": false,
+      "hero": "tobor",
+      "kind": "probe_hero_sprite",
+      "label": "tab_state",
+      "sprite_visible": true,
+      "t": 2.50767166666666,
+      "world_bar_visible": true
+    },
+    {
+      "cd_left": 15.0766666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.91846866666666
+    },
+    {
+      "ability_hint_visible": false,
+      "kind": "hud_tab",
+      "show": false,
+      "stats_panel_visible": false,
+      "t": 3.00774799999999
+    },
+    {
+      "cd_left": 14.9433333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 3.06666666666666
+    },
+    {
+      "cd_left": 16.5033333333335,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 3.47104963636363
+    }
+  ],
+  "elapsed": 4.00136899999999,
+  "enemies_spawned": 0,
+  "hero_position": "(187.1695, -183.8263)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 4,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 0.821234727272726
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 0.846234727272726
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 1.25742666666666
+      },
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 1.94956266666666
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [
+      "only beaten wave 0 / 20 (t=4)"
+    ],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "enemies": 14,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 0.15,
+        "wave": 1
+      },
+      {
+        "enemies": 23,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 2.65,
+        "wave": 1
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 5,
+    "level_upgrades": {
+      "2": [
+        "rapid"
+      ],
+      "3": [
+        "gun_drone"
+      ],
+      "4": [
+        "vitality"
+      ],
+      "5": [
+        "vitality"
+      ]
+    },
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 2,
+    "quests_seen": {
+      "rescue_scout": 1,
+      "visit_runes": 1
+    },
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "rapid",
+      "gun_drone",
+      "vitality",
+      "vitality"
+    ],
+    "until_wave": 20,
+    "verdict": "FAIL_NO_PROGRESS",
+    "wave": 1,
+    "xp": 87
+  },
+  "shots": [
+    {
+      "label": "tab_hud_no_hover",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5418/tab_hud_no_hover_2.008_5418.png",
+      "t": 2.007515
+    },
+    {
+      "label": "tab_hud_hidden",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6910/tab_hud_hidden_3.504_6910.png",
+      "t": 3.50438296969696
+    }
+  ]
+}

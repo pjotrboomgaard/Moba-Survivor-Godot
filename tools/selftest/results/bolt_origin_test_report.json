@@ -1,0 +1,58 @@
+{
+  "heroes": [
+    {
+      "body_center": [
+        -160.0,
+        40.0
+      ],
+      "damage_dealt": 7.56,
+      "detail": "origin=(-142.0, 32.0) center=(-160.0, 40.0) offset=(18.0, -8.0) dmg=7.6 got_cast=true",
+      "enemy_final_hp": 18.44,
+      "enemy_start_hp": 26.0,
+      "got_cast": true,
+      "hero": "arclight",
+      "offset_from_center": [
+        18.0,
+        -8.0
+      ],
+      "origin": [
+        -142.0,
+        32.0
+      ],
+      "passes": true
+    },
+    {
+      "body_center": [
+        -160.0,
+        40.0
+      ],
+      "damage_dealt": 8.694,
+      "detail": "origin=(-142.0, 32.0) center=(-160.0, 40.0) offset=(18.0, -8.0) dmg=8.7 got_cast=true",
+      "enemy_final_hp": 17.306,
+      "enemy_start_hp": 26.0,
+      "got_cast": true,
+      "hero": "warden",
+      "offset_from_center": [
+        18.0,
+        -8.0
+      ],
+      "origin": [
+        -142.0,
+        32.0
+      ],
+      "passes": true
+    }
+  ],
+  "scene": "bolt_origin_test",
+  "screenshots": [
+    {
+      "label": "arclight_bolt",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/bolt_origin_arclight_bolt.png"
+    },
+    {
+      "label": "warden_bolt",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/bolt_origin_warden_bolt.png"
+    }
+  ],
+  "verdict": "PASS"
+}

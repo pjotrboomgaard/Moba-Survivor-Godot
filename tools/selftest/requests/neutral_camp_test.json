@@ -1,0 +1,8 @@
+{
+  "comment": "T3.57: Neutral creep camp world test. Verifies the recruit-creep loop in an isolated empty world: 4 camps with wobbly neutral creeps, excitement when approached, recruitment after minigame, and following behavior.",
+  "scene": "res://scenes/neutral_camp_test/neutral_camp_test.tscn",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "neutral_camp_test.png",
+  "notes": "report.verdict should be PASS. wobble min/max should show oscillation. excited min should be more negative than wobble. follow min_dist should be < 40. recruited_camps should be >= 1."
+}

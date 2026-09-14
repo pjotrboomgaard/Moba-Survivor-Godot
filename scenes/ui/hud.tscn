@@ -381,6 +381,16 @@ button_pressed = true
 [node name="ResolutionOption" type="OptionButton" parent="EscapeMenu/EscapeLayout"]
 layout_mode = 2
 
+[node name="SaveButton" type="Button" parent="EscapeMenu/EscapeLayout"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "SAVE RUN"
+
+[node name="LoadButton" type="Button" parent="EscapeMenu/EscapeLayout"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "LOAD RUN"
+
 [node name="ResumeButton" type="Button" parent="EscapeMenu/EscapeLayout"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2

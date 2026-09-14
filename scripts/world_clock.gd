@@ -49,8 +49,9 @@ static func _refresh() -> void:
 		shadow_stretch = 0.18
 		shadow_alpha = 0.08
 		ambient = Color(0.38, 0.44, 0.58, 1.0)
-		night_speed_mult = 1.15
-		night_attack_mult = 1.5
+		# T3.59: night creeps are 2× faster and fire 2× more projectiles.
+		night_speed_mult = 2.0
+		night_attack_mult = 2.0
 		return
 	night_speed_mult = 1.0
 	night_attack_mult = 1.0

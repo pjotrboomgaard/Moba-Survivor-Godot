@@ -2,6 +2,7 @@ class_name GameHUD
 extends CanvasLayer
 
 const UpgradeCatalog := preload("res://scripts/upgrade_catalog.gd")
+const RunSave := preload("res://scripts/run_save.gd")
 
 signal upgrade_chosen(upgrade_id: String)
 signal ability_chosen(ability_id: String)
@@ -11,6 +12,8 @@ signal restart_requested
 signal leave_requested
 signal dev_command(command: String)
 signal next_wave_requested
+signal save_run_requested
+signal load_run_requested
 
 const UPGRADE_ICON_MAX_WIDTH := 28
 
@@ -51,6 +54,8 @@ const UPGRADE_ICON_MAX_WIDTH := 28
 	$UpgradePanel/Layout/Choices/Choice4,
 ]
 @onready var escape_menu: PanelContainer = $EscapeMenu
+@onready var save_button: Button = $EscapeMenu/EscapeLayout/SaveButton
+@onready var load_button: Button = $EscapeMenu/EscapeLayout/LoadButton
 @onready var resume_button: Button = $EscapeMenu/EscapeLayout/ResumeButton
 @onready var restart_button: Button = $EscapeMenu/EscapeLayout/RestartButton
 @onready var leave_button: Button = $EscapeMenu/EscapeLayout/LeaveButton
@@ -177,6 +182,8 @@ func _ready() -> void:
 		choice_button.clip_text = true
 		choice_button.custom_minimum_size = Vector2(220, 108)
 	shop_continue.pressed.connect(_on_shop_continue_pressed)
+	save_button.pressed.connect(_on_save_pressed)
+	load_button.pressed.connect(_on_load_pressed)
 	resume_button.pressed.connect(_on_resume_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
 	leave_button.pressed.connect(_on_leave_pressed)
@@ -323,6 +330,11 @@ func _build_help_text() -> String:
 
 func _open_escape_menu() -> void:
 	restart_button.visible = GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE
+	# T3.64: show save/load only in offline solo (where run save applies)
+	var save_load_visible := GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE and not GameRuntime.is_ffa()
+	save_button.visible = save_load_visible
+	load_button.visible = save_load_visible
+	load_button.disabled = not RunSave.has_save()
 	_sync_audio_toggles()
 	escape_menu.visible = true
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
@@ -346,6 +358,18 @@ func _on_restart_pressed() -> void:
 	AudioService.play("ui_click")
 	_close_escape_menu()
 	restart_requested.emit()
+
+
+func _on_save_pressed() -> void:
+	AudioService.play("ui_click")
+	_close_escape_menu()
+	save_run_requested.emit()
+
+
+func _on_load_pressed() -> void:
+	AudioService.play("ui_click")
+	_close_escape_menu()
+	load_run_requested.emit()
 
 
 func _on_leave_pressed() -> void:

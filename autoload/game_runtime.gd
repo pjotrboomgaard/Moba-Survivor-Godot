@@ -84,8 +84,8 @@ const FFA_PVP_SHOTS_TO_KILL := 10.0
 ## When true, the local FFA seat is also a CPU (four-bot sim). Menu FFA leaves this false.
 var ffa_all_bots := false
 
-const BIOME_KEYS := ["", "volcano", "ice", "factory", "docks"]
-const BIOME_NAMES := ["Verdant Hollow", "Ashen Crater", "Frostmere Reach", "Ironworks Yard", "Saltbreak Docks"]
+const BIOME_KEYS := ["", "volcano", "ice", "factory", "docks", "neutral_camps", "creep_camps"]
+const BIOME_NAMES := ["Verdant Hollow", "Ashen Crater", "Frostmere Reach", "Ironworks Yard", "Saltbreak Docks", "Neutral Camps", "Creep Camps"]
 const BIOME_ALIASES := {
 	"parking": 0,
 	"parkeer": 0,
@@ -103,6 +103,12 @@ const BIOME_ALIASES := {
 	"3": 3,
 	"docks": 4,
 	"4": 4,
+	"neutral_camps": 5,
+	"neutralcamps": 5,
+	"5": 5,
+	"creep_camps": 6,
+	"creepcamps": 6,
+	"6": 6,
 }
 
 

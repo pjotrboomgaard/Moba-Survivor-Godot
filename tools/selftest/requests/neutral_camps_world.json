@@ -1,0 +1,12 @@
+{
+  "hero": "tobor",
+  "biome": 5,
+  "time_scale": 1.0,
+  "comment": "T3.57: verify Neutral Camps world (biome 5) — empty map with 4 recruitment areas in corners, no landmarks, enemy waves still spawn",
+  "events": [
+    {"t": 2.0, "kind": "probe", "label": "neutral_camps_start"},
+    {"t": 4.0, "kind": "snap", "label": "neutral_camps_field"},
+    {"t": 8.0, "kind": "snap", "label": "neutral_camps_wave1"},
+    {"t": 10.0, "kind": "report"}
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "hero": "tobor",
+  "comment": "T3.62: verify drone projectiles are visible in combat. Spawn enemies near the player so the drone fires, capture screenshots to show the projectile in flight.",
+  "events": [
+    {"t": 2.0, "kind": "probe", "label": "start"},
+    {"t": 2.5, "kind": "spawn", "at": [200, 0], "type": "grunt", "hp_mult": 10.0},
+    {"t": 2.5, "kind": "spawn", "at": [220, 40], "type": "grunt", "hp_mult": 10.0},
+    {"t": 2.5, "kind": "spawn", "at": [180, -40], "type": "grunt", "hp_mult": 10.0},
+    {"t": 3.0, "kind": "snap", "label": "drone_combat_start"},
+    {"t": 3.5, "kind": "snap", "label": "drone_projectile_1"},
+    {"t": 4.0, "kind": "snap", "label": "drone_projectile_2"},
+    {"t": 4.5, "kind": "snap", "label": "drone_combat_mid"},
+    {"t": 5.0, "kind": "report"}
+  ]
+}

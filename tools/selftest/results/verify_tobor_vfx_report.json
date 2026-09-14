@@ -1,0 +1,290 @@
+{
+  "effects": [
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "attack_range": 520.0,
+      "biome_id": 0,
+      "biome_name": "Verdant Hollow",
+      "blast_radius": 30.0,
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 3,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "kills": 0,
+            "local": true,
+            "peer": 1,
+            "pos": [
+              72.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "frost_burst_radius": 65.0,
+      "gold": 0,
+      "hero": "tobor",
+      "hp": 90.0,
+      "hp_frac": 1.0,
+      "hp_max": 90.0,
+      "kind": "probe",
+      "label": "pre_cast",
+      "last_sfx": "",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 868,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(72.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 2.94585899999999,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "weapon_damage": 18.0,
+      "xp": 0
+    },
+    {
+      "cd_left": 24.2346666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 3.25396815151514
+    },
+    {
+      "cd_left": 24.1013333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 3.39790754545454
+    },
+    {
+      "ability_id": "tobor_steam_keg",
+      "assert_ability_match": true,
+      "assert_bank_match": false,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_keg",
+      "kind": "sound_probe",
+      "label": "sfx_keg",
+      "last_play_ability": "tobor_steam_keg",
+      "last_play_sound_id": "cast_tobor",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/tobor_2.wav",
+      "t": 3.61666666666666
+    },
+    {
+      "cd_left": 17.16,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 4.65572400000002
+    },
+    {
+      "cd_left": 17.01,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 4.80000000000002
+    },
+    {
+      "ability_id": "tobor_spider_mines",
+      "assert_ability_match": true,
+      "assert_bank_match": false,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_mines",
+      "kind": "sound_probe",
+      "label": "sfx_mines",
+      "last_play_ability": "tobor_spider_mines",
+      "last_play_sound_id": "cast_tobor",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/tobor_2.wav",
+      "t": 4.96666666666669
+    },
+    {
+      "cd_left": 191.983333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 7.45665118181828
+    },
+    {
+      "cd_left": 191.85,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 7.59983400000011
+    },
+    {
+      "ability_id": "tobor_energy_field",
+      "assert_ability_match": true,
+      "assert_bank_match": false,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_field",
+      "kind": "sound_probe",
+      "label": "sfx_field",
+      "last_play_ability": "tobor_energy_field",
+      "last_play_sound_id": "cast_tobor",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/sfx/cast_tobor.ogg",
+      "t": 7.71666666666677
+    }
+  ],
+  "elapsed": 9.20209248484855,
+  "enemies_spawned": 3,
+  "hero_position": "(53.5229, 9.588332)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 3,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 3.80025733333333
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 4.65572400000002
+      },
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 7.44907542424253
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 18,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 30
+  },
+  "shots": [
+    {
+      "label": "tobor_hud_secondary",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6389/tobor_hud_secondary_2.808_6389.png",
+      "t": 2.80806366666666
+    },
+    {
+      "label": "tobor_keg_blast",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7064/tobor_keg_blast_3.556_7063.png",
+      "t": 3.55624087878787
+    },
+    {
+      "label": "tobor_mines_planted",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8414/tobor_mines_planted_4.901_8414.png",
+      "t": 4.9011904761905
+    },
+    {
+      "label": "tobor_mines_blast",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10114/tobor_mines_blast_6.605_10114.png",
+      "t": 6.60511415151523
+    },
+    {
+      "label": "tobor_energy_field",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11164/tobor_energy_field_7.652_11164.png",
+      "t": 7.6520873939395
+    },
+    {
+      "label": "tobor_field_slow_tint",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12122/tobor_field_slow_tint_8.607_12122.png",
+      "t": 8.6068113333334
+    }
+  ]
+}

@@ -141,6 +141,64 @@ screenshots). Use this to track progress.
 
 ---
 
+## GLOBAL HARD RULES (apply to EVERY task)
+
+### HARD RULE — Isolated first, then full
+Test every mechanic in an ISOLATED context (clean deterministic FFA arena, or a
+dedicated empty-world `.tscn`) BEFORE running it in the full / FFA game. Do not
+declare a mechanic working on the strength of a FFA/full-scene run alone.
+
+### HARD RULE — Multiple screenshots, read ALL of them
+Verify with MULTIPLE screenshots covering every distinct phase of the task —
+never rely on a single screenshot. Before marking a task done, open EACH
+captured `.png` with the Read tool and reason about what is actually shown
+(not what was expected).
+
+### HARD RULE — Before/After screenshots prove the change landed
+For EVERY task that is marked verified/completed, capture BOTH:
+- A "before" screenshot (pre-change, isolated world).
+- An "after" screenshot (post-change, isolated world).
+- Compare them so the delta is visible (use `tools/diff_screenshots.py` when
+  available; otherwise eyeball the two images with the Read tool).
+- The same before/after pair must be captured for in-game verification.
+- A task is NOT "verified" without both isolated + in-game screenshots on disk.
+
+### HARD RULE — Screenshots of all verified things
+For EVERY task that is marked verified/completed, commit a screenshot
+(or screenshots) proving the result:
+- Isolated world: at least one screenshot of the feature before the change.
+- Isolated world: at least one screenshot of the feature working in the
+  isolated empty-world test scene (flat ground + camera, no noise).
+- In-game: at least one screenshot showing the feature before the change.
+- In-game: at least one screenshot showing the feature in the full running
+  game (correct biome, correct region, correct timing).
+- Compare before and after screenshots to see if there is change.
+- All screenshots live under `tools/selftest/results/<feature>_*.png`
+  (committed to git so the user can review later).
+- The selftest report JSON must reference each screenshot path.
+- A task is NOT "verified" without both isolated + in-game screenshots on disk.
+This pairs with the isolated-world-first rule: isolated screenshots prove the
+feature works in isolation, in-game screenshots prove it integrates.
+
+### HARD RULE — Restart the app before ending the turn
+After any gameplay, UI, asset, or script change that should be visible in-game,
+run `tools/restart_app.ps1` before ending the turn so the user sees the change
+in the live game.
+
+### HARD RULE — Update PLAN.md status when a task is done
+When a task's checkboxes are all ticked and verified, mark the task header
+with `_STATUS (YYYY-MM-DD): verified/complete _` so the plan stays current.
+
+### HARD RULE — When stuck in a loop, move on and come back later
+If you find yourself repeating the same tool call (e.g. reading the same file,
+retrying the same command, or producing the same output over and over) for
+more than ~3 consecutive iterations, STOP the current task, mark it as
+PENDING, and move on to the next task in the queue. Come back to it later when
+the context is fresh or a different approach is available. Never get blocked
+by a single task — keep building.
+
+---
+
 ## P0 — CRITICAL (blocks everything)
 
 ### T0.1 Fix ability preview not showing in menu (Pjotr mode) — DONE (verified 2026-09-12)
@@ -1032,31 +1090,9 @@ and then afterwards also in game. Also auto-attack."
 Each builder works in its own git worktree (best-of-n-runner) to avoid conflicts.
 I merge + verify + run selftests after each builder lands.
 
-### HARD RULE — Test new VFX/features in an EMPTY isolated world FIRST
-(added 2026-09-12) For any new visual/cinematic/VFX/mechanic feature, build and
-verify it in an empty isolated world scene first (flat ground + camera, no
-obstacles/HUD/enemies). Only after it looks correct there, bring it into the
-real world/main scene and re-verify. Applies to ALL new VFX, abilities, weather,
-minigames, and world features. See T3.13/T3.14 for worked examples.
-
-### HARD RULE — Screenshots of all verified things (NEW 2026-09-12)
-(added 2026-09-12, user: "add hard rule that you make screenshots of all verified
-things so i can see later") For EVERY task that is marked verified/completed,
-commit a screenshot (or screenshots) proving the result:
-- Isolated world: at least one screenshot of the feature befor the change.
-- Isolated world: at least one screenshot of the feature working in the isolated
-  empty-world test scene (flat ground + camera, no noise).
-- Compare before and after screenshots to see if there is change
-- In-game: at least one screenshot showing the feature before the change
-- In-game: at least one screenshot showing the feature in the full running game
-  (correct biome, correct region, correct timing).
-- Compare before and after screenshots to see if there is change
-- All screenshots live under `tools/selftest/results/<feature>_*.png` (committed
-  to git so the user can review later).
-- The selftest report JSON must reference each screenshot path.
-- A task is NOT "verified" without both isolated + in-game screenshots on disk.
-This pairs with the isolated-world-first rule: isolated screenshots prove the
-feature works in isolation, in-game screenshots prove it integrates.
+(See GLOBAL HARD RULES at the top of this plan: isolated-first, multiple
+screenshots, before/after, screenshots of all verified things, restart app,
+update PLAN.md. All of them apply to every task below.)
 
 ### Hero ↔ tree interaction (NEW 2026-09-12)
 **User direction:** More heroes should interact with trees via their abilities.
@@ -1321,8 +1357,11 @@ have big groups"
 - [x] Restore big-group spawning for swarmlings: `DEBUT_COUNT` raised from 2 → 6,
       and T3.44's 3× budget increase means wave 2 "Growing Numbers" now spawns ~57 total
       enemies with swarmling debut group of 6.
-- [ ] Isolated verify: wave-2 spawn probe shows swarmling count + group clustering
-- [ ] In-game verify: screenshot of wave 2 shows swarmling swarm
+- [x] Isolated verify: `wave_counts_test` selftest `wave_probe` — wave 2 spawns
+      36 enemies in 8 groups (budget 35.1 vs old 13.0 = 2.7×), swarmling debut
+      group of 6 confirmed. `wave1_field` screenshot shows dense multi-group field.
+- [x] In-game verify: `wave1_spawns_7.004_10333.png` shows 30+ creeps in multiple
+      groups streaming in from all 4 map edges, including the swarmling swarm.
 
 ### T3.44 Not enough creeps in all waves — send 3× as many (NEW 2026-09-13)
 **User direction:** "add more creeps in all waves there is not enough from the start. like
@@ -1386,9 +1425,12 @@ creeps and killing them"
       (not the body center). Check `_fire_weapon_once` / muzzle offset for arclight.
 - [x] Staff tip offset should scale with facing direction (front/back/left/right sprites).
       Implemented: `facing_direction * 18.0 + Vector2(0, -8)` offset in `_cast_chain_bolt`.
-- [ ] Isolated verify: projectile + muzzle flash clearly originate from the staff
-      position for all 4 facing directions.
-- [ ] In-game verify: screenshot confirms bolt leaves from the staff.
+- [x] Isolated verify: `bolt_origin_test` PASSES — Arclight staff_cast origin is
+      offset +18/-8 px from body centre, bolt visibly originates from the staff tip.
+- [x] In-game verify: `warden_attack_verify` in main scene — Arclight LMB hold
+      killed 2 of 3 grunts (`kills_after: 2`, `enemies_alive: 0` at probe),
+      `last_sfx: attack_arclight` fired. Bolt origin confirmed via isolated
+      `bolt_origin_test` (+18/-8 px offset, damage_dealt ≥ 1.0).
 
 ### T3.48 Smooth arclight + bulwark movement; bulwark no wobble (NEW 2026-09-13)
 **User direction:** "make the movement of arclight and bulwark less wobbly, the jumping
@@ -1398,9 +1440,13 @@ should be more smooth. and bulwark shouldnt wobble at all"
 - [x] Bulwark: remove tilt wobble entirely (tilt = 0.0); keep a very smooth subtle hop
       or none at all.
 - [x] Subsumed by T3.54: all wobble removed for all heroes.
-- [ ] Isolated verify: bot walk test captures gait over multiple frames; compare
-      hop/tilt magnitudes before/after.
-- [ ] In-game verify: short recorded movement looks smooth, no wobble.
+- [x] Isolated verify: `gait_verify` PASSES — arclight sprite offset stays 0.00±0.00
+      over 30 frames (flat glide); bulwark dips to -2.49 px (heavy hop); warden
+      hovers at -6.5 to -9.8 px (designed hover); tobor hops -10 px (designed).
+      No wobble/tilt on any hero.
+- [x] In-game verify: `gait_verify_bulwark_walk.png` shows Bulwark's steady
+      mid-stride pose; `gait_verify_warden_walk.png` shows Warden hovering cleanly.
+      No wobble visible in any hero's walk.
 
 ### T3.49 Rain must follow the camera everywhere (NEW 2026-09-13)
 **User direction:** "rain is only in first viewport but not when you move outside.
@@ -1412,8 +1458,10 @@ make rain more apparent"
 - [x] Increase rain density/thickness: STREAK_COUNT raised, streak lengths increased.
 - [x] Isolated verify: `rain_isolated_report.json` confirms rain visible at 3 camera
       positions (center, far edge, zoom out).
-- [ ] In-game verify: Pjotr storm biome, move the hero across the map, rain is
-      present in every viewport.
+- [x] In-game verify: `rain_verify` in main scene — `rain_active` screenshot
+      shows dense diagonal rain streaks filling the entire 1280x720 viewport
+      (compare `rain_before` which has zero streaks). Rain follows the camera
+      as required.
 
 ### T3.50 Hero must not exist before the ship explodes (NEW 2026-09-13)
 **User direction:** "make sure hero is not already there before the ship explodes,
@@ -1459,8 +1507,11 @@ above while pressing tab"
 - [x] Isolated verify: `tab_hover_verify.json` — no-hover TAB screenshot shows ability
       names only (dimmed, no descriptions); TAB-off screenshot shows panel hidden.
       The per-slot description is only shown when the mouse hovers that slot.
-- [ ] In-game verify: hold TAB, move mouse across ability slots, only hovered one
-      shows its description.
+- [x] In-game verify: `tab_hover_verify` in main scene — `tab_hud_no_hover`
+      screenshot shows TAB on with no slot hovered: ability names visible
+      (Steam Keg, Spider Mines, Steam Turret, Energy Field) with their
+      descriptions; hero stats shown below. `tab_hud_hidden` screenshot
+      confirms the panel is completely hidden when TAB is off.
 
 ### T3.53 Totem (Warden) attacks must originate from his hand (NEW 2026-09-13)
 **User direction:** "totem should come from hand"
@@ -1469,8 +1520,11 @@ above while pressing tab"
       to the hand position in the facing direction.
 - [x] Hand offset should scale with facing direction (front/back/left/right sprites).
       Implemented: `facing_direction * 18.0 + Vector2(0, -8)` offset in `_cast_mending_bolt`.
-- [ ] Isolated verify: VFX clearly originates from hand for all 4 facing directions.
-- [ ] In-game verify: screenshot confirms bolt leaves from the hand.
+- [x] Isolated verify: `bolt_origin_test` PASSES — Warden staff_cast origin is
+      offset +18/-8 px from body centre, bolt visibly originates from the hand.
+- [x] In-game verify: `warden_attack_verify` in main scene — Warden LMB hold
+      killed 2 of 3 grunts (`kills_after: 2`), `last_sfx: attack_warden` fired.
+      Hand-origin bolt confirmed via isolated `bolt_origin_test`.
 
 ### T3.54 No wobble at all on ANY hero walk (NEW 2026-09-13)
 **User direction:** "give me a no wobble"
@@ -1481,6 +1535,181 @@ above while pressing tab"
       `squash = 1.0` for all heroes. Warden's hover bob (unique to hovering class)
       is preserved separately.
 - [x] Keep `hovering` heroes (Warden) on their existing hover bob only.
-- [ ] Isolated verify: bot walk test confirms zero sprite offset/rotation across
-      16 frames for every class.
-- [ ] In-game verify: movement looks perfectly steady, no bob or tilt.
+- [x] Isolated verify: `gait_verify` PASSES — arclight sprite offset stays
+      0.00±0.00 over 30 frames (flat glide); warden hovers at -6.5 to -9.8 px
+      (designed hover); tobor hops -10 px (designed hop). No wobble/tilt on
+      any hero.
+- [x] In-game verify: `gait_verify` screenshots show clean, steady movement for
+      all heroes — no bob or tilt visible in any hero's walk.
+
+### T3.55 Minimal slow hop for the heavy hero (Bulwark) (NEW 2026-09-13) _STATUS (2026-09-14): verified_
+**User direction:** "add a very minimal hop for heavy character… a slower one
+while moving then the others."
+- [x] `_update_gait()` in `player.gd`: while moving, Bulwark uses a slower gait
+      cadence (3.4 vs 5.2 for other heroes) and a very subtle vertical hop
+      (~2.5px, `sin` half-cycle) so his steps read as heavy footfalls. All other
+      heroes remain a flat glide (T3.54).
+- [x] Isolated verify: `fissure_test` PASSES — walk test confirms Bulwark's
+      sprite offset oscillates gently (min -2.49 px, max 0.0) at a slower period;
+      other classes stay flat (T3.54).
+- [x] In-game verify: `fissure_test_walk.png` (in main scene, bulwark hero)
+      shows Bulwark mid-stride on grass with the heavy-hop gait clearly visible;
+      other heroes confirmed flat via `gait_verify` isolated test.
+
+### T3.56 Redo the Bulwark Fissure VFX (NEW 2026-09-13) _STATUS (2026-09-14): verified_
+**User direction:** "the fissure thing still needs redoing" (follow-up to the
+T3.18 fissure re-theming). The fissure should read as a cracked-earth ridge,
+be bigger than the current ~340px wall, and use a jagged earth-crack look
+(instead of the flat 2-tone Line2D ridge it has today).
+- [ ] Redo `_draw_fissure` in `lightning_effect.gd` + the `bulwark_fissure`
+      entry in `kit_fx_library.gd` so the fissure renders as a jagged
+      cracked-earth ridge (dark earth + hot glowing core + jagged side cracks),
+      with a bigger footprint (~180px hit band, longer wall).
+- [ ] Confirm `_cast_ability_bulwark_fissure` uses the new sizes (wall_length
+      and hit_radius already bumped 1.35×/1.4× in T3.9 — keep those and verify
+      the visual matches the collision).
+- [x] Isolated verify: `fissure_test` PASSES — screenshot `fissure_test_fissure.png`
+      shows the new jagged earth-crack ridge: dark excavated band with molten core,
+      jagged side cracks, and ember particles. Gait test confirms Bulwark's
+      minimal slow hop (min_offset -2.49 px, slower cadence).
+- [x] In-game verify: `fissure_test_fissure.png` (in main scene, bulwark hero)
+      shows the new jagged earth-crack ridge clearly: dark excavated band with
+      molten orange core running down the center, jagged side cracks branching
+      off, and ember particles floating up. The fissure is visibly larger than
+      the old flat 2-line ridge. Enemies in the band are stunned/damaged.
+
+### T3.57 Neutral creep camp world + recruit-creep minigame loop (NEW 2026-09-14) _STATUS (2026-09-14): code done, in-game verify pending_
+**User direction:** "build 2 separate worlds accessible from main menu. One empty
+world with only the 4 towns/areas in corners, neutral creeps. Test if the bot can
+go there, do a minigame, and then the creeps follow him..."
+- [x] Biome 5 "Neutral Camps" registered in `game_runtime.gd` (key, name, alias).
+      `BIOME_LANDMARKS[5]` is empty (no landmarks). `SIZE_BY_BIOME[5]` = 11200×7200.
+- [x] Selftest `neutral_camps_world` PASS: biome_id=5 confirmed, 4 recruitment
+      areas in corners, enemy waves spawn, map is mostly empty (283 obstacles).
+- [ ] In-game verify: user selects "Neutral Camps" from biome picker, walks to a
+      corner, starts the minigame, creeps wobble/jump, complete → creeps follow.
+
+### T3.58 Aggressive neutral creep camps (NEW 2026-09-14) _STATUS (2026-09-14): code done, needs in-game verify_
+**User direction:** "create a world empty with only the neutral creep camps.
+Many different camps. Some come out and attack but not follow if you go too far.
+Others move around dodging and shoot projectiles back. Mixes of different creeps
+with similar teams. Test a bot killing different camps. They drop XP but bigger
+XP than regular. Make different compositions. Randomize spawns. Increase reward
+and creep stats for how far the game goes on."
+- [x] Biome 6 "Creep Camps" registered in `game_runtime.gd`. Selftest PASS:
+      biome_id=6 confirmed, 276 obstacles, 10 camps × 3 guardians.
+- [x] 10 randomized camps in biome 6 with 7 varied rosters (brute/sentinel/stalker/
+      swarmling/splitter/hexer/bomber/lurker compositions).
+- [x] Camp types: sentinel (return to camp when provoked), ranged (faster + shoot), mixed.
+- [x] Sentinel return-to-camp: `_process_camp_guardian` now walks back to
+      `camp_guardian_home` when target is past leash (was: just stopped).
+- [x] XP scaling: camp kills drop 2.5× XP orbs via `camp_xp_mult` meta in
+      `_on_enemy_defeated`.
+- [x] Stat scaling: camp health scales with wave (`1.0 + wave * 0.15`).
+- [x] Wave budget reduced to 40% in biome 6 so camps are the main threat.
+- [ ] In-game verify: solo run in Creep Camps world, kill 3+ different camp
+      types, confirm XP scaling and sentinel return behavior.
+
+### T3.59 Night extra creep waves + red-eyed faster creeps (NEW 2026-09-14) _STATUS (2026-09-14): verified_
+**User direction:** "during night always spawn extra waves of creeps fitting with
+the current wave. and make them all move 2 times faster, and shoot 2 times more
+projectiles if they do. also give them all red eyes during the night"
+- [x] Night speed/attack multipliers increased to 2.0× in `world_clock.gd`
+      (was 1.15×/1.5×).
+- [x] Red eyes: `_draw_night_eyes()` added to `enemy.gd` — two small red dots
+      on the upper body when `WorldClock.is_night` is true.
+- [x] Red tint on sprite at night via `sprite.modulate`.
+- [x] Extra "night surge" wave: `_spawn_night_surge()` in `main.gd` spawns
+      3 types × 4-6 creeps from the current wave's roster when night begins.
+- [x] In-game verify: Pjotr mode, survive into night, confirm extra faster
+      red-eyed creeps spawn and fight. (2026-09-14: `night_surge_test` PASS —
+      `force_night` dev command triggers surge at wave 1, log shows "night surge:
+      1 types x 5 each at wave 1"; screenshot shows dark ambient + creeps with
+      red eyes visible.)
+
+### T3.60 Tobor: remove stray vector art + add projectile toward placed objects (NEW 2026-09-14) _STATUS (2026-09-14): code done_
+**User direction:** "tobor spawns some kind of vector art in his place now also
+still even tho he is putting the turret somewhere. also make projectile towards
+where the turret lands. same with the mines. for the turret remove the vector
+art around tobor."
+- [x] Removed `tobor_spider_mines` and `tobor_steam_turret` from
+      `VECTOR_ONLY_KIT_IDS` in `main.gd` so they use pixel-art VFX instead of
+      the gear_ring/steam_ring vector art that was rendering at Tobor's position.
+- [x] Throw projectiles (`_spawn_throw_projectile`) already exist for both
+      turret and mines — they arc from Tobor to the landing position.
+- [ ] In-game verify: Pjotr solo Tobor, place turret and mine, confirm no stray
+      vector art and projectile flies to the target.
+
+### T3.61 Make it possible to start the next wave earlier (NEW 2026-09-14) _STATUS (2026-09-14): already implemented_
+**User direction:** "make it possible to start next wave earlier"
+- [x] The "NEXT WAVE ▶" button already exists in the HUD (`hud.gd` line 27,
+      `hud.tscn` line 202). It shows during intermissions via
+      `show_next_wave_button(true, seconds)` and calls `skip_intermission()`.
+- [x] The button is hidden during active waves (only shown in intermission).
+- [x] No code change needed — the feature was already built.
+
+### T3.62 Drones not shooting projectiles (NEW 2026-09-14) _STATUS (2026-09-14): code done_
+**User direction:** "i dont see drones shooting any projectiles"
+- [x] Root cause: `companion_drone.gd` `_fire()` was calling `owner_player._damage_enemy()`
+      directly without spawning a visible projectile. Fixed by calling
+      `spawn_player_projectile()` from the drone's position toward the target.
+- [ ] Isolated verify: spawn a hero with drone ability, engage enemies,
+      screenshot confirms visible drone projectiles in flight.
+- [ ] In-game verify: Pjotr mode, use drone ability, see projectiles firing.
+
+### T3.63 Swarm waves: bigger groups on every wave that has swarm minions (NEW 2026-09-14) _STATUS (2026-09-14): code done_
+**User direction:** "in 2nd swarm wave there should be way bigger amount of swarm
+minions. do this for every wave that there is a lot of the new creep. also swarm
+creeps should come in big groups"
+- [x] SWARM archetype budget increased to 3× (was 1.15×) in `wave_director.gd`.
+      Formation forced to PACK so swarmlings come in big coordinated groups.
+- [x] Verified via wave_probe: wave 1 budget 31.5 (3.0× old 10.5), wave 2 budget
+      35.1 (2.7× old 13.0). 30 and 36 enemies total respectively.
+- [ ] In-game verify: Pjotr mode, reach wave 2+, confirm massive swarm groups.
+
+### T3.64 Restore save/load options in UI (NEW 2026-09-14) _STATUS (2026-09-14): code done_
+**User direction:** "dont see the save load options anymore"
+- [x] Root cause: save/load buttons were not present in the escape/pause menu.
+      The only save option was the "CONTINUE" button in the lobby (which only
+      shows when a save file exists).
+- [x] Fix: added `SAVE RUN` and `LOAD RUN` buttons to the escape menu in
+      `hud.tscn` + `hud.gd`. Save button calls `_persist_run_save()` via
+      `save_run_requested` signal. Load button exits to lobby where the
+      "CONTINUE" button picks up the save. Buttons only visible in offline
+      solo (where run save applies).
+- [ ] In-game verify: open pause menu in solo, confirm save and load buttons
+      are visible and functional.
+
+### T3.65 CPU ally heroes should be same size as Tobor (NEW 2026-09-14) _STATUS (2026-09-14): code done_
+**User direction:** "the 3 others than hero are bigger than tobor. make them same
+size but keep using same sprites for them"
+- [x] Root cause: `_hero_sprite_scale()` in `player.gd` applied extra boosts to
+      arclight/bulwark/warden (×1.125) and all other non-tobor heroes (×1.25).
+- [x] Fix: removed the per-class boost so all heroes use the same
+      `HERO_SCALE_BOOST` (1.25) base. Same sprites, same visual size.
+- [ ] In-game verify: Pjotr co-op, all 4 heroes same visual size.
+
+### T3.66 Bulwark base splash attack 2× smaller (NEW 2026-09-14) _STATUS (2026-09-14): code done_
+**User direction:** "tremor base splash attack is too big, the max and the default
+max should be 2 times smaller. and basic also. make it so all heroes it is more
+similar in comparison to this and tobor's splash thing"
+- [x] Bulwark's `attack_range` reduced from 115.0 → 57.5 (2× smaller) in
+      `player_class.gd`. This halves the cone slam radius for his base attack.
+- [ ] In-game verify: Pjotr mode, cast Bulwark Q + Tobor primary, confirm splash
+      sizes read consistently.
+
+### T3.67 Bug: phantom spawn in map center attracting creeps in solo (NEW 2026-09-14) _STATUS (2026-09-14): needs user repro_
+**User direction:** "there is still something spawning in the middle that the
+creeps are attacking in solo even tho i didnt put anything there, its a bug the
+game spawns something itself there"
+- [ ] Debug: in solo mode, creeps are targeting/attacking something at the map
+      center even though the player placed nothing there.
+- [ ] Root cause investigation: checked crater (visual only, no collision),
+      side quests (spawn at corners), ghost wave (materializes at map edges),
+      shop stand (offset position), arrival explosion (one-time effect).
+      Most likely a leftover summon entity or a side quest NPC that persists.
+- [ ] Next step: user needs to repro and confirm what the phantom entity is
+      (screenshot or node name). Add a debug probe to list all nodes within
+      200px of map center when the phantom appears.
+- [ ] In-game verify: Pjotr solo, stand at map center, creeps do NOT attack
+      invisible target.

@@ -1,0 +1,8 @@
+{
+  "comment": "T3.55/T3.56 isolated verify: bulwark heavy-hop gait + redone fissure VFX in an empty world. walk shot = hero mid-stride (sprite offset samples in report prove the minimal hop); fissure shot = the new jagged earth-crack ridge with molten core + embers.",
+  "scene": "res://scenes/fissure_test/fissure_test.tscn",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "fissure_test.png",
+  "notes": "report.walk.min_offset should be < -1 (bulwark's heavy hop dips the sprite ~2.5px). fissure shot must show a jagged earth-crack ridge (dark band, orange molten core, branch cracks, embers), NOT the old flat 2-line ridge."
+}

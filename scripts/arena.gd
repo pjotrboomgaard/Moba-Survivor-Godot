@@ -125,6 +125,10 @@ const BIOME_LANDMARKS: Array[Array] = [
 		["tw_docks_landmark_bell", "freeze_time", 560.0, 0.70, 11.0, "Harbor Bell"],
 		["tw_docks_landmark_pad", "speed_surge", 600.0, 0.70, 14.0, "Pilot Skiff"],
 	],
+	# Neutral Camps (biome 5): empty world, only the 4 recruitment areas in corners.
+	[],
+	# Creep Camps (biome 6): empty world, only hostile creep camps scattered around.
+	[],
 ]
 
 ## Live landmark instances the current world spawned. Emptied and rebuilt on set_world.
@@ -153,11 +157,15 @@ func set_world(world_id: int) -> void:
 
 
 ## Grass / volcano / ice / factory / docks → landmark world that fits the theme.
+## Test worlds (5 = Neutral Camps, 6 = Creep Camps) use the grass world for visuals
+## but spawn no landmarks (handled by empty BIOME_LANDMARKS entries).
 const BIOME_TO_WORLD: Array[int] = [
 	World.VERDANT_WILDS,
 	World.ASHEN_CALDERA,
 	World.STORM_COURT,
 	World.IRON_FOUNDRY,
+	World.VERDANT_WILDS,
+	World.VERDANT_WILDS,
 	World.VERDANT_WILDS,
 ]
 
@@ -3267,43 +3275,82 @@ func _draw_dead_trees() -> void:
 		_draw_dead_tree_stump(pos)
 
 
+## T3.14: Pixel-art flame frames for burning trees. 3-frame flicker cycle.
+var _fire_frame_textures: Array[Texture2D] = []
+var _fire_frame_loaded := false
+
+func _load_fire_frames() -> void:
+	if _fire_frame_loaded:
+		return
+	_fire_frame_loaded = true
+	for i in 3:
+		var tex := SpriteLibrary.texture_for("fire_frame_%d" % i)
+		_fire_frame_textures.append(tex)
+	var stump := SpriteLibrary.texture_for("dead_tree_stump")
+	_dead_stump_texture = stump
+
 func _draw_fire_vfx(pos: Vector2, burn_time: float) -> void:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = int(burn_time * 12.0)
-	# The tree canopy is ~2.15x pixel-zoom tall above the base; flames sit in the
-	# upper-mid of the trunk.
-	var base_y := pos.y - 46.0
-	var cols: Array[Color] = [
-		Color(1.0, 0.45, 0.05, 0.85),
-		Color(1.0, 0.65, 0.10, 0.80),
-		Color(1.0, 0.85, 0.25, 0.90),
-	]
-	for i in 8:
-		var fx := pos.x + rng.randf_range(-9.0, 9.0) + sin(burn_time * 10.0 + i) * 4.0
-		var fy := base_y - rng.randf_range(0.0, 34.0)
-		var r := rng.randf_range(9.0, 18.0) * (1.0 + 0.2 * sin(burn_time * 14.0 + i))
-		draw_circle(Vector2(fx, fy), r, cols[i % cols.size()])
-	draw_circle(Vector2(pos.x, base_y + 6.0), 12.0, Color(1.0, 0.9, 0.4, 0.9))
-	# Embers drifting up.
+	if not _fire_frame_loaded:
+		_load_fire_frames()
+	# Cycle through 3 flame frames every ~0.12s for flicker.
+	var frame_idx := int(burn_time * 8.0) % 3
+	var frame_tex: Texture2D = _fire_frame_textures[frame_idx]
+	if frame_tex != null:
+		# Flames sit on top of the tree trunk; offset so the base of the flame
+		# aligns with the tree canopy.
+		var flame_pos := pos + Vector2(0.0, -46.0)
+		var scale_factor := 2.2  # scale 24x32 sprite to ~53x70 world units
+		draw_texture_rect(
+			frame_tex,
+			Rect2(
+				flame_pos.x - frame_tex.get_width() * scale_factor * 0.5,
+				flame_pos.y - frame_tex.get_height() * scale_factor * 0.85,
+				frame_tex.get_width() * scale_factor,
+				frame_tex.get_height() * scale_factor
+			),
+			false
+		)
+	else:
+		# Fallback to procedural circles if sprites failed to load.
+		var rng := RandomNumberGenerator.new()
+		rng.seed = int(burn_time * 12.0)
+		var base_y := pos.y - 46.0
+		for i in 8:
+			var fx := pos.x + rng.randf_range(-9.0, 9.0) + sin(burn_time * 10.0 + i) * 4.0
+			var fy := base_y - rng.randf_range(0.0, 34.0)
+			var r := rng.randf_range(9.0, 18.0) * (1.0 + 0.2 * sin(burn_time * 14.0 + i))
+			draw_circle(Vector2(fx, fy), r, Color(1.0, 0.65, 0.10, 0.80))
+	# Embers drifting up (procedural, small).
+	var rng2 := RandomNumberGenerator.new()
+	rng2.seed = int(burn_time * 12.0) + 100
 	for i in 4:
 		var rise := fposmod(burn_time * 24.0 + float(i) * 5.0, 20.0)
-		var ey: float = base_y - rng.randf_range(10.0, 60.0) - rise
-		var ex := pos.x + rng.randf_range(-20.0, 20.0)
+		var ey: float = pos.y - 46.0 - rng2.randf_range(10.0, 60.0) - rise
+		var ex := pos.x + rng2.randf_range(-20.0, 20.0)
 		draw_circle(Vector2(ex, ey), 2.0, Color(1.0, 0.7, 0.2, 0.6))
 
 
-## Charred trunk silhouette for a burned-out tree (T3.14).
+## Charred dead-tree stump sprite (T3.14). Uses pixel-art sprite if available.
+var _dead_stump_texture: Texture2D = null
+
 func _draw_dead_tree_stump(pos: Vector2) -> void:
-	var trunk := Color(0.12, 0.09, 0.06)
-	# Ground char.
-	draw_circle(pos, 16.0, Color(0.05, 0.04, 0.03, 0.55))
-	# Burnt trunk (shorter than a live tree).
-	draw_rect(Rect2(pos.x - 5.0, pos.y - 30.0, 10.0, 32.0), trunk)
-	# Broken branch stubs.
-	draw_line(Vector2(pos.x, pos.y - 18.0), Vector2(pos.x - 12.0, pos.y - 28.0), trunk, 4.0)
-	draw_line(Vector2(pos.x, pos.y - 12.0), Vector2(pos.x + 10.0, pos.y - 22.0), trunk, 3.0)
-	# Faint lingering ember glow at the base.
-	draw_circle(pos, 6.0, Color(0.45, 0.18, 0.05, 0.35))
+	if _dead_stump_texture != null:
+		var scale_factor := 1.8
+		var tex_w := _dead_stump_texture.get_width() * scale_factor
+		var tex_h := _dead_stump_texture.get_height() * scale_factor
+		draw_texture_rect(
+			_dead_stump_texture,
+			Rect2(pos.x - tex_w * 0.5, pos.y - tex_h, tex_w, tex_h),
+			false
+		)
+	else:
+		# Fallback: procedural charred trunk.
+		var trunk := Color(0.12, 0.09, 0.06)
+		draw_circle(pos, 16.0, Color(0.05, 0.04, 0.03, 0.55))
+		draw_rect(Rect2(pos.x - 5.0, pos.y - 30.0, 10.0, 32.0), trunk)
+		draw_line(Vector2(pos.x, pos.y - 18.0), Vector2(pos.x - 12.0, pos.y - 28.0), trunk, 4.0)
+		draw_line(Vector2(pos.x, pos.y - 12.0), Vector2(pos.x + 10.0, pos.y - 22.0), trunk, 3.0)
+		draw_circle(pos, 6.0, Color(0.45, 0.18, 0.05, 0.35))
 
 
 ## T3.13: full storm VFX pass — pending-strike warning reticle, jagged lightning

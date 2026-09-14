@@ -169,6 +169,8 @@ var _ffa_status_timer := 0.0
 ## ±3-frame lag in detecting "all dead" is imperceptible.
 const WAVE_PRESSURE_INTERVAL := 1.0 / 15.0
 var _wave_pressure_timer := 0.0
+## T3.59: track whether the night surge wave has been spawned this night cycle.
+var _night_surge_active := false
 var _ffa_scoreboard_timer := 0.0
 var _ffa_elapsed := 0.0
 var _ffa_bounty_timer := 0.0
@@ -219,6 +221,8 @@ func _ready() -> void:
 	hud.next_wave_requested.connect(_on_local_next_wave_requested)
 	hud.restart_requested.connect(_on_restart_requested)
 	hud.leave_requested.connect(_on_leave_requested)
+	hud.save_run_requested.connect(_on_save_run_requested)
+	hud.load_run_requested.connect(_on_load_run_requested)
 	hud.dev_command.connect(_on_local_dev_command)
 	hud.set_connection_text(GameRuntime.mode_name())
 	if hud.upgrade_panel != null:
@@ -278,6 +282,12 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	WorldClock.tick(delta)
+	# T3.59: spawn an extra "night surge" wave when night begins.
+	if WorldClock.is_night and not _night_surge_active:
+		_night_surge_active = true
+		_spawn_night_surge()
+	elif not WorldClock.is_night and _night_surge_active:
+		_night_surge_active = false
 	if fog_modulate != null and not GameRuntime.is_classic():
 		fog_modulate.color = WorldClock.ambient
 	# Throttle the O(enemies) wave-pressure scan to 15 Hz — the wave director only
@@ -1850,7 +1860,11 @@ func _on_enemy_defeated(enemy: Enemy) -> void:
 	enemies.erase(enemy.network_id)
 	if enemy.is_boss:
 		_cached_boss = null
-	_spawn_xp_orb(enemy.global_position, enemy.xp_value)
+	# T3.58: camp guardians drop 2-3× XP orbs (tagged via camp_xp_mult meta).
+	var xp_value := enemy.xp_value
+	if enemy.has_meta("camp_xp_mult"):
+		xp_value = int(float(xp_value) * float(enemy.get_meta("camp_xp_mult")))
+	_spawn_xp_orb(enemy.global_position, xp_value)
 	_spawn_corpse(enemy)
 	# Global gold-drop boost so items stay affordable through the late game.
 	var drop_amount := maxi(1, int(round(float(enemy.gold_value) * GOLD_DROP_BOOST)))
@@ -2336,8 +2350,8 @@ func _on_ability_cast(ability_id: String, effect_style: int, points: PackedVecto
 const VECTOR_ONLY_KIT_IDS := {
 	# Robot — kit Q/E/R
 	"tobor_steam_keg": PlayerClass.EffectStyle.BLAST,
-	"tobor_spider_mines": PlayerClass.EffectStyle.BURST,
-	"tobor_steam_turret": PlayerClass.EffectStyle.BURST,
+	# T3.60: removed tobor_spider_mines and tobor_steam_turret from VECTOR_ONLY_KIT_IDS
+	# so they use the pixel-art VFX instead of the gear_ring/steam_ring vector art.
 	"tobor_energy_field": PlayerClass.EffectStyle.BURST,
 	"arclight_blast_of_lightning": PlayerClass.EffectStyle.BOLT,
 	"arclight_chain_lightning": PlayerClass.EffectStyle.BOLT,
@@ -2796,6 +2810,18 @@ func _on_restart_requested() -> void:
 		get_parent().call_deferred("restart_game")
 
 
+func _on_save_run_requested() -> void:
+	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE and not GameRuntime.is_ffa():
+		_persist_run_save()
+		print("[main] run saved")
+
+
+func _on_load_run_requested() -> void:
+	# Load the saved run: quit to lobby, the "CONTINUE" button picks it up.
+	get_tree().paused = false
+	get_parent().call_deferred("leave_game")
+
+
 func _on_leave_requested() -> void:
 	if not game_over:
 		_persist_run_save()
@@ -2859,6 +2885,14 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 		"force_rain":
 			if arena is Arena:
 				(arena as Arena).debug_force_rain()
+		"force_night":
+			# T3.59 test hook: jump straight into the night window so the surge
+			# triggers this frame (WorldClock.tick will pick it up next tick).
+			WorldClock.time_of_day = WorldClock.NIGHT_START + 0.01
+		"spawn_drone":
+			# T3.62 test hook: spawn a gun drone companion for the local player so
+			# the projectile visibility fix can be verified in a short selftest.
+			player._add_companion("gun_drone", 1)
 		"force_black_lava":
 			if arena is Arena:
 				(arena as Arena).debug_force_black_lava()
@@ -3276,6 +3310,35 @@ func _update_crater_lock(wave: int) -> void:
 	if GameRuntime.is_server():
 		for peer_id in registered_remote_peers.keys():
 			client_crater_unlocked.rpc_id(peer_id)
+
+
+## T3.59: Spawn an extra wave of creeps when night falls. These creeps are
+## faster (2× via WorldClock.night_speed_mult) and have red eyes (via
+## WorldClock.is_night in enemy._draw()). They match the current wave's roster.
+func _spawn_night_surge() -> void:
+	if game_over:
+		return
+	if not wave_director is WaveDirector:
+		return
+	var wave: int = maxi(1, current_wave)
+	var types: Array[Dictionary] = EnemyType.spawnable_for_wave(wave)
+	if types.is_empty():
+		return
+	# Pick up to 3 types available at this wave, spawn 4-6 of each near the
+	# map perimeter so they stream in like a normal wave.
+	var picked: Array[String] = []
+	for t in types:
+		if picked.size() >= 3:
+			break
+		if bool(t.get("is_boss", false)):
+			continue
+		picked.append(str(t.id))
+	if picked.is_empty():
+		return
+	var count_each := randi_range(4, 6)
+	for type_id in picked:
+		_spawn_formation(EnemyType.fit_to_biome(type_id), 0, count_each, 1.0, 1.0)
+	print("[main] night surge: %d types x %d each at wave %d" % [picked.size(), count_each, wave])
 
 
 @rpc("authority", "call_remote", "reliable")
