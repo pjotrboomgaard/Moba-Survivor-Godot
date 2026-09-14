@@ -460,6 +460,30 @@ func _process(delta: float) -> void:
 				# so turret_probe can read its max_health (180 vs 360) without relying
 				# on ability-cast targeting/cooldowns.
 				_spawn_test_turret(_event_vec(event, "at", Vector2(400, 0)))
+			"enemy_count_probe":
+				# T3.87: report the live enemy count so a test can confirm the 3x
+				# spawn budget is in effect.
+				var enemy_nodes := get_tree().get_nodes_in_group("enemies")
+				_active_effects.append({
+					"kind": "enemy_count_probe",
+					"label": str(event.get("label", "enemies")),
+					"count": enemy_nodes.size(),
+					"t": _elapsed,
+				})
+			"wave_budget_probe":
+				# T3.87: report the wave director's computed spawn budget for a
+				# given wave. Deterministic — directly exercises the 3x formula.
+				var wb_wave := int(event.get("wave", 1))
+				var wb_director: Node = _host_main.get("wave_director") if _host_main != null else null
+				var wb_val := -1.0
+				if wb_director != null and wb_director.has_method("budget_for_wave"):
+					wb_val = float(wb_director.budget_for_wave(wb_wave))
+				_active_effects.append({
+					"kind": "wave_budget_probe",
+					"wave": wb_wave,
+					"budget": wb_val,
+					"t": _elapsed,
+				})
 			"snap":
 				await _screenshot(str(event.get("label", "snap")))
 			"probe":

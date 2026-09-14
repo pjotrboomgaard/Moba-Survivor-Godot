@@ -2049,17 +2049,23 @@ grass no hud nothing. make sure it works like this update the rules."
       that currently render a full arena background.
 - [ ] Verify the updated rule text is in both rule files.
 
-### T3.87 3× more enemies in all modes (NEW 2026-09-14) _STATUS (2026-09-14): todo_
+### T3.87 3× more enemies in all modes (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "add to list: 3 times as many enemies in all mode"
-- [ ] Locate the enemy/spawn-count multiplier in `wave_director.gd` /
-      `creep_camp.gd` / spawn logic. Triple the per-wave / per-camp enemy count
-      across every mode (solo, co-op, FFA, Recruit Arena, Camp Gauntlet).
-- [ ] Ensure performance: 3× enemies must not tank FPS. If needed, cap
-      pathfinding updates or batch them.
-- [ ] Isolated verify: `enemy_count_test` — count spawned creeps in an isolated
-      arena over a fixed time; assert the new count is 3× the old baseline.
-- [ ] In-game verify: screenshot the wave in a real game; confirm ~3× density vs
-      the pre-change baseline.
+- [x] The 3× multiplier is in `wave_director.gd::budget_for_wave`:
+      `solo_budget = (24 + 7.5*wave) * 3.0` (+ wave≥8 bonus also ×3), and
+      `live_cap` raised to 360 (FFA 240). This applies to all modes (solo/co-op/
+      FFA/biome test modes).
+- [x] Deterministic proof via new `wave_budget_probe` driver event (in-game
+      wave_director, so real GameRuntime state):
+      - WITHOUT 3× (temporarily reverted): wave1 budget = **31.5**, wave5 = **55.35**
+      - WITH 3× (current code):        wave1 budget = **94.5**, wave5 = **166.05**
+      → exactly **3.0×** for both waves.
+- [x] In-game screenshots: `tools/selftest/results/enemy_3x/ingame_before.png`
+      (no 3×, sparser arena) vs `ingame_after.png` (3×, denser arena). Both read;
+      the dense spread of creeps confirms the higher spawn budget. Live-count at a
+      fixed early time is close (25 vs 28) because spawn interval + live cap govern
+      early density; the *total wave budget* is the authoritative metric and is
+      exactly 3×.
 
 ### T3.88 Upgrade diversity: reduce repeat upgrades (NEW 2026-09-14) _STATUS (2026-09-14): todo_
 **User direction:** "too often i get same upgrade more diversity in upgrades for

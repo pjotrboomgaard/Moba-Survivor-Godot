@@ -1,0 +1,11 @@
+{
+  "hero": "arclight",
+  "comment": "T3.87: confirm 3x spawn budget. Report wave-1 budget + capture the arena at a later time when many enemies are live.",
+  "events": [
+    {"t": 1.0, "kind": "wave_budget_probe", "wave": 1},
+    {"t": 1.5, "kind": "wave_budget_probe", "wave": 5},
+    {"t": 3.5, "kind": "snap", "label": "ingame_enemies_3x"},
+    {"t": 3.9, "kind": "enemy_count_probe", "label": "live_count_3x"},
+    {"t": 4.3, "kind": "report"}
+  ]
+}
