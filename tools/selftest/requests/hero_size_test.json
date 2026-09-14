@@ -1,0 +1,7 @@
+{
+  "scene": "res://scenes/hero_size_test/hero_size_test.tscn",
+  "comment": "T3.68: isolated hero size comparison. Tobor=ref, Joule=1.0x, Tremor=1.2x, Totem=0.85x + hover higher.",
+  "events": [
+    {"t": 1.0, "kind": "report"}
+  ]
+}

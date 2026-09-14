@@ -454,6 +454,10 @@ func _process(delta: float) -> void:
 				})
 			"charge_probe":
 				_record_charge_probe(str(event.get("label", "charge")))
+			"pause_menu":
+				# T3.64: open the escape/pause menu, probe save/load button
+				# visibility + state, then close it.
+				_record_pause_menu_probe(str(event.get("label", "pause")))
 			"minigame":
 				_record_minigame_probe(str(event.get("label", "minigame")), int(event.get("index", -1)))
 			"recruit_probe":
@@ -816,6 +820,43 @@ func _record_charge_probe(label: String) -> void:
 	for prop in ["_mine_charge_left", "_turret_charge_left", "_fissure_charge_left", "_ward_charge_left"]:
 		charges[prop.trim_prefix("_")] = int(_player.get(prop))
 	_active_effects.append({"kind": "charge_probe", "label": label, "t": _elapsed, "charges": charges})
+
+
+## T3.64: open the escape/pause menu, probe save/load button visibility + state,
+## and close it again. The HUD's escape menu is where SAVE RUN / LOAD RUN live.
+func _record_pause_menu_probe(label: String) -> void:
+	var hud: Node = _host_main.get("hud") if _host_main != null else null
+	if hud == null:
+		_active_effects.append({"kind": "pause_menu", "label": label, "error": "no hud", "t": _elapsed})
+		return
+	if not hud.get("escape_menu").visible:
+		hud.call("_open_escape_menu")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var save_btn: Node = hud.get("save_button")
+	var load_btn: Node = hud.get("load_button")
+	var entry := {
+		"kind": "pause_menu",
+		"label": label,
+		"t": _elapsed,
+		"escape_menu_visible": bool(hud.get("escape_menu").visible),
+		"save_button_visible": bool(save_btn.visible) if save_btn != null else false,
+		"load_button_visible": bool(load_btn.visible) if load_btn != null else false,
+		"save_button_disabled": bool(save_btn.disabled) if save_btn != null else null,
+		"load_button_disabled": bool(load_btn.disabled) if load_btn != null else null,
+	}
+	# Simulate a save click (emits save_run_requested → main._persist_run_save).
+	if save_btn != null and save_btn.visible and not save_btn.disabled:
+		save_btn.emit_signal("pressed")
+		await get_tree().process_frame
+		await get_tree().process_frame
+		entry["save_clicked"] = true
+	# Probe whether a run save now exists on disk.
+	var save_path := "user://run_save.json"
+	entry["run_save_exists"] = FileAccess.file_exists(save_path)
+	if hud.get("escape_menu").visible:
+		hud.call("_close_escape_menu")
+	_active_effects.append(entry)
 
 
 ## T3.44: probe the live WaveDirector's creep budget + planned spawn counts for the

@@ -1,0 +1,19 @@
+{
+  "projectile_visible": false,
+  "scene": "drone_iso_test",
+  "shots": [
+    {
+      "label": "iso_early",
+      "path": "user://drone_iso_run_1789385253/iso_early_0.25.png"
+    },
+    {
+      "label": "iso_mid",
+      "path": "user://drone_iso_run_1789385253/iso_mid_0.46.png"
+    },
+    {
+      "label": "iso_late",
+      "path": "user://drone_iso_run_1789385253/iso_late_0.66.png"
+    }
+  ],
+  "verdict": "PASS"
+}

@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "comment": "T3.62 BEFORE: drone fires but no visible projectile. Use spawn_drone to add a gun drone, spawn enemies, capture drone combat WITHOUT projectile.",
+  "events": [
+    {"t": 1.0, "kind": "dev_command", "command": "spawn_drone"},
+    {"t": 1.5, "kind": "spawn", "at": [250, 0], "type": "grunt", "hp_mult": 50.0},
+    {"t": 1.5, "kind": "spawn", "at": [270, 50], "type": "grunt", "hp_mult": 50.0},
+    {"t": 2.5, "kind": "snap", "label": "before_drone_combat_1"},
+    {"t": 3.0, "kind": "snap", "label": "before_drone_combat_2"},
+    {"t": 3.5, "kind": "snap", "label": "before_drone_combat_3"},
+    {"t": 4.0, "kind": "report"}
+  ]
+}

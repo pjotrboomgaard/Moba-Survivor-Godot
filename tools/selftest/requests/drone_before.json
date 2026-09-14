@@ -1,0 +1,11 @@
+{
+  "scene": "res://scenes/drone_isolated_test/drone_isolated_test.tscn",
+  "mode": "before",
+  "comment": "T3.62 BEFORE: drone fires but NO projectile visual (pre-fix state)",
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "before_firing_1"},
+    {"t": 1.5, "kind": "snap", "label": "before_firing_2"},
+    {"t": 2.0, "kind": "snap", "label": "before_firing_3"},
+    {"t": 2.5, "kind": "report"}
+  ]
+}

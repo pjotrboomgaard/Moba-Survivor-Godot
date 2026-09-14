@@ -1,0 +1,9 @@
+{
+  "hero": "tobor",
+  "comment": "T3.64 verify: open pause menu in solo, confirm SAVE RUN and LOAD RUN buttons are visible and functional. Save should create user://run_save.json.",
+  "events": [
+    {"t": 1.5, "kind": "pause_menu", "label": "pause_menu_probe"},
+    {"t": 2.0, "kind": "snap", "label": "pause_menu_visible"},
+    {"t": 2.5, "kind": "report"}
+  ]
+}

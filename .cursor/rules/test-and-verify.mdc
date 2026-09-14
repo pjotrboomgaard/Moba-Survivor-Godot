@@ -85,6 +85,49 @@ The main scene's world, obstacles, HUD, and camera are too much noise to judge t
 3. **Only after the isolated world looks correct**, bring the same effect into the
    real world / main scene and re-verify there.
 
+## HARD RULE — Before/After screenshots prove the change landed
+
+For EVERY task that is marked verified/completed, capture BOTH:
+- A "before" screenshot (pre-change, isolated world). If the change has already
+  been made, you must REVERT the change temporarily to capture the "before" state,
+  capture it, then re-apply the change and capture the "after".
+- An "after" screenshot (post-change, isolated world).
+- Compare them so the delta is visible (use `tools/diff_screenshots.py` when
+  available; otherwise eyeball the two images with the Read tool).
+- The same before/after pair must be captured for in-game verification.
+- A task is NOT "verified" without both isolated + in-game screenshots on disk.
+
+## HARD RULE — Commit all screenshots to git
+
+For EVERY task that is marked verified/completed:
+- All screenshots live under `tools/selftest/results/<feature>_*.png`.
+- The selftest report JSON must reference each screenshot path.
+- **All result files (PNGs + report JSONs) must be `git add`ed and committed.**
+  No files may remain uncommitted in the working tree.
+- Run `git add tools/selftest/results/` and commit after every verification batch.
+- A task is NOT "verified" without both isolated + in-game screenshots committed
+  to git.
+
+## HARD RULE — Isolated test scene MUST be self-contained
+
+When building an isolated test scene:
+- It must be a dedicated `.tscn` + `.gd` under `scenes/<name>_test/`.
+- It must NOT depend on the full main scene, arena, HUD, or world.
+- It must spawn its own actors (dummy players, enemies, etc.) as needed.
+- It must write `user://selftest_report.json` with a verdict and screenshot paths.
+- It must call `get_tree().quit()` when done.
+- Run it via `run_selftest.ps1 -RequestPath ... -Scene res://scenes/<x>/<x>.tscn`.
+- The report JSON must include a `verdict` field: "PASS" or "FAIL".
+
+## HARD RULE — Commit + push frequently
+
+After completing any batch of verified tasks:
+- `git add -A`
+- `git commit -m "descriptive message"`
+- `git push`
+- **No files may remain saved locally only.** Everything must be pushed to the
+  remote repo. If there is no remote, say so explicitly.
+
 ## Scope
 
 This applies to all feature work, balance tweaks, quest logic, upgrade paths, boss form,

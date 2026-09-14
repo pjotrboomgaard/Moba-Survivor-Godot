@@ -1834,13 +1834,13 @@ func _spawn_enemy_projectile(origin: Vector2, direction: Vector2, damage: float,
 		SoundDirector.play("enemy_shoot", origin)
 
 
-func spawn_player_projectile(origin: Vector2, direction: Vector2, source: Player) -> void:
+func spawn_player_projectile(origin: Vector2, direction: Vector2, source: Player, sprite_name: String = "spark") -> void:
 	if source == null:
 		return
 	var projectile := projectile_scene.instantiate() as SurvivorProjectile
 	projectile.global_position = origin
 	actors.add_child(projectile)
-	projectile.configure(direction, source.weapon_damage, 520.0, false, false, "spark")
+	projectile.configure(direction, source.weapon_damage, 520.0, false, false, sprite_name)
 
 
 func _spawn_xp_orb(position: Vector2, value: int) -> XPOrb:
@@ -2892,7 +2892,7 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 		"spawn_drone":
 			# T3.62 test hook: spawn a gun drone companion for the local player so
 			# the projectile visibility fix can be verified in a short selftest.
-			player._add_companion("gun_drone", 1)
+			player._add_companion("gun_drone")
 		"force_black_lava":
 			if arena is Arena:
 				(arena as Arena).debug_force_black_lava()

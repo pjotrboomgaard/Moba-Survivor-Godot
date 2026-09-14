@@ -1,0 +1,17 @@
+{
+  "hero": "tobor",
+  "comment": "T3.62: rapid-fire snapshots to catch the drone projectile in flight. spawn_drone + high-HP enemy, then 8 snapshots at 0.15s intervals to catch the fast cyan drone_spark.",
+  "events": [
+    {"t": 1.0, "kind": "dev_command", "command": "spawn_drone"},
+    {"t": 1.3, "kind": "spawn", "at": [220, 0], "type": "grunt", "hp_mult": 999.0},
+    {"t": 1.8, "kind": "snap", "label": "rf_0"},
+    {"t": 1.95, "kind": "snap", "label": "rf_1"},
+    {"t": 2.1, "kind": "snap", "label": "rf_2"},
+    {"t": 2.25, "kind": "snap", "label": "rf_3"},
+    {"t": 2.4, "kind": "snap", "label": "rf_4"},
+    {"t": 2.55, "kind": "snap", "label": "rf_5"},
+    {"t": 2.7, "kind": "snap", "label": "rf_6"},
+    {"t": 2.85, "kind": "snap", "label": "rf_7"},
+    {"t": 3.2, "kind": "report"}
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "scene": "res://scenes/drone_isolated_test/drone_isolated_test.tscn",
+  "comment": "T3.62: isolated drone projectile test. Verifies the gun drone spawns visible projectiles. Uses spawn_drone dev command to add a gun drone, then captures multiple frames to catch the projectile in flight.",
+  "hero": "tobor",
+  "extra_user_args": ["drone_isolated_test"],
+  "events": [
+    {"t": 0.5, "kind": "probe", "label": "start"},
+    {"t": 1.0, "kind": "snap", "label": "d1_before"},
+    {"t": 2.0, "kind": "snap", "label": "d2_mid"},
+    {"t": 3.0, "kind": "snap", "label": "d3_late"},
+    {"t": 3.5, "kind": "report"}
+  ]
+}

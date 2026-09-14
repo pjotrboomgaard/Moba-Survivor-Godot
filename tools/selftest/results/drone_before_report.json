@@ -1,0 +1,27 @@
+{
+  "projectiles_spawned": 0,
+  "scene": "drone_isolated_test",
+  "shots": [
+    {
+      "label": "d0_drone_idle",
+      "path": "user://drone_isolated_run_1789384123/d0_drone_idle_0.60.png"
+    },
+    {
+      "label": "d1_drone_firing",
+      "path": "user://drone_isolated_run_1789384123/d1_drone_firing_1.00.png"
+    },
+    {
+      "label": "d2_projectile_mid",
+      "path": "user://drone_isolated_run_1789384123/d2_projectile_mid_1.30.png"
+    },
+    {
+      "label": "d3_projectile_late",
+      "path": "user://drone_isolated_run_1789384123/d3_projectile_late_1.60.png"
+    },
+    {
+      "label": "d4_target_still_alive",
+      "path": "user://drone_isolated_run_1789384123/d4_target_still_alive_2.01.png"
+    }
+  ],
+  "verdict": "FAIL"
+}

@@ -1,0 +1,47 @@
+---
+description: Mandatory pre-verification checklist that must be completed before marking ANY task done
+alwaysApply: true
+---
+
+# Hard Rules Verification Checklist
+
+Before marking ANY task as verified/complete, you MUST have a checklist entry
+for each of the following. If ANY box is unchecked, the task is NOT done.
+
+## Pre-verification checklist (run this EVERY time)
+
+```
+[ ] 1. Enumerated ALL requirements of the task (written out, not just remembered)
+[ ] 2. Built/updated an ISOLATED test scene (dedicated .tscn + .gd, no main scene)
+[ ] 3. Captured BEFORE screenshot (pre-change state, isolated world)
+       - If the change is already applied: temporarily revert, capture, re-apply
+[ ] 4. Captured AFTER screenshot (post-change state, isolated world)
+[ ] 5. Compared before/after — delta is visible and matches the requirement
+[ ] 6. Read EVERY screenshot with the Read tool and described what is ACTUALLY shown
+[ ] 7. Ran the test in the FULL game (main scene or FFA) and captured in-game screenshot
+[ ] 8. Report JSON verdict is PASS / expected fields match
+[ ] 9. Screenshots + report JSON are committed to git (git add tools/selftest/results/)
+[ ] 10. App restarted with tools/restart_app.ps1 so the user sees the change live
+```
+
+## How to use
+
+1. Before starting a task, copy the checklist into your todo list.
+2. Tick each box as you complete it.
+3. If you cannot tick a box, the task is NOT done — note what is missing.
+4. **Never** mark a task "verified" or "complete" in PLAN.md with any box unchecked.
+5. **Never** skip the BEFORE screenshot. If you already made the code change,
+   you MUST temporarily revert to capture the before state.
+6. **Never** rely on the report JSON alone — you must open each PNG with the
+   Read tool and describe what you see.
+7. **Never** leave screenshots uncommitted. Run `git add tools/selftest/results/`
+   and commit + push after every verification batch.
+
+## Common mistakes to avoid
+
+- Marking a task done based on "the report says PASS" without reading the screenshots.
+- Skipping the isolated test and going straight to the full game.
+- Capturing only an "after" screenshot without a "before" for comparison.
+- Forgetting to commit the result PNGs and report JSON to git.
+- Not restarting the app at the end of the turn.
+- Using a single screenshot to "verify" a multi-phase feature.

@@ -1,0 +1,60 @@
+{
+  "effects": [
+    {
+      "command": "spawn_drone",
+      "kind": "dev_command",
+      "t": 1.00833333333333
+    }
+  ],
+  "elapsed": 4.00352666666667,
+  "enemies_spawned": 2,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 12,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 20
+  },
+  "shots": [
+    {
+      "label": "before_drone_combat_1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5808/before_drone_combat_1_2.508_5808.png",
+      "t": 2.50767047619047
+    },
+    {
+      "label": "before_drone_combat_2",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6316/before_drone_combat_2_3.004_6316.png",
+      "t": 3.00440144444444
+    },
+    {
+      "label": "before_drone_combat_3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6814/before_drone_combat_3_3.504_6814.png",
+      "t": 3.504093
+    }
+  ]
+}

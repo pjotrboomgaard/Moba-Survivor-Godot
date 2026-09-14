@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/drone_before_main/before_drone_combat_1_2.508_5808.png",
+  "after": "tools/selftest/results/drone_after/after_drone_combat_1_2.501_6226.png",
+  "out": "tools/selftest/results/drone_after/diff_drone_projectile.png",
+  "changed_pixels": 3241,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.001563,
+  "bbox": [
+    1030,
+    11,
+    1911,
+    1042
+  ],
+  "has_change": true
+}

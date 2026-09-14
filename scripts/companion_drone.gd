@@ -85,7 +85,7 @@ func _fire() -> void:
 			var main := owner_player.get_parent()
 			if main != null and main.has_method("spawn_player_projectile"):
 				var dir := (target.global_position - global_position).normalized()
-				main.call("spawn_player_projectile", global_position, dir, owner_player)
+				main.call("spawn_player_projectile", global_position, dir, owner_player, "drone_spark")
 			owner_player._damage_enemy(target, power * (1.15 if kind == Kind.LASER else 1.0))
 			if kind == Kind.SPARK and target.has_method("apply_slow"):
 				target.apply_slow(0.85, 0.4)

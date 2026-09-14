@@ -1,0 +1,13 @@
+{
+  "hero": "bulwark",
+  "comment": "T3.66: verify Bulwark's attack range is 57.5 (2x smaller than other heroes). Probe the attack_range value and capture a screenshot showing the melee attack range indicator.",
+  "expected_probe_fields": {
+    "attack_range": 57.5
+  },
+  "events": [
+    {"t": 1.0, "kind": "probe", "label": "bulwark_start"},
+    {"t": 2.0, "kind": "snap", "label": "bulwark_range_indicator"},
+    {"t": 2.5, "kind": "probe", "label": "bulwark_range_check"},
+    {"t": 3.0, "kind": "report"}
+  ]
+}

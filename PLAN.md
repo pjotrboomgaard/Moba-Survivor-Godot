@@ -1677,8 +1677,10 @@ creeps should come in big groups"
       `save_run_requested` signal. Load button exits to lobby where the
       "CONTINUE" button picks up the save. Buttons only visible in offline
       solo (where run save applies).
-- [ ] In-game verify: open pause menu in solo, confirm save and load buttons
-      are visible and functional.
+- [x] In-game verify: `save_load_verify` selftest (2026-09-14) confirms SAVE RUN
+      and LOAD RUN buttons visible in pause menu; save click writes
+      `user://run_save.json` (probe: save_button_visible=true, load_button_visible=true,
+      save_clicked=true, run_save_exists=true).
 
 ### T3.65 CPU ally heroes should be same size as Tobor (NEW 2026-09-14) _STATUS (2026-09-14): code done_
 **User direction:** "the 3 others than hero are bigger than tobor. make them same
