@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/aim_assist/aim_assist_iso_before_0.51.png",
+  "after": "tools/selftest/results/aim_assist/aim_assist_iso_after_3.01.png",
+  "out": "tools/selftest/results/aim_assist/diff_iso.png",
+  "changed_pixels": 213,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.000103,
+  "bbox": [
+    944,
+    468,
+    976,
+    487
+  ],
+  "has_change": true
+}

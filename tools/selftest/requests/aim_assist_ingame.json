@@ -1,0 +1,15 @@
+{
+  "hero": "pyra",
+  "comment": "T3.81 in-game: verify LMB-style aim-assist is active on abilities. Spawn a hound 120px right, set aim 8px off the hound, and use aim_assist_probe to confirm the snap finds the hound (snap_found=true, aim_offset<=14px). Also cast Q to show a real cast still works.",
+  "events": [
+    {"t": 1.0, "kind": "spawn", "at": [120, 0], "type": "hound", "hp_mult": 1.0},
+    {"t": 1.4, "kind": "creep_probe", "label": "hound_pos"},
+    {"t": 1.6, "kind": "aim", "at": [120, 8]},
+    {"t": 1.7, "kind": "aim_assist_probe", "label": "snap", "range": 500},
+    {"t": 1.8, "kind": "reset_ability_cd"},
+    {"t": 2.0, "kind": "cast", "slot": 0},
+    {"t": 2.6, "kind": "snap", "label": "aim_assist_ingame_mid"},
+    {"t": 3.6, "kind": "snap", "label": "aim_assist_ingame_after"},
+    {"t": 4.0, "kind": "report"}
+  ]
+}

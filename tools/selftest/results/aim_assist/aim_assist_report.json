@@ -1,0 +1,19 @@
+{
+  "scene": "aim_assist_test",
+  "shots": [
+    {
+      "label": "aim_assist_iso_before",
+      "path": "user://aim_assist_run_1789429676/aim_assist_iso_before_0.51.png",
+      "t": 0.506423666666667
+    },
+    {
+      "label": "aim_assist_iso_after",
+      "path": "user://aim_assist_run_1789429676/aim_assist_iso_after_3.01.png",
+      "t": 3.00633666666666
+    }
+  ],
+  "snap_correct": true,
+  "snap_far_correct": true,
+  "snap_near": true,
+  "verdict": "PASS"
+}

@@ -578,14 +578,19 @@ func _process(delta: float) -> void:
 			"damage_tree":
 				# T3.75: drive the arena's tree-HP damage API in the live game.
 				var dmg_arena: Variant = _host_main.get("arena") if _host_main != null else null
+				var dmg_hits := 0
 				if dmg_arena != null and dmg_arena.has_method("damage_trees_in_radius"):
 					var dmg_pos := _event_vec(event, "at", Vector2.ZERO)
-					var hits: int = dmg_arena.damage_trees_in_radius(
+					dmg_hits = dmg_arena.damage_trees_in_radius(
 						dmg_pos,
 						float(event.get("radius", 60.0)),
 						float(event.get("amount", 120.0)))
-					_active_effects.append({
-						"kind": "custom", "text": "damage_tree hits=%d amount=%s" % [hits, str(event.get("amount", 120.0))], "t": _elapsed})
+				_active_effects.append({
+					"kind": "custom", "text": "damage_tree hits=%d amount=%s" % [dmg_hits, str(event.get("amount", 120.0))], "t": _elapsed})
+			"aim_assist_probe":
+				# T3.81: directly query the player's ability aim-snap so a test can
+				# assert LMB-style aim-assist is active in the live game.
+				_record_aim_assist_probe(str(event.get("label", "aim_assist")), float(event.get("range", 500.0)))
 			"camera_zoom":
 				# Move the camera to a world position and set zoom so the next snap
 				# is a close-up (used for shadow / detail inspection).
@@ -1314,6 +1319,29 @@ func _record_gun_drone_probe(label: String) -> void:
 					if pos.length_squared() > 1.0:
 						fired = true
 	_active_effects.append({"kind": "gun_drone_probe", "label": label, "t": _elapsed, "beam_fired": fired})
+
+
+## T3.81: report whether the player's ability aim-snap finds a nearby enemy for
+## the current aim_world_position. Reports the snap target position and distance
+## to the raw cursor so a test can assert LMB-style aim-assist is active.
+func _record_aim_assist_probe(label: String, range_limit: float) -> void:
+	var snap: Node2D = null
+	var snap_pos: Vector2 = Vector2.ZERO
+	var raw_aim: Vector2 = Vector2.ZERO
+	if _player != null:
+		snap = _player._find_aim_assist_snap(range_limit)
+		raw_aim = _player.aim_world_position
+		if snap != null:
+			snap_pos = snap.global_position
+	_active_effects.append({
+		"kind": "aim_assist_probe",
+		"label": label,
+		"t": _elapsed,
+		"snap_found": snap != null,
+		"snap_pos": snap_pos,
+		"raw_aim": raw_aim,
+		"aim_offset_px": raw_aim.distance_to(snap_pos) if snap != null else 0.0,
+	})
 
 
 ## T3.75: report tree-HP state (HP, breaking flag, collision on/off) for all

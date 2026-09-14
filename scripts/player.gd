@@ -3765,6 +3765,11 @@ func _ability_aim_center(max_range: float) -> Vector2:
 	# _pending_ability_id — otherwise confirm would snap to the nearest enemy.
 	var mode := str(TARGETED_ABILITIES.get(_casting_ability_id, ""))
 	if not _pending_ability_id.is_empty() or mode == "point" or mode == "vector":
+		# T3.81: apply LMB-style aim-assist — if the cursor is within aim_assist_radius
+		# of a creep, snap the ability impact to that creep (same as LMB auto-attack).
+		var snapped := _find_aim_assist_snap(max_range)
+		if snapped != null:
+			return snapped.global_position
 		var clamp_dir := global_position.direction_to(aim_world_position)
 		if clamp_dir.length_squared() <= 0.0:
 			clamp_dir = facing_direction
@@ -3777,6 +3782,29 @@ func _ability_aim_center(max_range: float) -> Vector2:
 	if direction.length_squared() <= 0.0:
 		direction = facing_direction
 	return global_position + direction * minf(max_range, global_position.distance_to(aim_world_position))
+
+
+## T3.81: LMB-style aim-assist for abilities — find the nearest damageable enemy
+## within aim_assist_radius of the cursor (aim_world_position). Mirrors
+## _find_primary_target() so abilities snap to creeps the same way LMB does.
+func _find_aim_assist_snap(max_range: float) -> Node2D:
+	var best: Node2D
+	var best_dist := aim_assist_radius * aim_assist_radius
+	for candidate in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(candidate) or not candidate is Node2D:
+			continue
+		if candidate.has_method("is_damageable") and not candidate.is_damageable():
+			continue
+		var candidate_pos: Vector2 = candidate.global_position
+		# Must be within ability range of the player.
+		if global_position.distance_squared_to(candidate_pos) > max_range * max_range:
+			continue
+		# Within aim_assist_radius of the cursor.
+		var dist_to_aim: float = aim_world_position.distance_squared_to(candidate_pos)
+		if dist_to_aim <= best_dist:
+			best = candidate
+			best_dist = dist_to_aim
+	return best
 
 
 func _cast_ability_cone_burst(data: Dictionary, values: Dictionary) -> void:

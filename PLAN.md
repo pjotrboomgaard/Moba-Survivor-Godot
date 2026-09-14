@@ -2006,17 +2006,25 @@ from the drone to the target plus an impact circle at the target.
 - [x] Screenshots: `tools/selftest/results/gun_drone_beam/` (iso) +
       `tools/selftest/results/gun_drone_ingame/` (ingame).
 
-### T3.81 Abilities share LMB aim-assist (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+### T3.81 Abilities share LMB aim-assist (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "abilities should have same aim assist as lmb"
-- [ ] Find where LMB applies aim-assist (likely `main.gd` or `player.gd` — a
-      snap-to-nearest-enemy or directional bias). Apply the same assist to every
-      ability cast so aiming a cone/burst/zone ability snaps to nearby creeps the
-      same way basic attack does.
-- [ ] Isolated verify: `aim_assist_test` — hero with ability, place a creep near
-      the cast direction; confirm the ability target/cast direction snaps toward
-      it.
-- [ ] In-game verify: cast each ability type near creeps; confirm consistent
-      snapping.
+**Fix:** Added `_find_aim_assist_snap(max_range)` to `player.gd` — returns the
+nearest damageable enemy within `aim_assist_radius` (14px) of the cursor
+(`aim_world_position`) that is also within ability range. `_ability_aim_center`
+now calls it for point/vector/pending abilities and snaps the impact to that
+enemy's position, exactly like LMB's `_find_primary_target` beam-snap. When no
+enemy is within the radius the behaviour is unchanged (cursor-clamped).
+- [x] Isolated verify: `scenes/aim_assist_test/` — real pyra Player + 2 enemy
+      stubs (near 8px from cursor, far 280px). `aim_assist_report.json` verdict=PASS:
+      `snap_near=true` (cursor 8px off → center == near stub pos),
+      `snap_far_correct=true` (cursor far → center stays at cursor, no snap).
+      Screenshots iso_before/iso_after identical world (snap is code-level),
+      `diff_iso.png` 0.01% noise only.
+- [x] In-game verify: `aim_assist_ingame.json` — pyra, spawn hound, aim within
+      8px of it, `aim_assist_probe` → `snap_found=true` (LMB-style snap active in
+      live game); Q cast confirmed working (`cast_count=1`).
+- [x] Screenshots: `tools/selftest/results/aim_assist/` (iso) +
+      `tools/selftest/results/aim_assist_ingame/` (ingame).
 
 ### T3.82 No hero health bar before spawn (after ship crash) (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "there is already a health bar of hero visible before hero
