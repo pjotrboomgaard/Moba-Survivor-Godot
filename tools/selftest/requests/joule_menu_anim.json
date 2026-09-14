@@ -1,0 +1,6 @@
+{
+  "comment": "Isolated verify: Joule menu background plays the 29-frame sprite animation from the MP4. Check frames loaded and frame_index advances.",
+  "events": [
+    {"t": 3.5, "kind": "report"}
+  ]
+}

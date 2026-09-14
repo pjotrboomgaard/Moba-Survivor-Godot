@@ -1,0 +1,6 @@
+{
+  "comment": "Isolated verify: Godot VideoStreamPlayer can load and play the Joule menu MP4. Check video loaded, playing, and frame_count advances.",
+  "events": [
+    {"t": 6.0, "kind": "report"}
+  ]
+}

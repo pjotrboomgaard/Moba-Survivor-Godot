@@ -1,0 +1,23 @@
+{
+  "frame_index_at_end": 12,
+  "frames_loaded": 29,
+  "scene": "joule_menu_anim_test",
+  "shots": [
+    {
+      "frame_index": 11,
+      "label": "a",
+      "path": "user://joule_menu_anim_run_1648/joule_bg_a.png"
+    },
+    {
+      "frame_index": 23,
+      "label": "b",
+      "path": "user://joule_menu_anim_run_1648/joule_bg_b.png"
+    },
+    {
+      "frame_index": 6,
+      "label": "c",
+      "path": "user://joule_menu_anim_run_1648/joule_bg_c.png"
+    }
+  ],
+  "verdict": "PASS"
+}

@@ -1,0 +1,6 @@
+{
+  "comment": "Probe whether Godot can decode the menu MP4 (VideoStreamPlayer).",
+  "events": [
+    {"t": 1.5, "kind": "report"}
+  ]
+}

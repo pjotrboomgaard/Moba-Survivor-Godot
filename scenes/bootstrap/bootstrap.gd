@@ -518,10 +518,80 @@ func _apply_hero_backdrop() -> void:
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.offset_right = 0.0
-	art.texture = SpriteLibrary.menu_backdrop_for(PlayerProfile.selected_class_id)
-	art.visible = true
+	# Joule (arclight): animated menu background from extracted video frames.
+	# Other heroes: static texture as before.
+	if PlayerProfile.selected_class_id == "arclight":
+		art.texture = _joule_menu_frame(0)  # static first frame as fallback
+		art.visible = true
+		_ensure_joule_menu_video()
+	else:
+		art.texture = SpriteLibrary.menu_backdrop_for(PlayerProfile.selected_class_id)
+		art.visible = true
+		_stop_joule_menu_video()
 	_raise_ability_hover()
 
+
+## Frame-0 texture for Joule's animated menu background (used as a static
+## fallback behind the AnimatedSprite2D, so the menu never shows a hole).
+func _joule_menu_frame(index: int) -> Texture2D:
+	if _joule_frames.is_empty():
+		_joule_frames = _load_joule_menu_frames()
+	if _joule_frames.is_empty():
+		return SpriteLibrary.menu_backdrop_for("arclight")
+	return _joule_frames[posmod(index, _joule_frames.size())]
+
+
+func _load_joule_menu_frames() -> Array[Texture2D]:
+	var out: Array[Texture2D] = []
+	for i in range(29):
+		var path := "res://assets/ui/joule_menu_video/frames/frame_%03d.png" % i
+		if not ResourceLoader.exists(path):
+			continue
+		var tex := load(path) as Texture2D
+		if tex != null:
+			out.append(tex)
+	return out
+
+
+func _ensure_joule_menu_video() -> void:
+	if _joule_menu_anim != null and is_instance_valid(_joule_menu_anim):
+		return  # already playing
+	if _joule_frames.is_empty():
+		_joule_frames = _load_joule_menu_frames()
+	if _joule_frames.is_empty():
+		return
+	var layer := $StatusLayer as CanvasLayer
+	_joule_menu_anim = AnimatedSprite2D.new()
+	_joule_menu_anim.name = "JouleMenuVideo"
+	_joule_menu_anim.position = Vector2.ZERO
+	var sf := SpriteFrames.new()
+	sf.add_animation("joule")
+	sf.set_animation_speed("joule", 12.0)
+	sf.set_animation_loop("joule", true)
+	for tex in _joule_frames:
+		sf.add_frame("joule", tex)
+	_joule_menu_anim.sprite_frames = sf
+	# Match the menu backdrop's size: fill the viewport, nearest-neighbour so
+	# the pixel-art stays crisp.
+	var vp := get_viewport().get_visible_rect().size
+	_joule_menu_anim.scale = Vector2(
+		float(vp.x) / 1080.0,
+		float(vp.y) / 1080.0
+	)
+	_joule_menu_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	layer.add_child(_joule_menu_anim)
+	_joule_menu_anim.play("joule")
+
+
+func _stop_joule_menu_video() -> void:
+	if _joule_menu_anim != null and is_instance_valid(_joule_menu_anim):
+		_joule_menu_anim.queue_free()
+	_joule_menu_anim = null
+
+
+## T3.71: Joule (arclight) animated menu background (from MP4 frame extraction).
+var _joule_frames: Array[Texture2D] = []
+var _joule_menu_anim: AnimatedSprite2D = null
 
 var selected_world: int = 0
 
