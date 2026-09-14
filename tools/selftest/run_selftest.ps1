@@ -103,12 +103,18 @@ if (Test-Path $ReportOut) {
             if (-not (Test-Path $shotsDir)) { New-Item -ItemType Directory -Path $shotsDir -Force | Out-Null }
             foreach ($m in $allMatches) {
                 $src = $m.Groups[1].Value -replace '\\', '\'
-                # user:// was already globalized by Godot when written, so this is an absolute path.
+                # user:// paths are relative to Godot's app_userdata dir; resolve them
+                # to an absolute path so Test-Path works and the copy lands.
+                if ($src.StartsWith("user://")) {
+                    $src = Join-Path $UserDataDir ($src.Substring(7))
+                }
                 if (Test-Path $src) {
                     $fileName = [IO.Path]::GetFileName($src)
                     $dest = Join-Path $shotsDir $fileName
                     Copy-Item $src $dest -Force
                     Write-Host ("Shot copied: " + $dest)
+                } else {
+                    Write-Host ("Shot missing: " + $src)
                 }
             }
             Write-Host ("Screenshots dir: " + $shotsDir)

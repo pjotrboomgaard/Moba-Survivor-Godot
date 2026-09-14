@@ -1,0 +1,7 @@
+{
+  "scene": "res://scenes/drone_iso_test/drone_iso_test.tscn",
+  "name": "drone_iso_before",
+  "mode": "before",
+  "duration_s": 2.5,
+  "expected_pass": true
+}
