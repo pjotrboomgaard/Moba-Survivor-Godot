@@ -599,16 +599,18 @@ fire, the fire spreads to nearby trees/surroundings and they take damage. Replac
 the tree with a "dead tree stomp" (charred/dead tree) when it burns out. Test on
 empty map FIRST, then full map (per new hard rule).
 
-- [ ] Pixel-art fire tree sprite (flames layered on the tree, 2-3 frame flicker)
-- [ ] `tree.on_fire` state: burning tree takes damage over time, emits fire VFX
-- [ ] Fire spread: after N seconds, fire spreads to adjacent trees within radius
+- [x] Pixel-art fire tree sprite (flames layered on the tree, 2-3 frame flicker)
+- [x] `tree.on_fire` state: burning tree takes damage over time, emits fire VFX
+- [x] Fire spread: after N seconds, fire spreads to adjacent trees within radius
       (chain reaction); surroundings (grass/props) take small damage
-- [ ] Burned-out tree → replaced with a "dead tree / stomp" sprite (charred trunk)
-- [ ] Fire can hurt players/creeps that stand in it (small DOT)
-- [ ] Sources: storm lightning strike (T3.13), hero fire abilities, future interactions
-- [ ] Test on EMPTY isolated world first (per new hard rule), then in main scene
-- [ ] Verify: screenshot shows a burning tree, a spreading fire to neighbor, and a
-      charred dead tree after burn-out
+- [x] Burned-out tree → replaced with a "dead tree / stomp" sprite (charred trunk)
+- [x] Fire can hurt players/creeps that stand in it (small DOT)
+- [x] Sources: storm lightning strike (T3.13), hero fire abilities, future interactions
+- [x] Test on EMPTY isolated world first (per new hard rule), then in main scene
+      — isolated: `fire_tree_test` (2026-09-14, burning→spread→stump all confirmed).
+- [x] Verify: screenshot shows a burning tree, a spreading fire to neighbor, and a
+      charred dead tree after burn-out — in-game: `storm_forest_full` selftest
+      (2026-09-14) shows storm striking trees, fire spreading, stumps remaining.
 
 ### T3.15 Recruit/minigame creep-follow + combat isolated test — NEW 2026-09-12
 **User direction (2026-09-12):** Test in an ISOLATED environment that (a) a

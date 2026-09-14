@@ -3,12 +3,12 @@
     {
       "command": "force_storm",
       "kind": "dev_command",
-      "t": 1.51273715151515
+      "t": 1.5
     }
   ],
-  "elapsed": 28.0131453333331,
+  "elapsed": 28.0078191515149,
   "enemies_spawned": 0,
-  "hero_position": "(494.5091, -499.8483)",
+  "hero_position": "(72.0, 0.0)",
   "player_class": "arclight",
   "results": {
     "alive": true,
@@ -16,11 +16,11 @@
     "build": "",
     "cast_count": 0,
     "casts": [],
-    "creep_kills": 1,
+    "creep_kills": 0,
     "died": false,
     "errors": [],
     "ffa": {},
-    "gold": 6,
+    "gold": 0,
     "hero_kills": 0,
     "hp_samples": [],
     "landmark_saves": 0,
@@ -38,28 +38,28 @@
     "until_wave": 20,
     "verdict": "",
     "wave": 1,
-    "xp": 10
+    "xp": 0
   },
   "shots": [
     {
       "label": "forest_before",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4075/forest_before_1.016_4075.png",
-      "t": 1.01572242424243
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4036/forest_before_1.014_4036.png",
+      "t": 1.01446975757576
     },
     {
       "label": "storm_strikes",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7566/storm_strikes_8.011_7566.png",
-      "t": 8.01087666666665
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7527/storm_strikes_8.009_7527.png",
+      "t": 8.00876133333332
     },
     {
       "label": "fire_spreading",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11058/fire_spreading_15.000_11058.png",
-      "t": 15.0000000000002
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11036/fire_spreading_15.012_11036.png",
+      "t": 15.0121212121214
     },
     {
       "label": "stumps_after",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_16068/stumps_after_25.011_16068.png",
-      "t": 25.0114166666664
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_16027/stumps_after_25.010_16027.png",
+      "t": 25.0099993333333
     }
   ]
 }
