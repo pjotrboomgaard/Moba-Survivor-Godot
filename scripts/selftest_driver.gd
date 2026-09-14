@@ -570,6 +570,11 @@ func _process(delta: float) -> void:
 				# T3.84: report the max_health of every live turret so a test can
 				# assert the (reduced) turret HP value end-to-end.
 				_record_turret_probe(str(event.get("label", "turrets")))
+			"gun_drone_probe":
+				# T3.80: report whether the local hero's gun drone has ever aimed a
+				# stripe/beam at a target (beam_target_pos != 0) so the in-game test
+				# can confirm the visible beam fired.
+				_record_gun_drone_probe(str(event.get("label", "gun_drone")))
 			"damage_tree":
 				# T3.75: drive the arena's tree-HP damage API in the live game.
 				var dmg_arena: Variant = _host_main.get("arena") if _host_main != null else null
@@ -1295,6 +1300,20 @@ func _record_turret_probe(label: String) -> void:
 			"alive": not bool(h.get("is_dead", false)),
 		})
 	_active_effects.append({"kind": "turret_probe", "label": label, "t": _elapsed, "turrets": turrets})
+
+
+## T3.80: report whether the local hero's gun-style companion drone has ever aimed
+## a stripe/beam at a target. True when the drone's _beam_target_pos is non-zero.
+func _record_gun_drone_probe(label: String) -> void:
+	var fired := false
+	if _player != null:
+		for child in _player.get_parent().get_children():
+			if "kind" in child and "owner_player" in child:
+				if int(child.get("kind")) == 0:  # Kind.GUN
+					var pos: Vector2 = child.get("_beam_target_pos")
+					if pos.length_squared() > 1.0:
+						fired = true
+	_active_effects.append({"kind": "gun_drone_probe", "label": label, "t": _elapsed, "beam_fired": fired})
 
 
 ## T3.75: report tree-HP state (HP, breaking flag, collision on/off) for all

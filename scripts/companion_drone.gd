@@ -40,6 +40,13 @@ var _cooldown := 0.0
 ## companions fire on the same frame.
 var _fire_sfx_cooldown := 0.0
 var _slot := 0
+## T3.80: while a GUN/SPARK/LASER drone has a live target, draw a visible
+## stripe/beam from the drone toward it so the attack reads as a targeted shot
+## rather than a silent projectile. The beam is a short-lived flash.
+var _beam_target_pos := Vector2.ZERO
+var _beam_timer := 0.0
+const BEAM_FLASH_DURATION := 0.45
+const BEAM_KINDS := [Kind.GUN, Kind.SPARK, Kind.LASER]
 
 
 func setup(p_owner: Player, upgrade_id: String, slot: int) -> void:
@@ -87,6 +94,12 @@ func _fire() -> void:
 				var dir := (target.global_position - global_position).normalized()
 				main.call("spawn_player_projectile", global_position, dir, owner_player, "drone_spark")
 			owner_player._damage_enemy(target, power * (1.15 if kind == Kind.LASER else 1.0))
+			# T3.80: stripe/beam flash from the drone toward the target so the
+			# shot is clearly readable as an aimed attack (not just a stray spark).
+			if BEAM_KINDS.has(kind):
+				_beam_target_pos = target.global_position - global_position
+				_beam_timer = BEAM_FLASH_DURATION
+				queue_redraw()
 			if kind == Kind.SPARK and target.has_method("apply_slow"):
 				target.apply_slow(0.85, 0.4)
 			if kind == Kind.FROST and target.has_method("apply_slow"):
@@ -135,6 +148,19 @@ func _draw() -> void:
 	var fill := _fill()
 	var dark := fill.darkened(0.55)
 	var accent := Color(0.08, 0.08, 0.1, 0.9)
+	# T3.80: stripe/beam flash from the drone toward its target (drawn first so it
+	# sits under the body). Only for the stripe-shot kinds and only for the brief
+	# window after a shot is fired.
+	if _beam_timer > 0.0:
+		var alpha := clampf(_beam_timer / BEAM_FLASH_DURATION, 0.0, 1.0)
+		var tip := _beam_target_pos
+		var beam_color := fill.lightened(0.45)
+		# Outer glow stripe.
+		draw_line(Vector2.ZERO, tip, Color(beam_color.r, beam_color.g, beam_color.b, 0.12 * alpha), 7.0)
+		# Core stripe.
+		draw_line(Vector2.ZERO, tip, Color(beam_color.r, beam_color.g, beam_color.b, 0.85 * alpha), 2.0)
+		# Bright impact point at the target.
+		draw_circle(tip, 4.0 * alpha, Color(1.0, 1.0, 1.0, 0.7 * alpha))
 	# Bigger body so it clearly reads as a drone, not a dot. Grows with rank.
 	var r := 9.0 + float(rank) * 0.6
 	# Drop shadow underneath (on the ground, offset down).

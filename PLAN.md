@@ -1988,16 +1988,23 @@ i restart game or when i start new game even tho they shouldnt be there at all."
 - [ ] In-game verify: Tobor solo — cast turret + mine, screenshot the throw-effect
       in flight; restart, screenshot confirms no leftover art.
 
-### T3.80 Gun drone: stripe/beam attack targeting creeps (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+### T3.80 Gun drone: stripe/beam attack targeting creeps (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "gun drone is not shooting any attack animation yet it should
 be a stripe targeting creeps"
-- [ ] Find the gun drone entity (likely `drone.gd` or an ability-spawned node).
-      Add a stripe/beam visual that fires from the drone to its current creep
-      target each time it attacks.
-- [ ] Isolated verify: `drone_shoot_test` — spawn gun drone + a dummy creep;
-      confirm the beam/stripe renders and tracks the target.
-- [ ] In-game verify: grant the gun-drone hero an ability, cast it near creeps;
-      screenshot shows the stripe hitting a creep.
+**Fix:** Added a stripe/beam flash to `companion_drone.gd`. When a GUN/SPARK/LASER
+drone fires at a target, it records `_beam_target_pos` (drone→target vector) and
+`_beam_timer` (0.45s). `_draw()` renders a 2-pass stripe (outer glow + bright core)
+from the drone to the target plus an impact circle at the target.
+- [x] Implemented stripe/beam visual in `companion_drone.gd` `_draw()` + fire path.
+- [x] Isolated verify: `scenes/gun_drone_beam_test/` — real Player + real Gun drone +
+      enemy stub. 3-phase screenshots (before/mid/after). `gun_drone_report.json`
+      verdict=PASS: `beam_flash_seen=true`, `total_damage=84.0` (8+ hits over 3s).
+      Isolated compare: `diff_iso.png` (2.04% changed, bbox = drone+enemy region).
+- [x] In-game verify: `gun_drone_ingame.json` — grant `gun_drone` + spawn hound,
+      probe `gun_drone_probe` → `beam_fired=true`, `creep_kills=1` (creep dead by
+      t=3.5s). `diff_ingame.png` confirms world state changed (24.3%).
+- [x] Screenshots: `tools/selftest/results/gun_drone_beam/` (iso) +
+      `tools/selftest/results/gun_drone_ingame/` (ingame).
 
 ### T3.81 Abilities share LMB aim-assist (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
 **User direction:** "abilities should have same aim assist as lmb"

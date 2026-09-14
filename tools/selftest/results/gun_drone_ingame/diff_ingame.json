@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/gun_drone_ingame/gun_drone_ingame_before_1.508_9600.png",
+  "after": "tools/selftest/results/gun_drone_ingame/gun_drone_ingame_after_3.828_11937.png",
+  "out": "tools/selftest/results/gun_drone_ingame/diff_ingame.png",
+  "changed_pixels": 503551,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.242839,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

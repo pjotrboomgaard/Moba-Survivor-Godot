@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/gun_drone_beam/drone_iso_before_0.51.png",
+  "after": "tools/selftest/results/gun_drone_beam/drone_iso_after_2.51.png",
+  "out": "tools/selftest/results/gun_drone_beam/diff_iso.png",
+  "changed_pixels": 4237,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.002043,
+  "bbox": [
+    944,
+    463,
+    1146,
+    609
+  ],
+  "has_change": true
+}

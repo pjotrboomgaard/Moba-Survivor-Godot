@@ -1,0 +1,26 @@
+{
+  "beam_flash_frames": 193,
+  "beam_flash_seen": true,
+  "final_hp": 99915.0,
+  "initial_hp": 99999.0,
+  "scene": "gun_drone_beam_test",
+  "shots": [
+    {
+      "label": "drone_iso_before",
+      "path": "user://gun_drone_run_1789428527/drone_iso_before_0.51.png",
+      "t": 0.514302666666667
+    },
+    {
+      "label": "drone_iso_mid",
+      "path": "user://gun_drone_run_1789428527/drone_iso_mid_1.51.png",
+      "t": 1.51355766666667
+    },
+    {
+      "label": "drone_iso_after",
+      "path": "user://gun_drone_run_1789428527/drone_iso_after_2.52.png",
+      "t": 2.520463
+    }
+  ],
+  "total_damage": 84.0,
+  "verdict": "PASS"
+}

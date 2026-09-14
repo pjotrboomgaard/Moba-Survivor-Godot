@@ -1,0 +1,14 @@
+{
+  "hero": "arclight",
+  "comment": "T3.80 in-game: grant a gun drone, spawn a creep in range, confirm the gun drone fires its stripe/beam (beam_fired=true via gun_drone_probe) and deals damage to the creep.",
+  "events": [
+    {"t": 1.0, "kind": "grant_drone", "id": "gun_drone"},
+    {"t": 1.2, "kind": "spawn", "at": [50, 0], "type": "grub"},
+    {"t": 1.5, "kind": "snap", "label": "gun_drone_ingame_before"},
+    {"t": 1.6, "kind": "creep_probe", "label": "creep_start"},
+    {"t": 3.5, "kind": "creep_probe", "label": "creep_end"},
+    {"t": 3.6, "kind": "gun_drone_probe", "label": "beam"},
+    {"t": 3.8, "kind": "snap", "label": "gun_drone_ingame_after"},
+    {"t": 4.2, "kind": "report"}
+  ]
+}
