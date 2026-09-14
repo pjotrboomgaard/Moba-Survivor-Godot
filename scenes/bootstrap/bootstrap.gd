@@ -565,9 +565,18 @@ func _joule_menu_frame(index: int) -> Texture2D:
 
 
 func _load_joule_menu_frames() -> Array[Texture2D]:
+	# Keep ONLY the frames that actually show a lightning bolt / electric arc in
+	# the sky. Frames 13 & 14 (0-based 12, 13) are the calm no-lightning window in
+	# the middle of the clip, so they are dropped from the loop. Everything else
+	# (frames 1-12 and 15-29) is electric and kept.
+	var keep := [true, true, true, true, true, true, true, true, true, true,
+		true, true, false, false, true, true, true, true, true, true,
+		true, true, true, true, true, true, true, true, true]
 	var out: Array[Texture2D] = []
-	for i in range(29):
-		var path := "res://assets/ui/joule_menu_video/frames/frame_%03d.png" % i
+	for i in range(keep.size()):
+		if not keep[i]:
+			continue
+		var path := "res://assets/ui/joule_menu_video/frames/frame_%03d.png" % (i + 1)
 		if not ResourceLoader.exists(path):
 			continue
 		var tex := load(path) as Texture2D
@@ -578,13 +587,20 @@ func _load_joule_menu_frames() -> Array[Texture2D]:
 
 ## Tick the Joule (arclight) menu video frame on the shared full-screen backdrop.
 ## Driven from _process so the animation advances only while the menu is shown.
-## Ping-pong loop: play forward, reverse, forward, ... so the loop point is
-## not visually obvious.
+## The loaded frame list contains ONLY electric/lightning frames. We loop it
+## ping-pong: forward to the last electric frame, then backward to the first,
+## forward again, ... so the loop has no obvious seam.
 var _joule_video_active := false
 var _joule_frame_index := 0
 var _joule_frame_timer := 0.0
-var _joule_direction := 1  # 1 = forward, -1 = reverse
+var _joule_direction := 1  # 1 = forward, -1 = backward (ping-pong)
 const JOULE_MENU_FPS := 2.4
+
+
+func _joule_set_frame(index: int) -> void:
+	var art := _hero_backdrop()
+	if art != null:
+		art.texture = _joule_frames[clampi(index, 0, _joule_frames.size() - 1)]
 
 
 func _tick_joule_menu_video(delta: float) -> void:
@@ -594,15 +610,13 @@ func _tick_joule_menu_video(delta: float) -> void:
 	if _joule_frame_timer >= 1.0 / JOULE_MENU_FPS:
 		_joule_frame_timer = 0.0
 		_joule_frame_index += _joule_direction
-		# Reverse direction at the ends (ping-pong).
 		if _joule_frame_index >= _joule_frames.size():
 			_joule_frame_index = _joule_frames.size() - 2
 			_joule_direction = -1
 		elif _joule_frame_index < 0:
 			_joule_frame_index = 1
 			_joule_direction = 1
-		var art := _hero_backdrop()
-		art.texture = _joule_frames[_joule_frame_index]
+		_joule_set_frame(_joule_frame_index)
 
 
 var selected_world: int = 0

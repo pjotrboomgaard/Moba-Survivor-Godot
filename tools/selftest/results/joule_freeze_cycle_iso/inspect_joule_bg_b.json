@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\joule_freeze_cycle_iso\\joule_bg_b.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.5953,
+  "bounding_box": [
+    182,
+    103,
+    1737,
+    976
+  ],
+  "coverage": 0.6558,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2584,
+    "TR": 0.2745,
+    "BL": 0.2129,
+    "BR": 0.2542
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\joule_freeze_cycle_iso\\thumb_joule_bg_b.png"
+}

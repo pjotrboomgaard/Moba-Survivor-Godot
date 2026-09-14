@@ -11,7 +11,12 @@ var _shots: Array = []
 var _done := false
 var _before_captured := false
 var _after_index := 0
-var _after_times: Array = [3.0, 4.5, 6.0]
+## Capture times chosen so the "after" frames bracket the freeze in the real
+## bootstrap (2.4 FPS, arclight selected at t=2.0s, freeze triggers at frame 27
+## ~ t=13.3s): playing-high (10.0s), just-frozen (13.6s), still-frozen (14.6s,
+## same no-lightning frame 14 held). after_2 and after_3 must be pixel-identical
+## (the freeze holds) while after_1 differs (still playing).
+var _after_times: Array = [10.0, 13.6, 14.6]
 
 
 func _ready() -> void:
@@ -52,7 +57,7 @@ func _process(delta: float) -> void:
 		_after_index += 1
 		_snap_deferred("ingame_after_%d" % (idx + 1), "anim")
 
-	if _elapsed >= 8.0 and _after_index >= _after_times.size():
+	if _elapsed >= 15.0 and _after_index >= _after_times.size():
 		_finish()
 
 

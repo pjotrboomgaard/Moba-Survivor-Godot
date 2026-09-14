@@ -1,0 +1,34 @@
+{
+  "after_animated_count": 4,
+  "before_static_present": true,
+  "hero": "arclight",
+  "scene": "joule_menu_ingame_test",
+  "shots": [
+    {
+      "kind": "static",
+      "label": "ingame_before_static",
+      "path": "user://joule_menu_ingame_run_3026/ingame_before_static.png"
+    },
+    {
+      "kind": "anim",
+      "label": "ingame_after_1",
+      "path": "user://joule_menu_ingame_run_3026/ingame_after_1.png"
+    },
+    {
+      "kind": "anim",
+      "label": "ingame_after_2",
+      "path": "user://joule_menu_ingame_run_3026/ingame_after_2.png"
+    },
+    {
+      "kind": "anim",
+      "label": "ingame_after_3",
+      "path": "user://joule_menu_ingame_run_3026/ingame_after_3.png"
+    },
+    {
+      "kind": "anim",
+      "label": "ingame_after_4",
+      "path": "user://joule_menu_ingame_run_3026/ingame_after_4.png"
+    }
+  ],
+  "verdict": "PASS"
+}

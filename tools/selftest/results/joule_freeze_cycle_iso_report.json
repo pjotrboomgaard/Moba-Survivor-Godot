@@ -1,0 +1,29 @@
+{
+  "excluded_frames": "13,14",
+  "expected_keep_count": 27,
+  "frame_index_at_end": 14,
+  "frames_loaded": 27,
+  "pingpong_reversed": true,
+  "scene": "joule_menu_anim_test",
+  "shots": [
+    {
+      "direction": 1,
+      "frame_index": 5,
+      "label": "a",
+      "path": "user://joule_menu_anim_run_1694/joule_bg_a.png"
+    },
+    {
+      "direction": 1,
+      "frame_index": 14,
+      "label": "b",
+      "path": "user://joule_menu_anim_run_1694/joule_bg_b.png"
+    },
+    {
+      "direction": -1,
+      "frame_index": 20,
+      "label": "c",
+      "path": "user://joule_menu_anim_run_1694/joule_bg_c.png"
+    }
+  ],
+  "verdict": "PASS"
+}

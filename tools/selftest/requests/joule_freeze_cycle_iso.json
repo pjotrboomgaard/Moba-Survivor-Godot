@@ -1,0 +1,4 @@
+{
+  "hero": "arclight",
+  "comment": "Isolated verify: Joule menu video freeze-cycle (play -> freeze on no-lightning frame -> restart). Standalone scene joule_menu_anim_test drives its own report."
+}
