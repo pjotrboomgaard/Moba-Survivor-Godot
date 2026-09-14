@@ -87,15 +87,26 @@ The main scene's world, obstacles, HUD, and camera are too much noise to judge t
 
 ## HARD RULE — Before/After screenshots prove the change landed
 
-For EVERY task that is marked verified/completed, capture BOTH:
-- A "before" screenshot (pre-change, isolated world). If the change has already
-  been made, you must REVERT the change temporarily to capture the "before" state,
-  capture it, then re-apply the change and capture the "after".
-- An "after" screenshot (post-change, isolated world).
-- Compare them so the delta is visible (use `tools/diff_screenshots.py` when
-  available; otherwise eyeball the two images with the Read tool).
-- The same before/after pair must be captured for in-game verification.
-- A task is NOT "verified" without both isolated + in-game screenshots on disk.
+Every task that is marked verified/completed must capture the full 6-step
+before/after pipeline (see `verification-pipeline.mdc` for details):
+
+| # | Step | File |
+|---|------|------|
+| 1 | **Isolated BEFORE** (pre-change, isolated world) | `iso_before_*.png` |
+| 2 | **Isolated AFTER** (post-change, isolated world) | `iso_after_*.png` |
+| 3 | **Isolated COMPARE** (diff or side-by-side; both read) | `diff_iso_*.png` |
+| 4 | **In-game BEFORE** (pre-change, real game) | `ingame_before_*.png` |
+| 5 | **In-game AFTER** (post-change, real game) | `ingame_after_*.png` |
+| 6 | **In-game COMPARE** (diff or side-by-side; both read) | `diff_ingame_*.png` |
+
+- If the change is already made, TEMPORARILY REVERT to capture the BEFORE
+  state, then re-apply and capture the AFTER.
+- For each COMPARE: use `tools/diff_screenshots.py` (via
+  `run_selftest.ps1 -BeforeShot`) or open both images with the Read tool and
+  state the concrete pixel differences you see.
+- **Read all six** with the Read tool before marking the task done.
+- **Order is enforced:** isolated (1–3) must pass before in-game (4–6).
+- A task is NOT "verified" without all six on disk.
 
 ## HARD RULE — Commit all screenshots to git
 

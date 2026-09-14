@@ -1,0 +1,10 @@
+{
+  "name": "joule_menu_ingame",
+  "hero": "arclight",
+  "expect": "Joule menu video shows as animated background when arclight is selected in the real lobby",
+  "probe": {
+    "menu_video_present": true,
+    "menu_video_playing": true
+  },
+  "notes": "Run with: run_selftest.ps1 -RequestPath ... -ExtraUserArgs @('--joule-menu-video')"
+}

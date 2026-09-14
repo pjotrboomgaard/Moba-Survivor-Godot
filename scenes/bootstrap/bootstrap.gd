@@ -101,6 +101,10 @@ var cpu_coop_button: Button
 var _play_mode := 0  # 0 solo, 1 ffa, 2 co-op
 var _play_mode_group: ButtonGroup = null
 
+## T3.71: Joule (arclight) animated menu background (from MP4 frame extraction).
+var _joule_frames: Array[Texture2D] = []
+var _joule_menu_anim: AnimatedSprite2D = null
+
 const STEAM_OPERATION_TIMEOUT := 22.0
 
 const _WORLD_LABELS := {
@@ -209,6 +213,9 @@ func _ready() -> void:
 	# UI verify driver: attach when --ui-verify flag is present.
 	if "--ui-verify" in OS.get_cmdline_args():
 		call_deferred("_attach_ui_verify")
+	# Joule menu video verify driver: attach when --joule-menu-video flag is present.
+	if "--joule-menu-video" in OS.get_cmdline_args():
+		call_deferred("_attach_joule_menu_video_verify")
 	call_deferred("_start_runtime")
 	set_process(true)
 
@@ -221,6 +228,16 @@ func _attach_ui_verify() -> void:
 	var driver = driver_scene.instantiate()
 	get_tree().root.add_child(driver)
 	print("[ui-verify] driver attached to root (survives scene changes)")
+
+
+func _attach_joule_menu_video_verify() -> void:
+	var driver_scene: PackedScene = load("res://scenes/joule_menu_ingame_test/joule_menu_ingame_test.tscn")
+	if driver_scene == null:
+		print("[joule-video] driver scene not found")
+		return
+	var driver = driver_scene.instantiate()
+	get_tree().root.add_child(driver)
+	print("[joule-video] driver attached to root")
 
 
 ## Builds the WorldRow, LoadoutPanel (LoadoutRow + AbilityPool) and wires them into the
@@ -588,10 +605,6 @@ func _stop_joule_menu_video() -> void:
 		_joule_menu_anim.queue_free()
 	_joule_menu_anim = null
 
-
-## T3.71: Joule (arclight) animated menu background (from MP4 frame extraction).
-var _joule_frames: Array[Texture2D] = []
-var _joule_menu_anim: AnimatedSprite2D = null
 
 var selected_world: int = 0
 

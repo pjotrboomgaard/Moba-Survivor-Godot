@@ -1,0 +1,6 @@
+{
+  "comment": "Quick parse check of bootstrap.gd — just start the game and quit after 1s. If no parse errors, the script compiles.",
+  "events": [
+    {"t": 1.0, "kind": "report"}
+  ]
+}

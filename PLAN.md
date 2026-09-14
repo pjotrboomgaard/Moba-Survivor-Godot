@@ -154,14 +154,29 @@ never rely on a single screenshot. Before marking a task done, open EACH
 captured `.png` with the Read tool and reason about what is actually shown
 (not what was expected).
 
-### HARD RULE — Before/After screenshots prove the change landed
-For EVERY task that is marked verified/completed, capture BOTH:
-- A "before" screenshot (pre-change, isolated world).
-- An "after" screenshot (post-change, isolated world).
-- Compare them so the delta is visible (use `tools/diff_screenshots.py` when
-  available; otherwise eyeball the two images with the Read tool).
-- The same before/after pair must be captured for in-game verification.
-- A task is NOT "verified" without both isolated + in-game screenshots on disk.
+### HARD RULE — 6-Step Before/After Verification Pipeline (MANDATORY, ALL TASKS)
+Every task — feature, balance, visual, bug fix, rename, asset swap, menu change —
+MUST produce SIX screenshots in this exact order, no exceptions:
+
+| # | Step | File |
+|---|------|------|
+| 1 | **Isolated BEFORE** (pre-change, isolated empty-world scene) | `iso_before_*.png` |
+| 2 | **Isolated AFTER** (post-change, same isolated scene) | `iso_after_*.png` |
+| 3 | **Isolated COMPARE** (diff or side-by-side; both read) | `diff_iso_*.png` |
+| 4 | **In-game BEFORE** (pre-change, real game) | `ingame_before_*.png` |
+| 5 | **In-game AFTER** (post-change, real game) | `ingame_after_*.png` |
+| 6 | **In-game COMPARE** (diff or side-by-side; both read) | `diff_ingame_*.png` |
+
+- If the change is already applied, TEMPORARILY REVERT it to capture the BEFORE
+  state, then re-apply for the AFTER. Never skip a before by saying "it's obvious."
+- For each COMPARE step: run `tools/diff_screenshots.py` (via
+  `run_selftest.ps1 -BeforeShot`) or open both images with the Read tool and
+  state the concrete visible differences in writing.
+- **Read all six screenshots** with the Read tool and describe what is actually
+  shown — not what was expected.
+- **Order is enforced:** isolated steps 1–3 must pass before in-game 4–6 begin.
+  An existing in-game test does NOT satisfy the isolated steps.
+- A task is NOT "verified" without all six on disk + PLAN.md referencing them.
 
 ### HARD RULE — Screenshots of all verified things
 For EVERY task that is marked verified/completed, commit a screenshot
@@ -1754,3 +1769,49 @@ game spawns something itself there"
       200px of map center when the phantom appears.
 - [ ] In-game verify: Pjotr solo, stand at map center, creeps do NOT attack
       invisible target.
+
+### T3.71 Joule (arclight) animated menu background (NEW 2026-09-14) _STATUS (2026-09-14): verified_
+**User direction:** "put a video as background in the menu for joule
+SpritesImport\AnimatedBG\ElevenLabs_video_seedance-2-5_keep the image
+_2026-09-13T11_40_06.mp4"
+- [x] Extracted 29 deduped frames from the 4s HEVC MP4 (1080p) via PyAV →
+      `assets/ui/joule_menu_video/frames/frame_001..029.png`.
+- [x] `bootstrap.gd`: `_apply_hero_backdrop()` swaps to `AnimatedSprite2D`
+      ("JouleMenuVideo") when selected_class == "arclight"; other heroes keep
+      the static TextureRect. `_ensure_joule_menu_video()` / `_stop_joule_menu_video()`
+      manage the node; `_joule_menu_frame(0)` provides a static fallback.
+- [x] Isolated verify: `joule_menu_anim_test` scene — 29 frames load,
+      animation plays and loops. `joule_menu_anim` selftest PASS, screenshots
+      show the animated "I keep you" text.
+- [x] In-game verify: `joule_menu_ingame_test` boots the real bootstrap scene,
+      forces arclight, confirms `JouleMenuVideo` node present + playing with
+      frames advancing [22, 12, 2]. PASS.
+
+### T3.72 Rename biome worlds to pixel-art / robot-vs-creeps style (NEW 2026-09-14) _STATUS (2026-09-14): done_
+**User direction:** "the names of the biome worlds sound too much lord of the
+rings style and not enough pixel art with robots fighting creeps and invaders"
+- [x] Renamed in `game_runtime.gd` BIOME_NAMES + updated aliases:
+      - 0: "Verdant Hollow" → "Grasslands" (generic, pixel-art feel)
+      - 1: "Ashen Crater" → "Scorch Zone"
+      - 2: "Frostmere Reach" → "Frost Fields"
+      - 3: "Ironworks Yard" → "Machine Yard"
+      - 4: "Saltbreak Docks" → "Rust Docks"
+- [x] Renamed biome 5 + 6 (see T3.73 — reframed as test modes, not biomes).
+
+### T3.73 Reframe biomes 5+6 as test game modes (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "the 2 newly added biomes shouldn't be biome, but test game
+modes that can be tested in the game apart from solo ffa etc. — with testing
+out only the creep camps behavior with bots and the 4 camps behaviour with
+recruiting creeps. Look through the plan again to test all things related to
+the creep camps again, and all things related to the 4 neutral recruitable
+minions things again in these test modes."
+- [x] Renamed in `game_runtime.gd`:
+      - 5: "Neutral Camps" → "Recruit Arena" (4 neutral recruitable minions test)
+      - 6: "Creep Camps" → "Camp Gauntlet" (aggressive creep-camp behaviour test)
+      Old keys `neutral_camps` / `creep_camps` kept as aliases for CLI.
+- [ ] Update `arena.gd` + `creep_camp.gd` + `wave_director.gd` comments to say
+      "test mode" instead of "biome" where they reference 5/6.
+- [ ] Re-test all creep-camp related tasks in PLAN.md in the Camp Gauntlet mode
+      (isolated + in-game).
+- [ ] Re-test all 4-neutral-recruitable-minion tasks in the Recruit Arena mode
+      (isolated + in-game).

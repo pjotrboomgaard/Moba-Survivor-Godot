@@ -1,10 +1,10 @@
 extends Node
 ## In-game menu verify for the Joule (arclight) animated menu background.
-## Boots the real bootstrap scene, selects Joule, waits for the AnimatedSprite2D
-## menu video to start playing, then captures 3 screenshots to confirm the
-## animated background is visible in the live menu.
+## Boots the real bootstrap scene, forces arclight selection, waits for the
+## AnimatedSprite2D to start, then captures 3 screenshots to confirm the
+## animated "I keep you" video background is visible behind the hero card.
 ##
-## Run: Godot --script res://tools/selftest/menu_joule_video.gd --path <project>
+## Run: Godot --headless --script res://tools/selftest/menu_joule_video.gd --path <project>
 
 const REPORT_PATH := "user://menu_joule_video_report.json"
 const SHOT_DIR := "user://"
@@ -22,23 +22,29 @@ func _ready() -> void:
 	var root: Node = scene.instantiate()
 	get_tree().root.add_child(root)
 
-	await get_tree().create_timer(1.5).timeout
+	# Give the menu UI time to build.
+	await get_tree().create_timer(2.0).timeout
 
-	# Select Joule (arclight) via PlayerProfile + re-render the menu.
-	PlayerProfile.select_class("arclight")
-	if root.has_method("_refresh_class_selection"):
-		root._refresh_class_selection()
-	elif root.has_method("_apply_hero_backdrop"):
-		root._apply_hero_backdrop()
+	# Force-select arclight and re-apply the hero backdrop.
+	if root.has_method("select_class_by_id"):
+		root.select_class_by_id("arclight")
+	else:
+		PlayerProfile.selected_class_id = "arclight"
+		if root.has_method("_refresh_class_selection"):
+			root._refresh_class_selection()
+		elif root.has_method("_apply_hero_backdrop"):
+			root._apply_hero_backdrop()
 
-	# Give the animated background a few seconds to start playing + advance frames.
+	# Wait for the AnimatedSprite2D to be built + advance frames.
 	await get_tree().create_timer(2.5).timeout
 
-	# Probe for the AnimatedSprite2D we added in bootstrap.
+	# Probe for the animated background node.
 	var anim: Node = root.find_child("JouleMenuVideo", true, false)
 	_anim_found = anim != null
 	if anim != null:
 		print("[MenuJoule] found JouleMenuVideo, frame=", anim.frame, " playing=", anim.playing)
+	else:
+		print("[MenuJoule] JouleMenuVideo NOT FOUND")
 
 	_shot("joule_menu_v1")
 	await get_tree().create_timer(0.8).timeout
@@ -46,8 +52,9 @@ func _ready() -> void:
 	await get_tree().create_timer(0.8).timeout
 	_shot("joule_menu_v3")
 
+	var verdict := "PASS" if (_anim_found and _shots.size() == 3) else "FAIL"
 	var report := {
-		"verdict": "PASS" if (_anim_found and _shots.size() == 3) else "FAIL",
+		"verdict": verdict,
 		"hero": "arclight",
 		"animated_background_found": _anim_found,
 		"screenshots": _shots,
@@ -67,8 +74,26 @@ func _shot(label: String) -> void:
 	var img := vp.get_texture().get_image()
 	var path := SHOT_DIR + "menu_joule_" + label + ".png"
 	img.save_png(path)
-	_shots.append({"label": label, "path": path})
-	print("[MenuJoule] snap ", label, " -> ", path)
+	var frame_at_shot := -1
+	var anim: Node = get_tree().root.get_node_or_null("JouleMenuVideo")
+	if anim == null:
+		# search deeper
+		anim = _find_child_recursive(get_tree().root, "JouleMenuVideo")
+	if anim != null:
+		frame_at_shot = anim.frame
+	_shots.append({"label": label, "path": path, "frame_at_shot": frame_at_shot})
+	_anim_frame_at_shots.append(frame_at_shot)
+	print("[MenuJoule] snap ", label, " frame=", frame_at_shot, " -> ", path)
+
+
+func _find_child_recursive(node: Node, name: String) -> Node:
+	if node.name == name:
+		return node
+	for child in node.get_children():
+		var found := _find_child_recursive(child, name)
+		if found != null:
+			return found
+	return null
 
 
 func _fail(msg: String) -> void:

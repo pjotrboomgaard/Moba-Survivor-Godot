@@ -1,37 +1,45 @@
 ---
-description: Mandatory pre-verification checklist that must be completed before marking ANY task done
+description: Mandatory 6-step verification checklist that must be completed before marking ANY task done
 alwaysApply: true
 ---
 
-# Hard Rules Verification Checklist
+# Hard Rules Verification Checklist — 6-STEP MANDATORY PIPELINE
 
 Before marking ANY task as verified/complete, you MUST have a checklist entry
 for each of the following. If ANY box is unchecked, the task is NOT done.
 
-## Pre-verification checklist (run this EVERY time)
+## Pre-verification checklist (run this EVERY time, for ALL tasks, no exceptions)
 
 ```
-[ ] 1. Enumerated ALL requirements of the task (written out, not just remembered)
-[ ] 2. Built/updated an ISOLATED test scene (dedicated .tscn + .gd, no main scene)
-[ ] 3. Captured BEFORE screenshot (pre-change state, isolated world)
-       - If the change is already applied: temporarily revert, capture, re-apply
-[ ] 4. Captured AFTER screenshot (post-change state, isolated world)
-[ ] 5. Compared before/after — delta is visible and matches the requirement
-[ ] 6. Read EVERY screenshot with the Read tool and described what is ACTUALLY shown
-[ ] 7. Ran the test in the FULL game (main scene or FFA) and captured in-game screenshot
-[ ] 8. Report JSON verdict is PASS / expected fields match
-[ ] 9. Screenshots + report JSON are committed to git (git add tools/selftest/results/)
-[ ] 10. App restarted with tools/restart_app.ps1 so the user sees the change live
+ISOLATED (do these FIRST, before ANY in-game test):
+[ ] 1.  Isolated BEFORE screenshot on disk (pre-change state, isolated scene)
+[ ] 2.  Isolated AFTER screenshot on disk (post-change state, isolated scene)
+[ ] 3.  Isolated COMPARE — diff or side-by-side read, both images opened +
+        concrete pixel differences stated in writing
+
+IN-GAME (only after all 3 isolated steps are green):
+[ ] 4.  In-game BEFORE screenshot on disk (pre-change state, real game)
+[ ] 5.  In-game AFTER screenshot on disk (post-change state, real game)
+[ ] 6.  In-game COMPARE — diff or side-by-side read, both images opened +
+        concrete pixel differences stated in writing
+
+FINALIZE:
+[ ] 7.  ALL 6 screenshots read with the Read tool; described what is ACTUALLY shown
+[ ] 8.  Report JSON verdict is PASS / expected fields match
+[ ] 9.  PLAN.md status updated, referencing all 6 screenshot paths
+[ ] 10. All 6+ screenshots + report JSONs committed to git and pushed
+[ ] 11. App restarted with tools/restart_app.ps1 so user sees the change live
 ```
 
 ## How to use
 
 1. Before starting a task, copy the checklist into your todo list.
-2. Tick each box as you complete it.
+2. Tick each box as you complete it. Do NOT start any in-game step until
+   boxes 1–3 are all ticked.
 3. If you cannot tick a box, the task is NOT done — note what is missing.
 4. **Never** mark a task "verified" or "complete" in PLAN.md with any box unchecked.
-5. **Never** skip the BEFORE screenshot. If you already made the code change,
-   you MUST temporarily revert to capture the before state.
+5. **Never** skip the BEFORE screenshots. If you already made the code change,
+   you MUST temporarily revert to capture the before state (both isolated AND in-game).
 6. **Never** rely on the report JSON alone — you must open each PNG with the
    Read tool and describe what you see.
 7. **Never** leave screenshots uncommitted. Run `git add tools/selftest/results/`
@@ -42,6 +50,8 @@ for each of the following. If ANY box is unchecked, the task is NOT done.
 - Marking a task done based on "the report says PASS" without reading the screenshots.
 - Skipping the isolated test and going straight to the full game.
 - Capturing only an "after" screenshot without a "before" for comparison.
+- Forgetting the COMPARE step: just having before+after is NOT enough; you must
+  actually open both and state the visible difference.
 - Forgetting to commit the result PNGs and report JSON to git.
 - Not restarting the app at the end of the turn.
 - Using a single screenshot to "verify" a multi-phase feature.

@@ -1,0 +1,30 @@
+{
+  "animated_background_playing": true,
+  "animated_background_present": true,
+  "frame_sequence": [
+    22,
+    12,
+    2
+  ],
+  "frames_advancing": true,
+  "hero": "arclight",
+  "scene": "joule_menu_ingame_test",
+  "shots": [
+    {
+      "frame": 22,
+      "label": "m1",
+      "path": "user://joule_menu_ingame_run_1862/menu_m1.png"
+    },
+    {
+      "frame": 12,
+      "label": "m2",
+      "path": "user://joule_menu_ingame_run_1862/menu_m2.png"
+    },
+    {
+      "frame": 2,
+      "label": "m3",
+      "path": "user://joule_menu_ingame_run_1862/menu_m3.png"
+    }
+  ],
+  "verdict": "PASS"
+}

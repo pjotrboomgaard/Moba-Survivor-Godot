@@ -1,0 +1,10 @@
+{
+  "comment": "Verify Joule (arclight) animated menu background in-game. Select arclight, confirm AnimatedSprite2D background renders and advances frames.",
+  "hero": "arclight",
+  "events": [
+    {"t": 0.5, "kind": "report", "label": "menu_boot"},
+    {"t": 2.0, "kind": "snapshot", "label": "menu_joule_video_1"},
+    {"t": 4.0, "kind": "snapshot", "label": "menu_joule_video_2"},
+    {"t": 6.0, "kind": "snapshot", "label": "menu_joule_video_3"}
+  ]
+}

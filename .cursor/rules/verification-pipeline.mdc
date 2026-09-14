@@ -1,73 +1,95 @@
 ---
-description: Mandatory verification pipeline — every task MUST follow this exact sequence
+description: MANDATORY 6-step verification pipeline — isolated before/after/compare + in-game before/after/compare. NEVER skip.
 alwaysApply: true
 ---
 
-# HARD RULE — Verification Pipeline (NON-NEGOTIABLE)
+# HARD RULE — 6-Step Verification Pipeline (NON-NEGOTIABLE, ALL TASKS, ALWAYS)
 
-Every task, without exception, MUST complete this exact sequence before being
-marked done. Skipping ANY step means the task is NOT verified and stays open.
+Every single task — feature, balance tweak, visual, bug fix, rename, asset swap,
+menu change, world change — MUST complete **all six steps below, in this order,
+before it can be marked done.** No task is ever "verified" on fewer than six
+screenshots: 3 isolated + 3 in-game, and BOTH before/after/compare pairs must
+exist on disk and be read.
 
-## The Pipeline (in order)
+There are no exceptions. Not for "small" tasks. Not for renames. Not for "the
+isolated test already exists". Not for "the in-game test is hard". Not for "I'm
+confident it works." Confidence is not evidence. Screenshots are.
 
-### 1. ISOLATED TEST (required first)
-- Build a dedicated `scenes/<feature>_test/<feature>_test.tscn` + `.gd`
-- Self-contained: no main scene, no arena, no HUD dependencies
-- Write `user://selftest_report.json` with verdict + screenshot paths
-- Call `get_tree().quit()` when done
-- Run: `run_selftest.ps1 -RequestPath ... -Scene res://scenes/<x>/<x>.tscn`
-- **Read EVERY screenshot** with the Read tool — not just the report
+## THE 6 STEPS (exact order, all required)
 
-### 2. IN-GAME TEST (required second)
-- Run in the actual game via the main scene
-- Use dev commands / selftest requests to trigger the feature
-- **Read EVERY screenshot** with the Read tool
+### STEP 1 — ISOLATED "BEFORE"
+- Capture the pre-change state in an ISOLATED context (dedicated
+  `scenes/<x>_test/<x>_test.tscn` + `.gd`, self-contained: no main scene, no
+  arena, no HUD, no world dependencies; the scene writes
+  `user://selftest_report.json` and calls `get_tree().quit()`).
+- If the change is ALREADY applied, TEMPORARILY REVERT it, capture the BEFORE
+  isolated screenshot, then RE-APPLY the change. Never skip this by saying
+  "the before state is obvious."
+- Save as `tools/selftest/results/<feature>/iso_before_*.png`.
 
-### 3. BEFORE/AFTER SCREENSHOT PAIR (required for visual changes)
-- BEFORE: revert the change (or use pre-change screenshot if available)
-- AFTER: with the change applied
-- Both must be captured in the SAME mode (isolated AND in-game if possible)
-- If the change was already made, temporarily revert → capture → re-apply → capture
-- Commit both to `tools/selftest/results/`
+### STEP 2 — ISOLATED "AFTER"
+- With the change applied, re-run the SAME isolated scene.
+- Save as `tools/selftest/results/<feature>/iso_after_*.png`.
 
-### 4. PLAN.md STATUS UPDATE (required last)
-- Update the task's status line in PLAN.md
-- Mark checkboxes for completed sub-items
-- Reference the screenshot paths in the status
+### STEP 3 — ISOLATED "COMPARE"
+- Diff the isolated before vs after: run `tools/diff_screenshots.py` when
+  available (pass `-BeforeShot` to `run_selftest.ps1`), or open BOTH images with
+  the Read tool and state, in writing, the concrete pixel differences you see.
+- Save any `diff_*.png` / diff report next to the others.
+- **Read all three** (iso_before, iso_after, diff) with the Read tool and
+  reason about them. A passing report JSON alone is NOT a compare.
 
-### 5. COMMIT + PUSH (required)
-- `git add -A` (include ALL screenshots + report JSONs)
-- `git commit -m "task description"`
-- `git push`
+### STEP 4 — IN-GAME "BEFORE"
+- In the REAL game (main scene / FFA / full world), capture the pre-change
+  state the same way (dev command, selftest request, or temporary revert).
+- Save as `tools/selftest/results/<feature>/ingame_before_*.png`.
 
-## Checklist Template (copy-paste into your todo)
+### STEP 5 — IN-GAME "AFTER"
+- With the change applied, capture the same in-game state.
+- Save as `tools/selftest/results/<feature>/ingame_after_*.png`.
 
-For each task, create these sub-items and complete ALL of them:
-- [ ] Isolated test scene built and passing
-- [ ] Isolated screenshots read (Read tool on each .png)
-- [ ] In-game test run
-- [ ] In-game screenshots read (Read tool on each .png)
-- [ ] Before/after pair captured (isolated + in-game if visual)
-- [ ] PLAN.md status updated
-- [ ] All screenshots committed to git
-- [ ] Pushed to remote
+### STEP 6 — IN-GAME "COMPARE"
+- Diff the in-game before vs after exactly as in Step 3.
+- Read all three (ingame_before, ingame_after, diff) with the Read tool and
+  state the visible delta.
 
-## NO EXCEPTIONS
+## ORDER IS ENFORCED
 
-- "It's a simple change" → still run the full pipeline
-- "The isolated test already exists" → still run it fresh + read screenshots
-- "The in-game test is hard" → build the observation first (dev command, probe)
-- "I'm confident it works" → confidence is NOT verification, screenshots are
-- **"I already have an in-game test" → IRRELEVANT. The isolated test MUST come first. An
-  existing in-game test does NOT satisfy step 1. Build the isolated scene (or an isolated
-  probe) and run it BEFORE any in-game run, even if the in-game test is faster.**
-- **Order is enforced: you may only move to IN-GAME (step 2) after the ISOLATED test
-  (step 1) has passed and its screenshots have been read. If you find yourself about to
-  run an in-game test and have not done the isolated test in THIS task's session, STOP
-  and do the isolated test first.**
+- You may only start an IN-GAME step (4/5/6) AFTER the ISOLATED steps (1/2/3)
+  have passed and their three screenshots have been read.
+- "An in-game test already exists" does NOT count. Build / re-run the ISOLATED
+  test FIRST, every time.
+- If you are about to run an in-game test and have not done the isolated
+  before/after/compare in THIS task's session, STOP and do the isolated steps.
 
-## When a step fails
+## PER-TASK CHECKLIST (copy into your todos; ALL must be green)
 
-- Fix the root cause, re-run that step
-- Do NOT skip the failed step
-- Do NOT mark the task done while any step is red
+```
+- [ ] 1. Isolated BEFORE screenshot on disk + read
+- [ ] 2. Isolated AFTER screenshot on disk + read
+- [ ] 3. Isolated COMPARE (diff or side-by-side) done + read
+- [ ] 4. In-game BEFORE screenshot on disk + read
+- [ ] 5. In-game AFTER screenshot on disk + read
+- [ ] 6. In-game COMPARE (diff or side-by-side) done + read
+- [ ] 7. PLAN.md status updated, referencing all 6 screenshot paths
+- [ ] 8. All 6+ screenshots + report JSONs committed to git and pushed
+```
+
+If ANY box is unchecked, the task is NOT done.
+
+## IF A STATE CANNOT BE CAPTURED
+
+If a before/after state genuinely cannot be produced (e.g. a one-time
+first-launch behavior), state that explicitly in PLAN.md, capture the closest
+possible proxy, and mark the task with a note that the specific pair was
+impossible — never silently skip the step.
+
+## WHEN A STEP FAILS
+
+Fix the root cause, re-run that exact step, re-verify. Do not skip the failed
+step. Do not mark the task done while any of the six is red. Keep the failing
+evidence so progress is auditable.
+
+## SCOPE
+
+All tasks, every time. No task type is exempt.
