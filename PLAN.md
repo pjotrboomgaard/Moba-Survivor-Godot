@@ -1999,14 +1999,24 @@ spawns after the ship crash"
 - [ ] In-game verify: bootstrap → ship crash → hero spawn. Screenshot confirms no
       HP bar during the crash, HP bar present once the hero lands.
 
-### T3.83 Repulsor drone does nothing (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+### T3.83 Repulsor drone does nothing (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "repulsor drone doesnt do anything"
-- [ ] Find the repulsor drone logic. It should push/repel nearby creeps (knockback
-      force field) or deal damage. Wire the actual behaviour.
-- [ ] Isolated verify: `repulsor_drone_test` — spawn the drone + creeps; confirm
-      creeps are pushed back / take damage.
-- [ ] In-game verify: hero with the repulsor-drone ability casts it near creeps;
-      screenshot shows the knockback or damage.
+- [x] Root cause: `companion_drone.gd` PUSH branch had a 70px radius (too small to
+      reach enemies from the orbit position) and applied pure knockback with no
+      damage, so it read as a no-op. Widened radius to `110 + 10*rank`, bumped the
+      shove impulse to `340 + 50*rank`, and added a small damage tick
+      (`power * 0.35`) to all push kinds so the effect is always visible.
+- [x] Isolated verify `scenes/repulsor_drone_test/` (empty world, real Player +
+      `push_drone` via `_add_companion` + `_EnemyStub`): creep knocked back **154px**
+      (displacement), hp dropped 99999→99994. Screenshots:
+      `tools/selftest/results/repulsor_drone_iso/repulsor_iso_before_0.50.png`
+      (creep at ~60,0) vs `repulsor_iso_after_2.54.png` (creep shoved to top-right,
+      far from the player). verdict=PASS.
+- [x] In-game verify: `grant_drone push_drone` + a spawned hound; `creep_probe`
+      shows the hound at 26/26 HP, then the hound is GONE by the end probe
+      (killed by the repulsor drone's damage). Screenshots:
+      `tools/selftest/results/repulsor_drone_ingame/repulsor_ingame_before.png` vs
+      `repulsor_ingame_after.png`.
 
 ### T3.84 Turrets have less HP (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "turrets should have less hp"

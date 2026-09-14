@@ -1,0 +1,13 @@
+{
+  "hero": "arclight",
+  "comment": "T3.83 in-game: grant push_drone, spawn a creep next to the player, confirm the repulsor drone damages + knocks back the creep.",
+  "events": [
+    {"t": 1.0, "kind": "grant_drone", "id": "push_drone"},
+    {"t": 1.2, "kind": "spawn", "at": [40, 0], "type": "hound"},
+    {"t": 1.4, "kind": "snap", "label": "repulsor_ingame_before"},
+    {"t": 1.6, "kind": "creep_probe", "label": "creep_start"},
+    {"t": 3.2, "kind": "creep_probe", "label": "creep_end"},
+    {"t": 3.4, "kind": "snap", "label": "repulsor_ingame_after"},
+    {"t": 3.6, "kind": "report"}
+  ]
+}

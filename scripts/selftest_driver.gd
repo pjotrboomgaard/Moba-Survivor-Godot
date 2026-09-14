@@ -484,6 +484,23 @@ func _process(delta: float) -> void:
 					"budget": wb_val,
 					"t": _elapsed,
 				})
+			"creep_probe":
+				# T3.83: report HP + position of the most recently spawned enemy
+				# (by the driver's `spawn` events) so a test can confirm a drone
+				# damaged / moved it.
+				var cp_label := str(event.get("label", "creep"))
+				var target: Node = null
+				for i in range(_enemies.size() - 1, -1, -1):
+					if is_instance_valid(_enemies[i]):
+						target = _enemies[i]
+						break
+				var entry := {"kind": "creep_probe", "label": cp_label, "t": _elapsed, "found": target != null}
+				if target != null:
+					var h = target.get("health")
+					entry["hp"] = float(h.current_health) if h != null else -1.0
+					entry["max_hp"] = float(h.max_health) if h != null else -1.0
+					entry["pos"] = target.global_position if target is Node2D else null
+				_active_effects.append(entry)
 			"snap":
 				await _screenshot(str(event.get("label", "snap")))
 			"probe":
@@ -670,6 +687,12 @@ func _process(delta: float) -> void:
 				_focus_tree(event)
 			"force_level":
 				_force_level(int(event.get("levels", 1)))
+			"grant_drone":
+				# T3.83: grant a companion drone upgrade directly (e.g. push_drone)
+				# so a test can observe the drone's behavior in the live arena.
+				if _player != null and _player.has_method("_add_companion"):
+					_player._add_companion(str(event.get("id", "push_drone")))
+				_active_effects.append({"kind": "grant_drone", "id": str(event.get("id", "push_drone")), "t": _elapsed})
 			"grant_pulse":
 				# Grant the Metronome pulse blast to the local hero and force it to fire
 				# once immediately, so we can verify the visible ring + SFX register.

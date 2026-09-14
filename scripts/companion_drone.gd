@@ -96,15 +96,20 @@ func _fire() -> void:
 			if owner_player.health != null and owner_player.health.has_method("add_shield"):
 				owner_player.health.add_shield(10.0 + 4.0 * float(rank), 2.4)
 		Kind.PUSH, Kind.GALE, Kind.HEAT:
-			_cooldown = interval + 0.35
-			for enemy in owner_player._enemies_in_radius(global_position, 70.0 + 8.0 * float(rank)):
+			_cooldown = interval + 0.25
+			# T3.83: repulsor drone was "doing nothing" — the 70px radius around the
+			# orbiting drone rarely caught enemies, and pure knockback with no damage
+			# read as "no effect". Widen the radius so it actually reaches creeps,
+			# bump the shove impulse, and (for all push kinds) add a small damage tick
+			# so the effect is always visible + functional.
+			for enemy in owner_player._enemies_in_radius(global_position, 110.0 + 10.0 * float(rank)):
 				if enemy.has_method("apply_knockback"):
 					var push := global_position.direction_to(enemy.global_position)
 					if push.length_squared() <= 0.0:
 						push = Vector2.RIGHT
-					enemy.apply_knockback(push * (220.0 + 40.0 * float(rank)))
-				if kind == Kind.HEAT:
-					owner_player._damage_enemy(enemy, power * 0.55)
+					enemy.apply_knockback(push * (340.0 + 50.0 * float(rank)))
+				# All push/repulsor drones now also chip damage so they're never no-ops.
+				owner_player._damage_enemy(enemy, power * (0.55 if kind == Kind.HEAT else 0.35))
 		Kind.VINE:
 			_cooldown = interval + 0.2
 			for enemy in owner_player._enemies_in_radius(global_position, 86.0 + 10.0 * float(rank)):
