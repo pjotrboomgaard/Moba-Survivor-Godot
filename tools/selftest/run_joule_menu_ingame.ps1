@@ -1,6 +1,6 @@
-# In-game verify for the Joule menu video: launch the REAL bootstrap menu scene
-# with the --joule-menu-video flag so the JouleMenuVideo driver attaches to root,
-# selects arclight, and captures the actual rendered menu.
+# In-game verify for the Joule menu video: launch the REAL bootstrap menu scene.
+# A marker file (user://joule_menu_video_test) tells bootstrap.gd to attach the
+# JouleMenuVideo driver, which selects arclight and captures the rendered menu.
 #
 # usage: powershell -ExecutionPolicy Bypass -File tools/selftest/run_joule_menu_ingame.ps1
 
@@ -9,16 +9,19 @@ $GodotExe = "C:\Users\pjotr\Tools\Godot-4.7.2\Godot_v4.7.2-stable_win64.exe"
 $UserDataDir = Join-Path $env:APPDATA "Godot\app_userdata\Rift Survivors"
 if (-not (Test-Path $UserDataDir)) { New-Item -ItemType Directory -Path $UserDataDir -Force | Out-Null }
 $ReportOut = Join-Path $UserDataDir "selftest_report.json"
+$MarkerFile = Join-Path $UserDataDir "joule_menu_video_test"
 $ResultsDir = Join-Path $ProjectRoot "tools\selftest\results"
 
 if (Test-Path $ReportOut) { Remove-Item $ReportOut -Force }
-Write-Host "Launching bootstrap scene with --joule-menu-video ..."
+# Create marker file so bootstrap.gd attaches the Joule video driver.
+Set-Content -Path $MarkerFile -Value "1"
+Write-Host "Launching bootstrap scene (joule menu video driver via marker file) ..."
 
-# Build a single argument string so the `--` separator is preserved verbatim.
-# PowerShell splatting eats `--` as a stop-parsing token, so we must join manually.
-$argStr = "--path `"$ProjectRoot`" -- --joule-menu-video"
-$proc = Start-Process -FilePath $GodotExe -ArgumentList $argStr -NoNewWindow -PassThru
+$godotArgs = @("--path", $ProjectRoot)
+$proc = Start-Process -FilePath $GodotExe -ArgumentList $godotArgs -NoNewWindow -PassThru
 $proc.WaitForExit()
+# Clean up marker regardless.
+Remove-Item $MarkerFile -Force -ErrorAction SilentlyContinue
 
 $reportFound = $false
 for ($i = 0; $i -lt 15; $i++) {

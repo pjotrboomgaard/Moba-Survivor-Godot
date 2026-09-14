@@ -213,8 +213,8 @@ func _ready() -> void:
 	# UI verify driver: attach when --ui-verify flag is present.
 	if "--ui-verify" in OS.get_cmdline_args():
 		call_deferred("_attach_ui_verify")
-	# Joule menu video verify driver: attach when --joule-menu-video flag is present.
-	if "--joule-menu-video" in OS.get_cmdline_args():
+	# Joule menu video verify driver: attach when marker file exists (set by test runner).
+	if FileAccess.file_exists("user://joule_menu_video_test"):
 		call_deferred("_attach_joule_menu_video_verify")
 	call_deferred("_start_runtime")
 	set_process(true)
@@ -588,13 +588,19 @@ func _ensure_joule_menu_video() -> void:
 	for tex in _joule_frames:
 		sf.add_frame("joule", tex)
 	_joule_menu_anim.sprite_frames = sf
-	# Match the menu backdrop's size: fill the viewport, nearest-neighbour so
-	# the pixel-art stays crisp.
+	# Fill the whole viewport like the static backdrop does: keep-aspect-covered.
+	# Frame intrinsic size is 1080x607; scale = max(vw/fw, vh/fh) so it fully covers
+	# (no hole / no corner), then center on the screen.
 	var vp := get_viewport().get_visible_rect().size
-	_joule_menu_anim.scale = Vector2(
-		float(vp.x) / 1080.0,
-		float(vp.y) / 1080.0
-	)
+	var tex: Texture2D = _joule_frames[0]
+	var fw := float(tex.get_width()) if tex != null else 1080.0
+	var fh := float(tex.get_height()) if tex != null else 607.0
+	if fw < 1.0 or fh < 1.0:
+		fw = 1080.0; fh = 607.0
+	var scale := maxf(vp.x / fw, vp.y / fh)
+	_joule_menu_anim.scale = Vector2(scale, scale)
+	# AnimatedSprite2D is centered on its origin, so zero origin = screen center.
+	_joule_menu_anim.position = Vector2(0.0, 0.0)
 	_joule_menu_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	layer.add_child(_joule_menu_anim)
 	_joule_menu_anim.play("joule")
