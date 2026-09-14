@@ -80,6 +80,23 @@
           "detail": "CHANGES:\n- No visible changes detected between the two scree"
         }
       ]
+    },
+    {
+      "id": "animation_advances",
+      "label": "Joule menu frames 001 vs 002 (should detect motion/change)",
+      "score": "2/2",
+      "rows": [
+        {
+          "tool": "cv:motion<30px",
+          "ok": true,
+          "detail": "mag=3.5"
+        },
+        {
+          "tool": "vision:change detects change",
+          "ok": true,
+          "detail": "CHANGES:\n- Lightning bolt in the upper right has changed fro"
+        }
+      ]
     }
   ]
 }

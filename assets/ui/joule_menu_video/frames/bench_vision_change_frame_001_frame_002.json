@@ -1,0 +1,10 @@
+{
+  "images": [
+    "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\..\\..\\..\\assets\\ui\\joule_menu_video\\frames\\frame_001.png",
+    "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\..\\..\\..\\assets\\ui\\joule_menu_video\\frames\\frame_002.png"
+  ],
+  "preset": "change",
+  "question": "These are BEFORE and AFTER screenshots of a game after a code change.\n1. What SPECIFIC visual changes occurred between the two?\n2. Where in the screen did the change happen?\n3. Does the change match what you'd expect from a typical game modification?\n4. Are there any UNEXPECTED side-effects or regressions visible?\n\nRespond with:\n  CHANGES: (bullet list of specific changes)\n  LOCATION: (where the change is)\n  UNEXPECTED: (any unintended changes, or 'none')\n  DETAIL: (2-3 sentences)",
+  "model": "claude-sonnet-4-5-20250929",
+  "response": "CHANGES:\n- Lightning bolt in the upper right has changed from a simple vertical bolt to a more complex, branching lightning pattern\n- The lightning now has a forked/branching structure with multiple splits\n- The lightning appears brighter and more detailed with additional white highlights at the top\n\nLOCATION: Upper right portion of the screen, above and to the right of the tower structure\n\nUNEXPECTED: None - this appears to be an intentional visual enhancement to the lightning effect\n\nDETAIL: The primary change is an upgrade to the lightning visual effect in the upper right of the scene. The original simple vertical lightning bolt has been replaced with a more realistic, branching lightning strike that features multiple forks and enhanced brightness. This appears to be a deliberate artistic improvement to make the atmospheric effects more dynamic and visually interesting."
+}

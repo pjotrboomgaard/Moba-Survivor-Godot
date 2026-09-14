@@ -1,0 +1,48 @@
+{
+  "before": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\..\\..\\..\\assets\\ui\\joule_menu_video\\frames\\frame_001.png",
+  "after": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\..\\..\\..\\assets\\ui\\joule_menu_video\\frames\\frame_002.png",
+  "roi": null,
+  "before_size": [
+    607,
+    1080
+  ],
+  "after_size": [
+    607,
+    1080
+  ],
+  "ssim": 0.8833111276035893,
+  "mad": 7.081466227347611,
+  "identical": false,
+  "size": {
+    "before_bbox": [
+      3,
+      32,
+      1079,
+      581
+    ],
+    "after_bbox": [
+      3,
+      31,
+      1079,
+      577
+    ],
+    "before_wh": [
+      1076,
+      549
+    ],
+    "after_wh": [
+      1076,
+      546
+    ],
+    "width_ratio": 1.0,
+    "height_ratio": 0.9945,
+    "area_ratio": 0.9945
+  },
+  "translation": {
+    "dx": -0.23325711488723755,
+    "dy": 3.4709293842315674,
+    "magnitude": 3.478758352051439,
+    "inliers": 1852
+  },
+  "heatmap": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\..\\..\\..\\assets\\ui\\joule_menu_video\\frames\\heat_frame_002.png"
+}

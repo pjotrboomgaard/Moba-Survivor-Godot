@@ -1,0 +1,33 @@
+{
+  "source": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\..\\..\\..\\assets\\ui\\joule_menu_video\\frames\\frame_002.png",
+  "width": 1080,
+  "height": 607,
+  "background_rgb": [
+    22,
+    28,
+    50
+  ],
+  "content_fill_ratio": 0.5711,
+  "bounding_box": [
+    0,
+    16,
+    1079,
+    588
+  ],
+  "coverage": 0.944,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2714,
+    "TR": 0.3329,
+    "BL": 0.2423,
+    "BR": 0.1533
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.002,
+    "right": 0.0106
+  },
+  "thumbnail": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\..\\..\\..\\assets\\ui\\joule_menu_video\\frames\\thumb_frame_002.png"
+}

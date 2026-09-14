@@ -1,0 +1,15 @@
+{
+  "before": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\..\\..\\..\\assets\\ui\\joule_menu_video\\frames\\frame_001.png",
+  "after": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\..\\..\\..\\assets\\ui\\joule_menu_video\\frames\\frame_002.png",
+  "out": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\..\\..\\..\\assets\\ui\\joule_menu_video\\frames\\diff_frame_002.png",
+  "changed_pixels": 57783,
+  "total_pixels": 655560,
+  "changed_fraction": 0.088143,
+  "bbox": [
+    114,
+    32,
+    974,
+    492
+  ],
+  "has_change": true
+}

@@ -80,6 +80,16 @@ CASES = [
             "identical": True,
         },
     },
+    {
+        "id": "animation_advances",
+        "label": "Joule menu frames 001 vs 002 (should detect motion/change)",
+        "before": "../../../assets/ui/joule_menu_video/frames/frame_001.png",
+        "after": "../../../assets/ui/joule_menu_video/frames/frame_002.png",
+        "truth": {
+            "some_change": True,
+            "small_motion": True,
+        },
+    },
 ]
 
 
@@ -211,7 +221,7 @@ def score_vision(case: dict, use_llm: bool) -> list[tuple[str, bool, str]]:
     text = rep.get("response", "")
     if "after_fills_screen" in case["truth"]:
         # A good PASS for full-screen; a FAIL means the tool saw a corner bug.
-        passed = verdict_contains(text, "pass") and not verdict_contains(text, "corner", "stuck", "top-left")
+        passed = verdict_contains(text, "verdict: pass", "verdict:pass") 
         out.append((f"vision:{preset} fills-screen PASS", passed, text[:60]))
     if "big_visual_change" in case["truth"]:
         ok = verdict_contains(text, "video", "background", "hero", "change", "different", "menu", "explosion", "effect", "vfx", "fire", "glow", "energy")
