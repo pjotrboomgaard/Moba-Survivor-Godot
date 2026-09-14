@@ -634,6 +634,15 @@ func _process(delta: float) -> void:
 				_set_hud_tab(bool(event.get("show", true)))
 			"skip_wave":
 				_dev_skip_wave()
+			"force_rain":
+				# T3.78: deterministically turn on rain in the live arena so the
+				# in-game full-screen rain can be screenshotted without waiting for
+				# the random 18-45s onset window.
+				if _host_main != null:
+					var arena: Variant = _host_main.get("arena")
+					if arena != null and arena.has_method("debug_force_rain"):
+						arena.debug_force_rain()
+					_active_effects.append({"kind": "force_rain", "t": _elapsed})
 			"freeze_offers":
 				freeze_offers = bool(event.get("on", true))
 				_freeze_offers = freeze_offers

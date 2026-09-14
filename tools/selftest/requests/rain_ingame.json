@@ -1,0 +1,11 @@
+{
+  "hero": "arclight",
+  "biome": 1,
+  "comment": "T3.78 in-game: full-screen rain in the real arena. Force rain on, capture before (no rain) and after (rain full-screen) at the game's default zoom 0.5.",
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "ingame_rain_before"},
+    {"t": 1.4, "kind": "force_rain"},
+    {"t": 3.2, "kind": "snap", "label": "ingame_rain_after"},
+    {"t": 3.6, "kind": "report"}
+  ]
+}

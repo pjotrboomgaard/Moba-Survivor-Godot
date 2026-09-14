@@ -1935,12 +1935,16 @@ abilities that will break the trees."
       the rain cover only the central ~50% patch.
 - [x] Fixed both `_seed_streaks` and `_tick_streaks` to use `vp * 0.5 / zoom`.
       `rain_test.tscn` camera zoom set to 0.5 to match the game.
-- [x] Isolated verify (empty world, zoom 0.5): BEFORE screenshot shows rain only
-      in the central patch (empty corners); AFTER shows rain across the entire
-      frame. diff bbox = full screen (0,0,1916,1079), 0.30% changed px.
-- [x] In-game verify: full-game screenshot (zoom 0.5) shows rain streaks across
-      the whole viewport. Screenshots: tools/selftest/results/rain_fullscreen/{
-      rain_iso_before,rain_iso_after,rain_full_1.60}.png.
+- [x] Isolated verify (empty world, zoom 0.5) — 6-step:
+      iso_before `tools/selftest/results/rain_fullscreen/rain_iso_before.png`
+      (central patch only, empty corners) vs iso_after
+      `rain_iso_after.png` (rain across entire frame). diff bbox = full screen,
+      0.30% changed px.
+- [x] In-game verify — 6-step: ingame_before
+      `ingame_before.png` (volcano biome, no rain) vs ingame_after
+      `ingame_after.png` (rain streaks across the whole viewport incl. corners).
+      diff 64.9% changed px, bbox = full screen (0,0,1919,1079), SSIM 0.854.
+      All paths under tools/selftest/results/rain_fullscreen/.
 
 ### T3.79 Mines/turrets: vector throw-effect on cast + clear persistent vector art on restart/new-game (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
 **User direction:** "mines and turret have pixel art effect now a pixel art
