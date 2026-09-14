@@ -1,0 +1,10 @@
+{
+  "images": [
+    "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\storm_forest_full\\forest_before_1.014_4036.png",
+    "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\storm_forest_full\\storm_strikes_8.009_7527.png"
+  ],
+  "preset": "change",
+  "question": "These are BEFORE and AFTER screenshots of a game after a code change.\n1. What SPECIFIC visual changes occurred between the two?\n2. Where in the screen did the change happen?\n3. Does the change match what you'd expect from a typical game modification?\n4. Are there any UNEXPECTED side-effects or regressions visible?\n\nRespond with:\n  CHANGES: (bullet list of specific changes)\n  LOCATION: (where the change is)\n  UNEXPECTED: (any unintended changes, or 'none')\n  DETAIL: (2-3 sentences)",
+  "model": "claude-sonnet-4-5-20250929",
+  "response": "CHANGES:\n- The mission title overlay \"MISSION 1 LANDED ON VERDANT MERIDIAN\" and subtitle \"Rolling meadows, restless roots\" have disappeared\n- Quest objectives are now visible in the top-left corner showing \"Topple a roadside idol 4 hits left\" and \"Scoop fireflies 0/5\"\n- A player character sprite is now visible in the center of the circular area\n- A health bar appears above the player character showing \"100\"\n\nLOCATION: The main changes are in the center of the screen (player character appearance) and top-left corner (quest text). The center overlay text that was covering most of the screen has been removed.\n\nUNEXPECTED: None - this appears to be a normal transition from a mission briefing/intro screen to active gameplay.\n\nDETAIL: The code change removed the mission briefing overlay screen, transitioning the game from the introduction phase to active gameplay. The player character is now controllable and visible in the landing zone, with quest objectives displayed and the HUD fully active. This is a standard game state transition from cutscene/briefing to gameplay."
+}

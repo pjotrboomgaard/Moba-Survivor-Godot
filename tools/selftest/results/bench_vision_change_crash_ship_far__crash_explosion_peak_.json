@@ -1,0 +1,10 @@
+{
+  "images": [
+    "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\crash_ship_far_.png",
+    "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\crash_explosion_peak_.png"
+  ],
+  "preset": "change",
+  "question": "These are BEFORE and AFTER screenshots of a game after a code change.\n1. What SPECIFIC visual changes occurred between the two?\n2. Where in the screen did the change happen?\n3. Does the change match what you'd expect from a typical game modification?\n4. Are there any UNEXPECTED side-effects or regressions visible?\n\nRespond with:\n  CHANGES: (bullet list of specific changes)\n  LOCATION: (where the change is)\n  UNEXPECTED: (any unintended changes, or 'none')\n  DETAIL: (2-3 sentences)",
+  "model": "claude-sonnet-4-5-20250929",
+  "response": "CHANGES:\n- A small spaceship/vehicle sprite with flame thrusters has been replaced by a large orange/red explosion effect\n- The explosion has a starburst pattern with multiple pointed rays extending outward\n- Small yellow particle effects/sparks are scattered around the explosion\n- The explosion is centered roughly in the upper-middle portion of the screen\n\nLOCATION: Center-left area of the screen, slightly above the vertical midpoint\n\nUNEXPECTED: None - this appears to be an intentional destruction/explosion effect\n\nDETAIL: The change shows a clear transition from an active game object (a small spacecraft with visible thrusters) to a destruction state (explosion animation). This is a typical game state change representing the destruction or death of the player's vehicle or an enemy unit. The explosion effect includes appropriate visual elements like radiating spikes and particle debris that are standard for impact/destruction animations in games."
+}

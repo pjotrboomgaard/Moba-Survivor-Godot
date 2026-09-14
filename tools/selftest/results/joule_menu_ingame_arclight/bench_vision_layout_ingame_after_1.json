@@ -1,0 +1,9 @@
+{
+  "images": [
+    "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\joule_menu_ingame_arclight\\ingame_after_1.png"
+  ],
+  "preset": "layout",
+  "question": "Analyze this game screenshot for LAYOUT correctness.\n1. Is the main content (video, sprite, UI) filling the intended area?\n2. Is anything stuck in a corner (top-left, top-right, bottom-left, bottom-right)?\n3. Is the content properly centered or positioned as expected?\n4. Are there any empty/unintended gaps or overlaps?\n\nRespond with:\n  VERDICT: PASS or FAIL\n  ISSUE: (one-line description if FAIL)\n  DETAIL: (2-3 sentences describing the layout you see)",
+  "model": "claude-sonnet-4-5-20250929",
+  "response": "VERDICT: PASS\nISSUE: None\nDETAIL: The game screenshot shows a proper hero selection screen layout. The main character sprite is positioned in the left portion of the screen, while the UI menu system occupies the right side with game mode options (SOLO, FFA, CO-OP, WORLD EDITOR), difficulty settings, hero selection buttons, and ability icons. All elements appear properly positioned with no obvious gaps, overlaps, or misaligned content stuck in corners."
+}

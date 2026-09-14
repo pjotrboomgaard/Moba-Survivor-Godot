@@ -1,0 +1,48 @@
+{
+  "before": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\joule_menu_ingame_arclight\\ingame_before_static.png",
+  "after": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\joule_menu_ingame_arclight\\ingame_after_1.png",
+  "roi": null,
+  "before_size": [
+    1080,
+    1920
+  ],
+  "after_size": [
+    1080,
+    1920
+  ],
+  "ssim": 0.46543317311756793,
+  "mad": 33.543116319444444,
+  "identical": false,
+  "size": {
+    "before_bbox": [
+      0,
+      30,
+      1919,
+      1079
+    ],
+    "after_bbox": [
+      5,
+      52,
+      1919,
+      1040
+    ],
+    "before_wh": [
+      1919,
+      1049
+    ],
+    "after_wh": [
+      1914,
+      988
+    ],
+    "width_ratio": 0.9974,
+    "height_ratio": 0.9418,
+    "area_ratio": 0.9394
+  },
+  "translation": {
+    "dx": 0.43310174345970154,
+    "dy": 2.4517288208007812,
+    "magnitude": 2.4896890028541763,
+    "inliers": 37870
+  },
+  "heatmap": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\joule_menu_ingame_arclight\\heat_ingame_after_1.png"
+}

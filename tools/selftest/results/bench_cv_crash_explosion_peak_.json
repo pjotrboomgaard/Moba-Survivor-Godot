@@ -1,0 +1,48 @@
+{
+  "before": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\crash_ship_far_.png",
+  "after": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\crash_explosion_peak_.png",
+  "roi": null,
+  "before_size": [
+    1080,
+    1920
+  ],
+  "after_size": [
+    1080,
+    1920
+  ],
+  "ssim": 0.9763676995811602,
+  "mad": 1.4959510030864198,
+  "identical": false,
+  "size": {
+    "before_bbox": [
+      168,
+      12,
+      1751,
+      1067
+    ],
+    "after_bbox": [
+      168,
+      12,
+      1751,
+      1067
+    ],
+    "before_wh": [
+      1583,
+      1055
+    ],
+    "after_wh": [
+      1583,
+      1055
+    ],
+    "width_ratio": 1.0,
+    "height_ratio": 1.0,
+    "area_ratio": 1.0
+  },
+  "translation": {
+    "dx": 2.16154408454895,
+    "dy": 19.449981689453125,
+    "magnitude": 19.569723057557827,
+    "inliers": 6616
+  },
+  "heatmap": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\heat_crash_explosion_peak_.png"
+}

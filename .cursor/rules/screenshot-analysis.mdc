@@ -47,6 +47,38 @@ All six must be read with the Read tool and reasoned about before the task is do
    If the only difference is the one the task intended, the change landed.
    If something else changed too, investigate.
 
+## Tool selection guide (which tool answers which question)
+
+The four tools in `tools/` each answer a different class of question. Use the
+right one for the requirement you are verifying — do NOT rely on a single tool:
+
+| Requirement you are checking | Primary tool | Why |
+|---|---|---|
+| "Does X fill the screen / is it centered / in a corner?" | `inspect_screenshot.py` | Reports coverage %, position, bounding box. Best for full-screen UI/video, hero centering. |
+| "Did ANYTHING change between before and after?" | `diff_screenshots.py` | Per-pixel changed-fraction + bounding box. Fast, deterministic, catches even 1-pixel edits. |
+| "Did the object get bigger/smaller or move?" | `cv_compare.py --mode all` | Size-ratio (area_ratio), SSIM similarity, translation vector (dx/dy). Use for hero-size tuning, hover offsets, camera moves. |
+| "What does this look like / is it polished / does the text read right?" | `vision_check.py --preset <preset>` | LLM (Claude) semantic verdict. Only tool that reads text, judges art quality, and names *what* changed. |
+
+**Default: run all four** on every before/after pair (cheap, fast, no LLM for
+the first three; `vision_check.py` needs the Anthropic key in `.env`). The
+deterministic tools agree = high confidence; a mismatch between them is a
+signal to open the PNGs and read them carefully.
+
+### Preset choice for `vision_check.py`
+- `layout` — single after-image; "does content fill the frame / sit in the
+  right region?" Use for full-screen backgrounds, centered heroes.
+- `quality` — single after-image; "does this look polished?" Use for art
+  swaps, new sprites, VFX polish.
+- `change` — before + after; "what specifically changed?" Use for any
+  code-change verification where you need to name the delta.
+- `text` — single image; read on-screen labels, titles, numbers. Use for HUD,
+  menu, biome-name renames, stat panels.
+- `size` — before + after; "did the subject get bigger or smaller, by how
+  much?" Use alongside `cv_compare.py` for hero-scale tasks.
+- `motion` — two consecutive frames; "did the animation advance?" Use for
+  video/animation frames. If it reports "no change", the capture likely
+  grabbed the same frame — widen the capture gap.
+
 ## Scope
 
 This applies to every feature, UI change, art/asset change, and balance tweak verified

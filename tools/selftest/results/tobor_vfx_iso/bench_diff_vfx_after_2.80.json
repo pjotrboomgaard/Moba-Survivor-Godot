@@ -1,0 +1,10 @@
+{
+  "before": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\tobor_vfx_iso\\vfx_before_0.80.png",
+  "after": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\tobor_vfx_iso\\vfx_after_2.80.png",
+  "out": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\tobor_vfx_iso\\diff_vfx_after_2.80.png",
+  "changed_pixels": 0,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.0,
+  "bbox": null,
+  "has_change": false
+}

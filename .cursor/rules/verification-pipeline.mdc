@@ -32,16 +32,22 @@ confident it works." Confidence is not evidence. Screenshots are.
 - Save as `tools/selftest/results/<feature>/iso_after_*.png`.
 
 ### STEP 3 — ISOLATED "COMPARE"
-- Diff the isolated before vs after: run `tools/diff_screenshots.py` when
-  available (pass `-BeforeShot` to `run_selftest.ps1`), or open BOTH images with
-  the Read tool and state, in writing, the concrete pixel differences you see.
-- **ALSO run `python tools/inspect_screenshot.py <screenshot.png>`** on each
-  screenshot to get: content fill %, bounding box, position (CENTER/TOP-LEFT/etc),
-  and a thumbnail with grid overlay. This catches bugs like "video stuck in
-  top-left corner" that full-res screenshots miss. Read the thumbnail too.
-- Save any `diff_*.png` / diff report + `thumb_*.png` next to the others.
-- **Read all three** (iso_before, iso_after, diff) with the Read tool and
-  reason about them. A passing report JSON alone is NOT a compare.
+- **Run the full tool suite on the before/after pair** (in this order):
+  1. `python tools/diff_screenshots.py <before> <after> --out <diff.png> --report <r.json>`
+     — per-pixel changed-region map + changed-fraction.
+  2. `python tools/inspect_screenshot.py <after.png>` — layout/position/coverage
+     + gridded thumbnail. Catches "video stuck in a corner" / "not filling
+     screen" bugs that full-res reads miss.
+  3. `python tools/cv_compare.py <before> <after> --mode all` — SSIM score,
+     size-ratio, translation vector, motion heatmap. Use this for size/motion
+     checks (e.g. "tremor should be 1.2× tobor", "totem should hover higher").
+  4. `python tools/vision_check.py <after.png> --preset <layout|quality|change>`
+     — LLM semantic verdict. Use `layout` for "does X fill the screen",
+     `quality` for "does this look polished", `change` for before/after pairs.
+- Save all output PNGs + JSON reports next to the screenshots.
+- **Read all of them** (iso_before, iso_after, diff map, thumbnails, heatmaps)
+  with the Read tool and reason about them. A passing report JSON alone is NOT
+  a compare. State, in writing, the concrete visual differences you see.
 
 ### STEP 4 — IN-GAME "BEFORE"
 - In the REAL game (main scene / FFA / full world), capture the pre-change
@@ -53,10 +59,10 @@ confident it works." Confidence is not evidence. Screenshots are.
 - Save as `tools/selftest/results/<feature>/ingame_after_*.png`.
 
 ### STEP 6 — IN-GAME "COMPARE"
-- Diff the in-game before vs after exactly as in Step 3.
-- Run `python tools/inspect_screenshot.py` on both in-game screenshots.
-- Read all three (ingame_before, ingame_after, diff) with the Read tool and
-  state the visible delta.
+- Run the same tool suite as Step 3 on the in-game before/after pair:
+  `diff_screenshots.py`, `inspect_screenshot.py` (on each), `cv_compare.py --mode all`,
+  and `vision_check.py` with the appropriate preset.
+- Read all outputs with the Read tool and state the visible delta in writing.
 
 ## ORDER IS ENFORCED
 

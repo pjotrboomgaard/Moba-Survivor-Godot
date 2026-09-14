@@ -1,0 +1,15 @@
+{
+  "before": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\crash_ship_far_.png",
+  "after": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\crash_explosion_peak_.png",
+  "out": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\diff_crash_explosion_peak_.png",
+  "changed_pixels": 71528,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.034495,
+  "bbox": [
+    763,
+    331,
+    1171,
+    745
+  ],
+  "has_change": true
+}

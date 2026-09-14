@@ -1,0 +1,10 @@
+{
+  "before": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\joule_menu_ingame_arclight\\ingame_after_1.png",
+  "after": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\joule_menu_ingame_arclight\\ingame_after_2.png",
+  "out": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\joule_menu_ingame_arclight\\diff_ingame_after_2.png",
+  "changed_pixels": 0,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.0,
+  "bbox": null,
+  "has_change": false
+}

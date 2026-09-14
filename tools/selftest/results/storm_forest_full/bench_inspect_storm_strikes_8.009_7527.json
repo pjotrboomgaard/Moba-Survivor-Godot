@@ -1,0 +1,33 @@
+{
+  "source": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\storm_forest_full\\storm_strikes_8.009_7527.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.1842,
+  "bounding_box": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.216,
+    "TR": 0.2362,
+    "BL": 0.2249,
+    "BR": 0.3229
+  },
+  "edge_fractions": {
+    "top": 0.0089,
+    "bottom": 0.0065,
+    "left": 0.0024,
+    "right": 0.0072
+  },
+  "thumbnail": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\storm_forest_full\\thumb_storm_strikes_8.009_7527.png"
+}

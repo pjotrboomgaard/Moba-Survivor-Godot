@@ -39,6 +39,26 @@ verified with evidence before the task is marked done:
 7. **Restart the running app** with `tools/restart_app.ps1` before ending the turn, so
    the user sees the change in the live game.
 
+## Tool suite for screenshot verification (use the RIGHT tool per check)
+
+Four tools live in `tools/`. Pick the one that matches the requirement — never rely
+on a single tool:
+
+- `python tools/diff_screenshots.py <before> <after> --out <diff.png> --report <r.json>`
+  — "Did anything change?" (per-pixel changed-fraction + bounding box).
+- `python tools/inspect_screenshot.py <img.png>`
+  — "Does X fill the screen / is it centered / in a corner?" (coverage %, position,
+  bounding box + gridded thumbnail).
+- `python tools/cv_compare.py <before> <after> --mode all`
+  — "Did the object grow/shrink or move?" (SSIM, size-ratio `area_ratio`,
+  translation dx/dy, motion heatmap). Best for hero-size / hover-offset / camera checks.
+- `python tools/vision_check.py <img(s)> --preset <layout|quality|change|text|size|motion>`
+  — LLM (Claude) semantic verdict: reads on-screen text, judges art quality, and names
+  *what* changed. Needs `ANTHROPIC_API_KEY` in `.env` (local, never committed).
+
+Full guidance + preset table: `.cursor/rules/screenshot-analysis.mdc`. The benchmark
+that validated these against real before/after pairs: `tools/benchmark_verify.py`.
+
 ## No quick passes
 
 Marking a task done without per-requirement evidence is a failure of this rule. If a

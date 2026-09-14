@@ -1,0 +1,85 @@
+{
+  "cases": [
+    {
+      "id": "joule_fills_screen",
+      "label": "Joule menu video: static bg -> full-bleed animated video",
+      "score": "5/6",
+      "rows": [
+        {
+          "tool": "inspect:coverage>=0.85",
+          "ok": true,
+          "detail": "cov=0.9444"
+        },
+        {
+          "tool": "inspect:is_centered",
+          "ok": true,
+          "detail": "pos=CENTER"
+        },
+        {
+          "tool": "diff:changed>5%",
+          "ok": true,
+          "detail": "72.42%"
+        },
+        {
+          "tool": "cv:ssim<0.9",
+          "ok": true,
+          "detail": "ssim=0.46543317311756793"
+        },
+        {
+          "tool": "vision:layout fills-screen PASS",
+          "ok": false,
+          "detail": "VERDICT: PASS\nISSUE: None\nDETAIL: The game screenshot shows "
+        },
+        {
+          "tool": "vision:layout describes change",
+          "ok": true,
+          "detail": "VERDICT: PASS\nISSUE: None\nDETAIL: The game screenshot shows "
+        }
+      ]
+    },
+    {
+      "id": "storm_strikes_appear",
+      "label": "Storm forest: forest before -> storm strikes (big VFX change)",
+      "score": "3/3",
+      "rows": [
+        {
+          "tool": "diff:changed>5%",
+          "ok": true,
+          "detail": "18.94%"
+        },
+        {
+          "tool": "cv:ssim<0.9",
+          "ok": true,
+          "detail": "ssim=0.8857960079990723"
+        },
+        {
+          "tool": "vision:change describes change",
+          "ok": true,
+          "detail": "CHANGES:\n- The mission title overlay \"MISSION 1 LANDED ON VE"
+        }
+      ]
+    },
+    {
+      "id": "identical_pair",
+      "label": "Control: same image vs itself (should detect NO change)",
+      "score": "2/3",
+      "rows": [
+        {
+          "tool": "diff:~0 changed (identical)",
+          "ok": true,
+          "detail": "0.0000%"
+        },
+        {
+          "tool": "cv",
+          "ok": false,
+          "detail": "no report"
+        },
+        {
+          "tool": "vision:change detects identical",
+          "ok": true,
+          "detail": "CHANGES:\n- No visible changes detected between the two scree"
+        }
+      ]
+    }
+  ]
+}

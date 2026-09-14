@@ -1,0 +1,33 @@
+{
+  "source": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\joule_menu_ingame_arclight\\ingame_after_1.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    20,
+    27,
+    50
+  ],
+  "content_fill_ratio": 0.4467,
+  "bounding_box": [
+    0,
+    28,
+    1919,
+    1047
+  ],
+  "coverage": 0.9444,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.3246,
+    "TR": 0.19,
+    "BL": 0.3082,
+    "BR": 0.1771
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0011,
+    "right": 0.0072
+  },
+  "thumbnail": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\joule_menu_ingame_arclight\\thumb_ingame_after_1.png"
+}

@@ -1,0 +1,33 @@
+{
+  "source": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\crash_explosion_peak_.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.8067,
+  "bounding_box": [
+    167,
+    11,
+    1751,
+    1067
+  ],
+  "coverage": 0.8079,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2508,
+    "TR": 0.2502,
+    "BL": 0.2498,
+    "BR": 0.2492
+  },
+  "edge_fractions": {
+    "top": 0.0085,
+    "bottom": 0.0066,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\thumb_crash_explosion_peak_.png"
+}
