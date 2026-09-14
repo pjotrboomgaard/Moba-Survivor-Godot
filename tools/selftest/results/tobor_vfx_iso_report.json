@@ -1,0 +1,26 @@
+{
+  "hero_position": [
+    -180.0,
+    0.0
+  ],
+  "scene": "tobor_vfx_test",
+  "shots": [
+    {
+      "label": "before",
+      "path": "user://tobor_vfx_run_1789388911/vfx_before_0.80.png"
+    },
+    {
+      "label": "mid",
+      "path": "user://tobor_vfx_run_1789388911/vfx_mid_1.50.png"
+    },
+    {
+      "label": "after",
+      "path": "user://tobor_vfx_run_1789388911/vfx_after_2.80.png"
+    }
+  ],
+  "target_position": [
+    160.0,
+    0.0
+  ],
+  "verdict": "PASS"
+}

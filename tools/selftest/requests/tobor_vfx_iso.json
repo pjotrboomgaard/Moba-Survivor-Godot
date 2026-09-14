@@ -1,0 +1,6 @@
+{
+  "comment": "T3.60 ISOLATED verify: Tobor kit VFX (spider_mines) renders at target, not at hero position — proves no stray vector art at the hero.",
+  "events": [
+    {"t": 3.5, "kind": "report"}
+  ]
+}

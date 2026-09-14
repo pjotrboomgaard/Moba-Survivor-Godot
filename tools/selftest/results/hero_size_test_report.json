@@ -1,9 +1,12 @@
 {
-  "scene": "hero_size_test",
+  "attack_range": 57.5,
+  "cone_half_angle_deg": 36.0,
+  "mode": "after",
+  "scene": "bulwark_cone_test",
   "shots": [
     {
-      "label": "hero_sizes",
-      "path": "user://hero_size_run_1789386125/hero_sizes_1.62.png"
+      "label": "cone_after",
+      "path": "user://bulwark_cone_run_1789388569/cone_after_1.50.png"
     }
   ],
   "verdict": "PASS"

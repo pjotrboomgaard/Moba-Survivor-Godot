@@ -1627,7 +1627,7 @@ projectiles if they do. also give them all red eyes during the night"
       1 types x 5 each at wave 1"; screenshot shows dark ambient + creeps with
       red eyes visible.)
 
-### T3.60 Tobor: remove stray vector art + add projectile toward placed objects (NEW 2026-09-14) _STATUS (2026-09-14): code done_
+### T3.60 Tobor: remove stray vector art + add projectile toward placed objects (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "tobor spawns some kind of vector art in his place now also
 still even tho he is putting the turret somewhere. also make projectile towards
 where the turret lands. same with the mines. for the turret remove the vector
@@ -1637,9 +1637,12 @@ art around tobor."
       the gear_ring/steam_ring vector art that was rendering at Tobor's position.
 - [x] Throw projectiles (`_spawn_throw_projectile`) already exist for both
       turret and mines — they arc from Tobor to the landing position.
-- [x] In-game verify: `verify_tobor_vfx` selftest (2026-09-14) confirms all 3 kit
-      abilities cast cleanly with pixel-art VFX at the target; no stray vector art
-      at Tobor's position. 6 screenshots captured and reviewed.
+- [x] Isolated verify: `tobor_vfx_test` scene (2026-09-14) renders Tobor sprite +
+      spider_mines pixel-art VFX at a separate target; 3 screenshots confirm VFX
+      at target only, hero position stays clean.
+- [x] In-game verify: `verify_tobor_vfx` selftest confirms all 3 kit abilities
+      cast cleanly with pixel-art VFX at the target; no stray vector art at
+      Tobor's position. 6 screenshots captured and reviewed.
 
 ### T3.61 Make it possible to start the next wave earlier (NEW 2026-09-14) _STATUS (2026-09-14): already implemented_
 **User direction:** "make it possible to start next wave earlier"
