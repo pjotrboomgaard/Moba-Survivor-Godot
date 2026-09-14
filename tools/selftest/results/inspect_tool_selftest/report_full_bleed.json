@@ -1,0 +1,33 @@
+{
+  "source": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\inspect_tool_selftest\\full_bleed.png",
+  "width": 640,
+  "height": 360,
+  "background_rgb": [
+    90,
+    140,
+    200
+  ],
+  "content_fill_ratio": 0.0111,
+  "bounding_box": [
+    0,
+    0,
+    639,
+    359
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.25,
+    "TR": 0.25,
+    "BL": 0.25,
+    "BR": 0.25
+  },
+  "edge_fractions": {
+    "top": 0.5,
+    "bottom": 0.5,
+    "left": 0.0312,
+    "right": 0.0312
+  },
+  "thumbnail": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\inspect_tool_selftest\\thumb_full_bleed.png"
+}

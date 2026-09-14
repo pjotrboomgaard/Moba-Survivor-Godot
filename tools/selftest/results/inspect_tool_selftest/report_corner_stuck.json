@@ -1,0 +1,33 @@
+{
+  "source": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\inspect_tool_selftest\\corner_stuck.png",
+  "width": 640,
+  "height": 360,
+  "background_rgb": [
+    30,
+    60,
+    40
+  ],
+  "content_fill_ratio": 0.0625,
+  "bounding_box": [
+    0,
+    0,
+    159,
+    89
+  ],
+  "coverage": 0.0625,
+  "position": "TOP-LEFT",
+  "is_centered": false,
+  "quadrant_fractions": {
+    "TL": 1.0,
+    "TR": 0.0,
+    "BL": 0.0,
+    "BR": 0.0
+  },
+  "edge_fractions": {
+    "top": 0.2222,
+    "bottom": 0.0,
+    "left": 0.125,
+    "right": 0.0
+  },
+  "thumbnail": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\inspect_tool_selftest\\thumb_corner_stuck.png"
+}

@@ -23,6 +23,12 @@ All six must be read with the Read tool and reasoned about before the task is do
 
 ## How to verify a screenshot
 
+0. **Always run the layout inspector first.** Before judging any screenshot, run
+   `python tools/inspect_screenshot.py <screenshot.png>` and read its output.
+   It reports content fill %, bounding box, position (CENTER / TOP-LEFT /
+   BOTTOM-RIGHT / etc), and whether the content is centered. This catches
+   layout bugs (e.g. video stuck in a corner) that full-res Read-tool viewing
+   can miss. Read the generated `thumb_*.png` alongside the full image.
 1. **Open and actually look at the image.** Use the Read tool on the `.png` output,
    not just the JSON report.
 2. **State what you see, not what you expect.** Describe the concrete elements
