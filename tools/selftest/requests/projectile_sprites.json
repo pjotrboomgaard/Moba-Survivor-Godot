@@ -1,0 +1,6 @@
+{
+  "comment": "Projectile sprite isolated verify: render frost_shard + scrap_bolt large and at game scale, confirm they load and read correctly.",
+  "events": [
+    {"t": 1.5, "kind": "report"}
+  ]
+}
