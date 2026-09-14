@@ -3,6 +3,12 @@ description: MANDATORY 6-step verification pipeline — isolated before/after/co
 alwaysApply: true
 ---
 
+# HARD RULE — At most 1 subagent at a time
+
+Never run more than one subagent (Task tool) concurrently. Launch one Task call,
+wait for its final response, then launch the next. Prefer doing the work directly
+with Grep/Glob/Read over delegating to a subagent.
+
 # HARD RULE — 6-Step Verification Pipeline (NON-NEGOTIABLE, ALL TASKS, ALWAYS)
 
 Every single task — feature, balance tweak, visual, bug fix, rename, asset swap,
@@ -17,11 +23,26 @@ confident it works." Confidence is not evidence. Screenshots are.
 
 ## THE 6 STEPS (exact order, all required)
 
+## ISOLATED = EMPTY WORLD (HARD RULE)
+
+An "isolated" test scene must be an **empty world**: no grass, no ground tiles,
+no background, no HUD, no world props, no other objects. The scene contains
+ONLY:
+- The mechanic under test (its nodes/scripts)
+- A camera (Node2D/Camera2D) framing the mechanic
+- Optionally a bot/placed entity that triggers the mechanic — but nothing else
+
+This means: do NOT instantiate the full `Arena`, do NOT add a `Node2D` with
+grass/floor sprites, do NOT load the main scene or HUD. A flat black/void
+background (or a single neutral-colored plane if a floor is strictly required
+for the mechanic) is the baseline. If you find an existing isolated test that
+renders a full arena background, grass, or HUD, it is NOT isolated — fix it.
+
 ### STEP 1 — ISOLATED "BEFORE"
 - Capture the pre-change state in an ISOLATED context (dedicated
   `scenes/<x>_test/<x>_test.tscn` + `.gd`, self-contained: no main scene, no
-  arena, no HUD, no world dependencies; the scene writes
-  `user://selftest_report.json` and calls `get_tree().quit()`).
+  arena, no HUD, no world dependencies, no grass, no background; the scene
+  writes `user://selftest_report.json` and calls `get_tree().quit()`).
 - If the change is ALREADY applied, TEMPORARILY REVERT it, capture the BEFORE
   isolated screenshot, then RE-APPLY the change. Never skip this by saying
   "the before state is obvious."

@@ -529,10 +529,11 @@ func budget_for_wave(target_wave: int) -> float:
 	# T3.44 (2026-09-13): user requested 3× the previous headcount across all waves.
 	# Previous formula: 8.0 + 2.5 * wave (with +3.5*(wave-7) from wave 8 onward).
 	# New formula: 3× that base, so wave 1 = 24, wave 5 = 57, wave 10 = 75+.
-	# This makes every wave substantially busier and less boring.
-	var solo_budget := 24.0 + 7.5 * float(target_wave)
+	# T3.87 (2026-09-14): user requested another 3× on top — apply a further
+	# 3× multiplier so waves are 9× the original headcount (wave 1 ≈ 72).
+	var solo_budget := (24.0 + 7.5 * float(target_wave)) * 3.0
 	if target_wave >= 8:
-		solo_budget += 10.5 * float(target_wave - 7)
+		solo_budget += 10.5 * float(target_wave - 7) * 3.0
 	# T3.58: Camp Gauntlet test mode (id 6) is a camp-farm world — the 7 camps +
 	# their guardians are the main threat, so regular waves are reduced to ~40%.
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id == 6:
@@ -594,9 +595,11 @@ func _desired_live() -> int:
 	# FFA has 4 players each running their own AI + wave director, so cap lower
 	# to avoid lag from too many enemies simultaneously.
 	# T3.44: raised cap to 120 (was 60) to match the 3× budget increase.
-	var live_cap := mini(48 + int(float(wave) * 4.0), 120)
+	# T3.87: tripled the budget again, so raise the cap too (360) so the extra
+	# headcount isn't throttled back down. FFA stays capped lower.
+	var live_cap := mini(48 + int(float(wave) * 4.0), 360)
 	if GameRuntime.is_ffa():
-		live_cap = mini(live_cap, 80)
+		live_cap = mini(live_cap, 240)
 	return clampi(floor_n, 4, live_cap)
 
 

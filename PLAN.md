@@ -1893,3 +1893,190 @@ pathing. do this for all different types of trees."
       `tree_hp_ingame_arclight/ingame_before_trees.png` (full forest) vs
       `ingame_stumps.png` (8 stumps where trees broke). Driver now has
       `tree_hp_probe` + `damage_tree` event kinds for future tree tests.
+
+### T3.76 Tree stump renders ABOVE the falling tree (NEW 2026-09-14) _STATUS (2026-09-14): verified_
+**User direction:** "make it so the tree stump of the trees are always above the
+tree model so that if it falls down the rest of tree it will appear to break from
+tree"
+- [x] `stump_layer.gd` dedicated high-z CanvasItem renders stumps above tree
+      Obstacle sprites (z ~ depth_z(y) ≈ 2000+). `arena.gd` owns the node and
+      syncs `_dead_trees` into it every frame.
+- [x] Stump is a CUTOFF of the broken tree's OWN base sprite (bottom ~45% of the
+      tree texture via AtlasTexture), not a generic lump; reads as "broke at the
+      stem." Added `sprite_id` + `fade` to each `_dead_trees` entry.
+- [x] Stumps fade in over 0.4s (`_update_stump_fades`) instead of popping in.
+- [x] Isolated verify: `tree_hp_test` — `tree_breaking.png` shows the stump on
+      top of the toppled trunk; `tree_stump.png` shows 3 distinct per-tree
+      cutoffs. intact→stump diff 2.37% changed px, SSIM 0.968.
+- [x] In-game verify: `tree_cast_ingame` — 3 trees broken by real tobor keg
+      casts; `cast_stumps` screenshot shows the cutoff stumps at the tree bases.
+      Screenshots: tools/selftest/results/tree_wobble_ingame/{iso+ingame}.
+
+### T3.77 Trees wobble + break on REAL ability casts (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "i dont see trees yet wobbling ingame when they are hit with
+an ability. nor breaking. test the tree thing also with bots casting multiple
+abilities that will break the trees."
+- [ ] Root-cause: in the live game, hero AoE casts and enemy explosions must
+      actually reach `damage_trees_in_radius`. Add a `tree_cast_probe` selftest
+      event that reads tree HP/shake state AFTER a real ability cast (not a direct
+      API call) to confirm the wiring is connected.
+- [ ] Bots casting multiple abilities: drive 2-3 heroes to cast AoE abilities at a
+      cluster of trees over several seconds; verify trees wobble (shake state > 0)
+      then break (hp <= 0, collision disabled) via the probe.
+- [ ] Isolated verify: `tree_hp_test` mirrors the shake → break → stump sequence.
+- [ ] In-game verify: `tree_hp_ingame` with real ability casts; screenshot the
+      wobble frame + the post-break stumps; read both.
+
+### T3.78 Rain: full-screen, not just a small area (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "rain is only in a small area but should be full screen"
+- [ ] Diagnose: rain particles/VFX currently emit over a limited region. Find the
+      rain spawn rect/area and expand it to cover the full viewport (or the whole
+      playfield).
+- [ ] Isolated verify: empty-world rain test — rain streaks visible across the
+      entire frame, not just a patch.
+- [ ] In-game verify: rain biome screenshot shows full-screen rain.
+
+### T3.79 Mines/turrets: vector throw-effect on cast + clear persistent vector art on restart/new-game (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "mines and turret have pixel art effect now a pixel art
+explosion i dont want that, before it was only the mines and the turret. but i do
+want to throw a vector thing to where the turret goes and where the mine goes when
+i cast it. tobor turret and mines ability leave vector artworks that stay even tho
+i restart game or when i start new game even tho they shouldnt be there at all."
+- [ ] Keep the pixel-art explosion on mine/turret detonation (that part is fine).
+- [ ] Add a VECTOR-art "throw" effect: when the player casts, a vector sprite/
+      line flies from the hero to the placement point for the turret and mine.
+- [ ] Fix persistence: any vector art left on the map after a cast must be cleared
+      on game restart / new game. Find where these are stored (likely a global
+      array or a baked layer) and clear it in the reset path.
+- [ ] Isolated verify: `tobor_place_test` — cast turret + mine, confirm the vector
+      throw-effect plays; then trigger a reset and confirm no leftover art.
+- [ ] In-game verify: Tobor solo — cast turret + mine, screenshot the throw-effect
+      in flight; restart, screenshot confirms no leftover art.
+
+### T3.80 Gun drone: stripe/beam attack targeting creeps (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "gun drone is not shooting any attack animation yet it should
+be a stripe targeting creeps"
+- [ ] Find the gun drone entity (likely `drone.gd` or an ability-spawned node).
+      Add a stripe/beam visual that fires from the drone to its current creep
+      target each time it attacks.
+- [ ] Isolated verify: `drone_shoot_test` — spawn gun drone + a dummy creep;
+      confirm the beam/stripe renders and tracks the target.
+- [ ] In-game verify: grant the gun-drone hero an ability, cast it near creeps;
+      screenshot shows the stripe hitting a creep.
+
+### T3.81 Abilities share LMB aim-assist (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "abilities should have same aim assist as lmb"
+- [ ] Find where LMB applies aim-assist (likely `main.gd` or `player.gd` — a
+      snap-to-nearest-enemy or directional bias). Apply the same assist to every
+      ability cast so aiming a cone/burst/zone ability snaps to nearby creeps the
+      same way basic attack does.
+- [ ] Isolated verify: `aim_assist_test` — hero with ability, place a creep near
+      the cast direction; confirm the ability target/cast direction snaps toward
+      it.
+- [ ] In-game verify: cast each ability type near creeps; confirm consistent
+      snapping.
+
+### T3.82 No hero health bar before spawn (after ship crash) (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "there is already a health bar of hero visible before hero
+spawns after the ship crash"
+- [ ] Find where the hero HP bar is drawn in the HUD / world. It should only appear
+      after the hero has actually spawned (post-crash-cinematic). Gate the bar on
+      the hero's `active`/`spawned` flag.
+- [ ] Isolated verify: spawn a hero; capture the frame just before and just after
+      spawn. Before = no HP bar; after = HP bar visible.
+- [ ] In-game verify: bootstrap → ship crash → hero spawn. Screenshot confirms no
+      HP bar during the crash, HP bar present once the hero lands.
+
+### T3.83 Repulsor drone does nothing (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "repulsor drone doesnt do anything"
+- [ ] Find the repulsor drone logic. It should push/repel nearby creeps (knockback
+      force field) or deal damage. Wire the actual behaviour.
+- [ ] Isolated verify: `repulsor_drone_test` — spawn the drone + creeps; confirm
+      creeps are pushed back / take damage.
+- [ ] In-game verify: hero with the repulsor-drone ability casts it near creeps;
+      screenshot shows the knockback or damage.
+
+### T3.84 Turrets have less HP (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "turrets should have less hp"
+- [ ] Reduce the turret HP value in its spawn/definition code so they die faster.
+      Document the old and new values.
+- [ ] Isolated verify: `turret_hp_test` — confirm the new HP value via a probe.
+- [ ] In-game verify: attack a turret in-game; confirm it dies in fewer hits than
+      before.
+
+### T3.85 Grass-world creep sprites get red eyes (night visibility) (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "redo all grass world creep sprites to give them red eye
+sprites for in the night"
+- [ ] For every creep sprite used in the grass biome (biome 0 / "Scrapyard
+      Outskirts"), add a red-eye overlay that shows at night. This can be a
+      modulate/blend on the existing sprite or a separate eye sprite that toggles
+      on `WorldClock.is_night`.
+- [ ] Isolated verify: `grass_creepeye_test` — empty world with grass-creep
+      sprites; toggle day/night; confirm red eyes appear at night.
+- [ ] In-game verify: grass biome, night time; screenshot shows red-eyed creeps.
+
+### T3.86 Isolated tests: empty-world hard rule (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+**User direction:** "i often see isolated test not in the right manner. isolated
+should always be in an empty world with no background or other hud. it can be a
+bot placing something but then there should be no other objects etc visible. no
+grass no hud nothing. make sure it works like this update the rules."
+- [ ] Update `.cursor/rules/verification-pipeline.mdc` + `test-and-verify.mdc`:
+      state explicitly that isolated test scenes must have NO ground, NO grass,
+      NO HUD, NO background, NO other objects. Only the mechanic under test + a
+      camera. A bot may place an entity, but nothing else.
+- [ ] Audit existing isolated test scenes; add the empty-world baseline to any
+      that currently render a full arena background.
+- [ ] Verify the updated rule text is in both rule files.
+
+### T3.87 3× more enemies in all modes (NEW 2026-09-14) _STATUS (2026-09-14): todo_
+**User direction:** "add to list: 3 times as many enemies in all mode"
+- [ ] Locate the enemy/spawn-count multiplier in `wave_director.gd` /
+      `creep_camp.gd` / spawn logic. Triple the per-wave / per-camp enemy count
+      across every mode (solo, co-op, FFA, Recruit Arena, Camp Gauntlet).
+- [ ] Ensure performance: 3× enemies must not tank FPS. If needed, cap
+      pathfinding updates or batch them.
+- [ ] Isolated verify: `enemy_count_test` — count spawned creeps in an isolated
+      arena over a fixed time; assert the new count is 3× the old baseline.
+- [ ] In-game verify: screenshot the wave in a real game; confirm ~3× density vs
+      the pre-change baseline.
+
+### T3.88 Upgrade diversity: reduce repeat upgrades (NEW 2026-09-14) _STATUS (2026-09-14): todo_
+**User direction:** "too often i get same upgrade more diversity in upgrades for
+all heroes"
+- [ ] Locate the upgrade/offering pool logic (level-up choice generator).
+- [ ] Add recency-based weighting: recently-offered upgrades are less likely to
+      repeat; guarantee the 3-4 offered options are as distinct as possible.
+- [ ] Ensure every hero can realistically reach all of its role-appropriate
+      upgrades (no hero starved into a narrow pool).
+- [ ] Isolated verify: `upgrade_diversity_test` — run N level-ups, record the
+      offered options, assert no upgrade repeats more than expected (diversity
+      metric before vs after).
+- [ ] In-game verify: play a session, log the sequence of offered upgrades;
+      confirm noticeably less repetition than baseline.
+
+### T3.89 Fix missing-icon upgrade (blue placeholder) (NEW 2026-09-14) _STATUS (2026-09-14): todo_
+**User direction:** "there is still a blue for some upgrades without an icon i
+think"
+- [ ] Find the blue/placeholder tile shown when an upgrade has no icon.
+- [ ] Identify which upgrade(s) lack an icon asset and assign a real icon (or a
+      themed placeholder) so no blue swatch is shown in the upgrade UI.
+- [ ] Isolated verify: `upgrade_icon_test` — enumerate every upgrade; assert each
+      resolves to a non-null, non-blue texture.
+- [ ] In-game verify: screenshot the level-up offer panel; confirm no blue
+      placeholder tile remains.
+
+### T3.90 Tree regrow after 3 day/night cycles + 10s small→big morph (NEW 2026-09-14) _STATUS (2026-09-14): todo_
+**User direction:** "trees regrow after 3 day night cycles with a morph from
+small to big that takes 10 seconds in same position."
+- [ ] Track regrowth: when a tree breaks (HP exhausted → stump), start a timer
+      counting day/night cycles; after 3 full cycles the tree begins regrowing
+      AT THE SAME position (use the recorded base_pos + original sprite_id).
+- [ ] Regrow morph: over 10 seconds the new tree scales from small to full size
+      (scale 0 → 1 or a small sprout → full sprite) in place.
+- [ ] Re-enable pathing/vision blocking only after the morph completes.
+- [ ] Isolated verify: `tree_regrow_test` — empty world; break a tree; advance
+      the day/night cycle 3× (or fast-forward); confirm the tree respawns small
+      and grows to full size over ~10s at the same position; screenshots of
+      early/mid/late morph.
+- [ ] In-game verify: real game — break a tree, wait through cycles (or dev
+      skip), confirm regrowth morph plays; screenshots.

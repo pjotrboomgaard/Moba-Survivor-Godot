@@ -238,7 +238,7 @@ const _ROWS := {
 	"shatter": ["c...c...", ".c.c.c..", "..ccc...", "ccccccc.", "ccccccc.", "..ccc...", ".c.c.c..", "c...c..."],
 	"rime": ["c.c.c...", ".ccc....", "cwcwc...", "cwcwc...", ".ccc....", "c.c.c...", "........", "........"],
 	"gun_drone": ["..ssss..", ".syyys..", "sywwwys.", "sywwwys.", ".syyys..", "..s..s..", "........", "........"],
-	"push_drone": ["..bbbb..", ".bwwwb..", "bwwwwwb.", "bwwwwwb.", ".bwwwb..", "..b..b..", "........", "........"],
+	"push_drone": ["..ggg...", ".gwwwg..", "gwwggww.", "gwwggww.", ".gwwwg..", "..g..g..", "........", "........"],
 	"ember_sprite": ["...m....", "..mmm...", ".mwwwm..", "mwwwwwm.", ".mwwwm..", "..mmm...", "...m....", "........"],
 	"heat_gust": [".m...m..", "..mmm...", "mwwwwwm.", "mwwwwwm.", "..mmm...", ".m...m..", "........", "........"],
 	"thorn_sprite": ["...g....", "..ggg...", ".gwwg...", ".gwwg...", "..nnn...", "...n....", "........", "........"],

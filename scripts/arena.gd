@@ -371,6 +371,8 @@ func _process(delta: float) -> void:
 	# Tree HP (T3.75): shake decay + fall/fade advance. Runs in every mode so a
 	# broken tree animates correctly regardless of biome.
 	_update_tree_hp(delta)
+	# Stump fade-in (T3.75 update): stumps ease in rather than pop into view.
+	_update_stump_fades(delta)
 	_update_biome_weather(delta)
 	# Periodic biome hazards fire only when a biome is active.
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0:
@@ -476,6 +478,7 @@ func _ready() -> void:
 	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	crater_unlocked = true
+	_ensure_stump_layer()
 	_fit_walls()
 	if not GameRuntime.is_classic():
 		# Hazards first so obstacles respect them (rocks shouldn't sit inside lava pools).
@@ -492,13 +495,17 @@ func rebuild() -> void:
 		if child.name == "Walls":
 			continue
 		child.free()
+	_stump_layer = null
 	obstacles.clear()
 	baked_props.clear()
 	walk_pads.clear()
 	void_rects.clear()
 	landmarks.clear()
 	hazard_zones.clear()
+	_dead_trees.clear()
+	_tree_hp.clear()
 	_fit_walls()
+	_ensure_stump_layer()
 	if not GameRuntime.is_classic():
 		# Hazards first so _scatter_obstacles skips pool interiors.
 		_build_hazards()
@@ -1359,7 +1366,19 @@ const _FIRE_DOT_RADIUS := 30.0
 const _FIRE_DOT_DPS := 5.0
 ## Burned-out tree positions, kept forever (until next rebuild) so we keep
 ## painting the charred stumps in _draw().
-var _dead_trees: Array[Vector2] = []
+## T3.75 update: each entry is {"pos": Vector2, "sprite_id": String} so the
+## stump layer can draw a crop of the tree's own base sprite rather than a
+## generic stump. (was Array[Vector2] before.)
+var _dead_trees: Array[Dictionary] = []
+
+## T3.75 follow-up: stumps must render ABOVE the tree models so a tree that is
+## mid-fall still shows the charred stump on top of the toppled trunk (reads as
+## "broke at the stem"). The arena's own _draw() sits at z=0 which is BELOW the
+## tree Obstacle sprites (z ~ depth_z(y) ≈ 2000+), so stumps drawn there would be
+## hidden behind the falling tree. This dedicated CanvasItem layer draws the
+## stumps at a very high z_index so they always sit on top of any tree.
+var _stump_layer: CanvasItem = null
+const _STUMP_LAYER_Z := 99999
 
 ## T3.75 Trees get HP. When hit by AoE they shake; when their HP reaches 0 they
 ## break at the stem, fall + fade, leaving only a stump that no longer blocks
@@ -1369,7 +1388,7 @@ var _dead_trees: Array[Vector2] = []
 ## non-blocking (their Obstacle collision + vision layer were disabled on the
 ## way in). The broken tree then drops to _dead_trees as a persistent stump.
 const _TREE_HP := 120.0
-const _TREE_SHAKE_SECONDS := 0.35
+const _TREE_SHAKE_SECONDS := 0.55
 const _TREE_BREAK_SECONDS := 1.6   # fall + fade duration
 var _tree_hp: Dictionary = {}
 
@@ -1754,9 +1773,33 @@ func _tree_pos_from_key(key: Vector2) -> Vector2:
 	return key
 
 
-func _add_dead_tree(pos: Vector2) -> void:
-	if not _dead_trees.has(pos):
-		_dead_trees.append(pos)
+func _add_dead_tree(pos: Vector2, sprite_id: String = "") -> void:
+	var entry := {"pos": pos, "sprite_id": sprite_id, "fade": 0.0}
+	for e in _dead_trees:
+		if e["pos"].distance_to(pos) < 4.0:
+			# Already recorded this stump; just start/refresh its fade.
+			e["fade"] = 0.0
+			_sync_stump_layer()
+			return
+	_dead_trees.append(entry)
+	_sync_stump_layer()
+
+
+func _ensure_stump_layer() -> void:
+	if _stump_layer != null:
+		return
+	var layer := Node2D.new()
+	layer.name = "StumpLayer"
+	layer.set_script(load("res://scripts/stump_layer.gd"))
+	add_child(layer)
+	_stump_layer = layer
+	_stump_layer.sync_stumps(_dead_trees)
+
+
+## Push the current _dead_trees list to the stump layer so it repaints on top.
+func _sync_stump_layer() -> void:
+	if _stump_layer != null and _stump_layer.has_method("sync_stumps"):
+		_stump_layer.sync_stumps(_dead_trees)
 
 
 func _remove_tree_at(pos: Vector2) -> void:
@@ -1796,8 +1839,11 @@ func damage_trees_in_radius(center: Vector2, radius: float, amount: float) -> in
 
 
 func _apply_tree_damage(o: Obstacle, amount: float) -> void:
-	var pos: Vector2 = o.global_position
-	var info: Dictionary = _tree_hp.get(pos, {})
+	# Key by the Obstacle node's instance id (STABLE) — not by global_position,
+	# which mutates during shake/fall animation. Position-keying meant each hit
+	# after a shake created a fresh full-HP entry, so damage never accumulated.
+	var key: int = o.get_instance_id()
+	var info: Dictionary = _tree_hp.get(key, {})
 	# Remember the node + its planted base so the fall animation can move it.
 	if not info.has("node"):
 		info.node = o
@@ -1807,7 +1853,7 @@ func _apply_tree_damage(o: Obstacle, amount: float) -> void:
 	if bool(info.get("breaking", false)):
 		# Mid fall/fade — no further HP changes; just re-shake for feedback.
 		info.shake_time = _TREE_SHAKE_SECONDS
-		_tree_hp[pos] = info
+		_tree_hp[key] = info
 		return
 	var hp: float = float(info.get("hp", _TREE_HP))
 	hp -= amount
@@ -1819,10 +1865,10 @@ func _apply_tree_damage(o: Obstacle, amount: float) -> void:
 		info.break_time = 0.0
 		info.hp = 0.0
 		_block_tree(o, false)
-		print("[Arena] tree at %s HP exhausted -> breaking" % str(pos))
+		print("[Arena] tree at %s HP exhausted -> breaking" % str(info.get("base_pos", o.global_position)))
 	else:
 		info.hp = hp
-	_tree_hp[pos] = info
+	_tree_hp[key] = info
 	queue_redraw()
 
 
@@ -1844,20 +1890,21 @@ func _block_tree(o: Obstacle, block: bool) -> void:
 func _update_tree_hp(delta: float) -> void:
 	if _tree_hp.is_empty():
 		return
-	var finished: Array[Vector2] = []
-	for pos in _tree_hp.keys():
-		var info: Dictionary = _tree_hp[pos]
+	var finished: Array[int] = []
+	for key in _tree_hp.keys():
+		var info: Dictionary = _tree_hp[key]
 		var o: Obstacle = info.get("node") as Obstacle
 		if o == null or not is_instance_valid(o):
 			# Node already gone (e.g. rebuilt) — just leave a stump + drop state.
-			_add_dead_tree(pos)
-			finished.append(pos)
+			_add_dead_tree(info.get("base_pos", Vector2.ZERO))
+			finished.append(int(key))
 			continue
-		var base: Vector2 = info.get("base_pos", pos)
+		var base: Vector2 = info.get("base_pos", o.global_position)
 		var shake: float = float(info.get("shake_time", 0.0))
 		# Decay the shake timer.
 		if shake > 0.0:
 			info.shake_time = maxf(0.0, shake - delta)
+		var sprite_id: String = str(o.sprite_id) if o != null else ""
 		if bool(info.get("breaking", false)):
 			# Advance the fall + fade animation.
 			info.break_time = float(info.break_time) + delta
@@ -1869,39 +1916,82 @@ func _update_tree_hp(delta: float) -> void:
 			# Fade out over the final 60% of the fall.
 			o.modulate.a = 1.0 - maxf(0.0, (t - 0.4) / 0.6)
 			if info.break_time >= _TREE_BREAK_SECONDS:
-				# Commit: remove the tree node, keep a persistent stump.
+				# Commit: remove the tree node, keep a persistent stump that is a
+				# cutoff of THIS tree's own base sprite (reads as "broke at the stem").
 				_remove_tree_at(base)
-				_add_dead_tree(base)
-				finished.append(pos)
+				_add_dead_tree(base, sprite_id)
+				finished.append(int(key))
 				print("[Arena] tree at %s broke -> stump" % str(base))
 		elif shake > 0.0:
 			# Intact tree that was just hit: jitter it around its base.
+			# Amplitude scaled so a single AoE hit reads as a clear wobble in
+			# the full game (user: "i dont see trees wobbling ingame"). 8px x
+			# 5px at full intensity is roughly the width of a trunk.
 			var intensity := shake / _TREE_SHAKE_SECONDS
 			var tt := _time_now()
 			o.position = base + Vector2(
-				sin(tt * 42.0) * 3.0 * intensity,
-				cos(tt * 37.0) * 2.0 * intensity
+				sin(tt * 42.0) * 8.0 * intensity,
+				cos(tt * 37.0) * 5.0 * intensity
 			)
 	for pos in finished:
 		_tree_hp.erase(pos)
 	queue_redraw()
 
 
+## T3.75 update: advance the fade-in timer on every stump so it eases into view
+## instead of popping. Each dead-tree entry has a "fade" that goes 0->1 over
+## _STUMP_FADE_SECONDS; the draw path uses it as an alpha multiplier.
+const _STUMP_FADE_SECONDS := 0.4
+
+func _update_stump_fades(delta: float) -> void:
+	if _dead_trees.is_empty():
+		return
+	var changed := false
+	for e in _dead_trees:
+		var f: float = float(e.get("fade", 0.0))
+		if f < 1.0:
+			e["fade"] = minf(1.0, f + delta / _STUMP_FADE_SECONDS)
+			changed = true
+	if changed:
+		_sync_stump_layer()
+		queue_redraw()
+
+
+## T3.75: resolve the tracked tree-info dict for the tree obstacle nearest to
+## `pos` (within a small tolerance). _tree_hp is keyed by Obstacle instance id,
+## so a position lookup must resolve to the node first.
+func _tree_info_at(pos: Vector2) -> Dictionary:
+	for key in _tree_hp:
+		var info: Dictionary = _tree_hp[key]
+		var o: Obstacle = info.get("node") as Obstacle
+		if o == null or not is_instance_valid(o):
+			continue
+		if o.global_position.distance_to(pos) < 6.0:
+			return info
+	# Fallback: match by planted base position (covers mid-fall jitter).
+	for key in _tree_hp:
+		var info: Dictionary = _tree_hp[key]
+		var base: Vector2 = info.get("base_pos", Vector2.ZERO)
+		if base.distance_to(pos) < 6.0:
+			return info
+	return {}
+
+
 ## T3.75: expose shake state for probes/tests. Returns seconds of shake left.
 func tree_shake_at(pos: Vector2) -> float:
-	var info: Dictionary = _tree_hp.get(pos, {})
+	var info := _tree_info_at(pos)
 	return float(info.get("shake_time", 0.0))
 
 
 ## T3.75: expose whether a tree at `pos` is currently breaking (fall/fading).
 func tree_breaking_at(pos: Vector2) -> bool:
-	var info: Dictionary = _tree_hp.get(pos, {})
+	var info := _tree_info_at(pos)
 	return bool(info.get("breaking", false))
 
 
 ## T3.75: current HP of a tree at `pos` (-1 if it has no tracked HP yet).
 func tree_hp_at(pos: Vector2) -> float:
-	var info: Dictionary = _tree_hp.get(pos, {})
+	var info := _tree_info_at(pos)
 	if not info.has("hp"):
 		return -1.0
 	return float(info.get("hp", _TREE_HP))
@@ -3423,9 +3513,18 @@ func _draw_burning_trees() -> void:
 
 
 ## Charred dead-tree stumps for trees that have burned out (T3.14).
+## T3.75: also synced to the dedicated high-z stump layer so stumps render
+## above tree Obstacle sprites (z ≈ 2000+). The arena's own _draw sits at z=0,
+## so without this layer a stump would be hidden behind the falling tree.
 func _draw_dead_trees() -> void:
-	for pos in _dead_trees:
-		_draw_dead_tree_stump(pos)
+	_sync_stump_layer()
+	# Still draw into the arena's own canvas so the ground-level stump is also
+	# painted (the high-z layer adds the "on top" pass).
+	for e in _dead_trees:
+		var fade: float = clampf(float(e.get("fade", 1.0)), 0.0, 1.0)
+		if fade <= 0.0:
+			continue
+		_draw_dead_tree_stump(Vector2(e.get("pos", Vector2.ZERO)), str(e.get("sprite_id", "")), fade)
 
 
 ## T3.14: Pixel-art flame frames for burning trees. 3-frame flicker cycle.
@@ -3483,10 +3582,28 @@ func _draw_fire_vfx(pos: Vector2, burn_time: float) -> void:
 		draw_circle(Vector2(ex, ey), 2.0, Color(1.0, 0.7, 0.2, 0.6))
 
 
-## Charred dead-tree stump sprite (T3.14). Uses pixel-art sprite if available.
+## Charred dead-tree stump (T3.14). T3.75 update: the stump is now a CUTOFF of
+## the broken tree's OWN base sprite (bottom ~45% of its texture), so it reads
+## as "broke at the stem" rather than a generic lump. Falls back to the shared
+## dead_tree_stump sprite if the tree's texture can't be cropped.
 var _dead_stump_texture: Texture2D = null
+var _stump_crop_cache: Dictionary = {}  # sprite_id -> AtlasTexture (bottom slice)
 
-func _draw_dead_tree_stump(pos: Vector2) -> void:
+func _draw_dead_tree_stump(pos: Vector2, sprite_id: String, fade: float) -> void:
+	# Fade the stump in over the first ~40% of _TREE_BREAK_SECONDS so it doesn't
+	# pop into existence the instant the trunk snaps.
+	var alpha := clampf(fade * 2.5, 0.0, 1.0)
+	var crop := _stump_crop_for(sprite_id)
+	if crop != null:
+		var tex_h := 40.0 * 1.8
+		# The cropped slice is anchored at the tree base (bottom of slice = pos).
+		draw_texture_rect(
+			crop,
+			Rect2(pos.x - tex_h * 0.35, pos.y - tex_h, tex_h * 0.7, tex_h),
+			false,
+			Color(1.0, 1.0, 1.0, alpha)
+		)
+		return
 	if _dead_stump_texture != null:
 		var scale_factor := 1.8
 		var tex_w := _dead_stump_texture.get_width() * scale_factor
@@ -3494,7 +3611,8 @@ func _draw_dead_tree_stump(pos: Vector2) -> void:
 		draw_texture_rect(
 			_dead_stump_texture,
 			Rect2(pos.x - tex_w * 0.5, pos.y - tex_h, tex_w, tex_h),
-			false
+			false,
+			Color(1.0, 1.0, 1.0, alpha)
 		)
 	else:
 		# Fallback: procedural charred trunk.
@@ -3504,6 +3622,30 @@ func _draw_dead_tree_stump(pos: Vector2) -> void:
 		draw_line(Vector2(pos.x, pos.y - 18.0), Vector2(pos.x - 12.0, pos.y - 28.0), trunk, 4.0)
 		draw_line(Vector2(pos.x, pos.y - 12.0), Vector2(pos.x + 10.0, pos.y - 22.0), trunk, 3.0)
 		draw_circle(pos, 6.0, Color(0.45, 0.18, 0.05, 0.35))
+
+
+## T3.75: build (and cache) an AtlasTexture that is the bottom ~45% of the tree's
+## own texture, so a broken tree leaves a stump that is literally a cutoff of that
+## tree's base. Returns null if the tree texture can't be loaded.
+func _stump_crop_for(sprite_id: String) -> Texture2D:
+	if sprite_id.is_empty():
+		return null
+	if _stump_crop_cache.has(sprite_id):
+		return _stump_crop_cache[sprite_id]
+	var tex := SpriteLibrary.texture_for(sprite_id)
+	if tex == null:
+		_stump_crop_cache[sprite_id] = null
+		return null
+	var w := tex.get_width()
+	var h := tex.get_height()
+	# Keep the bottom 45% of the texture as the stump "cutoff" region.
+	var slice_h := maxi(4, int(h * 0.45))
+	var src_rect := Rect2(0, h - slice_h, w, slice_h)
+	var atlas := AtlasTexture.new()
+	atlas.atlas = tex
+	atlas.region = src_rect
+	_stump_crop_cache[sprite_id] = atlas
+	return atlas
 
 
 ## T3.13: full storm VFX pass — pending-strike warning reticle, jagged lightning

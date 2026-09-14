@@ -5,6 +5,35 @@ alwaysApply: true
 
 # Test everything and verify it in-game
 
+## HARD RULE — Never run more than 1 subagent at a time
+
+At most ONE subagent (Task tool) may be running at any moment. Do NOT launch
+multiple subagents in a single message or in parallel. If you need to explore
+several areas, do them SEQUENTIALLY (one Task call, wait for it to return, then
+the next) — or, preferred, do the exploration directly yourself with Grep/Glob/
+Read. Default to doing the work directly; only use a subagent for a genuinely
+large, self-contained investigation, and only one at a time.
+
+## HARD RULE — Do not stop until every PLAN.md task is done
+
+When the user points at `PLAN.md` and asks to "do all tasks", keep working through
+**every** unchecked / unverified task in the file, in order, until all are done. Do
+NOT stop after a batch or after "a good chunk" — the instruction is to finish the
+whole plan. After each task: verify it per the pipeline below, update its
+`_STATUS` + checkboxes in `PLAN.md`, commit + push, then move to the next task.
+Only stop when literally every `[ ]` box in the actionable task sections is `[x]`
+(or explicitly noted as blocked with the reason). If a task is blocked, note the
+blocker in `PLAN.md` and move on to the next one — do not stall the whole run.
+
+## HARD RULE — Verify the mechanic with REAL in-game casts, not just direct API calls
+
+When a mechanic is triggered by player/bot actions (damage, abilities, spawning,
+pathing), the in-game verification MUST drive it through the **actual game input
+path** (bot casting its abilities, a player attacking, a projectile exploding) —
+not only by calling the underlying API directly. A dedicated API call proves the
+function works; a real cast proves the wiring is connected. Do both where feasible:
+isolated deterministic API test + in-game cast test.
+
 A task is only "done" when it has actually run in the game and been confirmed working.
 Never report a change as complete on the basis of a code edit, a parse check, a unit
 expectation, or a single screenshot that only checks part of the task.
@@ -88,15 +117,27 @@ rely on a single screenshot. Before marking a task done, open EACH captured
 expected). A task is not verified until every screenshot in its batch has been
 opened and checked against the acceptance criteria.
 
-## Test visuals in an EMPTY isolated world
+## HARD RULE — Isolated tests live in a truly EMPTY world
+
+An "isolated" test scene must contain **ONLY** the mechanic under test and a
+camera. Concretely: NO grass, NO ground tiles, NO arena background, NO HUD, NO
+world props, NO other objects. A bot/placed entity that triggers the mechanic is
+allowed, but NOTHING else may be visible.
+
+- Do NOT instantiate the full `Arena`, do NOT add grass/floor sprites, do NOT load
+  the main scene or HUD.
+- A flat black/void background (or a single neutral-colored plane if a floor is
+  strictly required for the mechanic) is the baseline.
+- If an existing "isolated" test renders a full arena background, grass, or HUD,
+  it is NOT isolated — fix it to use the empty-world baseline before relying on it.
 
 For ANY visual / cinematic / VFX work (explosions, transitions, hero-ability
 presentations, minigames, new worlds), do NOT verify it inside the full main scene.
 The main scene's world, obstacles, HUD, and camera are too much noise to judge the
     effect. Instead:
 
-1. **Build an isolated empty-world scene** for the effect (flat ground + a camera,
-   no obstacles, no HUD, no enemies) that plays the effect on its own — e.g.
+1. **Build an isolated empty-world scene** for the effect (flat/void background + a
+   camera, no obstacles, no HUD, no enemies) that plays the effect on its own — e.g.
    `scenes/crash_cinematic_test/crash_cinematic_test.tscn`.
 2. **Verify every phase there first** (self-contained screenshots at fixed
    world-times + a `user://selftest_report.json` the scene writes and then

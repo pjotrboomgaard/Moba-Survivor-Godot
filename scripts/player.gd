@@ -2060,6 +2060,8 @@ func _detonate_wrench_keg(data: Dictionary, values: Dictionary, center: Vector2,
 	for enemy in _pvp_hosts_in_radius(center, radius):
 		_knock_away_from(enemy, center, kick)
 		_apply_ability_hit(enemy, data, values)
+	# T3.75: the keg's explosion shakes/breaks trees in the blast radius.
+	_aoe_damage_trees_in_radius(center, radius, float(values.get("power", 0.0)))
 	# Self-cast keg is an escape shove — never self-damage.
 	if global_position.distance_to(center) <= radius + BODY_RADIUS:
 		_knock_away_from(self, center, maxf(kick * 2.35, 860.0))
@@ -2457,6 +2459,8 @@ func _cast_ability_arclight_blast(data: Dictionary, values: Dictionary, _rank: i
 	vsingle.radius = 72.0
 	for enemy in _enemies_in_radius(center, vsingle.radius):
 		_apply_ability_hit(enemy, strike, vsingle)
+	# T3.75: the smite wobble/breaks trees at the impact point.
+	_aoe_damage_trees_in_radius(center, 72.0, float(values.get("power", 0.0)))
 	_emit_ability_cast(PackedVector2Array([center, Vector2(vsingle.radius, 0.0)]))
 
 
@@ -3578,6 +3582,8 @@ func _cast_ability_nuke_bolt(data: Dictionary, values: Dictionary) -> void:
 		_spawn_ability_projectile(_casting_ability_id, global_position, center)
 	for target in _enemies_in_radius(center, values.radius):
 		_apply_ability_hit(target, data, values)
+	# T3.75: nuke-bolt AoE shakes/damages trees in the blast radius.
+	_aoe_damage_trees_in_radius(center, float(values.get("radius", 0.0)), float(values.get("power", 0.0)))
 	# Keg-flavoured displacement: fling every enemy inside the blast away from the centre.
 	if data.has("knockback_on_hit"):
 		var kick := float(data.get("knockback_on_hit", 0.0))
@@ -3856,6 +3862,8 @@ func _cast_ability_chain_nuke(data: Dictionary, values: Dictionary) -> void:
 				continue
 			struck.append(target)
 			_apply_ability_hit(target, data, values)
+		# T3.75: each chain hop's blast also shakes/damages trees around it.
+		_aoe_damage_trees_in_radius(center, float(values.get("radius", 0.0)), float(values.get("power", 0.0)))
 	var vfx_center := centers[0] if not centers.is_empty() else global_position
 	_emit_ability_cast(PackedVector2Array([vfx_center, Vector2(values.radius, 0.0)]))
 

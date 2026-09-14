@@ -426,6 +426,14 @@ func _process(delta: float) -> void:
 					_active_effects.append({"kind": "hero", "t": _elapsed, "error": "bad hero id '%s'" % hero_id})
 			"spawn":
 				_spawn_at(_event_vec(event, "at", Vector2(160, 0)), str(event.get("type", "hound")), float(event.get("hp_mult", 1.0)), float(event.get("spd_mult", 1.0)))
+			"reset_ability_cd":
+				# Test-only: zero all ability + secondary cooldowns so a request can
+				# cast the same ability repeatedly (real-cast wiring verification).
+				if _player != null:
+					for i in _player.ability_cooldowns.size():
+						_player.ability_cooldowns[i] = 0.0
+					_player.secondary_cooldown = 0.0
+					_active_effects.append({"kind": "reset_ability_cd", "t": _elapsed})
 			"snap":
 				await _screenshot(str(event.get("label", "snap")))
 			"probe":
@@ -535,6 +543,17 @@ func _process(delta: float) -> void:
 					_pin_active = false
 					_player.movement_locked = false
 					_player.clear_external_command()
+			"go_offline":
+				# T3.75: switch the local player to OFFLINE so the harness's `aim` /
+				# `_inject_input` are respected (CPU mode overwrites aim_world_position
+				# with CpuBrain.think). Without this, automated casts land where the
+				# bot aims, not where the test requested.
+				if _player != null:
+					_player.simulation_mode = Player.SimulationMode.OFFLINE
+			"go_cpu":
+				# T3.75: switch back to CPU after the tree-break test needs deterministic aim.
+				if _player != null:
+					_player.simulation_mode = Player.SimulationMode.CPU
 			"landmarks":
 				_record_landmarks(str(event.get("label", "landmarks")))
 			"primary_hold":
@@ -1174,10 +1193,14 @@ func _record_tree_hp_probe(label: String) -> void:
 				if not sid.begins_with("tree"):
 					continue
 				var hp: float = (arena as Arena).tree_hp_at(obs.global_position)
+				var dist_to_player: float = 0.0
+				if _player != null:
+					dist_to_player = obs.global_position.distance_to(_player.global_position)
 				trees.append({
 					"sprite": sid,
 					"pos": obs.global_position,
 					"hp": hp,
+					"dist_to_player": roundf(dist_to_player),
 					"breaking": (arena as Arena).tree_breaking_at(obs.global_position),
 					"collision_disabled": obs.collision.disabled,
 				})

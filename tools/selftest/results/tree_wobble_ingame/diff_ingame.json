@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/tree_wobble_ingame/ingame_before.png",
+  "after": "tools/selftest/results/tree_wobble_ingame/ingame_after.png",
+  "out": "tools/selftest/results/tree_wobble_ingame/diff_ingame.png",
+  "changed_pixels": 579290,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.279364,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

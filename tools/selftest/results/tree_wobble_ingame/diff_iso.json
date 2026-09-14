@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/tree_wobble_ingame/tree_intact.png",
+  "after": "tools/selftest/results/tree_wobble_ingame/tree_breaking.png",
+  "out": "tools/selftest/results/tree_wobble_ingame/diff_iso.png",
+  "changed_pixels": 88441,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.042651,
+  "bbox": [
+    224,
+    250,
+    1746,
+    554
+  ],
+  "has_change": true
+}

@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\tree_wobble_ingame\\tree_stump.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.4061,
+  "bounding_box": [
+    42,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 0.9781,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2534,
+    "TR": 0.2306,
+    "BL": 0.269,
+    "BR": 0.247
+  },
+  "edge_fractions": {
+    "top": 0.0072,
+    "bottom": 0.0099,
+    "left": 0.0,
+    "right": 0.0022
+  },
+  "thumbnail": "tools\\selftest\\results\\tree_wobble_ingame\\thumb_tree_stump.png"
+}
