@@ -1,0 +1,7 @@
+{
+  "cone_mode": "after",
+  "comment": "T3.66 ISOLATED after: Bulwark cone-slam range = 57.5 (2x smaller)",
+  "events": [
+    {"t": 2.0, "kind": "report"}
+  ]
+}

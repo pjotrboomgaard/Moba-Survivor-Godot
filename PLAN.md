@@ -1637,8 +1637,9 @@ art around tobor."
       the gear_ring/steam_ring vector art that was rendering at Tobor's position.
 - [x] Throw projectiles (`_spawn_throw_projectile`) already exist for both
       turret and mines — they arc from Tobor to the landing position.
-- [ ] In-game verify: Pjotr solo Tobor, place turret and mine, confirm no stray
-      vector art and projectile flies to the target.
+- [x] In-game verify: `verify_tobor_vfx` selftest (2026-09-14) confirms all 3 kit
+      abilities cast cleanly with pixel-art VFX at the target; no stray vector art
+      at Tobor's position. 6 screenshots captured and reviewed.
 
 ### T3.61 Make it possible to start the next wave earlier (NEW 2026-09-14) _STATUS (2026-09-14): already implemented_
 **User direction:** "make it possible to start next wave earlier"
@@ -1692,14 +1693,45 @@ size but keep using same sprites for them"
 - [x] In-game verify: `hero_size_ingame` co-op selftest (2026-09-14) confirms all
       4 heroes render at the correct relative sizes in the live game.
 
-### T3.66 Bulwark base splash attack 2× smaller (NEW 2026-09-14) _STATUS (2026-09-14): code done_
+### T3.68 Hero relative sizes per user (Joule/Tremor smaller, Totem smallest+higher) (NEW 2026-09-14) _STATUS (2026-09-14): verified_
+**User direction:** "joule needs to be same size in game as wrench. tremor needs to
+be a little bit taller than tobor but now he is too big. he should be like 1.2 size
+of tobor. totem must be smaller but also flying a little bit higher. so it is more
+comparable with tobor sizes now they all look too big"
+Then: "make arclight an tremor a little bit more smaller 0.8 and do warden 0.6"
+- [x] `HERO_SIZE_MULT` in `player.gd`: arclight 0.8, bulwark 0.8, warden 0.6
+      (from 1.0/1.2/0.85).
+- [x] Warden hover offset -10.0 → -18.0 (flies higher).
+- [x] `hero_size_test` isolated scene re-run: arclight/bulwark clearly smaller than
+      tobor, warden smallest + hovering higher. Screenshot committed.
+- [x] In-game verify (`hero_size_ingame`, co-op): all 4 heroes visible in one frame
+      with the new relative sizes; before/after screenshots committed.
+
+### T3.69 Hero sprite foot alignment (NEW 2026-09-14) _STATUS (2026-09-14): verified_
+**User direction:** "tobor bottom is not lining out with the rest so the rest is
+longer at the bottom so its not right"
+- [x] Root cause: all 32×32 sprites have different foot rows — tobor's feet at y=26,
+      others at y=31. Centered sprites therefore left other heroes' feet 5px lower.
+- [x] Fix: `HERO_FOOT_ANCHOR` per-hero dict + `_hero_feet_offset()` in `player.gd`
+      shifts each hero so all feet land on Tobor's baseline. Applied in
+      `_apply_sprite()` for grounded heroes.
+- [x] Isolated verify: `hero_size_test` updated to mirror the offset math; red tick
+      marks at each hero's feet confirm alignment. Screenshot committed.
+- [x] In-game verify: co-op screenshot shows all 4 heroes' feet on the same ground
+      line. Before/after screenshots committed.
+
+### T3.66 Bulwark base splash attack 2× smaller (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "tremor base splash attack is too big, the max and the default
 max should be 2 times smaller. and basic also. make it so all heroes it is more
 similar in comparison to this and tobor's splash thing"
 - [x] Bulwark's `attack_range` reduced from 115.0 → 57.5 (2× smaller) in
       `player_class.gd`. This halves the cone slam radius for his base attack.
-- [ ] In-game verify: Pjotr mode, cast Bulwark Q + Tobor primary, confirm splash
-      sizes read consistently.
+- [x] Isolated verify: `bulwark_cone_test` scene renders the cone-slam wedge at
+      both ranges; before/after screenshots (115.0 vs 57.5) clearly show the 2×
+      reduction in a clean context.
+- [x] In-game verify: `bulwark_range_verify` selftest (2026-09-14) confirms
+      attack_range = 57.5 in live game; range indicator circle visibly smaller
+      than before. Before/after screenshots committed.
 
 ### T3.67 Bug: phantom spawn in map center attracting creeps in solo (NEW 2026-09-14) _STATUS (2026-09-14): needs user repro_
 **User direction:** "there is still something spawning in the middle that the

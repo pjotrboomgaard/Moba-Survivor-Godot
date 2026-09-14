@@ -66,7 +66,7 @@
       "last_sfx": "",
       "last_tapped": -1,
       "level": 1,
-      "obstacle_count": 868,
+      "obstacle_count": 861,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -93,7 +93,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 2.94585899999999,
+      "t": 2.92732166666667,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -112,18 +112,18 @@
       "xp": 0
     },
     {
-      "cd_left": 24.2346666666667,
+      "cd_left": 24.218,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 3.25396815151514
+      "t": 3.26666666666667
     },
     {
-      "cd_left": 24.1013333333333,
+      "cd_left": 24.0513333333333,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 0,
-      "t": 3.39790754545454
+      "t": 3.41777333333333
     },
     {
       "ability_id": "tobor_steam_keg",
@@ -139,23 +139,23 @@
       "last_play_sound_id": "cast_tobor",
       "ok": false,
       "player_non_null": true,
-      "player_was_playing": true,
+      "player_was_playing": false,
       "stream_path": "res://assets/audio/themes/tobor_2.wav",
-      "t": 3.61666666666666
+      "t": 3.66233766666667
     },
     {
       "cd_left": 17.16,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 4.65572400000002
+      "t": 4.65923344444445
     },
     {
-      "cd_left": 17.01,
+      "cd_left": 17.0266666666667,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 1,
-      "t": 4.80000000000002
+      "t": 4.8
     },
     {
       "ability_id": "tobor_spider_mines",
@@ -172,22 +172,22 @@
       "ok": false,
       "player_non_null": true,
       "player_was_playing": true,
-      "stream_path": "res://assets/audio/themes/tobor_2.wav",
-      "t": 4.96666666666669
+      "stream_path": "res://assets/audio/sfx/cast_tobor.ogg",
+      "t": 5.01212966666667
     },
     {
-      "cd_left": 191.983333333333,
+      "cd_left": 192.0,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 7.45665118181828
+      "t": 7.45833333333334
     },
     {
       "cd_left": 191.85,
       "kind": "cast_skipped",
       "reason": "cooldown",
       "slot": 3,
-      "t": 7.59983400000011
+      "t": 7.60392366666667
     },
     {
       "ability_id": "tobor_energy_field",
@@ -204,13 +204,13 @@
       "ok": false,
       "player_non_null": true,
       "player_was_playing": true,
-      "stream_path": "res://assets/audio/sfx/cast_tobor.ogg",
-      "t": 7.71666666666677
+      "stream_path": "res://assets/audio/themes/tobor_2.wav",
+      "t": 7.77815466666668
     }
   ],
-  "elapsed": 9.20209248484855,
+  "elapsed": 9.21399633333335,
   "enemies_spawned": 3,
-  "hero_position": "(53.5229, 9.588332)",
+  "hero_position": "(57.97776, 5.012268)",
   "player_class": "tobor",
   "results": {
     "alive": true,
@@ -220,15 +220,15 @@
     "casts": [
       {
         "ability_id": "tobor_steam_keg",
-        "t": 3.80025733333333
+        "t": 3.79618588888889
       },
       {
         "ability_id": "tobor_spider_mines",
-        "t": 4.65572400000002
+        "t": 4.65923344444445
       },
       {
         "ability_id": "tobor_energy_field",
-        "t": 7.44907542424253
+        "t": 7.45833333333334
       }
     ],
     "creep_kills": 0,
@@ -258,33 +258,33 @@
   "shots": [
     {
       "label": "tobor_hud_secondary",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6389/tobor_hud_secondary_2.808_6389.png",
-      "t": 2.80806366666666
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10760/tobor_hud_secondary_2.809_10760.png",
+      "t": 2.80879665656566
     },
     {
       "label": "tobor_keg_blast",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7064/tobor_keg_blast_3.556_7063.png",
-      "t": 3.55624087878787
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11498/tobor_keg_blast_3.563_11498.png",
+      "t": 3.56311342424242
     },
     {
       "label": "tobor_mines_planted",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8414/tobor_mines_planted_4.901_8414.png",
-      "t": 4.9011904761905
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12846/tobor_mines_planted_4.900_12846.png",
+      "t": 4.9
     },
     {
       "label": "tobor_mines_blast",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10114/tobor_mines_blast_6.605_10114.png",
-      "t": 6.60511415151523
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_14570/tobor_mines_blast_6.620_14570.png",
+      "t": 6.62049860606061
     },
     {
       "label": "tobor_energy_field",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11164/tobor_energy_field_7.652_11164.png",
-      "t": 7.6520873939395
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_15603/tobor_energy_field_7.653_15603.png",
+      "t": 7.6531660909091
     },
     {
       "label": "tobor_field_slow_tint",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12122/tobor_field_slow_tint_8.607_12122.png",
-      "t": 8.6068113333334
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_16568/tobor_field_slow_tint_8.616_16568.png",
+      "t": 8.61584433333335
     }
   ]
 }

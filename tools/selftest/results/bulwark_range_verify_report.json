@@ -93,7 +93,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 1.000359,
+      "t": 1.00461666666667,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -204,7 +204,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 2.507082,
+      "t": 2.52294466666667,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -223,7 +223,7 @@
       "xp": 0
     }
   ],
-  "elapsed": 3.00764624242424,
+  "elapsed": 3.00543433333333,
   "enemies_spawned": 0,
   "hero_position": "(72.0, 0.0)",
   "player_class": "bulwark",
@@ -260,8 +260,8 @@
   "shots": [
     {
       "label": "bulwark_range_indicator",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5567/bulwark_range_indicator_2.002_5567.png",
-      "t": 2.00151515151515
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9871/bulwark_range_indicator_2.001_9871.png",
+      "t": 2.00138804040404
     }
   ]
 }

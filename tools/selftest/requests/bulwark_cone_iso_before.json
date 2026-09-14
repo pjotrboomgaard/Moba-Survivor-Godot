@@ -1,0 +1,7 @@
+{
+  "cone_mode": "before",
+  "comment": "T3.66 ISOLATED before: Bulwark cone-slam range = 115.0 (old value)",
+  "events": [
+    {"t": 2.0, "kind": "report"}
+  ]
+}

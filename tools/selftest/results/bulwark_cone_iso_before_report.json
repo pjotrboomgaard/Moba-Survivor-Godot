@@ -1,0 +1,13 @@
+{
+  "attack_range": 115.0,
+  "cone_half_angle_deg": 36.0,
+  "mode": "before",
+  "scene": "bulwark_cone_test",
+  "shots": [
+    {
+      "label": "cone_before",
+      "path": "user://bulwark_cone_run_1789388397/cone_before_1.50.png"
+    }
+  ],
+  "verdict": "PASS"
+}

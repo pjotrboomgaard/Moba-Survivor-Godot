@@ -58,6 +58,13 @@ For each task, create these sub-items and complete ALL of them:
 - "The isolated test already exists" → still run it fresh + read screenshots
 - "The in-game test is hard" → build the observation first (dev command, probe)
 - "I'm confident it works" → confidence is NOT verification, screenshots are
+- **"I already have an in-game test" → IRRELEVANT. The isolated test MUST come first. An
+  existing in-game test does NOT satisfy step 1. Build the isolated scene (or an isolated
+  probe) and run it BEFORE any in-game run, even if the in-game test is faster.**
+- **Order is enforced: you may only move to IN-GAME (step 2) after the ISOLATED test
+  (step 1) has passed and its screenshots have been read. If you find yourself about to
+  run an in-game test and have not done the isolated test in THIS task's session, STOP
+  and do the isolated test first.**
 
 ## When a step fails
 
