@@ -1,0 +1,20 @@
+{
+  "frost_shard_loaded": true,
+  "frost_shard_size": [
+    16,
+    16
+  ],
+  "scene": "projectile_sprites_test",
+  "scrap_bolt_loaded": true,
+  "scrap_bolt_size": [
+    16,
+    16
+  ],
+  "shots": [
+    {
+      "label": "sprites",
+      "path": "user://projectile_sprites_run_1789390315/sprites_1.50.png"
+    }
+  ],
+  "verdict": "PASS"
+}

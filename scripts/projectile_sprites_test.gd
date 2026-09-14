@@ -98,8 +98,8 @@ func _draw() -> void:
 			"FRONT_SHARD (frost_shard)", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.5, 0.8, 1.0))
 		# Game-scale copy
 		var gs := SpriteLibrary.scale_for_radius(frost_tex, 6.0 * 2.2 * 1.25)
-		var gw := frost_tex.get_width() * gs
-		var gh := frost_tex.get_height() * gs
+		var gw := frost_tex.get_width() * gs.x
+		var gh := frost_tex.get_height() * gs.y
 		draw_texture_rect(frost_tex, Rect2(100.0, -40.0, gw, gh), false)
 		draw_string(ThemeDB.fallback_font, Vector2(90.0, 10.0),
 			"game scale", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.6, 0.6))
@@ -115,8 +115,8 @@ func _draw() -> void:
 			"SCRAP_BOLT (scrap_bolt)", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1.0, 0.7, 0.3))
 		# Game-scale copy
 		var gs := SpriteLibrary.scale_for_radius(scrap_tex, 6.0 * 2.2 * 1.25)
-		var gw := scrap_tex.get_width() * gs
-		var gh := scrap_tex.get_height() * gs
+		var gw := scrap_tex.get_width() * gs.x
+		var gh := scrap_tex.get_height() * gs.y
 		draw_texture_rect(scrap_tex, Rect2(100.0, 100.0, gw, gh), false)
 		draw_string(ThemeDB.fallback_font, Vector2(90.0, 150.0),
 			"game scale", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.6, 0.6))
