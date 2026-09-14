@@ -533,8 +533,8 @@ func budget_for_wave(target_wave: int) -> float:
 	var solo_budget := 24.0 + 7.5 * float(target_wave)
 	if target_wave >= 8:
 		solo_budget += 10.5 * float(target_wave - 7)
-	# T3.58: Creep Camps biome (6) is a camp-farm world — the 7 camps + their
-	# guardians are the main threat, so regular waves are reduced to ~40%.
+	# T3.58: Camp Gauntlet test mode (id 6) is a camp-farm world — the 7 camps +
+	# their guardians are the main threat, so regular waves are reduced to ~40%.
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id == 6:
 		solo_budget *= 0.40
 	if _solo_pressure_active(target_wave):

@@ -3,9 +3,9 @@ extends Node2D
 ## Tougher creep camp spawner (HoN-style). Spawned by main.gd after arena/player setup.
 ## No class_name on purpose: keep the global script-class registry clean.
 ##
-## T3.58: In biome 6 "Creep Camps", this spawns many varied aggressive camps
-## (sentinel/ranged/mixed) with XP scaling and randomized positions. In other
-## biomes, it keeps the original 3-camp behavior.
+## T3.58: In test mode 6 "Camp Gauntlet", this spawns many varied aggressive
+## camps (sentinel/ranged/mixed) with XP scaling and randomized positions. In
+## other biomes / modes, it keeps the original 3-camp behavior.
 
 const RESPAWN_INTERVAL := 120.0  # 2-minute respawn (was 45s)
 const SQUAD_SIZE := 3
@@ -24,13 +24,13 @@ const CAMP_ACCENT_COLORS: Array[Color] = [
 const HEALTH_RANGE := [2.0, 4.0]
 const SPEED_RANGE := [0.8, 1.2]
 
-## T3.58: Creep Camps biome (6) settings.
+## T3.58: Camp Gauntlet test mode (id 6) settings.
 const CREEP_CAMPS_BIOME_ID := 6
 const CREEP_CAMPS_COUNT := 10
 ## Camp behavior types: "sentinel" (hold position, return when provoked),
 ## "ranged" (keep distance, dodge, shoot projectiles), "mixed" (2-3 type mix).
 const CREEP_CAMPS_TYPES: Array[String] = ["sentinel", "ranged", "mixed"]
-## Camp types that can appear in the Creep Camps biome.
+## Camp types that can appear in the Camp Gauntlet test mode.
 const CREEP_CAMPS_ROSTER_POOL: Array[Array] = [
 	["brute", "sentinel"],
 	["swarmling", "splitter"],
@@ -40,7 +40,7 @@ const CREEP_CAMPS_ROSTER_POOL: Array[Array] = [
 	["sentinel", "bomber"],
 	["lurker", "stalker", "swarmling"],
 ]
-## XP multiplier for camp kills in Creep Camps biome (2-3× regular).
+## XP multiplier for camp kills in Camp Gauntlet test mode (2-3× regular).
 const CREEP_CAMPS_XP_MULT := 2.5
 
 var _main: Node = null
@@ -113,7 +113,7 @@ func _build_camp_positions() -> Array[Vector2]:
 		Vector2(-half.x * 0.30,  half.y * 0.55),
 	]
 
-## T3.58: Returns true when the current biome is the dedicated "Creep Camps" test world.
+## T3.58: Returns true when the current world is the dedicated "Camp Gauntlet" test mode.
 func _is_creep_camps_biome() -> bool:
 	return GameRuntime.biome_id == CREEP_CAMPS_BIOME_ID and GameRuntime.uses_biomes()
 
@@ -158,7 +158,7 @@ func _build_creep_camps_positions() -> Array[Vector2]:
 	return out
 
 
-## T3.58: Spawn camps for the Creep Camps biome with randomized rosters and
+## T3.58: Spawn camps for the Camp Gauntlet test mode with randomized rosters and
 ## behavior types. Camp stats scale with the current wave.
 func _respawn_creep_camps() -> void:
 	_update_alive_counts()

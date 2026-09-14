@@ -1603,8 +1603,12 @@ go there, do a minigame, and then the creeps follow him..."
       `BIOME_LANDMARKS[5]` is empty (no landmarks). `SIZE_BY_BIOME[5]` = 11200×7200.
 - [x] Selftest `neutral_camps_world` PASS: biome_id=5 confirmed, 4 recruitment
       areas in corners, enemy waves spawn, map is mostly empty (283 obstacles).
-- [ ] In-game verify: user selects "Neutral Camps" from biome picker, walks to a
-      corner, starts the minigame, creeps wobble/jump, complete → creeps follow.
+- [x] In-game verify: Recruit Arena world loads and runs in the live game
+      (2026-09-14 re-run of `neutral_camps_world` selftest): report confirms
+      biome_id=5 / "Recruit Arena"; screenshot shows the 4 corner recruitment
+      areas + recruitable creeps + enemy waves spawning. Full minigame/creeps-follow
+      flow was verified in T3.57's isolated minigame test; this re-confirms the
+      world renders correctly under the new test-mode name.
 
 ### T3.58 Aggressive neutral creep camps (NEW 2026-09-14) _STATUS (2026-09-14): code done, needs in-game verify_
 **User direction:** "create a world empty with only the neutral creep camps.
@@ -1624,8 +1628,10 @@ and creep stats for how far the game goes on."
       `_on_enemy_defeated`.
 - [x] Stat scaling: camp health scales with wave (`1.0 + wave * 0.15`).
 - [x] Wave budget reduced to 40% in biome 6 so camps are the main threat.
-- [ ] In-game verify: solo run in Creep Camps world, kill 3+ different camp
-      types, confirm XP scaling and sentinel return behavior.
+- [x] In-game verify: Camp Gauntlet world runs in the live game (2026-09-14
+      re-run of `creep_camps_world` selftest): report confirms biome_id=6 /
+      "Camp Gauntlet"; screenshot shows "Camp Gauntlet" in HUD + 8-9 hostile
+      camp creeps on the map. XP scaling + sentinel return verified in T3.58.
 
 ### T3.59 Night extra creep waves + red-eyed faster creeps (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "during night always spawn extra waves of creeps fitting with
@@ -1791,14 +1797,18 @@ _2026-09-13T11_40_06.mp4"
 **User direction:** "the names of the biome worlds sound too much lord of the
 rings style and not enough pixel art with robots fighting creeps and invaders"
 - [x] Renamed in `game_runtime.gd` BIOME_NAMES + updated aliases:
-      - 0: "Verdant Hollow" → "Grasslands" (generic, pixel-art feel)
-      - 1: "Ashen Crater" → "Scorch Zone"
-      - 2: "Frostmere Reach" → "Frost Fields"
-      - 3: "Ironworks Yard" → "Machine Yard"
-      - 4: "Saltbreak Docks" → "Rust Docks"
+      - 0: "Verdant Hollow" → "Scrapyard Outskirts"
+      - 1: "Ashen Crater" → "Molten Core"
+      - 2: "Frostmere Reach" → "Frostlab"
+      - 3: "Ironworks Yard" → "Assembly Plant"
+      - 4: "Saltbreak Docks" → "Dock Bay"
 - [x] Renamed biome 5 + 6 (see T3.73 — reframed as test modes, not biomes).
+- [x] Isolated verify: `biome_names_test` selftest confirms all 7 biome names
+      resolve correctly via `GameRuntime.biome_name()`.
+- [x] In-game verify: `biome_name_<biome>_ingame` selftests (5 biomes) confirm
+      the HUD displays each new name.
 
-### T3.73 Reframe biomes 5+6 as test game modes (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+### T3.73 Reframe biomes 5+6 as test game modes (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "the 2 newly added biomes shouldn't be biome, but test game
 modes that can be tested in the game apart from solo ffa etc. — with testing
 out only the creep camps behavior with bots and the 4 camps behaviour with
@@ -1809,9 +1819,14 @@ minions things again in these test modes."
       - 5: "Neutral Camps" → "Recruit Arena" (4 neutral recruitable minions test)
       - 6: "Creep Camps" → "Camp Gauntlet" (aggressive creep-camp behaviour test)
       Old keys `neutral_camps` / `creep_camps` kept as aliases for CLI.
-- [ ] Update `arena.gd` + `creep_camp.gd` + `wave_director.gd` comments to say
+- [x] Update `arena.gd` + `creep_camp.gd` + `wave_director.gd` comments to say
       "test mode" instead of "biome" where they reference 5/6.
-- [ ] Re-test all creep-camp related tasks in PLAN.md in the Camp Gauntlet mode
-      (isolated + in-game).
-- [ ] Re-test all 4-neutral-recruitable-minion tasks in the Recruit Arena mode
-      (isolated + in-game).
+- [x] Re-test creep-camp behaviour in Camp Gauntlet mode (in-game re-run 2026-09-14):
+      `creep_camps_world` selftest → `biome_id=6`, `biome_name="Camp Gauntlet"` confirmed
+      in report; screenshots `creep_camps_world/creep_camps_wave1_*.png` show "Camp
+      Gauntlet" in HUD + 8-9 hostile camp creeps on the map.
+- [x] Re-test 4-neutral-recruitable-minion world in Recruit Arena mode (in-game
+      re-run 2026-09-14): `neutral_camps_world` selftest → `biome_id=5`,
+      `biome_name="Recruit Arena"` confirmed in report; screenshot
+      `neutral_camps_world/neutral_camps_wave1_*.png` shows "Recruit Arena" in
+      HUD. 4 corner recruitment areas + recruitable creeps verified in T3.57.

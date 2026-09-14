@@ -21,7 +21,7 @@
       ],
       "attack_range": 520.0,
       "biome_id": 6,
-      "biome_name": "Creep Camps",
+      "biome_name": "Camp Gauntlet",
       "blast_radius": 30.0,
       "cds": [
         0.0,
@@ -74,7 +74,7 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(114.711, 0.0)"
+          "pos": "(114.7204, 0.0)"
         }
       },
       "pulse_interval": 0.0,
@@ -93,7 +93,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 2.00156924242424,
+      "t": 2.007323,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -112,12 +112,12 @@
       "xp": 0
     }
   ],
-  "elapsed": 10.0003020000001,
+  "elapsed": 10.0073930000002,
   "enemies_spawned": 0,
-  "hero_position": "(470.8244, 77.45282)",
+  "hero_position": "(334.0578, 32.64307)",
   "player_class": "tobor",
   "results": {
-    "alive": true,
+    "alive": false,
     "beaten_wave": 0,
     "build": "",
     "cast_count": 0,
@@ -126,7 +126,7 @@
     "died": false,
     "errors": [],
     "ffa": {},
-    "gold": 30,
+    "gold": 9,
     "hero_kills": 0,
     "hp_samples": [],
     "landmark_saves": 0,
@@ -144,18 +144,18 @@
     "until_wave": 20,
     "verdict": "",
     "wave": 1,
-    "xp": 50
+    "xp": 30
   },
   "shots": [
     {
       "label": "creep_camps_field",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7418/creep_camps_field_4.008_7418.png",
-      "t": 4.00833333333332
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7279/creep_camps_field_4.006_7279.png",
+      "t": 4.00600724242423
     },
     {
       "label": "creep_camps_wave1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11426/creep_camps_wave1_8.004_11426.png",
-      "t": 8.00390566666684
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11278/creep_camps_wave1_8.003_11278.png",
+      "t": 8.00268924242441
     }
   ]
 }

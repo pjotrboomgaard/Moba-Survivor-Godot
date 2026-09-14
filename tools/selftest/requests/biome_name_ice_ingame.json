@@ -1,0 +1,21 @@
+﻿{
+    "time_scale":  2,
+    "hero":  "tobor",
+    "biome":  2,
+    "events":  [
+                   {
+                       "label":  "probe_ice",
+                       "t":  0.5,
+                       "kind":  "biome_probe"
+                   },
+                   {
+                       "label":  "biome_ice",
+                       "t":  1,
+                       "kind":  "snap"
+                   },
+                   {
+                       "kind":  "report",
+                       "t":  1.5
+                   }
+               ]
+}

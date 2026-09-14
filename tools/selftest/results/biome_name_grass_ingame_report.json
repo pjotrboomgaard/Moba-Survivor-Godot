@@ -1,0 +1,110 @@
+{
+  "effects": [
+    {
+      "biome_id": 0,
+      "biome_name": "Scrapyard Outskirts",
+      "kind": "biome_probe",
+      "label": "probe_grass",
+      "obstacles": [
+        {
+          "count": 219,
+          "id": "tree_oak"
+        },
+        {
+          "count": 19,
+          "id": "tree_pine"
+        },
+        {
+          "count": 219,
+          "id": "tree_fir"
+        },
+        {
+          "count": 11,
+          "id": "tree_maple"
+        },
+        {
+          "count": 21,
+          "id": "tree_cypress"
+        },
+        {
+          "count": 9,
+          "id": "tree_willow"
+        },
+        {
+          "count": 9,
+          "id": "tree_palm"
+        },
+        {
+          "count": 69,
+          "id": "boulder"
+        },
+        {
+          "count": 89,
+          "id": "rock_small"
+        },
+        {
+          "count": 83,
+          "id": "spire"
+        },
+        {
+          "count": 70,
+          "id": "rock_large"
+        },
+        {
+          "count": 41,
+          "id": "rock_jagged"
+        },
+        {
+          "count": 1,
+          "id": "tree_dead"
+        },
+        {
+          "count": 1,
+          "id": "tree_round"
+        }
+      ],
+      "t": 0.533729333333333
+    }
+  ],
+  "elapsed": 1.50706163636364,
+  "enemies_spawned": 0,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "biome_grass",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_3998/biome_grass_1.006_3998.png",
+      "t": 1.00571466666667
+    }
+  ]
+}

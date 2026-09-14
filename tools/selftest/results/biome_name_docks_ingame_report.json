@@ -1,0 +1,90 @@
+{
+  "effects": [
+    {
+      "biome_id": 4,
+      "biome_name": "Dock Bay",
+      "kind": "biome_probe",
+      "label": "probe_docks",
+      "obstacles": [
+        {
+          "count": 151,
+          "id": "barrel_keg"
+        },
+        {
+          "count": 92,
+          "id": "crate_box"
+        },
+        {
+          "count": 42,
+          "id": "rock_large"
+        },
+        {
+          "count": 202,
+          "id": "bollard"
+        },
+        {
+          "count": 33,
+          "id": "spire"
+        },
+        {
+          "count": 36,
+          "id": "rock_small"
+        },
+        {
+          "count": 37,
+          "id": "boulder"
+        },
+        {
+          "count": 109,
+          "id": "docks_pole"
+        },
+        {
+          "count": 89,
+          "id": "docks_barrel_stack"
+        }
+      ],
+      "t": 0.566666666666667
+    }
+  ],
+  "elapsed": 1.50220733333333,
+  "enemies_spawned": 0,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "biome_docks",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4280/biome_docks_1.010_4280.png",
+      "t": 1.01034181818182
+    }
+  ]
+}

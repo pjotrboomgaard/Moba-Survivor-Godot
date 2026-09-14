@@ -1,0 +1,86 @@
+{
+  "effects": [
+    {
+      "biome_id": 2,
+      "biome_name": "Frostlab",
+      "kind": "biome_probe",
+      "label": "probe_ice",
+      "obstacles": [
+        {
+          "count": 73,
+          "id": "boulder"
+        },
+        {
+          "count": 58,
+          "id": "rock_small"
+        },
+        {
+          "count": 51,
+          "id": "spire"
+        },
+        {
+          "count": 94,
+          "id": "rock_large"
+        },
+        {
+          "count": 660,
+          "id": "ice_crystal"
+        },
+        {
+          "count": 536,
+          "id": "ice_frost_rock"
+        },
+        {
+          "count": 544,
+          "id": "ice_snow_hill"
+        },
+        {
+          "count": 1,
+          "id": "tree_dead"
+        }
+      ],
+      "t": 0.514267333333333
+    }
+  ],
+  "elapsed": 1.5,
+  "enemies_spawned": 0,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "biome_ice",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4536/biome_ice_1.067_4536.png",
+      "t": 1.06666666666667
+    }
+  ]
+}

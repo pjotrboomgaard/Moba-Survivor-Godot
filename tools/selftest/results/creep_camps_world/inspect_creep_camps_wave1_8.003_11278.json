@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\creep_camps_world\\creep_camps_wave1_8.003_11278.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.1606,
+  "bounding_box": [
+    0,
+    0,
+    1914,
+    1079
+  ],
+  "coverage": 0.9974,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2238,
+    "TR": 0.2564,
+    "BL": 0.166,
+    "BR": 0.3538
+  },
+  "edge_fractions": {
+    "top": 0.0319,
+    "bottom": 0.002,
+    "left": 0.0012,
+    "right": 0.0035
+  },
+  "thumbnail": "tools\\selftest\\results\\creep_camps_world\\thumb_creep_camps_wave1_8.003_11278.png"
+}

@@ -21,7 +21,7 @@
       ],
       "attack_range": 520.0,
       "biome_id": 5,
-      "biome_name": "Neutral Camps",
+      "biome_name": "Recruit Arena",
       "blast_radius": 30.0,
       "cds": [
         0.0,
@@ -93,7 +93,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 2.003872,
+      "t": 2.00111633333333,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -112,9 +112,9 @@
       "xp": 0
     }
   ],
-  "elapsed": 10.0036686666668,
+  "elapsed": 10.0074173333334,
   "enemies_spawned": 0,
-  "hero_position": "(388.1903, 19.6303)",
+  "hero_position": "(430.925, 52.87818)",
   "player_class": "tobor",
   "results": {
     "alive": false,
@@ -126,7 +126,7 @@
     "died": false,
     "errors": [],
     "ffa": {},
-    "gold": 18,
+    "gold": 9,
     "hero_kills": 0,
     "hp_samples": [],
     "landmark_saves": 0,
@@ -144,18 +144,18 @@
     "until_wave": 20,
     "verdict": "",
     "wave": 1,
-    "xp": 60
+    "xp": 30
   },
   "shots": [
     {
       "label": "neutral_camps_field",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7526/neutral_camps_field_4.003_7526.png",
-      "t": 4.00337666666666
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7291/neutral_camps_field_4.001_7291.png",
+      "t": 4.00130233333333
     },
     {
       "label": "neutral_camps_wave1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11537/neutral_camps_wave1_8.006_11537.png",
-      "t": 8.00583566666685
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11291/neutral_camps_wave1_8.001_11291.png",
+      "t": 8.00133966666685
     }
   ]
 }

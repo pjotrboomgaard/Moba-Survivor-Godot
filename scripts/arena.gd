@@ -125,9 +125,9 @@ const BIOME_LANDMARKS: Array[Array] = [
 		["tw_docks_landmark_bell", "freeze_time", 560.0, 0.70, 11.0, "Harbor Bell"],
 		["tw_docks_landmark_pad", "speed_surge", 600.0, 0.70, 14.0, "Pilot Skiff"],
 	],
-	# Neutral Camps (biome 5): empty world, only the 4 recruitment areas in corners.
+	# Recruit Arena (test mode 5): empty world, only the 4 recruitment areas in corners.
 	[],
-	# Creep Camps (biome 6): empty world, only hostile creep camps scattered around.
+	# Camp Gauntlet (test mode 6): empty world, only hostile creep camps scattered around.
 	[],
 ]
 
@@ -157,7 +157,7 @@ func set_world(world_id: int) -> void:
 
 
 ## Grass / volcano / ice / factory / docks → landmark world that fits the theme.
-## Test worlds (5 = Neutral Camps, 6 = Creep Camps) use the grass world for visuals
+## Test modes (5 = Recruit Arena, 6 = Camp Gauntlet) use the grass world for visuals
 ## but spawn no landmarks (handled by empty BIOME_LANDMARKS entries).
 const BIOME_TO_WORLD: Array[int] = [
 	World.VERDANT_WILDS,

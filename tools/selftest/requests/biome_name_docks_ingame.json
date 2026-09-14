@@ -1,0 +1,21 @@
+﻿{
+    "time_scale":  2,
+    "hero":  "tobor",
+    "biome":  4,
+    "events":  [
+                   {
+                       "label":  "probe_docks",
+                       "t":  0.5,
+                       "kind":  "biome_probe"
+                   },
+                   {
+                       "label":  "biome_docks",
+                       "t":  1,
+                       "kind":  "snap"
+                   },
+                   {
+                       "kind":  "report",
+                       "t":  1.5
+                   }
+               ]
+}

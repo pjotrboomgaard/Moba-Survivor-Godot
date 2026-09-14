@@ -1,0 +1,55 @@
+{
+  "results": [
+    {
+      "expected": "Scrapyard Outskirts",
+      "got": "Scrapyard Outskirts",
+      "index": 0,
+      "key": "",
+      "match": true
+    },
+    {
+      "expected": "Molten Core",
+      "got": "Molten Core",
+      "index": 1,
+      "key": "volcano",
+      "match": true
+    },
+    {
+      "expected": "Frostlab",
+      "got": "Frostlab",
+      "index": 2,
+      "key": "ice",
+      "match": true
+    },
+    {
+      "expected": "Assembly Plant",
+      "got": "Assembly Plant",
+      "index": 3,
+      "key": "factory",
+      "match": true
+    },
+    {
+      "expected": "Dock Bay",
+      "got": "Dock Bay",
+      "index": 4,
+      "key": "docks",
+      "match": true
+    },
+    {
+      "expected": "Recruit Arena",
+      "got": "Recruit Arena",
+      "index": 5,
+      "key": "recruit_arena",
+      "match": true
+    },
+    {
+      "expected": "Camp Gauntlet",
+      "got": "Camp Gauntlet",
+      "index": 6,
+      "key": "camp_gauntlet",
+      "match": true
+    }
+  ],
+  "scene": "biome_names_test",
+  "verdict": "PASS"
+}

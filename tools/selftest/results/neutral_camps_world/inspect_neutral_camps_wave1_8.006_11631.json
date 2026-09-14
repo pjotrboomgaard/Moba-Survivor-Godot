@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\neutral_camps_world\\neutral_camps_wave1_8.006_11631.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.1842,
+  "bounding_box": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2147,
+    "TR": 0.2356,
+    "BL": 0.2259,
+    "BR": 0.3238
+  },
+  "edge_fractions": {
+    "top": 0.0089,
+    "bottom": 0.0065,
+    "left": 0.0024,
+    "right": 0.0078
+  },
+  "thumbnail": "tools\\selftest\\results\\neutral_camps_world\\thumb_neutral_camps_wave1_8.006_11631.png"
+}
