@@ -578,9 +578,12 @@ func _load_joule_menu_frames() -> Array[Texture2D]:
 
 ## Tick the Joule (arclight) menu video frame on the shared full-screen backdrop.
 ## Driven from _process so the animation advances only while the menu is shown.
+## Ping-pong loop: play forward, reverse, forward, ... so the loop point is
+## not visually obvious.
 var _joule_video_active := false
 var _joule_frame_index := 0
 var _joule_frame_timer := 0.0
+var _joule_direction := 1  # 1 = forward, -1 = reverse
 const JOULE_MENU_FPS := 2.4
 
 
@@ -590,7 +593,14 @@ func _tick_joule_menu_video(delta: float) -> void:
 	_joule_frame_timer += delta
 	if _joule_frame_timer >= 1.0 / JOULE_MENU_FPS:
 		_joule_frame_timer = 0.0
-		_joule_frame_index = (_joule_frame_index + 1) % _joule_frames.size()
+		_joule_frame_index += _joule_direction
+		# Reverse direction at the ends (ping-pong).
+		if _joule_frame_index >= _joule_frames.size():
+			_joule_frame_index = _joule_frames.size() - 2
+			_joule_direction = -1
+		elif _joule_frame_index < 0:
+			_joule_frame_index = 1
+			_joule_direction = 1
 		var art := _hero_backdrop()
 		art.texture = _joule_frames[_joule_frame_index]
 

@@ -219,10 +219,15 @@ def score_vision(case: dict, use_llm: bool) -> list[tuple[str, bool, str]]:
         out.append((f"vision:{preset}", False, "no report"))
         return out
     text = rep.get("response", "")
+    # Parse the VERDICT line directly instead of naive substring matching.
+    verdict_line = ""
+    for line in text.splitlines():
+        if line.strip().upper().startswith("VERDICT:"):
+            verdict_line = line.strip().upper()
+            break
     if "after_fills_screen" in case["truth"]:
-        # A good PASS for full-screen; a FAIL means the tool saw a corner bug.
-        passed = verdict_contains(text, "verdict: pass", "verdict:pass") 
-        out.append((f"vision:{preset} fills-screen PASS", passed, text[:60]))
+        passed = "PASS" in verdict_line
+        out.append((f"vision:{preset} fills-screen PASS", passed, verdict_line or text[:60]))
     if "big_visual_change" in case["truth"]:
         ok = verdict_contains(text, "video", "background", "hero", "change", "different", "menu", "explosion", "effect", "vfx", "fire", "glow", "energy")
         out.append((f"vision:{preset} describes change", ok, text[:60]))
