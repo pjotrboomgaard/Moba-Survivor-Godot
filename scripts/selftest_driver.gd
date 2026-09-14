@@ -474,6 +474,20 @@ func _process(delta: float) -> void:
 				_record_biome(str(event.get("label", "biome")))
 			"sound_probe":
 				_record_sound_probe(str(event.get("label", "")), str(event.get("ability_id", "")))
+			"tree_hp_probe":
+				# T3.75: report tree HP / breaking / collision state for verification.
+				_record_tree_hp_probe(str(event.get("label", "tree_hp")))
+			"damage_tree":
+				# T3.75: drive the arena's tree-HP damage API in the live game.
+				var dmg_arena: Variant = _host_main.get("arena") if _host_main != null else null
+				if dmg_arena != null and dmg_arena.has_method("damage_trees_in_radius"):
+					var dmg_pos := _event_vec(event, "at", Vector2.ZERO)
+					var hits: int = dmg_arena.damage_trees_in_radius(
+						dmg_pos,
+						float(event.get("radius", 60.0)),
+						float(event.get("amount", 120.0)))
+					_active_effects.append({
+						"kind": "custom", "text": "damage_tree hits=%d amount=%s" % [hits, str(event.get("amount", 120.0))], "t": _elapsed})
 			"camera_zoom":
 				# Move the camera to a world position and set zoom so the next snap
 				# is a close-up (used for shadow / detail inspection).
@@ -1143,6 +1157,31 @@ func _obstacle_count() -> int:
 		if is_instance_valid(obs):
 			n += 1
 	return n
+
+
+## T3.75: report tree-HP state (HP, breaking flag, collision on/off) for all
+## tree obstacles in the live arena so a test can assert the mechanic fired.
+func _record_tree_hp_probe(label: String) -> void:
+	var host_main: Variant = get_tree().get_first_node_in_group("main") if _host_main == null else _host_main
+	var trees := []
+	if host_main != null:
+		var arena: Variant = host_main.get("arena")
+		if arena != null and arena is Arena:
+			for obs in (arena as Arena).obstacles:
+				if not is_instance_valid(obs):
+					continue
+				var sid: String = str(obs.get("sprite_id"))
+				if not sid.begins_with("tree"):
+					continue
+				var hp: float = (arena as Arena).tree_hp_at(obs.global_position)
+				trees.append({
+					"sprite": sid,
+					"pos": obs.global_position,
+					"hp": hp,
+					"breaking": (arena as Arena).tree_breaking_at(obs.global_position),
+					"collision_disabled": obs.collision.disabled,
+				})
+	_active_effects.append({"kind": "tree_hp_probe", "label": label, "t": _elapsed, "trees": trees})
 
 
 func _record_fps(label: String) -> void:

@@ -1,8 +1,6 @@
 {
-  "threshold": 1859.0,
-  "lo": 71.0,
-  "hi": 7223.0,
-  "kept_frames": [
+  "threshold": 1000,
+  "electric_frames": [
     2,
     3,
     5,
@@ -12,6 +10,7 @@
     9,
     10,
     11,
+    12,
     15,
     16,
     17,
@@ -25,122 +24,160 @@
     25,
     26
   ],
-  "per_frame": [
+  "calm_frames": [
+    1,
+    4,
+    13,
+    14,
+    27,
+    28,
+    29
+  ],
+  "all_frames": [
     {
-      "index": 1,
-      "score": 647.0
+      "frame": 1,
+      "lightning_px": 554,
+      "rows_with_bright": 79
     },
     {
-      "index": 2,
-      "score": 5937.0
+      "frame": 2,
+      "lightning_px": 3966,
+      "rows_with_bright": 300
     },
     {
-      "index": 3,
-      "score": 4855.0
+      "frame": 3,
+      "lightning_px": 3581,
+      "rows_with_bright": 292
     },
     {
-      "index": 4,
-      "score": 1498.0
+      "frame": 4,
+      "lightning_px": 826,
+      "rows_with_bright": 147
     },
     {
-      "index": 5,
-      "score": 3206.0
+      "frame": 5,
+      "lightning_px": 1686,
+      "rows_with_bright": 224
     },
     {
-      "index": 6,
-      "score": 3434.0
+      "frame": 6,
+      "lightning_px": 2319,
+      "rows_with_bright": 256
     },
     {
-      "index": 7,
-      "score": 3971.0
+      "frame": 7,
+      "lightning_px": 2498,
+      "rows_with_bright": 268
     },
     {
-      "index": 8,
-      "score": 7077.0
+      "frame": 8,
+      "lightning_px": 4755,
+      "rows_with_bright": 299
     },
     {
-      "index": 9,
-      "score": 6234.0
+      "frame": 9,
+      "lightning_px": 4407,
+      "rows_with_bright": 302
     },
     {
-      "index": 10,
-      "score": 2941.0
+      "frame": 10,
+      "lightning_px": 1976,
+      "rows_with_bright": 244
     },
     {
-      "index": 11,
-      "score": 2050.0
+      "frame": 11,
+      "lightning_px": 1159,
+      "rows_with_bright": 174
     },
     {
-      "index": 12,
-      "score": 422.0
+      "frame": 12,
+      "lightning_px": 1027,
+      "rows_with_bright": 101
     },
     {
-      "index": 13,
-      "score": 87.0
+      "frame": 13,
+      "lightning_px": 787,
+      "rows_with_bright": 88
     },
     {
-      "index": 14,
-      "score": 126.0
+      "frame": 14,
+      "lightning_px": 822,
+      "rows_with_bright": 92
     },
     {
-      "index": 15,
-      "score": 3956.0
+      "frame": 15,
+      "lightning_px": 3575,
+      "rows_with_bright": 305
     },
     {
-      "index": 16,
-      "score": 5917.0
+      "frame": 16,
+      "lightning_px": 4047,
+      "rows_with_bright": 301
     },
     {
-      "index": 17,
-      "score": 3530.0
+      "frame": 17,
+      "lightning_px": 2236,
+      "rows_with_bright": 248
     },
     {
-      "index": 18,
-      "score": 5226.0
+      "frame": 18,
+      "lightning_px": 4146,
+      "rows_with_bright": 305
     },
     {
-      "index": 19,
-      "score": 3976.0
+      "frame": 19,
+      "lightning_px": 3847,
+      "rows_with_bright": 304
     },
     {
-      "index": 20,
-      "score": 4599.0
+      "frame": 20,
+      "lightning_px": 4098,
+      "rows_with_bright": 304
     },
     {
-      "index": 21,
-      "score": 6574.0
+      "frame": 21,
+      "lightning_px": 4648,
+      "rows_with_bright": 306
     },
     {
-      "index": 22,
-      "score": 4092.0
+      "frame": 22,
+      "lightning_px": 3944,
+      "rows_with_bright": 305
     },
     {
-      "index": 23,
-      "score": 4640.0
+      "frame": 23,
+      "lightning_px": 3910,
+      "rows_with_bright": 303
     },
     {
-      "index": 24,
-      "score": 7223.0
+      "frame": 24,
+      "lightning_px": 4910,
+      "rows_with_bright": 306
     },
     {
-      "index": 25,
-      "score": 5417.0
+      "frame": 25,
+      "lightning_px": 4575,
+      "rows_with_bright": 303
     },
     {
-      "index": 26,
-      "score": 3084.0
+      "frame": 26,
+      "lightning_px": 1800,
+      "rows_with_bright": 210
     },
     {
-      "index": 27,
-      "score": 148.0
+      "frame": 27,
+      "lightning_px": 840,
+      "rows_with_bright": 100
     },
     {
-      "index": 28,
-      "score": 71.0
+      "frame": 28,
+      "lightning_px": 745,
+      "rows_with_bright": 91
     },
     {
-      "index": 29,
-      "score": 196.0
+      "frame": 29,
+      "lightning_px": 916,
+      "rows_with_bright": 95
     }
   ]
 }

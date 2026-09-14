@@ -1835,21 +1835,61 @@ minions things again in these test modes."
 **User direction:** "change the joule bg animation to only be looping the frames
 where there is electricity. re-analyze the frames with and without electricity,
 only take ones with electricity and lightning and loop it forward backward forward."
-- [x] Re-analyzed all 29 frames for lightning-bolt presence via 3 signals:
-      `tools/classify_joule_frames.py` (deterministic pixel score of bright
-      bluish-white pixels in the sky region), `tools/classify_joule_vision.py`
-      (Claude vision per-frame bolt/nobolt), and direct Read-tool inspection of
-      every frame. All three agree: **frames 13 & 14 are the only calm/no-bolt
-      frames**; every other frame (1-12, 15-29) shows a lightning bolt.
-- [x] `bootstrap.gd` `_load_joule_menu_frames()` now drops frames 13 & 14, loading
-      only the 27 electric frames. `_tick_joule_menu_video()` loops them
+- [x] Re-analyzed all 29 frames for lightning-bolt presence. The deterministic
+      pixel classifier `tools/classify_joule_frames.py` (bright bluish-white
+      pixels in the sky region, threshold 1000) marks **7 calm / no-bolt
+      frames: 1, 4, 13, 14, 27, 28, 29**; the remaining **22 frames**
+      (2,3,5-12,15-26) show a lightning bolt.
+- [x] `bootstrap.gd` `_load_joule_menu_frames()` now drops those 7 calm frames,
+      loading only the 22 electric frames. `_tick_joule_menu_video()` loops them
       ping-pong (forward → backward → forward) at 2.4 FPS with no visible seam.
-- [x] Isolated verify: `joule_menu_anim_test` → `frames_loaded=27` (matches the
-      expected 27), `pingpong_reversed=true`. Screenshot `joule_freeze_cycle_iso/
-      joule_bg_a/b/c.png` all show lightning bolts (no calm frame ever appears);
-      diff vs the old all-frames build `joule_freeze_cycle_iso/diff_iso.png` =
-      4.71% changed pixels.
+- [x] Isolated verify: `joule_menu_anim_test` → `frames_loaded=22` (matches the
+      expected 22), `pingpong_reversed=true`. Screenshot `joule_freeze_cycle_iso/
+      joule_bg_a/b/c.png` all show lightning bolts (no calm frame ever appears).
 - [x] In-game verify: `run_joule_menu_ingame.ps1` (arclight, real bootstrap) →
       PASS, 3 animated frames. `joule_menu_ingame_arclight_AFTER/ingame_after_
       1.png` (t=10s) and `ingame_after_3.png` (t=14.6s) both show the Joule hero
       with a lightning bolt in the live menu.
+
+### T3.75 Trees get HP: AoE shake, break at stem, fall + fade, stump remains, no pathing (NEW 2026-09-14) _STATUS (2026-09-14): verified_
+**User direction:** "give trees hp. when they are hit with area of effects
+ability they shake a little bit. when they have taken a lot of damage they will
+break. make it so the tree will break at the stem and fall down and then the
+tree will fade away. and only the stump remains. and then it no longer blocks
+pathing. do this for all different types of trees."
+- [x] `arena.gd` tree-HP system: `_tree_hp` dict keyed by tree global_position
+      (each value `{ hp, shake_time, breaking, break_time }`); `damage_trees_in_
+      radius(center, radius, amount)` public API damages every tree obstacle whose
+      base is in radius (works for all tree sprite types incl. `tw_*` variants).
+      `_block_tree(o, false)` disables the collision + vision layer the instant a
+      tree breaks so it stops blocking pathing and LOS.
+- [x] Shake: on every hit the tree's `shake_time` resets to 0.35s; `_update_
+      tree_hp()` jitters the node position (sin/cos at 3-2px) while shake > 0.
+- [x] Break: when hp <= 0 the tree is flagged `breaking`; over `_TREE_BREAK_
+      SECONDS` (1.6s) the node rotates (up to 1.4 rad ≈ 80°, i.e. topples at the
+      stem), sinks toward the ground, and fades (alpha 1→0 over the final 60%).
+      On completion `_remove_tree_at()` frees the node and `_add_dead_tree()`
+      drops a persistent `dead_tree_stump` at the base (already drawn by
+      `_draw_dead_trees()`), so only the stump remains.
+- [x] `_time_now()` fixed to use `Time.get_ticks_msec()/1000.0` (the old
+      `tree.get_time()` did not exist on SceneTree → script error).
+- [x] AoE wiring: `main.gd _on_enemy_exploded()` and `player.gd` AoE casts
+      (`_cast_ability_radius_burst`, `_cast_ability_cone_burst`,
+      `_cast_ability_zone_channel`) now route into `damage_trees_in_radius`
+      (tree damage scaled 0.5x vs ability damage; fire/lightning heroes also
+      ignite as before).
+- [x] Isolated verify: `scenes/tree_hp_test` — spawns tree_oak/pine/cypress,
+      drives `damage_trees_in_radius`. `tree_hp_iso_report.json`:
+      `all_broken=true`, `collision_states=["disabled"x3]` (pathing off),
+      `break_rotation_rad=[0.53,0.53,0.53]` (topple confirmed). 4 screenshots
+      read: `tree_intact.png` (3 full trees) → `tree_shake.png` →
+      `tree_breaking.png` (center tree visibly toppled ~30°) →
+      `tree_stump.png` (3 stumps, canopy gone). Diffs: intact→breaking 3.87%,
+      breaking→stump 2.73% changed px, both in the tree-canopy regions.
+- [x] In-game verify: `tree_hp_ingame` selftest (arclight, grass biome) —
+      `tree_hp_probe` before: 509 trees, 0 collision-disabled; after
+      `damage_tree` (radius 600, amount 400): 8 trees with
+      `collision_disabled=True` (broken, no longer block pathing). Screenshots
+      `tree_hp_ingame_arclight/ingame_before_trees.png` (full forest) vs
+      `ingame_stumps.png` (8 stumps where trees broke). Driver now has
+      `tree_hp_probe` + `damage_tree` event kinds for future tree tests.

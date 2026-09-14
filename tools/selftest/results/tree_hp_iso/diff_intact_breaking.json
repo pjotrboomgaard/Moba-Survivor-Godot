@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/tree_hp_iso/tree_intact.png",
+  "after": "tools/selftest/results/tree_hp_iso/tree_breaking.png",
+  "out": "tools/selftest/results/tree_hp_iso/diff_intact_breaking.png",
+  "changed_pixels": 80329,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.038739,
+  "bbox": [
+    224,
+    250,
+    1716,
+    553
+  ],
+  "has_change": true
+}

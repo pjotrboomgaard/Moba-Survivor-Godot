@@ -566,12 +566,41 @@ func _joule_menu_frame(index: int) -> Texture2D:
 
 func _load_joule_menu_frames() -> Array[Texture2D]:
 	# Keep ONLY the frames that actually show a lightning bolt / electric arc in
-	# the sky. Frames 13 & 14 (0-based 12, 13) are the calm no-lightning window in
-	# the middle of the clip, so they are dropped from the loop. Everything else
-	# (frames 1-12 and 15-29) is electric and kept.
-	var keep := [true, true, true, true, true, true, true, true, true, true,
-		true, true, false, false, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true, true]
+	# the sky. Deterministic pixel classification (tools/classify_joule_frames.py)
+	# marks the calm, no-lightning frames: 1, 4, 13, 14, 27, 28, 29. Everything
+	# else (2,3,5-12,15-26) shows a bolt and is kept.
+	# Index is 0-based; frame N is keep[N-1].
+	var keep := [
+		false,  # frame 1
+		true,   # frame 2
+		true,   # frame 3
+		false,  # frame 4
+		true,   # frame 5
+		true,   # frame 6
+		true,   # frame 7
+		true,   # frame 8
+		true,   # frame 9
+		true,   # frame 10
+		true,   # frame 11
+		true,   # frame 12
+		false,  # frame 13
+		false,  # frame 14
+		true,   # frame 15
+		true,   # frame 16
+		true,   # frame 17
+		true,   # frame 18
+		true,   # frame 19
+		true,   # frame 20
+		true,   # frame 21
+		true,   # frame 22
+		true,   # frame 23
+		true,   # frame 24
+		true,   # frame 25
+		true,   # frame 26
+		false,  # frame 27
+		false,  # frame 28
+		false,  # frame 29
+	]
 	var out: Array[Texture2D] = []
 	for i in range(keep.size()):
 		if not keep[i]:

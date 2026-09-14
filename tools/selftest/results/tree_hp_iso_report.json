@@ -1,0 +1,48 @@
+{
+  "all_broken": true,
+  "break_rotation_rad": [
+    0.529,
+    0.529,
+    0.529
+  ],
+  "collision_states": [
+    "disabled",
+    "disabled",
+    "disabled"
+  ],
+  "hp_remaining": [
+    80.0,
+    80.0,
+    80.0
+  ],
+  "scene": "tree_hp_test",
+  "shots": [
+    {
+      "label": "intact",
+      "path": "user://tree_hp_run_1797/tree_intact.png",
+      "t": 0.600482
+    },
+    {
+      "label": "shake",
+      "path": "user://tree_hp_run_1797/tree_shake.png",
+      "t": 1.40341933333333
+    },
+    {
+      "label": "breaking",
+      "path": "user://tree_hp_run_1797/tree_breaking.png",
+      "t": 2.6056
+    },
+    {
+      "label": "stump",
+      "path": "user://tree_hp_run_1797/tree_stump.png",
+      "t": 4.20434933333333
+    }
+  ],
+  "tree_types": [
+    "tree_oak",
+    "tree_pine",
+    "tree_cypress"
+  ],
+  "trees_spawned": 3,
+  "verdict": "PASS"
+}

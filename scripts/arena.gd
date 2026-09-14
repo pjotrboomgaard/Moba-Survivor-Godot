@@ -368,6 +368,9 @@ const CULL_INTERVAL := 0.25
 
 func _process(delta: float) -> void:
 	_update_water_drift(delta)
+	# Tree HP (T3.75): shake decay + fall/fade advance. Runs in every mode so a
+	# broken tree animates correctly regardless of biome.
+	_update_tree_hp(delta)
 	_update_biome_weather(delta)
 	# Periodic biome hazards fire only when a biome is active.
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0:
@@ -1358,6 +1361,18 @@ const _FIRE_DOT_DPS := 5.0
 ## painting the charred stumps in _draw().
 var _dead_trees: Array[Vector2] = []
 
+## T3.75 Trees get HP. When hit by AoE they shake; when their HP reaches 0 they
+## break at the stem, fall + fade, leaving only a stump that no longer blocks
+## pathing or vision. Keyed by the tree's global_position (int-quantised) so it
+## matches the Obstacle node we look up. Value: { hp, shake_time, breaking,
+## break_time }. `breaking` trees are mid fall/fade animation and are already
+## non-blocking (their Obstacle collision + vision layer were disabled on the
+## way in). The broken tree then drops to _dead_trees as a persistent stump.
+const _TREE_HP := 120.0
+const _TREE_SHAKE_SECONDS := 0.35
+const _TREE_BREAK_SECONDS := 1.6   # fall + fade duration
+var _tree_hp: Dictionary = {}
+
 ## Volcano black-lava phase: while true, lava hazard_at() reports no damage.
 var _lava_cooled := false
 var _lava_cool_timer := 20.0       # seconds until the next cooling onset
@@ -1586,10 +1601,8 @@ func _play_thunder_rumble() -> void:
 
 
 func _time_now() -> float:
-	var tree := get_tree()
-	if tree == null:
-		return 0.0
-	return tree.get_time()
+	# Monotonic seconds. Used for VFX lifetimes, shake jitter, and strike timers.
+	return Time.get_ticks_msec() / 1000.0
 
 
 func _nearest_alive_tree(pos: Vector2, radius: float) -> Vector2:
@@ -1752,6 +1765,146 @@ func _remove_tree_at(pos: Vector2) -> void:
 			obstacles.erase(o)
 			o.queue_free()
 			return
+
+
+## ---------------------------------------------------------------------------
+## T3.75: Trees get HP. AoE ability damage shakes a tree; enough damage makes
+## it break at the stem, fall + fade, and leave only a stump that no longer
+## blocks pathing or vision. Applies to every tree sprite type.
+## ---------------------------------------------------------------------------
+
+## T3.75 public API: deal `amount` damage to every standing tree obstacle whose
+## base sits within `radius` of `center`. Called by AoE abilities (projectile
+## explosions, nukes, splash casts). Trees that reach 0 HP begin breaking.
+func damage_trees_in_radius(center: Vector2, radius: float, amount: float) -> int:
+	if radius <= 0.0 or amount <= 0.0:
+		return 0
+	var r_sq := radius * radius
+	var hits := 0
+	for o in obstacles:
+		if not is_instance_valid(o):
+			continue
+		if not o.sprite_id.begins_with("tree"):
+			continue
+		if o.global_position.distance_squared_to(center) > r_sq:
+			continue
+		_apply_tree_damage(o, amount)
+		hits += 1
+	if hits > 0:
+		queue_redraw()
+	return hits
+
+
+func _apply_tree_damage(o: Obstacle, amount: float) -> void:
+	var pos: Vector2 = o.global_position
+	var info: Dictionary = _tree_hp.get(pos, {})
+	# Remember the node + its planted base so the fall animation can move it.
+	if not info.has("node"):
+		info.node = o
+		info.base_pos = o.global_position
+		if not bool(info.get("breaking", false)):
+			info.hp = _TREE_HP
+	if bool(info.get("breaking", false)):
+		# Mid fall/fade — no further HP changes; just re-shake for feedback.
+		info.shake_time = _TREE_SHAKE_SECONDS
+		_tree_hp[pos] = info
+		return
+	var hp: float = float(info.get("hp", _TREE_HP))
+	hp -= amount
+	# Shake feedback on every hit.
+	info.shake_time = _TREE_SHAKE_SECONDS
+	if hp <= 0.0:
+		# Begin the break sequence: stop blocking pathing + vision now.
+		info.breaking = true
+		info.break_time = 0.0
+		info.hp = 0.0
+		_block_tree(o, false)
+		print("[Arena] tree at %s HP exhausted -> breaking" % str(pos))
+	else:
+		info.hp = hp
+	_tree_hp[pos] = info
+	queue_redraw()
+
+
+## T3.75: enable/disable pathing + vision blocking on a tree obstacle.
+func _block_tree(o: Obstacle, block: bool) -> void:
+	if not block:
+		o.collision.disabled = true
+		o.collision_layer = 0
+		o.collision_mask = 0
+	else:
+		o.collision.disabled = false
+		o.collision_layer = 16
+		o.collision_mask = 1
+
+
+## T3.75: tick the tree-HP state — shake, advance fall/fade, commit stumps.
+## Mutates the stored Obstacle node directly (shake jitter while intact,
+## toppling + fade while breaking), then drops a persistent stump on completion.
+func _update_tree_hp(delta: float) -> void:
+	if _tree_hp.is_empty():
+		return
+	var finished: Array[Vector2] = []
+	for pos in _tree_hp.keys():
+		var info: Dictionary = _tree_hp[pos]
+		var o: Obstacle = info.get("node") as Obstacle
+		if o == null or not is_instance_valid(o):
+			# Node already gone (e.g. rebuilt) — just leave a stump + drop state.
+			_add_dead_tree(pos)
+			finished.append(pos)
+			continue
+		var base: Vector2 = info.get("base_pos", pos)
+		var shake: float = float(info.get("shake_time", 0.0))
+		# Decay the shake timer.
+		if shake > 0.0:
+			info.shake_time = maxf(0.0, shake - delta)
+		if bool(info.get("breaking", false)):
+			# Advance the fall + fade animation.
+			info.break_time = float(info.break_time) + delta
+			var t := clampf(info.break_time / _TREE_BREAK_SECONDS, 0.0, 1.0)
+			# Topple: rotate around the stem base (falls to the side) + sink toward
+			# the ground. 1.4 rad (~80°) reads as a clear fall onto the grass.
+			o.rotation = t * 1.4
+			o.position = base + Vector2(t * 14.0, t * 10.0)
+			# Fade out over the final 60% of the fall.
+			o.modulate.a = 1.0 - maxf(0.0, (t - 0.4) / 0.6)
+			if info.break_time >= _TREE_BREAK_SECONDS:
+				# Commit: remove the tree node, keep a persistent stump.
+				_remove_tree_at(base)
+				_add_dead_tree(base)
+				finished.append(pos)
+				print("[Arena] tree at %s broke -> stump" % str(base))
+		elif shake > 0.0:
+			# Intact tree that was just hit: jitter it around its base.
+			var intensity := shake / _TREE_SHAKE_SECONDS
+			var tt := _time_now()
+			o.position = base + Vector2(
+				sin(tt * 42.0) * 3.0 * intensity,
+				cos(tt * 37.0) * 2.0 * intensity
+			)
+	for pos in finished:
+		_tree_hp.erase(pos)
+	queue_redraw()
+
+
+## T3.75: expose shake state for probes/tests. Returns seconds of shake left.
+func tree_shake_at(pos: Vector2) -> float:
+	var info: Dictionary = _tree_hp.get(pos, {})
+	return float(info.get("shake_time", 0.0))
+
+
+## T3.75: expose whether a tree at `pos` is currently breaking (fall/fading).
+func tree_breaking_at(pos: Vector2) -> bool:
+	var info: Dictionary = _tree_hp.get(pos, {})
+	return bool(info.get("breaking", false))
+
+
+## T3.75: current HP of a tree at `pos` (-1 if it has no tracked HP yet).
+func tree_hp_at(pos: Vector2) -> float:
+	var info: Dictionary = _tree_hp.get(pos, {})
+	if not info.has("hp"):
+		return -1.0
+	return float(info.get("hp", _TREE_HP))
 
 
 func _tick_fire_dot(pos: Vector2, delta: float) -> void:

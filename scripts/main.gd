@@ -1590,6 +1590,17 @@ func _on_enemy_exploded(origin: Vector2, radius: float, _damage: float) -> void:
 	if GameRuntime.is_server():
 		for peer_id in registered_remote_peers.keys():
 			client_play_explosion.rpc_id(peer_id, origin, radius)
+	# T3.75: trees take damage from AoE explosions — shake, and break after enough.
+	if not GameRuntime.is_dedicated_server():
+		_aoe_damage_trees(origin, radius)
+
+
+## T3.75: route an AoE explosion into the arena's tree-HP system.
+func _aoe_damage_trees(origin: Vector2, radius: float) -> void:
+	if arena == null or not arena.has_method("damage_trees_in_radius"):
+		return
+	# Explosions hit the ground hard; apply a flat chunk of tree damage.
+	arena.damage_trees_in_radius(origin, radius, 40.0)
 
 
 func _play_explosion_effect(origin: Vector2, radius: float) -> void:

@@ -1,0 +1,4 @@
+{
+  "hero": "tobor",
+  "comment": "T3.75 isolated: tree HP mechanic — AoE shake, break at stem, fall+fade, stump remains, pathing disabled. Standalone scene tree_hp_test drives its own report."
+}

@@ -1918,6 +1918,8 @@ func _cast_ability_zone_channel(data: Dictionary, values: Dictionary) -> void:
 	print("[zc] post-loop")
 	# Hero↔tree: fire/lightning themed heroes char trees inside the zone.
 	_ignite_trees_in_radius(center, float(values.get("radius", 240.0)))
+	# T3.75: all AoE zones shake/damage trees in the radius.
+	_aoe_damage_trees_in_radius(center, float(values.get("radius", 240.0)), float(values.get("power", 0.0)))
 	_emit_ability_cast(PackedVector2Array([center, Vector2(values.get("radius", 240.0), 0.0)]))
 	print("[zc] post-emit")
 
@@ -3675,6 +3677,19 @@ func _ignite_trees_in_radius(center: Vector2, radius: float) -> int:
 	return affected
 
 
+## T3.75: All heroes' AoE abilities shake + damage trees in radius. Fire/lightning
+## heroes additionally ignite trees (handled separately). Damage scales with the
+## ability's own damage so bigger nukes break trees faster.
+const _TREE_AOE_DAMAGE_SCALE := 0.5  # tree HP = 120; this scales ability damage
+func _aoe_damage_trees_in_radius(center: Vector2, radius: float, ability_damage: float) -> int:
+	if _arena == null:
+		_arena = Arena.arena_root(self)
+	if _arena == null or not _arena.has_method("damage_trees_in_radius"):
+		return 0
+	var tree_dmg: float = ability_damage * _TREE_AOE_DAMAGE_SCALE
+	return _arena.damage_trees_in_radius(center, radius, tree_dmg)
+
+
 ## Hex-wall electrocution: enemies crossing or lingering on the rim get shocked again.
 func _update_energy_fields(delta: float) -> void:
 	var index := 0
@@ -3750,6 +3765,9 @@ func _cast_ability_cone_burst(data: Dictionary, values: Dictionary) -> void:
 		if to_target.length_squared() > 0.0 and absf(facing_direction.angle_to(to_target)) > half_angle:
 			continue
 		_apply_ability_hit(target, data, values)
+	# T3.75: cone AoE shakes/damages trees in radius (cone is directional, but
+	# trees shake on any nearby blast).
+	_aoe_damage_trees_in_radius(global_position, values.radius, float(values.get("power", 0.0)))
 	_emit_ability_cast(PackedVector2Array([
 		global_position,
 		Vector2(values.radius, PlayerClass.ABILITY_CONE_HALF_ANGLE_DEGREES),
@@ -3779,6 +3797,8 @@ func _cast_ability_radius_burst(data: Dictionary, values: Dictionary) -> void:
 		center = global_position + global_position.direction_to(aim_world_position) * travel
 	# Hero↔tree: fire/lightning themed heroes char trees inside the blast radius.
 	_ignite_trees_in_radius(center, float(values.get("radius", 0.0)))
+	# T3.75: all AoE nukes shake/damage trees in the blast radius.
+	_aoe_damage_trees_in_radius(center, float(values.get("radius", 0.0)), float(values.get("power", 0.0)))
 	# Artillery-style sky strike: paint the mark, ordnance screams down after a short fuse,
 	# then the whole zone detonates at once. Non-sky strikes land instantly as before.
 	if bool(data.get("sky_strike", false)):

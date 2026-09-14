@@ -9,13 +9,14 @@ extends Node
 ##   3. No excluded frame is ever shown.
 
 const SPRITE_DIR := "res://assets/ui/joule_menu_video/frames"
-## Mirrors bootstrap.gd keep list (1-based frame numbers).
+## Mirrors bootstrap.gd keep list (1-based frame numbers). Calm frames 1, 4, 13,
+## 14, 27, 28, 29 are dropped; the 22 electric frames are kept and ping-ponged.
 const KEEP: Array[bool] = [
-	true, true, true, true, true, true, true, true, true, true,
+	false, true, true, false, true, true, true, true, true, true,
 	true, true, false, false, true, true, true, true, true, true,
-	true, true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, false, false, false,
 ]
-const EXPECTED_KEEP_COUNT := 27
+const EXPECTED_KEEP_COUNT := 22
 
 var _anim_player: AnimatedSprite2D
 var _frames_loaded := 0

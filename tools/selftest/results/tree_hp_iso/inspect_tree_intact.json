@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\tree_hp_iso\\tree_intact.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.3982,
+  "bounding_box": [
+    42,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 0.9781,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2559,
+    "TR": 0.2226,
+    "BL": 0.272,
+    "BR": 0.2495
+  },
+  "edge_fractions": {
+    "top": 0.0074,
+    "bottom": 0.0101,
+    "left": 0.0,
+    "right": 0.0022
+  },
+  "thumbnail": "tools\\selftest\\results\\tree_hp_iso\\thumb_tree_intact.png"
+}

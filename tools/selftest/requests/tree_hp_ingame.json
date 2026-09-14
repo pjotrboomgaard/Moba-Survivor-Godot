@@ -1,0 +1,17 @@
+{
+  "hero": "arclight",
+  "biome": 0,
+  "comment": "T3.75 in-game: trees get HP. drive arena.damage_trees_in_radius on the live arena; tree_hp_probe before (full HP) and after (broken, collision off).",
+  "events": [
+    {"t": 0.5, "kind": "tree_hp_probe", "label": "trees_before"},
+    {"t": 1.0, "kind": "snap", "label": "ingame_before_trees"},
+    {"t": 1.2, "kind": "damage_tree", "at": [0, 0], "radius": 400, "amount": 40},
+    {"t": 1.4, "kind": "snap", "label": "ingame_shake"},
+    {"t": 1.8, "kind": "damage_tree", "at": [0, 0], "radius": 600, "amount": 400},
+    {"t": 2.4, "kind": "snap", "label": "ingame_breaking"},
+    {"t": 3.8, "kind": "camera_zoom", "at": [0, 0], "zoom": 3.0},
+    {"t": 4.0, "kind": "snap", "label": "ingame_stumps"},
+    {"t": 4.2, "kind": "tree_hp_probe", "label": "trees_after"},
+    {"t": 4.6, "kind": "report"}
+  ]
+}

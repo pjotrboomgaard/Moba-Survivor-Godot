@@ -1,14 +1,10 @@
-"""Classify Joule menu frames by 'electricity' (lightning) presence.
+"""Analyze Joule menu frames for lightning bolt presence.
 
-The lightning in this clip is bright blue-white in the upper sky region. We
-measure the count of near-white, high-brightness pixels in the top 55% of the
-frame and use that as an electricity score. Frames with score >= threshold are
-marked electric.
+For each frame, we look at the top-right region (where lightning appears) and
+count very bright pixels (RGB all > 220). Frames with many such pixels have
+visible lightning; calm frames have few.
 
-Output: prints a table and writes classify_joule_frames.json with per-frame
-scores + a boolean. Also prints the recommended kept (electric) frame list.
-
-usage: python tools/classify_joule_frames.py
+Outputs a table and writes classify_joule_frames.json.
 """
 from __future__ import annotations
 
@@ -21,61 +17,51 @@ from PIL import Image
 FRAMES_DIR = Path(__file__).resolve().parent.parent / "assets/ui/joule_menu_video/frames"
 OUT_JSON = Path(__file__).resolve().parent.parent / "tools/selftest/results/classify_joule_frames.json"
 
-# Top 55% of the frame is where the lightning/arc lives.
-SKY_FRACTION = 0.55
 
-
-def electricity_score(img: Image.Image) -> float:
-    arr = np.asarray(img.convert("RGB")).astype(np.int32)
-    h = arr.shape[0]
-    sky = arr[: int(h * SKY_FRACTION)]
+def analyze_frame(img_path: Path) -> dict:
+    img = np.asarray(Image.open(img_path).convert("RGB")).astype(np.int32)
+    h, w, _ = img.shape
+    # Top 60% of frame, right half (where lightning typically appears)
+    sky = img[: int(h * 0.60), int(w * 0.3):]
     r, g, b = sky[..., 0], sky[..., 1], sky[..., 2]
-    # Lightning is bright, bluish-white: high blue, high green, and blue >= red.
-    bright = (b > 190) & (g > 180)
-    bluish = (b > r)
-    score = float(np.count_nonzero(bright & bluish))
-    return score
+    # Lightning: bright white-blue. Threshold: all channels > 210, blue > red.
+    lightning_px = (r > 200) & (g > 200) & (b > 200) & (b >= r)
+    count = int(np.count_nonzero(lightning_px))
+    # Also check for the jagged bolt shape: vertical extent of bright pixels
+    rows_with_bright = int(np.count_nonzero(np.any(lightning_px, axis=1)))
+    return {"lightning_px": count, "rows_with_bright": rows_with_bright}
 
 
 def main() -> None:
     frames = sorted(FRAMES_DIR.glob("frame_*.png"))
-    rows = []
-    scores = []
+    results = []
     for f in frames:
-        img = Image.open(f)
-        sc = electricity_score(img)
-        idx = int(f.stem.split("_")[1])
-        rows.append((idx, sc, str(f)))
-        scores.append(sc)
+        info = analyze_frame(f)
+        frame_num = int(f.stem.split("_")[1])
+        results.append({"frame": frame_num, **info})
 
-    # Threshold: a frame is "electric" if its score is at least 25% above the
-    # minimum (the calm frames have near-zero; electric frames spike).
-    lo = min(scores)
-    hi = max(scores)
-    threshold = lo + 0.25 * (hi - lo) if hi > lo else lo
-    kept = []
-    for idx, sc, _ in rows:
-        is_elec = sc >= threshold
-        if is_elec:
-            kept.append(idx)
+    # Determine threshold: calm frames have very few lightning pixels (< 500)
+    # while lightning frames have many (> 2000). Use 1000 as threshold.
+    THRESHOLD = 1000
+    electric_frames = [r["frame"] for r in results if r["lightning_px"] >= THRESHOLD]
+    calm_frames = [r["frame"] for r in results if r["lightning_px"] < THRESHOLD]
 
-    print(f"{'frame':>5} {'score':>8}  electric")
-    for idx, sc, _ in rows:
-        mark = "  <- electric" if sc >= threshold else ""
-        print(f"{idx:>5} {sc:>8.0f}  {mark}")
-    print(f"\nthreshold={threshold:.1f} (lo={lo:.0f} hi={hi:.0f})")
-    print(f"KEPT (electric/lightning) frames: {kept}")
+    print(f"{'frame':>5} {'lightning_px':>12} {'rows':>6}  verdict")
+    for r in results:
+        verdict = "ELECTRIC" if r["lightning_px"] >= THRESHOLD else "calm"
+        print(f"{r['frame']:>5} {r['lightning_px']:>12} {r['rows_with_bright']:>6}  {verdict}")
+    print(f"\nElectric frames ({len(electric_frames)}): {electric_frames}")
+    print(f"Calm frames ({len(calm_frames)}): {calm_frames}")
 
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     report = {
-        "threshold": threshold,
-        "lo": lo,
-        "hi": hi,
-        "kept_frames": kept,
-        "per_frame": [{"index": i, "score": s} for (i, s, _) in rows],
+        "threshold": THRESHOLD,
+        "electric_frames": electric_frames,
+        "calm_frames": calm_frames,
+        "all_frames": results,
     }
     OUT_JSON.write_text(json.dumps(report, indent=2))
-    print(f"\nwrote {OUT_JSON}")
+    print(f"\nWrote {OUT_JSON}")
 
 
 if __name__ == "__main__":
