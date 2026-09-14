@@ -3,7 +3,7 @@
     {
       "id": "joule_fills_screen",
       "label": "Joule menu video: static bg -> full-bleed animated video",
-      "score": "5/6",
+      "score": "6/6",
       "rows": [
         {
           "tool": "inspect:coverage>=0.85",
@@ -27,8 +27,8 @@
         },
         {
           "tool": "vision:layout fills-screen PASS",
-          "ok": false,
-          "detail": "VERDICT: PASS\nISSUE: None\nDETAIL: The game screenshot shows "
+          "ok": true,
+          "detail": "VERDICT: PASS"
         },
         {
           "tool": "vision:layout describes change",
