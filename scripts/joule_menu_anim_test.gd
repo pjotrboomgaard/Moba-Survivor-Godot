@@ -23,7 +23,7 @@ func _ready() -> void:
 
 	var sf := SpriteFrames.new()
 	sf.add_animation("joule_bg")
-	sf.set_animation_speed("joule_bg", 12.0)
+	sf.set_animation_speed("joule_bg", 2.4)
 	sf.set_animation_loop("joule_bg", true)
 	for i in range(FRAME_COUNT):
 		var path := "%s/frame_%03d.png" % [SPRITE_DIR, i + 1]

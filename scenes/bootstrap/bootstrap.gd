@@ -581,7 +581,7 @@ func _load_joule_menu_frames() -> Array[Texture2D]:
 var _joule_video_active := false
 var _joule_frame_index := 0
 var _joule_frame_timer := 0.0
-const JOULE_MENU_FPS := 12.0
+const JOULE_MENU_FPS := 2.4
 
 
 func _tick_joule_menu_video(delta: float) -> void:
