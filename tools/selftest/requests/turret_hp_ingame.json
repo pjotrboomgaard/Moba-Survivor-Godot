@@ -1,0 +1,11 @@
+{
+  "hero": "tobor",
+  "comment": "T3.84 in-game: spawn a real turret in the live arena and probe its max HP (should be 180, not 360).",
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "ingame_turret_before"},
+    {"t": 1.4, "kind": "spawn_turret", "at": [300, 0]},
+    {"t": 2.4, "kind": "turret_probe", "label": "ingame_turret_hp"},
+    {"t": 2.6, "kind": "snap", "label": "ingame_turret_after"},
+    {"t": 3.2, "kind": "report"}
+  ]
+}

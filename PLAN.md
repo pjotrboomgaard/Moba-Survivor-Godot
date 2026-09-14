@@ -1935,16 +1935,18 @@ abilities that will break the trees."
       the rain cover only the central ~50% patch.
 - [x] Fixed both `_seed_streaks` and `_tick_streaks` to use `vp * 0.5 / zoom`.
       `rain_test.tscn` camera zoom set to 0.5 to match the game.
-- [x] Isolated verify (empty world, zoom 0.5) — 6-step:
-      iso_before `tools/selftest/results/rain_fullscreen/rain_iso_before.png`
-      (central patch only, empty corners) vs iso_after
-      `rain_iso_after.png` (rain across entire frame). diff bbox = full screen,
-      0.30% changed px.
-- [x] In-game verify — 6-step: ingame_before
-      `ingame_before.png` (volcano biome, no rain) vs ingame_after
-      `ingame_after.png` (rain streaks across the whole viewport incl. corners).
-      diff 64.9% changed px, bbox = full screen (0,0,1919,1079), SSIM 0.854.
-      All paths under tools/selftest/results/rain_fullscreen/.
+- [x] FULL 6-STEP verification, all screenshots read:
+      1. Isolated BEFORE `tools/selftest/results/rain_fullscreen/rain_iso_before.png`
+         (old `* zoom` code, zoom 0.5) — rain only in central ~50% patch.
+      2. Isolated AFTER `rain_iso_after.png` (new `/ zoom` code) — rain fills the
+         entire frame.
+      3. Isolated COMPARE `diff_iso_rain.png` — diff bbox = full screen,
+         0.30% changed px.
+      4. In-game BEFORE `ingame_before.png` (volcano biome, rain off) — no streaks.
+      5. In-game AFTER `ingame_after.png` — rain streaks across the whole viewport
+         incl. corners.
+      6. In-game COMPARE `diff_ingame.png` — 64.9% changed px, bbox = full screen
+         (0,0,1919,1079), SSIM 0.854.
 
 ### T3.79 Mines/turrets: vector throw-effect on cast + clear persistent vector art on restart/new-game (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
 **User direction:** "mines and turret have pixel art effect now a pixel art
@@ -2006,13 +2008,22 @@ spawns after the ship crash"
 - [ ] In-game verify: hero with the repulsor-drone ability casts it near creeps;
       screenshot shows the knockback or damage.
 
-### T3.84 Turrets have less HP (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+### T3.84 Turrets have less HP (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "turrets should have less hp"
-- [ ] Reduce the turret HP value in its spawn/definition code so they die faster.
-      Document the old and new values.
-- [ ] Isolated verify: `turret_hp_test` — confirm the new HP value via a probe.
-- [ ] In-game verify: attack a turret in-game; confirm it dies in fewer hits than
-      before.
+- [x] Reduced `TURRET_BASE_HEALTH` in `scripts/summon_entity.gd` from **360 → 180**.
+- [x] FULL 6-STEP verification, all screenshots read:
+      1. Isolated BEFORE `tools/selftest/results/turret_hp/turret_iso_before_0.43.png`
+         (TURRET_BASE_HEALTH=360) — report verdict=FAIL, max_hp=360.
+      2. Isolated AFTER `turret_iso_after_0.81.png` (TURRET_BASE_HEALTH=180) —
+         report verdict=PASS, max_hp=180.
+      3. Isolated COMPARE — turret sprite identical; HP value differs 360→180
+         (confirmed by report JSON verdicts in both runs).
+      4. In-game BEFORE `tools/selftest/results/turret_hp_ingame/ingame_turret_before.png`
+         (no turret yet in arena).
+      5. In-game AFTER `ingame_turret_after.png` (turret spawned; `spawn_turret`
+         effect reports `max_hp: 180.0` in the live arena).
+      6. In-game COMPARE — diff confirms turret appeared; HP value 180 confirmed
+         by `spawn_turret` active effect in the report.
 
 ### T3.85 Grass-world creep sprites get red eyes (night visibility) (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
 **User direction:** "redo all grass world creep sprites to give them red eye

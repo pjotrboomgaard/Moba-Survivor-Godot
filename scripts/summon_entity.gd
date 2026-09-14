@@ -11,7 +11,9 @@ signal expired(entity: SummonEntity)
 ## they carry a HealthComponent so creeps can hunt and destroy them like any other unit.
 ## Only summons flagged as a turret get real HP; mines/traps (trigger_radius > 0) stay
 ## indestructible (they detonate on contact instead of being chewed up).
-const TURRET_BASE_HEALTH := 360.0
+## T3.84: turrets should die faster. Was 360 — halved to 180 so a few creep hits
+## knock them down instead of the turret outlasting the wave.
+const TURRET_BASE_HEALTH := 180.0
 var is_turret := false
 var health: HealthComponent
 

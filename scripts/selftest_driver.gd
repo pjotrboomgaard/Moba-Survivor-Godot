@@ -287,6 +287,27 @@ func _spawn_at(pos: Vector2, type_id: String = "grunt", hp_mult: float = 1.0, sp
 	return e
 
 
+## T3.84: spawn a real turret SummonEntity directly in the live arena so the
+## turret_probe can read its max_health. Uses the same scene the game spawns
+## turrets with (scenes/effects/summon_entity.tscn) so the value is authentic.
+func _spawn_test_turret(at: Vector2) -> void:
+	var world := at
+	if _player != null:
+		world = _player.global_position + at
+	var sum_scene: PackedScene = load("res://scenes/effects/summon_entity.tscn")
+	if sum_scene == null or _host_main == null:
+		_active_effects.append({"kind": "spawn_turret", "error": "no scene/host", "t": _elapsed})
+		return
+	var sum: Node2D = sum_scene.instantiate()
+	sum.name = "TestTurret"
+	sum.position = world
+	_host_main.add_child(sum)
+	sum.setup("steam_turret", 1, 60.0, 30.0, 99.0, Color.WHITE)
+	var h = sum.get("health")
+	var hp := float(h.max_health) if h != null else -1.0
+	_active_effects.append({"kind": "spawn_turret", "t": _elapsed, "max_hp": hp, "pos": str(world)})
+
+
 func _screenshot(label: String) -> Vector2:
 	await RenderingServer.frame_post_draw
 	var vp := get_viewport()
@@ -434,6 +455,11 @@ func _process(delta: float) -> void:
 						_player.ability_cooldowns[i] = 0.0
 					_player.secondary_cooldown = 0.0
 					_active_effects.append({"kind": "reset_ability_cd", "t": _elapsed})
+			"spawn_turret":
+				# T3.84: directly spawn a real turret SummonEntity in the live arena
+				# so turret_probe can read its max_health (180 vs 360) without relying
+				# on ability-cast targeting/cooldowns.
+				_spawn_test_turret(_event_vec(event, "at", Vector2(400, 0)))
 			"snap":
 				await _screenshot(str(event.get("label", "snap")))
 			"probe":
@@ -485,6 +511,10 @@ func _process(delta: float) -> void:
 			"tree_hp_probe":
 				# T3.75: report tree HP / breaking / collision state for verification.
 				_record_tree_hp_probe(str(event.get("label", "tree_hp")))
+			"turret_probe":
+				# T3.84: report the max_health of every live turret so a test can
+				# assert the (reduced) turret HP value end-to-end.
+				_record_turret_probe(str(event.get("label", "turrets")))
 			"damage_tree":
 				# T3.75: drive the arena's tree-HP damage API in the live game.
 				var dmg_arena: Variant = _host_main.get("arena") if _host_main != null else null
@@ -1185,6 +1215,25 @@ func _obstacle_count() -> int:
 		if is_instance_valid(obs):
 			n += 1
 	return n
+
+
+## T3.84: report the max_health + current health of every live turret so a test
+## can assert the reduced turret-HP value end-to-end.
+func _record_turret_probe(label: String) -> void:
+	var turrets := []
+	for node in get_tree().get_nodes_in_group("turrets"):
+		if not is_instance_valid(node):
+			continue
+		var h = node.get("health")
+		if h == null:
+			continue
+		turrets.append({
+			"pos": node.global_position if node is Node2D else null,
+			"max_hp": float(h.get("max_health", 0.0)),
+			"cur_hp": float(h.get("current_health", 0.0)),
+			"alive": not bool(h.get("is_dead", false)),
+		})
+	_active_effects.append({"kind": "turret_probe", "label": label, "t": _elapsed, "turrets": turrets})
 
 
 ## T3.75: report tree-HP state (HP, breaking flag, collision on/off) for all
