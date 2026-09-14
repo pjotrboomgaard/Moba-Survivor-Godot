@@ -1830,3 +1830,26 @@ minions things again in these test modes."
       `biome_name="Recruit Arena"` confirmed in report; screenshot
       `neutral_camps_world/neutral_camps_wave1_*.png` shows "Recruit Arena" in
       HUD. 4 corner recruitment areas + recruitable creeps verified in T3.57.
+
+### T3.74 Joule menu bg: keep only electric frames, ping-pong loop (NEW 2026-09-14) _STATUS (2026-09-14): verified_
+**User direction:** "change the joule bg animation to only be looping the frames
+where there is electricity. re-analyze the frames with and without electricity,
+only take ones with electricity and lightning and loop it forward backward forward."
+- [x] Re-analyzed all 29 frames for lightning-bolt presence via 3 signals:
+      `tools/classify_joule_frames.py` (deterministic pixel score of bright
+      bluish-white pixels in the sky region), `tools/classify_joule_vision.py`
+      (Claude vision per-frame bolt/nobolt), and direct Read-tool inspection of
+      every frame. All three agree: **frames 13 & 14 are the only calm/no-bolt
+      frames**; every other frame (1-12, 15-29) shows a lightning bolt.
+- [x] `bootstrap.gd` `_load_joule_menu_frames()` now drops frames 13 & 14, loading
+      only the 27 electric frames. `_tick_joule_menu_video()` loops them
+      ping-pong (forward → backward → forward) at 2.4 FPS with no visible seam.
+- [x] Isolated verify: `joule_menu_anim_test` → `frames_loaded=27` (matches the
+      expected 27), `pingpong_reversed=true`. Screenshot `joule_freeze_cycle_iso/
+      joule_bg_a/b/c.png` all show lightning bolts (no calm frame ever appears);
+      diff vs the old all-frames build `joule_freeze_cycle_iso/diff_iso.png` =
+      4.71% changed pixels.
+- [x] In-game verify: `run_joule_menu_ingame.ps1` (arclight, real bootstrap) →
+      PASS, 3 animated frames. `joule_menu_ingame_arclight_AFTER/ingame_after_
+      1.png` (t=10s) and `ingame_after_3.png` (t=14.6s) both show the Joule hero
+      with a lightning bolt in the live menu.
