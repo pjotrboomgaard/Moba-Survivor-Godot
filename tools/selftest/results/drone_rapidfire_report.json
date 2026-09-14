@@ -3,10 +3,10 @@
     {
       "command": "spawn_drone",
       "kind": "dev_command",
-      "t": 1.00540466666667
+      "t": 1.00359
     }
   ],
-  "elapsed": 3.20703766666667,
+  "elapsed": 3.20262790909091,
   "enemies_spawned": 1,
   "hero_position": "(72.0, 0.0)",
   "player_class": "tobor",
@@ -43,43 +43,43 @@
   "shots": [
     {
       "label": "rf_0",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5271/rf_0_1.803_5271.png",
-      "t": 1.80304633333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5089/rf_0_1.804_5089.png",
+      "t": 1.803652
     },
     {
       "label": "rf_1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5438/rf_1_1.953_5438.png",
-      "t": 1.95297233333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5248/rf_1_1.957_5248.png",
+      "t": 1.95666666666666
     },
     {
       "label": "rf_2",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5580/rf_2_2.104_5580.png",
-      "t": 2.10438566666666
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5398/rf_2_2.102_5398.png",
+      "t": 2.101976
     },
     {
       "label": "rf_3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5737/rf_3_2.257_5737.png",
-      "t": 2.25666666666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5556/rf_3_2.262_5556.png",
+      "t": 2.261528
     },
     {
       "label": "rf_4",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5888/rf_4_2.404_5888.png",
-      "t": 2.40410233333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5706/rf_4_2.414_5706.png",
+      "t": 2.41412
     },
     {
       "label": "rf_5",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6039/rf_5_2.550_6039.png",
-      "t": 2.550365
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5856/rf_5_2.556_5856.png",
+      "t": 2.556445
     },
     {
       "label": "rf_6",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6190/rf_6_2.707_6190.png",
-      "t": 2.70666666666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5998/rf_6_2.702_5998.png",
+      "t": 2.702124
     },
     {
       "label": "rf_7",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6323/rf_7_2.854_6323.png",
-      "t": 2.85447166666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6156/rf_7_2.862_6156.png",
+      "t": 2.862257
     }
   ]
 }

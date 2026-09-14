@@ -1652,14 +1652,15 @@ art around tobor."
 - [x] The button is hidden during active waves (only shown in intermission).
 - [x] No code change needed — the feature was already built.
 
-### T3.62 Drones not shooting projectiles (NEW 2026-09-14) _STATUS (2026-09-14): code done_
+### T3.62 Drones not shooting projectiles (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "i dont see drones shooting any projectiles"
 - [x] Root cause: `companion_drone.gd` `_fire()` was calling `owner_player._damage_enemy()`
       directly without spawning a visible projectile. Fixed by calling
       `spawn_player_projectile()` from the drone's position toward the target.
-- [ ] Isolated verify: spawn a hero with drone ability, engage enemies,
-      screenshot confirms visible drone projectiles in flight.
-- [ ] In-game verify: Pjotr mode, use drone ability, see projectiles firing.
+- [x] Isolated verify: `drone_iso_test` scene (before/after) confirms a visible
+      `drone_spark` projectile flies from the drone to the target.
+- [x] In-game verify: `drone_projectile_verify_tobor` selftest (2026-09-14) shows
+      the gun-drone firing a cyan projectile in flight at an enemy in the live game.
 
 ### T3.63 Swarm waves: bigger groups on every wave that has swarm minions (NEW 2026-09-14) _STATUS (2026-09-14): code done_
 **User direction:** "in 2nd swarm wave there should be way bigger amount of swarm
