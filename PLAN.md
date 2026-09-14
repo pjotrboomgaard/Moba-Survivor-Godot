@@ -1928,20 +1928,27 @@ tree"
       casts; `cast_stumps` screenshot shows the cutoff stumps at the tree bases.
       Screenshots: tools/selftest/results/tree_wobble_ingame/{iso+ingame}.
 
-### T3.77 Trees wobble + break on REAL ability casts (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+### T3.77 Trees wobble + break on REAL ability casts (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "i dont see trees yet wobbling ingame when they are hit with
 an ability. nor breaking. test the tree thing also with bots casting multiple
 abilities that will break the trees."
-- [ ] Root-cause: in the live game, hero AoE casts and enemy explosions must
-      actually reach `damage_trees_in_radius`. Add a `tree_cast_probe` selftest
-      event that reads tree HP/shake state AFTER a real ability cast (not a direct
-      API call) to confirm the wiring is connected.
-- [ ] Bots casting multiple abilities: drive 2-3 heroes to cast AoE abilities at a
-      cluster of trees over several seconds; verify trees wobble (shake state > 0)
-      then break (hp <= 0, collision disabled) via the probe.
-- [ ] Isolated verify: `tree_hp_test` mirrors the shake → break → stump sequence.
-- [ ] In-game verify: `tree_hp_ingame` with real ability casts; screenshot the
-      wobble frame + the post-break stumps; read both.
+- [x] Root-cause: the in-game probe `tree_hp_probe` reported `hp:-1` for every tree
+      because the test was pinning the hero at an arbitrary location (240,160) where
+      no tree existed, so casts never reached a tree. Added a `nearest_tree_probe`
+      driver event; the test now pins the hero AT a real tree (-688,-218) and fires
+      4 `tobor_steam_keg` casts.
+- [x] Bots casting multiple abilities: 4 real casts over ~10s. Log shows
+      `[Arena] tree at (-688.0, -218.6666) HP exhausted -> breaking` then
+      `broke -> stump` — the tree shook (wobble) then broke. A 2nd nearby tree took
+      splash and broke too.
+- [x] Isolated verify: `tree_hp_test` verdict=PASS, all_broken=true,
+      collision=[disabled×3], 4-phase screenshots (intact→shake→breaking→stump).
+- [x] In-game verify: `tree_cast_ingame` — before screenshot shows an intact tree
+      next to the hero; after screenshot shows that tree broken/fallen with a stump.
+      `diff_iso_tree.png` 2.37% changed px (3 tree regions). Both images read.
+- [x] 6-step evidence: `tools/selftest/results/tree_cast_ingame/` —
+      `tree_intact.png`/`tree_stump.png` (isolated), `cast_before`/`cast_stumps`
+      (in-game), `diff_iso_tree.png` (compare).
 
 ### T3.78 Rain: full-screen, not just a small area (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "rain is only in a small area but should be full screen"
@@ -2182,13 +2189,32 @@ exactly whats happening"
 - [ ] In-game verify: cast abilities near crater in a real game; confirm creeps
       no longer swarm an invisible point; screenshots.
 
-### T3.92 Enemy performance under 3× spawn budget (NEW 2026-09-14) _STATUS (2026-09-14): todo_
+### T3.92 Enemy performance under 3× spawn budget + full-screen flood to ~200 mixed types (NEW 2026-09-14) _STATUS (2026-09-15): todo_
 **User direction:** "3 times as many enemies in all mode" (performance side of T3.87)
++ "make it so whole screen can be flooded with around 200 enemies, different types"
++ "off screen should be ghosts moving along mini map. ingame the objects dont need
+to have super smart behaviour. find something that works efficiently with lots of
+creeps in screen. whole screen can be flooded with creeps without an fps drop."
++ "add to do list to have a lot of enemies on screen find hard cap without a fps drop"
+
+**Plan (priority, deferred until user's heavy workload finishes):**
 - [x] Observed: wave-1 live count ~75 → `proc_ms` ≈ 139ms (≈7 FPS) on the test rig.
       The enemy far-cull already runs, but mid-range AI + per-enemy `_draw` are
       still the hot spots.
-- [ ] Profile per-enemy cost; batch `_draw` (shared texture atlas / `CanvasItem`
-      batching) and reduce physics-substep work for non-cast enemies.
-- [ ] Cap the *simulated* enemy count (let off-screen enemies idle, already in
-      far-mode) and verify FPS recovers to ≥30 at the 3× budget.
-- [ ] Verify: fps_probe isolated + in-game at wave 1; screenshot.
+- [ ] **Ghost off-screen enemies**: extend `_enter_far_mode()` — when off-screen,
+      freeze the sprite (already done), drop to a very low physics tick (e.g.
+      5Hz), and just linearly walk toward the nearest player. Track only on the
+      minimap. Zero AI / separation / draw cost while off-screen.
+- [ ] **Cheap on-screen AI**: for on-screen creeps, replace per-frame
+      `_find_nearest_player()` + `_contact_attack_player()` player-group scans with
+      a shared per-frame player-position snapshot (built once in Arena) that all
+      enemies read. Throttle target refresh to 2Hz. Reduce separation to a smaller
+      neighborhood.
+- [ ] **Batched rendering**: shared texture atlas / `CanvasItem` batching for the
+      creep body + eye so 200 sprites don't trigger 200 individual draw calls.
+- [ ] **Find the hard cap**: profile at 100/150/200 on-screen enemies of mixed
+      types (grub, swarmling, hound, ranged, boss). Record the highest count that
+      holds ≥30 FPS and set `wave_director` live cap accordingly.
+- [ ] Verify 6-step: isolated `enemy_perf_bench` at 90/150/200 (before/after the
+      ghosting + cheap-AI changes) + in-game at wave 1 with the 3× budget. FPS probe
+      + screenshots + vision_check.

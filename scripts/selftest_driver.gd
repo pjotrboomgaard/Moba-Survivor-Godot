@@ -484,6 +484,16 @@ func _process(delta: float) -> void:
 					"budget": wb_val,
 					"t": _elapsed,
 				})
+			"player_healthbar_probe":
+				# T3.82: report whether the hero's world health bar + sprite are
+				# currently visible (to catch the pre-spawn bar bleeding through).
+				var phb := {"kind": "player_healthbar_probe", "t": _elapsed}
+				if _player != null:
+					var bar = _player.get("world_health_bar")
+					phb["bar_visible"] = bool(bar.visible) if bar != null else null
+					var sp = _player.get("sprite")
+					phb["sprite_visible"] = bool(sp.visible) if sp != null else null
+				_active_effects.append(phb)
 			"creep_probe":
 				# T3.83: report HP + position of the most recently spawned enemy
 				# (by the driver's `spawn` events) so a test can confirm a drone
@@ -552,6 +562,10 @@ func _process(delta: float) -> void:
 			"tree_hp_probe":
 				# T3.75: report tree HP / breaking / collision state for verification.
 				_record_tree_hp_probe(str(event.get("label", "tree_hp")))
+			"nearest_tree_probe":
+				# T3.77: report the position of the tree nearest to the player so a
+				# test can aim casts AT a real tree (not an arbitrary empty spot).
+				_record_nearest_tree_probe(str(event.get("label", "tree")))
 			"turret_probe":
 				# T3.84: report the max_health of every live turret so a test can
 				# assert the (reduced) turret HP value end-to-end.
@@ -1310,6 +1324,39 @@ func _record_tree_hp_probe(label: String) -> void:
 					"collision_disabled": obs.collision.disabled,
 				})
 	_active_effects.append({"kind": "tree_hp_probe", "label": label, "t": _elapsed, "trees": trees})
+
+
+func _record_nearest_tree_probe(label: String) -> void:
+	# T3.77: find the tree closest to the player so a test can aim casts at a real
+	# tree. Reports its position + current hp.
+	var host_main: Variant = _host_main
+	var pos := Vector2.ZERO
+	var found := false
+	var hp := -1.0
+	if host_main != null:
+		var arena: Variant = host_main.get("arena")
+		if arena != null and arena is Arena and _player != null:
+			var best := INF
+			for obs in (arena as Arena).obstacles:
+				if not is_instance_valid(obs):
+					continue
+				if not str(obs.get("sprite_id")).begins_with("tree"):
+					continue
+				var d: float = obs.global_position.distance_to(_player.global_position)
+				if d < best:
+					best = d
+					pos = obs.global_position
+					found = true
+			if found:
+				hp = float((arena as Arena).tree_hp_at(pos))
+	_active_effects.append({
+		"kind": "nearest_tree_probe",
+		"label": label,
+		"t": _elapsed,
+		"found": found,
+		"pos": pos,
+		"hp": hp,
+	})
 
 
 func _record_fps(label: String) -> void:

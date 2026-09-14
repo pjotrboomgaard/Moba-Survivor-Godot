@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/tree_cast_ingame/tree_intact.png",
+  "after": "tools/selftest/results/tree_cast_ingame/tree_stump.png",
+  "out": "tools/selftest/results/tree_cast_ingame/diff_iso_tree.png",
+  "changed_pixels": 49228,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.02374,
+  "bbox": [
+    224,
+    250,
+    1618,
+    529
+  ],
+  "has_change": true
+}
