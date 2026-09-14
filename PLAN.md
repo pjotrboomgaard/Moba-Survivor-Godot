@@ -1927,14 +1927,20 @@ abilities that will break the trees."
 - [ ] In-game verify: `tree_hp_ingame` with real ability casts; screenshot the
       wobble frame + the post-break stumps; read both.
 
-### T3.78 Rain: full-screen, not just a small area (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+### T3.78 Rain: full-screen, not just a small area (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "rain is only in a small area but should be full screen"
-- [ ] Diagnose: rain particles/VFX currently emit over a limited region. Find the
-      rain spawn rect/area and expand it to cover the full viewport (or the whole
-      playfield).
-- [ ] Isolated verify: empty-world rain test — rain streaks visible across the
-      entire frame, not just a patch.
-- [ ] In-game verify: rain biome screenshot shows full-screen rain.
+- [x] Diagnose: root cause in `biome_weather.gd` `_seed_streaks`/`_tick_streaks`
+      computed `half_w = vp.x * 0.5 * zoom`. World-unit half-extent must be
+      `pixel size / zoom`, not `* zoom`. At the game's default zoom 0.5 this made
+      the rain cover only the central ~50% patch.
+- [x] Fixed both `_seed_streaks` and `_tick_streaks` to use `vp * 0.5 / zoom`.
+      `rain_test.tscn` camera zoom set to 0.5 to match the game.
+- [x] Isolated verify (empty world, zoom 0.5): BEFORE screenshot shows rain only
+      in the central patch (empty corners); AFTER shows rain across the entire
+      frame. diff bbox = full screen (0,0,1916,1079), 0.30% changed px.
+- [x] In-game verify: full-game screenshot (zoom 0.5) shows rain streaks across
+      the whole viewport. Screenshots: tools/selftest/results/rain_fullscreen/{
+      rain_iso_before,rain_iso_after,rain_full_1.60}.png.
 
 ### T3.79 Mines/turrets: vector throw-effect on cast + clear persistent vector art on restart/new-game (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
 **User direction:** "mines and turret have pixel art effect now a pixel art
@@ -2080,3 +2086,24 @@ small to big that takes 10 seconds in same position."
       early/mid/late morph.
 - [ ] In-game verify: real game — break a tree, wait through cycles (or dev
       skip), confirm regrowth morph plays; screenshots.
+
+### T3.91 Creeps attract to invisible leftover objects after abilities (NEW 2026-09-14) _STATUS (2026-09-14): todo_
+**User direction:** "creeps are attracted to invisible objects left or something
+i dont know what from, but seems like when abilities used there is some
+uninteracting object left in the game sometimes in the crater, i dont know
+exactly whats happening"
+- [ ] Reproduce: cast various AoE / placement / zone abilities (keg, turret,
+      fissure, fields, zones) near the crater; observe whether any leftover
+      node (hazard, decal, warning ring, pending-strike marker, VFX) becomes a
+      target/attractor for creeps.
+- [ ] Find the source: look for ability-spawned nodes that register as a target,
+      damage source, or aggro point but have no/hidden visual — e.g. a
+      `register_pending_hazard`, area node, or VFX that outlives its effect and
+      emits an attractor signal.
+- [ ] Fix: clear/expire the leftover node on effect end, or stop it emitting the
+      aggro/attract signal; ensure nothing lingers in the crater after a cast.
+- [ ] Isolated verify: `leftover_attractor_test` — empty world; cast the suspect
+      abilities; probe the node tree for lingering active nodes with no visual;
+      assert none remain after the effect duration.
+- [ ] In-game verify: cast abilities near crater in a real game; confirm creeps
+      no longer swarm an invisible point; screenshots.

@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/rain_fullscreen/rain_iso_before.png",
+  "after": "tools/selftest/results/rain_fullscreen/rain_iso_after.png",
+  "out": "tools/selftest/results/rain_fullscreen/diff_iso_rain.png",
+  "changed_pixels": 6270,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.003024,
+  "bbox": [
+    0,
+    0,
+    1916,
+    1079
+  ],
+  "has_change": true
+}

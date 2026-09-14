@@ -7,5 +7,7 @@ script = ExtResource("1_test")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, 0)
-zoom = Vector2(1, 1)
+; T3.78: match the game's default zoom (0.5) so the rain full-screen fix is
+; exercised at the zoom level where the old * zoom bug shrank the rain area.
+zoom = Vector2(0.5, 0.5)
 position_smoothing_enabled = false

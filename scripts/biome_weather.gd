@@ -66,9 +66,11 @@ func _seed_streaks() -> void:
 	# plus margin so rain covers the full screen at any zoom level.
 	var vp := get_viewport().get_visible_rect().size
 	var cam := get_viewport().get_camera_2d()
+	# visible size in WORLD units = pixel size / zoom. (The old * zoom was inverted,
+	# so at zoom < 1 the rain only covered a small central patch — T3.78.)
 	var zoom := cam.zoom.x if cam != null and cam.zoom.x > 0.01 else 1.0
-	var half_w := vp.x * 0.5 * zoom + RAIN_MARGIN
-	var half_h := vp.y * 0.5 * zoom + RAIN_MARGIN
+	var half_w := vp.x * 0.5 / zoom + RAIN_MARGIN
+	var half_h := vp.y * 0.5 / zoom + RAIN_MARGIN
 	var count := STORM_STREAK_COUNT if storm_active else STREAK_COUNT
 	for i in count:
 		_streaks.append({
@@ -103,9 +105,10 @@ func set_storm_active(active: bool) -> void:
 func _tick_streaks(delta: float) -> void:
 	var vp := get_viewport().get_visible_rect().size
 	var cam := get_viewport().get_camera_2d()
+	# world-unit half extents = pixel size / zoom (T3.78).
 	var zoom := cam.zoom.x if cam != null and cam.zoom.x > 0.01 else 1.0
-	var half_h := vp.y * 0.5 * zoom + RAIN_MARGIN
-	var half_w := vp.x * 0.5 * zoom + RAIN_MARGIN
+	var half_h := vp.y * 0.5 / zoom + RAIN_MARGIN
+	var half_w := vp.x * 0.5 / zoom + RAIN_MARGIN
 	var recycle_y := half_h + STREAK_LEN_MAX
 	for s in _streaks:
 		s.y += float(s.speed) * delta
