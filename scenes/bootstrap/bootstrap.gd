@@ -103,7 +103,6 @@ var _play_mode_group: ButtonGroup = null
 
 ## T3.71: Joule (arclight) animated menu background (from MP4 frame extraction).
 var _joule_frames: Array[Texture2D] = []
-var _joule_menu_anim: AnimatedSprite2D = null
 
 const STEAM_OPERATION_TIMEOUT := 22.0
 
@@ -430,6 +429,7 @@ func _sync_steam_display_name() -> void:
 
 
 func _process(delta: float) -> void:
+	_tick_joule_menu_video(delta)
 	_process_hero_hover_walk(delta)
 	_update_preview_viewport()
 	if _waiting_steam_operation:
@@ -535,16 +535,22 @@ func _apply_hero_backdrop() -> void:
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.offset_right = 0.0
-	# Joule (arclight): animated menu background from extracted video frames.
-	# Other heroes: static texture as before.
+	# Joule (arclight): animated menu background driven on the SAME full-screen
+	# TextureRect so it fills the screen exactly like the static backdrops.
+	# _process ticks the frame; other heroes use the static texture as before.
 	if PlayerProfile.selected_class_id == "arclight":
-		art.texture = _joule_menu_frame(0)  # static first frame as fallback
+		if _joule_frames.is_empty():
+			_joule_frames = _load_joule_menu_frames()
+		if not _joule_frames.is_empty():
+			_joule_video_active = true
+			art.texture = _joule_frames[0]
+		else:
+			art.texture = SpriteLibrary.menu_backdrop_for("arclight")
 		art.visible = true
-		_ensure_joule_menu_video()
 	else:
+		_joule_video_active = false
 		art.texture = SpriteLibrary.menu_backdrop_for(PlayerProfile.selected_class_id)
 		art.visible = true
-		_stop_joule_menu_video()
 	_raise_ability_hover()
 
 
@@ -570,46 +576,23 @@ func _load_joule_menu_frames() -> Array[Texture2D]:
 	return out
 
 
-func _ensure_joule_menu_video() -> void:
-	if _joule_menu_anim != null and is_instance_valid(_joule_menu_anim):
-		return  # already playing
-	if _joule_frames.is_empty():
-		_joule_frames = _load_joule_menu_frames()
-	if _joule_frames.is_empty():
+## Tick the Joule (arclight) menu video frame on the shared full-screen backdrop.
+## Driven from _process so the animation advances only while the menu is shown.
+var _joule_video_active := false
+var _joule_frame_index := 0
+var _joule_frame_timer := 0.0
+const JOULE_MENU_FPS := 12.0
+
+
+func _tick_joule_menu_video(delta: float) -> void:
+	if not _joule_video_active or _joule_frames.is_empty():
 		return
-	var layer := $StatusLayer as CanvasLayer
-	_joule_menu_anim = AnimatedSprite2D.new()
-	_joule_menu_anim.name = "JouleMenuVideo"
-	_joule_menu_anim.position = Vector2.ZERO
-	var sf := SpriteFrames.new()
-	sf.add_animation("joule")
-	sf.set_animation_speed("joule", 12.0)
-	sf.set_animation_loop("joule", true)
-	for tex in _joule_frames:
-		sf.add_frame("joule", tex)
-	_joule_menu_anim.sprite_frames = sf
-	# Fill the whole viewport like the static backdrop does: keep-aspect-covered.
-	# Frame intrinsic size is 1080x607; scale = max(vw/fw, vh/fh) so it fully covers
-	# (no hole / no corner), then center on the screen.
-	var vp := get_viewport().get_visible_rect().size
-	var tex: Texture2D = _joule_frames[0]
-	var fw := float(tex.get_width()) if tex != null else 1080.0
-	var fh := float(tex.get_height()) if tex != null else 607.0
-	if fw < 1.0 or fh < 1.0:
-		fw = 1080.0; fh = 607.0
-	var scale := maxf(vp.x / fw, vp.y / fh)
-	_joule_menu_anim.scale = Vector2(scale, scale)
-	# AnimatedSprite2D is centered on its origin, so zero origin = screen center.
-	_joule_menu_anim.position = Vector2(0.0, 0.0)
-	_joule_menu_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	layer.add_child(_joule_menu_anim)
-	_joule_menu_anim.play("joule")
-
-
-func _stop_joule_menu_video() -> void:
-	if _joule_menu_anim != null and is_instance_valid(_joule_menu_anim):
-		_joule_menu_anim.queue_free()
-	_joule_menu_anim = null
+	_joule_frame_timer += delta
+	if _joule_frame_timer >= 1.0 / JOULE_MENU_FPS:
+		_joule_frame_timer = 0.0
+		_joule_frame_index = (_joule_frame_index + 1) % _joule_frames.size()
+		var art := _hero_backdrop()
+		art.texture = _joule_frames[_joule_frame_index]
 
 
 var selected_world: int = 0
