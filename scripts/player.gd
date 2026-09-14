@@ -36,6 +36,47 @@ const PLAYER_KNOCKBACK_DECAY := 1650.0
 const FACING_CLASS_IDS := ["arclight", "bulwark", "warden", "cinder", "pyra", "slag", "ember", "thorn", "willow", "stump", "sage", "volt", "nebula", "astral", "rime"]
 ## Global in-game hero-sprite scale boost (Part 1: heroes felt ~25% small). HUD/menu untouched.
 const HERO_SCALE_BOOST := 1.25
+## Per-hero relative size multipliers (T3.68: user requested specific relative sizes).
+## Tobor (Wrench) is the reference = 1.0. Joule (arclight) matches Tobor.
+## Tremor (bulwark) is 1.2x Tobor (a bit taller). Totem (warden) is 0.85x Tobor (smaller).
+const HERO_SIZE_MULT: Dictionary = {
+	"arclight": 0.8,    # Joule = a little smaller than Tobor (Wrench)
+	"bulwark": 0.8,     # Tremor = a little smaller than Tobor
+	"warden": 0.6,      # Totem = smallest of the party
+}
+## T3.68: per-hero hover height offset (px above baseline). Warden (Totem) flies
+## a little higher than the default.
+const HERO_HOVER_OFFSET: Dictionary = {
+	"warden": -18.0,    # Totem flies higher
+}
+## Global default hover offset for hovering heroes that aren't in HERO_HOVER_OFFSET.
+const DEFAULT_HOVER_OFFSET := -10.0
+## T3.69: per-hero bottom-feet anchor (px from texture center to the feet row).
+## Measured from the 32x32 sprites: Tobor's art ends at y=26 (5px above the
+## texture bottom) while the other heroes end at y=31. Centering the sprite puts
+## every hero's feet at a different Y; this dict lets us shift each hero down so
+## all feet land on the same ground line. Positive = shift the sprite downward.
+const HERO_FOOT_ANCHOR: Dictionary = {
+	"tobor": 11.0,      # feet 11px below center (26 - 16 = 10, +1 for pixel row)
+	"arclight": 16.0,   # feet 16px below center (31 - 15)
+	"bulwark": 16.0,
+	"warden": 16.0,
+}
+## Reference feet anchor (Tobor = the ground line every hero aligns to).
+const _REF_FOOT_ANCHOR := 11.0
+
+
+func _hero_feet_offset(scale: Vector2) -> float:
+	## Downward Y offset (px) so this hero's feet align with Tobor's baseline.
+	## All heroes are centered; the foot row sits `anchor` px below the texture
+	## center pre-scale, so post-scale it sits `anchor * scale.y` px below. To
+	## put every hero's feet on Tobor's line, shift each hero down by
+	## (ref_anchor - this_anchor) * scale.y (negative when this hero's feet are
+	## already lower, which cancels the extra length the user saw).
+	var anchor := float(HERO_FOOT_ANCHOR.get(class_id, _REF_FOOT_ANCHOR))
+	return (_REF_FOOT_ANCHOR - anchor) * scale.y
+
+
 const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
 const OBSTACLE_LAYER := 16
@@ -603,8 +644,11 @@ func _apply_sprite() -> void:
 	sprite.offset = Vector2.ZERO
 	sprite.texture = _facing_texture()
 	sprite.scale = _hero_sprite_scale()
+	# T3.69: align all heroes' feet on the same ground line.
+	if not hovering:
+		sprite.offset = Vector2(0.0, _hero_feet_offset(sprite.scale))
 	if hovering:
-		sprite.offset = Vector2(0.0, -10.0)
+		sprite.offset = Vector2(0.0, float(HERO_HOVER_OFFSET.get(class_id, DEFAULT_HOVER_OFFSET)))
 
 
 func _facing_texture() -> Texture2D:
@@ -680,7 +724,9 @@ func _hero_sprite_scale() -> Vector2:
 	if sprite == null or sprite.texture == null:
 		return Vector2.ONE
 	# T3.65: All heroes use the same sprite scale so CPU allies match Tobor's size.
-	var boost := HERO_SCALE_BOOST
+	# T3.68: per-hero relative size multipliers (Joule=Tobor, Tremor=1.2x, Totem=0.85x).
+	var size_mult := float(HERO_SIZE_MULT.get(class_id, 1.0))
+	var boost := HERO_SCALE_BOOST * size_mult
 	if FACING_CLASS_IDS.has(class_id):
 		return SpriteLibrary.scale_for_radius(sprite.texture, BODY_RADIUS * 2.2 * boost)
 	if sprite.texture.get_width() >= 32:
@@ -1216,8 +1262,9 @@ func _update_hover_visual(delta: float) -> void:
 	if not hovering or sprite == null or class_id == "tobor":
 		return
 	_hover_phase += delta * 4.2
+	var base_offset := float(HERO_HOVER_OFFSET.get(class_id, DEFAULT_HOVER_OFFSET))
 	var bob := sin(_hover_phase) * 3.5
-	sprite.offset = Vector2(0.0, -10.0 + bob)
+	sprite.offset = Vector2(0.0, base_offset + bob)
 	if world_health_bar != null and sprite.texture != null:
 		var h := sprite.texture.get_height() * sprite.scale.y
 		world_health_bar.position = Vector2(-30.0, -h * 0.5 - 14.0 + bob)
