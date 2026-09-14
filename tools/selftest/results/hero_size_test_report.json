@@ -1,4 +1,10 @@
 {
   "scene": "hero_size_test",
+  "shots": [
+    {
+      "label": "hero_sizes",
+      "path": "user://hero_size_run_1789386125/hero_sizes_1.62.png"
+    }
+  ],
   "verdict": "PASS"
 }

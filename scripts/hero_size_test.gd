@@ -19,6 +19,7 @@ var _done := false
 var _elapsed := 0.0
 var _run_dir := ""
 var _report_path := "user://selftest_report.json"
+var _captured_path := ""
 
 # Hero ids + world x positions, ordered left→right.
 const HEROES: Array = [
@@ -78,6 +79,7 @@ func _capture() -> void:
 	var path := "%s/hero_sizes_%s.png" % [_run_dir, "%.2f" % _elapsed]
 	var img := get_viewport().get_texture().get_image()
 	img.save_png(path)
+	_captured_path = path
 	print("[HeroSize] snap -> %s" % path)
 
 
@@ -85,9 +87,13 @@ func _finish() -> void:
 	if _done:
 		return
 	_done = true
+	var shots := []
+	if _captured_path != "":
+		shots.append({"label": "hero_sizes", "path": _captured_path})
 	var report := {
 		"verdict": "PASS",
 		"scene": "hero_size_test",
+		"shots": shots,
 	}
 	var f := FileAccess.open(_report_path, FileAccess.WRITE)
 	if f != null:
@@ -117,9 +123,9 @@ func _draw() -> void:
 			match class_id:
 				"warden":
 					hover = float(HOVER_OFFSET.get("warden", DEFAULT_HOVER_OFFSET))
-			# T3.69 foot offset (same formula as Player._hero_feet_offset).
+			# T3.69 foot offset (same formula as Player._hero_feet_offset — no scale).
 			var anchor := float(FOOT_ANCHOR.get(class_id, REF_FOOT_ANCHOR))
-			var feet_off: float = (REF_FOOT_ANCHOR - anchor) * scale.y
+			var feet_off: float = REF_FOOT_ANCHOR - anchor
 			# Node origin sits on the baseline (y=60). Centered sprite + offset.
 			var node_y: float = 60.0
 			var sprite_center_y: float = node_y + hover + feet_off

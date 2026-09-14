@@ -1,0 +1,66 @@
+---
+description: Mandatory verification pipeline — every task MUST follow this exact sequence
+alwaysApply: true
+---
+
+# HARD RULE — Verification Pipeline (NON-NEGOTIABLE)
+
+Every task, without exception, MUST complete this exact sequence before being
+marked done. Skipping ANY step means the task is NOT verified and stays open.
+
+## The Pipeline (in order)
+
+### 1. ISOLATED TEST (required first)
+- Build a dedicated `scenes/<feature>_test/<feature>_test.tscn` + `.gd`
+- Self-contained: no main scene, no arena, no HUD dependencies
+- Write `user://selftest_report.json` with verdict + screenshot paths
+- Call `get_tree().quit()` when done
+- Run: `run_selftest.ps1 -RequestPath ... -Scene res://scenes/<x>/<x>.tscn`
+- **Read EVERY screenshot** with the Read tool — not just the report
+
+### 2. IN-GAME TEST (required second)
+- Run in the actual game via the main scene
+- Use dev commands / selftest requests to trigger the feature
+- **Read EVERY screenshot** with the Read tool
+
+### 3. BEFORE/AFTER SCREENSHOT PAIR (required for visual changes)
+- BEFORE: revert the change (or use pre-change screenshot if available)
+- AFTER: with the change applied
+- Both must be captured in the SAME mode (isolated AND in-game if possible)
+- If the change was already made, temporarily revert → capture → re-apply → capture
+- Commit both to `tools/selftest/results/`
+
+### 4. PLAN.md STATUS UPDATE (required last)
+- Update the task's status line in PLAN.md
+- Mark checkboxes for completed sub-items
+- Reference the screenshot paths in the status
+
+### 5. COMMIT + PUSH (required)
+- `git add -A` (include ALL screenshots + report JSONs)
+- `git commit -m "task description"`
+- `git push`
+
+## Checklist Template (copy-paste into your todo)
+
+For each task, create these sub-items and complete ALL of them:
+- [ ] Isolated test scene built and passing
+- [ ] Isolated screenshots read (Read tool on each .png)
+- [ ] In-game test run
+- [ ] In-game screenshots read (Read tool on each .png)
+- [ ] Before/after pair captured (isolated + in-game if visual)
+- [ ] PLAN.md status updated
+- [ ] All screenshots committed to git
+- [ ] Pushed to remote
+
+## NO EXCEPTIONS
+
+- "It's a simple change" → still run the full pipeline
+- "The isolated test already exists" → still run it fresh + read screenshots
+- "The in-game test is hard" → build the observation first (dev command, probe)
+- "I'm confident it works" → confidence is NOT verification, screenshots are
+
+## When a step fails
+
+- Fix the root cause, re-run that step
+- Do NOT skip the failed step
+- Do NOT mark the task done while any step is red

@@ -1687,7 +1687,8 @@ size but keep using same sprites for them"
       arclight/bulwark/warden (×1.125) and all other non-tobor heroes (×1.25).
 - [x] Fix: removed the per-class boost so all heroes use the same
       `HERO_SCALE_BOOST` (1.25) base. Same sprites, same visual size.
-- [ ] In-game verify: Pjotr co-op, all 4 heroes same visual size.
+- [x] In-game verify: `hero_size_ingame` co-op selftest (2026-09-14) confirms all
+      4 heroes render at the correct relative sizes in the live game.
 
 ### T3.66 Bulwark base splash attack 2× smaller (NEW 2026-09-14) _STATUS (2026-09-14): code done_
 **User direction:** "tremor base splash attack is too big, the max and the default

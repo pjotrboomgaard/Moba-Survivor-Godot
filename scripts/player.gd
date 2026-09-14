@@ -66,15 +66,14 @@ const HERO_FOOT_ANCHOR: Dictionary = {
 const _REF_FOOT_ANCHOR := 11.0
 
 
-func _hero_feet_offset(scale: Vector2) -> float:
-	## Downward Y offset (px) so this hero's feet align with Tobor's baseline.
-	## All heroes are centered; the foot row sits `anchor` px below the texture
-	## center pre-scale, so post-scale it sits `anchor * scale.y` px below. To
-	## put every hero's feet on Tobor's line, shift each hero down by
-	## (ref_anchor - this_anchor) * scale.y (negative when this hero's feet are
-	## already lower, which cancels the extra length the user saw).
+func _hero_feet_offset() -> float:
+	## Downward Y offset (in texture pixels) so this hero's feet align with
+	## Tobor's baseline. Godot's Sprite2D.offset is in pre-scale texture space,
+	## so no scale multiplication is needed. Tobor's art ends 5px closer to the
+	## texture center than the others, so the other heroes shift up by that
+	## difference to land their feet on the same ground line.
 	var anchor := float(HERO_FOOT_ANCHOR.get(class_id, _REF_FOOT_ANCHOR))
-	return (_REF_FOOT_ANCHOR - anchor) * scale.y
+	return _REF_FOOT_ANCHOR - anchor
 
 
 const WORLD_LAYER := 1
@@ -646,7 +645,7 @@ func _apply_sprite() -> void:
 	sprite.scale = _hero_sprite_scale()
 	# T3.69: align all heroes' feet on the same ground line.
 	if not hovering:
-		sprite.offset = Vector2(0.0, _hero_feet_offset(sprite.scale))
+		sprite.offset = Vector2(0.0, _hero_feet_offset())
 	if hovering:
 		sprite.offset = Vector2(0.0, float(HERO_HOVER_OFFSET.get(class_id, DEFAULT_HOVER_OFFSET)))
 

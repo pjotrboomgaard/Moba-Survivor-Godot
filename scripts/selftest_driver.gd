@@ -37,6 +37,7 @@ var _errors: Array[String] = []
 var _expected_casts: Array[String] = []
 var _survival := false
 var _ffa := false
+var _coop := false
 var _time_scale := 1.0
 var _build := ""
 var _biome := -1
@@ -120,6 +121,10 @@ static func from_request(path: String = "user://selftest_request.json") -> SelfT
 	elif str((parsed as Dictionary).get("mode", "")) == "ffa":
 		driver._ffa = true
 		driver._ffa_all_bots = bool((parsed as Dictionary).get("ffa_all_bots", false))
+	elif str((parsed as Dictionary).get("mode", "")) == "coop":
+		# T3.65/T3.68: co-op mode — spawn the local hero + 3 CPU allies so all
+		# 4 hero classes are visible for relative-size verification in-game.
+		driver._coop = true
 	driver._biome = int((parsed as Dictionary).get("biome", -1))
 	# Build strategy: which upgrade path the bot should favour when offered a
 	# choice. "tank" (survival), "tempo" (attack speed + crits), "ranged"
@@ -151,6 +156,20 @@ func _ready() -> void:
 		var cpu_peer := 101
 		for _index in 3:
 			_host_main._create_player(cpu_peer, Player.SimulationMode.CPU, false, GameRuntime.ffa_class_for_peer(cpu_peer))
+			cpu_peer += 1
+	elif not GameRuntime.is_ffa() and _coop:
+		# Co-op selftest: spawn 3 CPU allies beside the local hero so all four
+		# classes can be verified in one in-game screenshot.
+		GameRuntime.fill_cpu_allies = true
+		var allies := PlayerClass.cpu_ally_ids(GameRuntime.active_class_id())
+		var cpu_peer := 101
+		for index in mini(3, allies.size()):
+			var ally: Variant = _host_main._create_player(cpu_peer, Player.SimulationMode.CPU, false, allies[index])
+			# Corner spawns send allies far from the camera; park them beside the
+			# local hero so all four are in one frame for the size comparison.
+			var local: Variant = _host_main._local_player()
+			if ally != null and local != null:
+				ally.global_position = local.global_position + Vector2(96.0 + 64.0 * index, 40.0)
 			cpu_peer += 1
 	elif not GameRuntime.is_ffa():
 		GameRuntime.fill_cpu_allies = false

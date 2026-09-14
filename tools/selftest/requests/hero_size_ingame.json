@@ -1,0 +1,10 @@
+{
+  "hero": "tobor",
+  "mode": "coop",
+  "comment": "T3.68/T3.69 in-game verify: co-op with hero=tobor + 3 CPU allies (arclight/bulwark/warden). Screenshot all 4 heroes to confirm relative sizes (arclight=0.8x, bulwark=0.8x, warden=0.6x tobor) and feet alignment.",
+  "events": [
+    {"t": 2.0, "kind": "snap", "label": "in_game_heroes_2s"},
+    {"t": 4.0, "kind": "snap", "label": "in_game_heroes_4s"},
+    {"t": 4.1, "kind": "report"}
+  ]
+}
