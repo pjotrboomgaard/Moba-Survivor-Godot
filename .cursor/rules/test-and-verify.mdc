@@ -5,6 +5,22 @@ alwaysApply: true
 
 # Test everything and verify it in-game
 
+## HARD RULE — No cutting corners because of time constraints
+
+There are no time constraints. "Only have time to do X", "the user is waiting",
+or "move on quickly" are NEVER valid reasons to skip a verification step,
+shorten the 6-step pipeline, skip the in-game test, or mark a task done on
+fewer than the required screenshots. Completeness and correctness beat speed.
+If a task cannot be fully verified, it stays OPEN — it is never marked done on
+partial evidence. Keep working until every task is genuinely verified.
+
+## HARD RULE — Keep working; never get into a loop
+
+Continue through the full PLAN until every task is done. Never repeat the same
+failing tool call more than ~3 times — change approach or move to another task
+instead. Never stop to ask whether to continue; keep building and verifying
+until the plan is complete.
+
 ## HARD RULE — Never run more than 1 subagent at a time
 
 At most ONE subagent (Task tool) may be running at any moment. Do NOT launch

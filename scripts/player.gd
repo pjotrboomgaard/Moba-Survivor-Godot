@@ -342,7 +342,15 @@ func set_shop_hint_visible(show: bool) -> void:
 
 
 ## T3.50: Show/hide the hero sprite (used by the opening cinematic).
+## T3.82: the hero must NOT show its world health bar before it spawns (during
+## the ship-crash intro). set_sprite_visible(false) hides the sprite during the
+## cinematic, but _refresh_respawn_label() runs every frame and re-shows the bar
+## whenever `active` is true. This flag keeps the bar hidden for as long as the
+## sprite is hidden, so no bar bleeds through the intro.
+var _sprite_visible := true
+
 func set_sprite_visible(vis: bool) -> void:
+	_sprite_visible = vis
 	if sprite != null:
 		sprite.visible = vis
 	if world_health_bar != null:
@@ -896,7 +904,10 @@ func _refresh_respawn_label() -> void:
 	var show := GameRuntime.is_ffa() and not active and ffa_respawn_left > 0.05
 	_respawn_label.visible = show
 	if world_health_bar != null:
-		world_health_bar.visible = active and not GameRuntime.is_dedicated_server()
+		# T3.82: the bar only shows when the hero is actually on-screen (post-crash
+		# spawn). Before the ship impacts, _sprite_visible is false and the bar
+		# must stay hidden even though `active` is true.
+		world_health_bar.visible = active and _sprite_visible and not GameRuntime.is_dedicated_server()
 	if not show:
 		return
 	_respawn_label.text = str(ceili(ffa_respawn_left))
@@ -2172,26 +2183,30 @@ func _spawn_throw_projectile(ability_id: String, from: Vector2, to: Vector2, tra
 		return
 	# A dedicated Node2D with its own _draw that follows the arc — lighter than
 	# reusing the full projectile pipeline, and works in any scene root.
+	# T3.79: the throw is a VECTOR streak (trail + glowing orb), NOT a pixel-art
+	# body sprite. The user explicitly wants "a vector thing" flying to the
+	# placement point; the pixel-art body belongs on the placed object/explosion,
+	# not the throw.
 	var thrower := Node2D.new()
 	thrower.z_index = 26
+	thrower.name = "ThrowVFX_" + ability_id  # identifiable so leaks are easy to find
+	thrower.process_mode = Node.PROCESS_MODE_PAUSABLE
 	scene_root.add_child(thrower)
 	var hero := PlayerClass.by_id(class_id)
 	var col := Color(str(hero.get("effect_color", "#ffffff")))
-	# Use the actual summon body sprite if available so the thrown object reads as the
-	# real keg/mine/turret, not just a generic orb.
-	var body_sprite := _throw_body_sprite(ability_id)
-	thrower.set_meta("from", from)
-	thrower.set_meta("to", to)
-	thrower.set_meta("t", 0.0)
-	thrower.set_meta("travel", travel_time)
-	thrower.set_meta("arc", arc_height)
-	thrower.set_meta("color", col)
 	thrower.set_meta("ability_id", ability_id)
-	thrower.set_meta("body_sprite", body_sprite)
 	var script := _make_throw_script()
 	if script != null:
 		thrower.set_script(script)
-		thrower.call("setup", from, to, travel_time, arc_height, col, body_sprite)
+		thrower.call("setup", from, to, travel_time, arc_height, col)
+	# T3.79: hard safety timer. The script frees itself at f>=1, but if _process
+	# is ever skipped (tree paused, node detached mid-flight) the node would
+	# leak and leave a frozen vector orb on the map forever. This timer is a
+	# guaranteed cleanup path — it always runs and frees the node.
+	get_tree().create_timer(travel_time + 0.2).timeout.connect(func() -> void:
+		if is_instance_valid(thrower):
+			thrower.queue_free()
+	)
 
 
 ## Resolve the summon body sprite for a thrown ability, if one exists.

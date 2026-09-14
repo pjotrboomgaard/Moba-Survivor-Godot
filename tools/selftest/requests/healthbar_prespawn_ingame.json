@@ -1,0 +1,11 @@
+{
+  "hero": "arclight",
+  "comment": "T3.82 in-game: probe the hero's world health bar during the crash intro (should be hidden) and after the hero spawns (should be visible).",
+  "events": [
+    {"t": 0.8, "kind": "player_healthbar_probe", "label": "ingame_bar_intro"},
+    {"t": 1.0, "kind": "snap", "label": "ingame_bar_before"},
+    {"t": 5.5, "kind": "player_healthbar_probe", "label": "ingame_bar_spawned"},
+    {"t": 5.7, "kind": "snap", "label": "ingame_bar_after"},
+    {"t": 6.1, "kind": "report"}
+  ]
+}

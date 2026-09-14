@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/healthbar_prespawn/hb_iso_before_hidden_0.41.png",
+  "after": "tools/selftest/results/healthbar_prespawn/hb_iso_after_shown_1.41.png",
+  "out": "tools/selftest/results/healthbar_prespawn/diff_iso.png",
+  "changed_pixels": 259,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.000125,
+  "bbox": [
+    949,
+    469,
+    970,
+    487
+  ],
+  "has_change": true
+}
