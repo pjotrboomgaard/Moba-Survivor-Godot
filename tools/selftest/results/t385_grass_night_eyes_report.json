@@ -4,12 +4,12 @@
       "is_night": true,
       "kind": "set_night",
       "on": true,
-      "t": 1.50717533333333
+      "t": 1.508019
     }
   ],
-  "elapsed": 3.50227272727272,
+  "elapsed": 3.50833333333333,
   "enemies_spawned": 3,
-  "hero_position": "(2.530161, 20.31636)",
+  "hero_position": "(2.394559, 19.99297)",
   "player_class": "arclight",
   "results": {
     "alive": true,
@@ -44,13 +44,13 @@
   "shots": [
     {
       "label": "day",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4276/day_1.003_4276.png",
-      "t": 1.003252
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4392/day_1.001_4392.png",
+      "t": 1.00075757575757
     },
     {
       "label": "night",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5767/night_2.507_5766.png",
-      "t": 2.506562
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5892/night_2.503_5892.png",
+      "t": 2.50343424242424
     }
   ]
 }

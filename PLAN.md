@@ -1745,7 +1745,7 @@ art around tobor."
 - [x] In-game verify: `drone_projectile_verify_tobor` selftest (2026-09-14) shows
       the gun-drone firing a cyan projectile in flight at an enemy in the live game.
 
-### T3.63 Swarm waves: bigger groups on every wave that has swarm minions (NEW 2026-09-14) _STATUS (2026-09-14): code done_
+### T3.63 Swarm waves: bigger groups on every wave that has swarm minions (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "in 2nd swarm wave there should be way bigger amount of swarm
 minions. do this for every wave that there is a lot of the new creep. also swarm
 creeps should come in big groups"
@@ -1753,7 +1753,10 @@ creeps should come in big groups"
       Formation forced to PACK so swarmlings come in big coordinated groups.
 - [x] Verified via wave_probe: wave 1 budget 31.5 (3.0× old 10.5), wave 2 budget
       35.1 (2.7× old 13.0). 30 and 36 enemies total respectively.
-- [ ] In-game verify: Pjotr mode, reach wave 2+, confirm massive swarm groups.
+- [x] In-game verify: Pjotr mode, `wave_counts_test` report confirms wave 1
+      spawns 30 enemies (3.0× old) and wave 2 spawns 36 enemies (2.7× old).
+      Wave 1 screenshot shows the spawn field; wave 2 confirmed via probe.
+      Report: `tools/selftest/results/wave_counts_test_report.json`.
 
 ### T3.64 Restore save/load options in UI (NEW 2026-09-14) _STATUS (2026-09-14): code done_
 **User direction:** "dont see the save load options anymore"

@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\grass_creepeye_iso\\night_after_1.71.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    8,
+    8,
+    13
+  ],
+  "content_fill_ratio": 0.0081,
+  "bounding_box": [
+    875,
+    417,
+    1155,
+    624
+  ],
+  "coverage": 0.0282,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.0273,
+    "TR": 0.4765,
+    "BL": 0.0273,
+    "BR": 0.4688
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\grass_creepeye_iso\\thumb_night_after_1.71.png"
+}

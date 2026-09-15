@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/grass_creepeye_test/grass_creepeye_test.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/enemy/enemy.tscn" id="2_enemy"]
+
+[node name="GrassCreepEyeTest" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.2, 1.2)
+position = Vector2(0, 0)
+
+[node name="BG" type="ColorRect" parent="."]
+visible = false
+
+[node name="Grub" parent="." instance=ExtResource("2_enemy")]
+position = Vector2(0, 0)

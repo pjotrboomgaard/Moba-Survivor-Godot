@@ -1,0 +1,43 @@
+{
+  "enemy_alive": true,
+  "final_is_night": false,
+  "red_counts": [
+    {
+      "label": "day_before",
+      "red": 190
+    },
+    {
+      "label": "night_after",
+      "red": 1242
+    },
+    {
+      "label": "day_restore",
+      "red": 185
+    }
+  ],
+  "scene": "grass_creepeye_test",
+  "shots": [
+    {
+      "is_night": false,
+      "label": "day_before",
+      "path": "user://creep_eye_run_1789480996/day_before_0.90.png",
+      "red_pixels": 190,
+      "t": 0.902628999999999
+    },
+    {
+      "is_night": true,
+      "label": "night_after",
+      "path": "user://creep_eye_run_1789480996/night_after_1.70.png",
+      "red_pixels": 1242,
+      "t": 1.701675
+    },
+    {
+      "is_night": false,
+      "label": "day_restore",
+      "path": "user://creep_eye_run_1789480996/day_restore_2.50.png",
+      "red_pixels": 185,
+      "t": 2.50221433333333
+    }
+  ],
+  "verdict": "PASS"
+}

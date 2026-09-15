@@ -1,0 +1,10 @@
+{
+  "test_name": "grass_creepeye_iso",
+  "hero": "tobor",
+  "scene": "res://scenes/grass_creepeye_test/grass_creepeye_test.tscn",
+  "description": "T3.85 isolated: empty world with a grunt, toggle day/night, verify red eyes at night.",
+  "events": [
+    {"t": 1.0, "kind": "report"}
+  ],
+  "wait_ms": 4000
+}

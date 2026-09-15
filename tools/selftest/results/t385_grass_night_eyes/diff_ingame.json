@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/t385_grass_night_eyes/day_1.001_4392.png",
+  "after": "tools/selftest/results/t385_grass_night_eyes/night_2.503_5892.png",
+  "out": "tools/selftest/results/t385_grass_night_eyes/diff_ingame.png",
+  "changed_pixels": 1543335,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.744278,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

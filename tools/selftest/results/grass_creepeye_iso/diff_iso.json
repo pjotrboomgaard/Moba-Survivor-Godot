@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/grass_creepeye_iso/day_before_0.90.png",
+  "after": "tools/selftest/results/grass_creepeye_iso/night_after_1.71.png",
+  "out": "tools/selftest/results/grass_creepeye_iso/diff_iso.png",
+  "changed_pixels": 15081,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.007273,
+  "bbox": [
+    982,
+    392,
+    1155,
+    600
+  ],
+  "has_change": true
+}

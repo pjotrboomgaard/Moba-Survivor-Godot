@@ -1173,8 +1173,12 @@ func _record_wave_probe(start_wave: int, waves_ahead: int) -> void:
 			str(theme.get("debut", ""))
 		)
 		var total_spawned := 0
+		# T3.32: record the concrete type_ids so a test can assert wave-name
+		# matches its actual spawn composition (e.g. "The Swarm" -> swarmlings).
+		var type_ids: Array[String] = []
 		for g in plan:
 			total_spawned += int(g.get("count", 0))
+			type_ids.append(str(g.get("type_id", "?")) + "x" + str(int(g.get("count", 0))))
 		wave_lines.append({
 			"wave": w,
 			"theme": str(theme.get("name", "")),
@@ -1183,6 +1187,7 @@ func _record_wave_probe(start_wave: int, waves_ahead: int) -> void:
 			"ratio": budget / old_solo,
 			"groups": plan.size(),
 			"total_spawned": total_spawned,
+			"type_ids": type_ids,
 		})
 	# Sample the real main.gd spawn-edge picker to confirm multi-direction spawns.
 	var edge_hits := {0: 0, 1: 0, 2: 0, 3: 0}

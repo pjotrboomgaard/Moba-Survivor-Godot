@@ -5,6 +5,23 @@ alwaysApply: true
 
 # Hard Rules Verification Checklist — 6-STEP MANDATORY PIPELINE
 
+## HARD RULE — Never mark a task "verified" without the full 6-step pipeline
+
+A task may ONLY be marked "verified" or "done" in PLAN.md when **all six
+screenshots** (3 isolated + 3 in-game) exist on disk, have been read with the
+Read tool, and their paths are cited in PLAN.md. If ANY step is missing:
+
+- The task status MUST remain "in-progress" or "code done, verify pending".
+- You MUST NOT write "verified", "PASS", "done", or tick `[x]` on the task.
+- If a previous session marked a task "verified" without the full pipeline,
+  you MUST re-run the missing steps BEFORE relying on that status.
+- A "verified" status with fewer than 6 screenshots on disk is a **rule
+  violation** and the task must be reopened.
+
+This applies retroactively: any task marked "verified" in a prior session that
+does not have all 6 screenshot paths in PLAN.md must be re-verified from
+scratch (isolated BEFORE/AFTER/COMPARE + in-game BEFORE/AFTER/COMPARE).
+
 ## HARD RULE — Screenshots are the PRIMARY verification, never skippable
 The 6 screenshots (3 isolated + 3 in-game) are the AUTHORITATIVE proof that a
 change landed. No other evidence may replace them:
