@@ -1,0 +1,15 @@
+{
+	"cycles_remaining": 0,
+	"fade_early": "user://selftest_fade_early.png",
+	"fade_mid": "user://selftest_fade_mid.png",
+	"fade_progress": 1.0,
+	"finished_at": "2026-09-15T09:59:15",
+	"replanted": true,
+	"replanted_at_time": 13.0006390000001,
+	"snapshots_taken": 4,
+	"started_at": "2026-09-15T09:59:02",
+	"stump_only": "user://selftest_stump_only.png",
+	"tree_tex_found": true,
+	"user_dir": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/",
+	"verdict": "PASS"
+}

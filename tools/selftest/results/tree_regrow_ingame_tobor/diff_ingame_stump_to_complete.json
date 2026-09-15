@@ -1,0 +1,15 @@
+{
+  "before": "tools\\selftest\\results\\tree_regrow_ingame_tobor/ingame_after_break_stump_6.603_9752.png",
+  "after": "tools\\selftest\\results\\tree_regrow_ingame_tobor/ingame_morph_complete_9.006_12161.png",
+  "out": "tools\\selftest\\results\\tree_regrow_ingame_tobor/diff_ingame_stump_to_complete.png",
+  "changed_pixels": 53172,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.025642,
+  "bbox": [
+    578,
+    0,
+    1913,
+    1043
+  ],
+  "has_change": true
+}

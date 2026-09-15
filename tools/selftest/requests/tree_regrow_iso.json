@@ -1,0 +1,13 @@
+{
+  "test_name": "tree_regrow_iso",
+  "scene": "res://scenes/tree_regrow_test/tree_regrow_test.tscn",
+  "description": "Isolated empty-world test for T3.90 tree regrowth: stump counts down 3 day/night cycles, then morphs from small to full tree over 10 seconds, and re-plants the full tree.",
+  "events": [],
+  "wait_ms": 18000,
+  "expected": {
+    "report_fields": [
+      "verdict",
+      "replanted_at_time"
+    ]
+  }
+}

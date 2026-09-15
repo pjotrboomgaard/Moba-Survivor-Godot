@@ -1,0 +1,24 @@
+{
+  "test_name": "tree_regrow_ingame",
+  "hero": "tobor",
+  "description": "In-game tree regrow verification: break the nearest tree, focus camera on it, fast-forward 3 day/night cycles, capture the 1s fade-in regrow. Uses SelfTestDriver with fast_forward_cycles + tree_regrow_probe events.",
+  "events": [
+    {"t": 1.5, "kind": "tree_hp_probe", "label": "before_break"},
+    {"t": 2.5, "kind": "focus_tree", "label": "focus_before"},
+    {"t": 3.0, "kind": "snap", "label": "ingame_before_break"},
+    {"t": 4.0, "kind": "damage_tree", "nearest_tree": true, "radius": 60, "amount": 9999},
+    {"t": 6.0, "kind": "tree_regrow_probe", "label": "after_break_state"},
+    {"t": 6.6, "kind": "snap", "label": "ingame_after_break_stump"},
+    {"t": 7.0, "kind": "fast_forward_cycles", "cycles": 3},
+    {"t": 7.5, "kind": "snap", "label": "ingame_morph_early"},
+    {"t": 8.0, "kind": "snap", "label": "ingame_morph_mid"},
+    {"t": 8.5, "kind": "tree_regrow_probe", "label": "regrow_in_progress"},
+    {"t": 9.0, "kind": "snap", "label": "ingame_morph_complete"},
+    {"t": 10.0, "kind": "tree_regrow_probe", "label": "regrow_complete"},
+    {"t": 11.0, "kind": "report"}
+  ],
+  "wait_ms": 14000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}

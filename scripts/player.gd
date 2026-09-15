@@ -769,6 +769,12 @@ func _update_gait(_delta: float, moving: bool) -> void:
 	if moving and class_id == "bulwark":
 		# Slow, subtle vertical bob: peaks ~2.5px above the baseline at mid-step.
 		hop = -sin(fmod(_tobor_walk_phase, 1.0) * PI) * 2.5
+	elif moving and class_id == "arclight":
+		# T3.98 (2026-09-15): Joule/Arclight gets a slight, light hop while moving —
+		# noticeably more than the flat glide but far subtler than Tobor's 10px bouncy
+		# step. Amplitude ~4px, faster cadence than the heavy bulwark footfall so it
+		# reads as a quick, springy crackle-hop.
+		hop = -sin(fmod(_tobor_walk_phase, 1.0) * PI) * 4.0
 	sprite.offset = Vector2(0.0, hop)
 	sprite.rotation = 0.0
 	var base := _hero_sprite_scale()

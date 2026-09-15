@@ -338,6 +338,17 @@ var nearby_enemy_count := 0
 var _reinforcements := 0
 var _pressure_cooldown := 0.0
 var _close_spawn := false
+## T3.99 (2026-09-15): within-wave spawn-rate ramp. A wave's planned groups are
+## released at a count that ramps from 1.0× at the start of the wave to
+## _WAVE_RAMP_MAX_MULT× at the end (i.e. the later groups carry 3× the headcount
+## of the opening groups). Combined with the existing total-budget curve this
+## makes each wave "start slow like before" and build to a big finish, instead
+## of front-loading the whole budget at wave start.
+var _wave_total_planned := 0
+var _wave_groups_released := 0
+const _WAVE_RAMP_MAX_MULT := 3.0
+## T3.99 (2026-09-15): during night the spawn rate doubles on top of the ramp.
+const _NIGHT_SPAWN_MULT := 2.0
 ## FFA: this team's spawn lane (map-edge position). Set by main.gd so pressure packs can
 ## send extra creeps from the local player's own corner ("more creeps on my side").
 var team_focus_position: Vector2 = Vector2.ZERO
@@ -482,6 +493,10 @@ func _begin_next_wave() -> void:
 	debut_type_id = plan.debut
 	group_interval = AMBUSH_GROUP_INTERVAL if archetype == Archetype.AMBUSH else GROUP_INTERVAL_SECONDS
 	pending_groups = plan_wave(wave, archetype, modifier, debut_type_id)
+	# T3.99: track how many groups this wave plans so the within-wave ramp knows
+	# when the wave is "over" for scaling purposes.
+	_wave_total_planned = maxi(1, pending_groups.size())
+	_wave_groups_released = 0
 	wave_started.emit(wave, display_name(), debut_type_id)
 	_release_next_group()
 
@@ -492,15 +507,41 @@ func display_name() -> String:
 	return "%s (%s)" % [theme_name, str(MODIFIER_NAMES[modifier])]
 
 
+## T3.99 (2026-09-15): within-wave spawn-rate ramp. The wave's planned groups are
+## released in order; early groups spawn at ~1× the planned headcount ("start slow
+## like before") and later groups ramp up to _WAVE_RAMP_MAX_MULT× the planned headcount
+## by the end of the wave. This makes each wave build in intensity instead of
+## front-loading the whole budget at wave start.
+func _wave_count_scale() -> float:
+	if _wave_total_planned <= 0:
+		return 1.0
+	var progress := clampf(float(_wave_groups_released) / float(_wave_total_planned), 0.0, 1.0)
+	var ramp := 1.0 + (_WAVE_RAMP_MAX_MULT - 1.0) * progress
+	# During night, spawn 2× as many enemies on top of the ramp.
+	if WorldClock.is_night:
+		ramp *= _NIGHT_SPAWN_MULT
+	return ramp
+
+
 func _release_next_group() -> void:
 	if pending_groups.is_empty():
 		return
 	var group: Dictionary = pending_groups.pop_front()
 	group_timer = _next_group_interval()
+	# T3.99: scale the group's headcount by the within-wave ramp multiplier.
+	# Boss waves (single boss) are never scaled — a boss must always be exactly 1.
+	var is_boss_group := archetype == Archetype.BOSS
+	var scale := 1.0 if is_boss_group else _wave_count_scale()
+	var final_count: int
+	if is_boss_group:
+		final_count = int(group.count)
+	else:
+		final_count = maxi(1, int(round(float(group.count) * scale)))
+	_wave_groups_released += 1
 	group_ready.emit(
 		str(group.type_id),
 		int(group.formation),
-		int(group.count),
+		final_count,
 		float(group.health_multiplier),
 		float(group.speed_multiplier)
 	)

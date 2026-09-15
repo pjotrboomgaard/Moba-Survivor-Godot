@@ -1,0 +1,19 @@
+{
+  "test_name": "wave_ramp_probe",
+  "hero": "tobor",
+  "description": "Verify the within-wave spawn-rate ramp: probe wave budget + the ramp scale at start/mid/end of wave 1. Reads WaveDirector._wave_count_scale + progress via wave_ramp_probe events.",
+  "events": [
+    {"t": 1.0, "kind": "wave_probe", "wave": 1, "waves_ahead": 2},
+    {"t": 2.0, "kind": "wave_ramp_probe", "label": "wave1_start"},
+    {"t": 4.0, "kind": "wave_ramp_probe", "label": "wave1_q1"},
+    {"t": 8.0, "kind": "wave_ramp_probe", "label": "wave1_mid"},
+    {"t": 12.0, "kind": "wave_ramp_probe", "label": "wave1_q3"},
+    {"t": 16.0, "kind": "wave_ramp_probe", "label": "wave1_late"},
+    {"t": 17.0, "kind": "snap", "label": "wave1_late"},
+    {"t": 18.0, "kind": "report"}
+  ],
+  "wait_ms": 22000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}

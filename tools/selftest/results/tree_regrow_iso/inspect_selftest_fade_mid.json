@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\tree_regrow_iso\\selftest_fade_mid.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.2496,
+  "bounding_box": [
+    600,
+    72,
+    1319,
+    791
+  ],
+  "coverage": 0.25,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.3247,
+    "TR": 0.3247,
+    "BL": 0.1753,
+    "BR": 0.1753
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\tree_regrow_iso\\thumb_selftest_fade_mid.png"
+}

@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/tree_regrow_iso/selftest_stump_only.png",
+  "after": "tools/selftest/results/tree_regrow_iso/selftest_fade_mid.png",
+  "out": "tools/selftest/results/tree_regrow_iso/diff_iso_fade.png",
+  "changed_pixels": 4267,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.002058,
+  "bbox": [
+    765,
+    90,
+    1235,
+    424
+  ],
+  "has_change": true
+}

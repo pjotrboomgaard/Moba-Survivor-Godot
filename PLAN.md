@@ -2177,21 +2177,41 @@ think"
       `tools/selftest/results/upgrade_icon_ingame/ingame_panel_before.png`,
       `ingame_panel_after.png`.
 
-### T3.90 Tree regrow after 3 day/night cycles + 10s small→big morph (NEW 2026-09-14) _STATUS (2026-09-14): todo_
-**User direction:** "trees regrow after 3 day night cycles with a morph from
-small to big that takes 10 seconds in same position."
-- [ ] Track regrowth: when a tree breaks (HP exhausted → stump), start a timer
+### T3.90 Tree regrow after 3 day/night cycles + 1s fade-in (NEW 2026-09-14) _STATUS (2026-09-15): verified_
+**User direction (2026-09-15):** "don't restart growing the tree immediately. it
+should start growing slowly after a few cycles have passed, and approximately the
+time of 3 waves, then just do a fade in animation of the tree it just reappears
+within 1 second. after a tree dies there should be a trunk. then later it needs
+to start regrowing not immediately."
+- [x] Track regrowth: when a tree breaks (HP exhausted → stump), start a timer
       counting day/night cycles; after 3 full cycles the tree begins regrowing
       AT THE SAME position (use the recorded base_pos + original sprite_id).
-- [ ] Regrow morph: over 10 seconds the new tree scales from small to full size
-      (scale 0 → 1 or a small sprout → full sprite) in place.
-- [ ] Re-enable pathing/vision blocking only after the morph completes.
-- [ ] Isolated verify: `tree_regrow_test` — empty world; break a tree; advance
-      the day/night cycle 3× (or fast-forward); confirm the tree respawns small
-      and grows to full size over ~10s at the same position; screenshots of
-      early/mid/late morph.
-- [ ] In-game verify: real game — break a tree, wait through cycles (or dev
-      skip), confirm regrowth morph plays; screenshots.
+      Stump/trunk persists in the meantime (`_dead_trees` + `_stump_layer`).
+- [x] Regrow: after 3 cycles the tree reappears via a simple **1-second alpha
+      fade-in at full size** (was a 10s small→big morph; user changed to a
+      quick fade). Implemented in `arena.gd` `_update_tree_regrow` +
+      `_draw_dead_trees` (fade `morph_progress` 0→1 over `_REGROW_FADE_SECONDS`=1.0).
+- [x] Re-enable pathing/vision blocking only after the fade completes:
+      `_replant_tree` rebuilds a full `Obstacle` (OBSTACLE_SCENE) with the tree's
+      collision + vision-blocker layer at the original position.
+- [x] Isolated verify: `tree_regrow_test` (empty world) — break a tree, fast-forward
+      3 cycles, capture stump / early-fade / mid-fade / replanted. Report PASS,
+      verdict PASS; screenshots:
+      `tools/selftest/results/tree_regrow_iso/selftest_stump_only.png`,
+      `selftest_fade_early.png` (fade=0.32, tree translucent),
+      `selftest_fade_mid.png` (fade=0.62, more opaque). diff_iso_fade shows the
+      tree region changing 0.21% of the frame between stump and mid-fade.
+- [x] In-game verify: `tree_regrow_ingame` (main scene, tobor) — break the nearest
+      tree (`damage_tree` nearest_tree, 1 hit), probe stump state
+      (cycles_remaining=3, regrowing=false, 1 stump), `fast_forward_cycles 3`,
+      then capture the 1s fade-in. Log confirms "tree broke -> stump" and
+      "tree regrew at (x,y)". Screenshots:
+      `tools/selftest/results/tree_regrow_ingame_tobor/ingame_before_break_*.png`
+      (healthy tree), `ingame_after_break_stump_*.png` (broken trunk/stump),
+      `ingame_morph_early_*.png` + `ingame_morph_complete_*.png` (canopy fading
+      back in to full). diff_ingame_stump_to_complete changed 2.56% of the frame,
+      cv_compare SSIM=0.964 (not identical → change landed).
+
 
 ### T3.91 Creeps attract to invisible leftover objects after abilities (NEW 2026-09-14) _STATUS (2026-09-14): todo_
 **User direction:** "creeps are attracted to invisible objects left or something

@@ -574,6 +574,10 @@ func _process(delta: float) -> void:
 				# T3.96: report the local hero's charge-based ability counts so a
 				# test can verify the charge system (bank, spend, regen).
 				_record_charge_probe(str(event.get("label", "charges")))
+			"tree_regrow_probe":
+				# T3.90: report the arena's tree-regrow state (stumps, cycles
+				# remaining, morph progress) for verification.
+				_record_tree_regrow_probe(str(event.get("label", "tree_regrow")))
 			"gun_drone_probe":
 				# T3.80: report whether the local hero's gun drone has ever aimed a
 				# stripe/beam at a target (beam_target_pos != 0) so the in-game test
@@ -581,16 +585,58 @@ func _process(delta: float) -> void:
 				_record_gun_drone_probe(str(event.get("label", "gun_drone")))
 			"damage_tree":
 				# T3.75: drive the arena's tree-HP damage API in the live game.
+				# If "nearest_tree" is true, find the tree closest to the player
+				# first (used by the T3.90 regrow test).
 				var dmg_arena: Variant = _host_main.get("arena") if _host_main != null else null
 				var dmg_hits := 0
 				if dmg_arena != null and dmg_arena.has_method("damage_trees_in_radius"):
 					var dmg_pos := _event_vec(event, "at", Vector2.ZERO)
+					if bool(event.get("nearest_tree", false)):
+						var best_dist := 99999.0
+						for obs in (dmg_arena as Arena).obstacles:
+							if not is_instance_valid(obs):
+								continue
+							if not str(obs.sprite_id).begins_with("tree"):
+								continue
+							# tree_hp_at returns -1 for trees not yet tracked (undamaged).
+							# A tree is only "dead" if its tracked hp is exactly 0 and
+							# it's already breaking/broken. -1 means alive & undamaged.
+							var hp_val: float = (dmg_arena as Arena).tree_hp_at(obs.global_position)
+							if hp_val == 0.0:
+								continue
+							var d: float = obs.global_position.distance_to(_player.global_position) if _player != null else 0.0
+							if d < best_dist:
+								best_dist = d
+								dmg_pos = obs.global_position
 					dmg_hits = dmg_arena.damage_trees_in_radius(
 						dmg_pos,
 						float(event.get("radius", 60.0)),
 						float(event.get("amount", 120.0)))
 				_active_effects.append({
 					"kind": "custom", "text": "damage_tree hits=%d amount=%s" % [dmg_hits, str(event.get("amount", 120.0))], "t": _elapsed})
+			"fast_forward_cycles":
+				# T3.90: fast-forward the tree-regrow cycle counter by N cycles.
+				# time_of_day ranges [0,1) (a full day/night cycle = 1.0, 210s).
+				# The arena detects a completed cycle when the clock wraps
+				# (tod < _last_time_of_day). Instead of waiting 3*210s=630s,
+				# we directly decrement the arena's _regrow_trees cycles_remaining.
+				var ff_cycles: int = int(event.get("cycles", 3))
+				var ff_arena: Variant = _host_main.get("arena") if _host_main != null else null
+				if ff_arena != null and ff_arena is Arena:
+					var a: Arena = ff_arena
+					for pos in a._regrow_trees.keys():
+						var r: Dictionary = a._regrow_trees[pos]
+						if not bool(r.get("regrowing", false)):
+							var remaining: int = int(r.get("cycles_remaining", 3)) - ff_cycles
+							if remaining <= 0:
+								r["cycles_remaining"] = 0
+								r["regrowing"] = true
+								r["morph_progress"] = 0.0
+							else:
+								r["cycles_remaining"] = remaining
+					print("[fast_forward_cycles] advanced %d cycles (regrow state updated)" % ff_cycles)
+				_active_effects.append({
+					"kind": "custom", "text": "fast_forward_cycles n=%d" % ff_cycles, "t": _elapsed})
 			"aim_assist_probe":
 				# T3.81: directly query the player's ability aim-snap so a test can
 				# assert LMB-style aim-assist is active in the live game.
@@ -784,6 +830,30 @@ func _process(delta: float) -> void:
 				# spawn-point picker actually uses. Used to verify the 3x creep
 				# budget + multi-direction spawn distribution.
 				_record_wave_probe(int(event.get("wave", 1)), int(event.get("waves_ahead", 2)))
+			"wave_ramp_probe":
+				# T3.99: report the within-wave spawn-rate ramp multiplier at the
+				# current progress. Verifies waves start at ~1x and ramp to 3x by
+				# the end, plus the 2x night multiplier.
+				var wd: Variant = _host_main.get("wave_director") if _host_main != null else null
+				if wd != null and wd is WaveDirector:
+					var d: WaveDirector = wd
+					var total := int(d._wave_total_planned)
+					var released := int(d._wave_groups_released)
+					var progress := 0.0 if total <= 0 else float(released) / float(total)
+					var is_night := WorldClock.is_night
+					_active_effects.append({
+						"kind": "wave_ramp_probe",
+						"t": _elapsed,
+						"label": str(event.get("label", "")),
+						"wave": int(d.wave),
+						"total_planned": total,
+						"released": released,
+						"progress": round(progress * 100.0) / 100.0,
+						"is_night": is_night,
+						"ramp_scale": round(d._wave_count_scale() * 1000.0) / 1000.0,
+					})
+				else:
+					_active_effects.append({"kind": "wave_ramp_probe", "error": "no wave_director", "t": _elapsed})
 
 
 ## Drive the player toward the active walk target. The inner arrival radius is a little
@@ -1383,6 +1453,32 @@ func _record_tree_hp_probe(label: String) -> void:
 				})
 	_active_effects.append({"kind": "tree_hp_probe", "label": label, "t": _elapsed, "trees": trees})
 
+func _record_tree_regrow_probe(label: String) -> void:
+	# T3.90: report the arena's tree-regrow state (stumps, cycles
+	# remaining, morph progress) for verification.
+	var host_main: Variant = get_tree().get_first_node_in_group("main") if _host_main == null else _host_main
+	var stumps := []
+	var regrow := []
+	var arena: Variant = host_main.get("arena") if host_main != null else null
+	if arena != null and arena is Arena:
+		var a: Arena = arena
+		for e in a._dead_trees:
+			stumps.append({
+				"pos": Vector2(e.get("pos", Vector2.ZERO)),
+				"sprite_id": str(e.get("sprite_id", "")),
+				"fade": round(float(e.get("fade", 0.0)) * 1000.0) / 1000.0,
+			})
+		for pos in a._regrow_trees.keys():
+			var r: Dictionary = a._regrow_trees[pos]
+			regrow.append({
+				"pos": Vector2(pos),
+				"sprite_id": str(r.get("sprite_id", "")),
+				"cycles_remaining": int(r.get("cycles_remaining", 0)),
+				"morph_progress": round(float(r.get("morph_progress", 0.0)) * 1000.0) / 1000.0,
+				"regrowing": bool(r.get("regrowing", false)),
+			})
+	_active_effects.append({"kind": "tree_regrow_probe", "label": label, "t": _elapsed, "stumps": stumps, "regrow": regrow})
+	print("[tree_regrow_probe %s] stumps=%d regrow=%d" % [label, stumps.size(), regrow.size()])
 
 func _record_nearest_tree_probe(label: String) -> void:
 	# T3.77: find the tree closest to the player so a test can aim casts at a real

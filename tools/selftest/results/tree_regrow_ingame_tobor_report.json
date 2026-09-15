@@ -1,0 +1,4196 @@
+{
+  "effects": [
+    {
+      "kind": "tree_hp_probe",
+      "label": "before_break",
+      "t": 1.504989,
+      "trees": [
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1505.0,
+          "hp": -1.0,
+          "pos": "(1230.222, -867.5555)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 722.0,
+          "hp": -1.0,
+          "pos": "(-688.0, -218.6666)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1017.0,
+          "hp": -1.0,
+          "pos": "(-503.1111, 883.5557)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1058.0,
+          "hp": -1.0,
+          "pos": "(-385.7778, 984.8889)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1319.0,
+          "hp": -1.0,
+          "pos": "(-712.8889, 1109.333)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 760.0,
+          "hp": -1.0,
+          "pos": "(-584.6914, 485.9259)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 759.0,
+          "hp": -1.0,
+          "pos": "(-607.4075, -454.3211)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 777.0,
+          "hp": -1.0,
+          "pos": "(-448.3951, 635.0616)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3367.0,
+          "hp": -1.0,
+          "pos": "(3324.889, -533.8079)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3191.0,
+          "hp": -1.0,
+          "pos": "(3188.406, -122.9572)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3000.0,
+          "hp": -1.0,
+          "pos": "(2848.175, -942.6685)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3426.0,
+          "hp": -1.0,
+          "pos": "(3400.17, -422.3356)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2893.0,
+          "hp": -1.0,
+          "pos": "(2891.349, -100.3915)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3184.0,
+          "hp": -1.0,
+          "pos": "(3182.943, -72.11069)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2944.0,
+          "hp": -1.0,
+          "pos": "(2943.583, 36.8309)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2771.0,
+          "hp": -1.0,
+          "pos": "(2699.494, -623.4557)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3076.0,
+          "hp": -1.0,
+          "pos": "(3075.599, 4.931763)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3184.0,
+          "hp": -1.0,
+          "pos": "(3181.784, 114.0599)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2827.0,
+          "hp": -1.0,
+          "pos": "(2826.973, -46.22186)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3288.0,
+          "hp": -1.0,
+          "pos": "(3287.537, 10.41742)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2684.0,
+          "hp": -1.0,
+          "pos": "(2668.75, -284.3768)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3216.0,
+          "hp": -1.0,
+          "pos": "(3180.573, -475.062)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2667.0,
+          "hp": -1.0,
+          "pos": "(2625.804, -464.7055)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3328.0,
+          "hp": -1.0,
+          "pos": "(3315.867, -283.5532)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3279.0,
+          "hp": -1.0,
+          "pos": "(3129.084, -981.7672)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2508.0,
+          "hp": -1.0,
+          "pos": "(2482.351, -359.3217)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3482.0,
+          "hp": -1.0,
+          "pos": "(3441.516, -528.088)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3242.0,
+          "hp": -1.0,
+          "pos": "(3200.116, -518.9485)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2890.0,
+          "hp": -1.0,
+          "pos": "(2775.431, -804.1311)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3661.0,
+          "hp": -1.0,
+          "pos": "(3616.137, -574.1915)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2799.0,
+          "hp": -1.0,
+          "pos": "(2789.646, -234.5318)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3441.0,
+          "hp": -1.0,
+          "pos": "(3329.206, -871.0487)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2179.0,
+          "hp": -1.0,
+          "pos": "(1574.952, -1506.485)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2230.0,
+          "hp": -1.0,
+          "pos": "(1654.967, -1494.83)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2124.0,
+          "hp": -1.0,
+          "pos": "(1603.759, -1393.282)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2760.0,
+          "hp": -1.0,
+          "pos": "(2267.215, -1573.307)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1928.0,
+          "hp": -1.0,
+          "pos": "(1707.482, -895.5587)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2223.0,
+          "hp": -1.0,
+          "pos": "(1758.115, -1359.833)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1984.0,
+          "hp": -1.0,
+          "pos": "(1360.966, -1442.972)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2270.0,
+          "hp": -1.0,
+          "pos": "(1920.681, -1209.923)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1841.0,
+          "hp": -1.0,
+          "pos": "(1344.181, -1258.024)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1906.0,
+          "hp": -1.0,
+          "pos": "(1430.837, -1259.909)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2194.0,
+          "hp": -1.0,
+          "pos": "(1985.487, -934.0802)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1633.0,
+          "hp": -1.0,
+          "pos": "(1425.047, -796.8792)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1747.0,
+          "hp": -1.0,
+          "pos": "(1361.573, -1094.052)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1926.0,
+          "hp": -1.0,
+          "pos": "(1671.799, -956.2448)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2321.0,
+          "hp": -1.0,
+          "pos": "(1828.583, -1429.72)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1647.0,
+          "hp": -1.0,
+          "pos": "(1304.56, -1005.899)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2377.0,
+          "hp": -1.0,
+          "pos": "(2161.647, -988.5165)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2332.0,
+          "hp": -1.0,
+          "pos": "(2016.637, -1170.931)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2375.0,
+          "hp": -1.0,
+          "pos": "(2193.33, -911.282)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2262.0,
+          "hp": -1.0,
+          "pos": "(1529.53, -1666.848)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1801.0,
+          "hp": -1.0,
+          "pos": "(1471.259, -1038.631)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2674.0,
+          "hp": -1.0,
+          "pos": "(2288.902, -1382.616)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2125.0,
+          "hp": -1.0,
+          "pos": "(1421.963, -1579.042)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2347.0,
+          "hp": -1.0,
+          "pos": "(1896.609, -1381.83)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2538.0,
+          "hp": -1.0,
+          "pos": "(2276.871, -1120.794)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2374.0,
+          "hp": -1.0,
+          "pos": "(1843.164, -1495.544)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3636.0,
+          "hp": -1.0,
+          "pos": "(3456.748, -1128.557)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3609.0,
+          "hp": -1.0,
+          "pos": "(3222.24, -1626.034)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4103.0,
+          "hp": -1.0,
+          "pos": "(3745.141, -1676.87)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3772.0,
+          "hp": -1.0,
+          "pos": "(3475.71, -1464.669)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3902.0,
+          "hp": -1.0,
+          "pos": "(3455.914, -1812.49)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4179.0,
+          "hp": -1.0,
+          "pos": "(3881.843, -1546.616)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3258.0,
+          "hp": -1.0,
+          "pos": "(2868.719, -1544.768)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3875.0,
+          "hp": -1.0,
+          "pos": "(3246.851, -2114.199)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4129.0,
+          "hp": -1.0,
+          "pos": "(3525.88, -2148.86)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4271.0,
+          "hp": -1.0,
+          "pos": "(3931.275, -1669.528)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4206.0,
+          "hp": -1.0,
+          "pos": "(3808.342, -1785.044)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3243.0,
+          "hp": -1.0,
+          "pos": "(2810.098, -1619.359)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3499.0,
+          "hp": -1.0,
+          "pos": "(3317.76, -1110.25)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3582.0,
+          "hp": -1.0,
+          "pos": "(3407.497, -1104.369)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3450.0,
+          "hp": -1.0,
+          "pos": "(3100.302, -1512.592)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3576.0,
+          "hp": -1.0,
+          "pos": "(3378.227, -1173.287)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3766.0,
+          "hp": -1.0,
+          "pos": "(3361.771, -1696.851)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3455.0,
+          "hp": -1.0,
+          "pos": "(3211.578, -1273.695)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3490.0,
+          "hp": -1.0,
+          "pos": "(3328.973, -1048.149)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4143.0,
+          "hp": -1.0,
+          "pos": "(3749.054, -1763.229)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3470.0,
+          "hp": -1.0,
+          "pos": "(3091.099, -1576.577)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3216.0,
+          "hp": -1.0,
+          "pos": "(2988.225, -1189.953)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3511.0,
+          "hp": -1.0,
+          "pos": "(3282.167, -1246.232)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3734.0,
+          "hp": -1.0,
+          "pos": "(3458.4, -1407.714)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4255.0,
+          "hp": -1.0,
+          "pos": "(3770.964, -1971.38)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3696.0,
+          "hp": -1.0,
+          "pos": "(3461.604, -1294.993)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3843.0,
+          "hp": -1.0,
+          "pos": "(3562.972, -1440.922)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3792.0,
+          "hp": -1.0,
+          "pos": "(3714.406, 765.6122)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4397.0,
+          "hp": -1.0,
+          "pos": "(4299.582, 919.6192)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3871.0,
+          "hp": -1.0,
+          "pos": "(3826.729, 582.5708)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4180.0,
+          "hp": -1.0,
+          "pos": "(4177.694, 147.8218)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4272.0,
+          "hp": -1.0,
+          "pos": "(4244.766, 480.5657)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3829.0,
+          "hp": -1.0,
+          "pos": "(3714.572, 930.3323)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4248.0,
+          "hp": -1.0,
+          "pos": "(4237.252, 305.3928)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4069.0,
+          "hp": -1.0,
+          "pos": "(4043.041, 461.9108)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3985.0,
+          "hp": -1.0,
+          "pos": "(3984.53, -36.18237)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3727.0,
+          "hp": -1.0,
+          "pos": "(3659.124, 710.1393)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3980.0,
+          "hp": -1.0,
+          "pos": "(3977.863, 137.9297)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4280.0,
+          "hp": -1.0,
+          "pos": "(4274.488, 211.164)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4107.0,
+          "hp": -1.0,
+          "pos": "(4104.084, 161.2565)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4136.0,
+          "hp": -1.0,
+          "pos": "(4074.061, 712.4613)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4444.0,
+          "hp": -1.0,
+          "pos": "(4361.692, 852.1611)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4272.0,
+          "hp": -1.0,
+          "pos": "(4270.911, 91.41714)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4520.0,
+          "hp": -1.0,
+          "pos": "(4457.338, 751.9512)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3596.0,
+          "hp": -1.0,
+          "pos": "(3590.918, 200.0105)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3798.0,
+          "hp": -1.0,
+          "pos": "(3772.263, 439.1342)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4307.0,
+          "hp": -1.0,
+          "pos": "(4183.439, 1025.531)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4299.0,
+          "hp": -1.0,
+          "pos": "(4240.896, 702.6754)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4413.0,
+          "hp": -1.0,
+          "pos": "(4396.22, 382.2281)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3928.0,
+          "hp": -1.0,
+          "pos": "(3886.437, 573.0417)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3514.0,
+          "hp": -1.0,
+          "pos": "(3510.201, 172.1165)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4465.0,
+          "hp": -1.0,
+          "pos": "(4446.292, 406.1929)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3690.0,
+          "hp": -1.0,
+          "pos": "(3689.75, 20.62085)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3917.0,
+          "hp": -1.0,
+          "pos": "(3908.19, 255.1892)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1932.0,
+          "hp": -1.0,
+          "pos": "(-1817.513, 654.9238)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2086.0,
+          "hp": -1.0,
+          "pos": "(-1879.734, 903.813)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1783.0,
+          "hp": -1.0,
+          "pos": "(-1604.179, 779.3682)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1258.0,
+          "hp": -1.0,
+          "pos": "(-1252.996, 109.8921)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1358.0,
+          "hp": -1.0,
+          "pos": "(-1352.275, -128.7773)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1580.0,
+          "hp": -1.0,
+          "pos": "(-1562.531, -232.0251)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2063.0,
+          "hp": -1.0,
+          "pos": "(-1896.377, -812.709)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1918.0,
+          "hp": -1.0,
+          "pos": "(-1704.924, -879.0338)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2019.0,
+          "hp": -1.0,
+          "pos": "(-1378.026, -1474.991)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2433.0,
+          "hp": -1.0,
+          "pos": "(-1858.026, -1571.401)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1777.0,
+          "hp": -1.0,
+          "pos": "(1705.104, -498.9668)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1148.0,
+          "hp": -1.0,
+          "pos": "(637.2413, -955.2058)",
+          "sprite": "tree_maple"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 715.0,
+          "hp": -1.0,
+          "pos": "(-258.5555, -666.6588)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 850.0,
+          "hp": -1.0,
+          "pos": "(-361.1197, -769.2229)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1377.0,
+          "hp": -1.0,
+          "pos": "(458.7095, -1298.283)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1357.0,
+          "hp": -1.0,
+          "pos": "(583.8378, -1224.437)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 916.0,
+          "hp": -1.0,
+          "pos": "(384.4243, 831.8992)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1123.0,
+          "hp": -1.0,
+          "pos": "(954.3389, 592.5829)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1324.0,
+          "hp": -1.0,
+          "pos": "(856.561, 1010.019)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1168.0,
+          "hp": -1.0,
+          "pos": "(613.1422, 993.6083)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1308.0,
+          "hp": -1.0,
+          "pos": "(1022.304, 816.2415)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1695.0,
+          "hp": -1.0,
+          "pos": "(1148.532, 1246.23)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3151.0,
+          "hp": -1.0,
+          "pos": "(-2931.556, 1154.477)",
+          "sprite": "tree_willow"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2732.0,
+          "hp": -1.0,
+          "pos": "(-2524.444, 1044.254)",
+          "sprite": "tree_willow"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2752.0,
+          "hp": -1.0,
+          "pos": "(-2332.444, 1460.255)",
+          "sprite": "tree_willow"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3409.0,
+          "hp": -1.0,
+          "pos": "(-2935.111, 1734.032)",
+          "sprite": "tree_willow"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3110.0,
+          "hp": -1.0,
+          "pos": "(-2554.667, 1773.143)",
+          "sprite": "tree_willow"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3443.0,
+          "hp": -1.0,
+          "pos": "(-3159.111, 1367.81)",
+          "sprite": "tree_willow"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2748.0,
+          "hp": -1.0,
+          "pos": "(-2158.222, 1700.255)",
+          "sprite": "tree_willow"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2864.0,
+          "hp": -1.0,
+          "pos": "(-2737.778, 842.4767)",
+          "sprite": "tree_willow"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2547.0,
+          "hp": -1.0,
+          "pos": "(-2546.547, -48.30957)",
+          "sprite": "tree_maple"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1611.0,
+          "hp": -1.0,
+          "pos": "(-1050.992, -1220.754)",
+          "sprite": "tree_maple"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1672.0,
+          "hp": -1.0,
+          "pos": "(-1393.214, 923.6905)",
+          "sprite": "tree_maple"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2256.0,
+          "hp": -1.0,
+          "pos": "(-1201.671, 1909.9)",
+          "sprite": "tree_maple"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1711.0,
+          "hp": -1.0,
+          "pos": "(430.3293, 1655.678)",
+          "sprite": "tree_maple"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2426.0,
+          "hp": -1.0,
+          "pos": "(1404.552, 1977.456)",
+          "sprite": "tree_maple"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2453.0,
+          "hp": -1.0,
+          "pos": "(2037.945, 1364.507)",
+          "sprite": "tree_maple"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1308.0,
+          "hp": -1.0,
+          "pos": "(1279.542, 270.9099)",
+          "sprite": "tree_maple"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2138.0,
+          "hp": -1.0,
+          "pos": "(2031.542, -667.7568)",
+          "sprite": "tree_maple"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 542.0,
+          "hp": -1.0,
+          "pos": "(232.8889, -488.8889)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1144.0,
+          "hp": -1.0,
+          "pos": "(855.1111, -760.4335)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1629.0,
+          "hp": -1.0,
+          "pos": "(1015.111, -1274.211)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1268.0,
+          "hp": -1.0,
+          "pos": "(-945.7777, -843.989)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 919.0,
+          "hp": -1.0,
+          "pos": "(-896.4258, 202.0574)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2569.0,
+          "hp": -1.0,
+          "pos": "(-2503.577, -577.8866)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3072.0,
+          "hp": -1.0,
+          "pos": "(-3045.589, -401.8866)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3283.0,
+          "hp": -1.0,
+          "pos": "(-2979.811, -1378.268)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2336.0,
+          "hp": -1.0,
+          "pos": "(758.2466, -2209.754)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2794.0,
+          "hp": -1.0,
+          "pos": "(1638.247, -2263.087)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3642.0,
+          "hp": -1.0,
+          "pos": "(3188.377, 1759.887)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3372.0,
+          "hp": -1.0,
+          "pos": "(2892.049, 1733.095)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2583.0,
+          "hp": -1.0,
+          "pos": "(1879.282, 1771.501)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3175.0,
+          "hp": -1.0,
+          "pos": "(3030.374, 946.4368)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3457.0,
+          "hp": -1.0,
+          "pos": "(3031.36, 1661.684)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2653.0,
+          "hp": -1.0,
+          "pos": "(2450.221, 1017.778)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2975.0,
+          "hp": -1.0,
+          "pos": "(2490.743, 1626.473)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3252.0,
+          "hp": -1.0,
+          "pos": "(2679.972, 1842.39)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3201.0,
+          "hp": -1.0,
+          "pos": "(2516.807, 1977.358)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3400.0,
+          "hp": -1.0,
+          "pos": "(3140.334, 1303.762)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2869.0,
+          "hp": -1.0,
+          "pos": "(2539.393, 1335.332)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2740.0,
+          "hp": -1.0,
+          "pos": "(2232.262, 1588.201)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2286.0,
+          "hp": -1.0,
+          "pos": "(1648.903, 1582.632)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3701.0,
+          "hp": -1.0,
+          "pos": "(3322.971, 1629.785)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2106.0,
+          "hp": -1.0,
+          "pos": "(1914.932, 876.619)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3043.0,
+          "hp": -1.0,
+          "pos": "(2744.944, 1314.227)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2655.0,
+          "hp": -1.0,
+          "pos": "(2549.548, 742.0601)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2282.0,
+          "hp": -1.0,
+          "pos": "(2165.485, 719.0711)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3582.0,
+          "hp": -1.0,
+          "pos": "(3009.739, 1942.345)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2373.0,
+          "hp": -1.0,
+          "pos": "(1792.754, 1554.763)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2904.0,
+          "hp": -1.0,
+          "pos": "(2647.616, 1193.996)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3723.0,
+          "hp": -1.0,
+          "pos": "(3031.792, 2160.098)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2634.0,
+          "hp": -1.0,
+          "pos": "(2045.884, 1658.721)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3036.0,
+          "hp": -1.0,
+          "pos": "(2610.926, 1548.692)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2815.0,
+          "hp": -1.0,
+          "pos": "(2742.908, 634.0256)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2488.0,
+          "hp": -1.0,
+          "pos": "(2206.841, 1149.53)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3075.0,
+          "hp": -1.0,
+          "pos": "(2809.281, 1250.603)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2469.0,
+          "hp": -1.0,
+          "pos": "(2327.443, 823.348)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2924.0,
+          "hp": -1.0,
+          "pos": "(2712.166, 1093.265)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3216.0,
+          "hp": -1.0,
+          "pos": "(3101.475, 849.6273)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2102.0,
+          "hp": -1.0,
+          "pos": "(1641.712, 1313.146)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2151.0,
+          "hp": -1.0,
+          "pos": "(1753.646, 1245.455)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3130.0,
+          "hp": -1.0,
+          "pos": "(2715.81, 1555.553)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2778.0,
+          "hp": -1.0,
+          "pos": "(2448.272, 1312.63)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3538.0,
+          "hp": -1.0,
+          "pos": "(3119.559, 1668.866)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3353.0,
+          "hp": -1.0,
+          "pos": "(3092.359, 1295.297)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3047.0,
+          "hp": -1.0,
+          "pos": "(2450.759, 1810.101)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3118.0,
+          "hp": -1.0,
+          "pos": "(2997.034, 861.7992)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3200.0,
+          "hp": -1.0,
+          "pos": "(2872.026, 1410.611)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2236.0,
+          "hp": -1.0,
+          "pos": "(1778.752, 1354.143)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2817.0,
+          "hp": -1.0,
+          "pos": "(2681.958, 862.3878)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3067.0,
+          "hp": -1.0,
+          "pos": "(2195.225, 2141.996)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2844.0,
+          "hp": -1.0,
+          "pos": "(2172.771, 1835.602)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2138.0,
+          "hp": -1.0,
+          "pos": "(1881.018, 1016.701)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3664.0,
+          "hp": -1.0,
+          "pos": "(3206.028, 1772.972)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3728.0,
+          "hp": -1.0,
+          "pos": "(3090.579, 2084.911)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3523.0,
+          "hp": -1.0,
+          "pos": "(2828.765, 2100.564)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2817.0,
+          "hp": -1.0,
+          "pos": "(2515.083, 1268.454)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2413.0,
+          "hp": -1.0,
+          "pos": "(1948.773, 1423.014)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3405.0,
+          "hp": -1.0,
+          "pos": "(3118.448, 1368.222)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2550.0,
+          "hp": -1.0,
+          "pos": "(1788.592, 1818.099)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3705.0,
+          "hp": -1.0,
+          "pos": "(2945.227, 2247.719)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3393.0,
+          "hp": -1.0,
+          "pos": "(3226.564, 1048.642)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3700.0,
+          "hp": -1.0,
+          "pos": "(3367.629, 1533.51)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2547.0,
+          "hp": -1.0,
+          "pos": "(1971.355, 1612.508)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2761.0,
+          "hp": -1.0,
+          "pos": "(2316.322, 1502.04)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3564.0,
+          "hp": -1.0,
+          "pos": "(3255.665, 1450.749)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2528.0,
+          "hp": -1.0,
+          "pos": "(2387.605, 831.0984)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2602.0,
+          "hp": -1.0,
+          "pos": "(2058.201, 1591.441)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2655.0,
+          "hp": -1.0,
+          "pos": "(1865.173, 1889.266)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2707.0,
+          "hp": -1.0,
+          "pos": "(1860.781, 1965.382)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2276.0,
+          "hp": -1.0,
+          "pos": "(2135.935, 787.3744)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3469.0,
+          "hp": -1.0,
+          "pos": "(2656.59, 2230.315)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3600.0,
+          "hp": -1.0,
+          "pos": "(3081.619, 1861.605)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4052.0,
+          "hp": -1.0,
+          "pos": "(3400.848, 2203.361)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4770.0,
+          "hp": -1.0,
+          "pos": "(3630.652, 3093.417)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4625.0,
+          "hp": -1.0,
+          "pos": "(4013.416, 2298.413)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4886.0,
+          "hp": -1.0,
+          "pos": "(3591.031, 3313.556)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4677.0,
+          "hp": -1.0,
+          "pos": "(3565.797, 3026.81)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5627.0,
+          "hp": -1.0,
+          "pos": "(4678.042, 3126.276)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5481.0,
+          "hp": -1.0,
+          "pos": "(4527.911, 3089.256)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5431.0,
+          "hp": -1.0,
+          "pos": "(4223.321, 3414.421)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4652.0,
+          "hp": -1.0,
+          "pos": "(4232.368, 1930.891)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5186.0,
+          "hp": -1.0,
+          "pos": "(4572.853, 2447.079)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4225.0,
+          "hp": -1.0,
+          "pos": "(3809.332, 1828.049)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4813.0,
+          "hp": -1.0,
+          "pos": "(4196.106, 2356.866)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4455.0,
+          "hp": -1.0,
+          "pos": "(3936.252, 2085.426)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4571.0,
+          "hp": -1.0,
+          "pos": "(4128.848, 1961.973)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4038.0,
+          "hp": -1.0,
+          "pos": "(3203.743, 2458.452)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4064.0,
+          "hp": -1.0,
+          "pos": "(3385.449, 2248.351)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4308.0,
+          "hp": -1.0,
+          "pos": "(3603.302, 2361.668)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5255.0,
+          "hp": -1.0,
+          "pos": "(4781.723, 2179.667)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5636.0,
+          "hp": -1.0,
+          "pos": "(4894.39, 2794.529)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4598.0,
+          "hp": -1.0,
+          "pos": "(4181.64, 1910.959)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5558.0,
+          "hp": -1.0,
+          "pos": "(4830.36, 2748.894)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4609.0,
+          "hp": -1.0,
+          "pos": "(3370.044, 3144.293)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4339.0,
+          "hp": -1.0,
+          "pos": "(3648.764, 2348.424)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5501.0,
+          "hp": -1.0,
+          "pos": "(4911.239, 2478.533)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4916.0,
+          "hp": -1.0,
+          "pos": "(4189.434, 2572.544)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4424.0,
+          "hp": -1.0,
+          "pos": "(3335.603, 2905.362)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4994.0,
+          "hp": -1.0,
+          "pos": "(3845.278, 3186.325)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4053.0,
+          "hp": -1.0,
+          "pos": "(3488.749, 2063.524)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5400.0,
+          "hp": -1.0,
+          "pos": "(4125.812, 3484.541)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4703.0,
+          "hp": -1.0,
+          "pos": "(4015.605, 2447.597)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5609.0,
+          "hp": -1.0,
+          "pos": "(4521.403, 3318.626)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4216.0,
+          "hp": -1.0,
+          "pos": "(3287.59, 2639.466)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4334.0,
+          "hp": -1.0,
+          "pos": "(3304.735, 2803.674)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3999.0,
+          "hp": -1.0,
+          "pos": "(3269.411, 2302.742)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4665.0,
+          "hp": -1.0,
+          "pos": "(3744.027, 2783.617)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5192.0,
+          "hp": -1.0,
+          "pos": "(4447.017, 2678.914)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4794.0,
+          "hp": -1.0,
+          "pos": "(4212.478, 2289.192)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5305.0,
+          "hp": -1.0,
+          "pos": "(4250.13, 3174.863)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5067.0,
+          "hp": -1.0,
+          "pos": "(4097.405, 2980.107)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4466.0,
+          "hp": -1.0,
+          "pos": "(3755.293, 2416.474)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4754.0,
+          "hp": -1.0,
+          "pos": "(3952.323, 2642.152)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5359.0,
+          "hp": -1.0,
+          "pos": "(4442.1, 2996.985)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5197.0,
+          "hp": -1.0,
+          "pos": "(4377.377, 2800.74)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5384.0,
+          "hp": -1.0,
+          "pos": "(4692.969, 2638.164)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5205.0,
+          "hp": -1.0,
+          "pos": "(4228.313, 3035.141)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5466.0,
+          "hp": -1.0,
+          "pos": "(4618.404, 2922.699)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4238.0,
+          "hp": -1.0,
+          "pos": "(3174.432, 2808.272)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4163.0,
+          "hp": -1.0,
+          "pos": "(3372.791, 2440.307)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4598.0,
+          "hp": -1.0,
+          "pos": "(4068.733, 2141.315)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5266.0,
+          "hp": -1.0,
+          "pos": "(4044.358, 3372.104)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4548.0,
+          "hp": -1.0,
+          "pos": "(3920.496, 2304.556)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4745.0,
+          "hp": -1.0,
+          "pos": "(3911.115, 2687.027)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5100.0,
+          "hp": -1.0,
+          "pos": "(3947.552, 3229.389)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4626.0,
+          "hp": -1.0,
+          "pos": "(3623.242, 2875.323)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4533.0,
+          "hp": -1.0,
+          "pos": "(3523.432, 2852.444)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4418.0,
+          "hp": -1.0,
+          "pos": "(4000.895, 1873.946)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4312.0,
+          "hp": -1.0,
+          "pos": "(3242.481, 2843.179)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5010.0,
+          "hp": -1.0,
+          "pos": "(4453.328, 2295.893)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4824.0,
+          "hp": -1.0,
+          "pos": "(4177.587, 2412.92)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5545.0,
+          "hp": -1.0,
+          "pos": "(4656.773, 3010.824)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5007.0,
+          "hp": -1.0,
+          "pos": "(3734.649, 3334.818)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 5384.0,
+          "hp": -1.0,
+          "pos": "(4642.188, 2728.024)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4639.0,
+          "hp": -1.0,
+          "pos": "(3907.833, 2499.304)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3698.0,
+          "hp": -1.0,
+          "pos": "(1887.212, 3180.173)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2406.0,
+          "hp": -1.0,
+          "pos": "(629.5457, 2322.287)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2809.0,
+          "hp": -1.0,
+          "pos": "(1375.768, 2448.643)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3784.0,
+          "hp": -1.0,
+          "pos": "(1457.962, 3491.499)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2657.0,
+          "hp": -1.0,
+          "pos": "(1614.341, 2110.724)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2532.0,
+          "hp": -1.0,
+          "pos": "(710.2957, 2429.97)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3126.0,
+          "hp": -1.0,
+          "pos": "(1884.453, 2494.464)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2734.0,
+          "hp": -1.0,
+          "pos": "(616.2931, 2663.938)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2614.0,
+          "hp": -1.0,
+          "pos": "(874.9542, 2463.027)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2602.0,
+          "hp": -1.0,
+          "pos": "(663.927, 2515.814)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2507.0,
+          "hp": -1.0,
+          "pos": "(1303.397, 2141.552)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3373.0,
+          "hp": -1.0,
+          "pos": "(942.6952, 3238.654)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2438.0,
+          "hp": -1.0,
+          "pos": "(1423.943, 1979.483)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2906.0,
+          "hp": -1.0,
+          "pos": "(643.429, 2833.362)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2637.0,
+          "hp": -1.0,
+          "pos": "(1552.785, 2131.585)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2573.0,
+          "hp": -1.0,
+          "pos": "(886.0402, 2415.45)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2284.0,
+          "hp": -1.0,
+          "pos": "(1089.54, 2007.276)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2324.0,
+          "hp": -1.0,
+          "pos": "(1404.677, 1852.052)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2493.0,
+          "hp": -1.0,
+          "pos": "(751.5797, 2376.927)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2518.0,
+          "hp": -1.0,
+          "pos": "(963.3912, 2326.568)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2629.0,
+          "hp": -1.0,
+          "pos": "(1656.898, 2041.459)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3807.0,
+          "hp": -1.0,
+          "pos": "(1818.543, 3344.54)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2733.0,
+          "hp": -1.0,
+          "pos": "(1314.668, 2395.883)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3517.0,
+          "hp": -1.0,
+          "pos": "(1065.179, 3351.695)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2805.0,
+          "hp": -1.0,
+          "pos": "(812.4573, 2684.879)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3203.0,
+          "hp": -1.0,
+          "pos": "(740.7997, 3116.665)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3296.0,
+          "hp": -1.0,
+          "pos": "(677.3469, 3225.319)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2364.0,
+          "hp": -1.0,
+          "pos": "(885.6527, 2191.761)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3422.0,
+          "hp": -1.0,
+          "pos": "(2052.155, 2737.879)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2436.0,
+          "hp": -1.0,
+          "pos": "(481.1547, 2388.449)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3599.0,
+          "hp": -1.0,
+          "pos": "(2088.057, 2931.876)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3744.0,
+          "hp": -1.0,
+          "pos": "(1389.766, 3476.924)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2785.0,
+          "hp": -1.0,
+          "pos": "(1246.617, 2489.874)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3361.0,
+          "hp": -1.0,
+          "pos": "(1122.268, 3167.947)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2155.0,
+          "hp": -1.0,
+          "pos": "(784.4731, 2007.029)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3229.0,
+          "hp": -1.0,
+          "pos": "(1883.633, 2622.697)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3742.0,
+          "hp": -1.0,
+          "pos": "(1655.42, 3356.161)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2550.0,
+          "hp": -1.0,
+          "pos": "(1676.07, 1921.303)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3554.0,
+          "hp": -1.0,
+          "pos": "(1979.397, 2952.241)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2340.0,
+          "hp": -1.0,
+          "pos": "(740.4754, 2219.345)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3591.0,
+          "hp": -1.0,
+          "pos": "(1141.033, 3404.566)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2433.0,
+          "hp": -1.0,
+          "pos": "(1355.266, 2021.01)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3605.0,
+          "hp": -1.0,
+          "pos": "(1799.73, 3123.532)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3004.0,
+          "hp": -1.0,
+          "pos": "(1828.071, 2384.099)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2753.0,
+          "hp": -1.0,
+          "pos": "(427.1859, 2719.939)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3614.0,
+          "hp": -1.0,
+          "pos": "(1403.42, 3330.673)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2172.0,
+          "hp": -1.0,
+          "pos": "(1123.333, 1858.629)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3756.0,
+          "hp": -1.0,
+          "pos": "(1589.117, 3402.864)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3765.0,
+          "hp": -1.0,
+          "pos": "(1971.927, 3206.775)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3008.0,
+          "hp": -1.0,
+          "pos": "(1153.277, 2777.919)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3222.0,
+          "hp": -1.0,
+          "pos": "(1779.581, 2685.584)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3814.0,
+          "hp": -1.0,
+          "pos": "(1746.764, 3390.899)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3432.0,
+          "hp": -1.0,
+          "pos": "(1565.554, 3054.311)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2372.0,
+          "hp": -1.0,
+          "pos": "(1527.237, 1814.977)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2910.0,
+          "hp": -1.0,
+          "pos": "(1833.109, 2259.58)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3527.0,
+          "hp": -1.0,
+          "pos": "(1652.88, 3116.168)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2885.0,
+          "hp": -1.0,
+          "pos": "(1984.231, 2094.352)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2292.0,
+          "hp": -1.0,
+          "pos": "(630.351, 2203.677)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3099.0,
+          "hp": -1.0,
+          "pos": "(2083.375, 2294.572)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3094.0,
+          "hp": -1.0,
+          "pos": "(1637.112, 2625.814)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2610.0,
+          "hp": -1.0,
+          "pos": "(1597.349, 2064.713)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2961.0,
+          "hp": -1.0,
+          "pos": "(1614.419, 2482.287)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2474.0,
+          "hp": -1.0,
+          "pos": "(842.9908, 2326.42)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3263.0,
+          "hp": -1.0,
+          "pos": "(3160.665, -809.495)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2877.0,
+          "hp": -1.0,
+          "pos": "(2632.665, -1159.717)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3031.0,
+          "hp": -1.0,
+          "pos": "(2469.11, -1758.828)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3425.0,
+          "hp": -1.0,
+          "pos": "(2895.776, -1828.162)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4190.0,
+          "hp": -1.0,
+          "pos": "(3953.554, -1387.273)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3548.0,
+          "hp": -1.0,
+          "pos": "(3238.887, -1447.717)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3913.0,
+          "hp": -1.0,
+          "pos": "(3555.332, -1634.384)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4009.0,
+          "hp": -1.0,
+          "pos": "(3263.776, -2328.606)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3156.0,
+          "hp": -1.0,
+          "pos": "(2349.999, -2106.384)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2798.0,
+          "hp": -1.0,
+          "pos": "(2003.332, -1953.495)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2952.0,
+          "hp": -1.0,
+          "pos": "(2533.11, -1516.162)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2133.0,
+          "hp": -1.0,
+          "pos": "(1818.66, -1114.6)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2593.0,
+          "hp": -1.0,
+          "pos": "(2001.771, -1647.933)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2427.0,
+          "hp": -1.0,
+          "pos": "(1491.549, -1914.6)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4123.0,
+          "hp": -1.0,
+          "pos": "(4050.578, -769.7109)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3689.0,
+          "hp": -1.0,
+          "pos": "(3591.911, -839.0442)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3142.0,
+          "hp": -1.0,
+          "pos": "(3135.686, 195.4102)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2210.0,
+          "hp": -1.0,
+          "pos": "(2177.463, -375.2565)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2616.0,
+          "hp": -1.0,
+          "pos": "(2605.908, 229.188)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2203.0,
+          "hp": -1.0,
+          "pos": "(2191.392, 230.4275)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3824.0,
+          "hp": -1.0,
+          "pos": "(2685.12, 2722.535)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4019.0,
+          "hp": -1.0,
+          "pos": "(3140.581, 2508.572)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3895.0,
+          "hp": -1.0,
+          "pos": "(-3254.839, 2138.853)",
+          "sprite": "tree_palm"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4277.0,
+          "hp": -1.0,
+          "pos": "(-3974.839, 1578.853)",
+          "sprite": "tree_palm"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3931.0,
+          "hp": -1.0,
+          "pos": "(-3656.617, 1443.742)",
+          "sprite": "tree_palm"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4497.0,
+          "hp": -1.0,
+          "pos": "(-4005.061, 2044.631)",
+          "sprite": "tree_palm"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4016.0,
+          "hp": -1.0,
+          "pos": "(-3249.505, 2359.298)",
+          "sprite": "tree_palm"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4648.0,
+          "hp": -1.0,
+          "pos": "(-3880.617, 2558.409)",
+          "sprite": "tree_palm"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3584.0,
+          "hp": -1.0,
+          "pos": "(-2380.172, 2679.298)",
+          "sprite": "tree_palm"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3677.0,
+          "hp": -1.0,
+          "pos": "(-2963.283, 2176.187)",
+          "sprite": "tree_palm"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4203.0,
+          "hp": -1.0,
+          "pos": "(-4047.728, 1130.863)",
+          "sprite": "tree_palm"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2316.0,
+          "hp": -1.0,
+          "pos": "(-2290.215, -346.5386)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1573.0,
+          "hp": -1.0,
+          "pos": "(-1442.215, -629.2052)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2633.0,
+          "hp": -1.0,
+          "pos": "(-2275.993, -1323.616)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2860.0,
+          "hp": -1.0,
+          "pos": "(-2208.438, -1817.838)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2787.0,
+          "hp": -1.0,
+          "pos": "(-1771.104, -2151.574)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 685.0,
+          "hp": -1.0,
+          "pos": "(71.89478, -680.8831)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 909.0,
+          "hp": -1.0,
+          "pos": "(246.1169, -874.6608)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1716.0,
+          "hp": -1.0,
+          "pos": "(-347.6609, -1679.994)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1814.0,
+          "hp": -1.0,
+          "pos": "(653.228, -1692.439)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1777.0,
+          "hp": -1.0,
+          "pos": "(303.0059, -1751.105)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1718.0,
+          "hp": -1.0,
+          "pos": "(-54.32764, -1717.328)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2309.0,
+          "hp": -1.0,
+          "pos": "(-150.3276, -2304.488)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2108.0,
+          "hp": -1.0,
+          "pos": "(-706.772, -1986.266)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2176.0,
+          "hp": -1.0,
+          "pos": "(642.5613, -2078.71)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2032.0,
+          "hp": -1.0,
+          "pos": "(996.3391, -1771.154)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2654.0,
+          "hp": -1.0,
+          "pos": "(1136.783, -2398.71)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2558.0,
+          "hp": -1.0,
+          "pos": "(-488.1052, -2510.71)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2288.0,
+          "hp": -1.0,
+          "pos": "(-1007.216, -2053.821)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1044.0,
+          "hp": -1.0,
+          "pos": "(1019.45, 224.0242)",
+          "sprite": "tree_cypress"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1104.0,
+          "hp": -1.0,
+          "pos": "(-1020.742, -419.9915)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2398.0,
+          "hp": -1.0,
+          "pos": "(-2342.683, 511.0424)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 1678.0,
+          "hp": -1.0,
+          "pos": "(-1419.147, -895.8264)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 995.0,
+          "hp": -1.0,
+          "pos": "(-920.2995, -378.0301)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4274.0,
+          "hp": -1.0,
+          "pos": "(4103.825, -1194.161)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3499.0,
+          "hp": -1.0,
+          "pos": "(2655.862, -2278.584)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3065.0,
+          "hp": -1.0,
+          "pos": "(2074.373, -2256.856)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3932.0,
+          "hp": -1.0,
+          "pos": "(3924.355, -237.5873)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3829.0,
+          "hp": -1.0,
+          "pos": "(3784.295, -584.4952)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3975.0,
+          "hp": -1.0,
+          "pos": "(3968.573, -221.3712)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4035.0,
+          "hp": -1.0,
+          "pos": "(3978.596, -670.8801)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4025.0,
+          "hp": -1.0,
+          "pos": "(3888.281, -1038.55)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4208.0,
+          "hp": -1.0,
+          "pos": "(4018.971, -1246.859)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3931.0,
+          "hp": -1.0,
+          "pos": "(3735.965, -1221.641)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3984.0,
+          "hp": -1.0,
+          "pos": "(3776.171, -1270.668)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4622.0,
+          "hp": -1.0,
+          "pos": "(4216.65, -1892.718)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4382.0,
+          "hp": -1.0,
+          "pos": "(3842.899, -2106.53)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4274.0,
+          "hp": -1.0,
+          "pos": "(3850.956, -1853.417)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4492.0,
+          "hp": -1.0,
+          "pos": "(4043.656, -1956.181)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4621.0,
+          "hp": -1.0,
+          "pos": "(3832.938, -2581.812)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4614.0,
+          "hp": -1.0,
+          "pos": "(3952.473, -2380.356)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4445.0,
+          "hp": -1.0,
+          "pos": "(3662.306, -2518.696)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4665.0,
+          "hp": -1.0,
+          "pos": "(3895.821, -2566.812)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4256.0,
+          "hp": -1.0,
+          "pos": "(3293.605, -2696.196)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4143.0,
+          "hp": -1.0,
+          "pos": "(3171.279, -2665.245)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4063.0,
+          "hp": -1.0,
+          "pos": "(3313.3, -2352.09)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4282.0,
+          "hp": -1.0,
+          "pos": "(3351.919, -2664.522)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3416.0,
+          "hp": -1.0,
+          "pos": "(2381.095, -2449.157)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3692.0,
+          "hp": -1.0,
+          "pos": "(2820.253, -2382.214)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3632.0,
+          "hp": -1.0,
+          "pos": "(2744.839, -2378.634)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3523.0,
+          "hp": -1.0,
+          "pos": "(2448.246, -2533.58)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3747.0,
+          "hp": -1.0,
+          "pos": "(3260.594, -1845.505)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3842.0,
+          "hp": -1.0,
+          "pos": "(3350.808, -1878.881)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3868.0,
+          "hp": -1.0,
+          "pos": "(3187.318, -2191.613)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3940.0,
+          "hp": -1.0,
+          "pos": "(3313.553, -2131.196)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3012.0,
+          "hp": -1.0,
+          "pos": "(2298.56, -1947.241)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3116.0,
+          "hp": -1.0,
+          "pos": "(2234.792, -2171.41)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3120.0,
+          "hp": -1.0,
+          "pos": "(2340.437, -2063.649)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2808.0,
+          "hp": -1.0,
+          "pos": "(2061.636, -1906.871)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2884.0,
+          "hp": -1.0,
+          "pos": "(1778.73, -2270.76)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2812.0,
+          "hp": -1.0,
+          "pos": "(2053.243, -1920.716)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2935.0,
+          "hp": -1.0,
+          "pos": "(1939.427, -2203.425)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2453.0,
+          "hp": -1.0,
+          "pos": "(1426.472, -1995.506)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2487.0,
+          "hp": -1.0,
+          "pos": "(1153.16, -2203.058)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2526.0,
+          "hp": -1.0,
+          "pos": "(1486.179, -2042.036)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2381.0,
+          "hp": -1.0,
+          "pos": "(1253.163, -2024.328)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2877.0,
+          "hp": -1.0,
+          "pos": "(1407.599, -2508.684)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3185.0,
+          "hp": -1.0,
+          "pos": "(1807.559, -2621.968)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3136.0,
+          "hp": -1.0,
+          "pos": "(1756.817, -2597.513)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3061.0,
+          "hp": -1.0,
+          "pos": "(1525.137, -2653.718)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2584.0,
+          "hp": -1.0,
+          "pos": "(1940.033, -1706.375)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2616.0,
+          "hp": -1.0,
+          "pos": "(1929.066, -1766.367)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2764.0,
+          "hp": -1.0,
+          "pos": "(1974.48, -1933.547)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4010.0,
+          "hp": -1.0,
+          "pos": "(4002.872, -246.2626)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4176.0,
+          "hp": -1.0,
+          "pos": "(4164.59, -310.7653)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4178.0,
+          "hp": -1.0,
+          "pos": "(4162.021, -368.4358)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4059.0,
+          "hp": -1.0,
+          "pos": "(4041.846, -371.1322)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4442.0,
+          "hp": -1.0,
+          "pos": "(4158.165, 1562.217)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4321.0,
+          "hp": -1.0,
+          "pos": "(4051.565, 1502.15)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4178.0,
+          "hp": -1.0,
+          "pos": "(3930.806, 1415.427)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4386.0,
+          "hp": -1.0,
+          "pos": "(4191.982, 1290.536)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3981.0,
+          "hp": -1.0,
+          "pos": "(3649.767, 1589.777)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4008.0,
+          "hp": -1.0,
+          "pos": "(3812.624, 1236.962)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3845.0,
+          "hp": -1.0,
+          "pos": "(3637.958, 1244.35)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4078.0,
+          "hp": -1.0,
+          "pos": "(3852.672, 1336.581)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3490.0,
+          "hp": -1.0,
+          "pos": "(3420.473, 691.0793)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3496.0,
+          "hp": -1.0,
+          "pos": "(3400.712, 811.0269)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3406.0,
+          "hp": -1.0,
+          "pos": "(3274.004, 939.7193)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3393.0,
+          "hp": -1.0,
+          "pos": "(3309.282, 748.1662)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3629.0,
+          "hp": -1.0,
+          "pos": "(3624.625, 174.5773)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3788.0,
+          "hp": -1.0,
+          "pos": "(3770.861, 355.6736)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3655.0,
+          "hp": -1.0,
+          "pos": "(3617.192, 524.5628)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3774.0,
+          "hp": -1.0,
+          "pos": "(3749.86, 427.7999)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2880.0,
+          "hp": -1.0,
+          "pos": "(2876.14, 153.3513)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2914.0,
+          "hp": -1.0,
+          "pos": "(2884.491, 411.6108)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3023.0,
+          "hp": -1.0,
+          "pos": "(3000.163, 370.1643)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2975.0,
+          "hp": -1.0,
+          "pos": "(2937.119, 471.7768)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4304.0,
+          "hp": -1.0,
+          "pos": "(3815.833, 1989.896)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4086.0,
+          "hp": -1.0,
+          "pos": "(3679.09, 1778.554)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4038.0,
+          "hp": -1.0,
+          "pos": "(3636.459, 1754.931)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4103.0,
+          "hp": -1.0,
+          "pos": "(3672.783, 1828.796)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3856.0,
+          "hp": -1.0,
+          "pos": "(3234.887, 2097.969)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4074.0,
+          "hp": -1.0,
+          "pos": "(3566.994, 1968.548)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 4129.0,
+          "hp": -1.0,
+          "pos": "(3474.136, 2230.989)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3789.0,
+          "hp": -1.0,
+          "pos": "(3181.384, 2057.904)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3622.0,
+          "hp": -1.0,
+          "pos": "(2670.686, 2446.85)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3989.0,
+          "hp": -1.0,
+          "pos": "(3044.033, 2577.361)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3606.0,
+          "hp": -1.0,
+          "pos": "(2865.183, 2189.683)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3730.0,
+          "hp": -1.0,
+          "pos": "(2901.295, 2343.738)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3129.0,
+          "hp": -1.0,
+          "pos": "(1400.031, 2798.728)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3002.0,
+          "hp": -1.0,
+          "pos": "(1522.565, 2586.906)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3039.0,
+          "hp": -1.0,
+          "pos": "(1587.931, 2591.24)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3085.0,
+          "hp": -1.0,
+          "pos": "(1515.56, 2686.988)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2726.0,
+          "hp": -1.0,
+          "pos": "(1220.202, 2437.987)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2609.0,
+          "hp": -1.0,
+          "pos": "(1180.325, 2327.183)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2494.0,
+          "hp": -1.0,
+          "pos": "(1192.707, 2190.132)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2478.0,
+          "hp": -1.0,
+          "pos": "(1136.171, 2201.638)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2774.0,
+          "hp": -1.0,
+          "pos": "(2184.826, 1708.641)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 2840.0,
+          "hp": -1.0,
+          "pos": "(2053.373, 1961.946)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3157.0,
+          "hp": -1.0,
+          "pos": "(2365.381, 2090.704)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 3182.0,
+          "hp": -1.0,
+          "pos": "(2414.937, 2072.115)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 515.0,
+          "hp": -1.0,
+          "pos": "(267.3828, 439.9077)",
+          "sprite": "tree_oak"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 288.0,
+          "hp": -1.0,
+          "pos": "(240.0, 160.0)",
+          "sprite": "tree_pine"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 189.0,
+          "hp": -1.0,
+          "pos": "(-160.0, 100.0)",
+          "sprite": "tree_dead"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 412.0,
+          "hp": -1.0,
+          "pos": "(320.0, 260.0)",
+          "sprite": "tree_willow"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 330.0,
+          "hp": -1.0,
+          "pos": "(80.0, -320.0)",
+          "sprite": "tree_round"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 330.0,
+          "hp": -1.0,
+          "pos": "(-80.0, -320.0)",
+          "sprite": "tree_fir"
+        },
+        {
+          "breaking": false,
+          "collision_disabled": false,
+          "dist_to_player": 402.0,
+          "hp": -1.0,
+          "pos": "(400.0, 40.0)",
+          "sprite": "tree_maple"
+        }
+      ]
+    },
+    {
+      "kind": "focus_tree",
+      "label": "focus_before",
+      "pos": "(1230.222, -867.5555)",
+      "t": 2.50498899999999,
+      "tree": "tree_oak"
+    },
+    {
+      "kind": "custom",
+      "t": 4.00674575757575,
+      "text": "damage_tree hits=1 amount=9999.0"
+    },
+    {
+      "kind": "tree_regrow_probe",
+      "label": "after_break_state",
+      "regrow": [
+        {
+          "cycles_remaining": 3,
+          "morph_progress": 0.0,
+          "pos": "(1230.222, -867.5555)",
+          "regrowing": false,
+          "sprite_id": "tree_oak"
+        }
+      ],
+      "stumps": [
+        {
+          "fade": 1.0,
+          "pos": "(1230.222, -867.5555)",
+          "sprite_id": "tree_oak"
+        }
+      ],
+      "t": 6.01010101010099
+    },
+    {
+      "kind": "custom",
+      "t": 7.00102566666667,
+      "text": "fast_forward_cycles n=3"
+    },
+    {
+      "kind": "tree_regrow_probe",
+      "label": "regrow_in_progress",
+      "regrow": [],
+      "stumps": [],
+      "t": 8.50514066666666
+    },
+    {
+      "kind": "tree_regrow_probe",
+      "label": "regrow_complete",
+      "regrow": [],
+      "stumps": [],
+      "t": 10.0052409999999
+    }
+  ],
+  "elapsed": 11.0052683333332,
+  "enemies_spawned": 0,
+  "hero_position": "(1300.222, -847.5555)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "ingame_before_break",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6161/ingame_before_break_3.004_6161.png",
+      "t": 3.00370666666666
+    },
+    {
+      "label": "ingame_after_break_stump",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9752/ingame_after_break_stump_6.603_9752.png",
+      "t": 6.60336478787879
+    },
+    {
+      "label": "ingame_morph_early",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10661/ingame_morph_early_7.511_10661.png",
+      "t": 7.511304
+    },
+    {
+      "label": "ingame_morph_mid",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11153/ingame_morph_mid_8.001_11153.png",
+      "t": 8.00101233333334
+    },
+    {
+      "label": "ingame_morph_complete",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12161/ingame_morph_complete_9.006_12161.png",
+      "t": 9.00560199999997
+    }
+  ]
+}

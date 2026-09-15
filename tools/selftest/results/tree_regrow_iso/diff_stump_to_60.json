@@ -1,0 +1,15 @@
+{
+  "before": "tools\\selftest\\results\\tree_regrow_iso\\selftest_stump_only.png",
+  "after": "tools\\selftest\\results\\tree_regrow_iso\\selftest_morph_60pct.png",
+  "out": "tools\\selftest\\results\\tree_regrow_iso\\diff_stump_to_60.png",
+  "changed_pixels": 4518,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.002179,
+  "bbox": [
+    765,
+    90,
+    1258,
+    427
+  ],
+  "has_change": true
+}

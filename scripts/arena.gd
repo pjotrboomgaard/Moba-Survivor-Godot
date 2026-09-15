@@ -373,6 +373,8 @@ func _process(delta: float) -> void:
 	_update_tree_hp(delta)
 	# Stump fade-in (T3.75 update): stumps ease in rather than pop into view.
 	_update_stump_fades(delta)
+	# T3.90: tree regrowth — count day/night cycles, then morph a new tree in.
+	_update_tree_regrow(delta)
 	_update_biome_weather(delta)
 	# Periodic biome hazards fire only when a biome is active.
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id > 0:
@@ -1392,6 +1394,19 @@ const _TREE_SHAKE_SECONDS := 0.55
 const _TREE_BREAK_SECONDS := 1.6   # fall + fade duration
 var _tree_hp: Dictionary = {}
 
+## T3.90: tree regrowth. When a tree breaks (becomes a stump), it can regrow
+## after 3 full day/night cycles. The regrow fade-in lasts ~1 second — the tree
+## simply fades from invisible to fully visible at its original size in place.
+## tree from small (0.05) to full size at the SAME position.
+const _REGROW_CYCLES := 3
+## T3.90 update (2026-09-15): the regrow is a simple 1-second fade-in (the tree
+## reappears at full size within ~1 second). Replaced the old 10s scale morph.
+const _REGROW_FADE_SECONDS := 1.0
+## stump_pos (Vector2) -> { "sprite_id": String, "cycles_remaining": int,
+##                          "morph_progress": float, "regrowing": bool }
+var _regrow_trees: Dictionary = {}
+var _last_time_of_day := 0.0
+
 ## Volcano black-lava phase: while true, lava hazard_at() reports no damage.
 var _lava_cooled := false
 var _lava_cool_timer := 20.0       # seconds until the next cooling onset
@@ -1782,6 +1797,13 @@ func _add_dead_tree(pos: Vector2, sprite_id: String = "") -> void:
 			_sync_stump_layer()
 			return
 	_dead_trees.append(entry)
+	# T3.90: track regrowth — after 3 day/night cycles, the tree begins regrowing.
+	_regrow_trees[pos] = {
+		"sprite_id": sprite_id,
+		"cycles_remaining": _REGROW_CYCLES,
+		"morph_progress": 0.0,
+		"regrowing": false,
+	}
 	_sync_stump_layer()
 
 
@@ -1995,6 +2017,69 @@ func tree_hp_at(pos: Vector2) -> float:
 	if not info.has("hp"):
 		return -1.0
 	return float(info.get("hp", _TREE_HP))
+
+
+## T3.90: update tree regrowth. A broken tree's stump counts down day/night
+## cycles (3 full cycles) and then the tree morphs back from small to full
+## size over 10 seconds, in the same position.
+func _update_tree_regrow(delta: float) -> void:
+	if _regrow_trees.is_empty():
+		return
+	# Detect completed day/night cycles by checking if the day/night state has
+	# cycled through a full period. We use WorldClock.time_of_day and a local
+	# tracker to detect the wrap.
+	var tod: float = WorldClock.time_of_day
+	if tod < _last_time_of_day:
+		# Wrapped around a new day: a full cycle completed.
+		for pos in _regrow_trees.keys():
+			var r: Dictionary = _regrow_trees[pos]
+			if not bool(r.get("regrowing", false)):
+				r["cycles_remaining"] = int(r.get("cycles_remaining", _REGROW_CYCLES)) - 1
+				if int(r.get("cycles_remaining", 0)) <= 0:
+					r["regrowing"] = true
+					r["morph_progress"] = 0.0
+	_last_time_of_day = tod
+
+	var changed := false
+	for pos in _regrow_trees.keys():
+		var r: Dictionary = _regrow_trees[pos]
+		if bool(r.get("regrowing", false)):
+			# T3.90: the regrow is a quick 1-second fade-in. The tree reappears
+			# at its full size at the original position; we just fade the alpha
+			# from 0 -> 1 over _REGROW_FADE_SECONDS. morph_progress is reused
+			# as the fade progress.
+			r["morph_progress"] = float(r.get("morph_progress", 0.0)) + delta / _REGROW_FADE_SECONDS
+			changed = true
+			if float(r.get("morph_progress", 0.0)) >= 1.0:
+				# Regrowth complete: re-plant the full tree, remove stump.
+				_replant_tree(pos, str(r.get("sprite_id", "tree_01")))
+				_regrow_trees.erase(pos)
+	if changed:
+		queue_redraw()
+
+func _replant_tree(pos: Vector2, sprite_id: String) -> void:
+	# Remove the stump from _dead_trees so it stops rendering.
+	for i in _dead_trees.size():
+		var e: Dictionary = _dead_trees[i]
+		if Vector2(e.get("pos", Vector2.ZERO)).distance_to(pos) < 4.0:
+			_dead_trees.remove_at(i)
+			break
+	_sync_stump_layer()
+	# Re-add the obstacle at full size. Use the OBSTACLE_SCENE (which has
+	# Sprite + CollisionShape2D children) and the tree's standard type data
+	# (radius 18, lift 28) so the replanted tree matches the scattered trees.
+	var o := OBSTACLE_SCENE.instantiate() as Obstacle
+	if o == null:
+		push_error("[Arena] _replant_tree: OBSTACLE_SCENE.instantiate() returned null")
+		return
+	o.global_position = pos
+	add_child(o)
+	o.configure(sprite_id, 18.0, PIXEL_ZOOM, 28.0)
+	o.add_to_group("obstacles")
+	o.add_to_group("obstacle_" + sprite_id)
+	register_obstacle(o)
+	queue_redraw()
+	print("[Arena] tree regrew at %s (%s)" % [str(pos), sprite_id])
 
 
 func _tick_fire_dot(pos: Vector2, delta: float) -> void:
@@ -3525,6 +3610,28 @@ func _draw_dead_trees() -> void:
 		if fade <= 0.0:
 			continue
 		_draw_dead_tree_stump(Vector2(e.get("pos", Vector2.ZERO)), str(e.get("sprite_id", "")), fade)
+	# T3.90: render regrowing trees on top of stumps, fading in at full size.
+	# The tree reappears at its normal full size at the original position; the
+	# only animation is an alpha fade from 0 -> 1 over ~1 second.
+	for pos in _regrow_trees.keys():
+		var r: Dictionary = _regrow_trees[pos]
+		if not bool(r.get("regrowing", false)):
+			continue
+		var t: float = clampf(float(r.get("morph_progress", 0.0)), 0.0, 1.0)
+		var p: Vector2 = pos
+		var tex: Texture2D = SpriteLibrary.texture_for(str(r.get("sprite_id", "tree_01")))
+		if tex == null:
+			tex = SpriteLibrary.texture_for("tree_01")
+		if tex == null:
+			continue
+		var w: float = tex.get_width() * 0.5
+		var h: float = tex.get_height() * 0.5
+		# The tree sprite's base is centered horizontally; pin the base to the stump.
+		var base_offset: Vector2 = Vector2(0.0, -h)
+		var alpha_f: float = t  # 0 -> 1 fade-in
+		if alpha_f <= 0.001:
+			continue
+		draw_texture_rect(tex, Rect2(p + base_offset - Vector2(w, 0.0), Vector2(w * 2.0, h)), false, Color(1, 1, 1, alpha_f))
 
 
 ## T3.14: Pixel-art flame frames for burning trees. 3-frame flicker cycle.
