@@ -944,6 +944,12 @@ func _spawn_position_for_peer(peer_id: int) -> Vector2:
 		return anchor + Vector2.RIGHT.rotated(angle) * 96.0
 	if GameRuntime.fill_cpu_allies or GameRuntime.mode != GameRuntime.RuntimeMode.OFFLINE:
 		return Arena.corner_spawn(players.size())
+	# T3.93: solo/offline local hero lands in the CENTER of the crater right after
+	# the opening crash sequence, not offset to the side. The crater bowl is centred
+	# on world origin (see Arena.crater_rect()). In solo the local hero is the only
+	# real player; land it in the middle. CPU allies still fan out around it.
+	if not GameRuntime.fill_cpu_allies and not GameRuntime.is_ffa() and players.size() <= 1:
+		return Vector2.ZERO
 	var slot_index := players.size()
 	var angle := float(slot_index) * TAU / float(GameRuntime.DEFAULT_MAX_PLAYERS)
 	return Vector2.RIGHT.rotated(angle) * 72.0
@@ -3204,12 +3210,18 @@ func _reposition_players_to_landing(landing: Vector2) -> void:
 	# player got stuck in the water on an ice-world transition from exactly this: slot 0's
 	# "offset" is still +72 on the X axis, just never checked against the arena.
 	var landing_arena := arena as Arena if arena is Arena else null
+	# T3.93: in a solo run the single hero lands exactly on the crater centre
+	# (`landing`), not offset 72px to the side. With multiple heroes we still fan
+	# them out around the centre so they don't stack on each other.
+	var solo := players.size() <= 1 and not GameRuntime.fill_cpu_allies and not GameRuntime.is_ffa()
 	var slot := 0
 	for player in players.values():
 		if not is_instance_valid(player):
 			continue
-		var angle := TAU * float(slot) / float(GameRuntime.DEFAULT_MAX_PLAYERS)
-		var spot := landing + Vector2.RIGHT.rotated(angle) * 72.0
+		var spot := landing
+		if not solo:
+			var angle := TAU * float(slot) / float(GameRuntime.DEFAULT_MAX_PLAYERS)
+			spot = landing + Vector2.RIGHT.rotated(angle) * 72.0
 		if landing_arena != null:
 			spot = landing_arena.free_position_near(spot, 40.0)
 		(player as Player).global_position = spot

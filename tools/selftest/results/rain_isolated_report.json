@@ -4,19 +4,19 @@
   "shots": [
     {
       "label": "rain_off",
-      "path": "user://rain_run_1789327825/rain_off_0.31.png"
+      "path": "user://rain_run_1789421548/rain_off_0.30.png"
     },
     {
       "label": "rain_on_fadein",
-      "path": "user://rain_run_1789327825/rain_on_fadein_0.81.png"
+      "path": "user://rain_run_1789421548/rain_on_fadein_0.80.png"
     },
     {
       "label": "rain_full",
-      "path": "user://rain_run_1789327825/rain_full_1.61.png"
+      "path": "user://rain_run_1789421548/rain_full_1.60.png"
     },
     {
       "label": "rain_full2",
-      "path": "user://rain_run_1789327825/rain_full2_3.01.png"
+      "path": "user://rain_run_1789421548/rain_full2_3.00.png"
     }
   ],
   "verdict": "PASS"

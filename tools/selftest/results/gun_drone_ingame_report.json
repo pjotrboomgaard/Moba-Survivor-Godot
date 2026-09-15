@@ -1,0 +1,76 @@
+{
+  "effects": [
+    {
+      "id": "gun_drone",
+      "kind": "grant_drone",
+      "t": 1.028425
+    },
+    {
+      "found": true,
+      "hp": 12.0,
+      "kind": "creep_probe",
+      "label": "creep_start",
+      "max_hp": 26.0,
+      "pos": "(106.8333, 0.0)",
+      "t": 1.6
+    },
+    {
+      "found": false,
+      "kind": "creep_probe",
+      "label": "creep_end",
+      "t": 3.5
+    },
+    {
+      "beam_fired": true,
+      "kind": "gun_drone_probe",
+      "label": "beam",
+      "t": 3.61203703703704
+    }
+  ],
+  "elapsed": 4.21666666666667,
+  "enemies_spawned": 1,
+  "hero_position": "(66.67249, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 1,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 6,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": [
+    {
+      "label": "gun_drone_ingame_before",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9600/gun_drone_ingame_before_1.508_9600.png",
+      "t": 1.50794666666667
+    },
+    {
+      "label": "gun_drone_ingame_after",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11938/gun_drone_ingame_after_3.828_11937.png",
+      "t": 3.827668
+    }
+  ]
+}

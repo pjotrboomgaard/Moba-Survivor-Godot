@@ -1,0 +1,8 @@
+{
+  "hero": "arclight",
+  "comment": "T3.93 in-game: verify the local hero spawns at the crater center (0,0). The crater bowl is centred on world origin. Probe the player's position shortly after spawn; it should be within ~40px of (0,0), not the old (72,0) offset. The driver's report already includes hero_position.",
+  "events": [
+    {"t": 0.5, "kind": "snap", "label": "crater_spawn_ingame"},
+    {"t": 1.0, "kind": "report"}
+  ]
+}

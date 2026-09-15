@@ -1,0 +1,28 @@
+{
+  "crater_centre": [
+    0.0,
+    0.0
+  ],
+  "crater_radius": 300.0,
+  "dist_landing_to_centre": 0.0,
+  "dist_spawn_to_centre": 0.0,
+  "landing_on_centre": true,
+  "landing_pos": [
+    0.0,
+    0.0
+  ],
+  "shot": "user://crater_spawn_iso.png",
+  "shots": [
+    {
+      "label": "crater_spawn_iso",
+      "path": "user://crater_spawn_iso.png",
+      "t": 0.5
+    }
+  ],
+  "spawn_on_centre": true,
+  "spawn_pos": [
+    0.0,
+    0.0
+  ],
+  "verdict": "PASS"
+}

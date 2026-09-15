@@ -1,0 +1,15 @@
+{
+  "before": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\crater_spawn_ingame\\ingame_before.png",
+  "after": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\crater_spawn_ingame\\ingame_after.png",
+  "out": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\crater_spawn_ingame\\diff_ingame.png",
+  "changed_pixels": 363197,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.175153,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

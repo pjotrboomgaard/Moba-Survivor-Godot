@@ -1,0 +1,74 @@
+{
+  "effects": [
+    {
+      "found": true,
+      "hp": 26.0,
+      "kind": "creep_probe",
+      "label": "grub_start",
+      "max_hp": 26.0,
+      "pos": "(211.9999, 0.0)",
+      "t": 1.40616633333333
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 1.80634433333333
+    },
+    {
+      "found": false,
+      "kind": "creep_probe",
+      "label": "grub_end",
+      "t": 3.40793715151514
+    }
+  ],
+  "elapsed": 4.20010133333333,
+  "enemies_spawned": 1,
+  "hero_position": "(71.28152, 0.0)",
+  "player_class": "pyra",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 1,
+    "casts": [
+      {
+        "ability_id": "pyra_sticky_bomb",
+        "t": 2.1494759090909
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 6,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": [
+    {
+      "label": "aim_assist_ingame_mid",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5938/aim_assist_ingame_mid_2.600_5938.png",
+      "t": 2.60043166666666
+    },
+    {
+      "label": "aim_assist_ingame_after",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6946/aim_assist_ingame_after_3.608_6946.png",
+      "t": 3.60793715151514
+    }
+  ]
+}

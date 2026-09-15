@@ -1,0 +1,8 @@
+{
+  "hero": "arclight",
+  "comment": "T3.93 isolated: verify crater centre == solo spawn position. Empty-world + marker.",
+  "events": [
+    {"t": 0.4, "kind": "snap", "label": "crater_spawn_iso"},
+    {"t": 1.0, "kind": "report"}
+  ]
+}

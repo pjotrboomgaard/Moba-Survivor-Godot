@@ -1,0 +1,10 @@
+{
+  "hero": "arclight",
+  "comment": "T3.87: confirm 3x enemy budget is effective in-game (wave 1 should spawn many more enemies than the pre-T3.44 baseline).",
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "ingame_enemies_before"},
+    {"t": 4.0, "kind": "enemy_count_probe", "label": "wave1_count"},
+    {"t": 5.0, "kind": "snap", "label": "ingame_enemies_after"},
+    {"t": 5.4, "kind": "report"}
+  ]
+}

@@ -2204,7 +2204,7 @@ exactly whats happening"
 - [ ] In-game verify: cast abilities near crater in a real game; confirm creeps
       no longer swarm an invisible point; screenshots.
 
-### T3.92 Enemy performance under 3× spawn budget + full-screen flood to ~200 mixed types (NEW 2026-09-14) _STATUS (2026-09-15): todo_
+### T3.92 Enemy performance under 3× spawn budget + full-screen flood to ~200 mixed types (NEW 2026-09-14) _STATUS (2026-09-15): PRIORITY (in-progress)_
 **User direction:** "3 times as many enemies in all mode" (performance side of T3.87)
 + "make it so whole screen can be flooded with around 200 enemies, different types"
 + "off screen should be ghosts moving along mini map. ingame the objects dont need
@@ -2212,7 +2212,7 @@ to have super smart behaviour. find something that works efficiently with lots o
 creeps in screen. whole screen can be flooded with creeps without an fps drop."
 + "add to do list to have a lot of enemies on screen find hard cap without a fps drop"
 
-**Plan (priority, deferred until user's heavy workload finishes):**
+**Plan (PRIORITY — user re-promoted 2026-09-15; this is the next blocking item):**
 - [x] Observed: wave-1 live count ~75 → `proc_ms` ≈ 139ms (≈7 FPS) on the test rig.
       The enemy far-cull already runs, but mid-range AI + per-enemy `_draw` are
       still the hot spots.
@@ -2233,3 +2233,89 @@ creeps in screen. whole screen can be flooded with creeps without an fps drop."
 - [ ] Verify 6-step: isolated `enemy_perf_bench` at 90/150/200 (before/after the
       ghosting + cheap-AI changes) + in-game at wave 1 with the 3× budget. FPS probe
       + screenshots + vision_check.
+
+### T3.93 Hero spawns in the center of the crater after the opening sequence (NEW 2026-09-15) _STATUS (2026-09-15): verified_
+**User direction:** "hero should spawn right in the middle of the crater, now it's off.
+at start of game after opening sequence."
+- [x] Root cause: TWO code paths offset the solo hero 72px from the crater centre —
+      `main.gd:_spawn_position_for_peer` (fan-out `RIGHT.rotated(slot)*72`) AND
+      `main.gd:_reposition_players_to_landing` (landing + `RIGHT*72` at wave-1 start,
+      which overrode the initial spawn). Both now return/use the crater centre
+      (Vector2.ZERO) for a solo/offline non-FFA hero; multi-player & FFA still fan out.
+- [x] 6-step verify:
+      - Isolated: `scenes/crater_spawn_test/crater_spawn_test.{gd,tscn}` +
+        `tools/selftest/requests/crater_spawn_iso.json` → `tools/selftest/results/
+        crater_spawn_iso_report.json` verdict=PASS; `crater_spawn_iso.png` shows the
+        crater ring with the NEW spawn (red dot) dead-centre and the LEGACY 72px offset
+        (orange ring) to the right, so the before/after offset is visible in one frame.
+      - In-game BEFORE: `tools/selftest/results/crater_spawn_ingame/ingame_before.png`
+        = `crater_spawn_ingame_0.500_3840.png` — hero on the rock to the RIGHT of the
+        crater, `hero_position=(72,0)`.
+      - In-game AFTER: `tools/selftest/results/crater_spawn_ingame/ingame_after.png`
+        = `crater_spawn_ingame_0.507_3902.png` — hero on the glowing ring dead-centre,
+        `hero_position=(0,0)`.
+      - In-game COMPARE: `diff_ingame.png` (17.5% changed; hero moved offset→centre) +
+        `inspect_screenshot.py` on the after → Position CENTER, Centered=True.
+      - Reports: `crater_spawn_iso_report.json` (PASS, spawn_on_centre=true) +
+        `crater_spawn_ingame_report.json` (hero_position=(0,0)).
+
+### T3.94 Reprioritize enemy performance / 200-flood optimization (NEW 2026-09-15) _STATUS (2026-09-15): PRIORITY_
+**User direction:** "move up the optimization again to priority" (repeated 2026-09-15).
+- Re-promote the T3.92 work (ghost off-screen enemies, cheap on-screen AI,
+  batched rendering, hard cap) to top priority. This is now the NEXT blocking item
+  after the quick tasks in this batch. Coordinate with T3.92.
+
+### T3.95 Joule (Arclight) abilities all become lightning strikes from the sky (NEW 2026-09-15) _STATUS (2026-09-15): todo_
+**User direction:** "all joule abilities should be lightning strike from sky — the
+4 ability and the other 2. more unique vector art, redo all his abilities. make sure
+the bouncing lightning bounces slowly."
+- [ ] Redesign Arclight's 6 abilities (4 kit + 2 others) to be sky-bolt strikes:
+      a distinctive vector bolt descends from above (not a ground lob). Give each a
+      unique vector-art signature (different bolt shape / color / trail) so they are
+      visually distinct.
+- [ ] Bouncing lightning (chain) must bounce SLOWLY — add a delay between hops so
+      the chain reads as deliberate, not instant.
+- [ ] The AoE ability should be a persistent electric FIELD that stays for a long
+      time, continuously electrocutes (slow DoT damage) and SLOWS enemies inside.
+- [ ] 6-step verify: isolated (each ability's vector art + chain timing + field
+      DoT/slow) + in-game (cast each, screenshots).
+
+### T3.96 Charge-based abilities: recharge up to 3 charges, not just cooldown (NEW 2026-09-15) _STATUS (2026-09-15): todo_
+**User direction:** "the charge system doesn't work. it just goes to cooldown but it
+should recharge abilities and allow u to place multiple then cd adds charge up to 3.
+doesnt work for tobor either. at lvl 1 all abilities should have 1 charge. when
+leveling it up it can be up to 3 charges. give all abilities two abilities that can
+have up to 3 charges but not the ultimate one with long cooldown. but it all starts
+at 1 charge at lvl 1. make sure when upgrading there are always showing 2 slots
+ability upgrades. make the ability upgrades that dont upgrade in charges significantly
+stronger in increasing in stats dmg etc."
+- [ ] Implement a charge system: each non-ultimate ability has `max_charges`
+      (starts at 1 at rank 1, grows to 3 at higher ranks). Casting consumes 1
+      charge; the cooldown timer refills a charge when it expires (so you can
+      place multiple turrets/mines/fields over time, up to max_charges banked).
+- [ ] The ultimate (long-cooldown ability) keeps the classic single-charge cooldown
+      (no multi-charge bank) to preserve its "one big thing" feel.
+- [ ] Give every hero exactly 2 abilities that can bank up to 3 charges; the rest
+      stay single-charge. Rank 1 = 1 charge for all.
+- [ ] Level-up upgrade panel must ALWAYS show 2 ability-upgrade slots (even when
+      one is a charge upgrade and the other is a stat upgrade).
+- [ ] Upgrades that do NOT increase charges must be significantly stronger in
+      damage/range/etc so they remain attractive.
+- [ ] 6-step verify: isolated (charge banking across cooldowns) + in-game (cast,
+      let CD tick, cast again = 2nd placement allowed; screenshots of the 2-slot
+      upgrade panel).
+
+### T3.97 Animated menu backgrounds for Tobor + Totem (→ "Diord") at 20% speed (NEW 2026-09-15) _STATUS (2026-09-15): todo_
+**User direction:** "I've added animated backgrounds — one for Tobor and one for the
+Totem (which should be renamed Diord). Make sure they have the animated BG. Play the
+animated bg at 20% speed for these 2."
+- [ ] Rename the "Totem" hero to "Diord" (display name in class picker, HUD, save,
+      any references) — the animated-bg asset is the Diord one.
+- [ ] Wire the animated background into both the Tobor and Diord (Totem) hero menu
+      cards (class-picker hover + ability preview), same as the existing Joule video
+      (`_tick_joule_menu_video` / bootstrap `AnimatedBG` pattern).
+- [ ] Play those two animated backgrounds at 20% speed (0.2× playback), matching the
+      Joule video slow-down approach (frame-step / time-scale).
+- [ ] Locate the new video assets under `SpritesImport/AnimatedBG/` and register them.
+- [ ] 6-step verify: isolated (menu with both BGs at 20% speed, before/after) +
+      in-game (menu screenshot showing the animated BG playing slowly).

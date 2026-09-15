@@ -1,0 +1,62 @@
+{
+  "effects": [
+    {
+      "bar_visible": true,
+      "kind": "player_healthbar_probe",
+      "sprite_visible": true,
+      "t": 0.806254185185185
+    },
+    {
+      "bar_visible": true,
+      "kind": "player_healthbar_probe",
+      "sprite_visible": true,
+      "t": 5.50238095238097
+    }
+  ],
+  "elapsed": 6.10241900000002,
+  "enemies_spawned": 0,
+  "hero_position": "(72.0, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "ingame_bar_before",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5994/ingame_bar_before_1.007_5994.png",
+      "t": 1.00686266666667
+    },
+    {
+      "label": "ingame_bar_after",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10693/ingame_bar_after_5.707_10693.png",
+      "t": 5.70707633333335
+    }
+  ]
+}

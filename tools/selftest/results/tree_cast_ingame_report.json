@@ -1,0 +1,122 @@
+{
+  "effects": [
+    {
+      "found": true,
+      "hp": -1.0,
+      "kind": "nearest_tree_probe",
+      "label": "tree_pos",
+      "pos": "(240.0, 160.0)",
+      "t": 0.608187333333333
+    },
+    {
+      "found": true,
+      "hp": -1.0,
+      "kind": "nearest_tree_probe",
+      "label": "tree_target",
+      "pos": "(-688.0, -218.6666)",
+      "t": 0.808893484848484
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 1.20800833333333
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 3.52918688888888
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 5.92096488888889
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 8.31498866666666
+    },
+    {
+      "found": true,
+      "hp": 65.0,
+      "kind": "nearest_tree_probe",
+      "label": "tree_after",
+      "pos": "(-673.473, -208.8947)",
+      "t": 10.6167388888889
+    }
+  ],
+  "elapsed": 11.0008536666667,
+  "enemies_spawned": 0,
+  "hero_position": "(-688.0, -218.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 4,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 2.1
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 4.51696566666666
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 6.91857142857142
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 9.3013142962963
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "cast_before",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5718/cast_before_1.001_5718.png",
+      "t": 1.0010694021164
+    },
+    {
+      "label": "cast_wobble_1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7571/cast_wobble_1_2.819_7571.png",
+      "t": 2.818619
+    },
+    {
+      "label": "cast_wobble_2",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9960/cast_wobble_2_5.219_9960.png",
+      "t": 5.21910788888889
+    },
+    {
+      "label": "cast_breaking",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12336/cast_breaking_7.606_12336.png",
+      "t": 7.60569612121212
+    },
+    {
+      "label": "cast_stumps",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_14951/cast_stumps_10.215_14951.png",
+      "t": 10.2150592222222
+    }
+  ]
+}
