@@ -1,0 +1,729 @@
+{
+  "effects": [
+    {
+      "cd_left": 22.1513333333335,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.37261633333333
+    },
+    {
+      "cd_left": 22.0013333333335,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 2.52261633333333
+    },
+    {
+      "cd_left": 15.0766666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 2.93117277777777
+    },
+    {
+      "cd_left": 14.9266666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 3.071639
+    },
+    {
+      "cd_left": 16.4700000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 3.50453733333333
+    },
+    {
+      "cd_left": 189.899999999998,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.08062876190476
+    },
+    {
+      "cd_left": 189.733333333332,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 4.23836685714285
+    },
+    {
+      "cd_left": 19.8846666666669,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 4.63333333333332
+    },
+    {
+      "cd_left": 19.7346666666669,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 4.79067460317459
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 39.0,
+      "kind": "fps_probe",
+      "label": "wave1_t5",
+      "t": 5.00059523809523
+    },
+    {
+      "cd_left": 12.8099999999999,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 5.18432539682539
+    },
+    {
+      "cd_left": 12.6599999999999,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 5.33783999999999
+    },
+    {
+      "cd_left": 14.2366666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 5.74965081818181
+    },
+    {
+      "cd_left": 187.649999999997,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.31835016835016
+    },
+    {
+      "cd_left": 187.499999999996,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 6.47390572390572
+    },
+    {
+      "cd_left": 17.634666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 6.88861937037036
+    },
+    {
+      "cd_left": 17.4846666666671,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 7.04417492592592
+    },
+    {
+      "cd_left": 10.5433333333331,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 7.45848469023569
+    },
+    {
+      "cd_left": 10.3933333333331,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 7.61370354545454
+    },
+    {
+      "cd_left": 11.9366666666666,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 8.03384366666666
+    },
+    {
+      "cd_left": 185.383333333328,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 8.59038922222223
+    },
+    {
+      "cd_left": 185.216666666661,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 8.75000000000001
+    },
+    {
+      "cd_left": 15.3680000000004,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 9.15841824242425
+    },
+    {
+      "cd_left": 15.2180000000004,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 9.31666666666667
+    },
+    {
+      "cd_left": 8.27666666666635,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 9.72005366666668
+    },
+    {
+      "cd_left": 8.12666666666634,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 9.87932366666668
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 38.0,
+      "kind": "fps_probe",
+      "label": "wave1_t10",
+      "t": 10.012657
+    },
+    {
+      "cd_left": 9.70333333333317,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 10.2826816666667
+    },
+    {
+      "cd_left": 183.11666666666,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 10.8573506666667
+    },
+    {
+      "cd_left": 182.966666666659,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 11.0127105454546
+    },
+    {
+      "cd_left": 13.1013333333337,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 11.4309354761905
+    },
+    {
+      "cd_left": 12.934666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 11.5875492328043
+    },
+    {
+      "cd_left": 6.00999999999967,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 11.9863888888889
+    },
+    {
+      "cd_left": 5.85999999999968,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 12.1433333333334
+    },
+    {
+      "cd_left": 7.43666666666642,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 12.5394475555556
+    },
+    {
+      "cd_left": 180.883333333324,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 13.0933333333334
+    },
+    {
+      "cd_left": 180.716666666658,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 13.2527777777778
+    },
+    {
+      "cd_left": 10.8680000000002,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 13.6570846666667
+    },
+    {
+      "cd_left": 10.7180000000002,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 13.8166666666667
+    },
+    {
+      "cd_left": 3.79333333333302,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 14.2166666666667
+    },
+    {
+      "cd_left": 3.62666666666635,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 14.376346
+    },
+    {
+      "cd_left": 5.2033333333331,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 14.7833333333334
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 37.0,
+      "kind": "fps_probe",
+      "label": "wave1_t15",
+      "t": 15.0000000000001
+    },
+    {
+      "cd_left": 178.633333333323,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 15.3498520000001
+    },
+    {
+      "cd_left": 178.483333333323,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 15.4952973333334
+    },
+    {
+      "cd_left": 8.6180000000001,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 15.9081258181819
+    },
+    {
+      "cd_left": 8.45133333333343,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 16.0733377878788
+    },
+    {
+      "cd_left": 1.52666666666636,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 16.4799242424243
+    },
+    {
+      "cd_left": 1.35999999999969,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 16.6429924242425
+    },
+    {
+      "cd_left": 2.91999999999977,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 17.050946969697
+    },
+    {
+      "cd_left": 176.349999999988,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 17.6263061212122
+    },
+    {
+      "cd_left": 176.183333333321,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 17.7934343434344
+    },
+    {
+      "cd_left": 6.35133333333341,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 18.1805748383839
+    },
+    {
+      "cd_left": 6.18466666666675,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 18.3462314040405
+    },
+    {
+      "cd_left": 0.686666666666446,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 19.2928812222223
+    },
+    {
+      "cd_left": 174.133333333319,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 19.8489741212122
+    },
+    {
+      "cd_left": 173.966666666652,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 20.0165274444445
+    },
+    {
+      "distinct_edges": 4,
+      "edge_hits": {
+        "0": 202,
+        "1": 183,
+        "2": 213,
+        "3": 202
+      },
+      "kind": "wave_probe",
+      "t": 20.0165274444445,
+      "waves": [
+        {
+          "budget": 94.5,
+          "groups": 23,
+          "old_budget": 10.5,
+          "ratio": 9.0,
+          "theme": "First Contact",
+          "total_spawned": 92,
+          "wave": 1
+        }
+      ]
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 36.0,
+      "kind": "fps_probe",
+      "label": "wave1_t20",
+      "t": 20.2166666666668
+    },
+    {
+      "cd_left": 4.11800000000009,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 20.4149786666668
+    },
+    {
+      "cd_left": 3.95133333333342,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 20.5758060000001
+    },
+    {
+      "cd_left": 15.11,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 20.9662764444445
+    },
+    {
+      "cd_left": 14.9433333333333,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 21.1319330101011
+    },
+    {
+      "cd_left": 171.899999999984,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 22.0769552222223
+    },
+    {
+      "cd_left": 171.733333333317,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 22.2427104545456
+    },
+    {
+      "cd_left": 1.90133333333343,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 22.6333333333335
+    },
+    {
+      "cd_left": 1.75133333333343,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 22.7758876666668
+    },
+    {
+      "cd_left": 12.8766666666666,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 23.1950000000001
+    },
+    {
+      "cd_left": 12.7099999999999,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 23.3500093333335
+    },
+    {
+      "cd_left": 16.4866666666668,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 23.7548766666668
+    },
+    {
+      "cd_left": 169.666666666649,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 24.3121544444446
+    },
+    {
+      "cd_left": 169.516666666649,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 3,
+      "t": 24.4532655555557
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 35.0,
+      "kind": "fps_probe",
+      "label": "wave1_t25",
+      "t": 25.0183842222223
+    },
+    {
+      "cd_left": 10.6266666666665,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 25.4449400000001
+    },
+    {
+      "cd_left": 10.4766666666665,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 1,
+      "t": 25.5945326666668
+    },
+    {
+      "cd_left": 14.2366666666667,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 2,
+      "t": 26.0062220000001
+    }
+  ],
+  "elapsed": 26.0062220000001,
+  "enemies_spawned": 0,
+  "hero_position": "(-112.6925, -809.0886)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 7,
+    "casts": [
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 0.841426666666666
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 0.841426666666666
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 1.25423528138528
+      },
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 1.97007987878788
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 18.9000000000001
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 21.5188016969698
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 25.5577177777779
+      }
+    ],
+    "creep_kills": 3,
+    "died": false,
+    "errors": [
+      "only beaten wave 0 / 20 (t=26)"
+    ],
+    "ffa": {},
+    "gold": 42,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "enemies": 12,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 0.15,
+        "wave": 1
+      },
+      {
+        "enemies": 21,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 2.65,
+        "wave": 1
+      },
+      {
+        "enemies": 32,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 5.16,
+        "wave": 1
+      },
+      {
+        "enemies": 42,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 7.67,
+        "wave": 1
+      },
+      {
+        "enemies": 52,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 10.17,
+        "wave": 1
+      },
+      {
+        "enemies": 62,
+        "gold": 0,
+        "hp": 1.0,
+        "t": 12.67,
+        "wave": 1
+      },
+      {
+        "enemies": 75,
+        "gold": 6,
+        "hp": 0.79,
+        "t": 15.19,
+        "wave": 1
+      },
+      {
+        "enemies": 96,
+        "gold": 6,
+        "hp": 0.68,
+        "t": 17.71,
+        "wave": 1
+      },
+      {
+        "enemies": 109,
+        "gold": 18,
+        "hp": 0.68,
+        "t": 20.22,
+        "wave": 1
+      },
+      {
+        "enemies": 127,
+        "gold": 24,
+        "hp": 0.68,
+        "t": 22.72,
+        "wave": 1
+      },
+      {
+        "enemies": 147,
+        "gold": 42,
+        "hp": 0.68,
+        "t": 25.22,
+        "wave": 1
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 0.685,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 2,
+    "quests_seen": {
+      "smash_crate": 1,
+      "town_wolf": 1
+    },
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "FAIL_NO_PROGRESS",
+    "wave": 1,
+    "xp": 30
+  },
+  "shots": [
+    {
+      "label": "ingame_wave1_start",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5327/ingame_wave1_start_2.020_5327.png",
+      "t": 2.02026366666666
+    },
+    {
+      "label": "ingame_wave1_t5",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8511/ingame_wave1_t5_5.211_8511.png",
+      "t": 5.21051587301586
+    },
+    {
+      "label": "ingame_wave1_t10",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13527/ingame_wave1_t10_10.221_13526.png",
+      "t": 10.2206883333334
+    },
+    {
+      "label": "ingame_wave1_t15",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_18521/ingame_wave1_t15_15.218_18521.png",
+      "t": 15.2178030303031
+    },
+    {
+      "label": "ingame_wave1_t20",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_23727/ingame_wave1_t20_20.415_23727.png",
+      "t": 20.4149786666668
+    }
+  ]
+}

@@ -36,6 +36,15 @@ const SEPARATION_CELL_SIZE := 64.0
 ## nowhere near close enough to matter.
 static var _separation_grid: Dictionary = {}  # Vector2i cell -> Array[Enemy]
 static var _separation_grid_frame: int = -1
+
+## T3.92 — shared per-frame player snapshot for cheap on-screen AI.
+## Every on-screen enemy used to call _find_nearest_player() which does
+## get_tree().get_nodes_in_group("players") + per-player checks. With 200
+## enemies that's 200 group scans per physics frame. Instead, we cache the
+## valid player list once per frame (rebuild cost = O(players) ≈ O(4)) and
+## every enemy reads the cached array.
+static var _player_snap: Array = []  # Array[Player] valid active non-cloaked non-boss players
+static var _player_snap_frame: int = -1
 const KNOCKBACK_DECAY := 720.0
 ## Phase Cloak wander: no target acquired because every nearby player is cloaked.
 const WANDER_TURN_MIN := 1.1
@@ -406,14 +415,27 @@ func damage_multiplier_for(damage_type: int) -> float:
 	return EnemyType.damage_multiplier(type_id, damage_type)
 
 
+## T3.92 — off-screen ("ghost") cadence. When far-mode enemies are many (full-screen
+## flood), re-running _find_nearest_player() every render frame is wasted: a far enemy
+## only needs its target to refresh a few times per second to keep a straight walk. We
+## cache the target between refreshes; the cached Node2D stays valid (or is_instance_valid
+## guards a freed one) so the walk continues smoothly at the low cost.
+var _far_target_cached: Node2D = null
+var _far_target_timer := 0.0
+const FAR_TARGET_REFRESH := 0.5  # 2 Hz target refresh while off-screen
+
 ## Lightweight movement path used while _in_far_mode is active. Physics is disabled
 ## in far mode, so this direct-position walk is the only movement that runs. Runs at
-## render-frame cadence; it only does a single nearest-player lookup and a position
-## add, so hundreds of far enemies stay cheap.
+## render-frame cadence; it only does a single cached-target position add (target lookup
+## throttled to 2 Hz via _far_target_refresh), so hundreds of far enemies stay cheap.
 func _process(_delta: float) -> void:
 	if not _in_far_mode:
 		return
-	var far_target := _find_nearest_player()
+	_far_target_timer -= _delta
+	if _far_target_timer <= 0.0 or not is_instance_valid(_far_target_cached):
+		_far_target_timer = FAR_TARGET_REFRESH
+		_far_target_cached = _find_nearest_player()
+	var far_target := _far_target_cached
 	if far_target == null:
 		return
 	var target_pos: Vector2 = (far_target as Node2D).global_position
@@ -1597,20 +1619,34 @@ func is_damageable() -> bool:
 	return server_authoritative and not health.is_dead
 
 
+## T3.92 — rebuild the shared player snapshot at most once per physics frame.
+## This collapses N× (get_nodes_in_group + per-player validation) into a single
+## O(players) rebuild that all enemies read from. Non-static so it can call
+## get_tree() (same pattern as _rebuild_separation_grid).
+func _rebuild_player_snapshot() -> void:
+	var frame := Engine.get_physics_frames()
+	if frame == Enemy._player_snap_frame:
+		return
+	Enemy._player_snap_frame = frame
+	var snap: Array = []
+	for candidate in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(candidate) or not candidate is Player or not candidate.active:
+			continue
+		var player := candidate as Player
+		if player.is_phase_cloaked() or player.in_boss_form:
+			continue
+		snap.append(player)
+	Enemy._player_snap = snap
+
+
 func _find_nearest_player() -> Node2D:
 	var nearest: Node2D
 	var best_score := INF
 	var crater_block := Arena.ffa_blocks_creeps_from_crater()
 	var crater := Arena.crater_radius()
-	for candidate in get_tree().get_nodes_in_group("players"):
-		if not is_instance_valid(candidate) or not candidate is Player or not candidate.active:
-			continue
+	_rebuild_player_snapshot()
+	for candidate in Enemy._player_snap:
 		var player := candidate as Player
-		if player.is_phase_cloaked():
-			continue
-		# Creeps do not target a player in boss form (FFA/solo takeover).
-		if player.in_boss_form:
-			continue
 		if crater_block and player.global_position.length() < crater:
 			continue
 		var weight := 1.0 if taunt_immune else player.taunt_weight
@@ -1863,6 +1899,12 @@ func _on_died() -> void:
 
 
 func _draw() -> void:
+	# T3.92 — skip draw entirely for off-screen (far-mode) enemies: the sprite is
+	# already hidden and physics is disabled, so there is nothing to render. This
+	# saves the whole _draw body (color lerp, arcs, overlay draws) for hundreds of
+	# ghost enemies at once.
+	if _in_far_mode:
+		return
 	var fill := fill_color
 	var outline := outline_color
 	if poison_timer > 0.0:

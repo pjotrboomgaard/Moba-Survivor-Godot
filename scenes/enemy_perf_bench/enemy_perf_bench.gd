@@ -19,7 +19,10 @@ var _report_path := "user://perf_report.json"
 var _shots: Array = []
 var _captured := {}
 
-const ENEMY_COUNT := 90
+## T3.92: The bench spawns this many real Enemy nodes on-screen and measures the
+## average FPS over the run. The "hard cap" is the highest N that still holds
+## >=30 FPS. Set via CLI arg -- --perf-count=N (default 300).
+var ENEMY_COUNT: int = 300
 var _player: Node2D = null
 var _enemies: Array = []
 var _fps_samples: Array = []
@@ -33,11 +36,17 @@ const CAPTURES: Array = [
 
 
 func _ready() -> void:
+    _ready_start()
     _camera = $Camera2D
     _camera.global_position = Vector2.ZERO
     _camera.zoom = Vector2(0.55, 0.55)
+    # Save to user:// under a run-specific dir. The selftest runner copies these
+    # out of user:// into tools/selftest/results after the run completes (it reads
+    # the report JSON's "path" fields). We use user:// because res:// is read-only
+    # in the installed game — save_png to res:// silently fails to write to disk.
     _run_dir = "user://perf_run_%d" % int(Time.get_unix_time_from_system())
     DirAccess.make_dir_recursive_absolute(_run_dir)
+    _report_path = "user://perf_report.json"
 
     _player = PLAYER_SCENE.instantiate()
     _player.name = "BenchPlayer"
@@ -72,22 +81,39 @@ func _process(delta: float) -> void:
         _finish()
 
 
+var _capture_in_progress := false
 func _capture_due() -> void:
+    if _capture_in_progress:
+        return
     for c in CAPTURES:
         var label: String = String(c[1])
         if _captured.has(label):
             continue
         if _elapsed >= float(c[0]):
-            _captured[label] = _capture(label)
+            _capture_in_progress = true
+            _capture(label)
+            # _capture is async (awaits frame_post_draw); _captured is set
+            # inside it. Mark the guard off on the next frame via a coroutine.
+            _capture_in_progress = false
 
 
-func _capture(label: String) -> String:
+func _capture(label: String) -> void:
+    # Await the post-draw signal so the frame is fully rendered before we grab
+    # the viewport texture (matches crater_spawn_test pattern). Without this the
+    # texture can be a null/empty image and save_png silently no-ops.
+    await RenderingServer.frame_post_draw
     var path := "%s/%s_%s.png" % [_run_dir, label, "%.2f" % _elapsed]
-    var img := get_viewport().get_texture().get_image()
-    img.save_png(path)
+    var img: Image = null
+    var vp := get_viewport()
+    if vp != null and vp.get_texture() != null:
+        img = vp.get_texture().get_image()
+    if img != null and img.get_width() > 0:
+        var err := img.save_png(path)
+        print("[Perf] snap %s fps=%.0f saved=%s err=%d" % [label, _avg_fps(), str(err == OK), err])
+    else:
+        print("[Perf] snap %s fps=%.0f FAILED (no image)" % [label, _avg_fps()])
     _shots.append({"label": label, "path": path, "t": _elapsed})
-    print("[Perf] snap %s fps=%.0f" % [label, _avg_fps()])
-    return path
+    _captured[label] = true
 
 
 func _avg_fps() -> float:
@@ -144,9 +170,22 @@ func _finish() -> void:
         "fps_samples": _fps_samples.size(),
         "shots": _shots,
     }
-    var f := FileAccess.open(_report_path, FileAccess.WRITE)
-    if f != null:
-        f.store_string(JSON.stringify(report, "  "))
-        f.close()
+    var json_text := JSON.stringify(report, "  ")
+    # Write to both the perf_report path (for direct runs) and the selftest
+    # report path (so the selftest runner picks it up and copies the
+    # screenshots into tools/selftest/results/).
+    for rp in [_report_path, "user://selftest_report.json"]:
+        var f := FileAccess.open(rp, FileAccess.WRITE)
+        if f != null:
+            f.store_string(json_text)
+            f.close()
     print("PERF_BENCH SUMMARY verdict=%s fps=%.1f proc_ms=%.2f live=%d" % [verdict, fps, proc_ms, live])
     get_tree().quit(0 if verdict == "PASS" else 1)
+
+
+## T3.92 — read the --perf-count=N CLI arg (if any) to override ENEMY_COUNT.
+## The runner launches Godot with `-- --perf-count=300` to pass user args.
+func _ready_start() -> void:
+    for arg in OS.get_cmdline_user_args():
+        if arg.begins_with("--perf-count="):
+            ENEMY_COUNT = int(arg.substr(13))

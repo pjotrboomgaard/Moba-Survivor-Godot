@@ -1,0 +1,26 @@
+{
+  "avg_fps": 102.0,
+  "avg_proc_ms": 25.0,
+  "enemies_live": 200,
+  "enemies_target": 200,
+  "fps_samples": 539,
+  "scene": "enemy_perf_bench",
+  "shots": [
+    {
+      "label": "perf_iso_before",
+      "path": "res://tools/selftest/results/enemy_perf_bench/perf_iso_before_1.01.png",
+      "t": 1.00728333333333
+    },
+    {
+      "label": "perf_iso_mid",
+      "path": "res://tools/selftest/results/enemy_perf_bench/perf_iso_mid_2.51.png",
+      "t": 2.50730766666666
+    },
+    {
+      "label": "perf_iso_after",
+      "path": "res://tools/selftest/results/enemy_perf_bench/perf_iso_after_4.50.png",
+      "t": 4.50292366666668
+    }
+  ],
+  "verdict": "PASS"
+}

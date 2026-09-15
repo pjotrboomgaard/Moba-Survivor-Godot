@@ -1,0 +1,9 @@
+{
+  "test_name": "enemy_perf_bench_iso",
+  "hero": "tobor",
+  "description": "T3.92 isolated perf bench: launches the enemy_perf_bench scene at 200 on-screen enemies in an empty world, measures FPS/proc_ms. The bench writes its own report + screenshots.",
+  "events": [
+    {"t": 6.5, "kind": "report"}
+  ],
+  "wait_ms": 15000
+}

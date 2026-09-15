@@ -1,0 +1,15 @@
+{
+  "before": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\enemy_perf_bench\\ingame_before_200.png",
+  "after": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\enemy_perf_bench\\ingame_after_200.png",
+  "out": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\enemy_perf_bench\\diff_ingame_200.png",
+  "changed_pixels": 389494,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.187835,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

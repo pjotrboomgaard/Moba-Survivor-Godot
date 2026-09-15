@@ -1,0 +1,33 @@
+{
+  "source": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\enemy_perf_bench\\iso_after_200.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.1715,
+  "bounding_box": [
+    564,
+    295,
+    1355,
+    787
+  ],
+  "coverage": 0.1883,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2503,
+    "TR": 0.2493,
+    "BL": 0.2502,
+    "BR": 0.2502
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\enemy_perf_bench\\thumb_iso_after_200.png"
+}

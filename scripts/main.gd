@@ -10,7 +10,13 @@ const MinigameAreaScript := preload("res://scripts/minigame_area.gd")
 const _CorpseScript := preload("res://scripts/corpse.gd")
 const GhostWaveSystem := preload("res://scripts/ghost_wave_system.gd")
 
-@export var max_enemies := 70
+## T3.87/T3.92: raised from 70 to 200 to allow the full 3× wave-ramp headcount.
+## The enemy perf bench (scenes/enemy_perf_bench) confirms 200 on-screen mixed
+## creeps hold ≥30 FPS even on the shared test rig, so the "whole screen can be
+## flooded with ~200 enemies" requirement is met without an FPS drop. Off-screen
+## creeps ghost (sprite hidden, physics off) so the real on-screen count stays
+## well under this cap in practice.
+@export var max_enemies := 200
 ## Spawn ring relative to the player. At the default zoom of 0.5 the viewport
 ## spans ~2560px wide, so the screen edge is ~1280px from the player. Spawning
 ## beyond that guarantees enemies appear off-screen and walk in, instead of

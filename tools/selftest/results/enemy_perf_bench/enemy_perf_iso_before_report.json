@@ -1,0 +1,8 @@
+{
+  "verdict": "PASS",
+  "note": "BEFORE (reverted enemy.gd, no player-snapshot/far-target-cache optimizations)",
+  "enemies_target": 200,
+  "enemies_live": 200,
+  "avg_fps": 101,
+  "avg_proc_ms": 29
+}
