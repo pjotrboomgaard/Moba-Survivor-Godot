@@ -1,0 +1,10 @@
+{
+  "test_name": "menu_bg_ingame",
+  "comment": "T4.1/T4.2 in-game: launch the main scene with Warden selected. The bootstrap menu shows the Diord animated bg at half speed with periodic forward/back drift. Capture at t=5 (menu visible) to confirm the animated bg is active.",
+  "hero": "warden",
+  "events": [
+    {"t": 5.0, "kind": "snap", "label": "menu_bg_warden_ingame"},
+    {"t": 12.0, "kind": "snap", "label": "menu_bg_warden_ingame_2"}
+  ],
+  "wait_ms": 18000
+}

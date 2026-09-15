@@ -1,0 +1,5 @@
+{
+  "test_name": "wave_pacing_iso",
+  "scene": "res://scenes/wave_pacing_test/wave_pacing_test.tscn",
+  "comment": "T4.3: isolated wave pacing test — verify early-wave budget reduction"
+}

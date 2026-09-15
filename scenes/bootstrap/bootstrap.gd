@@ -107,7 +107,9 @@ var _play_mode_group: ButtonGroup = null
 ## frames; Tobor (tobor) and Diord (warden) use every frame at 20% speed.
 var _menu_frames: Array[Texture2D] = []
 var _menu_frames_class := ""
-var _menu_fps := 2.4  # ticks/sec; Joule 2.4, Tobor/Diord 4.8 (20% of 24fps)
+var _menu_fps := 2.4  # ticks/sec; Joule 2.4, Tobor 4.8 (20% of 24fps), Diord 2.4 (half speed, T4.1)
+## T4.2 (2026-09-15): Diord menu bg periodic forward/backward drift.
+var _menu_pan_phase := 0.0
 
 const STEAM_OPERATION_TIMEOUT := 22.0
 
@@ -563,9 +565,15 @@ func _apply_hero_backdrop() -> void:
 		if not frames.is_empty():
 			_menu_frames = frames
 			_menu_frames_class = class_id
-			# Tobor/Diord play at ~20% of the source 24fps (4.8 fps). Joule keeps
-			# its lightning-filtered frames at 2.4 fps (its own tuned loop).
-			_menu_fps = 2.4 if class_id == "arclight" else 4.8
+			# Tobor plays at ~20% of the source 24fps (4.8 fps). Joule keeps its
+			# lightning-filtered frames at 2.4 fps (its own tuned loop).
+			# T4.1 (2026-09-15): Diord (warden) bg runs at half speed = 2.4 fps.
+			if class_id == "arclight":
+				_menu_fps = 2.4
+			elif class_id == "warden":
+				_menu_fps = 2.4
+			else:
+				_menu_fps = 4.8
 			_menu_video_active = true
 			_menu_frame_index = 0
 			art.texture = frames[0]
@@ -682,6 +690,17 @@ func _tick_menu_video(delta: float) -> void:
 			_menu_frame_index = 1
 			_menu_direction = 1
 		_menu_set_frame(_menu_frame_index)
+	# T4.2 (2026-09-15): Diord (warden) menu bg periodically drifts forward and
+	# back. A slow sine oscillation nudges the backdrop's vertical position so
+	# the loop visibly eases in and out on a ~4s period. Only applied to warden
+	# so the other hero backdrops are left untouched.
+	if _menu_frames_class == "warden":
+		_menu_pan_phase += delta
+		# 4.0s period -> omega = TAU / 4.0. Offset range +/- 14px.
+		var off: float = sin(_menu_pan_phase * (TAU / 4.0)) * 14.0
+		var art := _hero_backdrop()
+		if art != null:
+			art.offset_top = -off
 
 
 var selected_world: int = 0

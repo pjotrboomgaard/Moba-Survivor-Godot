@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\wave_pacing_iso\\wave_bars.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.0809,
+  "bounding_box": [
+    615,
+    222,
+    1326,
+    746
+  ],
+  "coverage": 0.1803,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.0336,
+    "TR": 0.3963,
+    "BL": 0.2598,
+    "BR": 0.3103
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\wave_pacing_iso\\thumb_wave_bars.png"
+}

@@ -1,20 +1,24 @@
 extends Node
-## T3.97 in-game verify: the animated menu backdrops for Tobor (Wrench) and
-## Diord (warden) actually animate in the real bootstrap menu.
+## T4.1/T4.2 in-game verify: the animated menu backdrops for Tobor (Wrench) and
+## Diord (warden) animate in the real bootstrap menu.
 ##
 ## Attached to get_tree().root by bootstrap.gd when marker file
 ## user://menu_bg_ingame_test exists.
 ##
-## BEFORE = tobor forced onto a single static frame (simulates the pre-change
-##          static menu_bg).
-## AFTER  = tobor animating (frame advances), then Diord (warden) animating.
+## T4.1: warden (Diord) now plays at HALF speed (2.4 fps vs tobor's 4.8 fps).
+## T4.2: warden backdrop periodically drifts forward/back (offset_top oscillates).
 ##
-## Captures 5 shots:
-##   ingame_before_static  (tobor, static)
+## Captures shots:
+##   ingame_before_static  (tobor, static frame 0 — pre-change look)
 ##   ingame_after_tobor_1  (tobor animating, frame A)
-##   ingame_after_tobor_2  (tobor animating, frame B — must differ from A)
-##   ingame_after_warden_1 (warden animating, frame A)
-##   ingame_after_warden_2 (warden animating, frame B — must differ from A)
+##   ingame_after_tobor_2  (tobor animating, frame B)
+##   ingame_after_warden_1 (warden animating at t=5s, offset position A)
+##   ingame_after_warden_2 (warden animating at t=9s, offset position B — 4s later,
+##                          past half the 4s drift period, so offset_top differs)
+##   ingame_after_warden_3 (warden animating at t=13s, offset position C)
+##
+## The warden shots are spaced 4s apart (one full drift period) so the
+## forward/back position is clearly different between shots.
 
 var _elapsed := 0.0
 var _run_dir := ""
@@ -22,21 +26,22 @@ var _shots: Array = []
 var _done := false
 var _shot_index := 0
 ## Shot times: tobor at 0.5 (before, static), 1.7 & 2.7 (animated A/B),
-## warden at 4.0 & 5.0 (animated A/B).
-var _shot_times: Array[float] = [0.5, 1.7, 2.7, 4.0, 5.0]
+## warden at 5.0, 9.0, 13.0 (drift A/B/C, spaced 4s apart).
+var _shot_times: Array[float] = [0.5, 1.7, 2.7, 5.0, 9.0, 13.0]
 var _shot_labels: Array = [
 	"ingame_before_static",
 	"ingame_after_tobor_1",
 	"ingame_after_tobor_2",
 	"ingame_after_warden_1",
 	"ingame_after_warden_2",
+	"ingame_after_warden_3",
 ]
 
 
 func _ready() -> void:
 	_run_dir = "user://menu_bg_ingame_run_%d" % int(Time.get_ticks_msec())
 	DirAccess.make_dir_recursive_absolute(_run_dir)
-	print("[MenuBgIngame] driver ready, run_dir=", _run_dir)
+	print("[MenuBgIngame] driver ready (T4.1/T4.2), run_dir=", _run_dir)
 
 
 func _process(delta: float) -> void:
@@ -67,12 +72,14 @@ func _process(delta: float) -> void:
 			bootstrap._apply_hero_backdrop()
 		bootstrap._menu_video_active = true
 
-	if _elapsed >= 3.5 and _shot_index == 3:
-		# AFTER warden/Diord: switch hero, animated.
+	if _elapsed >= 3.5 and _shot_index >= 3:
+		# AFTER warden/Diord: switch hero, animated at half speed + drift.
 		PlayerProfile.selected_class_id = "warden"
 		if bootstrap.has_method("_apply_hero_backdrop"):
 			bootstrap._apply_hero_backdrop()
 		bootstrap._menu_video_active = true
+		# Reset the drift phase so the first warden shot starts the oscillation.
+		bootstrap._menu_pan_phase = 0.0
 
 	# Take the next scheduled shot when its time arrives.
 	while _shot_index < _shot_times.size() and _elapsed >= _shot_times[_shot_index]:
@@ -81,7 +88,7 @@ func _process(delta: float) -> void:
 		_snap_deferred(label)
 
 	# Finish after the last shot has been taken and a short settle time has passed.
-	if _shot_index >= _shot_times.size() and _elapsed >= 7.0:
+	if _shot_index >= _shot_times.size() and _elapsed >= 15.0:
 		_finish()
 
 
@@ -102,7 +109,7 @@ func _snap_deferred(label: String) -> void:
 		_shots.append({"label": label, "path": "none", "error": "no image"})
 		print("[MenuBgIngame] snap ", label, " FAILED: no image")
 
-	if _shot_index >= _shot_times.size() and _elapsed >= 6.5:
+	if _shot_index >= _shot_times.size() and _elapsed >= 14.5:
 		_finish()
 
 
@@ -114,11 +121,12 @@ func _finish() -> void:
 	for s in _shots:
 		if not str(s.get("path", "")).ends_with("none") and not str(s.get("path", "")).is_empty():
 			ok_shots += 1
-	var verdict := "PASS" if ok_shots >= 5 else "FAIL"
+	var verdict := "PASS" if ok_shots >= 6 else "FAIL"
 	var report := {
 		"verdict": verdict,
 		"scene": "menu_bg_ingame_test",
-		"expected_shots": 5,
+		"task": "T4.1 (half-speed warden) + T4.2 (warden forward/back drift)",
+		"expected_shots": 6,
 		"shots_captured": ok_shots,
 		"shots": _shots,
 	}

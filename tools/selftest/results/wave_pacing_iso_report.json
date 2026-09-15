@@ -1,0 +1,16 @@
+{
+	"budgets": {
+		"wave_1": 47.25,
+		"wave_2": 63.18,
+		"wave_3": 94.1625,
+		"wave_4": 145.8,
+		"wave_5": 166.05
+	},
+	"screenshot": "user://selftest_wave_bars.png",
+	"user_dir": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/",
+	"verdict": "PASS",
+	"wave1_expected_lt": 94.5,
+	"wave2_expected_lt": 117.0,
+	"wave3_expected_lt": 139.5,
+	"wave4_delta_from_162": 16.2
+}

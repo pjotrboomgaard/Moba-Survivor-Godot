@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\menu_bg_iso\\menu_warden_5.5.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.2426,
+  "bounding_box": [
+    960,
+    555,
+    1919,
+    1079
+  ],
+  "coverage": 0.2431,
+  "position": "BOTTOM-RIGHT",
+  "is_centered": false,
+  "quadrant_fractions": {
+    "TL": 0.0,
+    "TR": 0.0,
+    "BL": 0.0,
+    "BR": 1.0
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0379,
+    "left": 0.0,
+    "right": 0.0209
+  },
+  "thumbnail": "tools\\selftest\\results\\menu_bg_iso\\thumb_menu_warden_5.5.png"
+}

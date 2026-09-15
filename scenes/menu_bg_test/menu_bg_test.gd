@@ -1,23 +1,31 @@
 extends Node2D
-## T3.97 — Isolated verification: the animated menu backgrounds for Tobor (Wrench)
-## and Diord (warden) load their extracted frames and advance (animation).
+## T4.1/T4.2 — Isolated verification: the animated menu backgrounds for Tobor
+## (Wrench) and Diord (warden).
+##   T4.1: Diord (warden) plays at HALF speed (2.4 fps) vs Tobor (4.8 fps).
+##   T4.2: Diord's backdrop periodically drifts forward and back (sine offset
+##         on the TextureRect offset_top, ~4s period, +/-14px).
 ##
 ## The selftest driver does NOT attach to isolated scenes, so this scene:
-##   1. Loads the frame folders for both heroes (same source bootstrap.gd uses:
-##      PlayerClass.by_id(id).animated_menu_bg + "frame_%03d.png").
+##   1. Loads the frame folders for both heroes (same source bootstrap.gd uses).
 ##   2. Asserts each hero has a non-trivial number of frames.
-##   3. Renders the active hero's current frame full-screen and advances it on a
-##      ping-pong timer at the T3.97 rate (4.8 fps ≈ 20% of the 24 fps source).
-##   4. Captures screenshots at t=0.5 (frame 0), t=1.5 (frame N), t=2.5 (frame 2N)
-##      so a before/after compare can confirm the backdrop actually changes.
-##   5. Writes user://selftest_report.json with verdict + frame counts + shots.
+##   3. Renders the active hero's frame full-screen, advancing at the per-hero
+##      FPS (tobor 4.8, warden 2.4) and applying the warden forward/back drift.
+##   4. Captures screenshots at t=0.5 (tobor), t=3.5/4.5/5.5 (warden, spaced
+##      >1 period apart so the oscillation is visible in the compare).
+##   5. Writes user://selftest_report.json with verdict + frame counts + shots
+##      + the measured warden offset_top at each warden shot.
 ##
 ## Runs empty-world: a Camera2D + a full-rect TextureRect. No arena, no HUD, no
 ## world props — only the mechanic under test (the animated menu backdrop).
 class_name MenuBgTest
 
 const HEROES := ["tobor", "warden"]
-const FPS := 4.8  # 20% of the 24 fps source rate (T3.97)
+# T4.1: per-hero fps. Tobor stays 4.8 (20% of 24fps source). Warden (Diord) is
+# now half speed -> 2.4 fps.
+const FPS := {"tobor": 4.8, "warden": 2.4}
+# T4.2: warden periodic forward/back drift (bootstrap.gd _tick_menu_video).
+const WARDEN_PAN_PERIOD := 4.0
+const WARDEN_PAN_AMPLITUDE := 14.0
 
 var _frames: Dictionary = {}   # class_id -> Array[Texture2D]
 var _frames_total: Dictionary = {}
@@ -27,11 +35,14 @@ var _direction := 1
 var _timer := 0.0
 var _rect: TextureRect = null
 var _elapsed := 0.0
+var _warden_pan_phase := 0.0   # T4.2 drift phase (only advances while warden active)
 var _verdict := "PASS"
 var _report: Dictionary = {}
 var _shots: Array = []
-# Tobor animates 0-3s (shots at 0.5, 1.5), Diord (warden) animates 3-6s (shots at 3.5, 4.5).
-var _shot_times := [0.5, 1.5, 3.5, 4.5]
+# Tobor animates 0-3s (shot at 0.5), Diord (warden) animates 3-7s (shots at
+# 3.5, 5.5, 7.5) — spaced 2s apart, > half the 4s period, so the forward/back
+# offset is clearly different at each capture.
+var _shot_times := [0.5, 3.5, 5.5, 7.5]
 
 
 func _ready() -> void:
@@ -61,6 +72,8 @@ func _ready() -> void:
 	_report["class_active"] = _active_class
 	_report["frames_tobor"] = _frames_total["tobor"]
 	_report["frames_warden"] = _frames_total["warden"]
+	_report["fps_tobor"] = FPS["tobor"]
+	_report["fps_warden"] = FPS["warden"]
 	_report["expected_tobor_min"] = 20
 	_report["expected_warden_min"] = 20
 
@@ -73,10 +86,10 @@ func _process(delta: float) -> void:
 		_frame_index = 0
 		_direction = 1
 		_timer = 0.0
-	# Advance the active hero's frame ping-pong at FPS.
+	# Advance the active hero's frame ping-pong at the per-hero FPS (T4.1).
 	if not _frames[_active_class].is_empty() and _frames[_active_class].size() > 1:
 		_timer += delta
-		if _timer >= 1.0 / FPS:
+		if _timer >= 1.0 / FPS[_active_class]:
 			_timer = 0.0
 			_frame_index += _direction
 			if _frame_index >= _frames[_active_class].size():
@@ -86,11 +99,18 @@ func _process(delta: float) -> void:
 				_frame_index = 1
 				_direction = 1
 			_rect.texture = _frames[_active_class][clampi(_frame_index, 0, _frames[_active_class].size() - 1)]
+	# T4.2: warden periodic forward/back drift — mirror bootstrap._tick_menu_video.
+	if _active_class == "warden":
+		_warden_pan_phase += delta
+		var off: float = sin(_warden_pan_phase * (TAU / WARDEN_PAN_PERIOD)) * WARDEN_PAN_AMPLITUDE
+		_rect.offset_top = -off
+	else:
+		_rect.offset_top = 0.0
 	# Take a screenshot at each configured time.
 	for t in _shot_times:
 		if _elapsed >= t and not _shot_taken(t):
 			_capture("menu_%s_%.1f" % [_active_class, t])
-	if _elapsed >= 6.0:
+	if _elapsed >= 8.0:
 		_finish()
 
 
@@ -108,7 +128,12 @@ func _capture(label: String) -> void:
 		return
 	var path := "user://%s.png" % label
 	img.save_png(path)
-	_shots.append({"label": label, "path": path, "t": _elapsed})
+	var shot: Dictionary = {"label": label, "path": path, "t": _elapsed}
+	# Record the warden drift offset at capture time (T4.2 evidence).
+	if _active_class == "warden":
+		shot["warden_offset_top"] = _rect.offset_top
+		shot["warden_pan_phase"] = _warden_pan_phase
+	_shots.append(shot)
 
 
 func _load_frames(class_id: String) -> Array[Texture2D]:
@@ -135,8 +160,27 @@ func _finish() -> void:
 		_report["error"] = "tobor frames %d < min %d" % [_frames_total["tobor"], _report.get("expected_tobor_min", 20)]
 	if _frames_total["warden"] < _report.get("expected_warden_min", 20):
 		_verdict = "FAIL"
-		_report["error"] = "warden frames %d < min %d" % [_frames_total["warden"], _report.get("expected_warden_min", 20)]
-	if _shots.size() < 2:
+		_report["error"] = str(_report.get("error", "")) + " warden frames %d < min %d" % [_frames_total["warden"], _report.get("expected_warden_min", 20)]
+	# T4.1: confirm the per-hero fps differ (tobor faster than warden).
+	if not (FPS["tobor"] > FPS["warden"]):
+		_verdict = "FAIL"
+		_report["error"] = str(_report.get("error", "")) + " T4.1 failed: tobor fps must exceed warden fps"
+	# T4.2: confirm the warden shots show a range of offset_top values (drift).
+	var warden_offsets: Array = []
+	for s in _shots:
+		if s.get("warden_offset_top") != null:
+			warden_offsets.append(float(s["warden_offset_top"]))
+	if warden_offsets.size() >= 2:
+		var lo := INF
+		var hi := -INF
+		for o in warden_offsets:
+			lo = minf(lo, o)
+			hi = maxf(hi, o)
+		_report["warden_offset_range"] = [lo, hi]
+		if (hi - lo) < 4.0:
+			_verdict = "FAIL"
+			_report["error"] = str(_report.get("error", "")) + " T4.2 failed: warden offset_top range too small (no forward/back drift)"
+	if _shots.size() < 3:
 		_verdict = "FAIL"
 		_report["error"] = str(_report.get("error", "")) + " too few shots (%d)" % _shots.size()
 	_report["verdict"] = _verdict
@@ -145,5 +189,5 @@ func _finish() -> void:
 	if f != null:
 		f.store_string(JSON.stringify(_report, "  "))
 		f.close()
-	print("[MenuBgTest] verdict=%s tobor=%d warden=%d shots=%d" % [_verdict, _frames_total["tobor"], _frames_total["warden"], _shots.size()])
+	print("[MenuBgTest] verdict=%s tobor=%d warden=%d shots=%d warden_offsets=%s" % [_verdict, _frames_total["tobor"], _frames_total["warden"], _shots.size(), str(_report.get("warden_offset_range", []))])
 	get_tree().quit()

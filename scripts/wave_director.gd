@@ -575,6 +575,16 @@ func budget_for_wave(target_wave: int) -> float:
 	var solo_budget := (24.0 + 7.5 * float(target_wave)) * 3.0
 	if target_wave >= 8:
 		solo_budget += 10.5 * float(target_wave - 7) * 3.0
+	# T4.3 (2026-09-15): "too many creeps too fast in early game". The opening
+	# waves (1-3) were 2.5-4× denser than the player expected. Apply a ramp-in
+	# dampener so wave 1 is ~50%, wave 2 is ~60%, wave 3 is ~75%, and wave 4+
+	# uses the full curve. This eases the onboarding without changing late-game.
+	if target_wave == 1:
+		solo_budget *= 0.50
+	elif target_wave == 2:
+		solo_budget *= 0.60
+	elif target_wave == 3:
+		solo_budget *= 0.75
 	# T3.58: Camp Gauntlet test mode (id 6) is a camp-farm world — the 7 camps +
 	# their guardians are the main threat, so regular waves are reduced to ~40%.
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id == 6:

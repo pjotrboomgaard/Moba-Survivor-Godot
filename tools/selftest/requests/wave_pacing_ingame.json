@@ -1,0 +1,16 @@
+{
+  "test_name": "wave_pacing_ingame",
+  "hero": "tobor",
+  "comment": "T4.3 in-game verify: confirm early-wave budget reduction (wave1 < 94.5, wave2 < 117, wave3 < 139.5) and that wave4+ is unchanged.",
+  "events": [
+    {"t": 1.0, "kind": "wave_budget_probe", "wave": 1},
+    {"t": 1.2, "kind": "wave_budget_probe", "wave": 2},
+    {"t": 1.4, "kind": "wave_budget_probe", "wave": 3},
+    {"t": 1.6, "kind": "wave_budget_probe", "wave": 4},
+    {"t": 1.8, "kind": "wave_budget_probe", "wave": 5},
+    {"t": 3.0, "kind": "snap", "label": "ingame_wave1_early"},
+    {"t": 3.5, "kind": "enemy_count_probe", "label": "wave1_enemies"},
+    {"t": 4.0, "kind": "report"}
+  ],
+  "wait_ms": 15000
+}
