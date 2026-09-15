@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\hero_art_redesign\\iso_after_heroes.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    25,
+    41,
+    36
+  ],
+  "content_fill_ratio": 0.0669,
+  "bounding_box": [
+    136,
+    0,
+    1758,
+    1079
+  ],
+  "coverage": 0.8453,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.1772,
+    "TR": 0.2747,
+    "BL": 0.262,
+    "BR": 0.2862
+  },
+  "edge_fractions": {
+    "top": 0.0066,
+    "bottom": 0.0132,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\hero_art_redesign\\thumb_iso_after_heroes.png"
+}

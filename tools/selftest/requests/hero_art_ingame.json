@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "coop": false,
+  "ffa": false,
+  "time_scale": 1.0,
+  "description": "In-game T3.28 verify: spawn a representative 3-hero roster (one per world: cinder=fire, thorn=verdant, volt=storm) as CPU players in the live arena, screenshot to confirm the redesigned body sprites load and render at game scale.",
+  "events": [
+    {"t": 2.0, "kind": "spawn_roster", "heroes": ["cinder", "thorn", "volt"]},
+    {"t": 6.0, "kind": "snap", "label": "ingame_repr3"},
+    {"t": 10.0, "kind": "snap", "label": "ingame_repr3_b"},
+    {"t": 10.2, "kind": "report"}
+  ]
+}

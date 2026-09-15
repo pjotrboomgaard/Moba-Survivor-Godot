@@ -456,6 +456,31 @@ func _process(delta: float) -> void:
 					_active_effects.append({"kind": "hero", "t": _elapsed, "error": "bad hero id '%s'" % hero_id})
 			"spawn":
 				_spawn_at(_event_vec(event, "at", Vector2(160, 0)), str(event.get("type", "hound")), float(event.get("hp_mult", 1.0)), float(event.get("spd_mult", 1.0)))
+			"spawn_roster":
+				# T3.28 hero-art verification: spawn a list of CPU heroes parked
+				# in a row near the local player so one in-game screenshot shows
+				# every hero's redesigned body sprite at real game scale.
+				var roster: Array = event.get("heroes", [])
+				var base_pos: Vector2 = _event_vec(event, "at", _player.global_position if _player != null else Vector2.ZERO)
+				var spawn_errors: Array[String] = []
+				var spawned: Array[String] = []
+				for idx in roster.size():
+					var hid := str(roster[idx])
+					if PlayerClass.is_valid_id(hid):
+						var cpu_peer := 200 + idx
+						var p: Variant = _host_main._create_player(cpu_peer, Player.SimulationMode.CPU, false, hid)
+						if p != null and _player != null:
+							(p as Node2D).global_position = base_pos + Vector2(-240.0 + 40.0 * float(idx), 0.0)
+							# Freeze them so they stand still for the screenshot (no
+							# heavy AI pathing / combat). Movement still applies sprite.
+							p.movement_locked = true
+						spawned.append(hid)
+					else:
+						spawn_errors.append(hid)
+				_active_effects.append({
+					"kind": "spawn_roster", "t": _elapsed,
+					"spawned": spawned, "spawn_errors": spawn_errors,
+				})
 			"reset_ability_cd":
 				# Test-only: zero all ability + secondary cooldowns so a request can
 				# cast the same ability repeatedly (real-cast wiring verification).

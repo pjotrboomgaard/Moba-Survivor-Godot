@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/hero_art_redesign/ingame_before_repr3.png",
+  "after": "tools/selftest/results/hero_art_redesign/ingame_after_repr3.png",
+  "out": "tools/selftest/results/hero_art_redesign/diff_ingame_repr3.png",
+  "changed_pixels": 15156,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.007309,
+  "bbox": [
+    277,
+    27,
+    1887,
+    1042
+  ],
+  "has_change": true
+}
