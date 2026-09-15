@@ -1,212 +1,91 @@
 {
-  "cells": [
-    {
-      "face": "front",
-      "file": "arclight.png",
-      "hero": "arclight",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(0,0,0,0)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "back",
-      "file": "arclight_back.png",
-      "hero": "arclight",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(0,0,0,0)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "side",
-      "file": "arclight_side.png",
-      "hero": "arclight",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(0,0,0,0)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "left",
-      "file": "arclight_left.png",
-      "hero": "arclight",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(0,0,0,0)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "front",
-      "file": "bulwark.png",
-      "hero": "bulwark",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(227,227,227,255)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "back",
-      "file": "bulwark_back.png",
-      "hero": "bulwark",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(92,92,92,255)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "side",
-      "file": "bulwark_side.png",
-      "hero": "bulwark",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(225,225,225,255)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "left",
-      "file": "bulwark_left.png",
-      "hero": "bulwark",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(90,90,90,255)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "front",
-      "file": "warden.png",
-      "hero": "warden",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(0,0,0,0)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "back",
-      "file": "warden_back.png",
-      "hero": "warden",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(0,0,0,0)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "side",
-      "file": "warden_side.png",
-      "hero": "warden",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(0,0,0,0)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    },
-    {
-      "face": "left",
-      "file": "warden_left.png",
-      "hero": "warden",
-      "mismatch": false,
-      "ondisk_h": 80,
-      "ondisk_ok": true,
-      "ondisk_pixels": {
-        "p0_0": "rgba(0,0,0,0)",
-        "p40_40": "rgba(0,0,0,0)",
-        "p79_79": "rgba(0,0,0,0)"
-      },
-      "ondisk_w": 80,
-      "runtime_h": 80,
-      "runtime_loaded": true,
-      "runtime_w": 80
-    }
+  "bad": [],
+  "heroes": [
+    "arclight",
+    "bulwark",
+    "warden",
+    "cinder",
+    "pyra",
+    "slag",
+    "ember",
+    "thorn",
+    "willow",
+    "stump",
+    "sage",
+    "volt",
+    "nebula",
+    "astral",
+    "rime",
+    "tobor"
   ],
-  "mismatches": [],
-  "scene": "hero_sprite_compare_test",
-  "shot": "user://hero_sprite_compare_test.png",
+  "scale": 5.0,
+  "scene": "hero_sprites_test",
+  "shot": "user://hero_sprites_test.png",
+  "sizes": {
+    "arclight": [
+      40,
+      40
+    ],
+    "astral": [
+      40,
+      40
+    ],
+    "bulwark": [
+      40,
+      40
+    ],
+    "cinder": [
+      40,
+      40
+    ],
+    "ember": [
+      40,
+      40
+    ],
+    "nebula": [
+      40,
+      40
+    ],
+    "pyra": [
+      40,
+      40
+    ],
+    "rime": [
+      40,
+      40
+    ],
+    "sage": [
+      40,
+      40
+    ],
+    "slag": [
+      40,
+      40
+    ],
+    "stump": [
+      40,
+      40
+    ],
+    "thorn": [
+      40,
+      40
+    ],
+    "tobor": [
+      32,
+      32
+    ],
+    "volt": [
+      40,
+      40
+    ],
+    "warden": [
+      40,
+      40
+    ],
+    "willow": [
+      40,
+      40
+    ]
+  },
   "verdict": "PASS"
 }
