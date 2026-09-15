@@ -6,6 +6,7 @@ exports/
 __pycache__/
 *.pyc
 tmp_video_preview/
+tmp_video_preview/
 
 # Local editor settings and credentials must never be committed.
 .env
