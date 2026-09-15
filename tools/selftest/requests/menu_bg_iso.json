@@ -1,5 +1,5 @@
 {
   "test_name": "menu_bg_iso",
   "scene": "res://scenes/menu_bg_test/menu_bg_test.tscn",
-  "comment": "T4.1/T4.2: isolated menu bg test — verify warden half-speed + periodic forward/back drift"
+  "comment": "T4.2v2: isolated menu bg test — warden fixed-position short-loop + arclight video plays. No drift."
 }

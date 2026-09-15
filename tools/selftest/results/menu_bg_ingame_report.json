@@ -1,28 +1,45 @@
 {
-  "expected_shots": 5,
+  "expected_shots": 8,
   "scene": "menu_bg_ingame_test",
   "shots": [
     {
       "label": "ingame_before_static",
-      "path": "user://menu_bg_ingame_run_2793/ingame_before_static.png"
+      "path": "user://menu_bg_ingame_run_3387/ingame_before_static.png"
     },
     {
       "label": "ingame_after_tobor_1",
-      "path": "user://menu_bg_ingame_run_2793/ingame_after_tobor_1.png"
+      "path": "user://menu_bg_ingame_run_3387/ingame_after_tobor_1.png"
     },
     {
       "label": "ingame_after_tobor_2",
-      "path": "user://menu_bg_ingame_run_2793/ingame_after_tobor_2.png"
+      "path": "user://menu_bg_ingame_run_3387/ingame_after_tobor_2.png"
     },
     {
       "label": "ingame_after_warden_1",
-      "path": "user://menu_bg_ingame_run_2793/ingame_after_warden_1.png"
+      "path": "user://menu_bg_ingame_run_3387/ingame_after_warden_1.png"
     },
     {
       "label": "ingame_after_warden_2",
-      "path": "user://menu_bg_ingame_run_2793/ingame_after_warden_2.png"
+      "path": "user://menu_bg_ingame_run_3387/ingame_after_warden_2.png"
+    },
+    {
+      "label": "ingame_after_warden_3",
+      "path": "user://menu_bg_ingame_run_3387/ingame_after_warden_3.png"
+    },
+    {
+      "label": "ingame_after_arclight_1",
+      "path": "user://menu_bg_ingame_run_3387/ingame_after_arclight_1.png"
+    },
+    {
+      "label": "ingame_after_arclight_2",
+      "path": "user://menu_bg_ingame_run_3387/ingame_after_arclight_2.png"
     }
   ],
-  "shots_captured": 5,
-  "verdict": "PASS"
+  "shots_captured": 8,
+  "task": "T4.2v2 (warden pinned short-loop) + T3.74 (Joule video plays)",
+  "verdict": "PASS",
+  "warden_offset_range": [
+    0.0,
+    0.0
+  ]
 }

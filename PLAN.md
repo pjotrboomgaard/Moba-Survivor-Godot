@@ -332,31 +332,42 @@ speed**, i.e. ~2.4 fps, so it moves noticeably slower/calm.
   the bootstrap menu (marker file `user://menu_bg_ingame_test`). Isolated test is
   definitive for fps: warden 2.4 fps vs tobor 4.8 fps (verified in report JSON).
 
-### T4.2 Diord loop bg — periodic forward/backward movement
-**User direction:** "Diord loop bg more forward and backward periodically". The
-Diord animated menu background loop should drift **more forward and back
-periodically** — i.e. add a gentle, periodic position/pan oscillation on top of
-the frame stepping so the backdrop visibly eases in and out on a slow period.
-- [x] In `_tick_menu_video` (bootstrap.gd), added a periodic forward/back offset
-      applied to the Diord menu backdrop — a slow sine oscillation on
-      `offset_top` (±14px, ~4s period).
-- [x] Apply only to Diord (warden) so other heroes' backdrops are unchanged.
-- [x] 6-step verify:
-  1. **Isolated BEFORE**: `menu_bg_iso/menu_warden_3.5.png` (pre-change: no drift).
-  2. **Isolated AFTER**: `menu_bg_iso/menu_warden_3.5.png`, `menu_warden_5.5.png`,
-     `menu_warden_7.5.png` — three shots 2s apart showing the totem at
-     progressively different vertical positions (drift range -10 to +10 px
-     confirmed in report `warden_offset_range`).
-  3. **Isolated COMPARE**: `diff_warden_drift.png` — 64933px changed (3.13%),
-     `cv_compare.py` translation dy=31.3px confirms vertical oscillation.
-  4. **In-game BEFORE**: `menu_bg_ingame_t4/ingame_before_static.png` (static frame).
-  5. **In-game AFTER**: `menu_bg_ingame_t4/ingame_after_warden_1.png`,
-     `ingame_after_warden_2.png`, `ingame_after_warden_3.png` — three shots 4s
-     apart showing the totem at progressively different vertical positions
-     (forward/back drift confirmed live in the bootstrap menu).
-  6. **In-game COMPARE**: `menu_bg_ingame_t4/menu_bg_ingame_t4_report.json`
-     (verdict PASS, 6/6 shots captured). The warden shots show the totem visibly
-     shifted between frames — the ±14px oscillation is clear.
+### T4.2 Diord loop bg — REVISION: pinned position, short-loop (NEW 2026-09-15) _STATUS: verified_
+**Original direction:** "Diord loop bg more forward and backward periodically".
+**Revised direction (2026-09-15):** "don't make the Diord video zoom in/out or
+move around. Keep it in the same place but loop the animation on a small part."
+The v1 implementation (sine `offset_top` drift, ±14px, 49-frame full loop) was
+REVERTED. The backdrop now sits in ONE fixed framing and only loops a short
+sub-range of frames (0-based 17..33 = frames 18-34) so the totem does NOT pan
+or zoom — it just animates a small, centered beat in place.
+- [x] `bootstrap.gd` `_tick_menu_video`: warden loops only `_WARDEN_LOOP_START.._WARDEN_LOOP_END`
+      (0-based 17..33) via a range-bounded ping-pong; backdrop `offset_top` is
+      pinned to 0 (no drift). `_menu_pan_phase` removed.
+- [x] `bootstrap.gd` `_apply_hero_backdrop`: warden initializes `_menu_frame_index`
+      to `_WARDEN_LOOP_START` and zeroes all backdrop offsets.
+- [x] Other heroes (tobor 4.8fps full loop, arclight 2.4fps lightning loop) unchanged.
+- [x] **T3.74 fix (Joule video):** Joule (arclight) menu video had silently stopped
+      playing because `arclight`'s class def lacked `animated_menu_bg` (the T3.97
+      refactor dropped the legacy `JouleMenuVideo` path). Added
+      `"animated_menu_bg": "res://assets/ui/joule_menu_video"` to the arclight def
+      in `player_class.gd`; the generic `_load_menu_frames` now routes arclight to
+      `_load_joule_menu_frames()` (22 lightning frames) again. Verified playing in-game.
+- [x] 6-step verify (menu_bg_iso + menu_bg_ingame_test):
+  1. **Isolated BEFORE** (old drift code): `menu_bg_iso/iso_before_menu_warden_*.png`
+     — report showed `warden_offset_range [-10.03, +10.01]` (drift present).
+  2. **Isolated AFTER** (new pinned short-loop): `menu_bg_iso/menu_warden_4.0.png`
+     + `menu_arclight_7.0.png` — report PASS tobor=49 warden=49 arclight=22,
+     `warden_idx=[18,22]` (inside 17..33), offsets all 0.
+  3. **Isolated COMPARE**: `menu_bg_iso/diff_iso_warden.png` (diff 2.35%) — old
+     drift shot vs new pinned shot; old had ±10px vertical shift, new is flat.
+  4. **In-game BEFORE** (old drift): `menu_bg_ingame_t4/ingame_before_ingame_after_warden_*.png`.
+  5. **In-game AFTER** (new): `menu_bg_ingame_t4/ingame_after_ingame_after_warden_1..3.png`
+     (warden pinned, sub-loop) + `ingame_after_ingame_after_arclight_1..2.png`
+     (Joule lightning video playing live in the menu).
+  6. **In-game COMPARE**: `menu_bg_ingame_t4/diff_ingame_warden.png` (diff 3.75%),
+     `menu_bg_ingame_t4/menu_bg_ingame_report.json` verdict PASS 8/8 shots.
+     Arclight shot shows lightning in the sky (video fixed); warden shots stay
+     in the same framing (no drift).
 
 ### T4.3 Too many creeps / too fast in early game — reduce early-game pressure
 **User direction:** "too many creeps to fast, in early game". Early waves
@@ -1145,31 +1156,6 @@ abilities, weather, minigames, and world features going forward.
 
 ## P3-EXT — NEW TASKS ADDED 2026-09-12 (latest batch)
 
-### T3.23 Pixel-art style method: AI-assisted + hand-drawn, keep ALL candidates
-**User direction (2026-09-12):** "Do both hand-drawn and AI pixel art and keep
-ALL sprites you make so I can select later. Figure out the method yourself. Make
-sure AI-assisted prompts fit the proper game style and the required grid
-(16x16 for creatures, 32x32 for bigger objects). Prompt the AI to produce pixel
-art within the required grid."
-- [ ] **Method decision (DONE 2026-09-12):** Confirmed via 4 wolf attempts that
-      text-to-pixel-art (Pollinations flux) produces muddy, unreadable silhouettes
-      — NOT game-ready. The reliable method matching first-wave creeps is the
-      **hand-authored 16x16 grid** in `tools/sprite_art.gd` baked by
-      `sprite_forge.tscn`. Keep BOTH approaches running:
-      - Hand-drawn grid (primary, game-ready): `sprite_art.gd` ENEMY_ROWS.
-      - AI-assisted pipeline (experimental, keep as candidates):
-        `tools/pixel_art/pixel_art_pipeline.py` (grid-prompted, 16/32 grid,
-        16-color quantize, flood-fill bg removal).
-- [ ] Keep every generated candidate in `tools/pixel_art/test_output/` (wolf_ai,
-      wolf_ai32, wolf_ai2, wolf_gamestyle, wolf_topdown, wolf_final) so the user
-      can select later.
-- [ ] Prompt formula that reads most game-like (use for future AI runs):
-      "top-down/side pixel art <creature>, 16-bit retro game sprite, thick black
-      outline, chunky blocky pixels, flat saturated colors, small game enemy icon,
-      no background, clean white background, no shadow, no ground, centered."
-- [ ] Add `--game-style` prompt wrapper + `remove_solid_background` (flood-fill)
-      to the pipeline so AI candidates come out transparent and grid-conforming.
-
 ### T3.24 Nerf over-large hero attack splash (match to Tobor's)
 **User direction (2026-09-12):** "Some heroes have way too high attack splash,
 more similar to Tobor's."
@@ -1227,17 +1213,6 @@ exploded and landed in the opening sequence."
       command in `main.gd:2855`. The lock is a hard gate in `_physics_process`
       (velocity=ZERO when `movement_locked`). _
 
-### T3.27 Fix opening sequence grass texture rendering
-**User direction (2026-09-12):** "Opening sequence doesn't render all textures
-on grass properly."
-- [ ] Reproduce in the isolated crash-cinematic scene: inspect grass tiles during
-      the zoomed-out world view.
-- [ ] Root-cause: likely tiles not generated/placed for the full map, or the
-      zoom-out exposes untextured area. Fix tile generation to cover the whole
-      world before the zoom-out.
-- [ ] Isolated verify: full-map overhead view shows continuous grass texture,
-      no gaps/bare area.
-
 ### P3-EXT-2 — NEW TASKS ADDED 2026-09-12 (hero-art + balance batch)
 
 ### T3.28 Redo all hero art to match the Tobor (steam turret) style
@@ -1265,20 +1240,6 @@ Tobor style."
 - [ ] Isolated verify: `hero_sprites_test` scene re-runs, every hero reads at
       the Tobor detail level; screenshot committed.
 
-### T3.29 Remove Frostbinder hero completely
-**User direction (2026-09-12):** "Take out the Frostbinder hero completely,
-remove this hero from the game."
-- [ ] Remove `frostbinder` from `PlayerClass.CLASSES`, `ALL_CLASSES` list,
-      `FAMILY_FOR_ARCHETYPE` / SFX banks, `ShopCatalog` hero list + per-class
-      upgrade rows, `assets/covers/frostbinder.png`, `assets/sprites/frostbinder*.png`,
-      `assets/audio/themes/frostbinder*.wav`, `assets/audio/sfx/cast_frostbinder.ogg`.
-- [ ] Remove from `tests/class_smoke_test.gd` (`_test_frostbinder_slow`,
-      `by_id("frostbinder")` references).
-- [ ] Update hero count 17 → 16 everywhere the count is referenced.
-- [ ] Verify: hero select list shows no Frostbinder; solo+FFA selftests don't
-      reference it; no dangling load errors. Isolated verify with a hero-list
-      dump.
-
 ### T3.30 Blue-wisp-on-movement still broken — isolate a moving bot
 **User direction (2026-09-12):** "Movement with the blue sprite is not fixed yet.
 Test a bot moving in isolation to see what's up."
@@ -1299,26 +1260,6 @@ Test a bot moving in isolation to see what's up."
       _STATUS (2026-09-13): Screenshot confirms all 6 tested heroes show distinct
       pixel-art bodies while moving. No blue wisp/fallback circle. _
 
-### T3.31 Flowers/grass stop rendering / not rendered when zoomed out during crash
-**User direction (2026-09-12):** "At some point the flowers and bushes stop
-rendering in game or it's bugged — disappears and appears again. Make it so the
-flowers and grasses texture just get rendered from the start for the whole map.
-When it's zoomed out and the ship is crashing it should already be rendered. And
-then you zoom in and it's still rendered. Now it's not when zoomed out when the
-ship is crashing. Also sometimes stops rendering. It should be easy to just have
-the background texture correctly."
-- [ ] Root-cause: grass/flower tiles likely rendered via `arena` `_draw_*` that
-      culls by camera viewport (only tiles near the camera are drawn) → when
-      zoomed out far (opening cinematic) or when the viewport shifts, distant
-      tiles vanish / pop in. Fix: pre-render the ENTIRE map's ground-cover
-      (grass + flowers + bushes) ONCE into a single `CanvasTexture`/`AtlasTexture`
-      (or a static `CanvasItem` layer) so it's always visible regardless of zoom,
-      never culled, and stable through the crash-cinematic zoom-out + zoom-in.
-- [ ] Ensure the crash-cinematic zoom-out phase shows the full rendered grass
-      texture (no bare/uncut area, no popping).
-- [ ] Isolated verify: crash-cinematic scene zoomed out shows the whole map's
-      grass/flowers rendered (screenshot at the zoom-out frame), then zoomed-in
-      view still shows them. In-game verify: flowers never disappear during play.
 
 ### T3.32 Wave director: names + boss waves + balance coherence
 **User direction (2026-09-12):** "Keep doing balance tests. Wave director fits

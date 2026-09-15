@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/menu_bg_ingame_t4/ingame_before_ingame_after_warden_1.png",
+  "after": "tools/selftest/results/menu_bg_ingame_t4/ingame_after_ingame_after_warden_1.png",
+  "out": "tools/selftest/results/menu_bg_ingame_t4/diff_ingame_warden.png",
+  "changed_pixels": 77703,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.037473,
+  "bbox": [
+    7,
+    24,
+    1838,
+    1043
+  ],
+  "has_change": true
+}

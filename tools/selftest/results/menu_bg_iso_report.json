@@ -1,42 +1,138 @@
 {
-  "class_active": "tobor",
-  "expected_tobor_min": 20,
-  "expected_warden_min": 20,
+  "arclight_expected": 22,
   "fps_tobor": 4.8,
   "fps_warden": 2.4,
+  "frames_arclight": 22,
   "frames_tobor": 49,
   "frames_warden": 49,
   "shots": [
     {
+      "class": "tobor",
+      "frame_index": 2,
       "label": "menu_tobor_0.5",
+      "offset_top": 0.0,
       "path": "user://menu_tobor_0.5.png",
-      "t": 0.502111333333333
+      "t": 0.5
     },
     {
+      "class": "tobor",
+      "frame_index": 4,
+      "label": "menu_tobor_1.0",
+      "offset_top": 0.0,
+      "path": "user://menu_tobor_1.0.png",
+      "t": 1.00075757575758
+    },
+    {
+      "class": "tobor",
+      "frame_index": 6,
+      "label": "menu_tobor_1.5",
+      "offset_top": 0.0,
+      "path": "user://menu_tobor_1.5.png",
+      "t": 1.50227272727273
+    },
+    {
+      "class": "tobor",
+      "frame_index": 9,
+      "label": "menu_tobor_2.0",
+      "offset_top": 0.0,
+      "path": "user://menu_tobor_2.0.png",
+      "t": 2.00833333333333
+    },
+    {
+      "class": "warden",
+      "frame_index": 18,
       "label": "menu_warden_3.5",
+      "offset_top": 0.0,
       "path": "user://menu_warden_3.5.png",
-      "t": 3.50687999999999,
-      "warden_offset_top": -10.028226852417,
-      "warden_pan_phase": 0.508333333333334
+      "t": 3.50403599999999
     },
     {
+      "class": "warden",
+      "frame_index": 19,
+      "label": "menu_warden_4.0",
+      "offset_top": 0.0,
+      "path": "user://menu_warden_4.0.png",
+      "t": 4.00132281818181
+    },
+    {
+      "class": "warden",
+      "frame_index": 20,
+      "label": "menu_warden_4.5",
+      "offset_top": 0.0,
+      "path": "user://menu_warden_4.5.png",
+      "t": 4.50210233333334
+    },
+    {
+      "class": "warden",
+      "frame_index": 21,
+      "label": "menu_warden_5.0",
+      "offset_top": 0.0,
+      "path": "user://menu_warden_5.0.png",
+      "t": 5.00793733333335
+    },
+    {
+      "class": "warden",
+      "frame_index": 22,
       "label": "menu_warden_5.5",
+      "offset_top": 0.0,
       "path": "user://menu_warden_5.5.png",
-      "t": 5.5061393333334,
-      "warden_offset_top": 10.0168542861938,
-      "warden_pan_phase": 2.50759266666666
+      "t": 5.50796433333336
     },
     {
-      "label": "menu_warden_7.5",
-      "path": "user://menu_warden_7.5.png",
-      "t": 7.50214866666682,
-      "warden_offset_top": -9.95534801483154,
-      "warden_pan_phase": 4.50360200000002
+      "class": "arclight",
+      "frame_index": 1,
+      "label": "menu_arclight_6.5",
+      "offset_top": 0.0,
+      "path": "user://menu_arclight_6.5.png",
+      "t": 6.50417766666673
+    },
+    {
+      "class": "arclight",
+      "frame_index": 2,
+      "label": "menu_arclight_7.0",
+      "offset_top": 0.0,
+      "path": "user://menu_arclight_7.0.png",
+      "t": 7.00000000000007
+    },
+    {
+      "class": "arclight",
+      "frame_index": 3,
+      "label": "menu_arclight_7.5",
+      "offset_top": 0.0,
+      "path": "user://menu_arclight_7.5.png",
+      "t": 7.50151515151523
+    },
+    {
+      "class": "arclight",
+      "frame_index": 4,
+      "label": "menu_arclight_8.0",
+      "offset_top": 0.0,
+      "path": "user://menu_arclight_8.0.png",
+      "t": 8.00116324242432
+    },
+    {
+      "class": "arclight",
+      "frame_index": 5,
+      "label": "menu_arclight_8.5",
+      "offset_top": 0.0,
+      "path": "user://menu_arclight_8.5.png",
+      "t": 8.50151515151522
     }
   ],
   "verdict": "PASS",
-  "warden_offset_range": [
-    -10.028226852417,
-    10.0168542861938
+  "warden_index_range": [
+    18,
+    22
+  ],
+  "warden_loop_range": [
+    17,
+    33
+  ],
+  "warden_offsets_sampled": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
   ]
 }

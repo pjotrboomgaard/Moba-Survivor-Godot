@@ -89,6 +89,7 @@ const CLASSES: Array[Dictionary] = [
 		"name": "Joule",
 		"role": "Damage",
 		"menu_bg": "res://assets/ui/arclight_menu_bg.png",
+		"animated_menu_bg": "res://assets/ui/joule_menu_video",
 		"weapon_name": "Volt Staff",
 		"description": "Staff droid. Chains lightning through packed enemies.",
 		"counters": "Strong vs swarms and fliers  ·  Weak vs armour",

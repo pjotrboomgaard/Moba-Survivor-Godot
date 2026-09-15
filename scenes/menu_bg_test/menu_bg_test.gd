@@ -1,33 +1,30 @@
 extends Node2D
-## T4.1/T4.2 — Isolated verification: the animated menu backgrounds for Tobor
-## (Wrench) and Diord (warden).
-##   T4.1: Diord (warden) plays at HALF speed (2.4 fps) vs Tobor (4.8 fps).
-##   T4.2: Diord's backdrop periodically drifts forward and back (sine offset
-##         on the TextureRect offset_top, ~4s period, +/-14px).
+## T4.1/T4.2v2/T3.74 — Isolated verification: the animated menu backgrounds.
+##   T4.1: Tobor 4.8 fps, Diord (warden) 2.4 fps.
+##   T4.2 v2: Diord (warden) backdrop stays in ONE place (offset_top = 0, no
+##         forward/back drift, no zoom) and loops only a SHORT sub-range of
+##         frames (0-based 17..33) instead of all 49.
+##   T3.74: Joule (arclight) menu video plays again (lightning frames loop,
+##         22 frames after the keep-mask).
 ##
-## The selftest driver does NOT attach to isolated scenes, so this scene:
-##   1. Loads the frame folders for both heroes (same source bootstrap.gd uses).
-##   2. Asserts each hero has a non-trivial number of frames.
-##   3. Renders the active hero's frame full-screen, advancing at the per-hero
-##      FPS (tobor 4.8, warden 2.4) and applying the warden forward/back drift.
-##   4. Captures screenshots at t=0.5 (tobor), t=3.5/4.5/5.5 (warden, spaced
-##      >1 period apart so the oscillation is visible in the compare).
-##   5. Writes user://selftest_report.json with verdict + frame counts + shots
-##      + the measured warden offset_top at each warden shot.
+## Verifies:
+##   1. Each of tobor / warden / arclight loads a non-trivial frame set.
+##   2. Warden's backdrop offset_top stays 0 across all warden shots (no drift).
+##   3. Warden's active frame index stays within [17, 33] (short loop).
+##   4. Arclight loads exactly 22 lightning frames.
 ##
-## Runs empty-world: a Camera2D + a full-rect TextureRect. No arena, no HUD, no
-## world props — only the mechanic under test (the animated menu backdrop).
+## Runs empty-world: Camera2D + a full-rect TextureRect. No arena, no HUD.
 class_name MenuBgTest
 
-const HEROES := ["tobor", "warden"]
-# T4.1: per-hero fps. Tobor stays 4.8 (20% of 24fps source). Warden (Diord) is
-# now half speed -> 2.4 fps.
-const FPS := {"tobor": 4.8, "warden": 2.4}
-# T4.2: warden periodic forward/back drift (bootstrap.gd _tick_menu_video).
-const WARDEN_PAN_PERIOD := 4.0
-const WARDEN_PAN_AMPLITUDE := 14.0
+const HEROES := ["tobor", "warden", "arclight"]
+const FPS := {"tobor": 4.8, "warden": 2.4, "arclight": 2.4}
+# T4.2 v2: warden loops a fixed sub-range (0-based, inclusive).
+const WARDEN_LOOP_START := 17
+const WARDEN_LOOP_END := 33
+# Arclight lightning keep-mask -> 22 frames (see bootstrap._load_joule_menu_frames).
+const ARCLIGHT_EXPECTED_FRAMES := 22
 
-var _frames: Dictionary = {}   # class_id -> Array[Texture2D]
+var _frames: Dictionary = {}
 var _frames_total: Dictionary = {}
 var _active_class := "tobor"
 var _frame_index := 0
@@ -35,14 +32,10 @@ var _direction := 1
 var _timer := 0.0
 var _rect: TextureRect = null
 var _elapsed := 0.0
-var _warden_pan_phase := 0.0   # T4.2 drift phase (only advances while warden active)
 var _verdict := "PASS"
 var _report: Dictionary = {}
 var _shots: Array = []
-# Tobor animates 0-3s (shot at 0.5), Diord (warden) animates 3-7s (shots at
-# 3.5, 5.5, 7.5) — spaced 2s apart, > half the 4s period, so the forward/back
-# offset is clearly different at each capture.
-var _shot_times := [0.5, 3.5, 5.5, 7.5]
+var _shot_times := [0.5, 1.0, 1.5, 2.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.5, 7.0, 7.5, 8.0, 8.5]
 
 
 func _ready() -> void:
@@ -51,7 +44,6 @@ func _ready() -> void:
 	cam.zoom = Vector2(1.0, 1.0)
 	add_child(cam)
 
-	# Load both heroes' frame sets exactly like bootstrap.gd does.
 	for class_id in HEROES:
 		_frames[class_id] = _load_frames(class_id)
 		_frames_total[class_id] = _frames[class_id].size()
@@ -59,7 +51,6 @@ func _ready() -> void:
 			_verdict = "FAIL"
 			_report["error_%s" % class_id] = "no frames loaded for %s" % class_id
 
-	# Active backdrop rect (full screen).
 	_rect = TextureRect.new()
 	_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -69,48 +60,51 @@ func _ready() -> void:
 	if not _frames[_active_class].is_empty():
 		_rect.texture = _frames[_active_class][0]
 
-	_report["class_active"] = _active_class
 	_report["frames_tobor"] = _frames_total["tobor"]
 	_report["frames_warden"] = _frames_total["warden"]
+	_report["frames_arclight"] = _frames_total["arclight"]
 	_report["fps_tobor"] = FPS["tobor"]
 	_report["fps_warden"] = FPS["warden"]
-	_report["expected_tobor_min"] = 20
-	_report["expected_warden_min"] = 20
+	_report["warden_loop_range"] = [WARDEN_LOOP_START, WARDEN_LOOP_END]
+	_report["arclight_expected"] = ARCLIGHT_EXPECTED_FRAMES
 
 
 func _process(delta: float) -> void:
 	_elapsed += delta
-	# After the first 3s of tobor, switch to Diord (warden) and reset the frame.
-	if _active_class == "tobor" and _elapsed >= 3.0:
-		_active_class = "warden"
-		_frame_index = 0
+	# Rotate active hero: tobor 0-3s, warden 3-6s, arclight 6-9s.
+	var new_class: String = "tobor"
+	if _elapsed >= 3.0 and _elapsed < 6.0:
+		new_class = "warden"
+	elif _elapsed >= 6.0:
+		new_class = "arclight"
+	if new_class != _active_class:
+		_active_class = new_class
+		_frame_index = WARDEN_LOOP_START if _active_class == "warden" else 0
 		_direction = 1
 		_timer = 0.0
-	# Advance the active hero's frame ping-pong at the per-hero FPS (T4.1).
+
 	if not _frames[_active_class].is_empty() and _frames[_active_class].size() > 1:
 		_timer += delta
 		if _timer >= 1.0 / FPS[_active_class]:
 			_timer = 0.0
 			_frame_index += _direction
-			if _frame_index >= _frames[_active_class].size():
-				_frame_index = _frames[_active_class].size() - 2
+			var lo: int = WARDEN_LOOP_START if _active_class == "warden" else 0
+			var hi: int = WARDEN_LOOP_END if _active_class == "warden" else (_frames[_active_class].size() - 1)
+			if _frame_index > hi:
+				_frame_index = hi - 1
 				_direction = -1
-			elif _frame_index < 0:
-				_frame_index = 1
+			elif _frame_index < lo:
+				_frame_index = lo + 1
 				_direction = 1
 			_rect.texture = _frames[_active_class][clampi(_frame_index, 0, _frames[_active_class].size() - 1)]
-	# T4.2: warden periodic forward/back drift — mirror bootstrap._tick_menu_video.
-	if _active_class == "warden":
-		_warden_pan_phase += delta
-		var off: float = sin(_warden_pan_phase * (TAU / WARDEN_PAN_PERIOD)) * WARDEN_PAN_AMPLITUDE
-		_rect.offset_top = -off
-	else:
-		_rect.offset_top = 0.0
-	# Take a screenshot at each configured time.
+
+	# T4.2 v2: backdrop pinned in place (no offset drift for any hero).
+	_rect.offset_top = 0.0
+
 	for t in _shot_times:
 		if _elapsed >= t and not _shot_taken(t):
 			_capture("menu_%s_%.1f" % [_active_class, t])
-	if _elapsed >= 8.0:
+	if _elapsed >= 9.0:
 		_finish()
 
 
@@ -128,15 +122,15 @@ func _capture(label: String) -> void:
 		return
 	var path := "user://%s.png" % label
 	img.save_png(path)
-	var shot: Dictionary = {"label": label, "path": path, "t": _elapsed}
-	# Record the warden drift offset at capture time (T4.2 evidence).
-	if _active_class == "warden":
-		shot["warden_offset_top"] = _rect.offset_top
-		shot["warden_pan_phase"] = _warden_pan_phase
+	var shot: Dictionary = {"label": label, "path": path, "t": _elapsed, "class": _active_class}
+	shot["frame_index"] = _frame_index
+	shot["offset_top"] = _rect.offset_top
 	_shots.append(shot)
 
 
 func _load_frames(class_id: String) -> Array[Texture2D]:
+	if class_id == "arclight":
+		return _load_arclight_frames()
 	var folder := str(PlayerClass.by_id(class_id).get("animated_menu_bg", ""))
 	var out: Array[Texture2D] = []
 	if folder == "":
@@ -153,34 +147,59 @@ func _load_frames(class_id: String) -> Array[Texture2D]:
 	return out
 
 
+func _load_arclight_frames() -> Array[Texture2D]:
+	var keep := [
+		false, true, true, false, true, true, true, true, true, true,
+		true, true, false, false, true, true, true, true, true, true,
+		true, true, true, true, true, true, false, false, false,
+	]
+	var out: Array[Texture2D] = []
+	for i in range(keep.size()):
+		if not keep[i]:
+			continue
+		var path := "res://assets/ui/joule_menu_video/frames/frame_%03d.png" % (i + 1)
+		if not ResourceLoader.exists(path):
+			continue
+		var tex := load(path) as Texture2D
+		if tex != null:
+			out.append(tex)
+	return out
+
+
 func _finish() -> void:
-	# Frame counts must be above the minimum for both heroes.
-	if _frames_total["tobor"] < _report.get("expected_tobor_min", 20):
-		_verdict = "FAIL"
-		_report["error"] = "tobor frames %d < min %d" % [_frames_total["tobor"], _report.get("expected_tobor_min", 20)]
-	if _frames_total["warden"] < _report.get("expected_warden_min", 20):
-		_verdict = "FAIL"
-		_report["error"] = str(_report.get("error", "")) + " warden frames %d < min %d" % [_frames_total["warden"], _report.get("expected_warden_min", 20)]
-	# T4.1: confirm the per-hero fps differ (tobor faster than warden).
+	for class_id in HEROES:
+		if _frames_total[class_id] < 5:
+			_verdict = "FAIL"
+			_report["error"] = str(_report.get("error", "")) + " %s frames %d < 5; " % [class_id, _frames_total[class_id]]
 	if not (FPS["tobor"] > FPS["warden"]):
 		_verdict = "FAIL"
-		_report["error"] = str(_report.get("error", "")) + " T4.1 failed: tobor fps must exceed warden fps"
-	# T4.2: confirm the warden shots show a range of offset_top values (drift).
+		_report["error"] = str(_report.get("error", "")) + " T4.1: tobor fps must exceed warden fps; "
+	# T4.2 v2: warden offset_top must be ~0 (no drift).
 	var warden_offsets: Array = []
+	var warden_index_min := 9999
+	var warden_index_max := -1
 	for s in _shots:
-		if s.get("warden_offset_top") != null:
-			warden_offsets.append(float(s["warden_offset_top"]))
+		if s.get("class") == "warden":
+			warden_offsets.append(float(s.get("offset_top", 0.0)))
+			warden_index_min = mini(warden_index_min, int(s.get("frame_index", 0)))
+			warden_index_max = maxi(warden_index_max, int(s.get("frame_index", 0)))
+	_report["warden_offsets_sampled"] = warden_offsets
+	_report["warden_index_range"] = [warden_index_min, warden_index_max]
 	if warden_offsets.size() >= 2:
-		var lo := INF
-		var hi := -INF
 		for o in warden_offsets:
-			lo = minf(lo, o)
-			hi = maxf(hi, o)
-		_report["warden_offset_range"] = [lo, hi]
-		if (hi - lo) < 4.0:
+			if absf(o) > 1.0:
+				_verdict = "FAIL"
+				_report["error"] = str(_report.get("error", "")) + " T4.2: warden offset_top drifted (%f); " % o
+	# T4.2 v2: warden frame index must stay within the sub-range.
+	if warden_index_min >= 0:
+		if warden_index_min < WARDEN_LOOP_START or warden_index_max > WARDEN_LOOP_END:
 			_verdict = "FAIL"
-			_report["error"] = str(_report.get("error", "")) + " T4.2 failed: warden offset_top range too small (no forward/back drift)"
-	if _shots.size() < 3:
+			_report["error"] = str(_report.get("error", "")) + " T4.2: warden frame index %d..%d outside %d..%d; " % [warden_index_min, warden_index_max, WARDEN_LOOP_START, WARDEN_LOOP_END]
+	# T3.74: arclight frame count matches the lightning keep-mask.
+	if _frames_total["arclight"] != ARCLIGHT_EXPECTED_FRAMES:
+		_verdict = "FAIL"
+		_report["error"] = str(_report.get("error", "")) + " T3.74: arclight frames %d != expected %d; " % [_frames_total["arclight"], ARCLIGHT_EXPECTED_FRAMES]
+	if _shots.size() < 6:
 		_verdict = "FAIL"
 		_report["error"] = str(_report.get("error", "")) + " too few shots (%d)" % _shots.size()
 	_report["verdict"] = _verdict
@@ -189,5 +208,5 @@ func _finish() -> void:
 	if f != null:
 		f.store_string(JSON.stringify(_report, "  "))
 		f.close()
-	print("[MenuBgTest] verdict=%s tobor=%d warden=%d shots=%d warden_offsets=%s" % [_verdict, _frames_total["tobor"], _frames_total["warden"], _shots.size(), str(_report.get("warden_offset_range", []))])
+	print("[MenuBgTest] verdict=%s tobor=%d warden=%d arclight=%d shots=%d warden_idx=%s" % [_verdict, _frames_total["tobor"], _frames_total["warden"], _frames_total["arclight"], _shots.size(), str(_report.get("warden_index_range", []))])
 	get_tree().quit()

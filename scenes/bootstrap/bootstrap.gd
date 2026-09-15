@@ -108,8 +108,6 @@ var _play_mode_group: ButtonGroup = null
 var _menu_frames: Array[Texture2D] = []
 var _menu_frames_class := ""
 var _menu_fps := 2.4  # ticks/sec; Joule 2.4, Tobor 4.8 (20% of 24fps), Diord 2.4 (half speed, T4.1)
-## T4.2 (2026-09-15): Diord menu bg periodic forward/backward drift.
-var _menu_pan_phase := 0.0
 
 const STEAM_OPERATION_TIMEOUT := 22.0
 
@@ -575,8 +573,15 @@ func _apply_hero_backdrop() -> void:
 			else:
 				_menu_fps = 4.8
 			_menu_video_active = true
-			_menu_frame_index = 0
-			art.texture = frames[0]
+			_menu_direction = 1
+			# Warden starts at the sub-range start so the framing is centered.
+			_menu_frame_index = _WARDEN_LOOP_START if class_id == "warden" else 0
+			art.texture = frames[_menu_frame_index]
+			# Pin the backdrop in place — no positional drift (T4.2 revised).
+			art.offset_top = 0.0
+			art.offset_bottom = 0.0
+			art.offset_left = 0.0
+			art.offset_right = 0.0
 			art.visible = true
 			_raise_ability_hover()
 			return
@@ -676,6 +681,15 @@ func _menu_set_frame(index: int) -> void:
 		art.texture = _menu_frames[clampi(index, 0, _menu_frames.size() - 1)]
 
 
+## T4.2 v2 (2026-09-15, revised per user): Diord (warden) menu bg should sit in ONE
+## place (no forward/back drift, no zoom) and simply loop a SHORT sub-range of frames.
+## The full 49-frame source pans/zooms across the whole totem; instead we loop a
+## short, centered segment so the framing stays fixed and the animation reads as a
+## calm, repeating beat. Range: frames 18..34 (0-based 17..33), a centered medium
+## shot where the totem stays roughly in the same place.
+const _WARDEN_LOOP_START := 17   # 0-based start frame (frame 18)
+const _WARDEN_LOOP_END := 33     # 0-based end frame (frame 34), inclusive
+
 func _tick_menu_video(delta: float) -> void:
 	if not _menu_video_active or _menu_frames.is_empty():
 		return
@@ -683,24 +697,26 @@ func _tick_menu_video(delta: float) -> void:
 	if _menu_frame_timer >= 1.0 / _menu_fps:
 		_menu_frame_timer = 0.0
 		_menu_frame_index += _menu_direction
-		if _menu_frame_index >= _menu_frames.size():
-			_menu_frame_index = _menu_frames.size() - 2
+		# Determine the effective loop range: warden uses a fixed sub-range so the
+		# framing stays put; everyone else loops all frames.
+		var lo: int = 0
+		var hi: int = _menu_frames.size() - 1
+		if _menu_frames_class == "warden":
+			lo = _WARDEN_LOOP_START
+			hi = mini(_WARDEN_LOOP_END, _menu_frames.size() - 1)
+		# Ping-pong within [lo, hi].
+		if _menu_frame_index > hi:
+			_menu_frame_index = hi - 1
 			_menu_direction = -1
-		elif _menu_frame_index < 0:
-			_menu_frame_index = 1
+		elif _menu_frame_index < lo:
+			_menu_frame_index = lo + 1
 			_menu_direction = 1
 		_menu_set_frame(_menu_frame_index)
-	# T4.2 (2026-09-15): Diord (warden) menu bg periodically drifts forward and
-	# back. A slow sine oscillation nudges the backdrop's vertical position so
-	# the loop visibly eases in and out on a ~4s period. Only applied to warden
-	# so the other hero backdrops are left untouched.
+	# Keep the warden backdrop pinned in place (no vertical drift).
 	if _menu_frames_class == "warden":
-		_menu_pan_phase += delta
-		# 4.0s period -> omega = TAU / 4.0. Offset range +/- 14px.
-		var off: float = sin(_menu_pan_phase * (TAU / 4.0)) * 14.0
 		var art := _hero_backdrop()
 		if art != null:
-			art.offset_top = -off
+			art.offset_top = 0.0
 
 
 var selected_world: int = 0
