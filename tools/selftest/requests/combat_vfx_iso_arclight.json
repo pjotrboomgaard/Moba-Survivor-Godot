@@ -1,0 +1,8 @@
+{
+  "test_name": "combat_vfx_iso_arclight",
+  "hero": "arclight",
+  "scene": "res://scenes/combat_vfx_test/combat_vfx_test.tscn",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "notes": "T3.17: verify Arclight/Joule abilities show themed vector VFX (storm_bolts), no generic explosion."
+}

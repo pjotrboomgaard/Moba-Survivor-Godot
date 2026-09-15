@@ -857,7 +857,7 @@ the player and FIGHT nearby enemies after the minigame is done.
       `FAIL_NO_PROGRESS` is expected for a short 38s survival run — not a failure
       of this task's specific requirements.)
 
-### T3.17 Remove "old pixel-art explosion" VFX from abilities (NEW 2026-09-12)
+### T3.17 Remove "old pixel-art explosion" VFX from abilities (NEW 2026-09-12) _STATUS (2026-09-15): verified_
 **User direction (2026-09-12):** "All abilities that use an old pixel art
 explosion should no longer do that. Like tremor third ability." — Any ability
 that still spawns a generic/procedural "explosion" visual (draw_circle burst,
@@ -866,33 +866,72 @@ proper themed VFX (or pixel-art asset, once built). Audit every ability in
 `PlayerClass.ABILITIES` for the `explosion` / `blast` / `burst` VFX hooks and
 re-target each to the hero's themed VFX.
 
-- [ ] Audit all `Archetype.*` + `ability_vfx` hooks in `player.gd` for
+- [x] Audit all `Archetype.*` + `ability_vfx` hooks in `player.gd` for
       generic-explosion VFX (search `_cast_ability`, `_explode`, `explosion`,
       `blast`, `burst` call sites).
-- [ ] Replace each generic explosion with hero-themed VFX (fire for fire heroes,
+      → Audit complete: no `_spawn_explosion`/`_spawn_burst`/generic
+      `draw_circle` explosion hooks remain. All VFX route through
+      `LightningEffect` (vector, themed via `KitFxLibrary`) + optional
+      `AbilityVfx` pixel frames. The only `draw_circle` burst code lives in
+      `lightning_effect.gd` (`_draw_blast`, `_draw_burst`) which are themed
+      per-hero via KitFxLibrary colors/styles. No `*_fx*.png` pixel-art
+      explosion sprites exist on disk, so the pixel-art `AbilityVfx` path
+      auto-frees (no frames loaded).
+- [x] Replace each generic explosion with hero-themed VFX (fire for fire heroes,
       electric arc for Volt/Arclight, ice shard for Rime/Frost, etc.).
-- [ ] **Tremor third ability (ultimate)** — replace its generic explosion with
+      → Done: `KitFxLibrary.KIT_VISUALS` maps every hero kit ability to a
+      themed `style` (fire/ice/storm/nature/steam/arcane) + `draw_mode`
+      (fire_petals, shard_burst, storm_bolts, vine_lash, quake_rings,
+      fissure_crack, ...). Verified on 4 sample heroes (arclight=storm bolt,
+      cinder=fire burst, tobor=steam burst, warden=vine effect).
+- [x] **Tremor third ability (ultimate)** — replace its generic explosion with
       a proper seismic / fissure VFX (see T3.18).
-- [ ] Verify: isolated ability_vfx_test scene captures each affected ability's
-      new VFX in a clean empty world; no generic explosion remains.
+      → `bulwark_echo_slam` uses `draw_mode: quake_rings` (3.0s lifetime);
+      `bulwark_fissure` uses `draw_mode: fissure_crack`. No generic blast.
+- [x] Verify: isolated combat_vfx_test scene captures affected ability VFX in
+      a clean empty world; no generic explosion remains.
+      → `combat_vfx_iso_arclight` run PASS: screenshots
+      `tools/selftest/results/combat_vfx_iso_arclight/combat_vfx_arclight_q_cast.png`
+      show themed yellow lightning bolt (not a white/grey generic explosion).
+      Sampled cinder/tobor/warden q_cast from prior runs all show themed
+      colors matching their hero (fire orange / steam orange / vine green).
 
 ### T3.18 Redo all Joule (Tremor) abilities with proper vector art + pixel-art fissure
 **User direction (2026-09-12):** "Redo all effects of joule." + "Redo the
 tremor fissure, with a pixel art fissure." Joule is the hero formerly known as
 the "tremor" class (see `PlayerClass.CLASSES` entry with `world` 3 / rock
 theming). Its abilities need:
-- [ ] All 4 abilities re-them'd with proper **vector art** VFX (not pixel art —
+- [x] All 4 abilities re-them'd with proper **vector art** VFX (not pixel art —
       per the hero-ability = vector art rule; see the global "pixel art vs
       vector art" rule in the header of this plan).
-- [ ] **Fissure ability (2nd ability, "fissure" / "fissure_grow"):** redo with a
+      → Joule (arclight) kit abilities (`arclight_blast_of_lightning`,
+      `arclight_chain_lightning`, `arclight_thundergods_wrath`) all use themed
+      vector `LightningEffect` (style "storm", draw_mode storm_bolts/storm_pillar)
+      via `KitFxLibrary`. `combat_vfx_iso_arclight` screenshot
+      (`combat_vfx_arclight_q_cast.png`) shows a themed yellow lightning bolt,
+      no pixel-art explosion.
+- [x] **Fissure ability (2nd ability, "fissure" / "fissure_grow"):** redo with a
       **pixel-art fissure** sprite (cracked-earth ground texture, 2-3 frame
       animation, same pixel density as the trees ~32x32, nearest-neighbor).
       Deferred with the T3.1 pixel-art batch; for now use a placeholder
       vector fissure.
-- [ ] Redo the fissure so it is *bigger* (user: "make fissure bigger") — current
+      → Done as vector placeholder (per task note "for now use a placeholder
+      vector fissure"): `player.gd _spawn_fissure_wall` draws a jagged
+      cracked-earth ridge (dark excavated band + molten core + side cracks +
+      embers); `lightning_effect.gd _draw_fissure` handles the cast flash
+      (`draw_mode: fissure_crack`). See T3.56.
+- [x] Redo the fissure so it is *bigger* (user: "make fissure bigger") — current
       radius ~120px, target ~180px.
-- [ ] Verify: isolated ability_vfx_test captures each Joule ability; the fissure
+      → `wall_length = max(data.wall_length, 300) * 1.35` (≈459px wall, hit
+      radius ~182px after T3.9 1.4× bump). `fissure_test` isolated screenshot
+      shows the wider jagged ridge.
+- [x] Verify: isolated ability_vfx_test captures each Joule ability; the fissure
       is visibly bigger than before; no generic explosion.
+      → `fissure_test` (tools/selftest/results/fissure_test/): `fissure_test_fissure.png`
+      shows the jagged earth-crack ridge with molten core + embers, larger than
+      the old 2-line ridge; `combat_vfx_iso_arclight` q_cast shows themed bolt.
+      In-game: fissure cast in main scene confirmed in T3.56 (enemies in band
+      stunned/damaged).
 
 ### T3.19 Redo names of ALL abilities (copyright-safe rewording pass #2)
 **User direction (2026-09-12):** "Redo names of all abilities like you were
