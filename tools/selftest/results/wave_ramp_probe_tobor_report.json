@@ -3,13 +3,13 @@
     {
       "distinct_edges": 4,
       "edge_hits": {
-        "0": 191,
-        "1": 215,
-        "2": 185,
-        "3": 209
+        "0": 184,
+        "1": 214,
+        "2": 213,
+        "3": 189
       },
       "kind": "wave_probe",
-      "t": 1.00829190909091,
+      "t": 1.00503166666667,
       "waves": [
         {
           "budget": 94.5,
@@ -35,59 +35,59 @@
       "is_night": false,
       "kind": "wave_ramp_probe",
       "label": "wave1_start",
-      "progress": 0.09,
-      "ramp_scale": 1.182,
+      "progress": 0.08,
+      "ramp_scale": 1.167,
       "released": 2,
-      "t": 2.00833333333333,
-      "total_planned": 22,
+      "t": 2.005269,
+      "total_planned": 24,
       "wave": 1
     },
     {
       "is_night": false,
       "kind": "wave_ramp_probe",
       "label": "wave1_q1",
-      "progress": 0.18,
-      "ramp_scale": 1.364,
+      "progress": 0.17,
+      "ramp_scale": 1.333,
       "released": 4,
-      "t": 4.00833333333332,
-      "total_planned": 22,
+      "t": 4.00536366666666,
+      "total_planned": 24,
       "wave": 1
     },
     {
       "is_night": false,
       "kind": "wave_ramp_probe",
       "label": "wave1_mid",
-      "progress": 0.32,
-      "ramp_scale": 1.636,
+      "progress": 0.29,
+      "ramp_scale": 1.583,
       "released": 7,
-      "t": 8.00317366666684,
-      "total_planned": 22,
+      "t": 8.00535133333349,
+      "total_planned": 24,
       "wave": 1
     },
     {
       "is_night": false,
       "kind": "wave_ramp_probe",
       "label": "wave1_q3",
-      "progress": 0.45,
-      "ramp_scale": 1.909,
+      "progress": 0.42,
+      "ramp_scale": 1.833,
       "released": 10,
-      "t": 12.0031736666666,
-      "total_planned": 22,
+      "t": 12.0053386666666,
+      "total_planned": 24,
       "wave": 1
     },
     {
       "is_night": false,
       "kind": "wave_ramp_probe",
       "label": "wave1_late",
-      "progress": 0.64,
-      "ramp_scale": 2.273,
+      "progress": 0.58,
+      "ramp_scale": 2.167,
       "released": 14,
-      "t": 16.0031736666664,
-      "total_planned": 22,
+      "t": 16.0053386666664,
+      "total_planned": 24,
       "wave": 1
     }
   ],
-  "elapsed": 18.0027576666663,
+  "elapsed": 18.0048549999997,
   "enemies_spawned": 0,
   "hero_position": "(0.0, 0.0)",
   "player_class": "tobor",
@@ -124,8 +124,8 @@
   "shots": [
     {
       "label": "wave1_late",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_20213/wave1_late_17.003_20213.png",
-      "t": 17.0031736666663
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_20160/wave1_late_17.005_20160.png",
+      "t": 17.0053386666663
     }
   ]
 }
