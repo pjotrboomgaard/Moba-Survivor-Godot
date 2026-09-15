@@ -1,0 +1,9 @@
+{
+  "test_name": "wave_dump_probe",
+  "hero": "tobor",
+  "comment": "T3.32: dump waves 1-15 name/archetype/boss/spawn composition in an isolated probe.",
+  "events": [
+    {"t": 0.5, "kind": "report"}
+  ],
+  "wait_ms": 5000
+}

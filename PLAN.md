@@ -1102,10 +1102,20 @@ with wave names and boss waves."
 - [x] Boss waves (5/10/15/...) spawn the correct boss type for the current world. _STATUS (2026-09-13): `_apply_boss_cadence()` forces `Archetype.BOSS` on every 5th wave. `EnemyType.boss_for_wave()` rotates through `boss_rotation_for_biome(GameRuntime.biome_id)` — each biome has its own boss list. Wave 5→boss #1, wave 10→boss #2, cycling. _
 - [x] Early waves stay challenging but not over-diverse. _STATUS (2026-09-13): Wave 1="First Contact" (STANDARD, single debut), wave 2="Growing Numbers" (STANDARD+swarmling debut). `_plan_standard` picks 1-3 types per wave. Early waves have low budget. _
 - [x] The dynamic creep spawner works WITH the wave director. _STATUS (2026-09-13): `_should_reinforce()` adds pressure packs of the SAME creep types (uses `_tougher_reinforcement_type` which picks from the wave's available pool). Does not introduce random new types. _
-- [ ] Isolated verify: dump wave → (name, spawn composition, boss?) via a probe
+- [x] Isolated verify: dump wave → (name, spawn composition, boss?) via a probe
       for waves 1-15; assert name↔creep match + boss on 5/10/15. Screenshot the
-      wave banner per wave. _STATUS (2026-09-13): Code-verified coherent; isolated
-      probe test deferred (would require 75s+ of wave-skipping to cover 15 waves). _
+      wave banner per wave. _STATUS (2026-09-15): Isolated probe PASS —
+      `scenes/wave_dump_test/wave_dump_test.tscn` dumps waves 1-15 (grass biome,
+      Pjotr mode) via `WaveDirector.theme_for_wave()` + `plan_wave()`. Report:
+      `tools/selftest/results/wave_dump_probe_tobor_report.json` (verdict=PASS,
+      15 waves, 0 failures). Confirmed: wave 5/10/15 are BOSS archetypes (The
+      Ravager→ravager, The Stormcaller→stormcaller, The Vanguard→ravager, each
+      spawn count=1); name↔archetype match holds for all 15 waves (SWARM waves
+      spawn swarmling/splitter/grunt, AIR_ASSAULT→drifter, SNIPERS→spitter,
+      ELITE→sentinel, AMBUSH→lurker, STANDARD→mixed). No invalid type ids.
+      Contact-sheet screenshot: wave_dump_run_* /wave_dump_0.00.png (bar chart
+      of total spawns per wave, color-coded by archetype, red bar + tick for
+      boss waves 5/10/15). _
 
 ### T3.33 Hero balance: all heroes ≈ same strength in FFA (incl. auto-attack)
 **User direction (2026-09-12):** "Do hero balance for all heroes in FFA, that

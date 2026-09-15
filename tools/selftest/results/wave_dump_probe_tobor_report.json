@@ -1,0 +1,252 @@
+{
+  "failures": [],
+  "scene": "wave_dump_test",
+  "verdict": "PASS",
+  "waves": 15,
+  "waves_data": [
+    {
+      "archetype": "0",
+      "archetype_id": 0,
+      "boss": false,
+      "debut": "",
+      "group_count": 23,
+      "name": "First Contact",
+      "spawn_composition": {
+        "grunt": 94
+      },
+      "total_spawns": 94,
+      "wave": 1
+    },
+    {
+      "archetype": "0",
+      "archetype_id": 0,
+      "boss": false,
+      "debut": "swarmling",
+      "group_count": 31,
+      "name": "Growing Numbers",
+      "spawn_composition": {
+        "grunt": 73,
+        "swarmling": 80
+      },
+      "total_spawns": 153,
+      "wave": 2
+    },
+    {
+      "archetype": "2",
+      "archetype_id": 2,
+      "boss": false,
+      "debut": "spitter",
+      "group_count": 32,
+      "name": "Acid Rain",
+      "spawn_composition": {
+        "spitter": 85
+      },
+      "total_spawns": 85,
+      "wave": 3
+    },
+    {
+      "archetype": "1",
+      "archetype_id": 1,
+      "boss": false,
+      "debut": "",
+      "group_count": 32,
+      "name": "The Swarm",
+      "spawn_composition": {
+        "grunt": 88,
+        "swarmling": 73
+      },
+      "total_spawns": 161,
+      "wave": 4
+    },
+    {
+      "archetype": "6",
+      "archetype_id": 6,
+      "boss": true,
+      "debut": "",
+      "group_count": 1,
+      "name": "The Ravager",
+      "spawn_composition": {
+        "ravager": 1
+      },
+      "total_spawns": 1,
+      "wave": 5
+    },
+    {
+      "archetype": "4",
+      "archetype_id": 4,
+      "boss": false,
+      "debut": "drifter",
+      "group_count": 32,
+      "name": "Wings",
+      "spawn_composition": {
+        "drifter": 168
+      },
+      "total_spawns": 168,
+      "wave": 6
+    },
+    {
+      "archetype": "4",
+      "archetype_id": 4,
+      "boss": false,
+      "debut": "",
+      "group_count": 32,
+      "name": "Air Assault",
+      "spawn_composition": {
+        "drifter": 179
+      },
+      "total_spawns": 179,
+      "wave": 7
+    },
+    {
+      "archetype": "0",
+      "archetype_id": 0,
+      "boss": false,
+      "debut": "brute",
+      "group_count": 32,
+      "name": "The Wall",
+      "spawn_composition": {
+        "brute": 9,
+        "drifter": 21,
+        "grunt": 36,
+        "spitter": 11,
+        "stalker": 14,
+        "swarmling": 35
+      },
+      "total_spawns": 126,
+      "wave": 8
+    },
+    {
+      "archetype": "0",
+      "archetype_id": 0,
+      "boss": false,
+      "debut": "stalker",
+      "group_count": 32,
+      "name": "Shadows",
+      "spawn_composition": {
+        "bomber": 12,
+        "brute": 10,
+        "drifter": 29,
+        "grunt": 17,
+        "spitter": 16,
+        "stalker": 10,
+        "swarmling": 34
+      },
+      "total_spawns": 128,
+      "wave": 9
+    },
+    {
+      "archetype": "6",
+      "archetype_id": 6,
+      "boss": true,
+      "debut": "",
+      "group_count": 1,
+      "name": "The Stormcaller",
+      "spawn_composition": {
+        "stormcaller": 1
+      },
+      "total_spawns": 1,
+      "wave": 10
+    },
+    {
+      "archetype": "0",
+      "archetype_id": 0,
+      "boss": false,
+      "debut": "bomber",
+      "group_count": 32,
+      "name": "Bombardment",
+      "spawn_composition": {
+        "bomber": 9,
+        "brute": 5,
+        "drifter": 8,
+        "grunt": 44,
+        "hexer": 2,
+        "sentinel": 9,
+        "spitter": 7,
+        "stalker": 15,
+        "swarmling": 13
+      },
+      "total_spawns": 112,
+      "wave": 11
+    },
+    {
+      "archetype": "0",
+      "archetype_id": 0,
+      "boss": false,
+      "debut": "hexer",
+      "group_count": 32,
+      "name": "Mending Chant",
+      "spawn_composition": {
+        "bomber": 4,
+        "brute": 7,
+        "drifter": 16,
+        "grunt": 21,
+        "hexer": 6,
+        "lurker": 3,
+        "sentinel": 15,
+        "spitter": 7,
+        "stalker": 9,
+        "swarmling": 29
+      },
+      "total_spawns": 117,
+      "wave": 12
+    },
+    {
+      "archetype": "3",
+      "archetype_id": 3,
+      "boss": false,
+      "debut": "sentinel",
+      "group_count": 34,
+      "name": "Guard Post",
+      "spawn_composition": {
+        "bomber": 4,
+        "brute": 6,
+        "drifter": 13,
+        "grunt": 13,
+        "hexer": 2,
+        "lurker": 4,
+        "sentinel": 24,
+        "spitter": 16,
+        "splitter": 8,
+        "stalker": 7,
+        "swarmling": 22
+      },
+      "total_spawns": 119,
+      "wave": 13
+    },
+    {
+      "archetype": "5",
+      "archetype_id": 5,
+      "boss": false,
+      "debut": "lurker",
+      "group_count": 32,
+      "name": "Burrows",
+      "spawn_composition": {
+        "bomber": 16,
+        "brute": 3,
+        "drifter": 12,
+        "grunt": 21,
+        "hexer": 8,
+        "lurker": 2,
+        "sentinel": 16,
+        "spitter": 4,
+        "splitter": 9,
+        "swarmling": 13
+      },
+      "total_spawns": 104,
+      "wave": 14
+    },
+    {
+      "archetype": "6",
+      "archetype_id": 6,
+      "boss": true,
+      "debut": "",
+      "group_count": 1,
+      "name": "The Vanguard",
+      "spawn_composition": {
+        "ravager": 1
+      },
+      "total_spawns": 1,
+      "wave": 15
+    }
+  ]
+}
