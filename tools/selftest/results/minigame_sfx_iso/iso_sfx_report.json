@@ -1,0 +1,105 @@
+{
+	"fail": 0,
+	"ok": 16,
+	"results": [
+		{
+			"id": "minigame_keg_toss",
+			"last_play_sound_id": "minigame_keg_toss",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_keg_toss.wav"
+		},
+		{
+			"id": "minigame_keg_toss_pro",
+			"last_play_sound_id": "minigame_keg_toss_pro",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_keg_toss_pro.wav"
+		},
+		{
+			"id": "minigame_whack",
+			"last_play_sound_id": "minigame_whack",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_whack.wav"
+		},
+		{
+			"id": "minigame_whack_rush",
+			"last_play_sound_id": "minigame_whack_rush",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_whack_rush.wav"
+		},
+		{
+			"id": "minigame_rps",
+			"last_play_sound_id": "minigame_rps",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_rps.wav"
+		},
+		{
+			"id": "minigame_treasure",
+			"last_play_sound_id": "minigame_treasure",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_treasure.wav"
+		},
+		{
+			"id": "minigame_treasure_dash2",
+			"last_play_sound_id": "minigame_treasure_dash2",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_treasure_dash2.wav"
+		},
+		{
+			"id": "minigame_creep_tag",
+			"last_play_sound_id": "minigame_creep_tag",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_creep_tag.wav"
+		},
+		{
+			"id": "minigame_dance_disco",
+			"last_play_sound_id": "minigame_dance_disco",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_dance_disco.wav"
+		},
+		{
+			"id": "minigame_balloon_pop",
+			"last_play_sound_id": "minigame_balloon_pop",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_balloon_pop.wav"
+		},
+		{
+			"id": "minigame_crate_stack",
+			"last_play_sound_id": "minigame_crate_stack",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_crate_stack.wav"
+		},
+		{
+			"id": "minigame_crystal_catch",
+			"last_play_sound_id": "minigame_crystal_catch",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_crystal_catch.wav"
+		},
+		{
+			"id": "minigame_gem_relay",
+			"last_play_sound_id": "minigame_gem_relay",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_gem_relay.wav"
+		},
+		{
+			"id": "minigame_ring_roll",
+			"last_play_sound_id": "minigame_ring_roll",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_ring_roll.wav"
+		},
+		{
+			"id": "minigame_slime_splat",
+			"last_play_sound_id": "minigame_slime_splat",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_slime_splat.wav"
+		},
+		{
+			"id": "minigame_creep_pinball",
+			"last_play_sound_id": "minigame_creep_pinball",
+			"ok": true,
+			"stream_path": "res://assets/audio/themes/minigame_creep_pinball.wav"
+		}
+	],
+	"screenshot": "user://selftest_minigame_sfx_grid.png",
+	"total_ids": 16,
+	"verdict": "PASS"
+}

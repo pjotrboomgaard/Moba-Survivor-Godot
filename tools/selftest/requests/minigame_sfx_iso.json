@@ -1,0 +1,9 @@
+{
+  "test_name": "minigame_sfx_iso",
+  "comment": "T1.3 line 439: isolated verify that all 12 minigame action SFX load + play through AudioService.",
+  "scene": "res://scenes/minigame_sfx_iso_test/minigame_sfx_iso_test.tscn",
+  "events": [
+    {"t": 1.0, "kind": "report"}
+  ],
+  "wait_ms": 15000
+}

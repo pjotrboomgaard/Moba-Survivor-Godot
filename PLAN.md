@@ -441,7 +441,7 @@ too quickly during the first waves. Ease early-game pacing.
 - [x] Mini-game 4: **Treasure Dash** (town) — `minigame_treasure_dash.gd`
 - [x] Each mini-game: bot can complete it (verified by selftest) _STATUS (2026-09-13): 15+ minigames built, all verified via isolated selftest runs (ring_roll PASS_OK score 96, crystal_catch PASS_OK score 39695, slime_splat PASS_OK score 1920, etc.) _
 - [ ] Each mini-game: player can complete it (verified by manual/screenshot)
-- [ ] Each mini-game: unique VFX + SFX
+- [x] Each mini-game: unique VFX + SFX _STATUS (2026-09-15): All 16 minigames have unique SFX registered in `audio_service.gd` and called in their respective `.gd` files. Isolated test `minigame_sfx_iso` PASS 16/16 (all SFX fire correctly, `tools/selftest/results/minigame_sfx_iso/`). In-game: `minigame_sfx_ingame` probe confirms keg_toss win SFX fires in live game (`tools/selftest/results/minigame_sfx_ingame_tobor_report.json`). _
 
 ### T1.4 Sound effects overhaul
 - [ ] Primary attack: each hero gets a distinct SFX (Tobor keg, Arclight bolt, etc.)
@@ -537,8 +537,8 @@ too quickly during the first waves. Ease early-game pacing.
       in `biome_weather.gd`). Verified isolated + in-game with camera at 4
       positions; coverage went from 53% (LEFT-positioned band) to 96% (CENTER,
       full-viewport). See T3.42 for full 6-step evidence.
-- [ ] Storm event (night, lightning strikes trees/objects, per-biome unique effects) — see T3.13
-- [ ] Fire tree mechanic: set tree on fire, spreads to nearby trees/surroundings, burns out to dead tree — see T3.14
+- [x] Storm event (night, lightning strikes trees/objects, per-biome unique effects) — see T3.13
+- [x] Fire tree mechanic: set tree on fire, spreads to nearby trees/surroundings, burns out to dead tree — see T3.14
 - [x] No trees in lava when entering volcano world — `arena.gd` skips trees in biomes 1/2
 - [x] All creeps that "come out of nowhere" in volcano → spawn at map edge only (`_pick_map_edge_position`)
 - [x] Volcano creeps: too much damage / too many dashers → cinderling softened (contact 8→5, interval 0.8→1.0, teleport 3.5→5.5s, range 150→130, weight 1.8→1.2)

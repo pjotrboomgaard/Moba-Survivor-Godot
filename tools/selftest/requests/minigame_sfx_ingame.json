@@ -1,0 +1,17 @@
+{
+  "hero": "tobor",
+  "comment": "T1.3 in-game: verify minigame SFX fire during live play. Start Keg Toss (index 1) with bot force, wait for bot action, probe last_sfx.",
+  "events": [
+    {"t": 1.0, "kind": "minigame_bot_force", "index": 1, "on": true},
+    {"t": 1.5, "kind": "start_minigame", "index": 1},
+    {"t": 4.0, "kind": "probe", "label": "keg_toss_sfx"},
+    {"t": 7.0, "kind": "probe", "label": "keg_toss_sfx_2"},
+    {"t": 10.0, "kind": "minigame_bot_force", "index": 1, "on": false},
+    {"t": 11.0, "kind": "minigame_bot_force", "index": 7, "on": true},
+    {"t": 11.5, "kind": "start_minigame", "index": 7},
+    {"t": 14.0, "kind": "probe", "label": "whack_rush_sfx"},
+    {"t": 17.0, "kind": "probe", "label": "whack_rush_sfx_2"},
+    {"t": 20.0, "kind": "report"}
+  ],
+  "wait_ms": 25000
+}
