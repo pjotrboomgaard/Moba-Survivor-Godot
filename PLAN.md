@@ -1,7 +1,30 @@
 # RIFT SURVIVORS — MASTER BUILD PLAN
 
-_Last updated: 2026-09-12_
+_Last updated: 2026-09-16_
 
+> **2026-09-16 — Ability VFX cleanup + hero art redesign (full 6-step pipeline):**
+> - **Ability VFX gate (pixel-art only for placed objects) — VERIFIED.** User rule:
+>   "remove all pixel-art effect frames from abilities, except for things that are
+>   placed like turrets / wards / mines." Fix in `scripts/main.gd`
+>   `_play_ability_effect()`: replaced `if not vector_only:` with
+>   `if PLACED_OBJECT_ABILITY_IDS.has(ability_id):` — pixel-art `AbilityVfx` frames
+>   now spawn ONLY for the 11 placed-object abilities (tobor_steam_turret,
+>   tobor_spider_mines, tobor_energy_field, warden_voodoo_wards, thorn_toxin_ward,
+>   stump_overgrowth, stump_sapling_turret, rime_frozen_ward, willow_wall_of_roots,
+>   bulwark_fissure, warden_bramble_wall). Every other ability is vector-only.
+>   Evidence:
+>   1. Isolated `ability_vfx_gate_test` (PASS, 0 failures): confirms main.gd's
+>      PLACED list has 11 entries, non-placed `tobor_steam_keg` is excluded, placed
+>      `tobor_steam_turret` has 6 `_fx` frames on disk.
+>      Shot: `tools/selftest/results/vfx_gate_ingame/iso_gate_test.png`
+>      + `tools/selftest/results/ability_vfx_gate_test_report.json`
+>   2. In-game `vfx_gate_ingame.json` (hero tobor): deterministic `vfx_probe` counts
+>      — placed (slot 1 mines) `vfx_count=1`, non-placed (slot 0 keg) `vfx_count=0`.
+>      Shots: `tools/selftest/results/vfx_gate_ingame/ingame_before_vfx.png` /
+>      `ingame_after_vfx.png` + `vfx_gate_ingame_report.json` (probe counts)
+>   3. Added `vfx_probe` driver event (counts live `AbilityVfx` nodes) for future
+>      VFX verification.
+>
 > **2026-09-12 (latest) — World transition re-verified in isolated mode:**
 > - **World transition (mission_warp)** — `world_transition_test` selftest: 4 screenshots
 >   confirm the full sequence. Pre: Verdant Hollow (green). Mid-sweep: camera zoomed

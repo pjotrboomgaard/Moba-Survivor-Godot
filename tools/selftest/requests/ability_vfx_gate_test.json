@@ -1,0 +1,8 @@
+{
+  "scene": "ability_vfx_gate_test",
+  "description": "Isolated test: verify the pixel-art VFX gate — non-placed abilities get vector-only (no AbilityVfx node), placed abilities (turrets/wards/mines) still get pixel-art frames. Empty world baseline.",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "ability_vfx_gate_test.png",
+  "notes": "Verify: verdict=PASS. The report's 'failures' array must be empty. non_placed_ability (tobor_steam_keg) must NOT be in placed_object_ids; placed_ability (tobor_steam_turret) MUST be."
+}

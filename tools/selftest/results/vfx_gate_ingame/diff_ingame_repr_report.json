@@ -1,0 +1,15 @@
+{
+  "before": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\vfx_gate_ingame\\ingame_before_repr.png",
+  "after": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\vfx_gate_ingame\\ingame_after_repr.png",
+  "out": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\vfx_gate_ingame\\diff_ingame_repr.png",
+  "changed_pixels": 742,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.000358,
+  "bbox": [
+    1576,
+    11,
+    1910,
+    1039
+  ],
+  "has_change": true
+}

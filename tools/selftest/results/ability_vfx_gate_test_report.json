@@ -1,0 +1,21 @@
+{
+  "failures": [],
+  "non_placed_ability": "tobor_steam_keg",
+  "placed_ability": "tobor_steam_turret",
+  "placed_object_ids": [
+    "tobor_steam_turret",
+    "tobor_spider_mines",
+    "tobor_energy_field",
+    "warden_voodoo_wards",
+    "thorn_toxin_ward",
+    "stump_overgrowth",
+    "stump_sapling_turret",
+    "rime_frozen_ward",
+    "willow_wall_of_roots",
+    "bulwark_fissure",
+    "warden_bramble_wall"
+  ],
+  "scene": "ability_vfx_gate_test",
+  "shot": "user://ability_vfx_gate_test.png",
+  "verdict": "PASS"
+}

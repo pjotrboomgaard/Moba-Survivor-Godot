@@ -504,6 +504,25 @@ func _process(delta: float) -> void:
 					"count": enemy_nodes.size(),
 					"t": _elapsed,
 				})
+			"vfx_probe":
+				# 2026-09-16: count live AbilityVfx (pixel-art) nodes in the tree.
+				# Used to verify the pixel-art VFX gate: a non-placed ability cast
+				# should leave ~0 AbilityVfx nodes; a placed ability should leave >=1.
+				var host: Node = _host_main if _host_main != null else get_tree().root
+				var vfx_count := 0
+				var stack: Array[Node] = [host]
+				while stack.size() > 0:
+					var n: Node = stack.pop_back()
+					if n != null and n is AbilityVfx:
+						vfx_count += 1
+					for c in n.get_children():
+						stack.push_back(c)
+				_active_effects.append({
+					"kind": "vfx_probe",
+					"label": str(event.get("label", "vfx")),
+					"vfx_count": vfx_count,
+					"t": _elapsed,
+				})
 			"wave_budget_probe":
 				# T3.87: report the wave director's computed spawn budget for a
 				# given wave. Deterministic — directly exercises the 3x formula.

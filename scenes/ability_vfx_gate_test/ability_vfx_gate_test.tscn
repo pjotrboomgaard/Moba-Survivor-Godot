@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability_vfx_gate_test/ability_vfx_gate_test.gd" id="1_test"]
+
+[node name="AbilityVfxGateTest" type="Node2D"]
+script = ExtResource("1_test")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.0, 1.0)
+position_smoothing_enabled = false

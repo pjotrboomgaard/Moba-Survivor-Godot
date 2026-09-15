@@ -1,0 +1,18 @@
+{
+  "hero": "tobor",
+  "coop": false,
+  "ffa": false,
+  "time_scale": 1.0,
+  "description": "In-game verify pixel-art VFX gate. Cast slot 1 (tobor_spider_mines, PLACED) and snap DURING the VFX window (~0.15s) so the pixel-art frames are on screen. The placed mines should show pixel-art AbilityVfx under the new gate; under old code (if not vector_only) it also showed. Then cast slot 0 (steam_keg, non-placed, vector-only) and snap during that window - NO pixel-art should be present in either old or new code.",
+  "events": [
+    {"t": 2.0, "kind": "reset_ability_cd"},
+    {"t": 2.2, "kind": "cast", "slot": 1},
+    {"t": 2.35, "kind": "snap", "label": "vfx_mines_active"},
+    {"t": 2.5, "kind": "vfx_probe", "label": "after_mines"},
+    {"t": 3.0, "kind": "reset_ability_cd"},
+    {"t": 3.2, "kind": "cast", "slot": 0},
+    {"t": 3.35, "kind": "snap", "label": "vfx_keg_active"},
+    {"t": 3.5, "kind": "vfx_probe", "label": "after_keg"},
+    {"t": 4.2, "kind": "report"}
+  ]
+}

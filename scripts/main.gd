@@ -2468,6 +2468,24 @@ const VECTOR_ONLY_KIT_IDS := {
 	"nebula_time_shift_blink": PlayerClass.EffectStyle.TELEPORT,
 }
 
+## Abilities that PLACE a persistent object (turret / ward / mine / zone). Only these
+## keep their pixel-art AbilityVfx frames; every other ability is vector-only.
+## (User 2026-09-16: "remove all pixel-art effect frames from abilities, except for
+## things that are placed like the turrets or wards or mines etc.")
+const PLACED_OBJECT_ABILITY_IDS := [
+	"tobor_steam_turret",
+	"tobor_spider_mines",
+	"tobor_energy_field",
+	"warden_voodoo_wards",
+	"thorn_toxin_ward",
+	"stump_overgrowth",
+	"stump_sapling_turret",
+	"rime_frozen_ward",
+	"willow_wall_of_roots",
+	"bulwark_fissure",
+	"warden_bramble_wall",
+]
+
 ## Set of ability IDs that are a hero's ultimate (kit_r). These get a 2x longer vector
 ## VFX lifetime so the big finisher reads heavier. Built lazily from PlayerClass so new
 ## heroes' ults are picked up automatically.
@@ -2553,7 +2571,11 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 		flash.points = points
 		KitFxLibrary.apply_to_lightning(flash, ability_id)
 		_add_vector_fx(flash, ability_id)
-		if not vector_only:
+		# 2026-09-16 user rule: pixel-art effect frames only for PLACED objects
+		# (turrets / wards / mines / zones). Every other ability is vector-only, so
+		# stray pixel-art bursts (previously seen when placing a turret and elsewhere)
+		# are gone — only the placed object itself keeps its sprite frames.
+		if PLACED_OBJECT_ABILITY_IDS.has(ability_id):
 			var vfx := ability_vfx_scene.instantiate() as AbilityVfx
 			vfx.configure(ability_id, effect_style, points)
 			add_child(vfx)
