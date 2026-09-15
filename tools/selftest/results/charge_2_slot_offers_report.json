@@ -1,0 +1,127 @@
+{
+  "effects": [
+    {
+      "charges": {
+        "arclight_a_max": 1,
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "arclight_level": 1,
+        "arclight_q_max": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [],
+        "generic_charge_banks": {},
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "arclight_l1",
+      "t": 1.00833333333333
+    },
+    {
+      "actual": 5,
+      "kind": "force_level",
+      "t": 2.00856833333333,
+      "target": 2
+    },
+    {
+      "ability_slot_count": 2,
+      "hero": "arclight",
+      "kind": "level_offers_probe",
+      "label": "arclight_l2",
+      "level": 5,
+      "offers": [
+        "ability:arclight_chain_lightning",
+        "keen_eye",
+        "split_shot",
+        "ability:arclight_static_bolt"
+      ],
+      "t": 2.50833333333333,
+      "total_slots": 4
+    },
+    {
+      "actual": 5,
+      "kind": "force_level",
+      "t": 3.00401433333333,
+      "target": 4
+    },
+    {
+      "ability_slot_count": 2,
+      "hero": "arclight",
+      "kind": "level_offers_probe",
+      "label": "arclight_l4",
+      "level": 5,
+      "offers": [
+        "keen_eye",
+        "ability:arclight_blast_of_lightning",
+        "rapid",
+        "ability:arclight_chain_lightning"
+      ],
+      "t": 3.50403366666666,
+      "total_slots": 4
+    },
+    {
+      "charges": {
+        "arclight_a_max": 3,
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "arclight_level": 5,
+        "arclight_q_max": 3,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [],
+        "generic_charge_banks": {},
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "arclight_l4",
+      "t": 4.00404066666666
+    }
+  ],
+  "elapsed": 5.0041056666667,
+  "enemies_spawned": 0,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 5,
+    "level_upgrades": {
+      "3": [
+        "heavy"
+      ],
+      "4": [
+        "vitality"
+      ]
+    },
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "heavy",
+      "vitality"
+    ],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 87
+  },
+  "shots": []
+}

@@ -539,6 +539,10 @@ func _process(delta: float) -> void:
 				})
 			"charge_probe":
 				_record_charge_probe(str(event.get("label", "charge")))
+			"level_offers_probe":
+				# T3.96: capture the current level-up offer list to verify 2
+				# ability-upgrade slots are always present.
+				_record_level_offers_probe(str(event.get("label", "offers")))
 			"pause_menu":
 				# T3.64: open the escape/pause menu, probe save/load button
 				# visibility + state, then close it.
@@ -1051,6 +1055,32 @@ func _record_charge_probe(label: String) -> void:
 		charges["generic_charge_banks"] = bank_report
 		charges["generic_charge_able_ids"] = _player.get("_charge_able_ids")
 	_active_effects.append({"kind": "charge_probe", "label": label, "t": _elapsed, "charges": charges})
+
+
+## T3.96: capture the level-up offer list to verify 2 ability-upgrade slots are
+## always present. Generates a fresh offer using the same code path as the game
+## (PlayerClass.random_upgrade_ids) and records the ability-token count.
+func _record_level_offers_probe(label: String) -> void:
+	if _player == null:
+		return
+	var offers: Array[String] = PlayerClass.random_upgrade_ids(
+		_player.class_id, 4, _player.known_abilities, _player.level,
+		_player.taken_upgrades, _player.recently_offered_upgrades
+	)
+	var ability_count := 0
+	for offer_id in offers:
+		if UpgradeCatalog.is_ability_token(str(offer_id)):
+			ability_count += 1
+	_active_effects.append({
+		"kind": "level_offers_probe",
+		"label": label,
+		"t": _elapsed,
+		"offers": offers,
+		"ability_slot_count": ability_count,
+		"total_slots": offers.size(),
+		"hero": _player.class_id,
+		"level": int(_player.level),
+	})
 
 
 ## T3.64: open the escape/pause menu, probe save/load button visibility + state,

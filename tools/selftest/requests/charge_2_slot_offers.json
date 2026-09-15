@@ -1,0 +1,18 @@
+{
+  "test_name": "charge_2_slot_offers",
+  "hero": "arclight",
+  "description": "T3.96: verify level-up offers always show 2 ability-upgrade slots. Force level-up and probe the offers.",
+  "events": [
+    {"t": 1.0, "kind": "charge_probe", "label": "arclight_l1"},
+    {"t": 2.0, "kind": "force_level", "levels": 2},
+    {"t": 2.5, "kind": "level_offers_probe", "label": "arclight_l2"},
+    {"t": 3.0, "kind": "force_level", "levels": 4},
+    {"t": 3.5, "kind": "level_offers_probe", "label": "arclight_l4"},
+    {"t": 4.0, "kind": "charge_probe", "label": "arclight_l4"},
+    {"t": 5.0, "kind": "report"}
+  ],
+  "wait_ms": 7000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}
