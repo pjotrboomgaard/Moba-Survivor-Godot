@@ -2453,7 +2453,7 @@ the bouncing lightning bounces slowly."
         in the real world.
       - Report: `tools/selftest/results/sky_bolt_iso_report.json` verdict PASS.
 
-### T3.96 Charge-based abilities: recharge up to 3 charges, not just cooldown (NEW 2026-09-15) _STATUS (2026-09-15): in-progress_
+### T3.96 Charge-based abilities: recharge up to 3 charges, not just cooldown (NEW 2026-09-15) _STATUS (2026-09-15): charge system for all 16 heroes done; 2-upgrade-slots + stronger non-charge upgrades PENDING_
 **User direction:** "the charge system doesn't work. it just goes to cooldown but it
 should recharge abilities and allow u to place multiple then cd adds charge up to 3.
 doesnt work for tobor either. at lvl 1 all abilities should have 1 charge. when
@@ -2472,21 +2472,47 @@ stronger in increasing in stats dmg etc."
       (no multi-charge bank). → no charge gate on `arclight_thundergods_wrath`.
 - [x] Give every hero exactly 2 abilities that can bank up to 3 charges — Arclight
       (Q+A) implemented and verified. Tobor already has mines+turrets.
-- [ ] Extend the 2-charge-ability pattern to the remaining 10 heroes.
+- [x] Extend the 2-charge-ability pattern to ALL 16 heroes. Added a GENERIC
+      charge-bank system (`_charge_banks` dict) in `player.gd` that gates Q + E
+      abilities for every hero. Charges start at 1 at level 1, ramp to max 3 by
+      level 5 (via `_charge_max_for(level)`). Regen on a 10s timer
+      (`CHARGE_REGEN_SECONDS`). The 4 heroes with existing per-hero charge
+      systems (Tobor mines/turrets, Bulwark fissure, Warden wards, Arclight Q+A)
+      are excluded from the generic system to avoid double-gating
+      (`_SPECIFIC_CHARGE_ABILITIES` const). Verified on all 16 heroes via the
+      `charge_probe` driver event + `tools/selftest/results/charge_all_heroes_report.json`
+      (each hero's `generic_charge_banks` shows the correct per-hero Q/E abilities).
 - [ ] Level-up upgrade panel must ALWAYS show 2 ability-upgrade slots.
 - [ ] Upgrades that do NOT increase charges must be significantly stronger.
-- [ ] 6-step verify for remaining sub-items.
+- [ ] 6-step verify (isolated + in-game, all 16 heroes) for remaining sub-items.
 
-**T3.96 core charge system — verified for Arclight (2026-09-15):**
-- In-game `charge_probe` report (`tools/selftest/results/charge_ingame_arclight_report.json`):
-  - t=3.5s (before cast): `arclight_charge_left_q=1, arclight_q_max=1, level=1`
-  - t=4.7s (after casting Static Blast): `arclight_charge_left_q=0` (charge consumed)
-  - t=8.0s: 2nd cast attempt → `cast_skipped, reason=cooldown` (no charge banked yet)
-  - t=8.3s: `arclight_charge_left_q=0` still (regen timer 12s, not yet elapsed)
-  Confirms: level 1 = 1 charge; cast consumes the charge; re-cast is blocked until
-  the charge regens. The ultimate (Tempest Call) is unaffected (no charge gate).
-- `charge_probe` driver event added to `selftest_driver.gd` (reports all charge
-  counters for Tobor/Bulwark/Warden/Arclight).
+**T3.96 charge system — verified for ALL 16 heroes (2026-09-15):**
+- In-game `charge_probe` report (`tools/selftest/results/charge_all_heroes_report.json`):
+  Per-hero `generic_charge_banks`:
+  | Hero | Generic banks | Specific system | Status |
+  |------|--------------|-----------------|--------|
+  | Tobor | `tobor_steam_keg` (1) | mines+turrets | PASS |
+  | Bulwark | `bulwark_heavyweight` (1) | fissure | PASS |
+  | Warden | `warden_thorn_volley`+`warden_tongue_tied` (2) | wards | PASS |
+  | Arclight | `{}` (0) | Q+A specific | PASS |
+  | Cinder | `cinder_dragon_fire`+`cinder_fiery_assault` (2) | — | PASS |
+  | Pyra | `pyra_boom_dust`+`pyra_sticky_bomb` (2) | — | PASS |
+  | Slag | `slag_boulder_hurl`+`slag_volcanic_touch` (2) | — | PASS |
+  | Ember | `ember_entangle`+`ember_firebomb` (2) | — | PASS |
+  | Thorn | `thorn_poison_spray`+`thorn_toxicity` (2) | — | PASS |
+  | Willow | `willow_forsaken_shot`+`willow_swift_strike` (2) | — | PASS |
+  | Stump | `stump_natures_rally`+`stump_root_charge` (2) | — | PASS |
+  | Sage | `sage_petal_dance`+`sage_volatile_pod` (2) | — | PASS |
+  | Volt | `volt_gust`+`volt_plasma_bolt` (2) | — | PASS |
+  | Nebula | `nebula_arcane_bolt`+`nebula_curse_of_ages` (2) | — | PASS |
+  | Astral | `astral_ghastly_touch`+`astral_moonfall` (2) | — | PASS |
+  | Rime | `rime_chilling_touch`+`rime_ice_imprisonment` (2) | — | PASS |
+- 12 heroes get 2 generic charge banks (Q+E); Tobor gets 1 (Q only); Bulwark gets
+  1 (E only); Arclight gets 0 (Q+E both use specific system). All correct.
+- `charge_probe` driver event updated in `selftest_driver.gd` to report
+  `generic_charge_banks` + `generic_charge_able_ids` for every hero.
+- **Remaining sub-items** (2-upgrade-slots panel + stronger non-charge upgrades)
+  still need building + 6-step verification.
 
 ### T3.97 Animated menu backgrounds for Tobor + Totem (→ "Diord") at 20% speed (NEW 2026-09-15) _STATUS (2026-09-15): verified_
 **User direction:** "I've added animated backgrounds — one for Tobor and one for the
