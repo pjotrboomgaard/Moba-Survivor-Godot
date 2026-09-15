@@ -1425,7 +1425,42 @@ so make sure it is correctly cut out. make them the same size also. priority tas
       and offset rain streaks relative to camera center. STREAK_COUNT and streak lengths
       increased for more apparent rain.
 - [x] Isolated verify: rain_isolated selftest — camera at 3 positions, rain visible at all.
-- [ ] In-game verify: Pjotr mode, storm biome, screenshot confirms full-screen rain
+- [x] In-game verify: Pjotr mode, storm biome, screenshot confirms full-screen rain
+**_STATUS (2026-09-15): full 6-step pipeline PASS — camera-follow offset sign fix (`+ _camera_pos`)**
+
+**Bug root cause (2026-09-15):** `_draw()` used `offset := -_camera_pos` to shift the
+rain streak field from the weather node's world-origin position to the camera's view.
+Because the node sits at the world origin (not at the camera), the correct offset is
+`+_camera_pos` (add the camera's world position), not subtract. With the `-` sign,
+the rain field was centred at `-camera_pos` instead of `+camera_pos`, so when the
+camera moved off origin the rain landed on the opposite side of the map, leaving the
+actual viewport mostly rain-free. At camera = origin (the isolated static test) the
+bug is invisible because `-0 == 0`.
+
+**Fix:** `biome_weather.gd` `_draw()`: `var offset := _camera_pos` (was `- _camera_pos`).
+Also switched `_process` to use `camera.global_position` directly (equivalent to
+`get_screen_center_position()` for a standard Camera2D but clearer).
+
+**6-step evidence (isolated: `scenes/rain_move_test/rain_move_test.tscn`; in-game:
+`tools/selftest/requests/rain_ingame_move.json`):**
+
+Isolated (empty-world grass grid, zoom 0.5):
+- ISO BEFORE (buggy `-` offset): `tools/selftest/results/rain_move_test_arclight/iso_before_camera_top_right.png`,
+  `iso_before_camera_bottom_left.png`, `iso_before_camera_far_right.png`
+- ISO AFTER (fixed `+` offset): `tools/selftest/results/rain_move_test_arclight/iso_after_camera_top_right.png`,
+  `iso_after_camera_bottom_left.png`, `iso_after_camera_far_right.png`
+- ISO COMPARE: `tools/selftest/results/rain_move_test_arclight/diff_iso_topright.png`
+  (diff 0.22% at top-right; `inspect_screenshot.py` on far-right: BEFORE coverage 53.46%
+  Position=LEFT → AFTER coverage 96.04% Position=CENTER; `cv_compare.py` area ratio 2.46×)
+
+In-game (biome 0, arclight, rain forced on, teleported to 3 camera positions):
+- INGAME BEFORE: `tools/selftest/results/rain_ingame_move_arclight/ingame_before_center.png`,
+  `ingame_before_top_right.png`, `ingame_before_bottom_left.png`
+- INGAME AFTER: `tools/selftest/results/rain_ingame_move_arclight/ingame_after_center.png`,
+  `ingame_after_top_right.png`, `ingame_after_bottom_left.png`
+- INGAME COMPARE: `tools/selftest/results/rain_ingame_move_arclight/diff_ingame_topright.png`,
+  `diff_ingame_center.png` (top-right diff 0.38%; before shot shows rain bunched
+  upper-left with rain-free lower-right; after shot shows even full-viewport coverage)
 
 ### T3.43 Swarmlings don't come in big groups on wave 2 (NEW 2026-09-13)
 **User direction:** "the swarmlings doesnt come in big groups in wave 2. swarmling used to

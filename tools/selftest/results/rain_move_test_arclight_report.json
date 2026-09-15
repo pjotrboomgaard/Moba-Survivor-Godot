@@ -1,0 +1,23 @@
+{
+  "captured": 4,
+  "scene": "rain_move_test",
+  "shots": [
+    {
+      "label": "camera_center",
+      "path": "user://rain_move_run_1789482891/camera_center_0.31.png"
+    },
+    {
+      "label": "camera_top_right",
+      "path": "user://rain_move_run_1789482891/camera_top_right_0.81.png"
+    },
+    {
+      "label": "camera_bottom_left",
+      "path": "user://rain_move_run_1789482891/camera_bottom_left_1.61.png"
+    },
+    {
+      "label": "camera_far_right",
+      "path": "user://rain_move_run_1789482891/camera_far_right_2.41.png"
+    }
+  ],
+  "verdict": "PASS"
+}

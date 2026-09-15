@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\rain_move_test_arclight\\iso_after_camera_far_right.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.0015,
+  "bounding_box": [
+    45,
+    0,
+    1888,
+    1079
+  ],
+  "coverage": 0.9604,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.236,
+    "TR": 0.3049,
+    "BL": 0.2554,
+    "BR": 0.2037
+  },
+  "edge_fractions": {
+    "top": 0.0278,
+    "bottom": 0.0278,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\rain_move_test_arclight\\thumb_iso_after_camera_far_right.png"
+}

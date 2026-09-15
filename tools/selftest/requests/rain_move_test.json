@@ -1,0 +1,9 @@
+{
+  "test_name": "rain_move_test",
+  "hero": "arclight",
+  "comment": "T3.42: verify rain stays full-screen while the camera moves around the world.",
+  "events": [
+    {"t": 0.5, "kind": "report"}
+  ],
+  "wait_ms": 8000
+}

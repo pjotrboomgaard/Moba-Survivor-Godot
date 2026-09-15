@@ -1,0 +1,23 @@
+{
+  "captured": 4,
+  "scene": "rain_test",
+  "shots": [
+    {
+      "label": "rain_off",
+      "path": "user://rain_run_1789482286/rain_off_0.30.png"
+    },
+    {
+      "label": "rain_on_fadein",
+      "path": "user://rain_run_1789482286/rain_on_fadein_0.80.png"
+    },
+    {
+      "label": "rain_full",
+      "path": "user://rain_run_1789482286/rain_full_1.60.png"
+    },
+    {
+      "label": "rain_full2",
+      "path": "user://rain_run_1789482286/rain_full2_3.00.png"
+    }
+  ],
+  "verdict": "PASS"
+}

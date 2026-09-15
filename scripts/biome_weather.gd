@@ -125,8 +125,11 @@ func _draw() -> void:
 	if _fade <= 0.01:
 		return
 	# Draw in camera-relative space: translate to camera center so the rain
-	# always covers the visible viewport.
-	var offset := -_camera_pos
+	# always covers the visible viewport. This node sits at world origin, so to
+	# render a streak at the camera's view we add (NOT subtract) the camera's
+	# world position. T3.42 fix: the old `- _camera_pos` mirrored the field to
+	# the wrong side of the map whenever the camera moved off origin.
+	var offset := _camera_pos
 	# Storm darkening veil: full-screen rect.
 	if storm_active:
 		var vp := get_viewport().get_visible_rect().size

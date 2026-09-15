@@ -1,0 +1,16 @@
+{
+  "hero": "arclight",
+  "biome": 0,
+  "comment": "T3.42 in-game: rain must stay full-screen while the camera/player moves. Force rain on, teleport player to three corners, snap at each.",
+  "events": [
+    {"t": 0.8, "kind": "force_rain"},
+    {"t": 1.2, "kind": "teleport", "to": [0, 0]},
+    {"t": 1.6, "kind": "snap", "label": "ingame_center"},
+    {"t": 2.0, "kind": "teleport", "to": [400, -300]},
+    {"t": 2.4, "kind": "snap", "label": "ingame_top_right"},
+    {"t": 2.8, "kind": "teleport", "to": [-400, 300]},
+    {"t": 3.2, "kind": "snap", "label": "ingame_bottom_left"},
+    {"t": 3.8, "kind": "report"}
+  ],
+  "wait_ms": 8000
+}

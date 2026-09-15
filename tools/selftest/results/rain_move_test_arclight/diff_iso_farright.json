@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/rain_move_test_arclight/iso_before_camera_far_right.png",
+  "after": "tools/selftest/results/rain_move_test_arclight/iso_after_camera_far_right.png",
+  "out": "tools/selftest/results/rain_move_test_arclight/diff_iso_farright.png",
+  "changed_pixels": 5081,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.00245,
+  "bbox": [
+    12,
+    0,
+    1888,
+    1079
+  ],
+  "has_change": true
+}
