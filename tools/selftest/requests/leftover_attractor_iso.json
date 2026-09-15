@@ -1,0 +1,8 @@
+{
+  "test_name": "leftover_attractor_iso",
+  "scene": "res://scenes/leftover_attractor_test/leftover_attractor_test.tscn",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "leftover_attractor_iso.png",
+  "notes": "T3.91 isolated verify: empty world, real Enemy + invisible leftover node. Enemy must NOT drift toward the invisible object. max_drift < 120 = PASS."
+}

@@ -1,0 +1,25 @@
+{
+  "end_pos": "(-220.0, 0.0)",
+  "max_drift": 0.0,
+  "pulled_toward_invisible": false,
+  "scene": "leftover_attractor_test",
+  "shots": [
+    {
+      "label": "leftover_iso_before",
+      "path": "user://leftover_run_1789497909/leftover_iso_before_0.40.png",
+      "t": 0.401723666666667
+    },
+    {
+      "label": "leftover_iso_mid",
+      "path": "user://leftover_run_1789497909/leftover_iso_mid_3.00.png",
+      "t": 3.00159699999999
+    },
+    {
+      "label": "leftover_iso_after",
+      "path": "user://leftover_run_1789497909/leftover_iso_after_5.00.png",
+      "t": 5.00195533333336
+    }
+  ],
+  "start_pos": "(-220.0, 0.0)",
+  "verdict": "PASS"
+}

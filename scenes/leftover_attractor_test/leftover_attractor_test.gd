@@ -11,7 +11,7 @@ var _camera: Camera2D
 var _done := false
 var _elapsed := 0.0
 var _run_dir := ""
-var _report_path := "user://leftover_report.json"
+var _report_path := "user://selftest_report.json"
 var _shots: Array = []
 var _captured := {}
 

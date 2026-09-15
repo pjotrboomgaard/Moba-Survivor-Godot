@@ -1,0 +1,1120 @@
+{
+  "effects": [
+    {
+      "count": 24,
+      "kind": "map_center_probe",
+      "nodes": [
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Main",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Arena",
+          "dist": 0.0,
+          "name": "Arena",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "StaticBody2D",
+          "dist": 0.0,
+          "name": "Walls",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "StumpLayer",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 189.0,
+          "name": "@StaticBody2D@2332",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 189.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 189.0,
+          "name": "Sprite",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 187.0,
+          "name": "Shadow",
+          "pos": [
+            -180.0,
+            48.0
+          ]
+        },
+        {
+          "class": "CanvasModulate",
+          "dist": 0.0,
+          "name": "FogModulate",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldFlash",
+          "dist": 0.0,
+          "name": "WorldFlash",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldTransitionFx",
+          "dist": 0.0,
+          "name": "WorldTransition",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "Actors",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Player",
+          "dist": 0.0,
+          "name": "Player_1",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 0.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 0.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "ShopHint",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Camera2D",
+          "dist": 0.0,
+          "name": "Camera2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "SpawnShield",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaveSystem",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "CreepCamp",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "RecruitAreas",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "MinigameArea",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Minigame_4",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaves",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "radius": 200.0,
+      "t": 1.00833333333333
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 2.00230633333333
+    },
+    {
+      "count": 24,
+      "kind": "map_center_probe",
+      "nodes": [
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Main",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Arena",
+          "dist": 0.0,
+          "name": "Arena",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "StaticBody2D",
+          "dist": 0.0,
+          "name": "Walls",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "StumpLayer",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 189.0,
+          "name": "@StaticBody2D@2332",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 189.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 189.0,
+          "name": "Sprite",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 185.0,
+          "name": "Shadow",
+          "pos": [
+            -179.0,
+            48.0
+          ]
+        },
+        {
+          "class": "CanvasModulate",
+          "dist": 0.0,
+          "name": "FogModulate",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldFlash",
+          "dist": 0.0,
+          "name": "WorldFlash",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldTransitionFx",
+          "dist": 0.0,
+          "name": "WorldTransition",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "Actors",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Player",
+          "dist": 0.0,
+          "name": "Player_1",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 0.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 0.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "ShopHint",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Camera2D",
+          "dist": 0.0,
+          "name": "Camera2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "SpawnShield",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaveSystem",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "CreepCamp",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "RecruitAreas",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "MinigameArea",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Minigame_4",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaves",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "radius": 200.0,
+      "t": 4.00454545454545
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 5.00456400000004
+    },
+    {
+      "count": 24,
+      "kind": "map_center_probe",
+      "nodes": [
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Main",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Arena",
+          "dist": 0.0,
+          "name": "Arena",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "StaticBody2D",
+          "dist": 0.0,
+          "name": "Walls",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "StumpLayer",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 189.0,
+          "name": "@StaticBody2D@2332",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 189.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 189.0,
+          "name": "Sprite",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 184.0,
+          "name": "Shadow",
+          "pos": [
+            -177.0,
+            48.0
+          ]
+        },
+        {
+          "class": "CanvasModulate",
+          "dist": 0.0,
+          "name": "FogModulate",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldFlash",
+          "dist": 0.0,
+          "name": "WorldFlash",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldTransitionFx",
+          "dist": 0.0,
+          "name": "WorldTransition",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "Actors",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Player",
+          "dist": 0.0,
+          "name": "Player_1",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 0.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 0.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "ShopHint",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Camera2D",
+          "dist": 0.0,
+          "name": "Camera2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "SpawnShield",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaveSystem",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "CreepCamp",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "RecruitAreas",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "MinigameArea",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Minigame_4",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaves",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "radius": 200.0,
+      "t": 7.00454100000013
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 8.0045883333335
+    },
+    {
+      "count": 26,
+      "kind": "map_center_probe",
+      "nodes": [
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Main",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Arena",
+          "dist": 0.0,
+          "name": "Arena",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "StaticBody2D",
+          "dist": 0.0,
+          "name": "Walls",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "StumpLayer",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 189.0,
+          "name": "@StaticBody2D@2332",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 189.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 189.0,
+          "name": "Sprite",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 182.0,
+          "name": "Shadow",
+          "pos": [
+            -176.0,
+            49.0
+          ]
+        },
+        {
+          "class": "CanvasModulate",
+          "dist": 0.0,
+          "name": "FogModulate",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldFlash",
+          "dist": 0.0,
+          "name": "WorldFlash",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldTransitionFx",
+          "dist": 0.0,
+          "name": "WorldTransition",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "Actors",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Player",
+          "dist": 0.0,
+          "name": "Player_1",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 0.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 0.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "ShopHint",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Camera2D",
+          "dist": 0.0,
+          "name": "Camera2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "SpawnShield",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaveSystem",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "CreepCamp",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "RecruitAreas",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "MinigameArea",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Minigame_4",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaves",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Line2D",
+          "dist": 0.0,
+          "name": "@Line2D@2463",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Line2D",
+          "dist": 0.0,
+          "name": "@Line2D@2464",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "radius": 200.0,
+      "t": 10.0075757575759
+    },
+    {
+      "count": 79,
+      "kind": "enemy_count_probe",
+      "label": "enemies_after_casts",
+      "t": 12.0123106060607
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "attack_range": 520.0,
+      "biome_id": 0,
+      "biome_name": "Scrapyard Outskirts",
+      "blast_radius": 30.0,
+      "cds": [
+        18.984666666667,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "damage_dealt": 0.0,
+            "damage_taken": 0.0,
+            "hp": 90.0,
+            "kills": 0,
+            "local": true,
+            "max_hp": 90.0,
+            "peer": 1,
+            "pos": [
+              0.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "frost_burst_radius": 65.0,
+      "gold": 100,
+      "hero": "tobor",
+      "hp": 90.0,
+      "hp_frac": 1.0,
+      "hp_max": 90.0,
+      "kind": "probe",
+      "label": "final_probe",
+      "last_sfx": "cast_tobor",
+      "last_tapped": 0,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(0.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 4,
+      "summons_owned": [
+        {
+          "ability_id": "tobor_spider_mines",
+          "owner_peer_id": 1,
+          "time_left": 33.7541082433867
+        },
+        {
+          "ability_id": "tobor_spider_mines",
+          "owner_peer_id": 1,
+          "time_left": 33.7541082433867
+        },
+        {
+          "ability_id": "tobor_spider_mines",
+          "owner_peer_id": 1,
+          "time_left": 33.7541082433867
+        },
+        {
+          "ability_id": "tobor_steam_turret",
+          "owner_peer_id": 1,
+          "time_left": 36.6146992433866
+        }
+      ],
+      "t": 14.0140211640212,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "weapon_damage": 18.0,
+      "xp": 70
+    }
+  ],
+  "elapsed": 15.0113866060607,
+  "enemies_spawned": 0,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 3,
+    "casts": [
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 2.74405533333333
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 5.6046463333334
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 9.30464233333343
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 100,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 70
+  },
+  "shots": []
+}

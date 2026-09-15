@@ -1,0 +1,24 @@
+{
+  "test_name": "leftover_attractor_ingame",
+  "hero": "tobor",
+  "comment": "T3.91 in-game verify: cast placement abilities (turret, mines, keg) near map center, then check map_center_probe for lingering invisible attractor nodes. Compare enemy_count before/after to confirm creeps don't swarm a phantom point.",
+  "events": [
+    {"t": 1.0, "kind": "map_center_probe", "label": "before_cast", "radius": 200},
+    {"t": 2.0, "kind": "reset_ability_cd"},
+    {"t": 2.5, "kind": "aim", "at": [100, 0]},
+    {"t": 2.6, "kind": "cast", "slot": 1},
+    {"t": 4.0, "kind": "map_center_probe", "label": "after_turret", "radius": 200},
+    {"t": 5.0, "kind": "reset_ability_cd"},
+    {"t": 5.5, "kind": "aim", "at": [-100, 50]},
+    {"t": 5.6, "kind": "cast", "slot": 2},
+    {"t": 7.0, "kind": "map_center_probe", "label": "after_mines", "radius": 200},
+    {"t": 8.0, "kind": "reset_ability_cd"},
+    {"t": 8.5, "kind": "aim", "at": [50, -50]},
+    {"t": 8.6, "kind": "cast", "slot": 0},
+    {"t": 10.0, "kind": "map_center_probe", "label": "after_keg", "radius": 200},
+    {"t": 12.0, "kind": "enemy_count_probe", "label": "enemies_after_casts"},
+    {"t": 14.0, "kind": "probe", "label": "final_probe"},
+    {"t": 15.0, "kind": "report"}
+  ],
+  "wait_ms": 18000
+}
