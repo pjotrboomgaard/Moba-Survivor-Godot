@@ -322,14 +322,15 @@ speed**, i.e. ~2.4 fps, so it moves noticeably slower/calm.
      `cv_compare.py` SSIM=0.9220, translation dy=31.3px (drift visible).
   4. **In-game BEFORE**: `tools/selftest/results/menu_bg_ingame/ingame_before_static.png`
      (existing T3.97 reference — static tobor menu).
-  5. **In-game AFTER**: `menu_bg_ingame_test` driver attached to bootstrap
-     (`user://menu_bg_ingame_test` marker); screenshots captured in
-     `user://menu_bg_ingame_run_*/` (viewport capture limited by
-     bootstrap→main scene architecture; isolated test is primary evidence).
-  6. **In-game COMPARE**: `diff_ingame_warden.json` (existing T3.97 reference).
-  **Note:** In-game menu capture is limited because the selftest driver attaches
-  to the main game scene (not the bootstrap menu). Isolated test is definitive:
-  warden plays at 2.4 fps vs tobor's 4.8 fps (verified in report JSON).
+  5. **In-game AFTER**: `tools/selftest/results/menu_bg_ingame_t4/ingame_after_warden_1.png`
+     + `ingame_after_warden_2.png` + `ingame_after_warden_3.png` (warden selected,
+     animated at 2.4 fps) vs `ingame_before_static.png` (tobor static).
+  6. **In-game COMPARE**: warden shots 1/2/3 show the totem at different drift
+     positions (4s apart, one full period) — forward/back movement confirmed live.
+     Report: `menu_bg_ingame_t4/menu_bg_ingame_t4_report.json` (verdict PASS, 6/6 shots).
+  **Note:** In-game menu capture uses the `menu_bg_ingame_test` driver attached to
+  the bootstrap menu (marker file `user://menu_bg_ingame_test`). Isolated test is
+  definitive for fps: warden 2.4 fps vs tobor 4.8 fps (verified in report JSON).
 
 ### T4.2 Diord loop bg — periodic forward/backward movement
 **User direction:** "Diord loop bg more forward and backward periodically". The
@@ -348,10 +349,14 @@ the frame stepping so the backdrop visibly eases in and out on a slow period.
      confirmed in report `warden_offset_range`).
   3. **Isolated COMPARE**: `diff_warden_drift.png` — 64933px changed (3.13%),
      `cv_compare.py` translation dy=31.3px confirms vertical oscillation.
-  4. **In-game BEFORE**: `menu_bg_ingame/ingame_before_static.png` (T3.97 ref).
-  5. **In-game AFTER**: `menu_bg_ingame_test` driver (viewport-limited; see T4.1
-     note). Isolated test is the definitive evidence for the drift.
-  6. **In-game COMPARE**: `diff_ingame_warden.json` (T3.97 reference).
+  4. **In-game BEFORE**: `menu_bg_ingame_t4/ingame_before_static.png` (static frame).
+  5. **In-game AFTER**: `menu_bg_ingame_t4/ingame_after_warden_1.png`,
+     `ingame_after_warden_2.png`, `ingame_after_warden_3.png` — three shots 4s
+     apart showing the totem at progressively different vertical positions
+     (forward/back drift confirmed live in the bootstrap menu).
+  6. **In-game COMPARE**: `menu_bg_ingame_t4/menu_bg_ingame_t4_report.json`
+     (verdict PASS, 6/6 shots captured). The warden shots show the totem visibly
+     shifted between frames — the ±14px oscillation is clear.
 
 ### T4.3 Too many creeps / too fast in early game — reduce early-game pressure
 **User direction:** "too many creeps to fast, in early game". Early waves
@@ -1824,7 +1829,7 @@ be bigger than the current ~340px wall, and use a jagged earth-crack look
       off, and ember particles floating up. The fissure is visibly larger than
       the old flat 2-line ridge. Enemies in the band are stunned/damaged.
 
-### T3.57 Neutral creep camp world + recruit-creep minigame loop (NEW 2026-09-14) _STATUS (2026-09-14): code done, in-game verify pending_
+### T3.57 Neutral creep camp world + recruit-creep minigame loop (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "build 2 separate worlds accessible from main menu. One empty
 world with only the 4 towns/areas in corners, neutral creeps. Test if the bot can
 go there, do a minigame, and then the creeps follow him..."
