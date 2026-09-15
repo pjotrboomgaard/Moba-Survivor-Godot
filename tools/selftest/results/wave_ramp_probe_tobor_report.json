@@ -1,9 +1,96 @@
 {
-  "effects": [],
-  "elapsed": 3.00353733333333,
+  "effects": [
+    {
+      "distinct_edges": 4,
+      "edge_hits": {
+        "0": 191,
+        "1": 215,
+        "2": 185,
+        "3": 209
+      },
+      "kind": "wave_probe",
+      "t": 1.00829190909091,
+      "waves": [
+        {
+          "budget": 94.5,
+          "groups": 24,
+          "old_budget": 10.5,
+          "ratio": 9.0,
+          "theme": "First Contact",
+          "total_spawned": 94,
+          "wave": 1
+        },
+        {
+          "budget": 105.3,
+          "groups": 25,
+          "old_budget": 13.0,
+          "ratio": 8.1,
+          "theme": "Growing Numbers",
+          "total_spawned": 106,
+          "wave": 2
+        }
+      ]
+    },
+    {
+      "is_night": false,
+      "kind": "wave_ramp_probe",
+      "label": "wave1_start",
+      "progress": 0.09,
+      "ramp_scale": 1.182,
+      "released": 2,
+      "t": 2.00833333333333,
+      "total_planned": 22,
+      "wave": 1
+    },
+    {
+      "is_night": false,
+      "kind": "wave_ramp_probe",
+      "label": "wave1_q1",
+      "progress": 0.18,
+      "ramp_scale": 1.364,
+      "released": 4,
+      "t": 4.00833333333332,
+      "total_planned": 22,
+      "wave": 1
+    },
+    {
+      "is_night": false,
+      "kind": "wave_ramp_probe",
+      "label": "wave1_mid",
+      "progress": 0.32,
+      "ramp_scale": 1.636,
+      "released": 7,
+      "t": 8.00317366666684,
+      "total_planned": 22,
+      "wave": 1
+    },
+    {
+      "is_night": false,
+      "kind": "wave_ramp_probe",
+      "label": "wave1_q3",
+      "progress": 0.45,
+      "ramp_scale": 1.909,
+      "released": 10,
+      "t": 12.0031736666666,
+      "total_planned": 22,
+      "wave": 1
+    },
+    {
+      "is_night": false,
+      "kind": "wave_ramp_probe",
+      "label": "wave1_late",
+      "progress": 0.64,
+      "ramp_scale": 2.273,
+      "released": 14,
+      "t": 16.0031736666664,
+      "total_planned": 22,
+      "wave": 1
+    }
+  ],
+  "elapsed": 18.0027576666663,
   "enemies_spawned": 0,
   "hero_position": "(0.0, 0.0)",
-  "player_class": "arclight",
+  "player_class": "tobor",
   "results": {
     "alive": true,
     "beaten_wave": 0,
@@ -36,34 +123,9 @@
   },
   "shots": [
     {
-      "label": "joule_walk_1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5198/joule_walk_1_2.006_5198.png",
-      "t": 2.00648366666666
-    },
-    {
-      "label": "joule_walk_2",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5274/joule_walk_2_2.100_5274.png",
-      "t": 2.10046633333333
-    },
-    {
-      "label": "joule_walk_3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5414/joule_walk_3_2.207_5414.png",
-      "t": 2.20664066666666
-    },
-    {
-      "label": "joule_walk_4",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5483/joule_walk_4_2.303_5483.png",
-      "t": 2.30279
-    },
-    {
-      "label": "joule_walk_5",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5598/joule_walk_5_2.404_5598.png",
-      "t": 2.40374588888888
-    },
-    {
-      "label": "joule_walk_6",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5681/joule_walk_6_2.504_5681.png",
-      "t": 2.50385333333333
+      "label": "wave1_late",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_20213/wave1_late_17.003_20213.png",
+      "t": 17.0031736666663
     }
   ]
 }

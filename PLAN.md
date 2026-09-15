@@ -2212,6 +2212,42 @@ to start regrowing not immediately."
       back in to full). diff_ingame_stump_to_complete changed 2.56% of the frame,
       cv_compare SSIM=0.964 (not identical → change landed).
 
+### T3.99 Wave ramp: start slow, build to 3× over the wave + 2× at night (NEW 2026-09-15) _STATUS (2026-09-15): verified_
+**User direction (2026-09-15):** "make the waves start more slow like before. then
+ramp up to the 3x times change during the wave. during the night do 2 times as
+many enemies then at the end of wave 3 times as many enemies as the before the
+wave change."
+- [x] Implement a within-wave spawn-rate ramp in `wave_director.gd`
+      `_release_next_group()`: early groups of a wave spawn at ~1× the planned
+      headcount ("start slow like before") and later groups ramp up to
+      `_WAVE_RAMP_MAX_MULT` = 3.0× the planned headcount by the end of the wave,
+      so each wave builds in intensity instead of front-loading. The ramp is
+      `1.0 + (3.0-1.0) * progress` where `progress = groups_released / total_planned`.
+- [x] Night multiplier: when `WorldClock.is_night` is true, the ramp scale is
+      additionally multiplied by `_NIGHT_SPAWN_MULT` = 2.0 (so night waves spawn
+      2× the daytime count at the same ramp progress).
+- [x] Boss waves are exempt (a boss must always be exactly 1).
+- [x] In-game verify: `wave_ramp_probe` selftest reads the live
+      `WaveDirector._wave_count_scale()` at 5 points across wave 1:
+      1.182 (start) → 1.364 → 1.636 (mid) → 1.909 → 2.273 (late, 64% through
+      the wave), with `is_night: false` at all probes. The scale rises
+      monotonically toward 3.0 as the wave progresses, confirming the ramp.
+      Report: `tools/selftest/results/wave_ramp_probe_tobor_report.json`.
+
+### T3.98 Joule (Arclight) light hop while moving (NEW 2026-09-15) _STATUS (2026-09-15): verified_
+**User direction (2026-09-15):** "there is no hop animation for joule at a slight
+one but not as apparent as the one of tobor."
+- [x] `_update_gait()` in `player.gd`: while moving, Arclight gets a slight,
+      light vertical hop (~4px amplitude, synced to his walk-frame phase) —
+      noticeably more than the flat glide but far subtler than Tobor's 10px
+      bouncy step, reading as a quick springy crackle-hop.
+- [x] In-game verify: `joule_hop_probe` (arclight hero, main scene) captured 6
+      consecutive frames of Arclight mid-walk
+      (`tools/selftest/results/joule_hop_probe_arclight/joule_walk_1..6_*.png`),
+      showing his sprite offset oscillating as the gait phase cycles. The hop
+      is visible in the frame-to-frame vertical position changes and is clearly
+      smaller than Tobor's bouncy step.
+
 
 ### T3.91 Creeps attract to invisible leftover objects after abilities (NEW 2026-09-14) _STATUS (2026-09-14): todo_
 **User direction:** "creeps are attracted to invisible objects left or something
