@@ -112,6 +112,8 @@ func _update_delta(delta: float) -> void:
 				g["taken"] = true
 				_combo += 1
 				score += 12 * maxi(1, _combo)
+				AudioService.play("minigame_treasure_dash2")
+				_vfx_burst(Color(0.9, 0.8, 0.3), 100.0, 0.3)
 				_combo_timer = 0.0
 				# Refill a taken gem at a new spot to keep the game going.
 				g["taken"] = false

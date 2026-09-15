@@ -1,0 +1,23 @@
+{
+  "notes": "Isolated test: cast tobor_steam_turret and tobor_spider_mines, capture mid-throw vector streak. Confirm no leftover VFX after effect duration.",
+  "scene": "tobor_place_test",
+  "screenshots": [
+    {
+      "label": "tobor_turret_mid_throw",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/tobor_place_tobor_turret_mid_throw.png"
+    },
+    {
+      "label": "tobor_turret_settled",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/tobor_place_tobor_turret_settled.png"
+    },
+    {
+      "label": "tobor_mines_mid_throw",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/tobor_place_tobor_mines_mid_throw.png"
+    },
+    {
+      "label": "tobor_mines_settled",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/tobor_place_tobor_mines_settled.png"
+    }
+  ],
+  "verdict": "PASS"
+}

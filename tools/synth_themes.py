@@ -411,6 +411,54 @@ MINIGAME_ACTION_RECIPES = {
         [dict(wave="chime", f0=1600, f1=2400, dur=0.12, amp=0.34, partials=[1.0, 1.5, 2.0]),
          dict(wave="sine", f0=1100, f1=1500, dur=0.08, amp=0.22)],
     ],
+    "minigame_creep_tag": [
+        [dict(wave="chime", f0=900, f1=1400, dur=0.10, amp=0.32, partials=[1.0, 1.5, 2.0]),
+         dict(wave="sine", f0=500, f1=800, dur=0.07, amp=0.20)],
+    ],
+    "minigame_dance_disco": [
+        [dict(wave="square", f0=440, f1=660, dur=0.10, amp=0.30, duty=0.5),
+         dict(wave="square", f0=330, f1=550, dur=0.12, amp=0.25, duty=0.4)],
+    ],
+    "minigame_keg_toss_pro": [
+        [dict(wave="sine", f0=280, f1=100, dur=0.16, amp=0.44),
+         dict(wave="crackle", f0=600, f1=180, dur=0.10, amp=0.22)],
+    ],
+    "minigame_treasure_dash2": [
+        [dict(wave="chime", f0=1800, f1=2600, dur=0.10, amp=0.30, partials=[1.0, 1.5, 2.0]),
+         dict(wave="sine", f0=1200, f1=1600, dur=0.07, amp=0.18)],
+    ],
+    "minigame_whack_rush": [
+        [dict(wave="square", f0=600, f1=280, dur=0.07, amp=0.34, duty=0.45),
+         dict(wave="sine", f0=300, f1=160, dur=0.09, amp=0.30)],
+    ],
+    "minigame_balloon_pop": [
+        [dict(wave="crackle", f0=2000, f1=400, dur=0.12, amp=0.40),
+         dict(wave="sine", f0=800, f1=200, dur=0.10, amp=0.28)],
+    ],
+    "minigame_crate_stack": [
+        [dict(wave="square", f0=200, f1=120, dur=0.12, amp=0.35, duty=0.3),
+         dict(wave="crackle", f0=500, f1=200, dur=0.08, amp=0.18)],
+    ],
+    "minigame_crystal_catch": [
+        [dict(wave="chime", f0=2200, f1=3200, dur=0.08, amp=0.30, partials=[1.0, 2.0, 2.5]),
+         dict(wave="sine", f0=1400, f1=2000, dur=0.06, amp=0.20)],
+    ],
+    "minigame_gem_relay": [
+        [dict(wave="chime", f0=1000, f1=1600, dur=0.12, amp=0.32, partials=[1.0, 1.5, 2.0]),
+         dict(wave="chime", f0=700, f1=1100, dur=0.10, amp=0.20, partials=[1.0, 1.5])],
+    ],
+    "minigame_ring_roll": [
+        [dict(wave="sine", f0=400, f1=800, dur=0.14, amp=0.30),
+         dict(wave="crackle", f0=800, f1=300, dur=0.08, amp=0.16)],
+    ],
+    "minigame_slime_splat": [
+        [dict(wave="crackle", f0=1200, f1=300, dur=0.10, amp=0.38),
+         dict(wave="sine", f0=600, f1=150, dur=0.12, amp=0.30)],
+    ],
+    "minigame_creep_pinball": [
+        [dict(wave="square", f0=500, f1=350, dur=0.08, amp=0.28, duty=0.35),
+         dict(wave="sine", f0=250, f1=180, dur=0.06, amp=0.22)],
+    ],
 }
 
 # Per-BIOME footstep stingers (P3 footstep sounds). Short, quiet, single-shot ticks

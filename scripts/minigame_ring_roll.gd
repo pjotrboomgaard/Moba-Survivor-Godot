@@ -58,6 +58,8 @@ func _update_delta(delta: float) -> void:
 			if (g.get("pos") as Vector2).distance_to(rel) < COLLECT_DIST:
 				g["taken"] = true
 				score += 12
+				AudioService.play("minigame_ring_roll")
+				_vfx_burst(Color(0.6, 0.8, 1.0), 90.0, 0.35)
 				_active_gem = (_active_gem + 1) % _gems.size()
 				_spawn_next_group()
 				_check_comment()

@@ -79,6 +79,8 @@ func _update_delta(delta: float) -> void:
 				_combo += 1
 				_max_combo = maxi(_max_combo, _combo)
 				score += 10 * maxi(1, _combo)
+				AudioService.play("minigame_balloon_pop")
+				_vfx_burst(Color(0.9, 0.4, 0.8), 100.0, 0.35)
 				_spawn_next_creep()
 				_check_comment()
 	# Bob the creeps.

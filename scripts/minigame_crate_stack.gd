@@ -72,6 +72,7 @@ func _update_delta(delta: float) -> void:
 				_stack_height += 1
 				score += 15 + _stack_height * 2
 				_stack_flash = 1.0
+				AudioService.play("minigame_crate_stack")
 				_vfx_burst(Color(0.5, 0.8, 0.4), 130.0, 0.4)
 				_crates.erase(c)
 				break

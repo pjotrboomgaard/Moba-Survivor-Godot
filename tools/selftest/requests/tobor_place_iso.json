@@ -1,0 +1,8 @@
+{
+  "test_name": "tobor_place_iso",
+  "scene": "res://scenes/tobor_place_test/tobor_place_test.tscn",
+  "expect_exit": 0,
+  "capture_screenshot": true,
+  "screenshot_name": "tobor_place_iso.png",
+  "notes": "T3.79 isolated verify: Tobor casts turret (slot 1) and mine (slot 2). Screenshots capture the vector throw-effect in flight mid-throw. Confirms no leftover VFX after effect duration."
+}

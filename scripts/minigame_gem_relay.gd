@@ -66,6 +66,8 @@ func _update_delta(delta: float) -> void:
 			# Collect the gem.
 			_gem_spawned = false
 			score += 15
+			AudioService.play("minigame_gem_relay")
+			_vfx_burst(Color(0.5, 0.9, 0.7), 100.0, 0.35)
 			_active_marker = (_active_marker + 1) % _markers.size()
 			# Jump to next unvisited marker for variety.
 			if _active_marker == 0 and _marker_progress > 5.0:

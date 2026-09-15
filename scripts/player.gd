@@ -310,6 +310,11 @@ var _ffa_think_timer := 0.0
 var _ffa_last_think := {}
 var hero_kills := 0
 var creep_kills := 0
+## T3.33 — cumulative damage dealt (creep + hero targets), used by the FFA
+## balance harness to compute a normalized power metric per hero.
+var total_damage_dealt := 0.0
+## T3.33 — cumulative damage taken (from all sources).
+var total_damage_taken := 0.0
 var pvp_invuln_timer := 0.0
 var knockback_velocity := Vector2.ZERO
 var ffa_respawn_left := 0.0
@@ -5260,6 +5265,8 @@ func _damage_enemy(target: Node2D, amount: float) -> void:
 		dealt *= PVP_TAKEN_MULT
 	var was_alive := not target_health.is_dead
 	target_health.take_damage(dealt, self)
+	# T3.33 — track cumulative damage dealt for the FFA balance harness.
+	total_damage_dealt += dealt
 	# Synergy "Iron Will" / "Bruiser": healing on kill. Only triggers if this hit
 	# actually killed the target (was alive before, dead after).
 	if was_alive and target_health.is_dead and _kill_heal_amount > 0.0:
@@ -5669,6 +5676,7 @@ func snapshot() -> Dictionary:
 
 
 func _on_damaged(amount: float) -> void:
+	total_damage_taken += amount  # T3.33 FFA balance harness
 	SoundDirector.play("hurt", global_position)
 	var tween := create_tween()
 	tween.tween_property(self, "modulate", Color("ff7777"), 0.05)

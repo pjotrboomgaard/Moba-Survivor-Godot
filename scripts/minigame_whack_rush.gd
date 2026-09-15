@@ -89,6 +89,8 @@ func _update_delta(delta: float) -> void:
 				_combo += 1
 				_max_combo = maxi(_max_combo, _combo)
 				score += 10 * maxi(1, _combo)
+				AudioService.play("minigame_whack_rush")
+				_vfx_burst(Color(0.9, 0.5, 0.2), 100.0, 0.3)
 				if _creeps.size() < 12 and _combo >= 3:
 					_add_creep()
 

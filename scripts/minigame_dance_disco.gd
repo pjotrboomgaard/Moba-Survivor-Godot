@@ -87,6 +87,10 @@ func _update_delta(delta: float) -> void:
 		# Check for creep group joins
 		_check_group_joins()
 
+		# Play a short rhythm tick when the player is in-sync (high accuracy)
+		if acc > 0.8:
+			AudioService.play("minigame_dance_disco")
+
 	queue_redraw()
 
 
@@ -130,6 +134,7 @@ func _check_group_joins() -> void:
 		if _current_accuracy > 0.35:
 			_spawn_crewp_group(_group_index)
 			_set_comment(_get_join_comment(_group_index))
+			AudioService.play("minigame_dance_disco")
 			_group_index += 1
 		else:
 			# Missed the window; skip this group

@@ -1,0 +1,19 @@
+{
+  "test_name": "tobor_place_ingame",
+  "hero": "tobor",
+  "comment": "T3.79 in-game verify: Tobor solo, cast turret + mine, screenshot the throw-effect in flight; then confirm no leftover art persists.",
+  "events": [
+    {"t": 2.0, "kind": "reset_ability_cd"},
+    {"t": 2.5, "kind": "aim", "at": [200, 0]},
+    {"t": 2.6, "kind": "cast", "slot": 1},
+    {"t": 3.0, "kind": "probe", "label": "turret_throw_ingame"},
+    {"t": 4.0, "kind": "reset_ability_cd"},
+    {"t": 4.5, "kind": "aim", "at": [-150, 100]},
+    {"t": 4.6, "kind": "cast", "slot": 2},
+    {"t": 5.0, "kind": "probe", "label": "mines_throw_ingame"},
+    {"t": 8.0, "kind": "map_center_probe", "label": "after_casts", "radius": 300},
+    {"t": 10.0, "kind": "probe", "label": "final_check"},
+    {"t": 12.0, "kind": "report"}
+  ],
+  "wait_ms": 15000
+}

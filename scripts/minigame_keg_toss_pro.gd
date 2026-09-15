@@ -93,6 +93,8 @@ func _update_delta(delta: float) -> void:
 				_combo += 1
 				_max_combo = maxi(_max_combo, _combo)
 				score += 20 * maxi(1, _combo)
+				AudioService.play("minigame_keg_toss_pro")
+				_vfx_burst(Color(0.4, 0.8, 0.9), 110.0, 0.35)
 				if _combo >= 3 and _creeps.size() < 12:
 					_add_keeper()
 				break

@@ -156,6 +156,7 @@ func _check_splat_hits() -> void:
 			# Splat! Remove the slime and score.
 			score += 10
 			_splat_flash = 1.0
+			AudioService.play("minigame_slime_splat")
 			_vfx_burst(Color(0.3, 0.9, 0.5), 100.0, 0.3)
 			# Remove this slime
 			var idx := _slimes.find(s)

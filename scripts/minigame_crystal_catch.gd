@@ -105,6 +105,7 @@ func _check_catches() -> void:
 			var points := 10 + int(c_type) * 5
 			score += points
 			_catch_flash = 1.0
+			AudioService.play("minigame_crystal_catch")
 			var flash_colors: Array[Color] = [Color(0.4, 0.7, 1.0), Color(0.4, 1.0, 0.5), Color(0.8, 0.4, 1.0)]
 			_vfx_burst(flash_colors[c_type], 120.0, 0.35)
 			_crystals[i]["alive"] = false

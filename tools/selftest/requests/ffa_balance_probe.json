@@ -1,0 +1,17 @@
+{
+  "test_name": "ffa_balance_probe",
+  "hero": "arclight",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "biome": 0,
+  "until_wave": 10,
+  "duration": 180,
+  "time_scale": 2.0,
+  "comment": "T3.33: FFA balance harness — run 4-bot FFA, probe roster for kills/damage/survival to compute normalized power metric per hero.",
+  "events": [
+    {"t": 15.0, "kind": "snap", "label": "ffa_t15"},
+    {"t": 60.0, "kind": "snap", "label": "ffa_t60"},
+    {"t": 120.0, "kind": "snap", "label": "ffa_t120"}
+  ],
+  "wait_ms": 200000
+}

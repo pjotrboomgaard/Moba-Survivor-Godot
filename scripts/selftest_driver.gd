@@ -2157,6 +2157,10 @@ func _ffa_roster() -> Dictionary:
 			"pos": [snappedf(player.global_position.x, 1.0), snappedf(player.global_position.y, 1.0)],
 			"kills": player.hero_kills,
 			"alive": player.active,
+			"damage_dealt": roundf(player.total_damage_dealt),
+			"damage_taken": roundf(player.total_damage_taken),
+			"hp": snappedf(player.health.current_health, 0.1),
+			"max_hp": snappedf(player.health.max_health, 0.1),
 		})
 	return {
 		"enabled": GameRuntime.is_ffa(),

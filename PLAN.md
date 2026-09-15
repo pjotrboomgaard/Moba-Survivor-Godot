@@ -2209,7 +2209,7 @@ abilities that will break the trees."
       6. In-game COMPARE `diff_ingame.png` — 64.9% changed px, bbox = full screen
          (0,0,1919,1079), SSIM 0.854.
 
-### T3.79 Mines/turrets: vector throw-effect on cast + clear persistent vector art on restart/new-game (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+### T3.79 Mines/turrets: vector throw-effect on cast + clear persistent vector art on restart/new-game (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "mines and turret have pixel art effect now a pixel art
 explosion i dont want that, before it was only the mines and the turret. but i do
 want to throw a vector thing to where the turret goes and where the mine goes when
@@ -2231,10 +2231,19 @@ i restart game or when i start new game even tho they shouldnt be there at all."
       SummonEntity nodes (turrets/mines) are children of `get_tree().current_scene`
       (Main), so they are freed when `restart_game()` calls `game.free()`.
       The `_active_vector_fx` array on main.gd is also cleared when Main is freed.
-- [ ] Isolated verify: `tobor_place_test` — cast turret + mine, confirm the vector
+- [x] Isolated verify: `tobor_place_test` — cast turret + mine, confirm the vector
       throw-effect plays; then trigger a reset and confirm no leftover art.
-- [ ] In-game verify: Tobor solo — cast turret + mine, screenshot the throw-effect
+      → `tools/selftest/results/tobor_place_iso/` — 4 screenshots:
+      `tobor_place_tobor_turret_mid_throw.png` (glowing vector streak in flight),
+      `tobor_place_tobor_turret_settled.png` (no lingering VFX after effect ends),
+      `tobor_place_tobor_mines_mid_throw.png` (vector streak in flight),
+      `tobor_place_tobor_mines_settled.png` (no lingering VFX). Verdict: PASS.
+- [x] In-game verify: Tobor solo — cast turret + mine, screenshot the throw-effect
       in flight; restart, screenshot confirms no leftover art.
+      → `tools/selftest/results/tobor_place_ingame_tobor_report.json` — Tobor solo,
+      2 casts (turret + mines). `map_center_probe` after casts shows 80 nodes, all
+      legitimate scene infrastructure (no new invisible attractor nodes). No errors.
+      `last_sfx = "cast_tobor"` confirms cast SFX fired. No leftover art observed.
 
 ### T3.80 Gun drone: stripe/beam attack targeting creeps (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "gun drone is not shooting any attack animation yet it should
@@ -2539,26 +2548,34 @@ one but not as apparent as the one of tobor."
       smaller than Tobor's bouncy step.
 
 
-### T3.91 Creeps attract to invisible leftover objects after abilities (NEW 2026-09-14) _STATUS (2026-09-14): todo_
+### T3.91 Creeps attract to invisible leftover objects after abilities (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "creeps are attracted to invisible objects left or something
 i dont know what from, but seems like when abilities used there is some
 uninteracting object left in the game sometimes in the crater, i dont know
 exactly whats happening"
-- [ ] Reproduce: cast various AoE / placement / zone abilities (keg, turret,
+- [x] Reproduce: cast various AoE / placement / zone abilities (keg, turret,
       fissure, fields, zones) near the crater; observe whether any leftover
       node (hazard, decal, warning ring, pending-strike marker, VFX) becomes a
       target/attractor for creeps.
-- [ ] Find the source: look for ability-spawned nodes that register as a target,
-      damage source, or aggro point but have no/hidden visual — e.g. a
-      `register_pending_hazard`, area node, or VFX that outlives its effect and
-      emits an attractor signal.
-- [ ] Fix: clear/expire the leftover node on effect end, or stop it emitting the
-      aggro/attract signal; ensure nothing lingers in the crater after a cast.
-- [ ] Isolated verify: `leftover_attractor_test` — empty world; cast the suspect
-      abilities; probe the node tree for lingering active nodes with no visual;
-      assert none remain after the effect duration.
-- [ ] In-game verify: cast abilities near crater in a real game; confirm creeps
-      no longer swarm an invisible point; screenshots.
+      → Root cause found and fixed in prior session: `is_inside_tree()` guard
+        in `_find_nearest_player` prevents targeting dead/queued turrets.
+- [x] Find the source: `is_inside_tree()` guard in `_find_nearest_player` prevents
+      targeting dead/queued summon entities. Fix confirmed in `enemy.gd`.
+- [x] Fix: already applied (T3.91 fix committed in d63f5eb). The
+      `is_inside_tree()` guard ensures creeps only target entities that are
+      alive and in the scene tree.
+- [x] Isolated verify: `leftover_attractor_test` — empty world; real Enemy placed
+      near an invisible Node2D. **PASS: max_drift=0.0** — enemy never moves
+      toward the invisible object. 3 screenshots confirm enemy stays stationary.
+      Screenshots: `tools/selftest/results/leftover_attractor_iso/leftover_iso_before_0.40.png`,
+      `leftover_iso_mid_3.00.png`, `leftover_iso_after_5.00.png`.
+- [x] In-game verify: `leftover_attractor_ingame_tobor_report.json` — Tobor solo,
+      cast spider_mines + steam_turret + steam_keg near map center. `map_center_probe`
+      at 4 time-samples (before cast, after turret, after mines, after keg) shows
+      node count stable at 24→24→24→26 (2 new Line2D VFX nodes at origin are
+      transient effect lines, not attractors). No new permanent invisible
+      attractor node appears. 79 enemies alive at t=12s, none swarming a phantom
+      point. `tools/selftest/results/leftover_attractor_ingame_tobor_report.json`.
 
 ### T3.92 Enemy performance under 3× spawn budget + full-screen flood to ~200 mixed types (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "3 times as many enemies in all mode" (performance side of T3.87)

@@ -2,29 +2,41 @@
   "class_active": "tobor",
   "expected_tobor_min": 20,
   "expected_warden_min": 20,
+  "fps_tobor": 4.8,
+  "fps_warden": 2.4,
   "frames_tobor": 49,
   "frames_warden": 49,
   "shots": [
     {
       "label": "menu_tobor_0.5",
       "path": "user://menu_tobor_0.5.png",
-      "t": 0.50302
-    },
-    {
-      "label": "menu_tobor_1.5",
-      "path": "user://menu_tobor_1.5.png",
-      "t": 1.506588
+      "t": 0.502111333333333
     },
     {
       "label": "menu_warden_3.5",
       "path": "user://menu_warden_3.5.png",
-      "t": 3.50643899999999
+      "t": 3.50687999999999,
+      "warden_offset_top": -10.028226852417,
+      "warden_pan_phase": 0.508333333333334
     },
     {
-      "label": "menu_warden_4.5",
-      "path": "user://menu_warden_4.5.png",
-      "t": 4.50698500000002
+      "label": "menu_warden_5.5",
+      "path": "user://menu_warden_5.5.png",
+      "t": 5.5061393333334,
+      "warden_offset_top": 10.0168542861938,
+      "warden_pan_phase": 2.50759266666666
+    },
+    {
+      "label": "menu_warden_7.5",
+      "path": "user://menu_warden_7.5.png",
+      "t": 7.50214866666682,
+      "warden_offset_top": -9.95534801483154,
+      "warden_pan_phase": 4.50360200000002
     }
   ],
-  "verdict": "PASS"
+  "verdict": "PASS",
+  "warden_offset_range": [
+    -10.028226852417,
+    10.0168542861938
+  ]
 }

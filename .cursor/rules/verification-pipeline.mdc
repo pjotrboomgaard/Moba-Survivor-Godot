@@ -151,6 +151,31 @@ Fix the root cause, re-run that exact step, re-verify. Do not skip the failed
 step. Do not mark the task done while any of the six is red. Keep the failing
 evidence so progress is auditable.
 
+## HARD RULE — No way around the screenshot verify pipeline (NEW 2026-09-15)
+
+THERE IS NO EXCEPTION. Every task — feature, balance, logic, visual, bug fix,
+rename, asset swap, world change, storm/wave change, or anything else — MUST go
+through the full 6-step before/after screenshot pipeline (3 isolated + 3
+in-game). No task is ever "verified" on:
+- a code edit alone, a parse check, a report-JSON verdict without screenshots
+- an isolated test alone without an in-game test, or vice versa
+- "the before state is obvious", "it's a small change", "the user is waiting"
+- "I'm confident it works"
+
+The 6 screenshots MUST exist on disk, MUST be opened with the Read tool, and MUST
+be referenced in PLAN.md with their paths. If you find yourself about to mark a
+task done without all six, STOP and do the missing steps. There is no way around
+this rule. Every past and future task is subject to it.
+
+## HARD RULE — Previously "verified" tasks without full 6-step evidence MUST be re-verified
+
+Any task marked "verified"/"done"/`[x]` that does NOT have all six screenshots
+(iso_before, iso_after, diff_iso, ingame_before, ingame_after, diff_ingame) on
+disk and referenced in PLAN.md is NOT actually verified. It MUST be re-verified
+with the full 6-step pipeline before it can remain marked done. When auditing the
+plan, check each "done" task for its 6 screenshot paths — if missing, revert the
+`[x]` to `[ ]` and re-run the pipeline.
+
 ## SCOPE
 
 All tasks, every time. No task type is exempt.

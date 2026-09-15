@@ -39,8 +39,12 @@
             "alive": true,
             "class": "tobor",
             "cpu": false,
+            "damage_dealt": 0.0,
+            "damage_taken": 6.0,
+            "hp": 83.7,
             "kills": 0,
             "local": true,
+            "max_hp": 90.0,
             "peer": 1,
             "pos": [
               43.0,
@@ -93,7 +97,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 2.005179,
+      "t": 2.00104266666666,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -112,9 +116,9 @@
       "xp": 0
     }
   ],
-  "elapsed": 10.0044860000001,
+  "elapsed": 10.0010070000001,
   "enemies_spawned": 0,
-  "hero_position": "(301.8221, 38.8446)",
+  "hero_position": "(368.9906, 55.40419)",
   "player_class": "tobor",
   "results": {
     "alive": false,
@@ -126,7 +130,7 @@
     "died": false,
     "errors": [],
     "ffa": {},
-    "gold": 15,
+    "gold": 6,
     "hero_kills": 0,
     "hp_samples": [],
     "landmark_saves": 0,
@@ -144,18 +148,18 @@
     "until_wave": 20,
     "verdict": "",
     "wave": 1,
-    "xp": 50
+    "xp": 20
   },
   "shots": [
     {
       "label": "neutral_camps_field",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7385/neutral_camps_field_4.001_7385.png",
-      "t": 4.00117133333333
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7434/neutral_camps_field_4.001_7434.png",
+      "t": 4.00120099999999
     },
     {
       "label": "neutral_camps_wave1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11393/neutral_camps_wave1_8.006_11393.png",
-      "t": 8.00631166666684
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11442/neutral_camps_wave1_8.004_11442.png",
+      "t": 8.00428300000018
     }
   ]
 }

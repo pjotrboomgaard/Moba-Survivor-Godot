@@ -68,6 +68,8 @@ func _update_delta(delta: float) -> void:
 			c["pos"] = Vector2(cp.x, PADDLE_Y - CREEP_RADIUS)
 			# Score on bounce.
 			score += 3
+			AudioService.play("minigame_creep_pinball")
+			_vfx_burst(Color(0.8, 0.6, 0.3), 90.0, 0.3)
 		# Wall bounces (left/right).
 		if cp.x < -FIELD_W * 0.5 + CREEP_RADIUS:
 			c["vel"] = Vector2(absf(float((c.get("vel") as Vector2).x)), float((c.get("vel") as Vector2).y))
@@ -87,6 +89,7 @@ func _update_delta(delta: float) -> void:
 			   absf(cp.x) < POCKET_W * 0.4:
 				c["alive"] = false
 				score += 20
+				AudioService.play("minigame_creep_pinball")
 				# Spawn replacement + maybe join a creep.
 				_spawn_creep()
 				if _creeps.size() < 8:

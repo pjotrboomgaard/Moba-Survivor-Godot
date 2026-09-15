@@ -1,0 +1,19 @@
+{
+  "test_name": "minigame_sfx_probe",
+  "comment": "T1.3: verify each minigame plays its own unique SFX + VFX. Start minigames by index, capture screenshots.",
+  "events": [
+    {"t": 1.0, "kind": "minigame_bot_force", "index": 1, "on": true},
+    {"t": 1.5, "kind": "start_minigame", "index": 1},
+    {"t": 3.0, "kind": "screenshot", "label": "keg_toss_sfx"},
+    {"t": 8.0, "kind": "minigame_bot_force", "index": 7, "on": true},
+    {"t": 8.5, "kind": "start_minigame", "index": 7},
+    {"t": 10.0, "kind": "screenshot", "label": "whack_rush_sfx"},
+    {"t": 15.0, "kind": "minigame_bot_force", "index": 8, "on": true},
+    {"t": 15.5, "kind": "start_minigame", "index": 8},
+    {"t": 17.0, "kind": "screenshot", "label": "creep_tag_sfx"},
+    {"t": 22.0, "kind": "minigame_bot_force", "index": 4, "on": true},
+    {"t": 22.5, "kind": "start_minigame", "index": 4},
+    {"t": 24.0, "kind": "screenshot", "label": "dance_disco_sfx"}
+  ],
+  "wait_ms": 35000
+}

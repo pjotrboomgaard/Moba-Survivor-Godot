@@ -74,6 +74,8 @@ func _update_delta(delta: float) -> void:
 				_tags += 1
 				_total_tagged += 1
 				score += 25
+				AudioService.play("minigame_creep_tag")
+				_vfx_burst(Color(0.3, 0.9, 0.5), 80.0, 0.35)
 				# Spawn a small group of new creeps to keep the game going.
 				if _creeps.size() < 14:
 					_spawn_wave(randi_range(2, 3))
