@@ -1,6 +1,8 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scenes/upgrade_diversity_test/upgrade_diversity_test.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/upgrade_diversity_test.gd" id="1_test"]
 
-[node name="UpgradeDiversityTest" type="Node"]
-script = ExtResource("1")
+[node name="UpgradeDiversityTest" type="Node2D"]
+script = ExtResource("1_test")
+
+[node name="Camera2D" type="Camera2D" parent="."]

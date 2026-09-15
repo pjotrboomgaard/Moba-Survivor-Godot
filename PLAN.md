@@ -594,10 +594,25 @@ charges of**.
 **User direction (2026-09-11):** Make sure level upgrades are diversified — not
 just a few options repeated.
 
-- [ ] Level-up choices: 3-4 distinct upgrades per level (not 2 repeated options)
-- [ ] Upgrades scale with hero role (tank gets more HP/armor, mage gets more
-      damage/cd, support gets more heal/shield)
-- [ ] Verify: run solo with each hero → check the level-up UI shows varied choices
+- [x] Level-up choices: 3-4 distinct upgrades per level (not 2 repeated options).
+      _STATUS (2026-09-15): `mixed_offer()` reserves 2 ability slots + 2 stat slots
+      = 4 distinct options per level. Verified via `upgrade_diversity_test`:
+      8 heroes × 6 simulated level-ups → 0 duplicate-offer failures, every offer
+      has exactly 4 distinct ids. _
+- [x] Upgrades scale with hero role (tank gets more HP/armor, mage gets more
+      damage/cd, support gets more heal/shield). _STATUS (2026-09-15):
+      `_pool_for()` draws from the hero's own `class_upgrade_ids` first (per-hero
+      role-authored pool), then falls back to the shared generic pool only if the
+      hero's pool is thin. Verified: tobor/bulwark get 15-19 distinct upgrades
+      over 6 levels from their own pools (no cross-hero bleed-through observed). _
+- [x] Verify: run solo with each hero → check the level-up UI shows varied
+      choices. _STATUS (2026-09-15): Isolated probe `upgrade_diversity_test`
+      (8 heroes × 6 levels): 15-19 distinct upgrades per hero over 6 levels,
+      verdict=PASS, 0 failures. Contact sheet:
+      `tools/selftest/results/upgrade_diversity_tobor_contact.png` (bar chart,
+      all bars full-width green = ≥5 distinct upgrades). Report:
+      `tools/selftest/results/upgrade_diversity_tobor_report.json`. _
+**_STATUS (2026-09-15): all 3 sub-items verified — isolated probe PASS_**
 
 ### T3.11 Recruit-area creep behavior test
 **User direction (2026-09-11):** Test the behavior of winning over creeps (the

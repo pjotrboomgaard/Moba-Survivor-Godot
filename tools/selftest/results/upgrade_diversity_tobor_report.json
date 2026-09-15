@@ -1,0 +1,496 @@
+{
+  "failures": [],
+  "heroes": 8,
+  "heroes_data": [
+    {
+      "distinct_upgrades_offered": 17,
+      "hero": "tobor",
+      "level_rows": [
+        {
+          "level": 2,
+          "offers": [
+            "scholar",
+            "rapid",
+            "ability:tobor_scrap_shield",
+            "ability:tobor_spider_mines"
+          ]
+        },
+        {
+          "level": 3,
+          "offers": [
+            "ability:tobor_steam_turret",
+            "gun_drone",
+            "ability:tobor_energy_field",
+            "heavy"
+          ]
+        },
+        {
+          "level": 4,
+          "offers": [
+            "aftershock",
+            "blast",
+            "ability:tobor_wrench_toss",
+            "ability:tobor_steam_turret"
+          ]
+        },
+        {
+          "level": 5,
+          "offers": [
+            "vitality",
+            "ability:tobor_turret_overdrive",
+            "keen_eye",
+            "ability:tobor_energy_field"
+          ]
+        },
+        {
+          "level": 6,
+          "offers": [
+            "ability:tobor_energy_absorption",
+            "push_drone",
+            "blast",
+            "ability:tobor_spider_mines"
+          ]
+        },
+        {
+          "level": 7,
+          "offers": [
+            "aftershock",
+            "blast",
+            "ability:tobor_scrap_shield",
+            "ability:tobor_boiler_burst"
+          ]
+        }
+      ],
+      "levels_simulated": 6
+    },
+    {
+      "distinct_upgrades_offered": 19,
+      "hero": "arclight",
+      "level_rows": [
+        {
+          "level": 2,
+          "offers": [
+            "volt",
+            "ability:arclight_ion_storm",
+            "rapid",
+            "ability:arclight_paralyzing_bolt"
+          ]
+        },
+        {
+          "level": 3,
+          "offers": [
+            "ability:arclight_overcharge",
+            "ability:arclight_blast_of_lightning",
+            "double_tap",
+            "heavy"
+          ]
+        },
+        {
+          "level": 4,
+          "offers": [
+            "ability:arclight_ion_storm",
+            "chain",
+            "ability:arclight_repulsor_field",
+            "shield_drone"
+          ]
+        },
+        {
+          "level": 5,
+          "offers": [
+            "ability:arclight_arc_flash",
+            "keen_eye",
+            "ability:arclight_overcharge",
+            "gun_drone"
+          ]
+        },
+        {
+          "level": 6,
+          "offers": [
+            "ability:arclight_ball_lightning",
+            "haste",
+            "ability:arclight_overcharge",
+            "push_drone"
+          ]
+        },
+        {
+          "level": 7,
+          "offers": [
+            "vitality",
+            "ability:arclight_arc_flash",
+            "ability:arclight_paralyzing_bolt",
+            "nova_core"
+          ]
+        }
+      ],
+      "levels_simulated": 6
+    },
+    {
+      "distinct_upgrades_offered": 16,
+      "hero": "bulwark",
+      "level_rows": [
+        {
+          "level": 2,
+          "offers": [
+            "ability:bulwark_shockwave_strike",
+            "ability:bulwark_iron_charge",
+            "gun_drone",
+            "push_drone"
+          ]
+        },
+        {
+          "level": 3,
+          "offers": [
+            "ability:bulwark_heavyweight",
+            "ability:bulwark_last_stand",
+            "sweep",
+            "plating"
+          ]
+        },
+        {
+          "level": 4,
+          "offers": [
+            "heavy",
+            "ability:bulwark_iron_charge",
+            "ability:bulwark_ground_slam",
+            "ironhide"
+          ]
+        },
+        {
+          "level": 5,
+          "offers": [
+            "ability:bulwark_provoke",
+            "reach",
+            "ability:bulwark_iron_charge",
+            "ironhide"
+          ]
+        },
+        {
+          "level": 6,
+          "offers": [
+            "vitality",
+            "ability:bulwark_iron_charge",
+            "boots",
+            "ability:bulwark_echo_slam"
+          ]
+        },
+        {
+          "level": 7,
+          "offers": [
+            "vitality",
+            "ability:bulwark_shockwave_strike",
+            "ironhide",
+            "ability:bulwark_ground_slam"
+          ]
+        }
+      ],
+      "levels_simulated": 6
+    },
+    {
+      "distinct_upgrades_offered": 15,
+      "hero": "cinder",
+      "level_rows": [
+        {
+          "level": 2,
+          "offers": [
+            "ability:cinder_magma_armor",
+            "chain",
+            "heavy",
+            "ability:cinder_fiery_assault"
+          ]
+        },
+        {
+          "level": 3,
+          "offers": [
+            "ember_sprite",
+            "vitality",
+            "ability:cinder_pillar_of_flame",
+            "ability:cinder_firebomb"
+          ]
+        },
+        {
+          "level": 4,
+          "offers": [
+            "heat_gust",
+            "rapid",
+            "ability:cinder_dragon_fire",
+            "ability:cinder_pillar_of_flame"
+          ]
+        },
+        {
+          "level": 5,
+          "offers": [
+            "frost_drone",
+            "ability:cinder_dragon_fire",
+            "ability:cinder_heat_surge",
+            "rapid"
+          ]
+        },
+        {
+          "level": 6,
+          "offers": [
+            "nova_core",
+            "ability:cinder_heat_surge",
+            "ability:cinder_fiery_assault",
+            "chain"
+          ]
+        },
+        {
+          "level": 7,
+          "offers": [
+            "ability:cinder_ignite",
+            "ember_sprite",
+            "rapid",
+            "ability:cinder_dragon_fire"
+          ]
+        }
+      ],
+      "levels_simulated": 6
+    },
+    {
+      "distinct_upgrades_offered": 15,
+      "hero": "volt",
+      "level_rows": [
+        {
+          "level": 2,
+          "offers": [
+            "rapid",
+            "shield_drone",
+            "ability:volt_amp_field",
+            "ability:volt_gust"
+          ]
+        },
+        {
+          "level": 3,
+          "offers": [
+            "heavy",
+            "chain",
+            "ability:volt_plasma_bolt",
+            "ability:volt_amp_field"
+          ]
+        },
+        {
+          "level": 4,
+          "offers": [
+            "ability:volt_wind_shield",
+            "ability:volt_wind_control",
+            "gale_push",
+            "spark_sprite"
+          ]
+        },
+        {
+          "level": 5,
+          "offers": [
+            "ability:volt_static_drain",
+            "chain",
+            "vitality",
+            "ability:volt_electroshock"
+          ]
+        },
+        {
+          "level": 6,
+          "offers": [
+            "gale_push",
+            "ability:volt_wind_control",
+            "chain",
+            "ability:volt_gust"
+          ]
+        },
+        {
+          "level": 7,
+          "offers": [
+            "ability:volt_amp_field",
+            "fortress",
+            "vitality",
+            "ability:volt_gust"
+          ]
+        }
+      ],
+      "levels_simulated": 6
+    },
+    {
+      "distinct_upgrades_offered": 16,
+      "hero": "rime",
+      "level_rows": [
+        {
+          "level": 2,
+          "offers": [
+            "frost_drone",
+            "gale_push",
+            "ability:rime_thaw",
+            "ability:rime_frozen_ward"
+          ]
+        },
+        {
+          "level": 3,
+          "offers": [
+            "ability:rime_frozen_ward",
+            "ability:rime_chilling_touch",
+            "vitality",
+            "rime"
+          ]
+        },
+        {
+          "level": 4,
+          "offers": [
+            "spark_sprite",
+            "ability:rime_cold_rush",
+            "ability:rime_cleave",
+            "depth"
+          ]
+        },
+        {
+          "level": 5,
+          "offers": [
+            "depth",
+            "heavy",
+            "ability:rime_winters_grasp",
+            "ability:rime_cold_rush"
+          ]
+        },
+        {
+          "level": 6,
+          "offers": [
+            "depth",
+            "ability:rime_winters_grasp",
+            "ability:rime_frozen_ward",
+            "heavy"
+          ]
+        },
+        {
+          "level": 7,
+          "offers": [
+            "ability:rime_freezing_field",
+            "heavy",
+            "split_shot",
+            "ability:rime_glacier_blast"
+          ]
+        }
+      ],
+      "levels_simulated": 6
+    },
+    {
+      "distinct_upgrades_offered": 16,
+      "hero": "thorn",
+      "level_rows": [
+        {
+          "level": 2,
+          "offers": [
+            "vine_tether",
+            "overclock",
+            "ability:thorn_toxin_ward",
+            "ability:thorn_bramble_dash"
+          ]
+        },
+        {
+          "level": 3,
+          "offers": [
+            "lash",
+            "ability:thorn_toxin_ward",
+            "ability:thorn_ambush",
+            "vitality"
+          ]
+        },
+        {
+          "level": 4,
+          "offers": [
+            "ability:thorn_spore_burst",
+            "echo_shot",
+            "ability:thorn_venom_strike",
+            "heavy"
+          ]
+        },
+        {
+          "level": 5,
+          "offers": [
+            "ability:thorn_toxicity",
+            "thorn_sprite",
+            "ability:thorn_ambush",
+            "flow"
+          ]
+        },
+        {
+          "level": 6,
+          "offers": [
+            "vitality",
+            "ability:thorn_bramble_dash",
+            "heavy",
+            "ability:thorn_poison_burst"
+          ]
+        },
+        {
+          "level": 7,
+          "offers": [
+            "ability:thorn_vine_lash",
+            "vitality",
+            "ability:thorn_poison_burst",
+            "thorn_sprite"
+          ]
+        }
+      ],
+      "levels_simulated": 6
+    },
+    {
+      "distinct_upgrades_offered": 15,
+      "hero": "nebula",
+      "level_rows": [
+        {
+          "level": 2,
+          "offers": [
+            "ability:nebula_meteor_shower",
+            "gale_push",
+            "double_tap",
+            "ability:nebula_emp"
+          ]
+        },
+        {
+          "level": 3,
+          "offers": [
+            "vitality",
+            "spark_sprite",
+            "ability:nebula_chronofield",
+            "ability:nebula_meteor_shower"
+          ]
+        },
+        {
+          "level": 4,
+          "offers": [
+            "rapid",
+            "ability:nebula_void_rift",
+            "ability:nebula_curse_of_ages",
+            "boots"
+          ]
+        },
+        {
+          "level": 5,
+          "offers": [
+            "heavy",
+            "ability:nebula_blink",
+            "volley",
+            "ability:nebula_arcane_bolt"
+          ]
+        },
+        {
+          "level": 6,
+          "offers": [
+            "boots",
+            "ability:nebula_chronofield",
+            "ability:nebula_void_rift",
+            "gale_push"
+          ]
+        },
+        {
+          "level": 7,
+          "offers": [
+            "ability:nebula_void_rift",
+            "gale_push",
+            "ability:nebula_emp",
+            "spark_sprite"
+          ]
+        }
+      ],
+      "levels_simulated": 6
+    }
+  ],
+  "scene": "upgrade_diversity_test",
+  "verdict": "PASS"
+}

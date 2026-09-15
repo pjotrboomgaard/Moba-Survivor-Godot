@@ -1,0 +1,9 @@
+{
+  "test_name": "upgrade_diversity",
+  "hero": "tobor",
+  "comment": "T3.10: verify level-up offers are diversified (3-4 distinct per level) across 8 heroes.",
+  "events": [
+    {"t": 0.5, "kind": "report"}
+  ],
+  "wait_ms": 5000
+}
