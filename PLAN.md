@@ -1237,8 +1237,23 @@ Tobor style."
 - [ ] **REMOVE Frostbinder hero completely** from the game (see T3.29).
 - [ ] Redo all 16 (post-Frostbinder-removal = 15) hero body + cover sprites
       via `tools/sprite_art.gd` grids + pipeline; bake via `sprite_forge`.
-- [ ] Isolated verify: `hero_sprites_test` scene re-runs, every hero reads at
+- [x] Isolated verify: `hero_sprites_test` scene re-runs, every hero reads at
       the Tobor detail level; screenshot committed.
+      _STATUS (2026-09-16): All 12 non-robot hero body grids redesigned via
+      `tools/gen_hero_grids.py` (fire→elemental, verdant→creature,
+      storm→refined; 2-tone shading + facing variants). 4 robot heroes
+      (arclight/bulwark/warden/tobor) unchanged. 1093 PNGs re-baked via
+      `sprite_forge`. Full 6-step pipeline complete:
+      1. iso_before_heroes.png (old sprites, restored from HEAD + clean .ctex reimport)
+      2. iso_after_heroes.png (new sprites, re-baked + clean .ctex reimport)
+      3. diff_iso_heroes.png — 7.81% changed, bbox covers all 12 non-robot hero
+         positions; 4 robot positions show ZERO diff (exactly as intended).
+      4. ingame_before_repr3.png (3-hero roster cinder/thorn/volt in live arena, old sprites)
+      5. ingame_after_repr3.png (same roster, new sprites) + ingame_after_zoom.png
+      6. diff_ingame_repr3.png — 0.97% changed, concentrated at the 3 hero
+         positions in the live arena.
+      All screenshots in `tools/selftest/results/hero_art_redesign/`. Committed
+      2026-09-16 (commit 8d19730). _
 
 ### T3.30 Blue-wisp-on-movement still broken — isolate a moving bot
 **User direction (2026-09-12):** "Movement with the blue sprite is not fixed yet.
