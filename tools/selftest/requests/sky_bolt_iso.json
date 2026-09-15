@@ -1,0 +1,8 @@
+{
+  "scene": "res://scenes/sky_bolt_test/sky_bolt_test.tscn",
+  "hero": "arclight",
+  "comment": "T3.95 isolated: verify Arclight sky-bolt VFX + persistent electric field",
+  "events": [
+    {"t": 5.0, "kind": "report"}
+  ]
+}

@@ -1,0 +1,28 @@
+{
+	"bolt_points": 4,
+	"bolt_spawned": true,
+	"field_duration": 8.0,
+	"field_radius": 170.0,
+	"field_spawned": true,
+	"shot_iso_a_bolt": "user://sky_bolt_iso_a_bolt.png",
+	"shot_iso_a_bolt_late": "user://sky_bolt_iso_a_bolt_late.png",
+	"shot_iso_b_field": "user://sky_bolt_iso_b_field.png",
+	"shots": [
+		{
+			"label": "iso_a_bolt",
+			"path": "user://sky_bolt_iso_a_bolt.png"
+		},
+		{
+			"label": "iso_a_bolt_late",
+			"path": "user://sky_bolt_iso_a_bolt_late.png"
+		},
+		{
+			"label": "iso_b_field",
+			"path": "user://sky_bolt_iso_b_field.png"
+		}
+	],
+	"user_dir_iso_a_bolt": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/sky_bolt_iso_a_bolt.png",
+	"user_dir_iso_a_bolt_late": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/sky_bolt_iso_a_bolt_late.png",
+	"user_dir_iso_b_field": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors/sky_bolt_iso_b_field.png",
+	"verdict": "PASS"
+}

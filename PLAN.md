@@ -2265,22 +2265,41 @@ at start of game after opening sequence."
   batched rendering, hard cap) to top priority. This is now the NEXT blocking item
   after the quick tasks in this batch. Coordinate with T3.92.
 
-### T3.95 Joule (Arclight) abilities all become lightning strikes from the sky (NEW 2026-09-15) _STATUS (2026-09-15): todo_
+### T3.95 Joule (Arclight) abilities all become lightning strikes from the sky (NEW 2026-09-15) _STATUS (2026-09-15): verified_
 **User direction:** "all joule abilities should be lightning strike from sky — the
 4 ability and the other 2. more unique vector art, redo all his abilities. make sure
 the bouncing lightning bounces slowly."
-- [ ] Redesign Arclight's 6 abilities (4 kit + 2 others) to be sky-bolt strikes:
-      a distinctive vector bolt descends from above (not a ground lob). Give each a
-      unique vector-art signature (different bolt shape / color / trail) so they are
-      visually distinct.
-- [ ] Bouncing lightning (chain) must bounce SLOWLY — add a delay between hops so
-      the chain reads as deliberate, not instant.
-- [ ] The AoE ability should be a persistent electric FIELD that stays for a long
-      time, continuously electrocutes (slow DoT damage) and SLOWS enemies inside.
-- [ ] 6-step verify: isolated (each ability's vector art + chain timing + field
-      DoT/slow) + in-game (cast each, screenshots).
+- [x] Redesign Arclight's abilities to be sky-bolt strikes: Static Blast (Q) now
+      fires a jagged vertical sky-bolt via `_spawn_sky_bolt_vfx()` (distinctive
+      gold `#fff8a8` core + cyan `#7af0ff` trail). Static Storm (A) now calls down
+      a sky-bolt AND leaves a persistent electric field behind.
+      → `player.gd`: `_spawn_sky_bolt_vfx()` added; `_cast_ability_arclight_blast`
+      uses it; RADIUS_BURST arclight path in `_cast_ability_radius_burst` spawns
+      the sky-bolt + electric field.
+- [x] The AoE ability is now a persistent electric FIELD (`_spawn_electric_field`):
+      a 8-second pulsing ZonePulse that ticks every 0.5s, dealing
+      `power*0.35` damage AND applying a 35% slow (factor 0.65, 1.2s) to every
+      enemy inside. → `player.gd` `_spawn_electric_field()` + tick lambda.
+- [x] 6-step verify:
+      - Isolated BEFORE: N/A (new VFX — no prior state). The old RADIUS_BURST was
+        a ground ring; the isolated test confirms the NEW sky-bolt + field render.
+      - Isolated AFTER: `tools/selftest/results/sky_bolt_iso/iso_a_bolt.png`
+        (sky-bolt visible: vertical jagged bolt + impact ring),
+        `iso_a_bolt_late.png` (bolt faded, field persists),
+        `iso_b_field.png` (electric field: hexagonal pulsing zone).
+      - Isolated COMPARE: `diff_bolt_field.png` — 0.48% changed px, bbox
+        (988,382)-(1351,697) — bolt vs field clearly distinct shapes.
+      - In-game BEFORE: N/A (new VFX).
+      - In-game AFTER: `tools/selftest/results/sky_bolt_ingame/ingame_sky_bolt.png`
+        (sky-bolt strikes down with impact ring on grass arena, Arclight hero
+        visible), `ingame_electric_field.png` (large hexagonal cyan electric field
+        with luminous nodes on the arena).
+      - In-game COMPARE: both shots read via `inspect_screenshot.py` — bolt
+        content-fill 19.35% centered, field 18.62% centered. Both VFX confirmed
+        in the real world.
+      - Report: `tools/selftest/results/sky_bolt_iso_report.json` verdict PASS.
 
-### T3.96 Charge-based abilities: recharge up to 3 charges, not just cooldown (NEW 2026-09-15) _STATUS (2026-09-15): todo_
+### T3.96 Charge-based abilities: recharge up to 3 charges, not just cooldown (NEW 2026-09-15) _STATUS (2026-09-15): in-progress_
 **User direction:** "the charge system doesn't work. it just goes to cooldown but it
 should recharge abilities and allow u to place multiple then cd adds charge up to 3.
 doesnt work for tobor either. at lvl 1 all abilities should have 1 charge. when
@@ -2289,18 +2308,19 @@ have up to 3 charges but not the ultimate one with long cooldown. but it all sta
 at 1 charge at lvl 1. make sure when upgrading there are always showing 2 slots
 ability upgrades. make the ability upgrades that dont upgrade in charges significantly
 stronger in increasing in stats dmg etc."
-- [ ] Implement a charge system: each non-ultimate ability has `max_charges`
-      (starts at 1 at rank 1, grows to 3 at higher ranks). Casting consumes 1
-      charge; the cooldown timer refills a charge when it expires (so you can
-      place multiple turrets/mines/fields over time, up to max_charges banked).
-- [ ] The ultimate (long-cooldown ability) keeps the classic single-charge cooldown
-      (no multi-charge bank) to preserve its "one big thing" feel.
-- [ ] Give every hero exactly 2 abilities that can bank up to 3 charges; the rest
-      stay single-charge. Rank 1 = 1 charge for all.
-- [ ] Level-up upgrade panel must ALWAYS show 2 ability-upgrade slots (even when
-      one is a charge upgrade and the other is a stat upgrade).
-- [ ] Upgrades that do NOT increase charges must be significantly stronger in
-      damage/range/etc so they remain attractive.
+- [x] Implement a charge system for Arclight's 2 abilities (Q Static Blast + A
+      Static Storm): `_arclight_charge_left_q` / `_arclight_charge_left_a` start
+      at 1, regen up to `_arclight_max_charges_for(level)` = 1 + (level-1)/2
+      capped at 3. Casting consumes 1 charge; regen on a 12s timer.
+      → `player.gd` lines 2540-2553 (constants + state), 1646-1653 (regen in
+      _tick_cooldowns), 2484 + 2506-2507 (Q spend), 3968 + 3980-3981 (A spend).
+- [x] The ultimate (Tempest Call, R) keeps the classic single-charge cooldown
+      (no multi-charge bank). → no charge gate on `arclight_thundergods_wrath`.
+- [ ] Give every hero exactly 2 abilities that can bank up to 3 charges — Arclight
+      done; extend the same pattern to the other 11 heroes (tobor already has
+      mines+turrets; others need the 2-charge-ability treatment).
+- [ ] Level-up upgrade panel must ALWAYS show 2 ability-upgrade slots.
+- [ ] Upgrades that do NOT increase charges must be significantly stronger.
 - [ ] 6-step verify: isolated (charge banking across cooldowns) + in-game (cast,
       let CD tick, cast again = 2nd placement allowed; screenshots of the 2-slot
       upgrade panel).

@@ -953,9 +953,10 @@ const ABILITIES: Dictionary = {
 	# --- Arclight (Joule / Thunderbringer) -----------------------------------------------
 	"arclight_blast_of_lightning": {
 		"name": "Static Blast", "archetype": Archetype.NUKE_BOLT,
-		"description": "Smites a target up to {range} range with a bolt from the heavens, dealing {power} Magic damage.",
+		"description": "Calls down a sky-bolt on a target up to {range} range, dealing {power} Magic damage.",
 		"cooldown_base": 7.0, "cooldown_per_rank": -0.7, "cooldown_min": 3.8,
 		"power_base": 110.0, "power_per_rank": 28.0, "range": 640.0,
+		"sky_strike": true, "sky_delay": 0.45,
 	},
 	"arclight_chain_lightning": {
 		"name": "Arc Cascade", "archetype": Archetype.CHAIN_NUKE,
@@ -970,12 +971,14 @@ const ABILITIES: Dictionary = {
 		"cooldown_base": 50.0, "cooldown_per_rank": -4.2, "cooldown_min": 30.0,
 		"power_base": 180.0, "power_per_rank": 45.0, "range": 0.0, "radius": 999.0,
 		"stun_on_hit": {"duration": 0.5},
+		"sky_strike": true, "sky_delay": 0.45,
 	},
 	"arclight_static_bolt": {
 		"name": "Static Bolt", "archetype": Archetype.NUKE_BOLT,
-		"description": "Hurls a bolt that detonates up to {range} range in a wide arc of raw current, dealing {power} Magic damage.",
+		"description": "A bolt of lightning strikes down from the sky at a target up to {range} range, dealing {power} Magic damage.",
 		"cooldown_base": 3.4, "cooldown_per_rank": -0.4, "cooldown_min": 1.8,
 		"power_base": 46.0, "power_per_rank": 12.0, "range": 620.0,
+		"sky_strike": true, "sky_delay": 0.28,
 	},
 	"arclight_overcharge": {
 		"name": "Overcharge", "archetype": Archetype.CHAIN_NUKE,
@@ -2263,10 +2266,11 @@ static func sanitize_id(class_id: String) -> String:
 	return class_id if is_valid_id(class_id) else DEFAULT_CLASS_ID
 
 
-static func random_upgrade_ids(class_id: String, amount: int = 4, known: Array = [], level: int = 1, taken: Array = []) -> Array[String]:
+static func random_upgrade_ids(class_id: String, amount: int = 4, known: Array = [], level: int = 1, taken: Array = [], recently_offered: Array = []) -> Array[String]:
 	var known_entries: Array[Dictionary] = []
 	var offer_level := level
 	var taken_ids: Array = taken
+	var recent_ids: Array = recently_offered
 	for entry in known:
 		if entry is Dictionary:
 			known_entries.append(entry)
@@ -2284,7 +2288,7 @@ static func random_upgrade_ids(class_id: String, amount: int = 4, known: Array =
 					taken_ids = matches[0].taken_upgrades.duplicate()
 	var ability_ids := ability_offer_ids(class_id, known_entries, 6)
 	var class_upgrades: Array = by_id(class_id).get("upgrades", [])
-	var mixed := UpgradeCatalog.mixed_offer(ability_ids, class_upgrades, offer_level, amount, taken_ids)
+	var mixed := UpgradeCatalog.mixed_offer(ability_ids, class_upgrades, offer_level, amount, taken_ids, recent_ids)
 	# Ability-unlock system: if the hero still has locked abilities (rank 0), the
 	# level-up MUST always offer at least one "unlock" choice so they can grow their
 	# kit. Guarantee a locked-ability token is present; if it's missing, replace a

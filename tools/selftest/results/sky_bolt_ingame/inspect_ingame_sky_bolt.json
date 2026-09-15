@@ -1,0 +1,33 @@
+{
+  "source": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\sky_bolt_ingame\\ingame_sky_bolt.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.1935,
+  "bounding_box": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.195,
+    "TR": 0.2659,
+    "BL": 0.1926,
+    "BR": 0.3465
+  },
+  "edge_fractions": {
+    "top": 0.0055,
+    "bottom": 0.0062,
+    "left": 0.0034,
+    "right": 0.0091
+  },
+  "thumbnail": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\sky_bolt_ingame\\thumb_ingame_sky_bolt.png"
+}

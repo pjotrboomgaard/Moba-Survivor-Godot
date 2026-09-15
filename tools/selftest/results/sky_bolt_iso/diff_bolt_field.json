@@ -1,0 +1,15 @@
+{
+  "before": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\sky_bolt_iso\\iso_a_bolt.png",
+  "after": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\sky_bolt_iso\\iso_b_field.png",
+  "out": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\sky_bolt_iso\\diff_bolt_field.png",
+  "changed_pixels": 10055,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.004849,
+  "bbox": [
+    988,
+    382,
+    1351,
+    697
+  ],
+  "has_change": true
+}

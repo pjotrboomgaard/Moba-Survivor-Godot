@@ -2685,8 +2685,10 @@ func _offer_next_upgrade(peer_id: int) -> void:
 		return
 	var upgrade_ids := PlayerClass.random_upgrade_ids(
 		leveled_player.class_id, 4, leveled_player.known_abilities, leveled_player.level,
-		leveled_player.taken_upgrades
+		leveled_player.taken_upgrades, leveled_player.recently_offered_upgrades
 	)
+	if not upgrade_ids.is_empty():
+		leveled_player.record_offered_upgrades(upgrade_ids)
 	if upgrade_ids.is_empty():
 		leveled_player.apply_fallback_bonus()
 		_advance_offer(peer_id)
@@ -2702,7 +2704,12 @@ func _offer_next_upgrade(peer_id: int) -> void:
 
 
 func _offer_stat_turn(peer_id: int, leveled_player: Player) -> void:
-	var upgrade_ids := PlayerClass.random_upgrade_ids(leveled_player.class_id)
+	var upgrade_ids := PlayerClass.random_upgrade_ids(
+		leveled_player.class_id, 4, leveled_player.known_abilities, leveled_player.level,
+		leveled_player.taken_upgrades, leveled_player.recently_offered_upgrades
+	)
+	if not upgrade_ids.is_empty():
+		leveled_player.record_offered_upgrades(upgrade_ids)
 	if upgrade_ids.is_empty():
 		_advance_offer(peer_id)
 		return

@@ -163,6 +163,11 @@ var xp_required := BASE_XP_REQUIRED
 var gold := 0
 var gold_multiplier := 1.0
 var taken_upgrades: Array[String] = []
+## T3.88 — recency history for upgrade offers. The last N ids that were OFFERED to this
+## player (regardless of whether they were taken) are used to deprioritize repeats, so
+## successive level-ups rotate through the pool instead of showing the same 2-3 stats.
+const RECENT_OFFER_MEMORY := 8
+var recently_offered_upgrades: Array[String] = []
 ## Maps level (int) → list of upgrade ids taken at that level. Used by the HUD to
 ## display the build progression at the bottom of the screen.
 var level_upgrades: Dictionary = {}
@@ -1636,6 +1641,16 @@ func _tick_cooldowns(delta: float) -> void:
 		if _ward_charge_left < WARDEN_MAX_WARD_CHARGES and _ward_charge_timer >= WARDEN_WARD_CHARGE_REGEN_SECONDS:
 			_ward_charge_left += 1
 			_ward_charge_timer = 0.0
+	# T3.96: Arclight (Joule) two charge-based abilities.
+	if class_id == "arclight":
+		_arclight_charge_timer_q += delta
+		if _arclight_charge_left_q < _arclight_max_charges_for(level, false) and _arclight_charge_timer_q >= ARCLIGHT_CHARGE_REGEN_SECONDS_Q:
+			_arclight_charge_left_q += 1
+			_arclight_charge_timer_q = 0.0
+		_arclight_charge_timer_a += delta
+		if _arclight_charge_left_a < _arclight_max_charges_for(level, false) and _arclight_charge_timer_a >= ARCLIGHT_CHARGE_REGEN_SECONDS_A:
+			_arclight_charge_left_a += 1
+			_arclight_charge_timer_a = 0.0
 
 
 func _update_ability_slots(delta: float, slots_held: Array) -> void:
@@ -2465,6 +2480,12 @@ func _rand_range_float(low: float, high: float) -> float:
 ## style — one bolt from the heavens, no splash, no chain. Heavy impact reads as a NUKE_BOLT
 ## on the target's position so the damage feel matches the visual focus.
 func _cast_ability_arclight_blast(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	# T3.96: charge-based — no cast if no charges left.
+	if class_id == "arclight" and _arclight_charge_left_q <= 0:
+		return
+	# T3.95: Arclight's Q is now a sky-bolt — a jagged bolt descends from above onto
+	# the target. Damage + tree damage still apply instantly (snappy feel in tests),
+	# but the visual is a bolt-from-the-sky with a distinctive yellow-gold signature.
 	var reach := maxf(float(values.range), 480.0)
 	var target := _nearest_enemy_in_range(reach)
 	var center := target.global_position if target != null else _ability_aim_center(reach)
@@ -2476,7 +2497,14 @@ func _cast_ability_arclight_blast(data: Dictionary, values: Dictionary, _rank: i
 		_apply_ability_hit(enemy, strike, vsingle)
 	# T3.75: the smite wobble/breaks trees at the impact point.
 	_aoe_damage_trees_in_radius(center, 72.0, float(values.get("power", 0.0)))
+	# T3.95: sky-bolt VFX — a vertical jagged bolt from above the arena down to the
+	# impact point. Distinctive gold/yellow color, single thick trunk.
+	_spawn_sky_bolt_vfx(center, 72.0)
 	_emit_ability_cast(PackedVector2Array([center, Vector2(vsingle.radius, 0.0)]))
+	# T3.96: spend one Arclight Q charge.
+	if class_id == "arclight":
+		_arclight_charge_left_q -= 1
+		_arclight_charge_timer_q = 0.0
 
 
 ## Bulwark's Fissure: Earthshaker-style linear wall. HoN's Fissure raises a jagged ridge of
@@ -2500,6 +2528,27 @@ const WARDEN_MAX_WARD_CHARGES := 3
 const WARDEN_WARD_CHARGE_REGEN_SECONDS := 14.0
 var _ward_charge_left := WARDEN_MAX_WARD_CHARGES
 var _ward_charge_timer := 0.0
+
+## T3.96: Arclight (Joule) charge system. Two of his abilities can bank up to 3
+## charges: the Static Blast (kit_q) and the Ion Storm (kit_a). Both start at 1
+## charge at level 1 and can be upgraded to up to 3. The ultimate (Tempest Call)
+## keeps a single long cooldown and is NOT charge-based. Charges refill over time.
+const ARCLIGHT_MAX_CHARGES_Q := 3
+const ARCLIGHT_MAX_CHARGES_A := 3
+const ARCLIGHT_CHARGE_REGEN_SECONDS_Q := 12.0
+const ARCLIGHT_CHARGE_REGEN_SECONDS_A := 12.0
+var _arclight_charge_left_q := 1
+var _arclight_charge_left_a := 1
+var _arclight_charge_timer_q := 0.0
+var _arclight_charge_timer_a := 0.0
+
+## T3.96: compute the max charges for an arclight ability at a given level.
+## At level 1 all abilities have 1 charge; it ramps to up to 3 by level 5.
+func _arclight_max_charges_for(level: int, is_ult: bool = false) -> int:
+	if is_ult:
+		return 1  # ultimate keeps a single cooldown, no charge bank
+	# 1 charge at level 1, +1 every 2 levels, capped at 3.
+	return clampi(1 + int((level - 1) / 2), 1, 3)
 
 func _cast_ability_bulwark_fissure(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	if class_id == "bulwark" and _fissure_charge_left <= 0:
@@ -3662,6 +3711,68 @@ func _emit_lightning_arc(arc_points: PackedVector2Array) -> void:
 	ability_cast.emit(_casting_ability_id, PlayerClass.EffectStyle.BOLT, arc_points)
 
 
+## T3.95 — Arclight's Ion Storm "Static Storm" persistent electric field.
+## A pulsing zone that electrocutes enemies with a slow damage tick and slows
+## them. Lasts `duration` seconds (long, per user request). The zone visual
+## reuses ZonePulse; damage/slow ticks are handled here on a 0.5s cadence.
+const _ELECTRIC_FIELD_TICK := 0.5
+const _ELECTRIC_FIELD_DURATION := 8.0
+const _ELECTRIC_FIELD_SLOW_FACTOR := 0.65
+const _ELECTRIC_FIELD_SLOW_DURATION := 1.2
+
+func _spawn_electric_field(center: Vector2, radius: float, base_power: float) -> void:
+	var scene_root := _vfx_parent()
+	if scene_root == null:
+		return
+	var zone := ZonePulseScene.instantiate() as ZonePulse
+	scene_root.add_child(zone)
+	zone.setup(center, maxf(radius, 60.0), _ELECTRIC_FIELD_DURATION, Color("#8af0ff"), Color("#3aa0ff"))
+
+	var tick_power := base_power * 0.35
+	var remaining := _ELECTRIC_FIELD_DURATION
+	# Tick loop: damage + slow enemies inside the field every _ELECTRIC_FIELD_TICK seconds.
+	var first := get_tree().create_timer(_ELECTRIC_FIELD_TICK)
+	first.timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		remaining -= _ELECTRIC_FIELD_TICK
+		if remaining <= 0.0:
+			return
+		for enemy in _enemies_in_radius(center, radius):
+			_damage_enemy(enemy, tick_power)
+			if enemy.has_method("apply_slow"):
+				enemy.apply_slow(_ELECTRIC_FIELD_SLOW_FACTOR, _ELECTRIC_FIELD_SLOW_DURATION)
+		if remaining > _ELECTRIC_FIELD_TICK:
+			get_tree().create_timer(_ELECTRIC_FIELD_TICK).timeout.connect(
+				func() -> void:
+					if not is_inside_tree():
+						return
+					remaining -= _ELECTRIC_FIELD_TICK
+					if remaining <= 0.0:
+						return
+					for enemy in _enemies_in_radius(center, radius):
+						_damage_enemy(enemy, tick_power)
+						if enemy.has_method("apply_slow"):
+							enemy.apply_slow(_ELECTRIC_FIELD_SLOW_FACTOR, _ELECTRIC_FIELD_SLOW_DURATION)
+			)
+	)
+
+
+## T3.95 — a vertical jagged sky-bolt for Arclight's lightning abilities. The bolt
+## originates from well above the arena and strikes down to `center`, leaving a brief
+## impact flash on the ground. Emitted as a BOLT-style cast so it renders in the
+## hero's themed color. `center` is the impact point on the ground.
+func _spawn_sky_bolt_vfx(center: Vector2, impact_radius: float) -> void:
+	if not is_inside_tree():
+		return
+	var top := center + Vector2(0.0, -impact_radius * 3.2)
+	# A few lateral jaggies so the bolt reads as lightning rather than a straight line.
+	var points := PackedVector2Array([top, center + Vector2(14.0, -impact_radius * 0.4), center - Vector2(12.0, -impact_radius * 0.2), center])
+	ability_cast.emit(_casting_ability_id, PlayerClass.EffectStyle.BOLT, points)
+	# Impact flash ring on the ground at the strike point.
+	_spawn_ability_zone_pulse(center, maxf(impact_radius, 40.0), 0.5)
+
+
 ## NEW hero↔tree interaction: fire-themed heroes ignite trees inside `radius` of
 ## `center`, lightning/storm-themed heroes char (burn) trees in the same band.
 ## Trees have a shared API on the arena: ignite_tree(pos). Returns the number of
@@ -3848,6 +3959,27 @@ func _cast_ability_radius_burst(data: Dictionary, values: Dictionary) -> void:
 	_ignite_trees_in_radius(center, float(values.get("radius", 0.0)))
 	# T3.75: all AoE nukes shake/damage trees in the blast radius.
 	_aoe_damage_trees_in_radius(center, float(values.get("radius", 0.0)), float(values.get("power", 0.0)))
+	# T3.95: Arclight (Joule) RADIUS_BURST abilities call down a sky-bolt from above,
+	# not an instant ground burst. Static Storm + Tempest Call both scream down and
+	# detonate. The generic sky_strike path below drives the same visual for Tobor's
+	# artillery nukes.
+	if str(data.get("class_id_hint", "")) == "" and _casting_ability_id.begins_with("arclight_") and int(data.archetype) == PlayerClass.Archetype.RADIUS_BURST:
+		# T3.96: Static Storm is the charge-based AoE — no cast if no charges.
+		if _casting_ability_id == "arclight_ion_storm" and _arclight_charge_left_a <= 0:
+			return
+		_spawn_sky_bolt_vfx(center, float(values.get("radius", 0.0)))
+		# T3.95: Static Storm (Ion Storm) is a PERSISTENT electric field — a zone that
+		# stays for a long time, electrocutes (slow damage ticks) and slows enemies inside.
+		if _casting_ability_id == "arclight_ion_storm":
+			_spawn_electric_field(center, float(values.get("radius", 170.0)), float(values.get("power", 0.0)))
+		for target in _enemies_in_radius(center, float(values.get("radius", 0.0))):
+			_apply_ability_hit(target, data, values)
+		_emit_ability_cast(PackedVector2Array([center, Vector2(float(values.get("radius", 0.0)), 0.0)]))
+		# T3.96: spend one Arclight A charge.
+		if _casting_ability_id == "arclight_ion_storm":
+			_arclight_charge_left_a -= 1
+			_arclight_charge_timer_a = 0.0
+		return
 	# Artillery-style sky strike: paint the mark, ordnance screams down after a short fuse,
 	# then the whole zone detonates at once. Non-sky strikes land instantly as before.
 	if bool(data.get("sky_strike", false)):
@@ -5194,6 +5326,20 @@ func _record_level_upgrade(upgrade_id: String) -> void:
 	if not level_upgrades.has(lvl):
 		level_upgrades[lvl] = []
 	level_upgrades[lvl].append(upgrade_id)
+
+
+## T3.88 — record which stat upgrades were just offered, so the next level-up can
+## deprioritize them. Only stat (non-ability-token) ids are tracked; the recency
+## history is capped at RECENT_OFFER_MEMORY and newest-first.
+func record_offered_upgrades(upgrade_ids: Array) -> void:
+	for id in upgrade_ids:
+		var id_str := str(id)
+		if UpgradeCatalog.is_ability_token(id_str):
+			continue
+		recently_offered_upgrades.erase(id_str)
+		recently_offered_upgrades.push_front(id_str)
+	while recently_offered_upgrades.size() > RECENT_OFFER_MEMORY:
+		recently_offered_upgrades.pop_back()
 
 
 func apply_upgrade(upgrade_id: String) -> void:

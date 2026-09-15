@@ -1,0 +1,12 @@
+{
+  "hero": "arclight",
+  "comment": "T3.95 in-game: Arclight Static Blast sky-bolt + Static Storm electric field. Spawn creep, cast Q (sky bolt) and A (field), capture VFX.",
+  "events": [
+    {"t": 4.0, "kind": "spawn", "type": "hound", "at": [300, 0]},
+    {"t": 4.5, "kind": "cast", "slot": 0, "aim": [300, 0]},
+    {"t": 4.7, "kind": "snap", "label": "ingame_sky_bolt"},
+    {"t": 7.0, "kind": "cast", "slot": 1, "aim": [300, 0]},
+    {"t": 7.4, "kind": "snap", "label": "ingame_electric_field"},
+    {"t": 8.5, "kind": "report"}
+  ]
+}

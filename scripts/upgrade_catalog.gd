@@ -292,9 +292,13 @@ static func ability_id_from(token: String) -> String:
 ## `recently_offered` is the set of stat upgrade ids already offered to this player
 ## in recent levels; range/arc upgrades in that set are penalised so the same
 ## "Long Haft / Wide Sweep" style stat does not dominate every offer.
-static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int, amount: int = 4, recently_offered: Array = []) -> Array[String]:
+static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int, amount: int = 4, recently_offered: Array = [], recent_history: Array = []) -> Array[String]:
 	var recent_set: Dictionary = {}
 	for id in recently_offered:
+		recent_set[str(id)] = true
+	# T3.88 — recency history (recently-offered ids, not just taken ones) is also
+	# penalized so the same 2-3 stats don't dominate successive level-ups.
+	for id in recent_history:
 		recent_set[str(id)] = true
 	var out: Array[String] = []
 	# Decide the rarity slots up front (stat slots only; ability token handled below).
@@ -340,19 +344,27 @@ static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int
 static func _pick_stat_for_rarity(class_upgrade_ids: Array, rarity: String, used: Dictionary, level: int, recent_set: Dictionary = {}) -> String:
 	var pool := _pool_for(class_upgrade_ids, rarity, level)
 	pool.shuffle()
-	# First pass: never pick a range/arc upgrade that was already offered recently.
+	# T3.88 — recency weighting: prefer ids that have NOT been offered recently
+	# (i.e. not in `recent_set`), across ALL ids, not just range/arc. This breaks
+	# the "keep offering the same stat" loop: a recently-offered id is still
+	# eligible, but only if every other candidate in the pool is also recent.
+	# First pass: pick a non-used, non-recent id.
 	for id in pool:
-		if not used.has(id) and not (recent_set.has(id) and RANGE_ARC_IDS.has(id)):
+		if not used.has(id) and not recent_set.has(id):
 			return id
-	# Second pass: if every candidate is a recently-offered range/arc stat, allow it
-	# rather than leaving the slot empty.
+	# Second pass: every candidate is recent — allow a recently-offered id rather
+	# than leaving the slot empty (but still avoid the `used` duplicates).
 	for id in pool:
 		if not used.has(id):
 			return id
-	# If this specific rarity pool was exhausted, fall back to common.
+	# If this specific rarity pool was exhausted, fall back to common (also applying
+	# the same recency preference).
 	if rarity != "common":
 		var fb := _pool_for(class_upgrade_ids, "common", level)
 		fb.shuffle()
+		for id in fb:
+			if not used.has(id) and not recent_set.has(id):
+				return id
 		for id in fb:
 			if not used.has(id):
 				return id
