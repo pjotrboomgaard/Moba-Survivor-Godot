@@ -1,0 +1,11 @@
+{
+  "test_name": "t367_phantom_probe",
+  "hero": "arclight",
+  "description": "T3.67: probe for phantom entities at map center in Pjotr solo mode.",
+  "events": [
+    {"t": 2.0, "kind": "map_center_probe", "radius": 250.0},
+    {"t": 4.0, "kind": "map_center_probe", "radius": 400.0},
+    {"t": 6.0, "kind": "report"}
+  ],
+  "wait_ms": 8000
+}

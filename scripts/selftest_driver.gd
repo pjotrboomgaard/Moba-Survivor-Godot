@@ -578,6 +578,35 @@ func _process(delta: float) -> void:
 				# T3.96: report the local hero's charge-based ability counts so a
 				# test can verify the charge system (bank, spend, regen).
 				_record_charge_probe(str(event.get("label", "charges")))
+			"set_night":
+				# T3.85: force WorldClock into the night window so a test can
+				# observe night visuals (red eyes, dark ambient) without waiting
+				# for the natural 210s day/night cycle to reach night.
+				var force_night: bool = bool(event.get("on", true))
+				WorldClock.time_of_day = 0.80 if force_night else 0.30
+				WorldClock._refresh()
+				WorldClock.revision += 1
+				_active_effects.append({"kind": "set_night", "on": force_night, "t": _elapsed, "is_night": WorldClock.is_night})
+			"map_center_probe":
+				# T3.67: list all nodes within a radius of the map center
+				# (origin) so a test can identify phantom entities that attract
+				# creeps. Reports node name, class, position, and distance.
+				var radius: float = float(event.get("radius", 200.0))
+				var entries := []
+				for node in get_tree().root.get_children():
+					if not (node is Node2D):
+						continue
+					var n2d := node as Node2D
+					var dist := n2d.global_position.length()
+					if dist > radius:
+						continue
+					entries.append({
+						"name": n2d.name,
+						"class": str(n2d.get_script().get_global_name()) if n2d.get_script() != null else str(n2d.get_class()),
+						"pos": [snappedf(n2d.global_position.x, 1.0), snappedf(n2d.global_position.y, 1.0)],
+						"dist": snappedf(dist, 1.0),
+					})
+				_active_effects.append({"kind": "map_center_probe", "radius": radius, "t": _elapsed, "nodes": entries, "count": entries.size()})
 			"tree_regrow_probe":
 				# T3.90: report the arena's tree-regrow state (stumps, cycles
 				# remaining, morph progress) for verification.
@@ -1410,8 +1439,13 @@ func _obstacle_count() -> int:
 ## can assert the reduced turret-HP value end-to-end.
 func _record_turret_probe(label: String) -> void:
 	var turrets := []
+	var dead_in_group := 0
 	for node in get_tree().get_nodes_in_group("turrets"):
 		if not is_instance_valid(node):
+			continue
+		# T3.91: count dead/queued turrets that are still in the group.
+		if not node.is_inside_tree():
+			dead_in_group += 1
 			continue
 		var h = node.get("health")
 		if h == null:
@@ -1422,7 +1456,7 @@ func _record_turret_probe(label: String) -> void:
 			"cur_hp": float(h.get("current_health", 0.0)),
 			"alive": not bool(h.get("is_dead", false)),
 		})
-	_active_effects.append({"kind": "turret_probe", "label": label, "t": _elapsed, "turrets": turrets})
+	_active_effects.append({"kind": "turret_probe", "label": label, "t": _elapsed, "turrets": turrets, "dead_in_group": dead_in_group})
 
 
 

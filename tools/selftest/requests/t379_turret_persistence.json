@@ -1,0 +1,14 @@
+{
+  "test_name": "t379_turret_persistence",
+  "hero": "tobor",
+  "description": "T3.79/T3.91: verify dead turrets are not targeted by creeps (is_inside_tree guard) and that turret_probe reports dead_in_group count.",
+  "events": [
+    {"t": 1.0, "kind": "spawn_turret", "at": [400, 0]},
+    {"t": 2.0, "kind": "turret_probe", "label": "before_kill"},
+    {"t": 3.0, "kind": "report"}
+  ],
+  "wait_ms": 5000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}

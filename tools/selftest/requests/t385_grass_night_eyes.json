@@ -1,0 +1,19 @@
+{
+  "test_name": "t385_grass_night_eyes",
+  "hero": "arclight",
+  "description": "T3.85: verify grass biome creeps show red eyes at night. Force night via set_night event, spawn grubs, screenshot day vs night.",
+  "biome": 0,
+  "events": [
+    {"t": 0.5, "kind": "spawn", "at": [120, 0], "type": "grunt"},
+    {"t": 0.5, "kind": "spawn", "at": [200, -80], "type": "grunt"},
+    {"t": 0.5, "kind": "spawn", "at": [-150, 100], "type": "swarmling"},
+    {"t": 1.0, "kind": "snap", "label": "day"},
+    {"t": 1.5, "kind": "set_night", "on": true},
+    {"t": 2.5, "kind": "snap", "label": "night"},
+    {"t": 3.5, "kind": "report"}
+  ],
+  "wait_ms": 5000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}

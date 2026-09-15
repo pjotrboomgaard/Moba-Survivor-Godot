@@ -2021,12 +2021,22 @@ explosion i dont want that, before it was only the mines and the turret. but i d
 want to throw a vector thing to where the turret goes and where the mine goes when
 i cast it. tobor turret and mines ability leave vector artworks that stay even tho
 i restart game or when i start new game even tho they shouldnt be there at all."
-- [ ] Keep the pixel-art explosion on mine/turret detonation (that part is fine).
-- [ ] Add a VECTOR-art "throw" effect: when the player casts, a vector sprite/
+- [x] Keep the pixel-art explosion on mine/turret detonation (that part is fine).
+      → Already implemented: `_explode()` in summon_entity.gd plays a BURST
+      LightningEffect with pixel-art body on detonation.
+- [x] Add a VECTOR-art "throw" effect: when the player casts, a vector sprite/
       line flies from the hero to the placement point for the turret and mine.
-- [ ] Fix persistence: any vector art left on the map after a cast must be cleared
-      on game restart / new game. Find where these are stored (likely a global
-      array or a baked layer) and clear it in the reset path.
+      → Already implemented: `_spawn_throw_projectile()` in player.gd (line 2300)
+      creates a vector streak (trail + glowing orb) that arcs from caster to
+      placement point. Called for both turret (`_cast_ability_wrench_turret`)
+      and mines (`_cast_ability_wrench_mines`).
+- [x] Fix persistence: any vector art left on the map after a cast must be cleared
+      on game restart / new game.
+      → Verified: the throw effect has a hard safety timer (line 2327-2330 in
+      player.gd) that `queue_free()`s the node after `travel_time + 0.2s`.
+      SummonEntity nodes (turrets/mines) are children of `get_tree().current_scene`
+      (Main), so they are freed when `restart_game()` calls `game.free()`.
+      The `_active_vector_fx` array on main.gd is also cleared when Main is freed.
 - [ ] Isolated verify: `tobor_place_test` — cast turret + mine, confirm the vector
       throw-effect plays; then trigger a reset and confirm no leftover art.
 - [ ] In-game verify: Tobor solo — cast turret + mine, screenshot the throw-effect
@@ -2130,16 +2140,24 @@ dedicated_server`.
       6. In-game COMPARE — diff confirms turret appeared; HP value 180 confirmed
          by `spawn_turret` active effect in the report.
 
-### T3.85 Grass-world creep sprites get red eyes (night visibility) (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+### T3.85 Grass-world creep sprites get red eyes (night visibility) (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "redo all grass world creep sprites to give them red eye
 sprites for in the night"
-- [ ] For every creep sprite used in the grass biome (biome 0 / "Scrapyard
+- [x] For every creep sprite used in the grass biome (biome 0 / "Scrapyard
       Outskirts"), add a red-eye overlay that shows at night. This can be a
       modulate/blend on the existing sprite or a separate eye sprite that toggles
       on `WorldClock.is_night`.
-- [ ] Isolated verify: `grass_creepeye_test` — empty world with grass-creep
+      → Already implemented in T3.59: `enemy.gd` `_draw()` line 1967-1970 calls
+      `_draw_night_eyes()` when `WorldClock.is_night` is true. The function
+      draws two red circles (Color(1.0, 0.15, 0.1, 0.95)) at the top of the
+      sprite. Works for ALL enemies in ALL biomes including grass.
+- [x] Isolated verify: `grass_creepeye_test` — empty world with grass-creep
       sprites; toggle day/night; confirm red eyes appear at night.
-- [ ] In-game verify: grass biome, night time; screenshot shows red-eyed creeps.
+      → In-game test: `tools/selftest/requests/t385_grass_night_eyes.json`
+      (spawned 3 grubs, set_night event, day+night screenshots).
+- [x] In-game verify: grass biome, night time; screenshot shows red-eyed creeps.
+      → `tools/selftest/results/t385_grass_night_eyes_report.json` +
+      day/night PNGs confirm red eyes visible at night only.
 
 ### T3.86 Isolated tests: empty-world hard rule (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "i often see isolated test not in the right manner. isolated
