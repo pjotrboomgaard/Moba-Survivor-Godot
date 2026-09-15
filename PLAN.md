@@ -2161,6 +2161,27 @@ sprites for in the night"
 - [x] In-game verify: grass biome, night time; screenshot shows red-eyed creeps.
       → `tools/selftest/results/t385_grass_night_eyes_report.json` +
       day/night PNGs confirm red eyes visible at night only.
+- [x] 2026-09-15 re-verify: sprite-based night variant approach. Generated
+      `*_night.png` for all 14 base + 4 biome × 14 biome-skinned variants
+      (56 files total) via `tools/add_creep_eyes.py`. Eyes baked into the
+      sprite texture (replacing dark eye pixels with bright red). `enemy.gd`
+      caches `_day_texture` and `_night_texture` and swaps via
+      `_update_night_sprite_tint()` on the `WorldClock.is_night` flip. At night,
+      `sprite.modulate = Color(3.0, 1.5, 1.2, 1.0)` boosts the red channel to
+      counteract the CanvasModulate night ambient (~0.38, 0.44, 0.58) so the
+      eyes "stick out" from the dimmed body. All 56 `.import` + `.ctex` files
+      generated via Godot headless `--import`.
+      → Isolated: `tools/selftest/results/grass_creepeye_iso/`
+        - iso_before: `day_before_0.90.png` — grunt with faint/dark eyes
+        - iso_after: `night_after_1.71.png` — grunt with bright red eyes
+        - diff: `diff_iso.png` — 0.73% pixel change, bbox around enemy
+      → In-game: `tools/selftest/results/t385_grass_night_eyes/`
+        - ingame_before: `day_1.001_4392.png` — creeps with dark eyes
+        - ingame_after: `night_2.503_5892.png` — creeps with red eyes
+        - diff: `diff_ingame.png` — 74% pixel change (night ambient dims all)
+      → Key fix: isolated test now spawns a real Player node so the grunt's
+        far-mode cull (which requires a nearby `Player` instance) does not
+        hide the sprite. Without this, the grunt was invisible in captures.
 
 ### T3.86 Isolated tests: empty-world hard rule (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "i often see isolated test not in the right manner. isolated
