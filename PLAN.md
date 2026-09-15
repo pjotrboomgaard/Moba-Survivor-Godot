@@ -228,6 +228,22 @@ repeating the same failing operation more than ~3 times; instead change
 approach or move to another task. Never stop to ask whether to continue —
 keep building and verifying until the plan is complete.
 
+### HARD RULE — Screenshots are the primary verification, never skippable (NEW 2026-09-15)
+The 6 screenshots (3 isolated + 3 in-game) are the AUTHORITATIVE proof that a
+change landed. No other evidence may replace them:
+- FPS / perf numbers, report-JSON verdicts, "expected_*" probe fields, and log
+  lines are SUPPLEMENTARY evidence — they are never a substitute for the
+  screenshots.
+- A code review, a parse check, or "I read the diff" is NOT verification.
+- "The change is obviously correct" / "the before state is obvious" is NOT a
+  valid reason to skip a capture.
+Every task — including performance, balance, and logic changes — MUST have both
+isolated AND in-game screenshots on disk, opened with the Read tool. If a step
+genuinely cannot be captured (e.g. a one-time first-launch behavior), state it
+explicitly in PLAN.md and capture the closest possible proxy — never silently
+drop the step. This pairs with the 6-step pipeline above: isolated first (steps
+1–3), then in-game (steps 4–6).
+
 ---
 
 ## P0 — CRITICAL (blocks everything)

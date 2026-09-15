@@ -40,6 +40,14 @@ There are no exceptions. Not for "small" tasks. Not for renames. Not for "the
 isolated test already exists". Not for "the in-game test is hard". Not for "I'm
 confident it works." Confidence is not evidence. Screenshots are.
 
+### HARD RULE — Numeric/perf/JSON evidence never substitutes for screenshots
+FPS counters, proc_ms, report JSON verdicts, "expected_*" probes, and log lines
+are SUPPLEMENTARY evidence — they are never a substitute for the 6 screenshots.
+A task that is a performance / balance / logic change still requires captured
+PNG screenshots (isolated + in-game, before/after/compare) proving the change
+landed in both worlds. If the only "evidence" you have is a number or a JSON
+field, the task is NOT verified. Capture the screenshots.
+
 ## THE 6 STEPS (exact order, all required)
 
 ## ISOLATED = EMPTY WORLD (HARD RULE)

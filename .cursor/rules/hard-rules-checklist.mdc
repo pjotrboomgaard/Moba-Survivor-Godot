@@ -5,6 +5,18 @@ alwaysApply: true
 
 # Hard Rules Verification Checklist — 6-STEP MANDATORY PIPELINE
 
+## HARD RULE — Screenshots are the PRIMARY verification, never skippable
+The 6 screenshots (3 isolated + 3 in-game) are the AUTHORITATIVE proof that a
+change landed. No other evidence may replace them:
+- FPS numbers / perf metrics / report JSON fields alone are NOT verification.
+- A code review, parse check, or "I read the diff" is NOT verification.
+- "The change is obviously correct" / "the before is obvious" is NOT a reason
+  to skip a capture.
+You MUST have isolated AND in-game screenshots on disk, read with the Read
+tool, for EVERY task. If a step genuinely cannot be captured (e.g. a one-time
+first-launch behavior), say so explicitly in PLAN.md and capture the closest
+possible proxy — never silently drop the step.
+
 Before marking ANY task as verified/complete, you MUST have a checklist entry
 for each of the following. If ANY box is unchecked, the task is NOT done.
 
