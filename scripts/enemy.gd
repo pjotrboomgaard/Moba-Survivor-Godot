@@ -1656,8 +1656,14 @@ func _find_nearest_player() -> Node2D:
 			best_score = score
 	# Turrets are damageable targetable units — creeps will prefer them over the player
 	# when they're closer, so a lone turret can pull aggro and buy time.
+	# T3.91: skip turrets that are dead, out-of-tree, or queued for free — these are
+	# the "invisible leftover objects" that otherwise pull creeps away from players.
 	for candidate in get_tree().get_nodes_in_group("turrets"):
 		if not is_instance_valid(candidate) or not candidate is Node2D:
+			continue
+		# T3.91: a turret that is no longer in the tree (queued for free but not yet
+		# flushed) is an invisible leftover — never target it.
+		if not candidate.is_inside_tree():
 			continue
 		var turret := candidate as Node2D
 		var turret_health: HealthComponent = turret.get("health") as HealthComponent
