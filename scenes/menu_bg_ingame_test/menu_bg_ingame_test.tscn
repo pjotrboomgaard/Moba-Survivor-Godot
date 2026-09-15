@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/menu_bg_ingame_test/menu_bg_ingame_test.gd" id="1"]
+
+[node name="MenuBgIngameTest" type="Node"]
+script = ExtResource("1")

@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/menu_bg_iso/menu_warden_3.5.png",
+  "after": "tools/selftest/results/menu_bg_iso/menu_warden_4.5.png",
+  "out": "tools/selftest/results/menu_bg_iso/diff_warden.png",
+  "changed_pixels": 13578,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.006548,
+  "bbox": [
+    1073,
+    566,
+    1868,
+    1079
+  ],
+  "has_change": true
+}

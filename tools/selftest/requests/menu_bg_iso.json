@@ -1,0 +1,7 @@
+{
+  "hero": "tobor",
+  "comment": "T3.97 isolated: verify Tobor + Diord menu BG frames load and animate",
+  "events": [
+    {"t": 0.5, "kind": "report"}
+  ]
+}

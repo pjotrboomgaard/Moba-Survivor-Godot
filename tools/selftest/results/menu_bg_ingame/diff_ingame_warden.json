@@ -1,0 +1,15 @@
+{
+  "before": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\menu_bg_ingame\\ingame_after_warden_1.png",
+  "after": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\menu_bg_ingame\\ingame_after_warden_2.png",
+  "out": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\menu_bg_ingame\\diff_ingame_warden.png",
+  "changed_pixels": 49025,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.023642,
+  "bbox": [
+    38,
+    26,
+    1786,
+    832
+  ],
+  "has_change": true
+}

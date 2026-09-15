@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/menu_bg_iso/menu_tobor_0.5.png",
+  "after": "tools/selftest/results/menu_bg_iso/menu_tobor_1.5.png",
+  "out": "tools/selftest/results/menu_bg_iso/diff_tobor.png",
+  "changed_pixels": 149,
+  "total_pixels": 2073600,
+  "changed_fraction": 7.2e-05,
+  "bbox": [
+    1299,
+    801,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

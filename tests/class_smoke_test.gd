@@ -1169,7 +1169,7 @@ func _test_tobor_chant_matching() -> void:
 	_check(ResourceLoader.exists("res://assets/ui/tobor_world_bg.png"), "Tobor world background image is missing")
 	_check(PlayerClass.by_id("arclight").name == "Joule", "Arclight's display name should be Joule")
 	_check(PlayerClass.by_id("bulwark").name == "Tremor", "Bulwark's display name should be Tremor")
-	_check(PlayerClass.by_id("warden").name == "Totem", "Warden's display name should be Totem")
+	_check(PlayerClass.by_id("warden").name == "Diord", "Warden's display name should be Diord")
 	for class_id in ["tobor", "arclight", "bulwark", "warden"]:
 		_check(SpriteLibrary.menu_backdrop_for(class_id) != null, "Hero %s has no menu backdrop" % class_id)
 

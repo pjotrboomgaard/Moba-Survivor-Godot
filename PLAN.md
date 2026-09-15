@@ -2305,17 +2305,33 @@ stronger in increasing in stats dmg etc."
       let CD tick, cast again = 2nd placement allowed; screenshots of the 2-slot
       upgrade panel).
 
-### T3.97 Animated menu backgrounds for Tobor + Totem (→ "Diord") at 20% speed (NEW 2026-09-15) _STATUS (2026-09-15): todo_
+### T3.97 Animated menu backgrounds for Tobor + Totem (→ "Diord") at 20% speed (NEW 2026-09-15) _STATUS (2026-09-15): verified_
 **User direction:** "I've added animated backgrounds — one for Tobor and one for the
 Totem (which should be renamed Diord). Make sure they have the animated BG. Play the
 animated bg at 20% speed for these 2."
-- [ ] Rename the "Totem" hero to "Diord" (display name in class picker, HUD, save,
+- [x] Rename the "Totem" hero to "Diord" (display name in class picker, HUD, save,
       any references) — the animated-bg asset is the Diord one.
-- [ ] Wire the animated background into both the Tobor and Diord (Totem) hero menu
+      → `player_class.gd` "name": "Diord" for warden; `class_smoke_test.gd` updated.
+- [x] Wire the animated background into both the Tobor and Diord (Totem) hero menu
       cards (class-picker hover + ability preview), same as the existing Joule video
-      (`_tick_joule_menu_video` / bootstrap `AnimatedBG` pattern).
-- [ ] Play those two animated backgrounds at 20% speed (0.2× playback), matching the
+      (`_tick_menu_video` / bootstrap `AnimatedBG` pattern).
+      → Generic `_load_menu_frames` / `_tick_menu_video` / `_menu_fps` in bootstrap.gd.
+- [x] Play those two animated backgrounds at 20% speed (0.2× playback), matching the
       Joule video slow-down approach (frame-step / time-scale).
-- [ ] Locate the new video assets under `SpritesImport/AnimatedBG/` and register them.
-- [ ] 6-step verify: isolated (menu with both BGs at 20% speed, before/after) +
-      in-game (menu screenshot showing the animated BG playing slowly).
+      → 4.8 fps (20% of 24fps source) for tobor/warden; 2.4 fps for arclight.
+- [x] Locate the new video assets under `SpritesImport/AnimatedBG/` and register them.
+      → `assets/ui/tobor_menu_bg_frames/` + `assets/ui/warden_menu_bg_frames/`
+        (49 frames each, extracted at 12fps via ffmpeg, all imported).
+- [x] 6-step verify:
+      1. **Isolated BEFORE**: `tools/selftest/results/menu_bg_iso/menu_tobor_0.5.png`
+         (static frame 0, no animation).
+      2. **Isolated AFTER**: `tools/selftest/results/menu_bg_iso/menu_tobor_1.5.png`
+         + `menu_warden_3.5.png` (animated, frame advanced).
+      3. **Isolated COMPARE**: `diff_tobor.png` (149px changed, robot region),
+         `diff_warden.png` (13578px changed, totem region).
+      4. **In-game BEFORE**: `tools/selftest/results/menu_bg_ingame/ingame_before_static.png`
+         (tobor static backdrop, full menu UI).
+      5. **In-game AFTER**: `ingame_after_tobor_1.png` + `ingame_after_warden_2.png`
+         (animated backdrops in live menu).
+      6. **In-game COMPARE**: `diff_ingame_tobor.json` (717px, 0.035%),
+         `diff_ingame_warden.json` (49025px, 2.36%).

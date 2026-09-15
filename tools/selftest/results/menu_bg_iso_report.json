@@ -1,0 +1,30 @@
+{
+  "class_active": "tobor",
+  "expected_tobor_min": 20,
+  "expected_warden_min": 20,
+  "frames_tobor": 49,
+  "frames_warden": 49,
+  "shots": [
+    {
+      "label": "menu_tobor_0.5",
+      "path": "user://menu_tobor_0.5.png",
+      "t": 0.50302
+    },
+    {
+      "label": "menu_tobor_1.5",
+      "path": "user://menu_tobor_1.5.png",
+      "t": 1.506588
+    },
+    {
+      "label": "menu_warden_3.5",
+      "path": "user://menu_warden_3.5.png",
+      "t": 3.50643899999999
+    },
+    {
+      "label": "menu_warden_4.5",
+      "path": "user://menu_warden_4.5.png",
+      "t": 4.50698500000002
+    }
+  ],
+  "verdict": "PASS"
+}

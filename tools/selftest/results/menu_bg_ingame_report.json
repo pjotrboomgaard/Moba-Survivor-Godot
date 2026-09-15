@@ -1,0 +1,28 @@
+{
+  "expected_shots": 5,
+  "scene": "menu_bg_ingame_test",
+  "shots": [
+    {
+      "label": "ingame_before_static",
+      "path": "user://menu_bg_ingame_run_2793/ingame_before_static.png"
+    },
+    {
+      "label": "ingame_after_tobor_1",
+      "path": "user://menu_bg_ingame_run_2793/ingame_after_tobor_1.png"
+    },
+    {
+      "label": "ingame_after_tobor_2",
+      "path": "user://menu_bg_ingame_run_2793/ingame_after_tobor_2.png"
+    },
+    {
+      "label": "ingame_after_warden_1",
+      "path": "user://menu_bg_ingame_run_2793/ingame_after_warden_1.png"
+    },
+    {
+      "label": "ingame_after_warden_2",
+      "path": "user://menu_bg_ingame_run_2793/ingame_after_warden_2.png"
+    }
+  ],
+  "shots_captured": 5,
+  "verdict": "PASS"
+}

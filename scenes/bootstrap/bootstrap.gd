@@ -101,8 +101,13 @@ var cpu_coop_button: Button
 var _play_mode := 0  # 0 solo, 1 ffa, 2 co-op
 var _play_mode_group: ButtonGroup = null
 
-## T3.71: Joule (arclight) animated menu background (from MP4 frame extraction).
-var _joule_frames: Array[Texture2D] = []
+## T3.71 / T3.97: animated menu background (from MP4 frame extraction).
+## Generic per-hero: any hero whose class def has an "animated_menu_bg" folder
+## gets a frame-based backdrop. Joule (arclight) keeps its lightning-filtered
+## frames; Tobor (tobor) and Diord (warden) use every frame at 20% speed.
+var _menu_frames: Array[Texture2D] = []
+var _menu_frames_class := ""
+var _menu_fps := 2.4  # ticks/sec; Joule 2.4, Tobor/Diord 4.8 (20% of 24fps)
 
 const STEAM_OPERATION_TIMEOUT := 22.0
 
@@ -215,6 +220,9 @@ func _ready() -> void:
 	# Joule menu video verify driver: attach when marker file exists (set by test runner).
 	if FileAccess.file_exists("user://joule_menu_video_test"):
 		call_deferred("_attach_joule_menu_video_verify")
+	# T3.97 menu-bg verify driver (Tobor + Diord animated backdrops).
+	if FileAccess.file_exists("user://menu_bg_ingame_test"):
+		call_deferred("_attach_menu_bg_ingame_verify")
 	call_deferred("_start_runtime")
 	set_process(true)
 
@@ -237,6 +245,16 @@ func _attach_joule_menu_video_verify() -> void:
 	var driver = driver_scene.instantiate()
 	get_tree().root.add_child(driver)
 	print("[joule-video] driver attached to root")
+
+
+func _attach_menu_bg_ingame_verify() -> void:
+	var driver_scene: PackedScene = load("res://scenes/menu_bg_ingame_test/menu_bg_ingame_test.tscn")
+	if driver_scene == null:
+		print("[menu-bg] driver scene not found")
+		return
+	var driver = driver_scene.instantiate()
+	get_tree().root.add_child(driver)
+	print("[menu-bg] driver attached to root")
 
 
 ## Builds the WorldRow, LoadoutPanel (LoadoutRow + AbilityPool) and wires them into the
@@ -429,7 +447,7 @@ func _sync_steam_display_name() -> void:
 
 
 func _process(delta: float) -> void:
-	_tick_joule_menu_video(delta)
+	_tick_menu_video(delta)
 	_process_hero_hover_walk(delta)
 	_update_preview_viewport()
 	if _waiting_steam_operation:
@@ -535,33 +553,56 @@ func _apply_hero_backdrop() -> void:
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.offset_right = 0.0
-	# Joule (arclight): animated menu background driven on the SAME full-screen
-	# TextureRect so it fills the screen exactly like the static backdrops.
-	# _process ticks the frame; other heroes use the static texture as before.
-	if PlayerProfile.selected_class_id == "arclight":
-		if _joule_frames.is_empty():
-			_joule_frames = _load_joule_menu_frames()
-		if not _joule_frames.is_empty():
-			_joule_video_active = true
-			art.texture = _joule_frames[0]
-		else:
-			art.texture = SpriteLibrary.menu_backdrop_for("arclight")
-		art.visible = true
-	else:
-		_joule_video_active = false
-		art.texture = SpriteLibrary.menu_backdrop_for(PlayerProfile.selected_class_id)
-		art.visible = true
+	var class_id := PlayerProfile.selected_class_id
+	var class_data := PlayerClass.by_id(class_id)
+	var anim_folder := str(class_data.get("animated_menu_bg", ""))
+	# Any hero with an "animated_menu_bg" folder gets a frame-based animated
+	# backdrop; everything else falls back to the static menu_bg texture.
+	if anim_folder != "":
+		var frames := _load_menu_frames(class_id)
+		if not frames.is_empty():
+			_menu_frames = frames
+			_menu_frames_class = class_id
+			# Tobor/Diord play at ~20% of the source 24fps (4.8 fps). Joule keeps
+			# its lightning-filtered frames at 2.4 fps (its own tuned loop).
+			_menu_fps = 2.4 if class_id == "arclight" else 4.8
+			_menu_video_active = true
+			_menu_frame_index = 0
+			art.texture = frames[0]
+			art.visible = true
+			_raise_ability_hover()
+			return
+	# Static backdrop for heroes without an animated bg (or if frames failed).
+	_menu_video_active = false
+	_menu_frames = []
+	art.texture = SpriteLibrary.menu_backdrop_for(class_id)
+	art.visible = true
 	_raise_ability_hover()
 
 
-## Frame-0 texture for Joule's animated menu background (used as a static
-## fallback behind the AnimatedSprite2D, so the menu never shows a hole).
-func _joule_menu_frame(index: int) -> Texture2D:
-	if _joule_frames.is_empty():
-		_joule_frames = _load_joule_menu_frames()
-	if _joule_frames.is_empty():
-		return SpriteLibrary.menu_backdrop_for("arclight")
-	return _joule_frames[posmod(index, _joule_frames.size())]
+## Generic animated-menu-background frame loader.
+## For "arclight" (Joule): keeps ONLY the lightning frames (see _load_joule_menu_frames).
+## For other heroes (tobor, warden/Diord): loads every frame in the folder.
+func _load_menu_frames(class_id: String) -> Array[Texture2D]:
+	if class_id == "arclight":
+		return _load_joule_menu_frames()
+	# Generic: load every frame_*.png in the class's animated_menu_bg folder.
+	var folder := str(PlayerClass.by_id(class_id).get("animated_menu_bg", ""))
+	if folder == "":
+		return []
+	var out: Array[Texture2D] = []
+	var i := 0
+	while true:
+		var path := "%s/frame_%03d.png" % [folder, i + 1]
+		if not ResourceLoader.exists(path):
+			break
+		var tex := load(path) as Texture2D
+		if tex != null:
+			out.append(tex)
+		i += 1
+		if i >= 256:  # safety cap
+			break
+	return out
 
 
 func _load_joule_menu_frames() -> Array[Texture2D]:
@@ -614,38 +655,33 @@ func _load_joule_menu_frames() -> Array[Texture2D]:
 	return out
 
 
-## Tick the Joule (arclight) menu video frame on the shared full-screen backdrop.
-## Driven from _process so the animation advances only while the menu is shown.
-## The loaded frame list contains ONLY electric/lightning frames. We loop it
-## ping-pong: forward to the last electric frame, then backward to the first,
-## forward again, ... so the loop has no obvious seam.
-var _joule_video_active := false
-var _joule_frame_index := 0
-var _joule_frame_timer := 0.0
-var _joule_direction := 1  # 1 = forward, -1 = backward (ping-pong)
-const JOULE_MENU_FPS := 2.4
+## Generic tick for the active hero's animated menu background.
+var _menu_video_active := false
+var _menu_frame_index := 0
+var _menu_frame_timer := 0.0
+var _menu_direction := 1
 
 
-func _joule_set_frame(index: int) -> void:
+func _menu_set_frame(index: int) -> void:
 	var art := _hero_backdrop()
-	if art != null:
-		art.texture = _joule_frames[clampi(index, 0, _joule_frames.size() - 1)]
+	if art != null and not _menu_frames.is_empty():
+		art.texture = _menu_frames[clampi(index, 0, _menu_frames.size() - 1)]
 
 
-func _tick_joule_menu_video(delta: float) -> void:
-	if not _joule_video_active or _joule_frames.is_empty():
+func _tick_menu_video(delta: float) -> void:
+	if not _menu_video_active or _menu_frames.is_empty():
 		return
-	_joule_frame_timer += delta
-	if _joule_frame_timer >= 1.0 / JOULE_MENU_FPS:
-		_joule_frame_timer = 0.0
-		_joule_frame_index += _joule_direction
-		if _joule_frame_index >= _joule_frames.size():
-			_joule_frame_index = _joule_frames.size() - 2
-			_joule_direction = -1
-		elif _joule_frame_index < 0:
-			_joule_frame_index = 1
-			_joule_direction = 1
-		_joule_set_frame(_joule_frame_index)
+	_menu_frame_timer += delta
+	if _menu_frame_timer >= 1.0 / _menu_fps:
+		_menu_frame_timer = 0.0
+		_menu_frame_index += _menu_direction
+		if _menu_frame_index >= _menu_frames.size():
+			_menu_frame_index = _menu_frames.size() - 2
+			_menu_direction = -1
+		elif _menu_frame_index < 0:
+			_menu_frame_index = 1
+			_menu_direction = 1
+		_menu_set_frame(_menu_frame_index)
 
 
 var selected_world: int = 0

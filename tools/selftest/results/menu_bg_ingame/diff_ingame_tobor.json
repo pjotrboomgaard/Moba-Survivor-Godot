@@ -1,0 +1,15 @@
+{
+  "before": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\menu_bg_ingame\\ingame_after_tobor_1.png",
+  "after": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\menu_bg_ingame\\ingame_after_tobor_2.png",
+  "out": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\menu_bg_ingame\\diff_ingame_tobor.png",
+  "changed_pixels": 717,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.000346,
+  "bbox": [
+    162,
+    59,
+    1787,
+    578
+  ],
+  "has_change": true
+}
