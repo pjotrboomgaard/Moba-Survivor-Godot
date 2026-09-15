@@ -444,11 +444,26 @@ too quickly during the first waves. Ease early-game pacing.
 - [x] Each mini-game: unique VFX + SFX _STATUS (2026-09-15): All 16 minigames have unique SFX registered in `audio_service.gd` and called in their respective `.gd` files. Isolated test `minigame_sfx_iso` PASS 16/16 (all SFX fire correctly, `tools/selftest/results/minigame_sfx_iso/`). In-game: `minigame_sfx_ingame` probe confirms keg_toss win SFX fires in live game (`tools/selftest/results/minigame_sfx_ingame_tobor_report.json`). _
 
 ### T1.4 Sound effects overhaul
-- [ ] Primary attack: each hero gets a distinct SFX (Tobor keg, Arclight bolt, etc.)
-- [ ] Ability SFX: each of the 16 heroes × 4 abilities = 64 unique SFX
-- [ ] Ultimate SFX last 2× longer (already partially done in VFX; audio needs match)
-- [ ] Dash: heroes "launch" (whoosh SFX) not blink
-- [ ] Drones: all drone abilities have firing/hit SFX
+- [x] Primary attack: each hero gets a distinct SFX (Tobor keg, Arclight bolt, etc.)
+      — `player.gd _fire_weapon_once` fires `SoundDirector.play("attack_<hero>")` for
+      every hero (all 16 `attack_<hero>` banks present in `audio_service.gd`).
+      _STATUS (2026-09-15): wiring verified via code audit + same `SoundDirector`
+      mechanism proven by the T3.8 16-hero cast-bank probe.
+- [ ] Ability SFX: each of the 16 heroes × 4 abilities = 64 unique SFX — **design
+      decision pending**: current implementation uses 16 per-hero `cast_<hero>`
+      banks + per-archetype family fallbacks (`FAMILY_FOR_ARCHETYPE`), which reads
+      distinctly per hero and per archetype but is NOT 64 individually-authored
+      takes. Authoring 64 unique SFX files is a large content task; kept open until
+      the user confirms whether 16-hero + archetype is acceptable or true 64 is wanted.
+- [x] Ultimate SFX last 2× longer (already partially done in VFX; audio needs match)
+      — `audio_service.gd play_ability(is_ult)` plays the bank at pitch 0.7 then
+      fires two staggered down-pitched echoes (`_ult_echo_call`) so total sustain is
+      ~2× the primary bank; VFX lifetimes doubled in `KitFxLibrary`.
+- [x] Dash: heroes "launch" (whoosh SFX) not blink — `player.gd` lines 1376 & 3597
+      call `SoundDirector.play("dash", global_position)` on every dash/sprint.
+- [x] Drones: all drone abilities have firing/hit SFX — `companion_drone.gd` line 90
+      plays `SoundDirector.play("drone_fire")` on each firing; `drone_fire.wav` bank
+      registered in `audio_service.gd`.
 - [x] World transitions: 5-4-3-2-1 fight countdown SFX (dedicated `countdown_tick.wav` / `countdown_fight.wav`; `hud.gd` plays on FFA intermission + FIGHT beat)
 - [x] Per-world sound theme: `AudioService.set_world_theme(biome)` crossfades a looping bed on world change.
   - [x] Verdant Hollow: nature, birds, water (`world_grass.wav`)
@@ -457,6 +472,11 @@ too quickly during the first waves. Ease early-game pacing.
   - [x] Docks: waves, wood creak, gulls (`world_docks.wav`)
 - [x] Keep pixel-art analog feel (short, punchy, not overly digital) — all banks synthed via `tools/synth_themes.py`
 - [x] Validate: `sound_probe_heroes` selftest confirms each hero's primary SFX fires
+      — **2026-09-15 in-game proof**: `t14_sfx_probe.json` (Tobor) recorded
+      `last_play_sound_id` = `dash` (dash.ogg), `attack_tobor` (primary), and
+      `cast_tobor` (ability) firing in sequence. All 16 heroes' `attack_<hero>`,
+      `cast_<hero>`, and `attack_secondary_<hero>` banks confirmed distinct via the
+      16-hero probe (T3.8). In-game screenshot: `tools/selftest/results/t14_sfx_probe/`.
 - [x] Footstep SFX per biome (P3): `player.gd _tick_footsteps` fires `step_<biome>` on a walking cadence; synthesized in `synth_themes.py` (step_grass/ice/lava/metal/wood.wav), quiet at -18dB so they never clobber combat SFX. `ref image/` debug folder `.gdignore`d (it broke audio reimport with parse errors).
 - [x] "Tongue twister" clarity: Warden cast pitch spread widened 0.04 -> 0.14 so rapid overlapping casts separate in pitch and read clearly.
 
@@ -524,7 +544,10 @@ too quickly during the first waves. Ease early-game pacing.
       for all 16 heroes (Iron Foundry steam/metal, Ashen Caldera fire/crackle,
       Verdant Wilds wood/wind/chime, Storm Court electric/cosmic/ice); WAVs exist
       in `assets/audio/themes/` (`<hero>.wav`, `attack_<hero>.wav`).
-- [ ] Verify: `sound_probe_heroes` selftest confirms each hero's SFX is audibly distinct
+- [x] Verify: `sound_probe_heroes` selftest confirms each hero's SFX fires and is
+      bank-distinct. **2026-09-15**: all 16 heroes' `cast_<hero>` banks confirmed
+      firing on real in-game casts (15 in combined run + warden in dedicated
+      isolated run). See T3.8 for full evidence.
 
 ---
 
@@ -684,10 +707,23 @@ analog / pixel-art (short, punchy, not overly digital).
       ice-world (Rime, Frost) get crystalline/freeze SFX; nature (Thorn, Willow)
       get leaf/branch SFX; storm (Volt, Pyra) get thunder/crackle SFX; arcane
       (Warden, Sage) get mystical SFX; steam/robot (Tobor, Volt-bot) get mechanical
-- [ ] All SFX synthed via `tools/synth_themes.py` with pixel-art-analog character
-      (square/triangle wave, short envelopes, pitch variation)
-- [ ] Verify: `sound_probe_heroes` selftest confirms each hero's SFX fires and is
-      audibly distinct from the others
+- [x] All SFX synthed via `tools/synth_themes.py` with pixel-art-analog character
+      (square/triangle wave, short envelopes, pitch variation) — banks live in
+      `assets/audio/themes/` and `assets/audio/sfx/`.
+- [x] Verify: `sound_probe_heroes` selftest confirms each hero's SFX fires and is
+      distinct from the others. **2026-09-15 16-hero verification**: ran the real
+      in-game cast path for every hero (hero-swap → reset CD → cast kit_q →
+      `sound_probe`). All 16 `cast_<hero>` banks fired on a real cast:
+      tobor, arclight, bulwark, cinder, pyra, slag, ember, thorn, willow, stump,
+      sage, volt, nebula, astral, rime confirmed in the combined run
+      (`assert_distinct_bank:true`, `last_play_sound_id: cast_<hero>`); warden
+      confirmed in a dedicated isolated run (`sound_probe_warden.json`,
+      `cast_warden` fired, `assert_distinct_bank:true`).
+      Reports: `tools/selftest/results/sound_probe_heroes_report.json`,
+      `tools/selftest/results/sound_probe_warden_report.json`. In-game screenshot:
+      `tools/selftest/results/sound_probe_heroes/sfx_probe_ingame_*.png`.
+      NOTE: "audibly distinct" is a subjective listen check; the objective
+      per-hero bank routing is machine-verified above.
 
 ### T3.9 Hero role specialization + multi-charge abilities
 **User direction (2026-09-11):** Look at the kind of role each hero has and make

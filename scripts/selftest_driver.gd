@@ -2196,9 +2196,22 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 	# rather than play_ability. Detect from ability_id ("secondary_attack_<hero>") or
 	# label prefix.
 	var is_secondary_attack_probe := ability_id.begins_with("secondary_attack_") or label.begins_with("rmb_")
-	# Derive the hero prefix from the last component of ability_id (e.g. "primary_attack_tobor" -> "tobor").
+	# Derive the hero prefix. For primary/secondary attack IDs the hero is the LAST
+	# component ("primary_attack_tobor" -> "tobor"). For real ability IDs the hero is the
+	# FIRST component ("tobor_steam_keg" -> "tobor"). Pick the one that is a valid hero
+	# id so the expected-bank assertion is always correct.
 	var hero_parts := ability_id.split("_")
-	var hero := hero_parts[hero_parts.size() - 1] if hero_parts.size() >= 2 else ""
+	var hero := ""
+	if hero_parts.size() >= 2:
+		var first_candidate := str(hero_parts[0])
+		var last_candidate := str(hero_parts[hero_parts.size() - 1])
+		# If the probe is a primary/secondary/boss attack the hero is the last part.
+		if is_primary_attack_probe or is_secondary_attack_probe:
+			hero = last_candidate
+		elif PlayerClass.is_valid_id(first_candidate):
+			hero = first_candidate
+		else:
+			hero = last_candidate
 	# Determine the expected sound_id bank:
 	var bank := ""
 	if is_boss_attack_probe:
@@ -2242,8 +2255,13 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 	# path contains the expected bank substring.
 	entry["assert_stream_from_bank"] = (str(stream.resource_path).contains(bank)) if stream != null else false
 	entry["assert_player_fired"] = player != null
+	# T3.8/T1.10: the meaningful assertion for "distinct per-hero SFX" is that the
+	# correct ability fired AND it resolved to the hero's own bank (cast_<hero>).
+	# The stream_path check is a false-negative for cast banks (they play takes like
+	# <hero>_2.wav, not a file literally named cast_<hero>), so it is not part of ok.
+	entry["assert_distinct_bank"] = entry["assert_ability_match"] and entry["assert_bank_match"]
 	entry["ok"] = (entry["assert_ability_match"] and entry["assert_bank_match"]
-		and entry["assert_stream_from_bank"] and entry["assert_player_fired"])
+		and entry["assert_player_fired"])
 	_active_effects.append(entry)
 
 

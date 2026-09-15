@@ -1,0 +1,142 @@
+{
+  "effects": [
+    {
+      "ability_id": "primary_attack_tobor",
+      "assert_ability_match": false,
+      "assert_bank_match": false,
+      "assert_distinct_bank": false,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "attack_tobor",
+      "kind": "sound_probe",
+      "label": "dash_sfx",
+      "last_play_ability": "",
+      "last_play_sound_id": "dash",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/sfx/dash.ogg",
+      "t": 0.608333333333333
+    },
+    {
+      "ability_id": "primary_attack_tobor",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "attack_tobor",
+      "kind": "sound_probe",
+      "label": "primary_sfx",
+      "last_play_ability": "",
+      "last_play_sound_id": "attack_tobor",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/attack_tobor_2.wav",
+      "t": 1.40109933333333
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 2.00109933333333
+    },
+    {
+      "ability_id": "tobor_steam_keg",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_tobor",
+      "kind": "sound_probe",
+      "label": "cast_sfx",
+      "last_play_ability": "tobor_steam_keg",
+      "last_play_sound_id": "cast_tobor",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/tobor_2.wav",
+      "t": 2.60109933333333
+    },
+    {
+      "charge_t": 0.0,
+      "enemies_alive": 22,
+      "kind": "secondary_probe",
+      "label": "secondary_sfx",
+      "secondary_charge": 0.0,
+      "secondary_charge_max": 1.4,
+      "secondary_cooldown": 0.0,
+      "secondary_cooldown_max": 9.0,
+      "secondary_kind": "repulse",
+      "t": 3.40109933333332
+    },
+    {
+      "ability_id": "secondary_attack_tobor",
+      "assert_ability_match": false,
+      "assert_bank_match": false,
+      "assert_distinct_bank": false,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "attack_secondary_tobor",
+      "kind": "sound_probe",
+      "label": "secondary_bank",
+      "last_play_ability": "tobor_steam_keg",
+      "last_play_sound_id": "cast_tobor",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/tobor.wav",
+      "t": 3.50109933333332
+    }
+  ],
+  "elapsed": 4.60070866666668,
+  "enemies_spawned": 0,
+  "hero_position": "(120.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 1,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 3.00109933333332
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "t14_sfx_ingame",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7796/t14_sfx_ingame_4.503_7796.png",
+      "t": 4.50254400000001
+    }
+  ]
+}

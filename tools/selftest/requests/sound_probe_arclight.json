@@ -1,0 +1,12 @@
+{
+	"hero": "arclight",
+	"comment": "T3.8: verify arclight's distinct cast SFX bank fires on a real cast.",
+	"events": [
+		{"t": 0.2, "kind": "reset_ability_cd"},
+		{"t": 0.4, "kind": "aim", "at": [200, 0]},
+		{"t": 0.6, "kind": "cast", "slot": 0},
+		{"t": 0.9, "kind": "sound_probe", "ability_id": "arclight_blast_of_lightning", "label": "sfx_arclight"},
+		{"t": 1.5, "kind": "probe", "label": "end"},
+		{"t": 1.7, "kind": "report"}
+	]
+}

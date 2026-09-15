@@ -1,0 +1,13 @@
+﻿{
+  "hero": "warden",
+  "comment": "T3.8: verify warden's distinct cast SFX bank fires on a real cast of its unit-targeted kit_q (tongue_tied). Spawns a grunt in range so the two-tap unit-target confirm succeeds.",
+  "events": [
+    {"t": 0.2, "kind": "spawn", "at": [180, 30], "type": "grunt"},
+    {"t": 0.5, "kind": "reset_ability_cd"},
+    {"t": 0.7, "kind": "aim", "at": [180, 30]},
+    {"t": 0.9, "kind": "cast", "slot": 0},
+    {"t": 1.4, "kind": "sound_probe", "ability_id": "warden_tongue_tied", "label": "sfx_warden"},
+    {"t": 2.0, "kind": "probe", "label": "end"},
+    {"t": 2.2, "kind": "report"}
+  ]
+}

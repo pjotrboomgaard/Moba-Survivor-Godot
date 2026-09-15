@@ -1,0 +1,182 @@
+{
+  "effects": [
+    {
+      "kind": "reset_ability_cd",
+      "t": 0.501038484848485
+    },
+    {
+      "ability_id": "warden_tongue_tied",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "cast_warden",
+      "kind": "sound_probe",
+      "label": "sfx_warden",
+      "last_play_ability": "warden_tongue_tied",
+      "last_play_sound_id": "cast_warden",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/sfx/cast_warden.ogg",
+      "t": 1.40702666666666
+    },
+    {
+      "abilities": [
+        {
+          "id": "warden_tongue_tied",
+          "rank": 1
+        },
+        {
+          "id": "warden_thorn_volley",
+          "rank": 1
+        },
+        {
+          "id": "warden_voodoo_wards",
+          "rank": 1
+        },
+        {
+          "id": "warden_life_drain",
+          "rank": 1
+        }
+      ],
+      "attack_range": 540.0,
+      "biome_id": 0,
+      "biome_name": "Scrapyard Outskirts",
+      "blast_radius": 0.0,
+      "cds": [
+        23.2846666666667,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "warden",
+            "cpu": false,
+            "damage_dealt": 874.0,
+            "damage_taken": 0.0,
+            "hp": 150.0,
+            "kills": 0,
+            "local": true,
+            "max_hp": 150.0,
+            "peer": 1,
+            "pos": [
+              0.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "frost_burst_radius": 65.0,
+      "gold": 6,
+      "hero": "warden",
+      "hp": 150.0,
+      "hp_frac": 1.0,
+      "hp_max": 150.0,
+      "kind": "probe",
+      "label": "end",
+      "last_sfx": "xp",
+      "last_tapped": 0,
+      "level": 1,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(0.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 2.003316,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "weapon_damage": 11.0,
+      "xp": 10
+    }
+  ],
+  "elapsed": 2.203316,
+  "enemies_spawned": 1,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "warden",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 1,
+    "casts": [
+      {
+        "ability_id": "warden_tongue_tied",
+        "t": 1.05505639393939
+      }
+    ],
+    "creep_kills": 1,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 6,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": []
+}

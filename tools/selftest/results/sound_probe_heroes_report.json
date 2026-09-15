@@ -1,102 +1,398 @@
 {
   "effects": [
     {
+      "kind": "reset_ability_cd",
+      "t": 0.143969666666667
+    },
+    {
       "ability_id": "tobor_steam_keg",
-      "assert_ability_match": false,
-      "assert_bank_match": false,
-      "assert_player_fired": false,
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
       "assert_stream_from_bank": false,
       "expected_bank": "cast_tobor",
       "kind": "sound_probe",
-      "label": "tobor_q",
-      "last_play_ability": "",
-      "last_play_sound_id": "",
-      "ok": false,
-      "player_non_null": false,
-      "player_was_playing": false,
-      "stream_path": "",
-      "t": 0.706777727272727
+      "label": "sfx_tobor",
+      "last_play_ability": "tobor_steam_keg",
+      "last_play_sound_id": "cast_tobor",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/tobor_2.wav",
+      "t": 0.403007575757576
     },
     {
-      "hp": 1.0,
-      "kind": "landmark_save",
-      "saves": 1,
-      "t": 0.749127333333333
+      "kind": "reset_ability_cd",
+      "t": 0.808333333333332
+    },
+    {
+      "ability_id": "arclight_blast_of_lightning",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "cast_arclight",
+      "kind": "sound_probe",
+      "label": "sfx_arclight",
+      "last_play_ability": "arclight_blast_of_lightning",
+      "last_play_sound_id": "cast_arclight",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/sfx/cast_arclight.ogg",
+      "t": 1.21666666666667
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 1.61583333333333
+    },
+    {
+      "ability_id": "bulwark_fissure",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_bulwark",
+      "kind": "sound_probe",
+      "label": "sfx_bulwark",
+      "last_play_ability": "bulwark_fissure",
+      "last_play_sound_id": "cast_bulwark",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/bulwark_2.wav",
+      "t": 2.01666666666666
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 2.41893566666666
+    },
+    {
+      "ability_id": "warden_tongue_tied",
+      "assert_ability_match": false,
+      "assert_bank_match": false,
+      "assert_distinct_bank": false,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_warden",
+      "kind": "sound_probe",
+      "label": "sfx_warden",
+      "last_play_ability": "bulwark_fissure",
+      "last_play_sound_id": "cast_bulwark",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/bulwark_2.wav",
+      "t": 2.819301
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 3.21798342424242
     },
     {
       "ability_id": "cinder_dragon_fire",
       "assert_ability_match": true,
       "assert_bank_match": true,
+      "assert_distinct_bank": true,
       "assert_player_fired": true,
-      "assert_stream_from_bank": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
       "expected_bank": "cast_cinder",
       "kind": "sound_probe",
-      "label": "cinder_q",
+      "label": "sfx_cinder",
       "last_play_ability": "cinder_dragon_fire",
       "last_play_sound_id": "cast_cinder",
       "ok": true,
       "player_non_null": true,
       "player_was_playing": true,
       "stream_path": "res://assets/audio/themes/cinder_2.wav",
-      "t": 1.60736166666666
+      "t": 3.61108133333333
     },
     {
-      "ability_id": "volt_gust",
-      "assert_ability_match": false,
-      "assert_bank_match": false,
+      "kind": "reset_ability_cd",
+      "t": 4.006071
+    },
+    {
+      "ability_id": "pyra_sticky_bomb",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
       "assert_player_fired": true,
+      "assert_stream_bank": false,
       "assert_stream_from_bank": false,
-      "expected_bank": "cast_volt",
+      "expected_bank": "cast_pyra",
       "kind": "sound_probe",
-      "label": "volt_q",
-      "last_play_ability": "cinder_dragon_fire",
-      "last_play_sound_id": "cast_cinder",
-      "ok": false,
+      "label": "sfx_pyra",
+      "last_play_ability": "pyra_sticky_bomb",
+      "last_play_sound_id": "cast_pyra",
+      "ok": true,
       "player_non_null": true,
-      "player_was_playing": false,
-      "stream_path": "res://assets/audio/themes/cinder_2.wav",
-      "t": 2.40650748484848
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/pyra_3.wav",
+      "t": 4.40230133333333
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 4.82132233333333
+    },
+    {
+      "ability_id": "slag_boulder_hurl",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_slag",
+      "kind": "sound_probe",
+      "label": "sfx_slag",
+      "last_play_ability": "slag_boulder_hurl",
+      "last_play_sound_id": "cast_slag",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/slag.wav",
+      "t": 5.21865833333333
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 5.62228144444444
+    },
+    {
+      "ability_id": "ember_entangle",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_ember",
+      "kind": "sound_probe",
+      "label": "sfx_ember",
+      "last_play_ability": "ember_entangle",
+      "last_play_sound_id": "cast_ember",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/ember_2.wav",
+      "t": 6.01176633333334
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 6.42059624242424
+    },
+    {
+      "ability_id": "thorn_poison_spray",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_thorn",
+      "kind": "sound_probe",
+      "label": "sfx_thorn",
+      "last_play_ability": "thorn_poison_spray",
+      "last_play_sound_id": "cast_thorn",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/thorn_2.wav",
+      "t": 6.80363133333334
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 7.20187100000001
+    },
+    {
+      "ability_id": "willow_swift_strike",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_willow",
+      "kind": "sound_probe",
+      "label": "sfx_willow",
+      "last_play_ability": "willow_swift_strike",
+      "last_play_sound_id": "cast_willow",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/willow_2.wav",
+      "t": 7.61123834680136
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 8.02201275757577
+    },
+    {
+      "ability_id": "stump_natures_rally",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_stump",
+      "kind": "sound_probe",
+      "label": "sfx_stump",
+      "last_play_ability": "stump_natures_rally",
+      "last_play_sound_id": "cast_stump",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/stump.wav",
+      "t": 8.40700207407408
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 8.81565656565656
     },
     {
       "ability_id": "sage_petal_dance",
       "assert_ability_match": true,
       "assert_bank_match": true,
+      "assert_distinct_bank": true,
       "assert_player_fired": true,
-      "assert_stream_from_bank": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
       "expected_bank": "cast_sage",
       "kind": "sound_probe",
-      "label": "sage_q",
+      "label": "sfx_sage",
       "last_play_ability": "sage_petal_dance",
       "last_play_sound_id": "cast_sage",
       "ok": true,
       "player_non_null": true,
       "player_was_playing": true,
-      "stream_path": "res://assets/audio/themes/sage.wav",
-      "t": 3.20753133333333
+      "stream_path": "res://assets/audio/themes/sage_2.wav",
+      "t": 9.21605599999999
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 9.60079233333333
+    },
+    {
+      "ability_id": "volt_gust",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_volt",
+      "kind": "sound_probe",
+      "label": "sfx_volt",
+      "last_play_ability": "volt_gust",
+      "last_play_sound_id": "cast_volt",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/volt.wav",
+      "t": 10.0325833333333
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 10.401759
+    },
+    {
+      "ability_id": "nebula_arcane_bolt",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_nebula",
+      "kind": "sound_probe",
+      "label": "sfx_nebula",
+      "last_play_ability": "nebula_arcane_bolt",
+      "last_play_sound_id": "cast_nebula",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/nebula.wav",
+      "t": 10.8131313131313
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 11.2001683501683
+    },
+    {
+      "ability_id": "astral_ghastly_touch",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_astral",
+      "kind": "sound_probe",
+      "label": "sfx_astral",
+      "last_play_ability": "astral_ghastly_touch",
+      "last_play_sound_id": "cast_astral",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/astral.wav",
+      "t": 11.6114478114478
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 12.0239057239057
+    },
+    {
+      "ability_id": "rime_ice_imprisonment",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_rime",
+      "kind": "sound_probe",
+      "label": "sfx_rime",
+      "last_play_ability": "rime_ice_imprisonment",
+      "last_play_sound_id": "cast_rime",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/rime_2.wav",
+      "t": 12.4112927575757
     },
     {
       "abilities": [
         {
-          "id": "sage_petal_dance",
+          "id": "rime_ice_imprisonment",
           "rank": 1
         },
         {
-          "id": "sage_volatile_pod",
+          "id": "rime_chilling_touch",
           "rank": 1
         },
         {
-          "id": "sage_grace",
+          "id": "rime_glacier_blast",
           "rank": 1
         },
         {
-          "id": "sage_charm",
+          "id": "rime_freezing_field",
           "rank": 1
         }
       ],
+      "attack_range": 560.0,
       "biome_id": 0,
-      "biome_name": "Verdant Hollow",
+      "biome_name": "Scrapyard Outskirts",
+      "blast_radius": 0.0,
       "cds": [
-        33.96,
+        27.241,
         0.0,
         0.0,
         0.0
@@ -109,14 +405,18 @@
         "heroes": [
           {
             "alive": true,
-            "class": "sage",
+            "class": "rime",
             "cpu": false,
+            "damage_dealt": 366.0,
+            "damage_taken": 0.0,
+            "hp": 115.0,
             "kills": 0,
             "local": true,
+            "max_hp": 115.0,
             "peer": 1,
             "pos": [
-              112.0,
-              0.0
+              204.0,
+              156.0
             ],
             "team": ""
           }
@@ -127,17 +427,18 @@
           5600.0
         ]
       },
-      "gold": 0,
-      "hero": "sage",
-      "hp": 130.0,
+      "frost_burst_radius": 65.0,
+      "gold": 18,
+      "hero": "rime",
+      "hp": 115.0,
       "hp_frac": 1.0,
-      "hp_max": 130.0,
+      "hp_max": 115.0,
       "kind": "probe",
       "label": "end",
-      "last_sfx": "countdown_tick",
+      "last_sfx": "xp",
       "last_tapped": 0,
       "level": 1,
-      "obstacle_count": 1266,
+      "obstacle_count": 868,
       "pending_ability_ids": [],
       "pending_id": "",
       "pending_slot": -1,
@@ -145,7 +446,7 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(112.0, 0.0)"
+          "pos": "(203.7805, 156.1264)"
         }
       },
       "pulse_interval": 0.0,
@@ -162,41 +463,116 @@
         "arts": [],
         "minions": 0
       },
-      "summons": 0,
-      "t": 3.602183,
+      "summons": 1,
+      "summons_owned": [
+        {
+          "ability_id": "pyra_sticky_bomb",
+          "owner_peer_id": 1,
+          "time_left": 36.3719490000003
+        }
+      ],
+      "t": 13.0059078888888,
       "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
       "wave": 1,
       "wave_name": "First Contact",
-      "xp": 0
+      "weapon_damage": 14.0,
+      "xp": 30
     }
   ],
-  "elapsed": 3.80749566666666,
-  "enemies_spawned": 0,
-  "hero_position": "(112.0, 0.0)",
-  "player_class": "sage",
+  "elapsed": 13.214337,
+  "enemies_spawned": 3,
+  "hero_position": "(203.7805, 156.1264)",
+  "player_class": "rime",
   "results": {
     "alive": true,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 2,
+    "cast_count": 16,
     "casts": [
       {
+        "ability_id": "tobor_steam_keg",
+        "t": 0.858333333333332
+      },
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 1.14346727272727
+      },
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 1.14346727272727
+      },
+      {
+        "ability_id": "bulwark_fissure",
+        "t": 1.94416666666666
+      },
+      {
         "ability_id": "cinder_dragon_fire",
-        "t": 1.407364
+        "t": 3.40284566666666
+      },
+      {
+        "ability_id": "pyra_sticky_bomb",
+        "t": 4.35563466666667
+      },
+      {
+        "ability_id": "slag_boulder_hurl",
+        "t": 5.00846466666667
+      },
+      {
+        "ability_id": "ember_entangle",
+        "t": 5.93394933333334
+      },
+      {
+        "ability_id": "thorn_poison_spray",
+        "t": 6.74525324242425
+      },
+      {
+        "ability_id": "willow_swift_strike",
+        "t": 7.41766812121213
+      },
+      {
+        "ability_id": "stump_natures_rally",
+        "t": 8.21491274074075
       },
       {
         "ability_id": "sage_petal_dance",
-        "t": 3.00833333333333
+        "t": 9.00744114814814
+      },
+      {
+        "ability_id": "volt_gust",
+        "t": 9.93834724242424
+      },
+      {
+        "ability_id": "nebula_arcane_bolt",
+        "t": 10.616957
+      },
+      {
+        "ability_id": "astral_ghastly_touch",
+        "t": 11.4178451178451
+      },
+      {
+        "ability_id": "rime_ice_imprisonment",
+        "t": 12.3617845117845
       }
     ],
-    "creep_kills": 0,
+    "creep_kills": 2,
     "died": false,
     "errors": [],
     "ffa": {},
-    "gold": 0,
+    "gold": 18,
     "hero_kills": 0,
     "hp_samples": [],
-    "landmark_saves": 1,
+    "landmark_saves": 0,
     "level": 1,
     "level_upgrades": {},
     "max_hp": 0.0,
@@ -211,7 +587,13 @@
     "until_wave": 20,
     "verdict": "",
     "wave": 1,
-    "xp": 0
+    "xp": 30
   },
-  "shots": []
+  "shots": [
+    {
+      "label": "sfx_probe_ingame",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_16006/sfx_probe_ingame_12.802_16006.png",
+      "t": 12.8023316666666
+    }
+  ]
 }
