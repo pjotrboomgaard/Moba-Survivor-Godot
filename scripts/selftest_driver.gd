@@ -570,6 +570,10 @@ func _process(delta: float) -> void:
 				# T3.84: report the max_health of every live turret so a test can
 				# assert the (reduced) turret HP value end-to-end.
 				_record_turret_probe(str(event.get("label", "turrets")))
+			"charge_probe":
+				# T3.96: report the local hero's charge-based ability counts so a
+				# test can verify the charge system (bank, spend, regen).
+				_record_charge_probe(str(event.get("label", "charges")))
 			"gun_drone_probe":
 				# T3.80: report whether the local hero's gun drone has ever aimed a
 				# stripe/beam at a target (beam_target_pos != 0) so the in-game test
@@ -954,14 +958,19 @@ func _record_probe(label: String) -> void:
 
 
 ## T3.35: report the live multi-charge counters for the local hero's charge-pooled
-## abilities (Tobor turret/mines, Bulwark fissure, Warden ward). Used to verify the
-## HUD "xN" badge shows the correct count as charges are consumed.
+## abilities (Tobor turret/mines, Bulwark fissure, Warden ward, Arclight Q/A).
+## Used to verify the HUD "xN" badge + the charge system bank/spend/regen.
 func _record_charge_probe(label: String) -> void:
 	if _player == null:
 		return
 	var charges := {}
-	for prop in ["_mine_charge_left", "_turret_charge_left", "_fissure_charge_left", "_ward_charge_left"]:
+	for prop in ["_mine_charge_left", "_turret_charge_left", "_fissure_charge_left", "_ward_charge_left", "_arclight_charge_left_q", "_arclight_charge_left_a"]:
 		charges[prop.trim_prefix("_")] = int(_player.get(prop))
+	# T3.96: Arclight max-charge + level for the charge-system test.
+	if _player.class_id == "arclight":
+		charges["arclight_q_max"] = int(_player._arclight_max_charges_for(_player.level, false))
+		charges["arclight_a_max"] = int(_player._arclight_max_charges_for(_player.level, false))
+		charges["arclight_level"] = int(_player.level)
 	_active_effects.append({"kind": "charge_probe", "label": label, "t": _elapsed, "charges": charges})
 
 
@@ -1305,6 +1314,8 @@ func _record_turret_probe(label: String) -> void:
 			"alive": not bool(h.get("is_dead", false)),
 		})
 	_active_effects.append({"kind": "turret_probe", "label": label, "t": _elapsed, "turrets": turrets})
+
+
 
 
 ## T3.80: report whether the local hero's gun-style companion drone has ever aimed

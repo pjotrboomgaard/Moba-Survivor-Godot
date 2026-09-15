@@ -1,0 +1,13 @@
+{
+  "hero": "arclight",
+  "comment": "T3.96 in-game: verify Arclight charge system. Cast Q twice in a row should be allowed if 2 charges banked at level... actually at level 1 max charges =1, so 2nd cast blocked. Use probe to read charge counts.",
+  "events": [
+    {"t": 3.5, "kind": "charge_probe"},
+    {"t": 4.0, "kind": "spawn", "type": "hound", "at": [300, 0]},
+    {"t": 4.5, "kind": "cast", "slot": 0, "aim": [300, 0]},
+    {"t": 4.7, "kind": "charge_probe"},
+    {"t": 8.0, "kind": "cast", "slot": 0, "aim": [300, 0]},
+    {"t": 8.3, "kind": "charge_probe"},
+    {"t": 12.0, "kind": "report"}
+  ]
+}

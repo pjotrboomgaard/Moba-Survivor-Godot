@@ -1,0 +1,110 @@
+{
+  "effects": [
+    {
+      "charges": {
+        "arclight_a_max": 1,
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "arclight_level": 1,
+        "arclight_q_max": 1,
+        "fissure_charge_left": 3,
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "charge",
+      "t": 3.50656981818181
+    },
+    {
+      "charges": {
+        "arclight_a_max": 1,
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 0,
+        "arclight_level": 1,
+        "arclight_q_max": 1,
+        "fissure_charge_left": 3,
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "charge",
+      "t": 4.70647200000002
+    },
+    {
+      "cd_left": 18.3430000000002,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 8.0061562424244
+    },
+    {
+      "cd_left": 18.2096666666669,
+      "kind": "cast_skipped",
+      "reason": "cooldown",
+      "slot": 0,
+      "t": 8.14858048484863
+    },
+    {
+      "charges": {
+        "arclight_a_max": 1,
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 0,
+        "arclight_level": 1,
+        "arclight_q_max": 1,
+        "fissure_charge_left": 3,
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "charge",
+      "t": 8.30691381818196
+    }
+  ],
+  "elapsed": 12.0075219999999,
+  "enemies_spawned": 1,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 2,
+    "casts": [
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 4.65702133333335
+      },
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 4.65702133333335
+      }
+    ],
+    "creep_kills": 1,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 6,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": []
+}
