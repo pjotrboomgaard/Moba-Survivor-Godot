@@ -301,17 +301,19 @@ static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int
 	for id in recent_history:
 		recent_set[str(id)] = true
 	var out: Array[String] = []
-	# Decide the rarity slots up front (stat slots only; ability token handled below).
-	var stat_slots := maxi(1, amount)
+	# T3.96: reserve up to 2 slots for ability-upgrade tokens (always show 2 in the panel).
+	# The remaining slots are stat upgrades.
+	var ability_slots := mini(2, amount)
+	var stat_slots := maxi(1, amount - ability_slots)
 	var rarities: Array[String] = []
 	var roll := randf()
 	if roll < 0.05:
-		# Rare-legendary moment: 3 common + 1 legendary.
+		# Rare-legendary moment: (stat_slots-1) common + 1 legendary.
 		for i in stat_slots - 1:
 			rarities.append("common")
 		rarities.append("legendary")
 	elif roll < 0.30:
-		# 3 common + 1 rare.
+		# (stat_slots-1) common + 1 rare.
 		for i in stat_slots - 1:
 			rarities.append("common")
 		rarities.append("rare")
@@ -331,10 +333,17 @@ static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int
 			used[pick] = true
 			out.append(pick)
 
-	# Prepend an ability token if the hero still has abilities to learn.
+	# Prepend TWO ability tokens (always show 2 ability-upgrade slots in the panel).
+	# T3.96: the level-up panel must always present two distinct ability-upgrade
+	# slots so the player can invest in their charge-able abilities. Pick up to
+	# two distinct ability ids; if the hero has fewer than 2 upgradable/new
+	# abilities available, include as many as exist.
 	if not ability_ids.is_empty():
-		out.append(ABILITY_PREFIX + str(ability_ids[randi() % ability_ids.size()]))
-	# Cap at `amount` (in case ability token pushed over).
+		var shuffled_abilities := ability_ids.duplicate()
+		shuffled_abilities.shuffle()
+		for i in mini(2, shuffled_abilities.size()):
+			out.append(ABILITY_PREFIX + str(shuffled_abilities[i]))
+	# Cap at `amount` (in case ability tokens pushed over).
 	if out.size() > amount:
 		out.resize(amount)
 	out.shuffle()
