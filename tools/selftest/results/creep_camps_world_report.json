@@ -43,7 +43,7 @@
             "local": true,
             "peer": 1,
             "pos": [
-              115.0,
+              43.0,
               0.0
             ],
             "team": ""
@@ -74,7 +74,7 @@
       "player_positions": {
         "1": {
           "locked": false,
-          "pos": "(114.7204, 0.0)"
+          "pos": "(42.68244, 0.0)"
         }
       },
       "pulse_interval": 0.0,
@@ -93,7 +93,7 @@
       },
       "summons": 0,
       "summons_owned": [],
-      "t": 2.007323,
+      "t": 2.00512533333333,
       "teleporters": [],
       "transition": {
         "camera_zoom": [
@@ -112,9 +112,9 @@
       "xp": 0
     }
   ],
-  "elapsed": 10.0073930000002,
+  "elapsed": 10.0007743333334,
   "enemies_spawned": 0,
-  "hero_position": "(334.0578, 32.64307)",
+  "hero_position": "(302.4456, 56.51879)",
   "player_class": "tobor",
   "results": {
     "alive": false,
@@ -126,7 +126,7 @@
     "died": false,
     "errors": [],
     "ffa": {},
-    "gold": 9,
+    "gold": 18,
     "hero_kills": 0,
     "hp_samples": [],
     "landmark_saves": 0,
@@ -144,18 +144,18 @@
     "until_wave": 20,
     "verdict": "",
     "wave": 1,
-    "xp": 30
+    "xp": 60
   },
   "shots": [
     {
       "label": "creep_camps_field",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7279/creep_camps_field_4.006_7279.png",
-      "t": 4.00600724242423
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7329/creep_camps_field_4.008_7329.png",
+      "t": 4.00833333333332
     },
     {
       "label": "creep_camps_wave1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11278/creep_camps_wave1_8.003_11278.png",
-      "t": 8.00268924242441
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11329/creep_camps_wave1_8.001_11328.png",
+      "t": 8.00078300000018
     }
   ]
 }
