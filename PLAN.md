@@ -1823,7 +1823,7 @@ similar in comparison to this and tobor's splash thing"
       attack_range = 57.5 in live game; range indicator circle visibly smaller
       than before. Before/after screenshots committed.
 
-### T3.67 Bug: phantom spawn in map center attracting creeps in solo (NEW 2026-09-14) _STATUS (2026-09-14): needs user repro_
+### T3.67 Bug: phantom spawn in map center attracting creeps in solo (NEW 2026-09-14) _STATUS (2026-09-15): probe built, no phantom found in clean solo — blocked on user repro with live creeps_
 **User direction:** "there is still something spawning in the middle that the
 creeps are attacking in solo even tho i didnt put anything there, its a bug the
 game spawns something itself there"
@@ -1836,8 +1836,22 @@ game spawns something itself there"
 - [ ] Next step: user needs to repro and confirm what the phantom entity is
       (screenshot or node name). Add a debug probe to list all nodes within
       200px of map center when the phantom appears.
+      → DONE (2026-09-15): `map_center_probe` in `selftest_driver.gd` now
+        recursively walks the whole scene tree and reports all Node2D
+        descendants within a radius of the origin. Request:
+        `tools/selftest/requests/t367_phantom_probe.json`.
+      → Result (2026-09-15, Pjotr solo, tobor): 24 nodes within 200px of
+        origin across 3 time-samples (t=3s, 5s, 8s). All are legitimate
+        scene infrastructure: Main, Arena, Walls, StumpLayer, 1 Obstacle
+        at (-160,100), FogModulate, WorldFlash, WorldTransition, Actors,
+        Player_1 at (0,0), Camera2D, SpawnShield, GhostWaveSystem,
+        CreepCamp, RecruitAreas, MinigameArea, Minigame_4, GhostWaves.
+        No phantom summon/NPC entity found. The T3.91 fix
+        (`is_inside_tree()` guard in `_find_nearest_player`) already
+        prevents targeting dead/queued turrets. Still needs a user
+        repro with actual creeps converging on the center to confirm.
 - [ ] In-game verify: Pjotr solo, stand at map center, creeps do NOT attack
-      invisible target.
+      invisible target. (Blocked: needs user repro with live creeps.)
 
 ### T3.71 Joule (arclight) animated menu background (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "put a video as background in the menu for joule

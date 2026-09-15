@@ -1,11 +1,14 @@
 {
   "test_name": "t367_phantom_probe",
-  "hero": "arclight",
-  "description": "T3.67: probe for phantom entities at map center in Pjotr solo mode.",
+  "hero": "tobor",
+  "biome": 0,
+  "comment": "T3.67: probe phantom entity at map center. Stand at origin, run map_center_probe at t=5 and t=10 to list all Node2Ds near origin.",
   "events": [
-    {"t": 2.0, "kind": "map_center_probe", "radius": 250.0},
-    {"t": 4.0, "kind": "map_center_probe", "radius": 400.0},
-    {"t": 6.0, "kind": "report"}
+    {"t": 2.0, "kind": "move", "to": [0, 0]},
+    {"t": 3.0, "kind": "map_center_probe", "radius": 200, "label": "probe_early"},
+    {"t": 5.0, "kind": "map_center_probe", "radius": 200, "label": "probe_mid"},
+    {"t": 8.0, "kind": "map_center_probe", "radius": 200, "label": "probe_late"},
+    {"t": 10.0, "kind": "report"}
   ],
-  "wait_ms": 8000
+  "wait_ms": 12000
 }

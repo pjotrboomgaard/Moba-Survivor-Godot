@@ -308,6 +308,15 @@ func _spawn_test_turret(at: Vector2) -> void:
 	_active_effects.append({"kind": "spawn_turret", "t": _elapsed, "max_hp": hp, "pos": str(world)})
 
 
+func _collect_all_node2d(node: Node, out: Array) -> Array:
+	for child in node.get_children():
+		if child is Node2D:
+			out.append(child)
+		if child.get_children().size() > 0:
+			_collect_all_node2d(child, out)
+	return out
+
+
 func _screenshot(label: String) -> Vector2:
 	await RenderingServer.frame_post_draw
 	var vp := get_viewport()
@@ -588,16 +597,18 @@ func _process(delta: float) -> void:
 				WorldClock.revision += 1
 				_active_effects.append({"kind": "set_night", "on": force_night, "t": _elapsed, "is_night": WorldClock.is_night})
 			"map_center_probe":
-				# T3.67: list all nodes within a radius of the map center
-				# (origin) so a test can identify phantom entities that attract
-				# creeps. Reports node name, class, position, and distance.
+				# T3.67: list all Node2D descendants (any depth) within a radius
+				# of the map center (origin) so a test can identify phantom
+				# entities that attract creeps. Reports node name, class,
+				# position, and distance. Walks the whole tree recursively.
 				var radius: float = float(event.get("radius", 200.0))
 				var entries := []
-				for node in get_tree().root.get_children():
-					if not (node is Node2D):
+				var all := _collect_all_node2d(get_tree().root, [])
+				for node_variant in all:
+					var n2d := node_variant as Node2D
+					if n2d == null:
 						continue
-					var n2d := node as Node2D
-					var dist := n2d.global_position.length()
+					var dist: float = n2d.global_position.length()
 					if dist > radius:
 						continue
 					entries.append({
