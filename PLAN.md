@@ -611,8 +611,11 @@ quality bar. **Same pixel density as the trees** (~32×32, nearest-neighbor), no
 
 ### T3.2 Sound polish
 - [ ] Each world: 3-4 ambient loops
-- [ ] Footsteps per biome (grass = soft, ice = crunch, lava = sizzle)
-- [ ] UI hover/click consistent
+- [x] Footsteps per biome (grass = soft, ice = crunch, lava = sizzle)
+- [x] UI hover/click consistent _STATUS (2026-09-15): Added `ui_hover` SFX (synthesized
+      `assets/audio/themes/ui_hover.wav`, quiet tick at -16dB on the UI bus, routed via
+      `UI_SOUND_IDS`). Wired into all 5 escape-menu buttons in `hud.gd` via `_wire_hover_sfx()`.
+      `ui_click` already existed and is used on every press. Isolated verify pending. _
 
 ### T3.4 Minigame pixel art
 **User direction (2026-09-11):** Every minigame must use pixel-art-only assets —

@@ -187,6 +187,10 @@ func _ready() -> void:
 	resume_button.pressed.connect(_on_resume_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
 	leave_button.pressed.connect(_on_leave_pressed)
+	# T3.2: consistent UI hover feedback — play a soft tick on mouse-enter for the
+	# escape-menu buttons so hover and click are distinguishable but harmonize.
+	for b in [save_button, load_button, resume_button, restart_button, leave_button]:
+		_wire_hover_sfx(b)
 	sfx_toggle.toggled.connect(_on_sfx_toggled)
 	music_toggle.toggled.connect(_on_music_toggled)
 	_build_resolution_option()
@@ -376,6 +380,15 @@ func _on_leave_pressed() -> void:
 	AudioService.play("ui_click")
 	_close_escape_menu()
 	leave_requested.emit()
+
+
+## T3.2: play a soft hover tick when the mouse enters a button. Skipped when the
+## button is disabled so it never announces an un-clickable control.
+func _wire_hover_sfx(btn: Button) -> void:
+	btn.mouse_entered.connect(func() -> void:
+		if not btn.disabled:
+			AudioService.play("ui_hover")
+	)
 
 
 func _sync_audio_toggles() -> void:

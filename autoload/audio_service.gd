@@ -63,6 +63,9 @@ const SOUND_LIBRARY: Dictionary = {
 		preload("res://assets/audio/sfx/ui_click.ogg"),
 		preload("res://assets/audio/sfx/ui_click_2.ogg"),
 	],
+	# T3.2: soft UI hover tick — quieter and shorter than ui_click so it reads as a
+	# gentle "you can interact here" cue without competing with the click.
+	"ui_hover": [preload("res://assets/audio/themes/ui_hover.wav")],
 	"dash": [preload("res://assets/audio/sfx/dash.ogg")],
 	"charge": [preload("res://assets/audio/sfx/charge.ogg")],
 	"player_down": [preload("res://assets/audio/sfx/player_down.ogg")],
@@ -222,6 +225,18 @@ const SOUND_LIBRARY: Dictionary = {
 	"minigame_whack": [preload("res://assets/audio/themes/minigame_whack.wav")],
 	"minigame_rps": [preload("res://assets/audio/themes/minigame_rps.wav")],
 	"minigame_treasure": [preload("res://assets/audio/themes/minigame_treasure.wav")],
+	"minigame_creep_tag": [preload("res://assets/audio/themes/minigame_creep_tag.wav")],
+	"minigame_dance_disco": [preload("res://assets/audio/themes/minigame_dance_disco.wav")],
+	"minigame_keg_toss_pro": [preload("res://assets/audio/themes/minigame_keg_toss_pro.wav")],
+	"minigame_treasure_dash2": [preload("res://assets/audio/themes/minigame_treasure_dash2.wav")],
+	"minigame_whack_rush": [preload("res://assets/audio/themes/minigame_whack_rush.wav")],
+	"minigame_balloon_pop": [preload("res://assets/audio/themes/minigame_balloon_pop.wav")],
+	"minigame_crate_stack": [preload("res://assets/audio/themes/minigame_crate_stack.wav")],
+	"minigame_crystal_catch": [preload("res://assets/audio/themes/minigame_crystal_catch.wav")],
+	"minigame_gem_relay": [preload("res://assets/audio/themes/minigame_gem_relay.wav")],
+	"minigame_ring_roll": [preload("res://assets/audio/themes/minigame_ring_roll.wav")],
+	"minigame_slime_splat": [preload("res://assets/audio/themes/minigame_slime_splat.wav")],
+	"minigame_creep_pinball": [preload("res://assets/audio/themes/minigame_creep_pinball.wav")],
 }
 
 ## P1.3: every archetype in the roster now maps to a distinct SFX family so each
@@ -276,6 +291,7 @@ const VOLUME_DB := {
 	"shop_close": -8.0,
 	"game_over": -4.0,
 	"ui_click": -12.0,
+	"ui_hover": -16.0,  # T3.2: quieter than click so hover never competes with a click
 	"dash": -10.0,
 	"charge": -8.0,
 	"player_down": -4.0,
@@ -447,6 +463,7 @@ const MAX_VOICES := {
 
 const UI_SOUND_IDS := {
 	"ui_click": true,
+	"ui_hover": true,
 	"shop_open": true,
 	"shop_close": true,
 	"purchase": true,
