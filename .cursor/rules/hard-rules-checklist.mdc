@@ -17,6 +17,23 @@ tool, for EVERY task. If a step genuinely cannot be captured (e.g. a one-time
 first-launch behavior), say so explicitly in PLAN.md and capture the closest
 possible proxy — never silently drop the step.
 
+## HARD RULE — Multi-hero changes must be verified on EVERY affected hero
+When a change touches a shared mechanic that applies to MULTIPLE heroes (the
+game has **16 heroes**: Tobor, Arclight, Bulwark, Warden/Diord, Cinder, Pyra,
+Slag, Ember, Thorn, Willow, Stump, Sage, Volt, Nebula, Astral, Rime), you MUST
+verify it on EVERY hero that uses that code path — not just a sample.
+- Run the in-game probe with `-Hero <id>` for EACH affected hero.
+- "It works for Arclight" is NOT enough when the same code path runs for all 16.
+- Document the per-hero results in PLAN.md (hero → observed → expected → PASS/FAIL).
+- Isolated tests may cover the mechanic once; IN-GAME verification must cover
+  all affected heroes.
+
+## HARD RULE — Large tasks must be built AND verified multiple times
+For LARGE tasks (multiple files, multiple heroes, multiple sub-items):
+- Build incrementally; verify EACH sub-item independently.
+- After the full build, re-run ALL sub-item verifications together.
+- Never mark a large task done after a single screenshot batch.
+
 Before marking ANY task as verified/complete, you MUST have a checklist entry
 for each of the following. If ANY box is unchecked, the task is NOT done.
 

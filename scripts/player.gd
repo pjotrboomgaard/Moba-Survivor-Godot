@@ -322,6 +322,69 @@ var _charge_firing := false
 var _attack_held_prev := false
 var charge_rate_mult := 1.0
 
+## T3.96: Generic charge bank for ALL heroes' Q + E abilities.
+## Each hero gets 2 charge-able abilities (kit_q + kit_e). Charges start at 1 at
+## level 1, ramp to max 3 by level 5 (via _charge_max_for). The ultimate (R) is
+## NOT charge-based — it keeps a classic long cooldown. Charges regen over time.
+var _charge_banks: Dictionary = {}  # ability_id -> {left: int, timer: float, max: int}
+const CHARGE_REGEN_SECONDS := 10.0  # T3.96: how long to wait between charge refills
+
+## Abilities that already have their OWN dedicated charge system (Tobor mines/
+## turrets, Bulwark fissure, Warden wards, Arclight Q/A). The generic bank must
+## NOT double-gate these — the specific systems are authoritative for them.
+const _SPECIFIC_CHARGE_ABILITIES: Array[String] = [
+	"tobor_spider_mines", "tobor_steam_turret",
+	"bulwark_fissure",
+	"warden_voodoo_wards",
+	"arclight_blast_of_lightning", "arclight_chain_lightning",
+]
+
+## T3.96: compute the max charge bank size for an ability at a given level.
+## 1 charge at level 1, +1 every 2 levels, capped at 3.
+static func _charge_max_for(level: int) -> int:
+	return clampi(1 + int((level - 1) / 2), 1, 3)
+
+## T3.96: init the charge bank for a single ability. Called on apply_class and
+## on level-up when a new ability is learned.
+func _init_charge_bank(ability_id: String) -> void:
+	var max_c := _charge_max_for(level)
+	_charge_banks[ability_id] = {"left": 1, "timer": 0.0, "max": max_c}
+
+## T3.96: ensure a charge bank exists for the given ability.
+func _ensure_charge_bank(ability_id: String) -> void:
+	if not _charge_banks.has(ability_id):
+		_init_charge_bank(ability_id)
+
+## T3.96: can the given ability be cast right now (has a charge)?
+func _has_charge(ability_id: String) -> bool:
+	_ensure_charge_bank(ability_id)
+	var bank: Dictionary = _charge_banks[ability_id]
+	return int(bank.get("left", 0)) > 0
+
+## T3.96: spend one charge from the bank. Returns true if a charge was consumed.
+func _spend_charge(ability_id: String) -> bool:
+	_ensure_charge_bank(ability_id)
+	var bank: Dictionary = _charge_banks[ability_id]
+	var left: int = int(bank.get("left", 0))
+	if left <= 0:
+		return false
+	bank.left = left - 1
+	bank.timer = 0.0
+	_charge_banks[ability_id] = bank
+	return true
+
+## T3.96: the set of ability IDs that use the charge-bank system (Q + E for every
+## hero, EXCEPT abilities that already have a dedicated per-hero charge system).
+var _charge_able_ids: Array[String] = []
+func _rebuild_charge_able_ids() -> void:
+	_charge_able_ids.clear()
+	var q_id := PlayerClass.kit_q(class_id)
+	var e_id := PlayerClass.kit_e(class_id)
+	if q_id != "" and not _SPECIFIC_CHARGE_ABILITIES.has(q_id):
+		_charge_able_ids.append(q_id)
+	if e_id != "" and not _SPECIFIC_CHARGE_ABILITIES.has(e_id):
+		_charge_able_ids.append(e_id)
+
 
 func _ready() -> void:
 	if camera != null:
@@ -435,6 +498,13 @@ func apply_class(next_class_id: String) -> void:
 	health.is_dead = false
 	health.health_changed.emit(health.current_health, health.max_health)
 	_apply_kit_abilities()
+	# T3.96: initialize the generic charge banks for this hero's Q + E abilities.
+	# Rebuild the chargeable set and ensure a bank exists for each at level 1
+	# (1 charge). The banks are rebuilt fresh each time the hero changes class.
+	_charge_banks.clear()
+	_rebuild_charge_able_ids()
+	for ability_id in _charge_able_ids:
+		_init_charge_bank(ability_id)
 	_apply_sprite()
 	queue_redraw()
 
@@ -1657,6 +1727,23 @@ func _tick_cooldowns(delta: float) -> void:
 		if _arclight_charge_left_a < _arclight_max_charges_for(level, false) and _arclight_charge_timer_a >= ARCLIGHT_CHARGE_REGEN_SECONDS_A:
 			_arclight_charge_left_a += 1
 			_arclight_charge_timer_a = 0.0
+	# T3.96: GENERIC charge-bank regen for ALL heroes' Q + E abilities.
+	# Every hero (not just Tobor/Bulwark/Warden/Arclight) banks up to 3 charges
+	# on their two non-ultimate abilities. Charges refill over time so a player
+	# can burst multiple casts in a fight. The ultimate (R) is NOT in
+	# _charge_able_ids and keeps a classic cooldown.
+	if not _charge_able_ids.is_empty():
+		var max_c := _charge_max_for(level)
+		for ability_id in _charge_able_ids:
+			_ensure_charge_bank(ability_id)
+			var bank: Dictionary = _charge_banks[ability_id]
+			# Keep the bank's max in sync with level (ramps 1 -> 3).
+			bank.max = max_c
+			bank.timer += delta
+			if int(bank.get("left", 0)) < max_c and float(bank.get("timer", 0.0)) >= CHARGE_REGEN_SECONDS:
+				bank.left = int(bank.get("left", 0)) + 1
+				bank.timer = 0.0
+			_charge_banks[ability_id] = bank
 
 
 func _update_ability_slots(delta: float, slots_held: Array) -> void:
@@ -1699,12 +1786,24 @@ func _update_ability_slots(delta: float, slots_held: Array) -> void:
 func _cast_known_ability(slot: int) -> void:
 	var entry := known_abilities[slot]
 	var ability_id := str(entry.id)
+	# T3.96: generic charge gate — Q/E abilities across all 16 heroes use a
+	# charge bank instead of (or in addition to) a cooldown. If no charge is
+	# available, the cast is silently blocked and no cooldown is started.
+	if _charge_able_ids.has(ability_id) and not _has_charge(ability_id):
+		if OS.is_debug_build():
+			print("[Charge] blocked %s — no charge left" % ability_id)
+		return
 	var data := PlayerClass.ability_info(ability_id)
 	if data.is_empty():
 		return
 	var values := PlayerClass.ability_values(ability_id, int(entry.rank))
 	_casting_ability_id = ability_id
 	ability_cooldowns[slot] = values.cooldown
+	# Consume one charge for charge-bank abilities (after data validation so we
+	# don't waste a charge on an invalid cast).
+	if _charge_able_ids.has(ability_id):
+		_spend_charge(ability_id)
+
 	# Every ability that does something fires a hero-distinctive SFX (the per-hero
 	# cast bank). Skipped for CPU bots and menu previews (SoundDirector.preview_muted).
 	_play_ability_sfx(ability_id)

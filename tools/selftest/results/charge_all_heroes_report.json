@@ -1,0 +1,457 @@
+{
+  "effects": [
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "tobor_steam_keg": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "tobor",
+      "t": 1.20448333333333
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "bulwark_heavyweight": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "bulwark",
+      "t": 2.20477499999999
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "warden_thorn_volley": {
+            "left": 1,
+            "max": 1
+          },
+          "warden_tongue_tied": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "warden",
+      "t": 3.20466666666666
+    },
+    {
+      "charges": {
+        "arclight_a_max": 1,
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "arclight_level": 1,
+        "arclight_q_max": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {},
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "arclight",
+      "t": 4.20466666666666
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "cinder_dragon_fire": {
+            "left": 1,
+            "max": 1
+          },
+          "cinder_fiery_assault": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "cinder",
+      "t": 5.20466666666671
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "pyra_boom_dust": {
+            "left": 1,
+            "max": 1
+          },
+          "pyra_sticky_bomb": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "pyra",
+      "t": 6.20466666666676
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "slag_boulder_hurl": {
+            "left": 1,
+            "max": 1
+          },
+          "slag_volcanic_touch": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "slag",
+      "t": 7.2102696666668
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "ember_entangle": {
+            "left": 1,
+            "max": 1
+          },
+          "ember_firebomb": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "ember",
+      "t": 8.20606060606077
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "thorn_poison_spray": {
+            "left": 1,
+            "max": 1
+          },
+          "thorn_toxicity": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "thorn",
+      "t": 9.20490000000012
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "willow_forsaken_shot": {
+            "left": 1,
+            "max": 1
+          },
+          "willow_swift_strike": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "willow",
+      "t": 10.2025490000001
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "stump_natures_rally": {
+            "left": 1,
+            "max": 1
+          },
+          "stump_root_charge": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "stump",
+      "t": 11.2
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "sage_petal_dance": {
+            "left": 1,
+            "max": 1
+          },
+          "sage_volatile_pod": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "sage",
+      "t": 12.2058836666667
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "volt_gust": {
+            "left": 1,
+            "max": 1
+          },
+          "volt_plasma_bolt": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "volt",
+      "t": 13.2075616666666
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "nebula_arcane_bolt": {
+            "left": 1,
+            "max": 1
+          },
+          "nebula_curse_of_ages": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "nebula",
+      "t": 14.2074979999999
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "astral_ghastly_touch": {
+            "left": 1,
+            "max": 1
+          },
+          "astral_moonfall": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "astral",
+      "t": 15.2074616666666
+    },
+    {
+      "charges": {
+        "arclight_charge_left_a": 1,
+        "arclight_charge_left_q": 1,
+        "fissure_charge_left": 3,
+        "generic_charge_able_ids": [
+          "rime_ice_imprisonment",
+          "rime_chilling_touch"
+        ],
+        "generic_charge_banks": {
+          "rime_chilling_touch": {
+            "left": 1,
+            "max": 1
+          },
+          "rime_ice_imprisonment": {
+            "left": 1,
+            "max": 1
+          }
+        },
+        "mine_charge_left": 3,
+        "turret_charge_left": 3,
+        "ward_charge_left": 3
+      },
+      "kind": "charge_probe",
+      "label": "rime",
+      "t": 16.2057433333332
+    }
+  ],
+  "elapsed": 17.0072269999998,
+  "enemies_spawned": 0,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "rime",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": []
+}

@@ -244,6 +244,34 @@ explicitly in PLAN.md and capture the closest possible proxy — never silently
 drop the step. This pairs with the 6-step pipeline above: isolated first (steps
 1–3), then in-game (steps 4–6).
 
+### HARD RULE — Multi-hero changes must be verified on EVERY affected hero (NEW 2026-09-15)
+When a change touches a shared mechanic that applies to MULTIPLE heroes (e.g. the
+charge system, hero size, hover offset, ability cooldowns, upgrade offers, damage
+scalars), you MUST verify it on EVERY hero that is affected — not just the one
+you tested. Concretely:
+- The game has **16 heroes** (Tobor, Arclight, Bulwark, Warden/Diord, Cinder,
+  Pyra, Slag, Ember, Thorn, Willow, Stump, Sage, Volt, Nebula, Astral, Rime).
+  When a change touches a shared code path, verify it on ALL heroes that use
+  that code path — not just a sample.
+- "It works for Arclight" is NOT enough when the same code path runs for all
+  16 heroes. Verify each affected hero.
+- Add a charge_probe / stat probe driver event that reports per-hero values, and
+  run it with `-Hero <id>` for each hero in the affected set.
+- Document the per-hero results in PLAN.md (a table or list of hero → observed
+  value → expected → PASS/FAIL).
+- Isolated tests may cover the mechanic once, but the IN-GAME verification must
+  cover all affected heroes.
+
+### HARD RULE — Large tasks must be built AND verified multiple times (NEW 2026-09-15)
+For LARGE tasks (anything spanning multiple files, multiple heroes, or multiple
+sub-items — e.g. extending the charge system to all heroes, the 2-slot upgrade
+panel, stronger non-charge upgrades), you MUST:
+- Build the change incrementally and verify EACH sub-item independently.
+- After building the full change, re-run verification for ALL sub-items together
+  to catch regressions between them.
+- Never mark a large task done after a single screenshot batch. Produce a set of
+  evidence per sub-item AND a combined final evidence set.
+
 ---
 
 ## P0 — CRITICAL (blocks everything)
@@ -2113,18 +2141,31 @@ sprites for in the night"
       sprites; toggle day/night; confirm red eyes appear at night.
 - [ ] In-game verify: grass biome, night time; screenshot shows red-eyed creeps.
 
-### T3.86 Isolated tests: empty-world hard rule (NEW 2026-09-14) _STATUS (2026-09-14): in-progress_
+### T3.86 Isolated tests: empty-world hard rule (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "i often see isolated test not in the right manner. isolated
 should always be in an empty world with no background or other hud. it can be a
 bot placing something but then there should be no other objects etc visible. no
 grass no hud nothing. make sure it works like this update the rules."
-- [ ] Update `.cursor/rules/verification-pipeline.mdc` + `test-and-verify.mdc`:
+- [x] Update `.cursor/rules/verification-pipeline.mdc` + `test-and-verify.mdc`:
       state explicitly that isolated test scenes must have NO ground, NO grass,
       NO HUD, NO background, NO other objects. Only the mechanic under test + a
       camera. A bot may place an entity, but nothing else.
-- [ ] Audit existing isolated test scenes; add the empty-world baseline to any
+      → Both rule files now have explicit "ISOLATED = EMPTY WORLD (HARD RULE)"
+      sections (verification-pipeline.mdc "## ISOLATED = EMPTY WORLD" + the new
+      "Screenshots are the primary verification" hard rule; test-and-verify.mdc
+      "HARD RULE — Isolated tests live in a truly EMPTY world"). Both were updated
+      2026-09-15 to be airtight.
+- [x] Audit existing isolated test scenes; add the empty-world baseline to any
       that currently render a full arena background.
-- [ ] Verify the updated rule text is in both rule files.
+      → Audited `scenes/crater_spawn_test` (empty: crater arc + camera only),
+      `scenes/enemy_perf_bench` (empty: dark plane + camera, no grass/HUD),
+      `scenes/sky_bolt_test` (empty: dark plane + camera). All three conform to
+      the empty-world baseline. No full-arena isolated scenes found.
+- [x] Verify the updated rule text is in both rule files.
+      → `verification-pipeline.mdc` has "## ISOLATED = EMPTY WORLD (HARD RULE)"
+      and the new "HARD RULE — Screenshots are the primary verification, never
+      skippable" section. `test-and-verify.mdc` has "HARD RULE — Isolated tests
+      live in a truly EMPTY world". Both committed 2026-09-15.
 
 ### T3.87 3× more enemies in all modes (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "add to list: 3 times as many enemies in all mode"

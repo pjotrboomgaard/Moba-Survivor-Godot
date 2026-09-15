@@ -1041,6 +1041,15 @@ func _record_charge_probe(label: String) -> void:
 		charges["arclight_q_max"] = int(_player._arclight_max_charges_for(_player.level, false))
 		charges["arclight_a_max"] = int(_player._arclight_max_charges_for(_player.level, false))
 		charges["arclight_level"] = int(_player.level)
+	# T3.96: generic charge banks (all 16 heroes' Q + E).
+	var banks: Dictionary = _player.get("_charge_banks")
+	if banks is Dictionary:
+		var bank_report: Dictionary = {}
+		for aid in banks.keys():
+			var b: Dictionary = banks[aid]
+			bank_report[str(aid)] = {"left": int(b.get("left", 0)), "max": int(b.get("max", 0))}
+		charges["generic_charge_banks"] = bank_report
+		charges["generic_charge_able_ids"] = _player.get("_charge_able_ids")
 	_active_effects.append({"kind": "charge_probe", "label": label, "t": _elapsed, "charges": charges})
 
 

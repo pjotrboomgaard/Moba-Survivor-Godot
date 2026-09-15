@@ -1,0 +1,19 @@
+{
+  "test_name": "charge_all_heroes_probe",
+  "hero": "tobor",
+  "description": "T3.96: probe charge banks across multiple heroes. Each hero event swaps to that hero and records a charge_probe. Verifies the generic charge system initializes correctly per hero.",
+  "events": [
+    {"t": 1.0, "kind": "charge_probe", "label": "tobor_start"},
+    {"t": 2.0, "kind": "hero", "id": "arclight"},
+    {"t": 3.0, "kind": "charge_probe", "label": "arclight_start"},
+    {"t": 4.0, "kind": "hero", "id": "bulwark"},
+    {"t": 5.0, "kind": "charge_probe", "label": "bulwark_start"},
+    {"t": 6.0, "kind": "hero", "id": "warden"},
+    {"t": 7.0, "kind": "charge_probe", "label": "warden_start"},
+    {"t": 8.0, "kind": "report"}
+  ],
+  "wait_ms": 10000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}
