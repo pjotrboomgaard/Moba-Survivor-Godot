@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\world_theme_iso\\iso_after_grid.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.0036,
+  "bounding_box": [
+    391,
+    176,
+    1184,
+    218
+  ],
+  "coverage": 0.0165,
+  "position": "TOP",
+  "is_centered": false,
+  "quadrant_fractions": {
+    "TL": 0.7022,
+    "TR": 0.2978,
+    "BL": 0.0,
+    "BR": 0.0
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\world_theme_iso\\thumb_iso_after_grid.png"
+}

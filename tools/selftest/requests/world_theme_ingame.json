@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "comment": "T3.2 in-game verify: FFA boots fast and wave 1 sets biome 0 (grass). Probe the 4 grass ambient layers, snap, then report.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 3.0, "kind": "world_theme_probe", "label": "grass_ingame"},
+    {"t": 5.0, "kind": "snap", "label": "world_theme_ingame"},
+    {"t": 6.0, "kind": "world_theme_probe", "label": "grass_ingame_2"},
+    {"t": 7.0, "kind": "report"}
+  ]
+}

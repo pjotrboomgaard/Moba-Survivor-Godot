@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\minigame_complete_ingame\\mg_complete_ingame_8.005_11325.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.1878,
+  "bounding_box": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2017,
+    "TR": 0.2539,
+    "BL": 0.2013,
+    "BR": 0.3431
+  },
+  "edge_fractions": {
+    "top": 0.0057,
+    "bottom": 0.0064,
+    "left": 0.0035,
+    "right": 0.0094
+  },
+  "thumbnail": "tools\\selftest\\results\\minigame_complete_ingame\\thumb_mg_complete_ingame_8.005_11325.png"
+}

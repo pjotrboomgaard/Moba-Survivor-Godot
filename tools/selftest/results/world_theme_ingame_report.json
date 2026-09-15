@@ -1,0 +1,211 @@
+{
+  "effects": [
+    {
+      "biome_id": 0,
+      "expected_layers": 4,
+      "kind": "world_theme_probe",
+      "label": "grass_ingame",
+      "layers": [
+        {
+          "playing": false,
+          "slot": 0,
+          "stream": "(res://assets/audio/themes/world_grass.wav):<AudioStreamWAV#-9223371962481375533>",
+          "vol_db": -24.0
+        },
+        {
+          "playing": false,
+          "slot": 1,
+          "stream": "(res://assets/audio/themes/world_grass_birds.wav):<AudioStreamWAV#-9223371962263271724>",
+          "vol_db": -28.0
+        },
+        {
+          "playing": false,
+          "slot": 2,
+          "stream": "(res://assets/audio/themes/world_grass_wind.wav):<AudioStreamWAV#-9223371962045167915>",
+          "vol_db": -30.0
+        },
+        {
+          "playing": false,
+          "slot": 3,
+          "stream": "(res://assets/audio/themes/world_grass_stream.wav):<AudioStreamWAV#-9223371961827064106>",
+          "vol_db": -29.0
+        }
+      ],
+      "playing": 0,
+      "t": 3.00361066666666
+    },
+    {
+      "biome_id": 0,
+      "expected_layers": 4,
+      "kind": "world_theme_probe",
+      "label": "grass_ingame_2",
+      "layers": [
+        {
+          "playing": false,
+          "slot": 0,
+          "stream": "(res://assets/audio/themes/world_grass.wav):<AudioStreamWAV#-9223371962481375533>",
+          "vol_db": -24.0
+        },
+        {
+          "playing": false,
+          "slot": 1,
+          "stream": "(res://assets/audio/themes/world_grass_birds.wav):<AudioStreamWAV#-9223371962263271724>",
+          "vol_db": -28.0
+        },
+        {
+          "playing": false,
+          "slot": 2,
+          "stream": "(res://assets/audio/themes/world_grass_wind.wav):<AudioStreamWAV#-9223371962045167915>",
+          "vol_db": -30.0
+        },
+        {
+          "playing": false,
+          "slot": 3,
+          "stream": "(res://assets/audio/themes/world_grass_stream.wav):<AudioStreamWAV#-9223371961827064106>",
+          "vol_db": -29.0
+        }
+      ],
+      "playing": 0,
+      "t": 6.00564600000007
+    }
+  ],
+  "elapsed": 7.00218690909101,
+  "enemies_spawned": 0,
+  "hero_position": "(825.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [
+      "never fought: casts=0 gold=0 kills=0 creep_kills=0"
+    ],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": true,
+          "damage_dealt": 0.0,
+          "damage_taken": 0.0,
+          "hp": 130.5,
+          "kills": 0,
+          "local": true,
+          "max_hp": 130.5,
+          "peer": 1,
+          "pos": [
+            825.0,
+            0.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": true,
+          "class": "cinder",
+          "cpu": true,
+          "damage_dealt": 0.0,
+          "damage_taken": 0.0,
+          "hp": 130.5,
+          "kills": 0,
+          "local": false,
+          "max_hp": 130.5,
+          "peer": 101,
+          "pos": [
+            0.0,
+            825.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "pyra",
+          "cpu": true,
+          "damage_dealt": 0.0,
+          "damage_taken": 0.0,
+          "hp": 152.3,
+          "kills": 0,
+          "local": false,
+          "max_hp": 152.3,
+          "peer": 102,
+          "pos": [
+            -825.0,
+            0.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "slag",
+          "cpu": true,
+          "damage_dealt": 0.0,
+          "damage_taken": 0.0,
+          "hp": 275.5,
+          "kills": 0,
+          "local": false,
+          "max_hp": 275.5,
+          "peer": 103,
+          "pos": [
+            0.0,
+            -825.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.14
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.15
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "FAIL_IDLE",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "world_theme_ingame",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8312/world_theme_ingame_5.008_8312.png",
+      "t": 5.00773800000004
+    }
+  ]
+}

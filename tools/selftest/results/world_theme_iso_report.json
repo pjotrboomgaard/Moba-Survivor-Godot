@@ -1,0 +1,174 @@
+{
+	"fail": 0,
+	"ok": 5,
+	"results": [
+		{
+			"biome": 0,
+			"biome_name": "grass",
+			"expected_layers": 4,
+			"layers": [
+				{
+					"playing": false,
+					"slot": 0,
+					"stream": "res://assets/audio/themes/world_grass.wav",
+					"vol_db": -24.0
+				},
+				{
+					"playing": false,
+					"slot": 1,
+					"stream": "res://assets/audio/themes/world_grass_birds.wav",
+					"vol_db": -28.0
+				},
+				{
+					"playing": false,
+					"slot": 2,
+					"stream": "res://assets/audio/themes/world_grass_wind.wav",
+					"vol_db": -30.0
+				},
+				{
+					"playing": false,
+					"slot": 3,
+					"stream": "res://assets/audio/themes/world_grass_stream.wav",
+					"vol_db": -29.0
+				}
+			],
+			"ok": true,
+			"playing": 0
+		},
+		{
+			"biome": 1,
+			"biome_name": "volcano",
+			"expected_layers": 4,
+			"layers": [
+				{
+					"playing": false,
+					"slot": 0,
+					"stream": "res://assets/audio/themes/world_volcano.wav",
+					"vol_db": -24.0
+				},
+				{
+					"playing": false,
+					"slot": 1,
+					"stream": "res://assets/audio/themes/world_volcano_embers.wav",
+					"vol_db": -28.0
+				},
+				{
+					"playing": false,
+					"slot": 2,
+					"stream": "res://assets/audio/themes/world_volcano_magma.wav",
+					"vol_db": -29.0
+				},
+				{
+					"playing": false,
+					"slot": 3,
+					"stream": "res://assets/audio/themes/world_volcano_sub.wav",
+					"vol_db": -32.0
+				}
+			],
+			"ok": true,
+			"playing": 0
+		},
+		{
+			"biome": 2,
+			"biome_name": "ice",
+			"expected_layers": 4,
+			"layers": [
+				{
+					"playing": false,
+					"slot": 0,
+					"stream": "res://assets/audio/themes/world_ice.wav",
+					"vol_db": -24.0
+				},
+				{
+					"playing": false,
+					"slot": 1,
+					"stream": "res://assets/audio/themes/world_ice_gust.wav",
+					"vol_db": -28.0
+				},
+				{
+					"playing": false,
+					"slot": 2,
+					"stream": "res://assets/audio/themes/world_ice_snow.wav",
+					"vol_db": -29.0
+				},
+				{
+					"playing": false,
+					"slot": 3,
+					"stream": "res://assets/audio/themes/world_ice_tinkle.wav",
+					"vol_db": -30.0
+				}
+			],
+			"ok": true,
+			"playing": 0
+		},
+		{
+			"biome": 3,
+			"biome_name": "factory",
+			"expected_layers": 4,
+			"layers": [
+				{
+					"playing": false,
+					"slot": 0,
+					"stream": "res://assets/audio/themes/world_factory.wav",
+					"vol_db": -24.0
+				},
+				{
+					"playing": false,
+					"slot": 1,
+					"stream": "res://assets/audio/themes/world_factory_clang.wav",
+					"vol_db": -29.0
+				},
+				{
+					"playing": false,
+					"slot": 2,
+					"stream": "res://assets/audio/themes/world_factory_clank.wav",
+					"vol_db": -30.0
+				},
+				{
+					"playing": false,
+					"slot": 3,
+					"stream": "res://assets/audio/themes/world_factory_steam.wav",
+					"vol_db": -28.0
+				}
+			],
+			"ok": true,
+			"playing": 0
+		},
+		{
+			"biome": 4,
+			"biome_name": "docks",
+			"expected_layers": 4,
+			"layers": [
+				{
+					"playing": false,
+					"slot": 0,
+					"stream": "res://assets/audio/themes/world_docks.wav",
+					"vol_db": -24.0
+				},
+				{
+					"playing": false,
+					"slot": 1,
+					"stream": "res://assets/audio/themes/world_docks_gull.wav",
+					"vol_db": -28.0
+				},
+				{
+					"playing": false,
+					"slot": 2,
+					"stream": "res://assets/audio/themes/world_docks_lapping.wav",
+					"vol_db": -29.0
+				},
+				{
+					"playing": false,
+					"slot": 3,
+					"stream": "res://assets/audio/themes/world_docks_rope.wav",
+					"vol_db": -31.0
+				}
+			],
+			"ok": true,
+			"playing": 0
+		}
+	],
+	"screenshot": "user://world_theme_iso_grid.png",
+	"total_biomes": 5,
+	"verdict": "PASS"
+}

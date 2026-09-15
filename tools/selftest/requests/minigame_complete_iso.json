@@ -1,0 +1,6 @@
+{
+  "hero": "tobor",
+  "minigame_index": 0,
+  "time_scale": 1.0,
+  "comment": "Isolated: Treasure Dash (index 0) completes with a positive score via bot-driven hero in the empty minigame_test world. Proves the completion mechanic (score>0 -> reward) works in an isolated context, separate from SFX coverage."
+}

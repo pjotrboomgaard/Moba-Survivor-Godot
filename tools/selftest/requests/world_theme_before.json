@@ -1,0 +1,7 @@
+{
+  "comment": "T3.2 BEFORE capture: standalone before-scene reads WORLD_THEME_TRACKS loop counts and quits itself. Request is only for the harness to stage + poll the report.",
+  "hero": "tobor",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "events": [ {"t": 0.5, "kind": "report"} ]
+}

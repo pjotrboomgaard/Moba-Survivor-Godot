@@ -566,12 +566,19 @@ func _process(delta: float) -> void:
 				# Toggle bot_force on a minigame so it plays itself via bot_tick
 				# each frame (used to verify bot playability without a CPU brain).
 				_minigame_bot_force_event(int(event.get("index", 0)), bool(event.get("on", true)))
+			"minigame_stop":
+				# T-line: end an active player-owned minigame early via its own
+				# stop() path (grants the finish reward) so a "player can complete"
+				# check need not wait the full 15s timer.
+				_minigame_stop_event(int(event.get("index", 0)), str(event.get("label", "stop")))
 			"fps_probe":
 				_record_fps(str(event.get("label", "fps")))
 			"biome_probe":
 				_record_biome(str(event.get("label", "biome")))
 			"sound_probe":
 				_record_sound_probe(str(event.get("label", "")), str(event.get("ability_id", "")))
+			"world_theme_probe":
+				_record_world_theme_probe(str(event.get("label", "world_theme")))
 			"tree_hp_probe":
 				# T3.75: report tree HP / breaking / collision state for verification.
 				_record_tree_hp_probe(str(event.get("label", "tree_hp")))
@@ -1434,6 +1441,44 @@ func _minigame_bot_force_event(index: int, on: bool) -> void:
 	_active_effects.append({"kind": "minigame_bot_force", "index": index, "on": on, "t": _elapsed})
 
 
+## Ends an active minigame early through its own stop() path (the same path a
+## player trigger would use to award the finish reward) and records the owner's
+## gold/finished state. Used to verify "player can complete it" without waiting
+## out the full 15s timer.
+func _minigame_stop_event(index: int, label: String) -> void:
+	var host_main: Variant = _host_main
+	if host_main == null:
+		_active_effects.append({"kind": "minigame_stop", "label": label, "index": index, "error": "no host", "t": _elapsed})
+		return
+	var ma: Variant = host_main.get("_minigame_area")
+	if ma == null or not is_instance_valid(ma):
+		_active_effects.append({"kind": "minigame_stop", "label": label, "index": index, "error": "no minigame_area", "t": _elapsed})
+		return
+	var g: Variant = ma.call("get_minigame", index)
+	if g == null or not is_instance_valid(g):
+		_active_effects.append({"kind": "minigame_stop", "label": label, "index": index, "error": "no minigame at index", "t": _elapsed})
+		return
+	var gold_before := 0
+	if _player != null:
+		gold_before = int(_player.gold)
+	g.set("bot_force", false)
+	g.stop()
+	var gold_after := int(_player.gold) if _player != null else 0
+	_active_effects.append({
+		"kind": "minigame_stop",
+		"label": label,
+		"index": index,
+		"id": str(g.get("display_name")),
+		"was_active": bool(g.get("active")),
+		"finished": bool(g.get("finished_flag")),
+		"score": int(g.get("score")),
+		"owner_gold_before": gold_before,
+		"owner_gold_after": gold_after,
+		"reward_granted": (gold_after - gold_before) >= 30,
+		"t": _elapsed,
+	})
+
+
 ## Count of live obstacle nodes in the arena. 0 (or a suspiciously low number)
 ## signals the "empty map, only town" bug where the editor level / procedural
 ## scatter failed to populate the field.
@@ -1666,6 +1711,36 @@ func _summons_owner_probe() -> Array:
 		var time_left := float(node.get("time_left")) if node.get("time_left") != null else -1.0
 		out.append({"owner_peer_id": owner_id, "ability_id": ability, "time_left": time_left})
 	return out
+
+
+## T3.2: report which world-ambient loops are currently playing. Confirms each
+## biome's layered beds are live (primary + sub-layers) and distinct.
+func _record_world_theme_probe(label: String) -> void:
+	var players: Array = AudioService._world_theme_players
+	var layers: Array = []
+	var playing := 0
+	for i in players.size():
+		var p: AudioStreamPlayer = players[i]
+		var st: String = ""
+		if p != null and p.stream != null:
+			st = str(p.stream)
+		var is_playing := (p != null and p.playing)
+		if is_playing:
+			playing += 1
+		layers.append({"slot": i, "stream": st, "playing": is_playing, "vol_db": float(p.volume_db) if p != null else -999.0})
+	var expected := 0
+	var biome := int(AudioService._world_theme_biome)
+	if biome >= 0:
+		expected = int(AudioService.WORLD_THEME_TRACKS.get(biome, []).size())
+	_active_effects.append({
+		"kind": "world_theme_probe",
+		"label": label,
+		"t": _elapsed,
+		"biome_id": biome,
+		"expected_layers": expected,
+		"playing": playing,
+		"layers": layers,
+	})
 
 
 ## Hold RMB for the given duration to wind up the secondary charge, then release.

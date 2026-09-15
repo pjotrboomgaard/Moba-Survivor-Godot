@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/world_theme_iso_test/world_theme_before_test.gd" id="1_before"]
+
+[node name="WorldThemeBeforeTest" type="Node2D"]
+script = ExtResource("1_before")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1, 1)
+position = Vector2(0, 0)

@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/world_theme_iso/iso_after_grid.png",
+  "after": "tools/selftest/results/world_theme_ingame/world_theme_ingame_5.008_8312.png",
+  "out": "tools/selftest/results/world_theme_ingame/diff_iso.png",
+  "changed_pixels": 705513,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.340236,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

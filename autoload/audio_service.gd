@@ -63,7 +63,7 @@ const SOUND_LIBRARY: Dictionary = {
 		preload("res://assets/audio/sfx/ui_click.ogg"),
 		preload("res://assets/audio/sfx/ui_click_2.ogg"),
 	],
-	# T3.2: soft UI hover tick — quieter and shorter than ui_click so it reads as a
+	# T3.2: soft UI hover tick ΓÇö quieter and shorter than ui_click so it reads as a
 	# gentle "you can interact here" cue without competing with the click.
 	"ui_hover": [preload("res://assets/audio/themes/ui_hover.wav")],
 	"dash": [preload("res://assets/audio/sfx/dash.ogg")],
@@ -346,7 +346,7 @@ const VOLUME_DB := {
 	"attack_secondary_nebula": -9.0,
 	"attack_secondary_astral": -9.0,
 	"attack_secondary_rime": -9.0,
-	# T3.35 item 7: boss attack is meant to be felt — keep it prominent but not
+	# T3.35 item 7: boss attack is meant to be felt ΓÇö keep it prominent but not
 	# ear-splitting since it can fire on a 2.6-3.5s cadence in boss form.
 	"boss_attack": -4.0,
 	"countdown_tick": -6.0,
@@ -484,21 +484,49 @@ const MUSIC_VOLUME_DB := -18.0
 const POOL_SIZE := 14
 const DEFAULT_MAX_VOICES := 5
 
-## Per-world ambient beds: a short, punchy, pixel-art-analog bed per biome that loops
-## under the arena music so each world "sounds" like its place (grass nature, volcano
-## rumble, ice wind, docks water). Synthesized by tools/synth_themes.py.
+## Per-world ambient beds: T3.2 — each biome layers up to 4 simultaneous loops
+## (a primary bed + 3 sub-layers) so every world has a layered soundscape instead of
+## a single bed. Each entry is [AudioStream, volume_offset_db]. Synthesized by
+## tools/synth_themes.py (WORLD_AMBIENT_LOOPS).
 const WORLD_THEME_TRACKS: Dictionary = {
-	0: preload("res://assets/audio/themes/world_grass.wav"),
-	1: preload("res://assets/audio/themes/world_volcano.wav"),
-	2: preload("res://assets/audio/themes/world_ice.wav"),
-	3: preload("res://assets/audio/themes/world_factory.wav"),
-	4: preload("res://assets/audio/themes/world_docks.wav"),
+	0: [
+		[preload("res://assets/audio/themes/world_grass.wav"), 0.0],
+		[preload("res://assets/audio/themes/world_grass_birds.wav"), -4.0],
+		[preload("res://assets/audio/themes/world_grass_wind.wav"), -6.0],
+		[preload("res://assets/audio/themes/world_grass_stream.wav"), -5.0],
+	],
+	1: [
+		[preload("res://assets/audio/themes/world_volcano.wav"), 0.0],
+		[preload("res://assets/audio/themes/world_volcano_embers.wav"), -4.0],
+		[preload("res://assets/audio/themes/world_volcano_magma.wav"), -5.0],
+		[preload("res://assets/audio/themes/world_volcano_sub.wav"), -8.0],
+	],
+	2: [
+		[preload("res://assets/audio/themes/world_ice.wav"), 0.0],
+		[preload("res://assets/audio/themes/world_ice_gust.wav"), -4.0],
+		[preload("res://assets/audio/themes/world_ice_snow.wav"), -5.0],
+		[preload("res://assets/audio/themes/world_ice_tinkle.wav"), -6.0],
+	],
+	3: [
+		[preload("res://assets/audio/themes/world_factory.wav"), 0.0],
+		[preload("res://assets/audio/themes/world_factory_clang.wav"), -5.0],
+		[preload("res://assets/audio/themes/world_factory_clank.wav"), -6.0],
+		[preload("res://assets/audio/themes/world_factory_steam.wav"), -4.0],
+	],
+	4: [
+		[preload("res://assets/audio/themes/world_docks.wav"), 0.0],
+		[preload("res://assets/audio/themes/world_docks_gull.wav"), -4.0],
+		[preload("res://assets/audio/themes/world_docks_lapping.wav"), -5.0],
+		[preload("res://assets/audio/themes/world_docks_rope.wav"), -7.0],
+	],
 }
 const WORLD_THEME_VOLUME_DB := -24.0
+## Number of simultaneous ambient-loop layers per world (T3.2).
+const _WORLD_THEME_SLOT_COUNT := 4
 
 var sfx_enabled := false
 var music_enabled := true
-var _world_theme_player: AudioStreamPlayer
+var _world_theme_players: Array[AudioStreamPlayer] = []
 var _world_theme_biome: int = -1
 
 ## Self-test/probe hooks: last_play_ability mirrors the ability_id passed to the latest
@@ -506,7 +534,7 @@ var _world_theme_biome: int = -1
 ## exact stream take, and the AudioStreamPlayer of the most recent play() so probes can
 ## assert non-null and inspect which bank file was picked. last_ability_play mirrors the
 ## same triple but ONLY for the most recent play_ability() call that actually fired a
-## hero bank/family take — it is never clobbered by unrelated play() calls (footsteps,
+## hero bank/family take ΓÇö it is never clobbered by unrelated play() calls (footsteps,
 ## countdown ticks, etc.), so probes that read it right after a cast still see the
 ## ability sound even when other SFX fire in between.
 var last_play_ability: String = ""
@@ -530,7 +558,8 @@ func _ready() -> void:
 		player.process_mode = Node.PROCESS_MODE_ALWAYS
 		add_child(player)
 		_sfx_pool.append(player)
-	_world_theme_player = _make_world_theme_player()
+	for _slot in _WORLD_THEME_SLOT_COUNT:
+		_world_theme_players.append(_make_world_theme_player())
 	_apply_mute_state()
 
 
@@ -560,8 +589,8 @@ func has_sound(sound_id: String) -> bool:
 	return SOUND_LIBRARY.has(sound_id)
 
 
-## Every cast plays its hero's own bank first — `cast_<hero>` from the ability id's hero
-## prefix — so casts are hero-distinctive. Heroes without a bank of their own fall back to
+## Every cast plays its hero's own bank first ΓÇö `cast_<hero>` from the ability id's hero
+## prefix ΓÇö so casts are hero-distinctive. Heroes without a bank of their own fall back to
 ## the shared archetype family takes (projectile/cone/heal/...) so the layer never goes
 ## silent; a total miss warns instead of crashing. last_play_ability records what fired
 ## for probes/debugging.
@@ -632,41 +661,52 @@ func stop_music() -> void:
 	_music_player.stop()
 
 
-## Crossfades the looping world-ambient bed to match the current biome. Each world "sounds"
-## like its place (grass = nature swell, volcano = rumble, ice = wind, docks = water).
-## No-op if the biome hasn't changed or the bed is missing. Called on world transition.
+## Crossfades the layered world-ambient beds to match the current biome. Each world
+## now runs up to _WORLD_THEME_SLOT_COUNT simultaneous loops so the soundscape reads
+## as layered rather than a single bed. No-op if the biome hasn't changed.
 func set_world_theme(biome_id: int) -> void:
-	if _world_theme_player == null or not _world_theme_player.is_inside_tree():
+	if _world_theme_players.is_empty():
 		return
 	if biome_id == _world_theme_biome:
 		return
 	_world_theme_biome = biome_id
-	var track: Variant = WORLD_THEME_TRACKS.get(biome_id, null)
-	if track == null:
+	var layers: Variant = WORLD_THEME_TRACKS.get(biome_id, null)
+	if layers == null:
 		_stop_world_theme()
 		return
-	var stream: AudioStream = track
-	if stream is AudioStreamWAV:
-		(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
-		(stream as AudioStreamWAV).loop_begin = 0
-		(stream as AudioStreamWAV).loop_end = -1
-	if _world_theme_player.playing:
-		# Simple crossfade: start the new bed quietly, fade up, and let the old bed's
-		# tail die under it (the single-loop design keeps this cheap).
-		_world_theme_player.stream = stream
-		_world_theme_player.volume_db = WORLD_THEME_VOLUME_DB - 14.0
-		_world_theme_player.play()
-		var tw := create_tween()
-		tw.tween_property(_world_theme_player, "volume_db", WORLD_THEME_VOLUME_DB, 1.2)
-	else:
-		_world_theme_player.stream = stream
-		_world_theme_player.volume_db = WORLD_THEME_VOLUME_DB
-		_world_theme_player.play()
+	for slot in _world_theme_players.size():
+		var player: AudioStreamPlayer = _world_theme_players[slot]
+		if player == null or not player.is_inside_tree():
+			continue
+		if slot >= int((layers as Array).size()):
+			if player.playing:
+				player.stop()
+			continue
+		var entry: Array = layers[slot]
+		var stream: AudioStream = entry[0]
+		var offset_db: float = float(entry[1])
+		if stream is AudioStreamWAV:
+			(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
+			(stream as AudioStreamWAV).loop_begin = 0
+			(stream as AudioStreamWAV).loop_end = -1
+		var target_db: float = WORLD_THEME_VOLUME_DB + offset_db
+		if player.playing:
+			# Crossfade: swap the stream at a ducked volume, then fade up to target.
+			player.stream = stream
+			player.volume_db = target_db - 14.0
+			player.play()
+			var tw := create_tween()
+			tw.tween_property(player, "volume_db", target_db, 1.2)
+		else:
+			player.stream = stream
+			player.volume_db = target_db
+			player.play()
 
 
 func _stop_world_theme() -> void:
-	if _world_theme_player != null and _world_theme_player.is_inside_tree():
-		_world_theme_player.stop()
+	for player in _world_theme_players:
+		if player != null and player.is_inside_tree():
+			player.stop()
 	_world_theme_biome = -1
 
 

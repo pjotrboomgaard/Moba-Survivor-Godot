@@ -1,0 +1,474 @@
+{
+  "effects": [
+    {
+      "index": 0,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 0.15
+    },
+    {
+      "finished": true,
+      "id": "Treasure Dash",
+      "index": 0,
+      "kind": "minigame_stop",
+      "label": "mg0",
+      "owner_gold_after": 30,
+      "owner_gold_before": 0,
+      "reward_granted": true,
+      "score": 0,
+      "t": 0.305390666666667,
+      "was_active": false
+    },
+    {
+      "index": 1,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 0.506936484848485
+    },
+    {
+      "finished": true,
+      "id": "Keg Toss",
+      "index": 1,
+      "kind": "minigame_stop",
+      "label": "mg1",
+      "owner_gold_after": 60,
+      "owner_gold_before": 30,
+      "reward_granted": true,
+      "score": 0,
+      "t": 0.808333333333333,
+      "was_active": false
+    },
+    {
+      "index": 2,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 1.00151515151515
+    },
+    {
+      "finished": true,
+      "id": "Whack-a-Creep",
+      "index": 2,
+      "kind": "minigame_stop",
+      "label": "mg2",
+      "owner_gold_after": 90,
+      "owner_gold_before": 60,
+      "reward_granted": true,
+      "score": 0,
+      "t": 1.30453166666666,
+      "was_active": false
+    },
+    {
+      "index": 3,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 1.50544933333333
+    },
+    {
+      "finished": true,
+      "id": "Rock-Paper-Creep",
+      "index": 3,
+      "kind": "minigame_stop",
+      "label": "mg3",
+      "owner_gold_after": 120,
+      "owner_gold_before": 90,
+      "reward_granted": true,
+      "score": 0,
+      "t": 1.80530733333333,
+      "was_active": false
+    },
+    {
+      "index": 4,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 2.005312
+    },
+    {
+      "finished": true,
+      "id": "Dance Disco",
+      "index": 4,
+      "kind": "minigame_stop",
+      "label": "mg4",
+      "owner_gold_after": 170,
+      "owner_gold_before": 120,
+      "reward_granted": true,
+      "score": 0,
+      "t": 2.30531199999999,
+      "was_active": false
+    },
+    {
+      "index": 5,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 2.50531199999999
+    },
+    {
+      "finished": true,
+      "id": "Gem Relay",
+      "index": 5,
+      "kind": "minigame_stop",
+      "label": "mg5",
+      "owner_gold_after": 220,
+      "owner_gold_before": 170,
+      "reward_granted": true,
+      "score": 0,
+      "t": 2.80531199999999,
+      "was_active": false
+    },
+    {
+      "index": 6,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 3.00531199999999
+    },
+    {
+      "finished": true,
+      "id": "Keg Toss Pro",
+      "index": 6,
+      "kind": "minigame_stop",
+      "label": "mg6",
+      "owner_gold_after": 270,
+      "owner_gold_before": 220,
+      "reward_granted": true,
+      "score": 0,
+      "t": 3.30531199999999,
+      "was_active": false
+    },
+    {
+      "index": 7,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 3.50531199999999
+    },
+    {
+      "finished": true,
+      "id": "Whack Rush",
+      "index": 7,
+      "kind": "minigame_stop",
+      "label": "mg7",
+      "owner_gold_after": 320,
+      "owner_gold_before": 270,
+      "reward_granted": true,
+      "score": 0,
+      "t": 3.80531199999999,
+      "was_active": false
+    },
+    {
+      "index": 8,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 4.00531199999999
+    },
+    {
+      "finished": true,
+      "id": "Creep Tag",
+      "index": 8,
+      "kind": "minigame_stop",
+      "label": "mg8",
+      "owner_gold_after": 350,
+      "owner_gold_before": 320,
+      "reward_granted": true,
+      "score": 0,
+      "t": 4.30531133333334,
+      "was_active": false
+    },
+    {
+      "index": 9,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 4.50524433333335
+    },
+    {
+      "finished": true,
+      "id": "Treasure Dash 2",
+      "index": 9,
+      "kind": "minigame_stop",
+      "label": "mg9",
+      "owner_gold_after": 395,
+      "owner_gold_before": 350,
+      "reward_granted": true,
+      "score": 0,
+      "t": 4.80531133333336,
+      "was_active": false
+    },
+    {
+      "index": 10,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 5.00531133333337
+    },
+    {
+      "finished": true,
+      "id": "Ring Roll",
+      "index": 10,
+      "kind": "minigame_stop",
+      "label": "mg10",
+      "owner_gold_after": 440,
+      "owner_gold_before": 395,
+      "reward_granted": true,
+      "score": 0,
+      "t": 5.30531133333338,
+      "was_active": false
+    },
+    {
+      "index": 11,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 5.50534900000006
+    },
+    {
+      "finished": true,
+      "id": "Creep Pinball",
+      "index": 11,
+      "kind": "minigame_stop",
+      "label": "mg11",
+      "owner_gold_after": 470,
+      "owner_gold_before": 440,
+      "reward_granted": true,
+      "score": 0,
+      "t": 5.8055173333334,
+      "was_active": false
+    },
+    {
+      "index": 12,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 6.00554133333341
+    },
+    {
+      "finished": true,
+      "id": "Balloon Pop",
+      "index": 12,
+      "kind": "minigame_stop",
+      "label": "mg12",
+      "owner_gold_after": 512,
+      "owner_gold_before": 470,
+      "reward_granted": true,
+      "score": 0,
+      "t": 6.30550333333342,
+      "was_active": false
+    },
+    {
+      "index": 13,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 6.50575633333343
+    },
+    {
+      "finished": true,
+      "id": "Slime Splat",
+      "index": 13,
+      "kind": "minigame_stop",
+      "label": "mg13",
+      "owner_gold_after": 542,
+      "owner_gold_before": 512,
+      "reward_granted": true,
+      "score": 0,
+      "t": 6.80559766666677,
+      "was_active": false
+    },
+    {
+      "index": 14,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 7.00150224242435
+    },
+    {
+      "finished": true,
+      "id": "Crystal Catch",
+      "index": 14,
+      "kind": "minigame_stop",
+      "label": "mg14",
+      "owner_gold_after": 572,
+      "owner_gold_before": 542,
+      "reward_granted": true,
+      "score": 0,
+      "t": 7.30434166666679,
+      "was_active": false
+    },
+    {
+      "index": 15,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 7.50509924242437
+    },
+    {
+      "finished": true,
+      "id": "Crate Stack",
+      "index": 15,
+      "kind": "minigame_stop",
+      "label": "mg15",
+      "owner_gold_after": 602,
+      "owner_gold_before": 572,
+      "reward_granted": true,
+      "score": 0,
+      "t": 7.80509924242439,
+      "was_active": false
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 3
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "attack_range": 520.0,
+      "biome_id": 0,
+      "biome_name": "Scrapyard Outskirts",
+      "blast_radius": 40.0,
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "damage_dealt": 0.0,
+            "damage_taken": 0.0,
+            "hp": 90.0,
+            "kills": 0,
+            "local": true,
+            "max_hp": 90.0,
+            "peer": 1,
+            "pos": [
+              0.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "frost_burst_radius": 65.0,
+      "gold": 602,
+      "hero": "tobor",
+      "hp": 90.0,
+      "hp_frac": 1.0,
+      "hp_max": 90.0,
+      "kind": "probe",
+      "label": "end",
+      "last_sfx": "minigame_win",
+      "last_tapped": -1,
+      "level": 5,
+      "obstacle_count": 861,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(0.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 8.20722966666682,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "weapon_damage": 18.0,
+      "xp": 104
+    }
+  ],
+  "elapsed": 8.40268421212136,
+  "enemies_spawned": 0,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 602,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 5,
+    "level_upgrades": {
+      "4": [
+        "scholar"
+      ],
+      "5": [
+        "blast"
+      ]
+    },
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "scholar",
+      "blast"
+    ],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 104
+  },
+  "shots": [
+    {
+      "label": "mg_complete_ingame",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11325/mg_complete_ingame_8.005_11325.png",
+      "t": 8.00538166666682
+    }
+  ]
+}

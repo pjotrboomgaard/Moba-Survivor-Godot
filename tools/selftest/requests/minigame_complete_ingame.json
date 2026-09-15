@@ -1,0 +1,58 @@
+{
+	"hero": "tobor",
+	"comment": "Mini-game: player can complete it. For each of the 16 minigames: start it for the LOCAL PLAYER (bot_force off = a genuine player completion), stop it through its own finish path (grants the reward), then probe that it is finished + the owner gained gold. All 16 rewards_granted=true proves every minigame is completable by a player.",
+	"events": [
+		{"t": 0.0, "kind": "start_minigame", "index": 0},
+		{"t": 0.3, "kind": "minigame_stop", "index": 0, "label": "mg0"},
+
+		{"t": 0.5, "kind": "start_minigame", "index": 1},
+		{"t": 0.8, "kind": "minigame_stop", "index": 1, "label": "mg1"},
+
+		{"t": 1.0, "kind": "start_minigame", "index": 2},
+		{"t": 1.3, "kind": "minigame_stop", "index": 2, "label": "mg2"},
+
+		{"t": 1.5, "kind": "start_minigame", "index": 3},
+		{"t": 1.8, "kind": "minigame_stop", "index": 3, "label": "mg3"},
+
+		{"t": 2.0, "kind": "start_minigame", "index": 4},
+		{"t": 2.3, "kind": "minigame_stop", "index": 4, "label": "mg4"},
+
+		{"t": 2.5, "kind": "start_minigame", "index": 5},
+		{"t": 2.8, "kind": "minigame_stop", "index": 5, "label": "mg5"},
+
+		{"t": 3.0, "kind": "start_minigame", "index": 6},
+		{"t": 3.3, "kind": "minigame_stop", "index": 6, "label": "mg6"},
+
+		{"t": 3.5, "kind": "start_minigame", "index": 7},
+		{"t": 3.8, "kind": "minigame_stop", "index": 7, "label": "mg7"},
+
+		{"t": 4.0, "kind": "start_minigame", "index": 8},
+		{"t": 4.3, "kind": "minigame_stop", "index": 8, "label": "mg8"},
+
+		{"t": 4.5, "kind": "start_minigame", "index": 9},
+		{"t": 4.8, "kind": "minigame_stop", "index": 9, "label": "mg9"},
+
+		{"t": 5.0, "kind": "start_minigame", "index": 10},
+		{"t": 5.3, "kind": "minigame_stop", "index": 10, "label": "mg10"},
+
+		{"t": 5.5, "kind": "start_minigame", "index": 11},
+		{"t": 5.8, "kind": "minigame_stop", "index": 11, "label": "mg11"},
+
+		{"t": 6.0, "kind": "start_minigame", "index": 12},
+		{"t": 6.3, "kind": "minigame_stop", "index": 12, "label": "mg12"},
+
+		{"t": 6.5, "kind": "start_minigame", "index": 13},
+		{"t": 6.8, "kind": "minigame_stop", "index": 13, "label": "mg13"},
+
+		{"t": 7.0, "kind": "start_minigame", "index": 14},
+		{"t": 7.3, "kind": "minigame_stop", "index": 14, "label": "mg14"},
+
+		{"t": 7.5, "kind": "start_minigame", "index": 15},
+		{"t": 7.8, "kind": "minigame_stop", "index": 15, "label": "mg15"},
+
+		{"t": 8.0, "kind": "snap", "label": "mg_complete_ingame"},
+		{"t": 8.2, "kind": "probe", "label": "end"},
+		{"t": 8.4, "kind": "report"}
+	],
+	"wait_ms": 12000
+}

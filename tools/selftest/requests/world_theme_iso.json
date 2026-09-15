@@ -1,0 +1,5 @@
+{
+  "hero": "tobor",
+  "time_scale": 1.0,
+  "comment": "Isolated T3.2: run world_theme_iso_test scene which drives AudioService.set_world_theme for all 5 biomes and probes 4 layers each."
+}

@@ -561,6 +561,70 @@ WORLD_THEME_RECIPES = {
     ],
 }
 
+# T3.2 "Each world: 3-4 ambient loops" — layered ambient loops that play
+# SIMULTANEOUSLY with the main world bed to build a richer, biome-specific
+# soundscape. Each biome gets 3 distinct sub-layers on top of its primary bed,
+# so each world has 4 total ambient loops. All are quiet, low-amp, long, and
+# loop cleanly. Kept synth-only (MIT-safe) like every other theme in this file.
+WORLD_AMBIENT_LOOPS = {
+    # biome 0 = Verdant Hollow (grass): birdsong, wind, stream
+    "world_grass_birds": [
+        [dict(wave="chime", f0=1200, f1=1800, dur=2.0, amp=0.10, partials=[1.0, 1.5]),
+         dict(wave="chime", f0=1500, f1=2200, dur=1.5, amp=0.08, partials=[1.0, 2.0])],
+    ],
+    "world_grass_wind": [
+        [dict(wave="whoosh", f0=400, f1=600, dur=6.0, amp=0.09)],
+    ],
+    "world_grass_stream": [
+        [dict(wave="sine", f0=600, f1=900, dur=3.5, amp=0.07, partials=[1.0, 1.5]),
+         dict(wave="crackle", f0=1400, f1=800, dur=3.0, amp=0.04)],
+    ],
+    # biome 1 = Ashen Crater (volcano): ember pops, sub rumble, magma bubbles
+    "world_volcano_embers": [
+        [dict(wave="crackle", f0=500, f1=200, dur=4.0, amp=0.10)],
+    ],
+    "world_volcano_sub": [
+        [dict(wave="saw", f0=36, f1=28, dur=6.0, amp=0.14, duty=0.5),
+         dict(wave="sine", f0=30, f1=24, dur=6.0, amp=0.10)],
+    ],
+    "world_volcano_magma": [
+        [dict(wave="sine", f0=90, f1=60, dur=2.5, amp=0.09),
+         dict(wave="crackle", f0=300, f1=150, dur=2.0, amp=0.07)],
+    ],
+    # biome 2 = Frostmere Reach (ice): wind gust, ice tinkle, snow hush
+    "world_ice_gust": [
+        [dict(wave="whoosh", f0=300, f1=700, dur=5.0, amp=0.12)],
+    ],
+    "world_ice_tinkle": [
+        [dict(wave="chime", f0=2200, f1=3200, dur=1.8, amp=0.08, partials=[1.0, 2.0, 3.0])],
+    ],
+    "world_ice_snow": [
+        [dict(wave="crackle", f0=1800, f1=1000, dur=4.5, amp=0.05)],
+    ],
+    # biome 3 = Ironworks Yard (factory): clank rhythm, steam vent, distant clang
+    "world_factory_clank": [
+        [dict(wave="square", f0=120, f1=80, dur=1.5, amp=0.09, duty=0.3),
+         dict(wave="crackle", f0=800, f1=400, dur=1.0, amp=0.06)],
+    ],
+    "world_factory_steam": [
+        [dict(wave="whoosh", f0=1200, f1=400, dur=3.5, amp=0.09)],
+    ],
+    "world_factory_clang": [
+        [dict(wave="chime", f0=400, f1=320, dur=2.2, amp=0.07, partials=[1.0, 2.7, 4.2])],
+    ],
+    # biome 4 = Saltbreak Docks: water lapping, gull cry, rope creak
+    "world_docks_lapping": [
+        [dict(wave="whoosh", f0=180, f1=320, dur=4.0, amp=0.10),
+         dict(wave="sine", f0=280, f1=400, dur=2.5, amp=0.06)],
+    ],
+    "world_docks_gull": [
+        [dict(wave="chime", f0=900, f1=1400, dur=1.6, amp=0.09, partials=[1.0, 1.5, 2.2])],
+    ],
+    "world_docks_rope": [
+        [dict(wave="crackle", f0=200, f1=120, dur=3.0, amp=0.06)],
+    ],
+}
+
 
 # A short rain loop: filtered white noise with a gentle amplitude wobble so it
 # reads as steady rain. ~3s loop, quiet (peak ~0.35). Written to the themes dir.
@@ -660,6 +724,14 @@ def main():
     print("wrote assets/audio/themes/electro_crackle.wav")
     # Per-world ambient beds (task A) — one looping bed per biome.
     for name, takes in WORLD_THEME_RECIPES.items():
+        for i, take in enumerate(takes):
+            suffix = "" if i == 0 else "_%d" % (i + 1)
+            path = os.path.join(OUT_DIR, name + suffix + ".wav")
+            write_wav(path, synthesize(take, rng))
+            written += 1
+            print("wrote %s" % path)
+    # T3.2 — extra ambient loops layered on top of the primary world bed.
+    for name, takes in WORLD_AMBIENT_LOOPS.items():
         for i, take in enumerate(takes):
             suffix = "" if i == 0 else "_%d" % (i + 1)
             path = os.path.join(OUT_DIR, name + suffix + ".wav")

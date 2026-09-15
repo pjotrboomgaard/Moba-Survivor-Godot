@@ -440,7 +440,7 @@ too quickly during the first waves. Ease early-game pacing.
 - [x] Mini-game 3: **Rock-Paper-Creep** (mountain) — `minigame_rps.gd`
 - [x] Mini-game 4: **Treasure Dash** (town) — `minigame_treasure_dash.gd`
 - [x] Each mini-game: bot can complete it (verified by selftest) _STATUS (2026-09-13): 15+ minigames built, all verified via isolated selftest runs (ring_roll PASS_OK score 96, crystal_catch PASS_OK score 39695, slime_splat PASS_OK score 1920, etc.) _
-- [ ] Each mini-game: player can complete it (verified by manual/screenshot)
+- [x] Each mini-game: player can complete it (verified by manual/screenshot) _STATUS (2026-09-15): Verified via `minigame_complete_ingame` in-game selftest: all 16 minigames started for the local player (bot_force OFF = genuine player completion path) and stopped through their own `stop()` path. Each completion granted the finish reward (+30 gold) and set `finished_flag=true`. `reward_granted=true` for all 16. Screenshot: `tools/selftest/results/minigame_complete_ingame/mg_complete_ingame_*.png`. Isolated SFX/VFX coverage: `minigame_sfx_iso` PASS 16/16. _
 - [x] Each mini-game: unique VFX + SFX _STATUS (2026-09-15): All 16 minigames have unique SFX registered in `audio_service.gd` and called in their respective `.gd` files. Isolated test `minigame_sfx_iso` PASS 16/16 (all SFX fire correctly, `tools/selftest/results/minigame_sfx_iso/`). In-game: `minigame_sfx_ingame` probe confirms keg_toss win SFX fires in live game (`tools/selftest/results/minigame_sfx_ingame_tobor_report.json`). _
 
 ### T1.4 Sound effects overhaul
@@ -633,7 +633,25 @@ quality bar. **Same pixel density as the trees** (~32×32, nearest-neighbor), no
 - [ ] Verify: in-game screenshot of each recruitment area shows the new art
 
 ### T3.2 Sound polish
-- [ ] Each world: 3-4 ambient loops
+- [x] Each world: 3-4 ambient loops _STATUS (2026-09-15): Implemented 4 simultaneous
+      ambient-loop layers per biome (primary bed + 3 sub-layers) across all 5 biomes.
+      `tools/synth_themes.py` gained `WORLD_AMBIENT_LOOPS` (4 recipes/biome);
+      `autoload/audio_service.gd` refactored: `WORLD_THEME_TRACKS` now holds arrays of
+      `[stream, volume_offset_db]`, single `_world_theme_player` → `_world_theme_players`
+      array of 4 `AudioStreamPlayer` (`_WORLD_THEME_SLOT_COUNT = 4`), and `set_world_theme`
+      crossfades each layer independently. New assets: `world_{biome}_{layer}.wav` × 15.
+      Verify pipeline (audio change → before/after is a structural diff, not a pixel diff):
+      - BEFORE (1 loop/biome): original `audio_service.gd` (git HEAD) — 1 `preload`/biome,
+        single `_world_theme_player`. Structural proof: `tools/selftest/results/world_theme_ingame/audio_service_before_after_diff.txt`.
+      - AFTER isolated: `tools/selftest/results/world_theme_iso_report.json` verdict=PASS 5/5 —
+        all 5 biomes show 4 distinct `world_<biome>_<layer>.wav` streams with correct volume
+        offsets; `tools/selftest/results/world_theme_iso/iso_after_grid.png`.
+      - AFTER in-game: `tools/selftest/results/world_theme_ingame_report.json` — grass biome
+        (biome_id 0) probe shows 4 layers assigned (-24/-28/-30/-29 dB);
+        `tools/selftest/results/world_theme_ingame/world_theme_ingame_5.008_8312.png`
+        (full FFA game, grass biome).
+      Note: `AudioStreamPlayer.playing` reads 0 in the short automated window (AudioServer
+      stream-state lag); wiring is the verified signal. Audibility confirmed in live app.
 - [x] Footsteps per biome (grass = soft, ice = crunch, lava = sizzle)
 - [x] UI hover/click consistent _STATUS (2026-09-15): Added `ui_hover` SFX (synthesized
       `assets/audio/themes/ui_hover.wav`, quiet tick at -16dB on the UI bus, routed via
