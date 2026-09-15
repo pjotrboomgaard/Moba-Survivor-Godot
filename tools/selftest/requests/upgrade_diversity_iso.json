@@ -1,0 +1,8 @@
+{
+  "scene": "res://scenes/upgrade_diversity_test/upgrade_diversity_test.tscn",
+  "hero": "tobor",
+  "comment": "T3.88 isolated: upgrade diversity - recency weighting reduces repeats",
+  "events": [
+    {"t": 0.5, "kind": "report"}
+  ]
+}

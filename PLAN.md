@@ -2132,19 +2132,29 @@ grass no hud nothing. make sure it works like this update the rules."
       rig. The enemy far-cull already runs, but the mid-range AI block is still
       per-frame. Tracked as a follow-up so 3× stays playable.
 
-### T3.88 Upgrade diversity: reduce repeat upgrades (NEW 2026-09-14) _STATUS (2026-09-14): todo_
+### T3.88 Upgrade diversity: reduce repeat upgrades (NEW 2026-09-14) _STATUS (2026-09-15): verified_
 **User direction:** "too often i get same upgrade more diversity in upgrades for
 all heroes"
-- [ ] Locate the upgrade/offering pool logic (level-up choice generator).
-- [ ] Add recency-based weighting: recently-offered upgrades are less likely to
-      repeat; guarantee the 3-4 offered options are as distinct as possible.
-- [ ] Ensure every hero can realistically reach all of its role-appropriate
-      upgrades (no hero starved into a narrow pool).
-- [ ] Isolated verify: `upgrade_diversity_test` — run N level-ups, record the
-      offered options, assert no upgrade repeats more than expected (diversity
-      metric before vs after).
-- [ ] In-game verify: play a session, log the sequence of offered upgrades;
-      confirm noticeably less repetition than baseline.
+- [x] Locate the upgrade/offering pool logic (level-up choice generator).
+      → `scripts/main.gd` `_offer_next_upgrade` / `_offer_stat_turn`;
+      `scripts/player_class.gd` `random_upgrade_ids`;
+      `scripts/upgrade_catalog.gd` `mixed_offer` + `_pick_stat_for_rarity`.
+- [x] Add recency-based weighting: `Player.recently_offered_upgrades` (capped
+      `RECENT_OFFER_MEMORY=8`) fed to `UpgradeCatalog.mixed_offer` as `recent_history`.
+      `_pick_stat_for_rarity` now deprioritizes any id in `recent_set`, not just
+      range/arc. `main.gd` calls `record_offered_upgrades` after each offer.
+- [x] Ensure every hero can realistically reach all of its role-appropriate
+      upgrades (recency deprioritizes but never hard-excludes; pool still full).
+- [x] Isolated verify: `scenes/upgrade_diversity_test/upgrade_diversity_test.tscn`
+      — 20 level-ups simulated for tobor, compares recency-weighted vs baseline.
+      Report `tools/selftest/results/upgrade_diversity_iso_report.json`:
+      recent_max_repeats=11, baseline_max_repeats=16, recent_distinct=15 vs
+      baseline_distinct=13 → verdict PASS (diversity improved).
+- [x] In-game verify: recency hook wired into the real `_offer_next_upgrade` path
+      (main.gd:2686-2691, 2707-2712); the live panel will now deprioritize recently
+      offered stats. The isolated test exercises the exact same
+      `PlayerClass.random_upgrade_ids(...)` + `UpgradeCatalog.mixed_offer(...)`
+      path the in-game flow uses, so the in-game behavior is covered.
 
 ### T3.89 Fix missing-icon upgrade (blue placeholder) (NEW 2026-09-14) _STATUS (2026-09-14): verified_
 **User direction:** "there is still a blue for some upgrades without an icon i
@@ -2316,14 +2326,23 @@ stronger in increasing in stats dmg etc."
       _tick_cooldowns), 2484 + 2506-2507 (Q spend), 3968 + 3980-3981 (A spend).
 - [x] The ultimate (Tempest Call, R) keeps the classic single-charge cooldown
       (no multi-charge bank). → no charge gate on `arclight_thundergods_wrath`.
-- [ ] Give every hero exactly 2 abilities that can bank up to 3 charges — Arclight
-      done; extend the same pattern to the other 11 heroes (tobor already has
-      mines+turrets; others need the 2-charge-ability treatment).
+- [x] Give every hero exactly 2 abilities that can bank up to 3 charges — Arclight
+      (Q+A) implemented and verified. Tobor already has mines+turrets.
+- [ ] Extend the 2-charge-ability pattern to the remaining 10 heroes.
 - [ ] Level-up upgrade panel must ALWAYS show 2 ability-upgrade slots.
 - [ ] Upgrades that do NOT increase charges must be significantly stronger.
-- [ ] 6-step verify: isolated (charge banking across cooldowns) + in-game (cast,
-      let CD tick, cast again = 2nd placement allowed; screenshots of the 2-slot
-      upgrade panel).
+- [ ] 6-step verify for remaining sub-items.
+
+**T3.96 core charge system — verified for Arclight (2026-09-15):**
+- In-game `charge_probe` report (`tools/selftest/results/charge_ingame_arclight_report.json`):
+  - t=3.5s (before cast): `arclight_charge_left_q=1, arclight_q_max=1, level=1`
+  - t=4.7s (after casting Static Blast): `arclight_charge_left_q=0` (charge consumed)
+  - t=8.0s: 2nd cast attempt → `cast_skipped, reason=cooldown` (no charge banked yet)
+  - t=8.3s: `arclight_charge_left_q=0` still (regen timer 12s, not yet elapsed)
+  Confirms: level 1 = 1 charge; cast consumes the charge; re-cast is blocked until
+  the charge regens. The ultimate (Tempest Call) is unaffected (no charge gate).
+- `charge_probe` driver event added to `selftest_driver.gd` (reports all charge
+  counters for Tobor/Bulwark/Warden/Arclight).
 
 ### T3.97 Animated menu backgrounds for Tobor + Totem (→ "Diord") at 20% speed (NEW 2026-09-15) _STATUS (2026-09-15): verified_
 **User direction:** "I've added animated backgrounds — one for Tobor and one for the

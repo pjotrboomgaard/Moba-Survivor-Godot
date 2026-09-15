@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/upgrade_diversity_test/upgrade_diversity_test.gd" id="1"]
+
+[node name="UpgradeDiversityTest" type="Node"]
+script = ExtResource("1")

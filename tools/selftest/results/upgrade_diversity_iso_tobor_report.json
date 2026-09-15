@@ -1,0 +1,41 @@
+{
+	"baseline_distinct_upgrades": 13,
+	"baseline_max_repeats": 16,
+	"baseline_picks": {
+		"aftershock": 6,
+		"blast": 6,
+		"gun_drone": 9,
+		"headhunter": 1,
+		"heavy": 9,
+		"keen_eye": 16,
+		"nova_core": 1,
+		"push_drone": 13,
+		"rapid": 4,
+		"scholar": 8,
+		"swarm_drones": 1,
+		"vitality": 5,
+		"world_cracker": 1
+	},
+	"hero": "tobor",
+	"levels_simulated": 20,
+	"recent_distinct_upgrades": 15,
+	"recent_max_repeats": 11,
+	"recent_picks": {
+		"aftershock": 9,
+		"blast": 9,
+		"double_tap": 1,
+		"exp_well": 1,
+		"gun_drone": 6,
+		"heavy": 6,
+		"ironhide": 1,
+		"keen_eye": 9,
+		"lucky_strike": 1,
+		"push_drone": 5,
+		"rapid": 9,
+		"scholar": 10,
+		"swarm_drones": 1,
+		"vitality": 11,
+		"world_cracker": 1
+	},
+	"verdict": "PASS"
+}
