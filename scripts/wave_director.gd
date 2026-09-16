@@ -38,7 +38,7 @@ const MODIFIER_NAMES := {
 ## existing type ids only. Beyond 88 the director improvises.
 const SCRIPTED_WAVES: Array[Dictionary] = [
 	{"name": "First Contact", "archetype": Archetype.STANDARD},
-	{"name": "Growing Numbers", "archetype": Archetype.STANDARD, "debut": "swarmling"},
+	{"name": "Growing Numbers", "archetype": Archetype.SWARM, "debut": "swarmling"},
 	{"name": "Acid Rain", "archetype": Archetype.SNIPERS, "debut": "spitter"},
 	{"name": "The Swarm", "archetype": Archetype.SWARM},
 	{"name": "The Ravager", "archetype": Archetype.BOSS},
@@ -239,7 +239,18 @@ const SHOP_INTERMISSION_SECONDS := 22.0
 const SHOP_WAVE_INTERVAL := 10
 ## Wave groups arrive faster now so each wave clears quicker — the user wants waves that
 ## are shorter and punchier, not drawn-out marathons. 1.2s instead of 1.7s.
-const GROUP_INTERVAL_SECONDS := 1.2
+## 2026-09-16: tightened further to 0.9s so waves are genuinely shorter (user: "waves
+## should be over quicker"). The within-wave ramp then compresses the later groups even
+## more, so a wave's back half spawns noticeably faster than its opening.
+const GROUP_INTERVAL_SECONDS := 0.9
+## 2026-09-16: how long the within-wave spawn-rate ramp takes to reach its max. Tying the
+## ramp to elapsed time (instead of group index) makes the "slow start -> 3x finish" curve
+## predictable regardless of how many groups a wave has.
+const _WAVE_RAMP_SECONDS := 24.0
+## 2026-09-16: the group-interval floor at the END of the ramp. The interval shrinks from
+## GROUP_INTERVAL_SECONDS down to this, which combined with the count ramp makes the
+## late-wave spawn rate ~3x the opening rate.
+const _WAVE_RAMP_MIN_INTERVAL := 0.3
 const AMBUSH_GROUP_INTERVAL := 0.2
 ## Ambush waves normally dump every group in ~0.2s cadence, so the whole wave's enemies
 ## converge on the player in a few seconds instead of the ~25-35s a standard wave spreads
@@ -259,7 +270,9 @@ const AMBUSH_BUDGET_SCALE := 0.8
 ## _begin_next_wave -> _release_next_group), so it gets its own extra shrink on top of the
 ## budget trim above — the opening jolt shouldn't also be the wave's biggest single group.
 const AMBUSH_FIRST_GROUP_SCALE := 0.6
-const WAVE_TIMEOUT_SECONDS := 120.0
+## 2026-09-16: waves should be over quicker. Shortened the absolute cap from 120s to 75s
+## so a lingering wave still advances on time (non-boss waves). Boss waves are exempt.
+const WAVE_TIMEOUT_SECONDS := 75.0
 const ELITE_WAVE_INTERVAL := 8
 const BOSS_WAVE_INTERVAL := 5
 ## Enemy health curve. Kept close to the original gradual ladder: wave 1 starts at ~1.6x a
@@ -507,15 +520,14 @@ func display_name() -> String:
 	return "%s (%s)" % [theme_name, str(MODIFIER_NAMES[modifier])]
 
 
-## T3.99 (2026-09-15): within-wave spawn-rate ramp. The wave's planned groups are
-## released in order; early groups spawn at ~1× the planned headcount ("start slow
-## like before") and later groups ramp up to _WAVE_RAMP_MAX_MULT× the planned headcount
-## by the end of the wave. This makes each wave build in intensity instead of
-## front-loading the whole budget at wave start.
+## T3.99 (2026-09-15) / 2026-09-16 rev: within-wave spawn-rate ramp, now driven by
+## ELAPSED TIME instead of group index. A wave's headcount ramps from 1× at the start
+## ("slow start") up to _WAVE_RAMP_MAX_MULT× by _WAVE_RAMP_SECONDS into the wave, so the
+## back half of every wave is a genuine ~3× finish. During night the rate doubles on top
+## of the ramp ("2× at night"). Tying it to time keeps the curve consistent no matter how
+## many groups a wave plans.
 func _wave_count_scale() -> float:
-	if _wave_total_planned <= 0:
-		return 1.0
-	var progress := clampf(float(_wave_groups_released) / float(_wave_total_planned), 0.0, 1.0)
+	var progress := clampf(wave_elapsed / _WAVE_RAMP_SECONDS, 0.0, 1.0)
 	var ramp := 1.0 + (_WAVE_RAMP_MAX_MULT - 1.0) * progress
 	# During night, spawn 2× as many enemies on top of the ramp.
 	if WorldClock.is_night:
@@ -547,13 +559,26 @@ func _release_next_group() -> void:
 	)
 
 
-## Ambush stays on its fast cadence overall, but the first AMBUSH_RAMP_SECONDS of a wave
-## release on the slower ramp interval so the opening burst is reactable instead of the
-## whole wave's groups landing within a couple seconds of each other.
+## 2026-09-16: within-wave spawn-rate ramp via group interval. The interval starts at
+## GROUP_INTERVAL_SECONDS ("slow start") and shrinks toward _WAVE_RAMP_MIN_INTERVAL as
+## the wave progresses, so the spawn RATE itself climbs ~3× by the end of the wave.
+## Combined with _wave_count_scale() (count ramp) this gives the user's requested
+## "slow start then 2x at night then 3x to finish" curve.
+## Ambush keeps its own fast cadence overall, but the first AMBUSH_RAMP_SECONDS of a
+## wave release on the slower ramp interval so the opening burst is reactable.
 func _next_group_interval() -> float:
-	if archetype == Archetype.AMBUSH and wave_elapsed < AMBUSH_RAMP_SECONDS:
-		return AMBUSH_RAMP_INTERVAL
-	return group_interval
+	if archetype == Archetype.AMBUSH:
+		if wave_elapsed < AMBUSH_RAMP_SECONDS:
+			return AMBUSH_RAMP_INTERVAL
+		return group_interval
+	# Ramp: interval shrinks linearly from group_interval to _WAVE_RAMP_MIN_INTERVAL
+	# over _WAVE_RAMP_SECONDS. Later groups spawn faster -> "3x to finish".
+	var progress := clampf(wave_elapsed / _WAVE_RAMP_SECONDS, 0.0, 1.0)
+	var interval := lerpf(group_interval, _WAVE_RAMP_MIN_INTERVAL, progress)
+	# Night: spawn even faster (halve the interval) on top of the ramp.
+	if WorldClock.is_night:
+		interval *= 0.5
+	return maxf(0.15, interval)
 
 
 func health_multiplier_for_wave(target_wave: int) -> float:

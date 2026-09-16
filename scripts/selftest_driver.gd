@@ -504,6 +504,23 @@ func _process(delta: float) -> void:
 					"count": enemy_nodes.size(),
 					"t": _elapsed,
 				})
+			"enemy_type_probe":
+				# 2026-09-16: report the type breakdown of live enemies so a test
+				# can verify wave composition (e.g. "wave 3 is mostly spitter").
+				var type_counts := {}
+				var enodes := get_tree().get_nodes_in_group("enemies")
+				for en in enodes:
+					var tid := ""
+					if "type_id" in en:
+						tid = str(en.get("type_id"))
+					type_counts[tid] = int(type_counts.get(tid, 0)) + 1
+				_active_effects.append({
+					"kind": "enemy_type_probe",
+					"label": str(event.get("label", "enemies")),
+					"types": type_counts,
+					"total": enodes.size(),
+					"t": _elapsed,
+				})
 			"vfx_probe":
 				# 2026-09-16: count live AbilityVfx (pixel-art) nodes in the tree.
 				# Used to verify the pixel-art VFX gate: a non-placed ability cast
@@ -949,6 +966,20 @@ func _process(delta: float) -> void:
 					})
 				else:
 					_active_effects.append({"kind": "wave_ramp_probe", "error": "no wave_director", "t": _elapsed})
+			"force_wave":
+				# 2026-09-16: advance the wave director to the next wave immediately.
+				# Skips the intermission and starts the next wave right away.
+				var wd: Variant = _host_main.get("wave_director") if _host_main != null else null
+				if wd != null:
+					var wdir := wd as WaveDirector
+					if wdir != null:
+						wdir.skip_intermission()
+						wdir.force_next_wave()
+						_active_effects.append({"kind": "force_wave", "wave": int(wdir.wave), "t": _elapsed})
+					else:
+						_active_effects.append({"kind": "force_wave", "error": "not a WaveDirector", "t": _elapsed})
+				else:
+					_active_effects.append({"kind": "force_wave", "error": "no wave_director", "t": _elapsed})
 
 
 ## Drive the player toward the active walk target. The inner arrival radius is a little

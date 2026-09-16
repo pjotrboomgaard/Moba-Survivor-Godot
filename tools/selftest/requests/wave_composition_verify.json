@@ -1,0 +1,18 @@
+{
+  "hero": "cinder",
+  "coop": false,
+  "ffa": false,
+  "time_scale": 4.0,
+  "description": "Wave composition verify: wave 2 should be SWARM (lots of swarmlings), wave 3 should be SNIPERS (mostly ranged/spitter). Force-advance waves and capture enemy type breakdowns.",
+  "events": [
+    {"t": 1.0, "kind": "force_wave"},
+    {"t": 2.0, "kind": "enemy_type_probe", "label": "w2_start"},
+    {"t": 6.0, "kind": "snap", "label": "w2_mid"},
+    {"t": 6.2, "kind": "enemy_type_probe", "label": "w2_mid"},
+    {"t": 7.0, "kind": "force_wave"},
+    {"t": 8.0, "kind": "enemy_type_probe", "label": "w3_start"},
+    {"t": 13.0, "kind": "snap", "label": "w3_mid"},
+    {"t": 13.2, "kind": "enemy_type_probe", "label": "w3_mid"},
+    {"t": 15.0, "kind": "report"}
+  ]
+}
