@@ -1,0 +1,12 @@
+{
+  "comment": "In-game verify: all minion types have glowing red eyes at night after the eye-size + biome-texture fix",
+  "scene": "res://scenes/main/main.tscn",
+  "hero": "tobor",
+  "expect_exit": 0,
+  "events": [
+    {"t": 2.0, "kind": "snap", "label": "ingame_before_night"},
+    {"t": 3.0, "kind": "dev_command", "command": "force_night"},
+    {"t": 5.0, "kind": "snap", "label": "ingame_after_night"},
+    {"t": 7.0, "kind": "report"}
+  ]
+}

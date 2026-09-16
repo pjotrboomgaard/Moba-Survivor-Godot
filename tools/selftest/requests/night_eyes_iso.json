@@ -1,0 +1,4 @@
+{
+  "scene": "res://scenes/night_eyes_test/night_eyes_test.tscn",
+  "comment": "Isolated test: all minion types show glowing red eyes at night"
+}

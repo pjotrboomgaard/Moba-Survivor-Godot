@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/night_eyes_ingame/ingame_before_night_2.002_5485.png",
+  "after": "tools/selftest/results/night_eyes_ingame/ingame_after_night_5.002_8485.png",
+  "out": "tools/selftest/results/night_eyes_ingame/diff_ingame.png",
+  "changed_pixels": 1581454,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.762661,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

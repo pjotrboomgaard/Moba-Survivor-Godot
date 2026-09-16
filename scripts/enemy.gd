@@ -364,7 +364,11 @@ func _apply_sprite() -> void:
 		return
 	_day_texture = SpriteLibrary.texture_for(type_id)
 	# T3.85: also load the red-eyed night variant (same base name + "_night").
-	_night_texture = SpriteLibrary.texture_for(type_id + "_night")
+	# 2026-09-16: use the biome-skinned name for the night variant too, so each
+	# biome's minions get their own night texture (with matching skin + eyes).
+	_night_texture = SpriteLibrary.texture_for(SpriteLibrary._skinned_name(type_id) + "_night")
+	if _night_texture == null:
+		_night_texture = SpriteLibrary.texture_for(type_id + "_night")
 	# Start with whichever matches the current time of day.
 	sprite.texture = _night_texture if (WorldClock.is_night and _night_texture != null) else _day_texture
 	var visual_radius := body_radius * (1.55 if is_boss else 1.25)
@@ -2004,13 +2008,22 @@ func _draw() -> void:
 	_draw_status_overlays()
 
 
-## T3.59: red glowing eyes at night — two small bright dots on the upper body.
+## T3.59: red glowing eyes at night — two bright dots with a soft glow halo on
+## the upper body. 2026-09-16: enlarged + glow so they're clearly visible on
+## every minion (user: "make it so all minions eyes have glowing effect").
 func _draw_night_eyes() -> void:
-	var eye_color := Color(1.0, 0.15, 0.1, 0.95)
-	var r := maxf(1.5, body_radius * 0.12)
-	# Two eyes side by side, slightly above center
-	draw_circle(Vector2(-body_radius * 0.25, -body_radius * 0.45), r, eye_color)
-	draw_circle(Vector2(body_radius * 0.25, -body_radius * 0.45), r, eye_color)
+	var eye_color := Color(1.0, 0.15, 0.1, 1.0)
+	var glow_color := Color(1.0, 0.2, 0.1, 0.35)
+	var r := maxf(2.0, body_radius * 0.15)
+	var glow_r := r * 2.2
+	var pos_l := Vector2(-body_radius * 0.28, -body_radius * 0.45)
+	var pos_r := Vector2(body_radius * 0.28, -body_radius * 0.45)
+	# Glow halo (drawn first, behind the bright core)
+	draw_circle(pos_l, glow_r, glow_color)
+	draw_circle(pos_r, glow_r, glow_color)
+	# Bright core
+	draw_circle(pos_l, r, eye_color)
+	draw_circle(pos_r, r, eye_color)
 
 
 ## T3.85: swap to the red-eyed night sprite variant when night flips. The
