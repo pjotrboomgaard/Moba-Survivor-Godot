@@ -1,0 +1,10 @@
+{
+  "hero": "tobor",
+  "coop": false,
+  "ffa": false,
+  "time_scale": 1.0,
+  "description": "Isolated charge test placeholder - scene handles its own logic",
+  "events": [
+    {"t": 0.1, "kind": "report"}
+  ]
+}

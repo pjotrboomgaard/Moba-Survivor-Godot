@@ -1,0 +1,21 @@
+{
+  "captured": 2,
+  "expected_after": 0,
+  "player_freed": true,
+  "scene": "summon_clear_test",
+  "shots": [
+    {
+      "label": "summon_iso_before",
+      "path": "user://summon_clear_run_1789574726/summon_iso_before_0.50.png",
+      "t": 0.501937
+    },
+    {
+      "label": "summon_iso_after",
+      "path": "user://summon_clear_run_1789574726/summon_iso_after_2.51.png",
+      "t": 2.51045866666666
+    }
+  ],
+  "summons_after_free": 0,
+  "summons_before_free": 2,
+  "verdict": "PASS"
+}

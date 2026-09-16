@@ -8,10 +8,10 @@
         "thorn",
         "volt"
       ],
-      "t": 2.003077
+      "t": 2.0071879090909
     }
   ],
-  "elapsed": 10.2034393333334,
+  "elapsed": 10.2080043333334,
   "enemies_spawned": 0,
   "hero_position": "(0.0, 0.0)",
   "player_class": "tobor",
@@ -48,13 +48,13 @@
   "shots": [
     {
       "label": "ingame_repr3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9332/ingame_repr3_6.003_9332.png",
-      "t": 6.00325100000009
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9330/ingame_repr3_6.007_9330.png",
+      "t": 6.00699800000009
     },
     {
       "label": "ingame_repr3_b",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13332/ingame_repr3_b_10.003_13332.png",
-      "t": 10.0032236666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13338/ingame_repr3_b_10.008_13338.png",
+      "t": 10.0080206666668
     }
   ]
 }

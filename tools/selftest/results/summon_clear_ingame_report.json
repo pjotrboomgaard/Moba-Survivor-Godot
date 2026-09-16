@@ -1,0 +1,1975 @@
+{
+  "effects": [
+    {
+      "kind": "reset_ability_cd",
+      "t": 1.007378
+    },
+    {
+      "kind": "reset_ability_cd",
+      "t": 2.5072299090909
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "attack_range": 520.0,
+      "biome_id": 0,
+      "biome_name": "Scrapyard Outskirts",
+      "blast_radius": 30.0,
+      "cds": [
+        0.0,
+        0.0,
+        18.12,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "damage_dealt": 0.0,
+            "damage_taken": 0.0,
+            "hp": 90.0,
+            "kills": 0,
+            "local": true,
+            "max_hp": 90.0,
+            "peer": 1,
+            "pos": [
+              0.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "frost_burst_radius": 65.0,
+      "gold": 0,
+      "hero": "tobor",
+      "hp": 90.0,
+      "hp_frac": 1.0,
+      "hp_max": 90.0,
+      "kind": "probe",
+      "label": "summons_after_casts",
+      "last_sfx": "sfx_radius",
+      "last_tapped": 2,
+      "level": 1,
+      "obstacle_count": 868,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(0.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 4,
+      "summons_owned": [
+        {
+          "ability_id": "tobor_spider_mines",
+          "owner_peer_id": 1,
+          "time_left": 43.2648450000001
+        },
+        {
+          "ability_id": "tobor_spider_mines",
+          "owner_peer_id": 1,
+          "time_left": 43.2648450000001
+        },
+        {
+          "ability_id": "tobor_spider_mines",
+          "owner_peer_id": 1,
+          "time_left": 43.2648450000001
+        },
+        {
+          "ability_id": "tobor_steam_turret",
+          "owner_peer_id": 1,
+          "time_left": 44.4130225555556
+        }
+      ],
+      "t": 3.50070666666666,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "weapon_damage": 18.0,
+      "xp": 0
+    },
+    {
+      "count": 93,
+      "kind": "map_center_probe",
+      "nodes": [
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Main",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Arena",
+          "dist": 0.0,
+          "name": "Arena",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "StaticBody2D",
+          "dist": 0.0,
+          "name": "Walls",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "StumpLayer",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2295",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2297",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2299",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2301",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2303",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2305",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2307",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2309",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2311",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2313",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2315",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2317",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 288.0,
+          "name": "@StaticBody2D@2334",
+          "pos": [
+            240.0,
+            160.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 288.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            240.0,
+            160.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 288.0,
+          "name": "Sprite",
+          "pos": [
+            240.0,
+            160.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 246.0,
+          "name": "Shadow",
+          "pos": [
+            221.0,
+            108.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 189.0,
+          "name": "@StaticBody2D@2335",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 189.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 189.0,
+          "name": "Sprite",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 185.0,
+          "name": "Shadow",
+          "pos": [
+            -179.0,
+            48.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2336",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 366.0,
+          "name": "Shadow",
+          "pos": [
+            301.0,
+            208.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 330.0,
+          "name": "@StaticBody2D@2339",
+          "pos": [
+            80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 330.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 330.0,
+          "name": "Sprite",
+          "pos": [
+            80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 377.0,
+          "name": "Shadow",
+          "pos": [
+            61.0,
+            -372.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 330.0,
+          "name": "@StaticBody2D@2340",
+          "pos": [
+            -80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 330.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            -80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 330.0,
+          "name": "Sprite",
+          "pos": [
+            -80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 384.0,
+          "name": "Shadow",
+          "pos": [
+            -99.0,
+            -372.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 382.0,
+          "name": "Shadow",
+          "pos": [
+            381.0,
+            -12.0
+          ]
+        },
+        {
+          "class": "CanvasModulate",
+          "dist": 0.0,
+          "name": "FogModulate",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldFlash",
+          "dist": 0.0,
+          "name": "WorldFlash",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldTransitionFx",
+          "dist": 0.0,
+          "name": "WorldTransition",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "Actors",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Player",
+          "dist": 0.0,
+          "name": "Player_1",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 0.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 0.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "ShopHint",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Camera2D",
+          "dist": 0.0,
+          "name": "Camera2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "SpawnShield",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaveSystem",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "CreepCamp",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "RecruitAreas",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "MinigameArea",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Minigame_4",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaves",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "SummonEntity",
+          "dist": 133.0,
+          "name": "@Node2D@2433",
+          "pos": [
+            86.0,
+            102.0
+          ]
+        },
+        {
+          "class": "Polygon2D",
+          "dist": 138.0,
+          "name": "Shadow",
+          "pos": [
+            86.0,
+            108.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 133.0,
+          "name": "Sprite2D",
+          "pos": [
+            86.0,
+            102.0
+          ]
+        }
+      ],
+      "radius": 400.0,
+      "t": 4.00571103030302
+    },
+    {
+      "command": "clear_active_summons",
+      "kind": "dev_command",
+      "t": 4.50105824242426
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "attack_range": 520.0,
+      "biome_id": 0,
+      "biome_name": "Scrapyard Outskirts",
+      "blast_radius": 30.0,
+      "cds": [
+        0.0,
+        0.0,
+        16.6200000000001,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "damage_dealt": 0.0,
+            "damage_taken": 0.0,
+            "hp": 90.0,
+            "kills": 0,
+            "local": true,
+            "max_hp": 90.0,
+            "peer": 1,
+            "pos": [
+              0.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "frost_burst_radius": 65.0,
+      "gold": 0,
+      "hero": "tobor",
+      "hp": 90.0,
+      "hp_frac": 1.0,
+      "hp_max": 90.0,
+      "kind": "probe",
+      "label": "summons_after_clear",
+      "last_sfx": "sfx_radius",
+      "last_tapped": 2,
+      "level": 1,
+      "obstacle_count": 868,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(0.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 5.00097657575761,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "weapon_damage": 18.0,
+      "xp": 0
+    },
+    {
+      "count": 90,
+      "kind": "map_center_probe",
+      "nodes": [
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Main",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Arena",
+          "dist": 0.0,
+          "name": "Arena",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "StaticBody2D",
+          "dist": 0.0,
+          "name": "Walls",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "StumpLayer",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2295",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2297",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2299",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2301",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2303",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2305",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2307",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2309",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2311",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2313",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2315",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2317",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 288.0,
+          "name": "@StaticBody2D@2334",
+          "pos": [
+            240.0,
+            160.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 288.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            240.0,
+            160.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 288.0,
+          "name": "Sprite",
+          "pos": [
+            240.0,
+            160.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 247.0,
+          "name": "Shadow",
+          "pos": [
+            222.0,
+            108.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 189.0,
+          "name": "@StaticBody2D@2335",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 189.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 189.0,
+          "name": "Sprite",
+          "pos": [
+            -160.0,
+            100.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 184.0,
+          "name": "Shadow",
+          "pos": [
+            -178.0,
+            48.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 300.0,
+          "name": "@StaticBody2D@2336",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 300.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 300.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            300.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 296.0,
+          "name": "Shadow",
+          "pos": [
+            -1.0,
+            296.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 367.0,
+          "name": "Shadow",
+          "pos": [
+            302.0,
+            208.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 330.0,
+          "name": "@StaticBody2D@2339",
+          "pos": [
+            80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 330.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 330.0,
+          "name": "Sprite",
+          "pos": [
+            80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 377.0,
+          "name": "Shadow",
+          "pos": [
+            62.0,
+            -372.0
+          ]
+        },
+        {
+          "class": "Obstacle",
+          "dist": 330.0,
+          "name": "@StaticBody2D@2340",
+          "pos": [
+            -80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 330.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            -80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 330.0,
+          "name": "Sprite",
+          "pos": [
+            -80.0,
+            -320.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 384.0,
+          "name": "Shadow",
+          "pos": [
+            -98.0,
+            -372.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 382.0,
+          "name": "Shadow",
+          "pos": [
+            382.0,
+            -12.0
+          ]
+        },
+        {
+          "class": "CanvasModulate",
+          "dist": 0.0,
+          "name": "FogModulate",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldFlash",
+          "dist": 0.0,
+          "name": "WorldFlash",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "WorldTransitionFx",
+          "dist": 0.0,
+          "name": "WorldTransition",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "Actors",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Player",
+          "dist": 0.0,
+          "name": "Player_1",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "CollisionShape2D",
+          "dist": 0.0,
+          "name": "CollisionShape2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Sprite2D",
+          "dist": 0.0,
+          "name": "Sprite",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Node2D",
+          "dist": 0.0,
+          "name": "ShopHint",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "Camera2D",
+          "dist": 0.0,
+          "name": "Camera2D",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "SpawnShield",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaveSystem",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "CreepCamp",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "RecruitAreas",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "MinigameArea",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "Minigame_4",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "class": "",
+          "dist": 0.0,
+          "name": "GhostWaves",
+          "pos": [
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "radius": 400.0,
+      "t": 5.50032766666671
+    }
+  ],
+  "elapsed": 6.00059200000007,
+  "enemies_spawned": 0,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 2,
+    "casts": [
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 1.757378
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 2.90555555555555
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": []
+}

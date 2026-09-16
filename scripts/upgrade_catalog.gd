@@ -292,7 +292,7 @@ static func ability_id_from(token: String) -> String:
 ## `recently_offered` is the set of stat upgrade ids already offered to this player
 ## in recent levels; range/arc upgrades in that set are penalised so the same
 ## "Long Haft / Wide Sweep" style stat does not dominate every offer.
-static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int, amount: int = 4, recently_offered: Array = [], recent_history: Array = []) -> Array[String]:
+static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int, amount: int = 4, recently_offered: Array = [], recent_history: Array = [], taken: Array = []) -> Array[String]:
 	var recent_set: Dictionary = {}
 	for id in recently_offered:
 		recent_set[str(id)] = true
@@ -300,11 +300,25 @@ static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int
 	# penalized so the same 2-3 stats don't dominate successive level-ups.
 	for id in recent_history:
 		recent_set[str(id)] = true
+	# 2026-09-16 fix: upgrades already TAKEN must be hard-excluded from the pool,
+	# not merely penalized. Previously a taken drone could still be re-offered via
+	# the "second pass" in _pick_stat_for_rarity, so the same drone upgrade kept
+	# appearing. `taken_set` is now checked alongside `used` so taken ids never
+	# surface again.
+	var taken_set: Dictionary = {}
+	for id in taken:
+		taken_set[str(id)] = true
 	var out: Array[String] = []
 	# T3.96: reserve up to 2 slots for ability-upgrade tokens (always show 2 in the panel).
 	# The remaining slots are stat upgrades.
-	var ability_slots := mini(2, amount)
-	var stat_slots := maxi(1, amount - ability_slots)
+	# 2026-09-16 fix: when NO ability upgrades remain (all maxed), the 2 reserved
+	# ability slots contribute nothing, leaving only 2 stat slots -> the panel would
+	# show 2 instead of 4. So if ability_ids is empty, give ALL slots to stats so the
+	# player is always offered a full 4.
+	var ability_slots := mini(2, amount) if not ability_ids.is_empty() else 0
+	var stat_slots := amount - ability_slots
+	if stat_slots < 1:
+		stat_slots = 1
 	var rarities: Array[String] = []
 	var roll := randf()
 	if roll < 0.05:
@@ -325,15 +339,15 @@ static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int
 
 	var used: Dictionary = {}
 	for rarity in rarities:
-		var pick := _pick_stat_for_rarity(class_upgrade_ids, rarity, used, level, recent_set)
+		var pick := _pick_stat_for_rarity(class_upgrade_ids, rarity, used, level, recent_set, taken_set)
 		if pick.is_empty():
 			# Fallback to a common if the chosen rarity pool was exhausted.
-			pick = _pick_stat_for_rarity(class_upgrade_ids, "common", used, level, recent_set)
+			pick = _pick_stat_for_rarity(class_upgrade_ids, "common", used, level, recent_set, taken_set)
 		if not pick.is_empty():
 			used[pick] = true
 			out.append(pick)
 
-	# Prepend TWO ability tokens (always show 2 ability-upgrade slots in the panel).
+	# Prepend ability tokens (always show up to 2 ability-upgrade slots in the panel).
 	# T3.96: the level-up panel must always present two distinct ability-upgrade
 	# slots so the player can invest in their charge-able abilities. Pick up to
 	# two distinct ability ids; if the hero has fewer than 2 upgradable/new
@@ -343,6 +357,17 @@ static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int
 		shuffled_abilities.shuffle()
 		for i in mini(2, shuffled_abilities.size()):
 			out.append(ABILITY_PREFIX + str(shuffled_abilities[i]))
+	# 2026-09-16: top-up stat slots if the panel has fewer than `amount` entries.
+	# This covers the "all abilities maxed" case where ability_ids was empty and
+	# stat_slots filled only 2 slots — the player still gets a full 4 options.
+	var topup_passes := 0
+	while out.size() < amount and topup_passes < 8:
+		topup_passes += 1
+		var fill := _pick_stat_for_rarity(class_upgrade_ids, "common", used, level, recent_set, taken_set)
+		if fill.is_empty():
+			break
+		used[fill] = true
+		out.append(fill)
 	# Cap at `amount` (in case ability tokens pushed over).
 	if out.size() > amount:
 		out.resize(amount)
@@ -350,31 +375,46 @@ static func mixed_offer(ability_ids: Array, class_upgrade_ids: Array, level: int
 	return out
 
 
-static func _pick_stat_for_rarity(class_upgrade_ids: Array, rarity: String, used: Dictionary, level: int, recent_set: Dictionary = {}) -> String:
+static func _pick_stat_for_rarity(class_upgrade_ids: Array, rarity: String, used: Dictionary, level: int, recent_set: Dictionary = {}, taken_set: Dictionary = {}) -> String:
 	var pool := _pool_for(class_upgrade_ids, rarity, level)
 	pool.shuffle()
+	# 2026-09-16: hard-exclude already-TAKEN upgrades from the pool so the same
+	# drone / stat never reappears in a later offer.
+	var filtered: Array[String] = []
+	for id in pool:
+		if not taken_set.has(id):
+			filtered.append(id)
+	if filtered.is_empty():
+		filtered = pool
+	filtered.shuffle()
 	# T3.88 — recency weighting: prefer ids that have NOT been offered recently
 	# (i.e. not in `recent_set`), across ALL ids, not just range/arc. This breaks
 	# the "keep offering the same stat" loop: a recently-offered id is still
 	# eligible, but only if every other candidate in the pool is also recent.
 	# First pass: pick a non-used, non-recent id.
-	for id in pool:
+	for id in filtered:
 		if not used.has(id) and not recent_set.has(id):
 			return id
 	# Second pass: every candidate is recent — allow a recently-offered id rather
 	# than leaving the slot empty (but still avoid the `used` duplicates).
-	for id in pool:
+	for id in filtered:
 		if not used.has(id):
 			return id
 	# If this specific rarity pool was exhausted, fall back to common (also applying
 	# the same recency preference).
 	if rarity != "common":
 		var fb := _pool_for(class_upgrade_ids, "common", level)
-		fb.shuffle()
+		var fb_filtered: Array[String] = []
 		for id in fb:
+			if not taken_set.has(id):
+				fb_filtered.append(id)
+		if fb_filtered.is_empty():
+			fb_filtered = fb
+		fb_filtered.shuffle()
+		for id in fb_filtered:
 			if not used.has(id) and not recent_set.has(id):
 				return id
-		for id in fb:
+		for id in fb_filtered:
 			if not used.has(id):
 				return id
 	return ""
