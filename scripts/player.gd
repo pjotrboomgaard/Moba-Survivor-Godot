@@ -1565,6 +1565,18 @@ func upgrade_ability(ability_id: String) -> void:
 	for entry in known_abilities:
 		if entry.id == ability_id:
 			entry.rank = mini(PlayerClass.MAX_ABILITY_RANK, int(entry.rank) + 1)
+			# 2026-09-16 user rule: upgrading Tobor's turret / mine ability raises its
+			# charge cap by 1 (1 -> 2 -> 3). This is the "upgrading changes the mechanic
+			# to 2 charges" behaviour — the bonus is stored and the regen tick uses it.
+			if class_id == "tobor" and ability_id == "tobor_steam_turret":
+				_turret_charge_bonus = mini(TOBOR_MAX_TURRET_CHARGES - TOBOR_START_TURRET_CHARGES, _turret_charge_bonus + 1)
+				# Immediately grant the new charge so the player feels the upgrade.
+				if _turret_charge_left < _turret_charge_cap():
+					_turret_charge_left = _turret_charge_cap()
+			elif class_id == "tobor" and ability_id == "tobor_spider_mines":
+				_mine_charge_bonus = mini(TOBOR_MAX_MINE_CHARGES - TOBOR_START_MINE_CHARGES, _mine_charge_bonus + 1)
+				if _mine_charge_left < _mine_charge_cap():
+					_mine_charge_left = _mine_charge_cap()
 			return
 
 
@@ -1701,13 +1713,18 @@ func _tick_cooldowns(delta: float) -> void:
 		ability_cooldowns[slot] = maxf(0.0, ability_cooldowns[slot] - delta)
 	secondary_cooldown = maxf(0.0, secondary_cooldown - delta)
 	# Tobor's mine/turret charges refill over time (not on a hard cooldown).
+	# The effective cap is the starting charge (1) plus any upgrade bonuses (so 1 -> 2 -> 3),
+	# never exceeding the absolute MAX. This makes the user's "start with 1, upgrade to 2,
+	# then 3" mechanic real: each charge upgrade raises both the cap and the current count.
 	if class_id == "tobor":
 		_mine_charge_timer += delta
 		_turret_charge_timer += delta
-		if _mine_charge_left < TOBOR_MAX_MINE_CHARGES and _mine_charge_timer >= TOBOR_MINE_CHARGE_REGEN_SECONDS:
+		var mine_cap := minf(TOBOR_MAX_MINE_CHARGES, TOBOR_START_MINE_CHARGES + _mine_charge_bonus)
+		var turret_cap := minf(TOBOR_MAX_TURRET_CHARGES, TOBOR_START_TURRET_CHARGES + _turret_charge_bonus)
+		if _mine_charge_left < int(mine_cap) and _mine_charge_timer >= TOBOR_MINE_CHARGE_REGEN_SECONDS:
 			_mine_charge_left += 1
 			_mine_charge_timer = 0.0
-		if _turret_charge_left < TOBOR_MAX_TURRET_CHARGES and _turret_charge_timer >= TOBOR_TURRET_CHARGE_REGEN_SECONDS:
+		if _turret_charge_left < int(turret_cap) and _turret_charge_timer >= TOBOR_TURRET_CHARGE_REGEN_SECONDS:
 			_turret_charge_left += 1
 			_turret_charge_timer = 0.0
 	# T3.9: Bulwark's fissure charges refill over time (multi-charge ability).
@@ -2082,17 +2099,37 @@ const MAX_ACTIVE_TURRETS := 12
 
 ## Tobor's placement kit runs on CHARGES instead of a single long cooldown: each cast
 ## spends one charge and charges refill over time. This means Tobor can spam a burst of
-## mines/turrets up to the cap, then wait to recharge — matching the user's "cooldown gone,
-## add charge" request. The cap is what actually limits field clutter now.
+## mines/turrets up to the cap, then wait to recharge. The CAP is 3 (the absolute
+## ceiling), but the player STARTS with 1 charge for each and gains +1 per matching
+## upgrade (1 -> 2 -> 3), so the cap is reached only after upgrading. This keeps the
+## early game field-clutter-free (user 2026-09-16: "turret and mines show 3 charges
+## at start game even tho should be 1 both; upgrading them doesnt change right
+## mechanic to 2 charges").
 const TOBOR_MAX_MINE_CHARGES := 3
 const TOBOR_MAX_TURRET_CHARGES := 3
+## Starting charges (user rule: both begin at 1, not the cap).
+const TOBOR_START_MINE_CHARGES := 1
+const TOBOR_START_TURRET_CHARGES := 1
 const TOBOR_MINE_CHARGE_REGEN_SECONDS := 16.0
 const TOBOR_TURRET_CHARGE_REGEN_SECONDS := 22.0
 ## Tobor charge state. Refilled in _tick_cooldowns; consumed by the cast functions.
-var _mine_charge_left := TOBOR_MAX_MINE_CHARGES
-var _turret_charge_left := TOBOR_MAX_TURRET_CHARGES
+var _mine_charge_left := TOBOR_START_MINE_CHARGES
+var _turret_charge_left := TOBOR_START_TURRET_CHARGES
 var _mine_charge_timer := 0.0
 var _turret_charge_timer := 0.0
+## Extra charges granted by upgrades (stacked on top of the starting 1, capped at max).
+var _mine_charge_bonus := 0
+var _turret_charge_bonus := 0
+
+## Effective charge cap = starting charge + upgrade bonuses, clamped to the absolute MAX.
+## This is the real ceiling the regen tick and upgrade-grant use, so the "1 -> 2 -> 3"
+## progression is driven entirely by how many matching ability upgrades the player took.
+func _mine_charge_cap() -> int:
+	return mini(TOBOR_MAX_MINE_CHARGES, TOBOR_START_MINE_CHARGES + _mine_charge_bonus)
+
+
+func _turret_charge_cap() -> int:
+	return mini(TOBOR_MAX_TURRET_CHARGES, TOBOR_START_TURRET_CHARGES + _turret_charge_bonus)
 
 
 func _cast_ability_summon_spirit(data: Dictionary, values: Dictionary) -> void:
