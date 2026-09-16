@@ -925,7 +925,28 @@ func plan_wave(target_wave: int, wave_archetype: Archetype, wave_modifier: Modif
 			# The debut group arrives first, alone and in small numbers.
 			groups.append(_make_group(debut_data, EnemyType.Formation.LONE, DEBUT_COUNT, multiplier, speed_multiplier))
 			budget = maxf(2.0, budget - float(debut_data.cost) * float(DEBUT_COUNT))
-			available = _without(available, fitted_debut)
+			# 2026-09-16 user rule: "wave 3 should be lots of the range attacker but is
+			# mostly other minions." The debut type IS the archetype's signature unit, so
+			# keep it in `available` for the rest of the wave instead of excluding it.
+			# Excluding it meant the SNIPERS/SWARM follow-up groups (which pull from the
+			# archetype's preferred pool) couldn't spawn the debut type at all, so the
+			# wave devolved into generic grunt/swarmling filler.
+			#
+			# Exception: if the debut is NOT one of the archetype's preferred ids, still
+			# exclude it (the debut was a one-off introduction, not a recurring unit).
+			var keep_debut_in_wave := true
+			var preferred: Array = []
+			match wave_archetype:
+				Archetype.SNIPERS:
+					preferred = _sniper_ids()
+				Archetype.SWARM:
+					preferred = ["swarmling", "splitter", "grunt"]
+				Archetype.AIR_ASSAULT:
+					preferred = _air_ids()
+			if not preferred.is_empty() and not (fitted_debut in preferred):
+				keep_debut_in_wave = false
+			if not keep_debut_in_wave:
+				available = _without(available, fitted_debut)
 
 	match wave_archetype:
 		Archetype.BOSS:
