@@ -1,0 +1,17 @@
+{
+	"hero": "arclight",
+	"comment": "Verify Arclight ability redesign: chain lightning (slot 2) is slow-bouncing blue lightning, thundergods_wrath (slot 3) is dramatic sky-strike. Cast all 3 abilities and capture screenshots.",
+	"events": [
+		{"t": 0.3, "kind": "spawn", "at": [120, 0], "type": "grunt"},
+		{"t": 0.35, "kind": "spawn", "at": [200, 50], "type": "grunt"},
+		{"t": 0.4, "kind": "spawn", "at": [80, -80], "type": "grunt"},
+		{"t": 0.6, "kind": "snap", "label": "before_casts"},
+		{"t": 0.8, "kind": "cast", "slot": 1, "aim": [200, 0]},
+		{"t": 1.5, "kind": "snap", "label": "after_q_blast"},
+		{"t": 1.8, "kind": "cast", "slot": 2, "aim": [150, 30]},
+		{"t": 2.8, "kind": "snap", "label": "after_e_chain_slow"},
+		{"t": 3.2, "kind": "cast", "slot": 3},
+		{"t": 4.5, "kind": "snap", "label": "after_r_sky_strike"},
+		{"t": 5.0, "kind": "report"}
+	]
+}
