@@ -408,6 +408,21 @@ func _ready() -> void:
 	_ensure_respawn_label()
 	queue_redraw()
 
+## BUGFIX (2026-09-16): "when I start a solo run there is still some rogue mines
+## and turrets there." SummonEntity nodes are parented to get_tree().current_scene
+## (Main) via _vfx_parent(). When a run ends, the Main scene is freed and its
+## children (including summons) go with it — but if a cast was in-flight during
+## teardown the summon's queue_free can race and the node outlives the scene.
+## Explicitly freeing every active summon on player exit guarantees a clean slate.
+func _exit_tree() -> void:
+	_clear_active_summons()
+
+## Free every summon in active_summons. Safe to call multiple times.
+func _clear_active_summons() -> void:
+	for sum in active_summons:
+		if is_instance_valid(sum):
+			sum.queue_free()
+	active_summons.clear()
 
 func set_shop_hint_visible(show: bool) -> void:
 	if shop_hint == null:

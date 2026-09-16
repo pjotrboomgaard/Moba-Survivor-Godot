@@ -246,6 +246,14 @@ func _ready() -> void:
 
 	_init_crater()
 
+	# BUGFIX (2026-09-16): free any SummonEntity nodes that leaked from a previous
+	# run (rogue turrets/mines). The old Main scene should have freed them, but if a
+	# player was mid-cast when the scene was torn down the summons can outlive it
+	# for a frame. This safety-net sweep guarantees a clean start.
+	for stale in get_tree().get_nodes_in_group("summons"):
+		if stale is Node and is_instance_valid(stale):
+			stale.queue_free()
+
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
 		if GameRuntime.is_ffa():
 			RiftClashManager.reset_match()
@@ -2943,6 +2951,9 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 		"force_electro":
 			if arena is Arena:
 				(arena as Arena).debug_force_electro()
+		"clear_active_summons":
+			# Test hook: free all of the player's active summons (turrets/mines).
+			player._clear_active_summons()
 		"mission_warp":
 			# Test hook: run the cinematic ring-of-fire world transition on demand.
 			# Record the current (old) biome, advance to the next one, rebuild the

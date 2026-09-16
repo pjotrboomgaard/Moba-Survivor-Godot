@@ -1162,6 +1162,12 @@ func _record_charge_probe(label: String) -> void:
 	var charges := {}
 	for prop in ["_mine_charge_left", "_turret_charge_left", "_fissure_charge_left", "_ward_charge_left", "_arclight_charge_left_q", "_arclight_charge_left_a"]:
 		charges[prop.trim_prefix("_")] = int(_player.get(prop))
+	# 2026-09-16: report Tobor's charge bonuses + effective caps for the
+	# "start at 1 charge, upgrade to 2/3" verification.
+	for prop in ["_mine_charge_bonus", "_turret_charge_bonus"]:
+		charges[prop.trim_prefix("_")] = int(_player.get(prop))
+	charges["mine_charge_cap"] = int(_player._mine_charge_cap())
+	charges["turret_charge_cap"] = int(_player._turret_charge_cap())
 	# T3.96: Arclight max-charge + level for the charge-system test.
 	if _player.class_id == "arclight":
 		charges["arclight_q_max"] = int(_player._arclight_max_charges_for(_player.level, false))
