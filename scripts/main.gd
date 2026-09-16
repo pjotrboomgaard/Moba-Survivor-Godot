@@ -1196,6 +1196,16 @@ func restore_run(data: Dictionary) -> void:
 		player.global_position = pos
 	elif pos is Array and (pos as Array).size() >= 2:
 		player.global_position = Vector2(float(pos[0]), float(pos[1]))
+	# 2026-09-16 user rule: "when i do continue it doesnt show any characters ... it is
+	# only zoomed out and only shows the boss." A saved run that ends on a boss wave (or
+	# right after a boss-defeat zoom) can leave the local camera stuck at a very zoomed-out
+	# state (0.13 full-map, or the boss-form 0.33) so the player's own hero reads as a tiny
+	# speck and only the boss is legible. On resume the camera MUST snap back to the
+	# player's base framing so the character is clearly visible on their current wave.
+	if player.camera != null:
+		player.camera.zoom = player._base_camera_zoom
+		player.camera.global_position = player.global_position
+		player.camera.position_smoothing_enabled = true
 
 
 func capture_run() -> Dictionary:
