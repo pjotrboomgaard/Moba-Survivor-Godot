@@ -98,8 +98,8 @@ const CLASSES: Array[Dictionary] = [
 		"effect_style": EffectStyle.BOLT,
 		"body_color": "e8e8e8",
 		"accent_color": "e05a28",
-		"effect_color": "ffe14a",
-		"effect_secondary": "7af0ff",
+		"effect_color": "4ab8ff",
+		"effect_secondary": "b0e8ff",
 		"health_bar_color": "3ec8ff",
 		"max_health": 98.0,
 		"movement_speed": 300.0,
@@ -2289,7 +2289,7 @@ static func random_upgrade_ids(class_id: String, amount: int = 4, known: Array =
 					taken_ids = matches[0].taken_upgrades.duplicate()
 	var ability_ids := ability_offer_ids(class_id, known_entries, 6)
 	var class_upgrades: Array = by_id(class_id).get("upgrades", [])
-	var mixed := UpgradeCatalog.mixed_offer(ability_ids, class_upgrades, offer_level, amount, taken_ids, recent_ids)
+	var mixed := UpgradeCatalog.mixed_offer(ability_ids, class_upgrades, offer_level, amount, taken_ids, recent_ids, taken_ids)
 	# Ability-unlock system: if the hero still has locked abilities (rank 0), the
 	# level-up MUST always offer at least one "unlock" choice so they can grow their
 	# kit. Guarantee a locked-ability token is present; if it's missing, replace a

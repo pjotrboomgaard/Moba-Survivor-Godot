@@ -105,9 +105,12 @@ const KIT_VISUALS: Dictionary = {
 		"lifetime": 0.5,
 	},
 	# ── Arclight (Joule / Thunderbringer) ────────────────────────────────────
+	# 2026-09-16 user rule: "make all the lightning blue." All Arclight
+	# lightning abilities now use a blue palette instead of the old
+	# yellow/gold theme so every bolt reads as electric blue.
 	"arclight_blast_of_lightning": {
-		"primary_color": "fff8a8",
-		"secondary_color": "7af0ff",
+		"primary_color": "4ab8ff",
+		"secondary_color": "b0e8ff",
 		"pulse_count": 1,
 		"ribbon_count": 3,
 		"style": "storm",
@@ -115,8 +118,8 @@ const KIT_VISUALS: Dictionary = {
 		"lifetime": 0.22,
 	},
 	"arclight_chain_lightning": {
-		"primary_color": "b0e8ff",
-		"secondary_color": "fff8a8",
+		"primary_color": "4ab8ff",
+		"secondary_color": "b0e8ff",
 		"pulse_count": 2,
 		"ribbon_count": 5,
 		"style": "storm",
@@ -124,8 +127,8 @@ const KIT_VISUALS: Dictionary = {
 		"lifetime": 0.28,
 	},
 	"arclight_thundergods_wrath": {
-		"primary_color": "fff8a8",
-		"secondary_color": "b48cff",
+		"primary_color": "3a9aff",
+		"secondary_color": "b0e8ff",
 		"pulse_count": 4,
 		"ribbon_count": 6,
 		"style": "storm",
@@ -133,8 +136,8 @@ const KIT_VISUALS: Dictionary = {
 		"lifetime": 2.8,
 	},
 	"arclight_ball_lightning": {
-		"primary_color": "fff8a8",
-		"secondary_color": "7af0ff",
+		"primary_color": "4ab8ff",
+		"secondary_color": "b0e8ff",
 		"pulse_count": 1,
 		"ribbon_count": 3,
 		"style": "storm",
