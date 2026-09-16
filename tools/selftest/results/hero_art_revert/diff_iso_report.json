@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/hero_art_revert/iso_before_new.png",
+  "after": "tools/selftest/results/hero_art_revert/iso_after_old.png",
+  "out": "tools/selftest/results/hero_art_revert/diff_iso.png",
+  "changed_pixels": 161978,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.078114,
+  "bbox": [
+    165,
+    0,
+    1762,
+    1079
+  ],
+  "has_change": true
+}
