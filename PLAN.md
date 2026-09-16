@@ -2,6 +2,45 @@
 
 _Last updated: 2026-09-16_
 
+> **2026-09-16 — Arclight lightning: all blue + slow chain + sky-strike ult (full 6-step pipeline):**
+>
+> User requests: "make all the lightning blue", "2nd should bounce slowly lightning",
+> "redo ult so that is clearly lightning from sky". Changes in `scripts/kit_fx_library.gd`
+> (all Arclight abilities: primary_color → blue palette `4ab8ff`/`3a9aff`, secondary
+> `b0e8ff`; chain `lifetime` → 0.9s for slow-bounce feel; ult `draw_mode` →
+> `storm_pillar`, `lifetime` → 3.5s for dramatic sky-strike) + `scripts/player_class.gd`
+> (Arclight `effect_color`/`effect_secondary` → blue).
+>
+> **ISOLATED (empty-world scene `arclight_vfx_iso`):**
+> 1. iso_before_e.png (old yellow/gold chain):
+>    `tools/selftest/results/arclight_vfx_iso/iso_before_e.png`
+> 2. iso_after_e.png (blue chain):
+>    `tools/selftest/results/arclight_vfx_iso/iso_after_e.png`
+> 3. diff_iso_e.png (0.54% pixel change, bolt region):
+>    `tools/selftest/results/arclight_vfx_iso/diff_iso_e.png`
+> 4. iso_before_r.png (old gold/white sky pillar):
+>    `tools/selftest/results/arclight_vfx_iso/iso_before_r.png`
+> 5. iso_after_r.png (blue sky pillar):
+>    `tools/selftest/results/arclight_vfx_iso/iso_after_r.png`
+> 6. diff_iso_r.png (0.23% pixel change, pillar region):
+>    `tools/selftest/results/arclight_vfx_iso/diff_iso_r.png`
+>
+> **IN-GAME (arclight_ability_redesign selftest, hero=arclight):**
+> 7. ingame_before_e.png (yellow chain in full arena):
+>    `tools/selftest/results/arclight_ability_redesign_arclight/ingame_before_e.png`
+> 8. ingame_after_e.png (blue chain in full arena):
+>    `tools/selftest/results/arclight_ability_redesign_arclight/ingame_after_e.png`
+> 9. diff_ingame_e.png (0.88% pixel change):
+>    `tools/selftest/results/arclight_ability_redesign_arclight/diff_ingame_e.png`
+> 10. ingame_before_r.png (gold sky-strike):
+>    `tools/selftest/results/arclight_ability_redesign_arclight/ingame_before_r.png`
+> 11. ingame_after_r.png (blue sky-strike):
+>    `tools/selftest/results/arclight_ability_redesign_arclight/ingame_after_r.png`
+> 12. diff_ingame_r.png (0.96% pixel change):
+>    `tools/selftest/results/arclight_ability_redesign_arclight/diff_ingame_r.png`
+>
+> All 6 steps PASS: isolated + in-game before/after/compare complete.
+
 > **2026-09-16 — Ability VFX cleanup + hero art redesign (full 6-step pipeline):**
 > - **Ability VFX gate (pixel-art only for placed objects) — VERIFIED.** User rule:
 >   "remove all pixel-art effect frames from abilities, except for things that are

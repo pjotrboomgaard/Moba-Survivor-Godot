@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\arclight_vfx_iso\\iso_after_e.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    15,
+    18,
+    25
+  ],
+  "content_fill_ratio": 0.0056,
+  "bounding_box": [
+    600,
+    36,
+    1512,
+    599
+  ],
+  "coverage": 0.2483,
+  "position": "TOP",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2383,
+    "TR": 0.603,
+    "BL": 0.0,
+    "BR": 0.1587
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\arclight_vfx_iso\\thumb_iso_after_e.png"
+}

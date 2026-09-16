@@ -1,0 +1,15 @@
+{
+  "before": "tools\\selftest\\results\\arclight_vfx_iso\\iso_before_r.png",
+  "after": "tools\\selftest\\results\\arclight_vfx_iso\\iso_after_r.png",
+  "out": "tools\\selftest\\results\\arclight_vfx_iso\\diff_iso_r.png",
+  "changed_pixels": 4767,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.002299,
+  "bbox": [
+    956,
+    0,
+    969,
+    817
+  ],
+  "has_change": true
+}

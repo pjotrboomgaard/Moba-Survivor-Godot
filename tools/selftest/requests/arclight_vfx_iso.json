@@ -1,0 +1,7 @@
+{
+  "comment": "Isolated empty-world test: Arclight ability VFX (blue lightning, slow chain, sky-strike ult)",
+  "scene": "res://scenes/arclight_vfx_iso/arclight_vfx_iso.tscn",
+  "events": [
+    {"t": 5.0, "kind": "report"}
+  ]
+}
