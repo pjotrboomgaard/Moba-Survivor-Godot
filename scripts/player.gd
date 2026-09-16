@@ -520,8 +520,11 @@ func is_in_boss_form() -> bool:
 	return in_boss_form
 
 
-## Grant boss-form: boosted stats, boss-tinted sprite, creeps won't target us (FFA).
-## Called by main.gd when this player defeats the wave boss.
+## Grant boss-form: boosted stats, boss-scaled sprite, creeps won't target us (FFA).
+## 2026-09-16 user rule: the boss transformation must (a) actually transform the hero's
+## sprite into the boss (not just an orange tint), (b) zoom out to 1.5× the default
+## zoom (NOT a full-map zoom), (c) keep minions/enemies visible, and (d) play a white
+## fade so the transform reads as a real "become the boss" moment.
 func grant_boss_form(boss_type_id: String) -> void:
 	if in_boss_form:
 		# Refresh timer, don't stack.
@@ -535,16 +538,59 @@ func grant_boss_form(boss_type_id: String) -> void:
 	movement_speed *= BOSS_FORM_SPEED_MULT
 	weapon_damage *= BOSS_FORM_DAMAGE_MULT
 	_add_max_health(BOSS_FORM_MAX_HEALTH_BONUS)
-	# Visual: tint toward the boss colour, zoom out camera to see more of the arena
-	# so the player can unleash boss-scale attacks.
+	# Visual: swap the sprite to the boss texture (fall back to the orange tint if the
+	# boss sprite is missing) and scale it up so it reads as a real transformation.
 	if sprite != null:
-		sprite.modulate = Color(1.4, 0.6, 0.4)
-		# Boss-form pulse ring.
+		_apply_boss_form_sprite(boss_type_id)
 		if world_health_bar != null:
 			world_health_bar.set_identity_color(Color("ff4444"))
+	# Camera: zoom out to 1.5× the default framing (NOT a full-map overhead) so the
+	# player still sees their surroundings / minions but gets a wider arena view.
+	# 2026-09-16 user rule: "the boss zoom out is too far zoomed out. it should be
+	# zoomed out by 1.5 times default and still show minions etc."
 	if camera != null and is_local_player:
-		camera.zoom = Vector2(BOSS_FORM_CAMERA_ZOOM, BOSS_FORM_CAMERA_ZOOM)
+		var target_zoom := _base_camera_zoom / 1.5
+		camera.zoom = target_zoom
+	# White fade-in on transform: a quick flash so the moment reads as "become the boss".
+	_play_boss_form_white_flash()
 	queue_redraw()
+
+
+## Swap the hero sprite for the boss's texture at a larger scale so the transformation is
+## visible. Falls back to the orange tint when the boss sprite isn't available.
+func _apply_boss_form_sprite(boss_type_id: String) -> void:
+	if sprite == null:
+		return
+	var boss_tex := SpriteLibrary.texture_for(boss_type_id)
+	if boss_tex != null:
+		sprite.texture = boss_tex
+		sprite.modulate = Color.WHITE
+		sprite.scale = _hero_sprite_scale() * 1.8
+	else:
+		# No boss sprite available — keep the hero's own texture but tint it and enlarge.
+		sprite.modulate = Color(1.4, 0.6, 0.4)
+		sprite.scale = _hero_sprite_scale() * 1.4
+	queue_redraw()
+
+
+## A brief white screen-flash on the boss transform. Purely local (no full-screen overlay
+## node in the tree — just a modulate pulse on the camera viewport's background).
+func _play_boss_form_white_flash() -> void:
+	if camera == null:
+		return
+	# Flash the whole world white via a one-shot modulate pulse on a temporary ColorRect.
+	# (We use the camera's own parent's canvas so the flash covers the view.)
+	var flash := ColorRect.new()
+	flash.color = Color(1.0, 1.0, 1.0, 0.0)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash.z_index = 40
+	get_parent().add_child(flash)
+	# Position the flash to cover the visible area via the camera.
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var tw := flash.create_tween()
+	tw.tween_property(flash, "color:a", 1.0, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_property(flash, "color:a", 0.0, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_callback(flash.queue_free)
 
 
 ## Revert boss-form: restore original stats, sprite colour.
@@ -561,7 +607,8 @@ func revert_boss_form() -> void:
 	attack_interval = class_data.attack_interval * 0.5
 	# Note: max_health is NOT reverted (permanent gain), just noted.
 	if sprite != null:
-		sprite.modulate = Color.WHITE
+		# Restore the hero's own sprite (was swapped to the boss texture on transform).
+		_apply_sprite()
 		if world_health_bar != null:
 			world_health_bar.set_identity_color(Color(str(class_data.get("health_bar_color", class_data.accent_color))))
 	# Restore camera zoom to the resolution-appropriate base zoom (set on the
