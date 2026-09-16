@@ -2966,6 +2966,14 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 		_:
 			if command.begins_with("resolution:"):
 				_apply_resolution_command(command)
+			elif command.begins_with("apply_upgrade:"):
+				# Test hook: apply a specific upgrade id directly.
+				# e.g. "apply_upgrade:ability:tobor_steam_turret"
+				# The upgrade id is everything after the "apply_upgrade:" prefix.
+				var upgrade_id := command.substr("apply_upgrade:".length())
+				if not upgrade_id.is_empty():
+					player.apply_upgrade(upgrade_id)
+					player.taken_upgrades.append(upgrade_id)
 			elif command.begins_with("biome_") and GameRuntime.uses_biomes():
 				GameRuntime.set_biome(int(command.trim_prefix("biome_")))
 				_play_world_flash()

@@ -1,0 +1,17 @@
+{
+  "hero": "tobor",
+  "coop": false,
+  "ffa": false,
+  "time_scale": 4.0,
+  "description": "In-game verify: Tobor turret/mine charges start at 1, upgrading to ability raises cap to 2/3",
+  "events": [
+    {"t": 1.0, "kind": "charge_probe", "label": "initial"},
+    {"t": 2.0, "kind": "snap", "label": "ingame_charge_initial"},
+    {"t": 3.0, "kind": "dev_command", "command": "apply_upgrade:ability:tobor_steam_turret"},
+    {"t": 3.2, "kind": "charge_probe", "label": "after_turret_upgrade"},
+    {"t": 4.0, "kind": "dev_command", "command": "apply_upgrade:ability:tobor_spider_mines"},
+    {"t": 4.2, "kind": "charge_probe", "label": "after_mine_upgrade"},
+    {"t": 5.0, "kind": "snap", "label": "ingame_charge_upgraded"},
+    {"t": 6.0, "kind": "report"}
+  ]
+}
