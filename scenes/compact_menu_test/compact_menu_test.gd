@@ -1,0 +1,110 @@
+extends Node
+## Isolated/verify driver for the compact main menu (2026-09-16 redesign).
+##
+## Attached to get_tree().root by bootstrap.gd when marker file
+## user://compact_menu_test exists.
+##
+## Captures:
+##   menu_before          — menu as first shown (default hero)
+##   menu_after_next      — after pressing the ">" hero nav once
+##   menu_after_roster    — after opening the 9-dot full-roster popup
+##   menu_after_mode      — after pressing the ">" mode nav once
+
+var _elapsed := 0.0
+var _run_dir := ""
+var _shots: Array = []
+var _done := false
+var _shot_index := 0
+var _boot: Node = null
+
+# shot time -> (label, optional action performed just before the shot)
+var _shot_times: Array[float] = [0.8, 2.0, 4.0, 6.0]
+var _shot_labels: Array = [
+	"menu_before",
+	"menu_after_next",
+	"menu_after_roster",
+	"menu_after_mode",
+]
+
+
+func _ready() -> void:
+	_run_dir = "user://compact_menu_run_%d" % int(Time.get_ticks_msec())
+	DirAccess.make_dir_recursive_absolute(_run_dir)
+	print("[CompactMenu] driver ready, run_dir=", _run_dir)
+
+
+func _process(delta: float) -> void:
+	if _done:
+		return
+	_elapsed += delta
+
+	if _boot == null:
+		_boot = get_tree().current_scene
+	# Take the next scheduled shot.
+	while _shot_index < _shot_times.size() and _elapsed >= _shot_times[_shot_index]:
+		var label: String = _shot_labels[_shot_index]
+		_perform_action(_shot_index)
+		_shot_index += 1
+		_snap_deferred(label)
+
+	if _shot_index >= _shot_times.size() and _elapsed >= _shot_times[_shot_times.size() - 1] + 1.5:
+		_finish()
+
+
+func _perform_action(index: int) -> void:
+	if _boot == null:
+		return
+	match index:
+		0:
+			pass  # default state
+		1:
+			if _boot.has_method("_cycle_hero"):
+				_boot._cycle_hero(1)
+		2:
+			if _boot.has_method("_toggle_roster_popup"):
+				_boot._toggle_roster_popup()
+		3:
+			if _boot.has_method("_cycle_mode"):
+				_boot._cycle_mode(1)
+
+
+func _snap_deferred(label: String) -> void:
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	await get_tree().create_timer(0.1).timeout
+	if _done:
+		return
+	var img: Image = get_viewport().get_texture().get_image()
+	if img != null and not img.is_empty():
+		var path := "%s/%s.png" % [_run_dir, label]
+		img.save_png(path)
+		_shots.append({"label": label, "path": path})
+		print("[CompactMenu] snap ", label, " ", img.get_width(), "x", img.get_height())
+	else:
+		_shots.append({"label": label, "path": "none", "error": "no image"})
+		print("[CompactMenu] snap ", label, " FAILED: no image")
+
+
+func _finish() -> void:
+	if _done:
+		return
+	_done = true
+	var ok_shots := 0
+	for s in _shots:
+		if not str(s.get("path", "")).ends_with("none") and not str(s.get("path", "")).is_empty():
+			ok_shots += 1
+	var verdict := "PASS" if ok_shots == _shot_times.size() else "FAIL"
+	var report := {
+		"verdict": verdict,
+		"scene": "compact_menu_test",
+		"task": "Compact main menu redesign (big hero icon + < > nav + roster + mode nav)",
+		"expected_shots": _shot_times.size(),
+		"shots_captured": ok_shots,
+		"shots": _shots,
+	}
+	var f := FileAccess.open("user://selftest_report.json", FileAccess.WRITE)
+	if f != null:
+		f.store_string(JSON.stringify(report, "  "))
+		f.close()
+	print("[CompactMenu] SUMMARY verdict=", verdict, " shots=", ok_shots, "/", _shot_times.size())
+	get_tree().quit(0)
