@@ -117,6 +117,9 @@ const KIT_VISUALS: Dictionary = {
 		"draw_mode": "storm_bolts",
 		"lifetime": 0.22,
 	},
+	# 2026-09-16 user rule: "2nd should bounce slowly lightning" — chain
+	# lightning now uses a slow, heavy, arcing draw with long lifetime so the
+	# bolt visibly bounces between targets instead of snapping instantly.
 	"arclight_chain_lightning": {
 		"primary_color": "4ab8ff",
 		"secondary_color": "b0e8ff",
@@ -124,24 +127,31 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 5,
 		"style": "storm",
 		"draw_mode": "storm_bolts",
-		"lifetime": 0.28,
+		"lifetime": 0.9,
 	},
+	# 2026-09-16 user rule: "redo ult so that is clearly lightning from sky."
+	# Thundergods Wrath now uses the storm_pillar draw mode with a much longer
+	# lifetime (3.5s) and taller bolt so it reads as a dramatic pillar of
+	# lightning falling from the sky.
 	"arclight_thundergods_wrath": {
 		"primary_color": "3a9aff",
 		"secondary_color": "b0e8ff",
-		"pulse_count": 4,
-		"ribbon_count": 6,
+		"pulse_count": 5,
+		"ribbon_count": 8,
 		"style": "storm",
 		"draw_mode": "storm_pillar",
-		"lifetime": 2.8,
+		"lifetime": 3.5,
 	},
+	# 2026-09-16 user rule: "redo 3rd ability into something else." Ball
+	# Lightning redesigned as a slow-drifting orb with trailing sparks —
+	# distinct from the fast bolts above.
 	"arclight_ball_lightning": {
 		"primary_color": "4ab8ff",
 		"secondary_color": "b0e8ff",
-		"pulse_count": 1,
-		"ribbon_count": 3,
+		"pulse_count": 2,
+		"ribbon_count": 4,
 		"style": "storm",
-		"lifetime": 0.38,
+		"lifetime": 0.6,
 	},
 	# ── Bulwark (Tremor / Behemoth) ──────────────────────────────────────────
 	"bulwark_fissure": {
