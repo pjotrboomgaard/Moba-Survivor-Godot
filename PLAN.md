@@ -455,6 +455,123 @@ too quickly during the first waves. Ease early-game pacing.
      from 94.5 → 47.25 (51% reduction), wave 2 from 105.3 → 63.18 (40% reduction),
      wave 3 from 125.55 → 94.16 (25% reduction), wave 4 unchanged at 145.8.
 
+### T4.4 Add minigame trigger objects to the world editor (NEW 2026-09-16)
+**User direction:** "add the things that trigger to start minigames to the world
+editor so i can place them." Minigames were previously hardcoded at fixed
+corner/edge positions in `minigame_area.gd`. Now the user can place/erase
+minigame triggers anywhere in the editor; when triggers exist they override the
+default layout at runtime.
+- [ ] `scripts/minigame_trigger.gd` — new placeable marker node (class_name
+      MinigameTrigger, group "minigame_trigger") with `minigame_index`,
+      `display_name`, `accent`, and a visible ring `_draw()`.
+- [ ] `scripts/world_editor.gd` — new "Minigame Triggers" palette section
+      (`_minigame_trigger_section`) with a Place button + a type-cycle button
+      (16 types in `MINIGAME_NAMES`); `_place_minigame_trigger` /
+      `_place_minigame_trigger_at`; cursor ring preview in `_draw()`; triggers
+      are editable/erasable (`_editable_nodes`, `_erase_visual_radius`),
+      snapshot/restorable, and serialized into the saved level's `minigames` array.
+- [ ] `scripts/arena.gd` — `apply_saved_level` re-creates `MinigameTrigger` nodes
+      from the `minigames` array; `clear_editable_props` frees them.
+- [ ] `scripts/minigame_area.gd` — new shared `MINIGAMES` registry (index →
+      script/accent/name); `start()` reads user-placed triggers from the
+      "minigame_trigger" group and spawns only at those positions when any exist,
+      otherwise falls back to the default corner/edge layout.
+- [x] 6-step verify (DONE 2026-09-16):
+      - Isolated BEFORE: tools/selftest/results/minigame_trigger_iso/iso_mgtrigger_before.png
+      - Isolated AFTER: tools/selftest/results/minigame_trigger_iso/iso_mgtrigger_after.png
+      - Isolated COMPARE: tools/selftest/results/minigame_trigger_iso/diff_iso.png
+        (0.6% change; bbox matches the 3 user-placed trigger positions — minigames
+        spawn only where triggers are placed, default layout suppressed)
+      - In-game BEFORE: tools/selftest/results/minigame_trigger_ingame/ingame_before_2.032_7058.png
+      - In-game AFTER: tools/selftest/results/minigame_trigger_ingame/ingame_after_3.617_8745.png
+      - In-game COMPARE: tools/selftest/results/minigame_trigger_ingame/diff_ingame.png
+        (19.3% change; two new minigame markers appear near center at the
+        user-placed positions, default corner/edge markers gone)
+      - mg_all probe: exactly 2 minigames (Dance Disco @ (80,-60),
+        Balloon Pop @ (-80,90)) — user triggers override the default layout.
+
+### T4.5 Main menu: 12-hero roster shown by default (NEW 2026-09-16)
+**User direction:** "show the 12 hero roster instead of the one button",
+"animated on mouse over by default", "no hero description", "abilities with
+buttons". Replace the 9-dot roster button in the compact menu with an always-
+visible 4×3 grid of the 12 heroes; hovering a hero animates its sprite in place
+and previews it in the big icon; abilities render as clickable buttons under
+the hero; the hero blurb/description is hidden.
+- [ ] `scenes/bootstrap/bootstrap.gd` — `_roster_grid` GridContainer replaces the
+      `_roster_dots_btn`; `_populate_roster_grid()` builds 12 sprite buttons;
+      `_on_roster_hover`/`_on_roster_hover_exit` preview the big icon;
+      `_bind_roster_hover_animation` drives the per-button walk-in-place via the
+      shared `_hero_hover_walk`; abilities built as `Button`s in
+      `_populate_ability_strip` (hover previews, click pins the panel);
+      `ability_hero_blurb` hidden.
+- [ ] 6-step verify (pending — not yet verified; must NOT be marked done):
+      isolated before/after/compare + in-game before/after/compare screenshots.
+
+### T4.6 Remove old shop stand from the world (NEW 2026-09-17)
+**User direction:** "remove the shop" — the standalone SUPERMERCATOR stand
+object is going away; the shop is now the crashed-ship structure in the crater
+(see T4.7/T4.8). Remove its spawn and the proximity-gated "PRESS B" logic that
+only works when near the stand.
+- [ ] `scripts/arena.gd` — stop instantiating `SHOP_STAND_SCENE` / remove the
+      `town_shop` prop from the built props.
+- [ ] `scripts/main.gd` — the "B" key opens the shop from the ship, not the stand;
+      drop `_near_shop_stand` gating (or repoint it at the ship).
+- [ ] 6-step verify: isolated + in-game before/after/compare.
+
+### T4.7 Ship-crash uses imported sprite, lands slightly above centre (NEW 2026-09-17)
+**User direction:** "after the ship crashes use
+`SpritesImport\toborship\..._2026-09-16T20_03_12.png`; put it slightly above the
+middle". Replace the procedural pixel-art ship with the imported PNG, shown
+slightly above the map centre.
+- [ ] Load the `res://SpritesImport/toborship/..._20_03_12.png` crash-ship texture.
+- [ ] `scripts/ship_crash_fx.gd` — use the PNG sprite instead of the procedural
+      `_draw_ship()` rects; position the landed wreck slightly above centre.
+- [ ] 6-step verify: isolated crash-cinematic + in-game before/after/compare.
+
+### T4.8 Crashed ship = 5 walkable parts, occluding like trees (NEW 2026-09-17)
+**User direction:** "make sure you can walk in between the 5 large parts, and
+that they are objects you can walk behind and they overlay you like trees".
+Split the wreck into ~5 physical parts with real collision; each part uses the
+painter's-algorithm depth sort (`WorldClock.depth_z`) so the player walks BEHIND
+parts and IN FRONT of others; gaps between parts are walkable.
+- [ ] New obstacle node(s) or extended `Obstacle` supporting a per-part texture
+      region + a solid `CollisionShape2D` (walk-block) so 5 parts leave walkable
+      gaps between them.
+- [ ] Place the 5 parts at the crash site with correct z (depth sort by y).
+- [ ] Verify walkable gaps: an entity can pass between two adjacent parts.
+- [ ] 6-step verify: isolated + in-game before/after/compare.
+
+### T4.9 Crashed ship is the new shop (locked → "Repurpose") (NEW 2026-09-17)
+**User direction:** "press B to open the shop menu but first the only option is:
+Repurpose to unlock shop for 1500 gold". At the ship, B opens a locked shop UI
+with a single "Repurpose — unlock shop for 1500 gold" button; buying it unlocks
+the full shop for the run.
+- [ ] `scripts/hud.gd` — shop panel gains a "locked" state: when not repurposed,
+      only a single "Repurpose — unlock shop for 1500 gold" button is shown;
+      buying it sets `shop_unlocked = true` (persisted per run).
+- [ ] Wire B / interact to open this locked shop at the ship position.
+- [ ] 6-step verify: in-game before/after/compare (locked → after repurchase).
+
+### T4.10 Repurpose morph transition into the shop sprite (NEW 2026-09-17)
+**User direction:** "for upgrading the shop add a transition where it becomes
+white silhouette of first the crashed plane and then morphs into white silhouette
+of unlocked shop and then morphes into the image of the unlocked shop".
+- [ ] Transition anim: crashed-ship PNG → white silhouette of crashed plane →
+      white silhouette of the unlocked-shop PNG (`..._20_04_32.png`) → full-colour
+      unlocked shop.
+- [ ] 6-step verify: isolated + in-game before/after/compare.
+
+### T4.11 Character shop (buy heroes, 2000 gold) + switching with upgrades (NEW 2026-09-17)
+**User direction:** "in the shop you can also scroll and buy other characters
+for 2000 gold. after you bought them you can switch between characters ... take
+all upgrades and stats with you but you get all the attributes of the other hero".
+- [ ] Shop gains a scrollable "Characters" section listing heroes not yet owned;
+      each costs 2000 gold to buy.
+- [ ] Once bought, the hero is in the owned roster and can be switched to at any
+      time; switching carries over all level-up upgrades + gold + shop stacks,
+      but applies the new hero's base attributes/abilities.
+- [ ] 6-step verify: in-game before/after/compare on >= 2 heroes.
+
 ---
 
 ## P0 — CRITICAL (blocks everything)

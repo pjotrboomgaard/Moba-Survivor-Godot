@@ -124,6 +124,16 @@ var _diff_next_btn: Button = null
 ## Ability strip (icons under the hero)
 var _ability_strip: HBoxContainer = null
 var _roster_preview_icon: TextureRect = null
+## 16-hero roster grid shown in the menu (bottom-right of the panel)
+var _roster_grid: GridContainer = null
+## Compact top-row widgets (2026-09-17 menu redesign):
+##   - hero name top-right (TOBOR), START / CONTINUE buttons, < MODE > nav
+##   - difficulty < > nav below, roster + ability strip pinned to bottom-right,
+##   - small wrench/gear settings button (resolution + sound) bottom-right.
+var _compact_hero_name_label: Label = null
+var _compact_start_btn: Button = null
+var _compact_continue_btn: Button = null
+var _compact_settings_btn: Button = null
 
 ## T3.71 / T3.97: animated menu background (from MP4 frame extraction).
 ## Generic per-hero: any hero whose class def has an "animated_menu_bg" folder
@@ -452,79 +462,70 @@ func _constrain_lobby_layout() -> void:
 # ============================================================================
 
 func _build_compact_menu(layout: VBoxContainer) -> void:
-	# Title
-	var title := Label.new()
-	title.text = "RIFT SURVIVORS"
-	title.add_theme_font_size_override("font_size", 18)
-	title.add_theme_color_override("font_color", Color(1.0, 0.48, 0.18, 1.0))
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	layout.add_child(title)
+	# === TOP ROW: hero name (left) + action buttons (right) ===
+	var top_row := HBoxContainer.new()
+	top_row.name = "CompactTopRow"
+	top_row.add_theme_constant_override("separation", 6)
+	top_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	layout.add_child(top_row)
 
-	# --- Hero nav row: < [ICON] > ... [9-dot] ---
-	# User (2026-09-16): smaller square hero icon, smaller < > buttons, same size.
-	var hero_row := HBoxContainer.new()
-	hero_row.name = "CompactHeroRow"
-	hero_row.add_theme_constant_override("separation", 6)
-	hero_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	layout.add_child(hero_row)
+	# Hero name label (left side of top row)
+	var hero_name_label := Label.new()
+	hero_name_label.name = "CompactHeroName"
+	hero_name_label.text = "TOBOR"
+	hero_name_label.add_theme_font_size_override("font_size", 22)
+	hero_name_label.add_theme_color_override("font_color", Color(1.0, 0.75, 0.3, 1.0))
+	hero_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hero_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	top_row.add_child(hero_name_label)
+	_compact_hero_name_label = hero_name_label
 
-	_hero_prev_btn = _make_nav_btn("<", 84)
-	_hero_prev_btn.pressed.connect(_cycle_hero.bind(-1))
-	hero_row.add_child(_hero_prev_btn)
+	# START button
+	_compact_start_btn = Button.new()
+	_compact_start_btn.name = "CompactStartBtn"
+	_compact_start_btn.text = "START"
+	_compact_start_btn.custom_minimum_size = Vector2(90, 44)
+	_compact_start_btn.add_theme_font_size_override("font_size", 14)
+	_compact_start_btn.focus_mode = Control.FOCUS_NONE
+	_compact_start_btn.pressed.connect(_on_solo_pressed)
+	_style_action_button(_compact_start_btn)
+	top_row.add_child(_compact_start_btn)
 
-	_hero_big_icon = TextureRect.new()
-	_hero_big_icon.custom_minimum_size = Vector2(96, 96)
-	_hero_big_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_hero_big_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_hero_big_icon.mouse_filter = Control.MOUSE_FILTER_STOP
-	hero_row.add_child(_hero_big_icon)
+	# CONTINUE button (hidden when no save)
+	_compact_continue_btn = Button.new()
+	_compact_continue_btn.name = "CompactContinueBtn"
+	_compact_continue_btn.text = "CONTINUE"
+	_compact_continue_btn.custom_minimum_size = Vector2(90, 44)
+	_compact_continue_btn.add_theme_font_size_override("font_size", 14)
+	_compact_continue_btn.focus_mode = Control.FOCUS_NONE
+	_compact_continue_btn.pressed.connect(_on_continue_pressed)
+	_compact_continue_btn.visible = false
+	_style_action_button(_compact_continue_btn)
+	top_row.add_child(_compact_continue_btn)
 
-	_hero_next_btn = _make_nav_btn(">", 84)
-	_hero_next_btn.pressed.connect(_cycle_hero.bind(1))
-	hero_row.add_child(_hero_next_btn)
-
-	# 9-dot roster button
-	_roster_dots_btn = Button.new()
-	_roster_dots_btn.text = "⋮⋮⋮"
-	_roster_dots_btn.tooltip_text = "Full roster"
-	_roster_dots_btn.custom_minimum_size = Vector2(40, 40)
-	_roster_dots_btn.add_theme_font_size_override("font_size", 15)
-	_roster_dots_btn.pressed.connect(_toggle_roster_popup)
-	hero_row.add_child(_roster_dots_btn)
-
-	# --- Ability strip: 4 small ability icons UNDER the hero ---
-	_ability_strip = HBoxContainer.new()
-	_ability_strip.name = "CompactAbilityStrip"
-	_ability_strip.add_theme_constant_override("separation", 8)
-	_ability_strip.alignment = BoxContainer.ALIGNMENT_CENTER
-	layout.add_child(_ability_strip)
-
-	# --- Mode nav row: < [MODE] > ---
-	var mode_row2 := HBoxContainer.new()
-	mode_row2.name = "CompactModeRow"
-	mode_row2.add_theme_constant_override("separation", 6)
-	layout.add_child(mode_row2)
-
-	_mode_prev_btn = _make_nav_btn("<", 40)
+	# MODE nav: < MODE >
+	_mode_prev_btn = _make_nav_btn("<", 44)
 	_mode_prev_btn.pressed.connect(_cycle_mode.bind(-1))
-	mode_row2.add_child(_mode_prev_btn)
+	top_row.add_child(_mode_prev_btn)
 
 	_mode_label = Label.new()
 	_mode_label.text = "SOLO"
 	_mode_label.add_theme_font_size_override("font_size", 15)
 	_mode_label.add_theme_color_override("font_color", Color(0.85, 0.92, 1.0, 1.0))
-	_mode_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_mode_label.custom_minimum_size = Vector2(110, 0)
 	_mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	mode_row2.add_child(_mode_label)
+	_style_nav_label_bg(_mode_label)
+	top_row.add_child(_mode_label)
 
-	_mode_next_btn = _make_nav_btn(">", 40)
+	_mode_next_btn = _make_nav_btn(">", 44)
 	_mode_next_btn.pressed.connect(_cycle_mode.bind(1))
-	mode_row2.add_child(_mode_next_btn)
+	top_row.add_child(_mode_next_btn)
 
-	# --- Difficulty nav row: < [EASY/NORMAL/HARD/BRUTAL] > (same slide style as mode) ---
+	# === DIFFICULTY ROW: < DIFFICULTY > ===
 	var diff_row := HBoxContainer.new()
 	diff_row.name = "CompactDiffRow"
 	diff_row.add_theme_constant_override("separation", 6)
+	diff_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	layout.add_child(diff_row)
 	_diff_prev_btn = _make_nav_btn("<", 40)
 	_diff_prev_btn.pressed.connect(_cycle_diff.bind(-1))
@@ -533,37 +534,143 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	_diff_label.text = "NORMAL"
 	_diff_label.add_theme_font_size_override("font_size", 15)
 	_diff_label.add_theme_color_override("font_color", Color(0.8, 0.88, 1.0, 1.0))
-	_diff_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_diff_label.custom_minimum_size = Vector2(110, 0)
 	_diff_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_style_nav_label_bg(_diff_label)
 	diff_row.add_child(_diff_label)
 	_diff_next_btn = _make_nav_btn(">", 40)
 	_diff_next_btn.pressed.connect(_cycle_diff.bind(1))
 	diff_row.add_child(_diff_next_btn)
 
-	# --- Play button (reuses the existing SoloButton, already a child of Layout) ---
-	solo_button.visible = true
-	solo_button.custom_minimum_size = Vector2(0, 48)
-	solo_button.add_theme_font_size_override("font_size", 16)
-	layout.move_child(solo_button, layout.get_child_count())
+	# === MIDDLE: expanding spacer to push roster to bottom ===
+	var spacer := Control.new()
+	spacer.name = "CompactSpacer"
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	spacer.custom_minimum_size = Vector2(0, 8)
+	layout.add_child(spacer)
 
-	# --- Hide old difficulty buttons (replaced by the slide nav above) ---
+	# === BOTTOM: 16-hero roster grid (4x4) ===
+	# User (2026-09-17): no big hero icon, just the roster grid.
+	_roster_grid = GridContainer.new()
+	_roster_grid.name = "CompactRosterGrid"
+	_roster_grid.columns = 4
+	_roster_grid.add_theme_constant_override("h_separation", 4)
+	_roster_grid.add_theme_constant_override("v_separation", 4)
+	_roster_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	layout.add_child(_roster_grid)
+	_populate_roster_grid()
+
+	# === ABILITY STRIP: LMB/RMB + 4 ability buttons UNDER the roster ===
+	_ability_strip = HBoxContainer.new()
+	_ability_strip.name = "CompactAbilityStrip"
+	_ability_strip.add_theme_constant_override("separation", 8)
+	_ability_strip.alignment = BoxContainer.ALIGNMENT_CENTER
+	layout.add_child(_ability_strip)
+
+	# === WRENCH SETTINGS BUTTON (bottom-right corner) ===
+	_compact_settings_btn = Button.new()
+	_compact_settings_btn.name = "CompactSettingsBtn"
+	_compact_settings_btn.text = "\u2699"  # gear/wrench unicode
+	_compact_settings_btn.custom_minimum_size = Vector2(36, 36)
+	_compact_settings_btn.add_theme_font_size_override("font_size", 18)
+	_compact_settings_btn.focus_mode = Control.FOCUS_NONE
+	_compact_settings_btn.tooltip_text = "Settings: Resolution & Sound"
+	_compact_settings_btn.pressed.connect(_on_compact_settings_pressed)
+	_style_action_button(_compact_settings_btn)
+	# Right-align the settings button
+	var settings_row := HBoxContainer.new()
+	settings_row.name = "CompactSettingsRow"
+	settings_row.alignment = BoxContainer.ALIGNMENT_END
+	layout.add_child(settings_row)
+	settings_row.add_child(_compact_settings_btn)
+
+	# --- Hide old UI elements ---
+	title_label.visible = false
 	difficulty_row.visible = false
 	difficulty_label.visible = false
+	mode_row.visible = false
+	solo_button.visible = false
+	# The old 4-big-button "Abilities" loadout panel is replaced by the compact
+	# ability strip (LMB/RMB + 4 small icons) under the roster — keep it hidden.
+	if loadout_panel != null:
+		loadout_panel.visible = false
+		if class_description != null:
+			class_description.visible = false
 
-	# --- Audio row ---
+	# Hide old audio row (moved behind settings button)
 	if audio_row != null:
-		audio_row.visible = true
-		layout.move_child(audio_row, layout.get_child_count())
+		audio_row.visible = false
 
-	# --- Steam status (already a child of Layout — just make visible + reorder) ---
+	# --- Steam status ---
 	if steam_status_label != null:
 		steam_status_label.visible = true
 		layout.move_child(steam_status_label, layout.get_child_count())
+
+	# Sync the continue button visibility
+	_sync_compact_continue()
 
 	# Initialize nav
 	_init_hero_nav()
 	_init_mode_nav()
 	_init_diff_nav()
+
+
+## Shared background style for all action/nav buttons in the compact menu.
+func _style_action_button(btn: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.12, 0.14, 0.2, 0.85)
+	normal.border_color = Color(0.3, 0.35, 0.5, 0.6)
+	normal.set_border_width_all(1)
+	normal.set_corner_radius_all(6)
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = Color(0.18, 0.22, 0.32, 0.95)
+	hover.border_color = Color(0.5, 0.6, 0.8, 0.8)
+	hover.set_border_width_all(1)
+	var pressed := normal.duplicate() as StyleBoxFlat
+	pressed.bg_color = Color(0.08, 0.09, 0.12, 0.95)
+	pressed.border_color = Color(0.4, 0.45, 0.6, 0.7)
+	btn.add_theme_stylebox_override("normal", normal)
+	btn.add_theme_stylebox_override("hover", hover)
+	btn.add_theme_stylebox_override("pressed", pressed)
+	btn.add_theme_stylebox_override("focus", normal)
+	btn.add_theme_color_override("font_color", Color("f4f0e6"))
+
+
+## Shared background for the mode/difficulty nav labels (looks like a button slot).
+func _style_nav_label_bg(lbl: Label) -> void:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.1, 0.12, 0.18, 0.8)
+	sb.border_color = Color(0.25, 0.3, 0.45, 0.5)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(6)
+	lbl.add_theme_stylebox_override("normal", sb)
+
+
+## Show/hide the compact Continue button based on save existence.
+func _sync_compact_continue() -> void:
+	if _compact_continue_btn != null:
+		_compact_continue_btn.visible = RunSave.has_save()
+
+
+## Called when the settings (wrench) button is pressed — toggle audio row.
+func _on_compact_settings_pressed() -> void:
+	AudioService.play("ui_click")
+	if audio_row == null:
+		return
+	# Toggle visibility of the audio row; insert it right above the settings row.
+	var layout := lobby_panel.get_node_or_null("Margin/Layout") as VBoxContainer
+	if layout == null:
+		return
+	if audio_row.visible:
+		audio_row.visible = false
+	else:
+		audio_row.visible = true
+		# Move audio row to just before the settings row
+		var settings_row := layout.get_node_or_null("CompactSettingsRow")
+		if settings_row != null:
+			layout.move_child(audio_row, settings_row.get_index())
+		else:
+			layout.add_child(audio_row)
 
 
 func _make_nav_btn(txt: String, min_h: float = 84) -> Button:
@@ -597,6 +704,10 @@ func _sync_hero_nav() -> void:
 		var tex := SpriteLibrary.texture_for(hero_id)
 		if tex != null:
 			_hero_big_icon.texture = tex
+	# Update the compact top-right hero name label (2026-09-17 redesign).
+	if _compact_hero_name_label != null:
+		var _cls: Dictionary = PlayerClass.by_id(hero_id)
+		_compact_hero_name_label.text = str(_cls.get("name", hero_id)).to_upper()
 	# Sync with the existing class selection system.
 	PlayerProfile.select_class(hero_id)
 	_updating_class_ui = true
@@ -608,34 +719,84 @@ func _sync_hero_nav() -> void:
 	_apply_hero_backdrop()
 	_refresh_header_detail(hero_id)
 	_populate_ability_strip(hero_id)
+	_update_roster_selection()
 
 
+## Highlight the currently-selected hero in the always-visible roster grid.
+func _update_roster_selection() -> void:
+	if _roster_grid == null:
+		return
+	var sel := _hero_nav_ids[_hero_nav_index] if _hero_nav_index < _hero_nav_ids.size() else ""
+	for child in _roster_grid.get_children():
+		if child is Button:
+			var hid := String(child.name).trim_prefix("RosterBtn_")
+			_set_roster_btn_selected(child, hid == sel)
+
+
+## Ability strip: LMB, RMB + 4 ability buttons under the hero roster.
+## Each shows the ability icon; hover shows the panel; click pins the panel open.
 func _populate_ability_strip(hero_id: String) -> void:
 	if _ability_strip == null:
 		return
 	for child in _ability_strip.get_children():
 		child.queue_free()
+	# LMB button (primary attack)
+	var lmb_btn := Button.new()
+	lmb_btn.name = "LmbBtn"
+	lmb_btn.custom_minimum_size = Vector2(48, 48)
+	lmb_btn.icon = SpriteLibrary.texture_for(hero_id)
+	lmb_btn.add_theme_constant_override("icon_max_width", 40)
+	lmb_btn.add_theme_constant_override("icon_max_height", 40)
+	lmb_btn.tooltip_text = "LMB — " + _lmb_tooltip(hero_id)
+	lmb_btn.focus_mode = Control.FOCUS_NONE
+	lmb_btn.mouse_entered.connect(_on_lmb_hover)
+	lmb_btn.mouse_exited.connect(_hide_ability_hover)
+	lmb_btn.pressed.connect(_on_lmb_pressed)
+	_ability_strip.add_child(lmb_btn)
+	# RMB button (secondary attack)
+	var rmb_btn := Button.new()
+	rmb_btn.name = "RmbBtn"
+	rmb_btn.custom_minimum_size = Vector2(48, 48)
+	var sec_kind := str(PlayerClass.by_id(hero_id).get("secondary", "repulse"))
+	rmb_btn.icon = SpriteLibrary.texture_for("secondary_" + sec_kind)
+	if rmb_btn.icon == null:
+		rmb_btn.icon = SpriteLibrary.texture_for("secondary_repulse")
+	rmb_btn.add_theme_constant_override("icon_max_width", 40)
+	rmb_btn.add_theme_constant_override("icon_max_height", 40)
+	rmb_btn.tooltip_text = "RMB — " + str(PlayerClass.secondary_info_for_class(hero_id).get("name", "Secondary"))
+	rmb_btn.focus_mode = Control.FOCUS_NONE
+	rmb_btn.mouse_entered.connect(_on_rmb_hover)
+	rmb_btn.mouse_exited.connect(_hide_ability_hover)
+	rmb_btn.pressed.connect(_on_rmb_pressed)
+	_ability_strip.add_child(rmb_btn)
+	# Q/E/R + 4th ability buttons
 	var ids := _hero_ability_ids(hero_id)
 	for i in mini(ids.size(), 4):
 		var ability_id: String = ids[i]
 		if ability_id.is_empty():
 			continue
-		var icon := TextureRect.new()
-		icon.custom_minimum_size = Vector2(48, 48)
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		icon.mouse_filter = Control.MOUSE_FILTER_STOP
-		var tex := SpriteLibrary.texture_for(ability_id)
-		if tex != null:
-			icon.texture = tex
-		# Hover shows the full ability description (reuses the ability panel).
+		var btn := Button.new()
+		btn.name = "AbilityBtn%d" % i
+		btn.custom_minimum_size = Vector2(48, 48)
+		btn.icon = SpriteLibrary.texture_for(ability_id)
+		btn.add_theme_constant_override("icon_max_width", 40)
+		btn.add_theme_constant_override("icon_max_height", 40)
+		btn.tooltip_text = str(PlayerClass.ABILITIES.get(ability_id, {}).get("name", ability_id))
+		btn.focus_mode = Control.FOCUS_NONE
 		var aid := ability_id
-		icon.mouse_entered.connect(_on_ability_strip_hover.bind(aid))
-		_ability_strip.add_child(icon)
+		btn.mouse_entered.connect(_on_ability_strip_hover.bind(aid))
+		btn.mouse_exited.connect(_hide_ability_hover)
+		btn.pressed.connect(_on_ability_strip_pressed.bind(aid))
+		_ability_strip.add_child(btn)
 
 
 func _on_ability_strip_hover(ability_id: String) -> void:
+	_show_ability_hover(ability_id)
+
+
+## Click an ability button: just (re)show the hover panel for that ability.
+## The panel is hover-driven only — it closes when the mouse leaves the button.
+func _on_ability_strip_pressed(ability_id: String) -> void:
 	_show_ability_hover(ability_id)
 
 
@@ -703,6 +864,18 @@ func _on_hero_big_icon_hover() -> void:
 	_show_ability_panel_for_selected_hero()
 
 
+func _on_big_icon_hover_enter() -> void:
+	# Hover-only: show the selected hero's description + stats.
+	var hero_id := _hero_nav_ids[_hero_nav_index] if _hero_nav_index < _hero_nav_ids.size() else ""
+	if hero_id != "":
+		_show_hero_description_hover(hero_id)
+
+
+func _on_big_icon_hover_exit() -> void:
+	# Hover-only: hide the panel when the mouse leaves the big icon.
+	_hide_ability_hover()
+
+
 func _show_ability_panel_for_selected_hero() -> void:
 	var hero_id := ""
 	if _hero_nav_index < _hero_nav_ids.size():
@@ -722,95 +895,170 @@ func _show_ability_panel_for_selected_hero() -> void:
 			_show_ability_hover(str(abilities[0]))
 
 
-func _toggle_roster_popup() -> void:
-	if _roster_popup != null and is_instance_valid(_roster_popup):
-		_roster_popup.queue_free()
-		_roster_popup = null
+## Populates the always-visible 12-hero roster grid in the compact menu.
+## 4 columns x 3 rows = 12 hero sprite buttons. Hover animates the sprite
+## (walk-in-place) and previews it in the big hero icon. Click selects.
+func _populate_roster_grid() -> void:
+	if _roster_grid == null:
 		return
-	# Build the full roster popup (3x3 grid of all heroes)
-	_roster_popup = _build_roster_popup()
-
-
-func _build_roster_popup() -> Control:
-	var popup := PanelContainer.new()
-	popup.name = "RosterPopup"
-	# Position: float on the LEFT side of the screen, clear of the compact menu panel.
-	popup.anchor_left = 0.0
-	popup.anchor_top = 0.5
-	popup.anchor_right = 0.0
-	popup.anchor_bottom = 0.5
-	popup.offset_left = 48.0
-	popup.offset_top = -190.0
-	popup.offset_right = 48.0 + 360.0
-	popup.offset_bottom = -190.0 + 400.0
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.07, 0.10, 0.95)
-	style.border_color = Color(0.35, 0.4, 0.55, 0.8)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(10)
-	popup.add_theme_stylebox_override("panel", style)
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	popup.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
-	margin.add_child(vbox)
-	var header := Label.new()
-	header.text = "SELECT HERO"
-	header.add_theme_font_size_override("font_size", 16)
-	header.add_theme_color_override("font_color", Color(1.0, 0.62, 0.26, 1.0))
-	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(header)
-	# 4x4 grid of ALL heroes (16) as pickable sprite buttons.
-	# Hovering a sprite previews it in the big hero icon (user: "moving mouse over
-	# them does the sprite preview").
-	var grid := GridContainer.new()
-	grid.columns = 4
-	grid.add_theme_constant_override("h_separation", 10)
-	grid.add_theme_constant_override("v_separation", 10)
-	vbox.add_child(grid)
+	for child in _roster_grid.get_children():
+		child.queue_free()
 	var all_heroes: Array[String] = []
 	for world_idx in 3:
 		all_heroes.append_array(ids_in_world(world_idx))
-	# De-duplicate while preserving order.
 	var seen := {}
 	var heroes: Array[String] = []
 	for hid in all_heroes:
 		if not seen.has(hid):
 			seen[hid] = true
 			heroes.append(hid)
+	if heroes.size() > 16:
+		heroes = heroes.slice(0, 16)
 	for hero_id in heroes:
 		var btn := Button.new()
-		btn.custom_minimum_size = Vector2(72, 72)
+		btn.name = "RosterBtn_%s" % hero_id
+		btn.custom_minimum_size = Vector2(52, 52)
 		btn.icon = SpriteLibrary.texture_for(hero_id)
-		btn.add_theme_constant_override("icon_max_width", 56)
-		btn.add_theme_constant_override("icon_max_height", 56)
+		btn.add_theme_constant_override("icon_max_width", 44)
+		btn.add_theme_constant_override("icon_max_height", 44)
 		btn.tooltip_text = str(PlayerClass.by_id(hero_id).name)
 		btn.text = ""
-		btn.mouse_entered.connect(_on_roster_hover.bind(hero_id))
-		btn.pressed.connect(_on_roster_hero_pressed.bind(hero_id))
-		grid.add_child(btn)
-	# Close button
-	var close_btn := Button.new()
-	close_btn.text = "CLOSE"
-	close_btn.custom_minimum_size = Vector2(0, 32)
-	close_btn.pressed.connect(_toggle_roster_popup)
-	vbox.add_child(close_btn)
-	get_parent().add_child(popup)
-	return popup
+		btn.focus_mode = Control.FOCUS_NONE
+		var aid := hero_id
+		btn.mouse_entered.connect(_on_roster_hover.bind(aid))
+		btn.mouse_exited.connect(_on_roster_hover_exit.bind(btn, aid))
+		btn.pressed.connect(_on_roster_hero_pressed.bind(aid))
+		_roster_grid.add_child(btn)
+		# Register for hover walk animation (animated on mouse over by default).
+		_bind_roster_hover_animation(btn, hero_id)
+		# Highlight the currently selected hero.
+		if _hero_nav_index < _hero_nav_ids.size() and hero_id == _hero_nav_ids[_hero_nav_index]:
+			_set_roster_btn_selected(btn, true)
 
 
-## Hover a roster sprite -> preview it in the big hero icon (no commit).
+## Highlight / un-highlight a roster button to show the selected hero.
+func _set_roster_btn_selected(btn: Button, selected: bool) -> void:
+	var style := StyleBoxFlat.new()
+	if selected:
+		style.bg_color = Color(0.9, 0.75, 0.3, 0.35)
+		style.border_color = Color(1.0, 0.85, 0.4, 1.0)
+		style.set_border_width_all(2)
+	else:
+		style.bg_color = Color(0.08, 0.09, 0.13, 0.4)
+		style.border_color = Color(0.25, 0.3, 0.4, 0.5)
+		style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	btn.add_theme_stylebox_override("normal", style)
+	btn.add_theme_stylebox_override("hover", style)
+	btn.add_theme_stylebox_override("pressed", style)
+	btn.add_theme_stylebox_override("focus", style)
+
+
+## Hover a roster sprite -> preview it in the big hero icon AND show the hero's
+## full description + stats in the ability panel (hover-only: hides on exit).
 func _on_roster_hover(hero_id: String) -> void:
 	if _hero_big_icon != null:
 		var tex := SpriteLibrary.texture_for(hero_id)
 		if tex != null:
 			_hero_big_icon.texture = tex
+	_show_hero_description_hover(hero_id)
+
+## Leave a roster sprite -> revert the big hero icon to the selected hero and
+## hide the hover panel (unless the mouse has moved onto the panel itself).
+func _on_roster_hover_exit(btn: Button, hero_id: String) -> void:
+	if _hero_big_icon != null and hero_id != PlayerProfile.selected_class_id:
+		var front := SpriteLibrary.texture_for(PlayerProfile.selected_class_id)
+		if front != null:
+			_hero_big_icon.texture = front
+	_hide_ability_hover()
+
+
+## Show the hovered hero's description + stats in the ability panel (hover-only).
+func _show_hero_description_hover(hero_id: String) -> void:
+	if ability_panel == null or ability_hero_header == null:
+		return
 	var cls: Dictionary = PlayerClass.by_id(hero_id)
-	status_label.text = str(cls.get("name", hero_id)) + "  ·  " + str(cls.get("role", ""))
+	_ability_panel_hero_id = hero_id
+	# Header: hero name + role
+	ability_hero_header.text = ("%s  ·  %s" % [
+		str(cls.get("name", hero_id)).to_upper(),
+		str(cls.get("role", "Hero")).to_upper()
+	])
+	# Body: full description + stat block
+	if ability_hover_body != null:
+		ability_hover_body.visible = true
+		ability_hover_body.text = _hero_description_body(hero_id)
+	# Show the hero's own sprite as the panel icon.
+	if ability_hover_icon != null:
+		ability_hover_icon.texture = SpriteLibrary.texture_for(hero_id)
+		ability_hover_icon.visible = true
+	# No ability preview for a hero-description hover.
+	if ability_preview != null:
+		ability_preview.visible = false
+	ability_panel.visible = true
+	_raise_ability_hover()
+
+
+## Full substituted hero description + stats block for the panel body.
+func _hero_description_body(hero_id: String) -> String:
+	var cls: Dictionary = PlayerClass.by_id(hero_id)
+	var desc := str(cls.get("description", ""))
+	var rng := "Melee" if int(cls.get("attack_range", 0)) <= 150 else "Ranged (%d px)" % int(cls.get("attack_range", 0))
+	var lines: Array[String] = ["[color=#f4f0e6]%s[/color]" % desc]
+	var stats: Array[String] = [
+		"HP %d" % int(cls.get("max_health", 0)),
+		"%s" % rng,
+		"DMG %d" % int(cls.get("weapon_damage", 0)),
+		"CD %.1fs" % float(cls.get("attack_interval", 0)),
+	]
+	lines.append("[color=9fb3d1]%s[/color]" % "  |  ".join(stats))
+	return "\n".join(lines)
+
+
+## Bind a roster button to animate its own sprite on hover (walk-in-place).
+## Reuses the _hero_hover_walk system so each button cycles through
+## front/right/back/left frames while the mouse is over it.
+func _bind_roster_hover_animation(btn: Button, hero_id: String) -> void:
+	# Build the 4-frame walk cycle.
+	var frames: Array = []
+	var front := SpriteLibrary.texture_for(hero_id)
+	if front == null:
+		return
+	for facing in ["", "right", "back", "left"]:
+		var tex: Texture2D = front
+		if facing != "":
+			var dir_tex := SpriteLibrary.texture_for("%s_%s" % [hero_id, facing])
+			if dir_tex != null:
+				tex = dir_tex
+		frames.append(tex)
+	# Only register if we have more than 1 distinct frame (else static is fine).
+	var unique_frames := _distinct_frames(frames)
+	if unique_frames.size() < 2:
+		return
+	_hero_hover_walk[btn] = {
+		"frames": frames,
+		"frame": 0,
+		"t": 0.0,
+		"interval": 0.22,
+		"base_icon": front,
+		"active": false,
+	}
+	btn.mouse_entered.connect(_on_hero_card_hover.bind(btn, true))
+	btn.mouse_exited.connect(_on_hero_card_hover.bind(btn, false))
+
+
+## Return the unique textures in `frames` (first-occurrence order), dropping nulls.
+func _distinct_frames(frames: Array) -> Array:
+	var seen := {}
+	var out: Array = []
+	for t in frames:
+		if t == null:
+			continue
+		var key := str(t.resource_path) if t != null and "resource_path" in t else str(t)
+		if not seen.has(key):
+			seen[key] = true
+			out.append(t)
+	return out
 
 
 func _on_roster_hero_pressed(hero_id: String) -> void:
@@ -830,10 +1078,6 @@ func _on_roster_hero_pressed(hero_id: String) -> void:
 				_hero_nav_index = idx
 				break
 	_sync_hero_nav()
-	# Close popup
-	if _roster_popup != null and is_instance_valid(_roster_popup):
-		_roster_popup.queue_free()
-		_roster_popup = null
 
 
 func _start_runtime() -> void:
@@ -1400,12 +1644,16 @@ func _refresh_game_mode() -> void:
 	class_label.visible = false
 	class_grid.visible = false
 	mode_row.visible = false
+	# 2026-09-16: compact menu uses the < > difficulty slide nav, not the
+	# 4-button difficulty row — keep the old row hidden so it doesn't reappear.
+	# 2026-09-17: the compact ability strip under the roster replaces the old
+	# 4-big-button loadout panel, so keep loadout_panel hidden in the compact menu.
 	if loadout_panel != null:
-		loadout_panel.visible = true
+		loadout_panel.visible = false
 	if roster_info_button != null and roster_info_button.get_parent() != null:
 		roster_info_button.get_parent().visible = false
-	difficulty_label.visible = true
-	difficulty_row.visible = true
+	difficulty_label.visible = false
+	difficulty_row.visible = false
 	if cpu_coop_button != null:
 		cpu_coop_button.visible = false
 	_refresh_class_selection()
@@ -1585,7 +1833,9 @@ func _populate_ability_panel(hero_id: String) -> void:
 	var hero_data := PlayerClass.by_id(hero_id)
 	ability_hero_header.text = "%s  ·  %s" % [str(hero_data.get("name", hero_id)).to_upper(), str(hero_data.get("role", "")).to_upper()]
 	ability_hero_header.add_theme_color_override("font_color", Color(str(hero_data.get("accent_color", "ff8a3d"))))
-	ability_hero_blurb.text = str(hero_data.get("description", ""))
+	# User (2026-09-16): "no hero description" — the blurb line is hidden.
+	ability_hero_blurb.visible = false
+	ability_hero_blurb.text = ""
 	for child in ability_list.get_children():
 		child.queue_free()
 	# LMB/RMB tooltip row (shown above the ability cards).
