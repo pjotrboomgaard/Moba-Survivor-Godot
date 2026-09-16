@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/arclight_ability_redesign/ingame_before_casts.png",
+  "after": "tools/selftest/results/arclight_ability_redesign/ingame_after_e.png",
+  "out": "tools/selftest/results/arclight_ability_redesign/diff_e.png",
+  "changed_pixels": 29547,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.014249,
+  "bbox": [
+    236,
+    11,
+    1913,
+    1044
+  ],
+  "has_change": true
+}
