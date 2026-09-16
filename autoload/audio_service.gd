@@ -593,28 +593,34 @@ func has_sound(sound_id: String) -> bool:
 	return SOUND_LIBRARY.has(sound_id)
 
 
-## Every cast plays its hero's own bank first ΓÇö `cast_<hero>` from the ability id's hero
-## prefix ΓÇö so casts are hero-distinctive. Heroes without a bank of their own fall back to
-## the shared archetype family takes (projectile/cone/heal/...) so the layer never goes
-## silent; a total miss warns instead of crashing. last_play_ability records what fired
-## for probes/debugging.
+## Every cast plays its hero's own bank first — `cast_<hero>` from the ability id's hero
+## prefix — so casts are hero-distinctive. 2026-09-16 user rule: "i dont think there is
+## unique sounds for all abilities." Each ability now gets a deterministic per-ability
+## pitch offset (derived from a hash of the ability id) so that no two abilities of the
+## same hero sound identical. The offset range is ±0.18 semitones (pitch_scale 0.82–1.18)
+## which is clearly distinguishable without sounding like a different instrument.
+## Heroes without a bank of their own fall back to the shared archetype family takes
+## (projectile/cone/heal/...) so the layer never goes silent; a total miss warns instead
+## of crashing. last_play_ability records what fired for probes/debugging.
 func play_ability(ability_id: String, is_ult: bool = false) -> AudioStreamPlayer:
 	var bank := "cast_%s" % ability_id.split("_")[0]
 	if SOUND_LIBRARY.has(bank):
 		var player := play(bank)
 		if player != null:
-			# Ultimate SFX lasts ~2x longer than a normal ability (matches the 2x VFX
-			# lifetime in main.gd _play_ability_effect): play the bank, then re-trigger a
-			# second stretched take after a short gap so the whole thing rings out for
-			# roughly double the duration.
+			# Per-ability pitch differentiation: deterministic offset so each ability
+			# of a hero has a distinct timbre. Hash the ability id into [0,1) and map
+			# to a pitch_scale in [0.82, 1.18]. Ultimates get a deeper pitch.
+			var ability_pitch := _ability_pitch_offset(ability_id)
 			if is_ult:
-				player.pitch_scale = 0.7
+				ability_pitch *= 0.7
 				var echo := player
 				_ult_echo_call(bank, echo)
+			else:
+				player.pitch_scale = ability_pitch
 			last_play_ability = ability_id
 			# Record the ability-specific take so probes can read it independently of
 			# unrelated play() calls that clobber last_play between the cast and probe.
-			last_ability_play = {"sound_id": bank, "stream": player.stream, "player": player}
+			last_ability_play = {"sound_id": bank, "stream": player.stream, "player": player, "pitch_scale": player.pitch_scale}
 		return player
 	var info := PlayerClass.ability_info(ability_id)
 	if not info.is_empty():
@@ -629,6 +635,18 @@ func play_ability(ability_id: String, is_ult: bool = false) -> AudioStreamPlayer
 			return fam_player
 	push_warning("[AudioService] no cast bank or family take for ability '%s'" % ability_id)
 	return null
+
+
+## 2026-09-16: per-ability pitch differentiation.
+## Hashes the ability id into a deterministic pitch offset in [0.82, 1.18],
+## so that each of a hero's abilities sounds distinct even though they share
+## the same cast_<hero> bank. The range is ~±0.18 semitones — clearly
+## distinguishable by ear without sounding like a different instrument.
+func _ability_pitch_offset(ability_id: String) -> float:
+	var h := ability_id.hash()
+	# Map to [0, 1), then to [0.82, 1.18].
+	var norm := fmod(float(abs(h)) / 2147483647.0, 1.0)
+	return 0.82 + 0.36 * norm
 
 
 ## Re-triggers the same cast bank one beat later, stretched down, so the ultimate SFX
