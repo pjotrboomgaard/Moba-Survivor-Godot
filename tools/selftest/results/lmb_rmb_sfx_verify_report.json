@@ -3,11 +3,30 @@
     {
       "command": "toggle_invulnerable",
       "kind": "dev_command",
-      "t": 0.270315666666667
+      "t": 0.233333333333333
+    },
+    {
+      "ability_id": "primary_attack_tobor",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "attack_tobor",
+      "kind": "sound_probe",
+      "label": "lmb_tobor",
+      "last_play_ability": "",
+      "last_play_sound_id": "attack_tobor",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/attack_tobor.wav",
+      "t": 0.800447666666666
     },
     {
       "charge_t": 0.55952380952381,
-      "enemies_alive": 19,
+      "enemies_alive": 21,
       "kind": "secondary_probe",
       "label": "mid_charge",
       "secondary_charge": 0.783333333333334,
@@ -15,11 +34,11 @@
       "secondary_cooldown": 0.0,
       "secondary_cooldown_max": 9.0,
       "secondary_kind": "repulse",
-      "t": 1.597884
+      "t": 1.99241233333333
     },
     {
       "charge_t": 1.0,
-      "enemies_alive": 18,
+      "enemies_alive": 26,
       "kind": "secondary_probe",
       "label": "post_release",
       "secondary_charge": 1.4,
@@ -27,12 +46,13 @@
       "secondary_cooldown": 0.0,
       "secondary_cooldown_max": 9.0,
       "secondary_kind": "repulse",
-      "t": 2.40571433333333
+      "t": 2.80067266666666
     },
     {
       "ability_id": "secondary_attack_tobor",
       "assert_ability_match": false,
       "assert_bank_match": false,
+      "assert_distinct_bank": false,
       "assert_player_fired": true,
       "assert_stream_bank": false,
       "assert_stream_from_bank": false,
@@ -45,19 +65,43 @@
       "player_non_null": true,
       "player_was_playing": true,
       "stream_path": "res://assets/audio/sfx/cast_tobor.ogg",
-      "t": 2.45236588888889
+      "t": 2.85081366666666
+    },
+    {
+      "ability_id": "tobor_steam_keg",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_tobor",
+      "kind": "sound_probe",
+      "label": "ability_q_tobor",
+      "last_play_ability": "tobor_steam_keg",
+      "last_play_sound_id": "cast_tobor",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/tobor.wav",
+      "t": 3.70074599999999
     }
   ],
-  "elapsed": 3.00196933333333,
+  "elapsed": 4.51999999999999,
   "enemies_spawned": 1,
-  "hero_position": "(-197.7369, 0.0)",
+  "hero_position": "(-273.2176, 0.0)",
   "player_class": "tobor",
   "results": {
     "alive": true,
     "beaten_wave": 0,
     "build": "",
-    "cast_count": 0,
-    "casts": [],
+    "cast_count": 1,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 4.200872
+      }
+    ],
     "creep_kills": 0,
     "died": false,
     "errors": [],

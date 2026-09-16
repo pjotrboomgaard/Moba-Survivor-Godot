@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\charge_tobor_iso\\charge_iso_after_up_1.01.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    13,
+    13,
+    20
+  ],
+  "content_fill_ratio": 0.0083,
+  "bounding_box": [
+    882,
+    417,
+    1032,
+    591
+  ],
+  "coverage": 0.0127,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2973,
+    "TR": 0.2868,
+    "BL": 0.2178,
+    "BR": 0.1981
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\charge_tobor_iso\\thumb_charge_iso_after_up_1.01.png"
+}

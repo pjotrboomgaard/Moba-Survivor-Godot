@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/charge_tobor_iso/charge_iso_start_0.41.png",
+  "after": "tools/selftest/results/charge_tobor_iso/charge_iso_after_up_1.01.png",
+  "out": "tools/selftest/results/charge_tobor_iso/diff_iso.png",
+  "changed_pixels": 14,
+  "total_pixels": 2073600,
+  "changed_fraction": 7e-06,
+  "bbox": [
+    942,
+    439,
+    974,
+    441
+  ],
+  "has_change": true
+}

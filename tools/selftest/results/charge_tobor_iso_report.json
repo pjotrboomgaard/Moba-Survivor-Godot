@@ -1,0 +1,73 @@
+{
+  "all_probes": [
+    {
+      "mine_charge_bonus": 0,
+      "mine_charge_cap": 1,
+      "mine_charge_left": 1,
+      "probe": "start",
+      "turret_charge_bonus": 0,
+      "turret_charge_cap": 1,
+      "turret_charge_left": 1
+    },
+    {
+      "mine_charge_bonus": 1,
+      "mine_charge_cap": 2,
+      "mine_charge_left": 2,
+      "probe": "after_upgrade_0",
+      "turret_charge_bonus": 1,
+      "turret_charge_cap": 2,
+      "turret_charge_left": 2
+    },
+    {
+      "mine_charge_bonus": 2,
+      "mine_charge_cap": 3,
+      "mine_charge_left": 3,
+      "probe": "after_upgrade_1",
+      "turret_charge_bonus": 2,
+      "turret_charge_cap": 3,
+      "turret_charge_left": 3
+    },
+    {
+      "mine_charge_bonus": 2,
+      "mine_charge_cap": 3,
+      "mine_charge_left": 3,
+      "probe": "after_upgrade_2",
+      "turret_charge_bonus": 2,
+      "turret_charge_cap": 3,
+      "turret_charge_left": 3
+    },
+    {
+      "label": "charge_iso_start",
+      "path": "user://charge_tobor_run_1789574887/charge_iso_start_0.41.png",
+      "t": 0.405573666666667
+    },
+    {
+      "label": "charge_iso_after_up",
+      "path": "user://charge_tobor_run_1789574887/charge_iso_after_up_1.01.png",
+      "t": 1.00554366666667
+    }
+  ],
+  "captured": 2,
+  "end": {
+    "mine_charge_bonus": 2,
+    "mine_charge_cap": 3,
+    "mine_charge_left": 3,
+    "probe": "after_upgrade_2",
+    "turret_charge_bonus": 2,
+    "turret_charge_cap": 3,
+    "turret_charge_left": 3
+  },
+  "end_ok": true,
+  "scene": "charge_tobor_test",
+  "start": {
+    "mine_charge_bonus": 0,
+    "mine_charge_cap": 1,
+    "mine_charge_left": 1,
+    "probe": "start",
+    "turret_charge_bonus": 0,
+    "turret_charge_cap": 1,
+    "turret_charge_left": 1
+  },
+  "start_ok": true,
+  "verdict": "PASS"
+}
