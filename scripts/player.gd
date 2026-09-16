@@ -154,7 +154,11 @@ var aim_world_position := Vector2.RIGHT * 100.0
 var current_xp := 0
 var level := 1
 ## First level is a handful of grunt orbs; later levels stretch so wave 20 still has picks left.
-const BASE_XP_REQUIRED := 80
+## 2026-09-16 user rule: "make it so that i level up 2 times less often, especially in the
+## beginning." Doubling the base (80 -> 160) doubles the XP needed for EVERY level (the base
+## feeds into the compounding growth), so level-ups come roughly half as often — with the
+## biggest relative effect on the early game where the threshold is lowest.
+const BASE_XP_REQUIRED := 160
 const XP_GROWTH := 1.17
 ## P1.17: pulse blast is a frequent, weak nudge — scale per-hit damage down so it
 ## clears/softens surrounding creeps without dealing a full weapon swing's worth.
