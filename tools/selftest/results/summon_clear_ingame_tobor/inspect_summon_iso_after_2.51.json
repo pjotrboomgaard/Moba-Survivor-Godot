@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\summon_clear_ingame_tobor\\summon_iso_after_2.51.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.5624,
+  "bounding_box": [
+    240,
+    135,
+    1679,
+    944
+  ],
+  "coverage": 0.5625,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.25,
+    "TR": 0.25,
+    "BL": 0.25,
+    "BR": 0.25
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\summon_clear_ingame_tobor\\thumb_summon_iso_after_2.51.png"
+}

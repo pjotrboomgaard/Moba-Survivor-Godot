@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\summon_clear_ingame2_tobor\\ingame_after.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.1826,
+  "bounding_box": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.1934,
+    "TR": 0.2544,
+    "BL": 0.2069,
+    "BR": 0.3453
+  },
+  "edge_fractions": {
+    "top": 0.0058,
+    "bottom": 0.0065,
+    "left": 0.0036,
+    "right": 0.0097
+  },
+  "thumbnail": "tools\\selftest\\results\\summon_clear_ingame2_tobor\\thumb_ingame_after.png"
+}

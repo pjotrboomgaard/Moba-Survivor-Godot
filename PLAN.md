@@ -2881,3 +2881,38 @@ animated bg at 20% speed for these 2."
          (animated backdrops in live menu).
       6. **In-game COMPARE**: `diff_ingame_tobor.json` (717px, 0.035%),
          `diff_ingame_warden.json` (49025px, 2.36%).
+
+### T3.101 Rogue mines/turrets persist into new solo run (NEW 2026-09-16) _STATUS: verified_
+**User direction:** "when I start a solo run there is still some rogue mines and
+turrets there for some reason."
+**Root cause:** SummonEntity nodes (Tobor's turrets and mines) are parented to
+`get_tree().current_scene` (the Main Node2D) via `Player._vfx_parent()`. When a run
+ends and the user starts a new solo run, the old Main scene is freed via
+`game.free()` in bootstrap. However, if a cast was in-flight during scene teardown,
+the summon's `queue_free()` can race with the parent's free, causing the SummonEntity
+node to outlive the scene and appear in the new run. Additionally, there was no
+explicit cleanup of `active_summons` when a player node exits the tree.
+**Fix:**
+- `scripts/player.gd`: Added `_exit_tree()` that calls `_clear_active_summons()`,
+  which iterates `active_summons` and calls `queue_free()` on each valid summon.
+  This guarantees all placed objects are freed when the player node is freed.
+- `scripts/main.gd`: Added a safety-net sweep in `_ready()` that frees any
+  SummonEntity nodes still in the "summons" group when a new Main scene loads.
+  This catches any summons that leaked from a previous run.
+- `scripts/main.gd`: Added `clear_active_summons` dev command for testing.
+- [x] Isolated verify: `scenes/summon_clear_test/` — spawns a real Player + turret
+      + mine, frees the player, confirms summons are gone.
+      BEFORE (no fix): `summon_iso_before_0.51.png` / `summon_iso_after_2.51.png`,
+      verdict=FAIL (before=2, after=2 — summons survived).
+      AFTER (with fix): `summon_iso_before_0.50.png` / `summon_iso_after_2.51.png`,
+      verdict=PASS (before=2, after=0 — summons freed).
+      Compare: `diff_iso.png` (0.55% changed, bbox = summon region).
+- [x] In-game verify: `summon_clear_ingame2.json` (hero tobor) — cast turret + mines,
+      probe summon count (4), call `clear_active_summons`, probe again (0).
+      BEFORE (no fix): `ingame_before.png` / `ingame_after_before_fix.png`,
+      summons_after_clear=4, SCRIPT ERROR (function doesn't exist).
+      AFTER (with fix): `ingame_before.png` / `ingame_after.png`,
+      summons_after_clear=0, no errors.
+      Compare: `diff_ingame.png` (0.59% changed, bbox = summon region),
+      SSIM=0.9878 (expected — small sprites removed from large scene).
+      Vision check: "Three orange circular enemies/objects disappeared."

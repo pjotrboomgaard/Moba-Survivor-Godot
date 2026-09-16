@@ -1,0 +1,20 @@
+{
+  "test_name": "summon_clear_ingame",
+  "hero": "tobor",
+  "comment": "In-game verify for 'rogue mines/turrets persist into a new solo run' bug. Cast Tobor's turret + mines, probe the live summon count, then call _clear_active_summons() (the new _exit_tree cleanup) and confirm the count drops to 0. Proves the restart path now frees placed objects.",
+  "events": [
+    {"t": 1.0, "kind": "reset_ability_cd"},
+    {"t": 1.5, "kind": "aim", "at": [200, 0]},
+    {"t": 1.6, "kind": "cast", "slot": 1},
+    {"t": 2.5, "kind": "reset_ability_cd"},
+    {"t": 2.8, "kind": "aim", "at": [-150, 100]},
+    {"t": 2.9, "kind": "cast", "slot": 2},
+    {"t": 3.5, "kind": "probe", "label": "summons_after_casts"},
+    {"t": 4.0, "kind": "map_center_probe", "label": "before_clear", "radius": 400},
+    {"t": 4.5, "kind": "dev_command", "command": "clear_active_summons"},
+    {"t": 5.0, "kind": "probe", "label": "summons_after_clear"},
+    {"t": 5.5, "kind": "map_center_probe", "label": "after_clear", "radius": 400},
+    {"t": 6.0, "kind": "report"}
+  ],
+  "wait_ms": 8000
+}

@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/summon_clear_ingame2_tobor/ingame_before.png",
+  "after": "tools/selftest/results/summon_clear_ingame2_tobor/ingame_after.png",
+  "out": "tools/selftest/results/summon_clear_ingame2_tobor/diff_ingame.png",
+  "changed_pixels": 12240,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.005903,
+  "bbox": [
+    534,
+    97,
+    1889,
+    1044
+  ],
+  "has_change": true
+}

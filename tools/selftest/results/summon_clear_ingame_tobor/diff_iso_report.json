@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/summon_clear_ingame_tobor/summon_iso_before_0.51.png",
+  "after": "tools/selftest/results/summon_clear_ingame_tobor/summon_iso_after_2.51.png",
+  "out": "tools/selftest/results/summon_clear_ingame_tobor/diff_iso.png",
+  "changed_pixels": 11412,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.005503,
+  "bbox": [
+    798,
+    463,
+    1728,
+    582
+  ],
+  "has_change": true
+}
