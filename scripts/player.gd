@@ -2109,6 +2109,15 @@ func _cast_known_ability(slot: int) -> void:
 		"rime_ice_imprisonment":
 			_cast_ability_rime_ice_imprisonment(data, values, int(entry.rank))
 			return
+		"astral_ghastly_touch":
+			_cast_ability_astral_ghastly_touch(data, values, int(entry.rank))
+			return
+		"nebula_arcane_bolt":
+			_cast_ability_nebula_arcane_bolt(data, values, int(entry.rank))
+			return
+		"sage_petal_dance":
+			_cast_ability_sage_petal_dance(data, values, int(entry.rank))
+			return
 		# --- E kits -------------------------------------------------------------------------
 		"arclight_chain_lightning":
 			_cast_ability_arclight_chain_lightning(data, values, int(entry.rank))
@@ -3370,6 +3379,28 @@ func _cast_ability_sage_grace(data: Dictionary, values: Dictionary, _rank: int) 
 	_cast_ability_buff_self(grace, values)
 
 
+## Sage's Petal Dance: Nymphora's whirlwind of razor petals. HoN-faithful: the fan
+## strikes in THREE rapid successive hits (staggered by 0.12s each) rather than a
+## single cone, simulating the spinning blade motion of Nymphora's petal whirlwind.
+func _cast_ability_sage_petal_dance(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var origin := global_position
+	var base_power := float(values.get("power", 30.0))
+	var radius := float(values.get("radius", 340.0))
+	var half_angle := deg_to_rad(PlayerClass.ABILITY_CONE_HALF_ANGLE_DEGREES)
+	# Three rapid fan hits staggered to read as a spinning blade.
+	for hit_index in 3:
+		get_tree().create_timer(0.12 * hit_index).timeout.connect(func() -> void:
+			if not is_inside_tree():
+				return
+			for target in _enemies_in_radius(origin, radius):
+				var to_t := origin.direction_to((target as Node2D).global_position)
+				if to_t.length_squared() > 0.0 and absf(facing_direction.angle_to(to_t)) > half_angle:
+					continue
+				_damage_enemy(target, base_power / 3.0)
+			_emit_ability_cast(PackedVector2Array([origin, Vector2(radius * 0.5, 0.0)]))
+		)
+
+
 ## Volt's Gust: Zephyr's signature push. A forward cone of hard wind that knocks enemies
 ## flat — reuses PUSH_PULL_BURST (negative power = push) but wrapped in a vector so the
 ## direction is aim-controlled instead of self-centred.
@@ -3468,6 +3499,41 @@ func _cast_ability_astral_essence_link(data: Dictionary, values: Dictionary, _ra
 	for ally in allies:
 		ally.health.heal(float(values.power) + bonus)
 	_emit_ability_cast(PackedVector2Array([global_position, Vector2(link_radius, 0.0)]))
+
+
+## Astral's Ghastly Touch: Empath's signature lifesteal nuke. A luminous tap that deals
+## Magic damage AND drains a portion of it back into the caster as healing. HoN-faithful:
+## the more you hit, the more you heal — Empath fights dirty with light.
+func _cast_ability_astral_ghastly_touch(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var reach := maxf(float(values.get("range", 520.0)), 400.0)
+	var target := _nearest_enemy_in_range(reach)
+	if target == null:
+		return
+	_damage_enemy(target, values.power)
+	# HoN Empath lifesteal: heal for 45% of damage dealt (strong sustain in solo).
+	health.heal(float(values.power) * 0.45)
+	_emit_ability_cast(PackedVector2Array([global_position, target.global_position]))
+
+
+## Nebula's Arcane Bolt: Chronos's time-bending projectile. The bolt is fired and a short
+## time-delay (0.35 s) later it detonates at the target position — HoN "Time Bolt" style.
+## The delayed detonation rewards anticipation: aim at where the enemy WILL be.
+func _cast_ability_nebula_arcane_bolt(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var reach := maxf(float(values.get("range", 560.0)), 400.0)
+	var target := _nearest_enemy_in_range(reach)
+	var center := target.global_position if target != null else _ability_aim_center(reach)
+	_emit_ability_cast(PackedVector2Array([global_position, center]))
+	# Delayed detonation: HoN Chronos's signature time-delay.
+	get_tree().create_timer(0.35).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for enemy in _enemies_in_radius(center, 80.0):
+			_apply_ability_hit(enemy, data, values)
+			# Chronos also slows with the bolt.
+			if enemy.has_method("apply_slow"):
+				enemy.apply_slow(0.5, 1.5)
+		_spawn_ability_zone_pulse(center, 80.0, 0.8)
+	)
 
 
 ## Rime's Ice Imprisonment: Glacius's signature. Picks one enemy and locks it inside a
@@ -3995,15 +4061,19 @@ func _cast_ability_astral_as_one(data: Dictionary, values: Dictionary, _rank: in
 	_emit_ability_cast(PackedVector2Array([global_position, Vector2(radius, 0.0)]))
 
 
-## Rime's Freezing Field: Glacius's absolute-zero zone. Blankets the arena in a killing cold
-## that freezes everything inside solid.
+## Rime's Freezing Field: Glacius's absolute-zero ultimate. Blankets the arena in a
+## killing cold that FREEZES everything inside solid — HoN-faithful movement lock.
+## Enemies are fully immobilized for the field duration, not just slowed.
 func _cast_ability_rime_freezing_field(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	_cast_ability_zone_channel(data, values)
 	_spawn_ability_zone_pulse(global_position, float(values.get("radius", 400.0)), maxf(float(values.get("duration", 5.0)), 4.0))
-	# Absolute cold: lock enemies inside while the field is up.
+	# HoN-faithful: absolute zero = full immobilization, not a slow.
+	var freeze_dur := minf(float(values.get("duration", 4.0)), 4.0)
 	for enemy in _enemies_in_radius(global_position, float(values.get("radius", 400.0))):
-		if enemy.has_method("apply_slow"):
-			enemy.apply_slow(0.35, 2.8)
+		if enemy.has_method("apply_movement_lock"):
+			enemy.apply_movement_lock(freeze_dur)
+		elif enemy.has_method("apply_slow"):
+			enemy.apply_slow(0.15, freeze_dur)
 
 
 ## Smooth point-to-point dash: tween global_position from the current spot to

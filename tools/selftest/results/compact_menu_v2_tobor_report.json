@@ -4,23 +4,23 @@
   "shots": [
     {
       "label": "menu_before",
-      "path": "user://compact_menu_run_2388/menu_before.png"
+      "path": "user://compact_menu_run_1999/menu_before.png"
     },
     {
       "label": "menu_after_next",
-      "path": "user://compact_menu_run_2388/menu_after_next.png"
+      "path": "user://compact_menu_run_1999/menu_after_next.png"
     },
     {
       "label": "menu_after_hero_select",
-      "path": "user://compact_menu_run_2388/menu_after_hero_select.png"
+      "path": "user://compact_menu_run_1999/menu_after_hero_select.png"
     },
     {
       "label": "menu_after_mode",
-      "path": "user://compact_menu_run_2388/menu_after_mode.png"
+      "path": "user://compact_menu_run_1999/menu_after_mode.png"
     },
     {
       "label": "menu_hero_desc_hover",
-      "path": "user://compact_menu_run_2388/menu_hero_desc_hover.png"
+      "path": "user://compact_menu_run_1999/menu_hero_desc_hover.png"
     }
   ],
   "shots_captured": 5,
