@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/enemy_unstuck_perf/enemy_unstuck_perf.gd" id="1"]
+[ext_resource type="Script" path="res://scenes/enemy_unstuck_perf/_player_stub.gd" id="2"]
+
+[node name="EnemyUnstuckPerf" type="Node2D"]
+script = ExtResource("1")
+
+[node name="PlayerStub" type="CharacterBody2D" parent="."]
+position = Vector2(600, 0)
+script = ExtResource("2")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(-200, 0)
+zoom = Vector2(0.9, 0.9)

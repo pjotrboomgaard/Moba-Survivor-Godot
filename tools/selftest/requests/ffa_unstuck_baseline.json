@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "mode": "ffa",
+  "ffa_all_bots": true,
+  "comment": "FFA perf baseline: 4 bots + full enemy pool. Measure physics process time with the unstuck mechanic active (current state).",
+  "events": [
+    {"t": 0.4, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 2.0, "kind": "snap", "label": "ffa_baseline_start"},
+    {"t": 8.0, "kind": "snap", "label": "ffa_baseline_mid"},
+    {"t": 14.0, "kind": "snap", "label": "ffa_baseline_end"},
+    {"t": 15.0, "kind": "report"}
+  ]
+}

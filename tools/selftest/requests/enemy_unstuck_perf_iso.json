@@ -1,0 +1,8 @@
+{
+  "hero": "tobor",
+  "mode": "solo",
+  "comment": "Isolated enemy unstuck perf test. Empty world with obstacles + 40 enemies. Measures physics ms and routes enemies around blocks.",
+  "events": [
+    {"t": 10.5, "kind": "report"}
+  ]
+}

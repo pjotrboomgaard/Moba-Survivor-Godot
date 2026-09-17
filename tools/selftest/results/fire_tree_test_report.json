@@ -1,24 +1,30 @@
 {
-  "dead_stumps": 2,
-  "scene": "fire_tree_test",
+  "all_spawned": true,
+  "dance_disco_active": true,
+  "distinct_positions": true,
+  "games_spawned": 16,
+  "scene": "minigames_iso",
   "shots": [
     {
-      "label": "t0_one_burning",
-      "path": "user://fire_tree_run_1789681669/t0_one_burning_0.60.png"
+      "label": "iso_before_spawns",
+      "path": "user://minigames_iso_run_1789683808/iso_before_spawns_0.30.png",
+      "t": 0.301143333333333
     },
     {
-      "label": "t4_first_spread",
-      "path": "user://fire_tree_run_1789681669/t4_first_spread_4.00.png"
+      "label": "iso_after_spawns",
+      "path": "user://minigames_iso_run_1789683808/iso_after_spawns_0.80.png",
+      "t": 0.800367666666666
     },
     {
-      "label": "t7_second_spread",
-      "path": "user://fire_tree_run_1789681669/t7_second_spread_7.51.png"
+      "label": "iso_center_closeup",
+      "path": "user://minigames_iso_run_1789683808/iso_center_closeup_1.60.png",
+      "t": 1.60007666666666
     },
     {
-      "label": "t10_burned_out",
-      "path": "user://fire_tree_run_1789681669/t10_burned_out_10.51.png"
+      "label": "iso_dance_started",
+      "path": "user://minigames_iso_run_1789683808/iso_dance_started_2.80.png",
+      "t": 2.80088699999999
     }
   ],
-  "trees_ignited": 3,
   "verdict": "PASS"
 }

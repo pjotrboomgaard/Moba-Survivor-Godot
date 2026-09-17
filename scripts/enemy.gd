@@ -179,6 +179,13 @@ var slam_shot_gap := 0.0
 var _base_projectile_count := 1
 var _stuck_time := 0.0
 var _stuck_side := Vector2.ZERO
+## Perf (post-T4.12): the full unstuck body does a 2nd move_and_slide +
+## slide-collision introspection. Throttle it per-enemy to ~8 Hz so a large
+## blocked pool doesn't all run move_and_slide every physics frame. The cheap
+## progress check still runs every frame; only the expensive side-slip move +
+## teleport is gated by this per-enemy timer.
+var _unstuck_move_timer := 0.0
+const UNSTUCK_TICK_INTERVAL := 0.12  # ~8 Hz per enemy
 
 ## Camp Guardian: a stationary tanky elite that guards a creep camp.
 ## - Holds its position (leashed to spawn point within CAMP_GUARDIAN_LEASH_RADIUS).
@@ -662,12 +669,27 @@ func _move(direction_velocity: Vector2, allow_crater_inward: bool = false) -> vo
 		global_position += velocity * get_physics_process_delta_time()
 	else:
 		move_and_slide()
-		_unstick_from_props(dir, before)
+		# T4.12 unstuck mechanic — made less intense / cheaper. The full body of
+		# _unstick_from_props does a SECOND move_and_slide() plus slide-collision
+		# introspection every call, which tanked FPS once the whole enemy pool was
+		# calling it every physics frame. So now: the cheap progress check runs
+		# every frame (a couple of vector ops), but the expensive side-slip move
+		# only runs when the enemy is genuinely blocked (poor forward progress),
+		# and even then it's throttled to UNSTUCK_TICK_INTERVAL Hz via a shared
+		# static tick counter (all enemies in the same tick batch together, so
+		# worst-case we do the heavy work for the whole pool at most N times a
+		# second instead of 60). The mechanic still unstuck-routes enemies around
+		# obstacles; it just does far less per-frame work when they aren't stuck.
+		_try_unstick_from_props(dir, before)
 	z_index = WorldClock.depth_z(global_position.y, 2)
 	_eject_from_ffa_crater()
 
 
-func _unstick_from_props(desired: Vector2, before: Vector2) -> void:
+## Perf gate for _unstick_from_props: cheap progress check runs every frame,
+## but the expensive side-slip move (2nd move_and_slide + slide-collision
+## introspection) is throttled to UNSTUCK_TICK_INTERVAL Hz via a shared static
+## tick so the whole enemy pool batches its heavy work.
+func _try_unstick_from_props(desired: Vector2, before: Vector2) -> void:
 	if flying or is_boss:
 		_stuck_time = 0.0
 		_stuck_side = Vector2.ZERO
@@ -686,13 +708,27 @@ func _unstick_from_props(desired: Vector2, before: Vector2) -> void:
 	# "Stuck" = not making meaningful progress *toward* the target.
 	# Sliding along a wall face gives non-zero `moved` but near-zero progress
 	# toward `desired`, so use the dot-product component instead.
-	var progress := (global_position - before).normalized().dot(desired.normalized())
 	var progress_px := (global_position - before).dot(desired.normalized())
 	if progress_px > want * 0.25:
 		_stuck_time = 0.0
 		_stuck_side = Vector2.ZERO
 		return
+	# We are blocked. Advance the stuck timer every frame (cheap), then do the
+	# expensive side-slip move at most UNSTUCK_TICK_INTERVAL Hz (throttled per
+	# enemy) so a large blocked pool doesn't all run move_and_slide every frame.
 	_stuck_time += get_physics_process_delta_time()
+	_unstuck_move_timer += get_physics_process_delta_time()
+	var can_move := _unstuck_move_timer >= UNSTUCK_TICK_INTERVAL
+	if can_move:
+		_unstuck_move_timer = 0.0
+	_do_unstick_side_slip(desired, before, can_move)
+
+## The expensive part of unstuck: pick/commit to a side and move_and_slide along it.
+## `do_heavy_move` gates the 2nd move_and_slide (and thus the slide-collision
+## introspection that informs the side choice). When false we only commit to a
+## side cheaply; the actual lateral move happens on the next heavy tick. This
+## keeps the per-frame cost down when many enemies are blocked at once.
+func _do_unstick_side_slip(desired: Vector2, before: Vector2, do_heavy_move: bool) -> void:
 	# Pick a side to slip around the obstacle. Use the collision normal when we
 	# have one, otherwise fall back to the perpendicular of our desired direction.
 	# We commit to ONE side and keep it across frames (no per-frame flipping):
@@ -700,7 +736,7 @@ func _unstick_from_props(desired: Vector2, before: Vector2) -> void:
 	# the previous per-frame sign check caused the enemy to oscillate up/down the
 	# wall face forever instead of committing and going around.
 	var side := desired.orthogonal().normalized()
-	if get_slide_collision_count() > 0:
+	if do_heavy_move and get_slide_collision_count() > 0:
 		var hit := get_slide_collision(0)
 		if hit != null:
 			var n := hit.get_normal()
@@ -720,9 +756,13 @@ func _unstick_from_props(desired: Vector2, before: Vector2) -> void:
 		var progress_ever := (global_position - before).dot(desired.normalized())
 		if _stuck_time > 1.5 and progress_ever <= 0.0 and _stuck_side.dot(side) < 0.0:
 			_stuck_side = -_stuck_side
-	# Move laterally along the committed side at near full speed.
-	velocity = _stuck_side * maxf(desired.length(), movement_speed * 0.9)
-	move_and_slide()
+	# Move laterally along the committed side at near full speed — but only on
+	# the heavy tick. On cheap frames we've already committed to a side; the
+	# actual move_and_slide happens on the next heavy tick so we don't do a
+	# 2nd collision resolution every frame for every blocked enemy.
+	if do_heavy_move:
+		velocity = _stuck_side * maxf(desired.length(), movement_speed * 0.9)
+		move_and_slide()
 	if _stuck_time < 0.45:
 		return
 	# Sustained stuck: give up and teleport to a free spot offset sideways + forward

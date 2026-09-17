@@ -1,0 +1,24 @@
+{
+  "avg_frame_ms": 8.40807769914704,
+  "enemies_routed": 14,
+  "enemies_stuck": 26,
+  "enemy_count": 40,
+  "obstacle_count": 5,
+  "run_seconds": 8.0,
+  "samples": 835,
+  "scene": "enemy_unstuck_perf",
+  "shots": [
+    {
+      "label": "iso_stuck_3.5s",
+      "path": "user://enemy_unstuck_perf_run_1789687817/iso_stuck_3.5s.png",
+      "t": 3.55099987983704
+    },
+    {
+      "label": "iso_routed_7.0s",
+      "path": "user://enemy_unstuck_perf_run_1789687817/iso_routed_7.0s.png",
+      "t": 7.05099987983704
+    }
+  ],
+  "threshold_ms": 12.0,
+  "verdict": "FAIL"
+}

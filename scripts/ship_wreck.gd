@@ -24,10 +24,12 @@ const WorldClock := preload("res://scripts/world_clock.gd")
 ## The two ship PNGs: crashed-ship (wreck) and unlocked-shop (post-repurpose).
 ## Both have had their white background stripped -> transparent.
 const CRASH_SPRITE := "res://SpritesImport/toborship/ElevenLabs_image_gpt-image-2_make it like th_2026-09-16T20_03_12.png"
-const SHOP_SPRITE := "res://SpritesImport/toborship/ElevenLabs_image_gpt-image-2_make it like th_2026-09-16T20_04_32.png"
+## Upgraded shop: shop.png body + radar.png antenna, composited (transparent bg,
+## both centered + aligned in a 1280x720 frame). See tools/build_shop_radar.py.
+const SHOP_SPRITE := "res://SpritesImport/toborship/shop_combined.png"
 ## White-silhouette versions (same alpha, all-opaque pixels white) for the morph.
 const CRASH_SPRITE_WHITE := "res://SpritesImport/toborship/ElevenLabs_image_gpt-image-2_make it like th_2026-09-16T20_03_12_white.png"
-const SHOP_SPRITE_WHITE := "res://SpritesImport/toborship/ElevenLabs_image_gpt-image-2_make it like th_2026-09-16T20_04_32_white.png"
+const SHOP_SPRITE_WHITE := "res://SpritesImport/toborship/shop_combined_white.png"
 
 ## World width the full ship image renders at. The PNG is 1280x720; its ship
 ## content spans x[0.10,0.91] y[0.26,0.79] so the visual ship is ~0.81 wide and
