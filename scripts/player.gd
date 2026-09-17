@@ -3306,10 +3306,30 @@ func _cast_ability_ember_entangle(data: Dictionary, values: Dictionary, _rank: i
 	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
 
 
-## Thorn's Poison Spray: hosed cone of toxin in front of the caster. The spray spreads fast
-## and leaves every caught target with a lingering poison tick — Slither's Venom Spray.
+## Thorn's Poison Spray: hosed cone of toxin in front of the caster. HoN-faithful:
+## Slither's Venom Spray lingers — after the initial cone, a toxic cloud persists in
+## the sprayed area for a short duration, continuing to poison and slow anyone caught.
 func _cast_ability_thorn_poison_spray(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	var origin := global_position
 	_cast_ability_cone_burst(data, values)
+	# HoN Slither's lingering venom cloud: the toxin settles into the ground and
+	# keeps dripping damage + applying poison to anyone standing in it.
+	var cloud_radius := float(values.get("radius", 340.0)) * 0.5
+	var cloud_duration := 3.0
+	get_tree().create_timer(0.6).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for enemy in _enemies_in_radius(origin, cloud_radius):
+			# The cloud re-poisons + slows anyone still caught inside.
+			if data.has("poison_on_hit"):
+				var p: Dictionary = data.poison_on_hit
+				var dps := float(p.get("dps", 8.0)) * 0.5
+				if enemy.has_method("apply_poison"):
+					enemy.apply_poison(dps, 2.0, self)
+			if enemy.has_method("apply_slow"):
+				enemy.apply_slow(0.75, 2.0)
+			_damage_enemy(enemy, float(values.get("power", 30.0)) * 0.25)
+	)
 
 
 ## Willow's Swift Strike: Forsaken Archer's blink-quick dash through the enemy line. The
