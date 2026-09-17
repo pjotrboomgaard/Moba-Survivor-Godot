@@ -3071,6 +3071,10 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 				hud.show_player_class(target)
 				hud.add_owned_hero(target)
 		return
+	# T4.15 test hook: activate the beacon directly. Format: beacon:activate
+	if command == "beacon:activate":
+		_activate_beacon()
+		return
 	match command:
 		"freeze_offers":
 			_freeze_offers = true
