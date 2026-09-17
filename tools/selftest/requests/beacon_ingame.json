@@ -1,0 +1,17 @@
+{
+  "hero": "tobor",
+  "mode": "solo",
+  "comment": "T4.15 beacon in-game verify: (1) repurpose the ship -> unlocked shop; (2) add gold; (3) activate beacon via dev command; (4) beacon entity appears bottom-right with pulsing animation; (5) BEACON tab button appears in shop; (6) opening the beacon tab reveals the hero-buy grid.",
+  "events": [
+    {"t": 0.4, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.6, "kind": "dev_command", "command": "open_cinematic"},
+    {"t": 4.5, "kind": "dev_command", "command": "ship_wreck:shop"},
+    {"t": 4.8, "kind": "dev_command", "command": "add_3000_gold"},
+    {"t": 5.0, "kind": "dev_command", "command": "beacon:activate"},
+    {"t": 5.6, "kind": "camera_zoom", "to": [320, 320], "zoom": 0.6},
+    {"t": 5.9, "kind": "snap", "label": "ingame_beacon_world"},
+    {"t": 6.2, "kind": "dev_command", "command": "open_shop"},
+    {"t": 6.6, "kind": "snap", "label": "ingame_beacon_shop_tab"},
+    {"t": 6.9, "kind": "report"}
+  ]
+}

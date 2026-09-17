@@ -41,15 +41,14 @@ func _draw() -> void:
 	# Inner light dot.
 	draw_circle(Vector2.ZERO, 6.0, Color(0.9, 1.0, 1.0, glow))
 	# Vertical light beam (fades with height).
-	var beam_top := -140.0
-	var grad := draw_multiline
+	var beam_top: float = -140.0
 	# Draw beam as stacked translucent rects for a soft pillar.
-	var steps := 14
+	var steps: int = 14
 	for i in steps:
-		var t := float(i) / float(steps)
-		var y0 := lerp(0.0, beam_top, t)
-		var y1 := lerp(0.0, beam_top, t + 1.0 / float(steps))
-		var w := lerp(10.0, 3.0, t)
-		var a := (1.0 - t) * 0.35 * (0.7 + 0.3 * glow)
+		var t: float = float(i) / float(steps)
+		var y0: float = beam_top * t
+		var y1: float = beam_top * (t + 1.0 / float(steps))
+		var w: float = 10.0 - 7.0 * t
+		var a: float = (1.0 - t) * 0.35 * (0.7 + 0.3 * glow)
 		draw_rect(Rect2(-w * 0.5, y1, w, y0 - y1), Color(0.5, 0.95, 1.0, a))
 	# Top fl
