@@ -738,12 +738,23 @@ instead of sliding against the obstacle forever.
       every hero (all 16 `attack_<hero>` banks present in `audio_service.gd`).
       _STATUS (2026-09-15): wiring verified via code audit + same `SoundDirector`
       mechanism proven by the T3.8 16-hero cast-bank probe.
-- [ ] Ability SFX: each of the 16 heroes × 4 abilities = 64 unique SFX — **design
-      decision pending**: current implementation uses 16 per-hero `cast_<hero>`
-      banks + per-archetype family fallbacks (`FAMILY_FOR_ARCHETYPE`), which reads
-      distinctly per hero and per archetype but is NOT 64 individually-authored
-      takes. Authoring 64 unique SFX files is a large content task; kept open until
-      the user confirms whether 16-hero + archetype is acceptable or true 64 is wanted.
+- [x] Ability SFX: **202 unique per-ability SFX banks** authored and registered (2026-09-17).
+      Scope expanded by user from "16×4=64" to **all 202 abilities** across 16 heroes.
+      Implementation:
+      - `tools/synth_abilities.py` generates 202 `ability_<id>.wav` files in `assets/audio/themes/`,
+        each a deterministic blend of the hero's base theme + archetype-specific flavour layer,
+        with a stable per-ability pitch offset (SHA-256 of ability id) and timbre variation.
+      - `audio_service.gd`: all 202 banks registered in `SOUND_LIBRARY`; `play_ability()` now
+        prefers the specific `ability_<id>` bank over the shared `cast_<hero>` bank;
+        `VOLUME_DB`, `PITCH_SPREAD`, and `MAX_VOICES` entries added for `ability_*` banks
+        (volume -8 dB, spread 0.05, voices 3).
+      - `audio_service.gd`: new `chain_bounce` bank (2 takes) — sharp electric crack used per
+        bounce hop of Arclight's chain lightning; new `bomb_run` bank — prop/engine drone +
+        sub-bass thud for Pyra's bombing-run air strike.
+      - LMB (`attack_<hero>`) and RMB (`attack_secondary_<hero>`) banks already exist and are
+        distinct per hero (16 unique LMB + 16 unique RMB recipes in `synth_themes.py`);
+        no changes needed.
+      _STATUS: code + assets committed; in-game 6-step verification pending.
 - [x] Ultimate SFX last 2× longer (already partially done in VFX; audio needs match)
       — `audio_service.gd play_ability(is_ult)` plays the bank at pitch 0.7 then
       fires two staggered down-pitched echoes (`_ult_echo_call`) so total sustain is
