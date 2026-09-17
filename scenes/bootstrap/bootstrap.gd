@@ -466,79 +466,90 @@ func _constrain_lobby_layout() -> void:
 # ============================================================================
 
 func _build_compact_menu(layout: VBoxContainer) -> void:
-	# === TOP ROW: hero name (left) + action buttons (right) ===
-	var top_row := HBoxContainer.new()
-	top_row.name = "CompactTopRow"
-	top_row.add_theme_constant_override("separation", 6)
-	top_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	layout.add_child(top_row)
+	# ========================================================================
+	# 2026-09-17 v2 LAYOUT — single vertical column, no side-by-side clutter.
+	# Every item is its own full-width row, stacked top to bottom:
+	#   [HERO NAME]     ← selected hero name (updates on roster click)
+	#   [PLAY]          ← full-width button
+	#   [CONTINUE]      ← full-width button (hidden when no save)
+	#   [< SOLO >]      ← mode row (single row, centered)
+	#   [< NORMAL >]    ← difficulty row (single row, centered)
+	#   [4x4 roster]    ← 16 hero buttons (defines panel width)
+	#   [⚙ Settings]    ← full-width button
+	# ========================================================================
 
-	# Hero name label (top-right of the panel — the playing hero's name).
-	var hero_name_label := Label.new()
-	hero_name_label.name = "CompactHeroName"
-	hero_name_label.text = "TOBOR"
-	hero_name_label.add_theme_font_size_override("font_size", 20)
-	hero_name_label.add_theme_color_override("font_color", Color(1.0, 0.75, 0.3, 1.0))
-	hero_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hero_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	top_row.add_child(hero_name_label)
-	_compact_hero_name_label = hero_name_label
+	# --- HERO NAME label (top of panel, centered) ---
+	_compact_hero_name_label = Label.new()
+	_compact_hero_name_label.name = "CompactHeroName"
+	_compact_hero_name_label.text = "TOBOR"
+	_compact_hero_name_label.add_theme_font_size_override("font_size", 22)
+	_compact_hero_name_label.add_theme_color_override("font_color", Color(1.0, 0.75, 0.3, 1.0))
+	_compact_hero_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_compact_hero_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	layout.add_child(_compact_hero_name_label)
 
-	# START button
+	# --- PLAY button (full width) ---
 	_compact_start_btn = Button.new()
 	_compact_start_btn.name = "CompactStartBtn"
-	_compact_start_btn.text = "START"
-	_compact_start_btn.custom_minimum_size = Vector2(90, 44)
-	_compact_start_btn.add_theme_font_size_override("font_size", 14)
+	_compact_start_btn.text = "PLAY"
+	_compact_start_btn.custom_minimum_size = Vector2(0, 48)
+	_compact_start_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_compact_start_btn.add_theme_font_size_override("font_size", 18)
 	_compact_start_btn.focus_mode = Control.FOCUS_NONE
 	_compact_start_btn.pressed.connect(_on_solo_pressed)
 	_style_action_button(_compact_start_btn)
-	top_row.add_child(_compact_start_btn)
+	layout.add_child(_compact_start_btn)
 
-	# CONTINUE button (hidden when no save)
+	# --- CONTINUE button (full width, hidden when no save) ---
 	_compact_continue_btn = Button.new()
 	_compact_continue_btn.name = "CompactContinueBtn"
 	_compact_continue_btn.text = "CONTINUE"
-	_compact_continue_btn.custom_minimum_size = Vector2(90, 44)
-	_compact_continue_btn.add_theme_font_size_override("font_size", 14)
+	_compact_continue_btn.custom_minimum_size = Vector2(0, 44)
+	_compact_continue_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_compact_continue_btn.add_theme_font_size_override("font_size", 15)
 	_compact_continue_btn.focus_mode = Control.FOCUS_NONE
 	_compact_continue_btn.pressed.connect(_on_continue_pressed)
 	_compact_continue_btn.visible = false
 	_style_action_button(_compact_continue_btn)
-	top_row.add_child(_compact_continue_btn)
+	layout.add_child(_compact_continue_btn)
 
-	# MODE nav: < MODE >
-	_mode_prev_btn = _make_nav_btn("<", 44)
+	# --- MODE row: < SOLO > (full width, centered) ---
+	var mode_row := HBoxContainer.new()
+	mode_row.name = "CompactModeRow"
+	mode_row.add_theme_constant_override("separation", 6)
+	mode_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	mode_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	layout.add_child(mode_row)
+	_mode_prev_btn = _make_nav_btn("<", 40)
 	_mode_prev_btn.pressed.connect(_cycle_mode.bind(-1))
-	top_row.add_child(_mode_prev_btn)
-
+	mode_row.add_child(_mode_prev_btn)
 	_mode_label = Label.new()
 	_mode_label.text = "SOLO"
-	_mode_label.add_theme_font_size_override("font_size", 15)
+	_mode_label.add_theme_font_size_override("font_size", 16)
 	_mode_label.add_theme_color_override("font_color", Color(0.85, 0.92, 1.0, 1.0))
-	_mode_label.custom_minimum_size = Vector2(110, 0)
+	_mode_label.custom_minimum_size = Vector2(120, 0)
 	_mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_style_nav_label_bg(_mode_label)
-	top_row.add_child(_mode_label)
-
-	_mode_next_btn = _make_nav_btn(">", 44)
+	mode_row.add_child(_mode_label)
+	_mode_next_btn = _make_nav_btn(">", 40)
 	_mode_next_btn.pressed.connect(_cycle_mode.bind(1))
-	top_row.add_child(_mode_next_btn)
+	mode_row.add_child(_mode_next_btn)
 
-	# === DIFFICULTY ROW: < DIFFICULTY > ===
+	# --- DIFFICULTY row: < NORMAL > (full width, centered) ---
 	var diff_row := HBoxContainer.new()
 	diff_row.name = "CompactDiffRow"
 	diff_row.add_theme_constant_override("separation", 6)
 	diff_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	diff_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	layout.add_child(diff_row)
 	_diff_prev_btn = _make_nav_btn("<", 40)
 	_diff_prev_btn.pressed.connect(_cycle_diff.bind(-1))
 	diff_row.add_child(_diff_prev_btn)
 	_diff_label = Label.new()
 	_diff_label.text = "NORMAL"
-	_diff_label.add_theme_font_size_override("font_size", 15)
+	_diff_label.add_theme_font_size_override("font_size", 16)
 	_diff_label.add_theme_color_override("font_color", Color(0.8, 0.88, 1.0, 1.0))
-	_diff_label.custom_minimum_size = Vector2(110, 0)
+	_diff_label.custom_minimum_size = Vector2(120, 0)
 	_diff_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_style_nav_label_bg(_diff_label)
 	diff_row.add_child(_diff_label)
@@ -546,64 +557,28 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	_diff_next_btn.pressed.connect(_cycle_diff.bind(1))
 	diff_row.add_child(_diff_next_btn)
 
-	# === MIDDLE: expanding spacer to push roster to bottom ===
-	var spacer := Control.new()
-	spacer.name = "CompactSpacer"
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	spacer.custom_minimum_size = Vector2(0, 8)
-	layout.add_child(spacer)
-
-	# === 16-hero roster grid (4x4) ===
-	# User (2026-09-17): the roster is centred in the right-side panel.
-	# Wrap it in an HBox so the 4-col grid sits centered horizontally, and the
-	# whole panel width is pinned to the roster's natural width (so picking a
-	# different hero never changes the panel width).
-	var roster_holder := HBoxContainer.new()
-	roster_holder.name = "CompactRosterHolder"
-	roster_holder.alignment = BoxContainer.ALIGNMENT_CENTER
-	roster_holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	layout.add_child(roster_holder)
-
+	# --- 16-hero roster grid (4x4) — defines the panel width ---
 	_roster_grid = GridContainer.new()
 	_roster_grid.name = "CompactRosterGrid"
 	_roster_grid.columns = 4
 	_roster_grid.add_theme_constant_override("h_separation", 6)
 	_roster_grid.add_theme_constant_override("v_separation", 6)
-	# No SIZE_EXPAND_FILL: the grid keeps its natural (content) width so the
-	# panel does not reflow when a hero is selected.
-	roster_holder.add_child(_roster_grid)
+	_roster_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	layout.add_child(_roster_grid)
 	_populate_roster_grid()
 
-	# === ABILITY STRIP: LMB/RMB + 4 ability buttons UNDER the roster ===
-	# Small vertical gap between roster and ability strip.
-	var ability_spacer := Control.new()
-	ability_spacer.name = "CompactAbilitySpacer"
-	ability_spacer.custom_minimum_size = Vector2(0, 14)
-	layout.add_child(ability_spacer)
-
-	_ability_strip = HBoxContainer.new()
-	_ability_strip.name = "CompactAbilityStrip"
-	_ability_strip.add_theme_constant_override("separation", 10)
-	_ability_strip.alignment = BoxContainer.ALIGNMENT_CENTER
-	_ability_strip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	layout.add_child(_ability_strip)
-
-	# === WRENCH SETTINGS BUTTON (bottom-right corner) ===
+	# --- SETTINGS button (full width) ---
 	_compact_settings_btn = Button.new()
 	_compact_settings_btn.name = "CompactSettingsBtn"
-	_compact_settings_btn.text = "\u2699"  # gear/wrench unicode
-	_compact_settings_btn.custom_minimum_size = Vector2(36, 36)
-	_compact_settings_btn.add_theme_font_size_override("font_size", 18)
+	_compact_settings_btn.text = "⚙  SETTINGS"
+	_compact_settings_btn.custom_minimum_size = Vector2(0, 44)
+	_compact_settings_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_compact_settings_btn.add_theme_font_size_override("font_size", 15)
 	_compact_settings_btn.focus_mode = Control.FOCUS_NONE
 	_compact_settings_btn.tooltip_text = "Settings: Resolution & Sound"
 	_compact_settings_btn.pressed.connect(_on_compact_settings_pressed)
 	_style_action_button(_compact_settings_btn)
-	# Right-align the settings button
-	var settings_row := HBoxContainer.new()
-	settings_row.name = "CompactSettingsRow"
-	settings_row.alignment = BoxContainer.ALIGNMENT_END
-	layout.add_child(settings_row)
-	settings_row.add_child(_compact_settings_btn)
+	layout.add_child(_compact_settings_btn)
 
 	# --- Hide old UI elements ---
 	title_label.visible = false
