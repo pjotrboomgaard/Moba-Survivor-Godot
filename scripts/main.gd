@@ -981,6 +981,7 @@ func _create_player(peer_id: int, mode: int, local_player: bool, class_id: Strin
 		player.apply_camera_limits((arena as Arena).half_extents())
 	player.staff_cast.connect(_on_staff_cast)
 	player.ability_cast.connect(_on_ability_cast)
+	player.chain_bounce.connect(_on_chain_bounce)
 	player.secondary_fx.connect(_on_secondary_fx)
 	player.support_wall_spawned.connect(_on_support_wall_spawned)
 	player.player_died.connect(_on_player_died)
@@ -2448,6 +2449,29 @@ func _on_ability_cast(ability_id: String, effect_style: int, points: PackedVecto
 	if GameRuntime.is_server():
 		for peer_id in registered_remote_peers.keys():
 			client_play_ability_effect.rpc_id(peer_id, ability_id, effect_style, points)
+
+
+## Arclight's bouncing lightning: each hop fires a positional "zap" SFX + a bolt
+## segment VFX from the previous hop to this one, so the bolt visibly/hearsibly arcs
+## across the field hop-by-hop instead of flashing all at once.
+func _on_chain_bounce(position: Vector2, radius: float, bounce_index: int, of_hops: int, from: Vector2) -> void:
+	if GameRuntime.is_dedicated_server() or GameRuntime.is_classic():
+		return
+	# Positional SFX: a sharp electric "crack" at the bounce point.
+	SoundDirector.play("chain_bounce", position)
+	# Bolt segment from `from` to `position` so the arc reads as a traveling bolt.
+	var flash := lightning_scene.instantiate() as LightningEffect
+	flash.style = PlayerClass.EffectStyle.BOLT
+	flash.main_color = Color("4ab8ff")
+	flash.chain_color = Color("b0e8ff")
+	flash.pulse_count = 1
+	flash.ribbon_count = 2 if bounce_index < of_hops else 4
+	flash.style_tag = "storm"
+	flash.draw_mode = ""  # use default storm bolt draw for a clean lightning line
+	flash.lifetime = 0.22 if bounce_index < of_hops else 0.34
+	# BOLT style expects [from, to] (optionally +radius). Draw the hop segment.
+	flash.points = PackedVector2Array([from, position, Vector2(radius * 0.4, 0.0)])
+	_add_vector_fx(flash, "chain_bounce_%d" % bounce_index)
 
 
 ## HoN-accurate vector cast animations for these IDs replace the pixel-art burst entirely.

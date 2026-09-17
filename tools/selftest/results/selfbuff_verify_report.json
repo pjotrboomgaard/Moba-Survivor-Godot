@@ -1,0 +1,58 @@
+{
+  "effects": [],
+  "elapsed": 3.00255066666667,
+  "enemies_spawned": 1,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 2,
+    "casts": [
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 1.552655
+      },
+      {
+        "ability_id": "arclight_blast_of_lightning",
+        "t": 1.552655
+      }
+    ],
+    "creep_kills": 1,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 6,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": [
+    {
+      "label": "before",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4504/before_0.504_4504.png",
+      "t": 0.504359
+    },
+    {
+      "label": "jolt_hit",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5792/jolt_hit_1.803_5792.png",
+      "t": 1.80265866666666
+    }
+  ]
+}

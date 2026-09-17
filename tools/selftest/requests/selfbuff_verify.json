@@ -1,0 +1,43 @@
+{
+  "hero": "arclight",
+  "comment": "Verify single-target self-buff fires on Jolt hit + PvP cap",
+  "events": [
+    {
+      "t": 0.5,
+      "kind": "snap",
+      "label": "before"
+    },
+    {
+      "t": 1.0,
+      "kind": "spawn",
+      "at": [
+        300,
+        0
+      ],
+      "type": "grunt",
+      "hp_mult": 0.5
+    },
+    {
+      "t": 1.2,
+      "kind": "aim",
+      "at": [
+        300,
+        0
+      ]
+    },
+    {
+      "t": 1.4,
+      "kind": "cast",
+      "slot": 0
+    },
+    {
+      "t": 1.8,
+      "kind": "snap",
+      "label": "jolt_hit"
+    },
+    {
+      "t": 3.0,
+      "kind": "report"
+    }
+  ]
+}

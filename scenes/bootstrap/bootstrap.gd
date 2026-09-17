@@ -410,9 +410,11 @@ func _constrain_lobby_layout() -> void:
 	lobby_panel.anchor_top = 0.0
 	lobby_panel.anchor_right = 1.0
 	lobby_panel.anchor_bottom = 1.0
-	# 2026-09-16 user rule: menu takes up ~30% of the right side of the screen.
-	# At 1280px design width -> ~384px panel.
-	var panel_w := 400
+	# 2026-09-17 user rule: the whole panel is a FIXED width equal to the hero
+	# roster's natural width, so picking a different hero never reflows / moves
+	# the panel. Roster = 4 cols x 52px + 3 x 6px gaps = 224px; add ~24px
+	# margin/padding each side -> ~272px. No content may stretch past this.
+	var panel_w := 272
 	lobby_panel.offset_left = -float(panel_w)
 	lobby_panel.offset_top = 10.0
 	lobby_panel.offset_right = -10.0
@@ -421,6 +423,8 @@ func _constrain_lobby_layout() -> void:
 	lobby_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	lobby_panel.clip_contents = true
 	lobby_panel.size_flags_horizontal = Control.SIZE_SHRINK_END
+	# Pin the panel's own width so text/labels inside can never widen it.
+	lobby_panel.custom_minimum_size = Vector2(panel_w, 0)
 	var panel_style := StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
 	panel_style.border_color = Color(0.32, 0.26, 0.16, 0.0)
@@ -469,14 +473,14 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	top_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	layout.add_child(top_row)
 
-	# Hero name label (left side of top row)
+	# Hero name label (top-right of the panel — the playing hero's name).
 	var hero_name_label := Label.new()
 	hero_name_label.name = "CompactHeroName"
 	hero_name_label.text = "TOBOR"
-	hero_name_label.add_theme_font_size_override("font_size", 22)
+	hero_name_label.add_theme_font_size_override("font_size", 20)
 	hero_name_label.add_theme_color_override("font_color", Color(1.0, 0.75, 0.3, 1.0))
 	hero_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hero_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	hero_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	top_row.add_child(hero_name_label)
 	_compact_hero_name_label = hero_name_label
 
@@ -549,22 +553,39 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	spacer.custom_minimum_size = Vector2(0, 8)
 	layout.add_child(spacer)
 
-	# === BOTTOM: 16-hero roster grid (4x4) ===
-	# User (2026-09-17): no big hero icon, just the roster grid.
+	# === 16-hero roster grid (4x4) ===
+	# User (2026-09-17): the roster is centred in the right-side panel.
+	# Wrap it in an HBox so the 4-col grid sits centered horizontally, and the
+	# whole panel width is pinned to the roster's natural width (so picking a
+	# different hero never changes the panel width).
+	var roster_holder := HBoxContainer.new()
+	roster_holder.name = "CompactRosterHolder"
+	roster_holder.alignment = BoxContainer.ALIGNMENT_CENTER
+	roster_holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	layout.add_child(roster_holder)
+
 	_roster_grid = GridContainer.new()
 	_roster_grid.name = "CompactRosterGrid"
 	_roster_grid.columns = 4
-	_roster_grid.add_theme_constant_override("h_separation", 4)
-	_roster_grid.add_theme_constant_override("v_separation", 4)
-	_roster_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	layout.add_child(_roster_grid)
+	_roster_grid.add_theme_constant_override("h_separation", 6)
+	_roster_grid.add_theme_constant_override("v_separation", 6)
+	# No SIZE_EXPAND_FILL: the grid keeps its natural (content) width so the
+	# panel does not reflow when a hero is selected.
+	roster_holder.add_child(_roster_grid)
 	_populate_roster_grid()
 
 	# === ABILITY STRIP: LMB/RMB + 4 ability buttons UNDER the roster ===
+	# Small vertical gap between roster and ability strip.
+	var ability_spacer := Control.new()
+	ability_spacer.name = "CompactAbilitySpacer"
+	ability_spacer.custom_minimum_size = Vector2(0, 14)
+	layout.add_child(ability_spacer)
+
 	_ability_strip = HBoxContainer.new()
 	_ability_strip.name = "CompactAbilityStrip"
-	_ability_strip.add_theme_constant_override("separation", 8)
+	_ability_strip.add_theme_constant_override("separation", 10)
 	_ability_strip.alignment = BoxContainer.ALIGNMENT_CENTER
+	_ability_strip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	layout.add_child(_ability_strip)
 
 	# === WRENCH SETTINGS BUTTON (bottom-right corner) ===
@@ -735,20 +756,25 @@ func _update_roster_selection() -> void:
 
 ## Ability strip: LMB, RMB + 4 ability buttons under the hero roster.
 ## Each shows the ability icon; hover shows the panel; click pins the panel open.
+## Styled to match the main loadout-panel ability buttons (_style_ability_button).
 func _populate_ability_strip(hero_id: String) -> void:
 	if _ability_strip == null:
 		return
 	for child in _ability_strip.get_children():
 		child.queue_free()
-	# LMB button (primary attack)
+	# LMB button (primary attack). Icon illustrates the LMB attack (the
+	# "spark" projectile the hero actually fires), NOT the hero portrait.
 	var lmb_btn := Button.new()
 	lmb_btn.name = "LmbBtn"
 	lmb_btn.custom_minimum_size = Vector2(48, 48)
-	lmb_btn.icon = SpriteLibrary.texture_for(hero_id)
+	var lmb_proj_icon := SpriteLibrary.texture_for("spark")
+	lmb_btn.icon = lmb_proj_icon if lmb_proj_icon != null else SpriteLibrary.texture_for("secondary_repulse")
 	lmb_btn.add_theme_constant_override("icon_max_width", 40)
 	lmb_btn.add_theme_constant_override("icon_max_height", 40)
 	lmb_btn.tooltip_text = "LMB — " + _lmb_tooltip(hero_id)
 	lmb_btn.focus_mode = Control.FOCUS_NONE
+	_style_ability_button(lmb_btn)
+	_add_slot_tag(lmb_btn, "LMB")
 	lmb_btn.mouse_entered.connect(_on_lmb_hover)
 	lmb_btn.mouse_exited.connect(_hide_ability_hover)
 	lmb_btn.pressed.connect(_on_lmb_pressed)
@@ -765,6 +791,8 @@ func _populate_ability_strip(hero_id: String) -> void:
 	rmb_btn.add_theme_constant_override("icon_max_height", 40)
 	rmb_btn.tooltip_text = "RMB — " + str(PlayerClass.secondary_info_for_class(hero_id).get("name", "Secondary"))
 	rmb_btn.focus_mode = Control.FOCUS_NONE
+	_style_ability_button(rmb_btn)
+	_add_slot_tag(rmb_btn, "RMB")
 	rmb_btn.mouse_entered.connect(_on_rmb_hover)
 	rmb_btn.mouse_exited.connect(_hide_ability_hover)
 	rmb_btn.pressed.connect(_on_rmb_pressed)
@@ -2646,6 +2674,20 @@ func _style_ability_button(button: Button) -> void:
 	button.add_theme_stylebox_override("pressed", pressed)
 	button.add_theme_stylebox_override("focus", normal)
 	button.add_theme_color_override("font_color", Color("f4f0e6"))
+
+
+## Small corner tag (LMB/RMB/Q/E/R) overlaid on an ability button.
+func _add_slot_tag(button: Button, text: String) -> void:
+	var tag := Label.new()
+	tag.name = "SlotTag"
+	tag.position = Vector2(3, 2)
+	tag.add_theme_font_size_override("font_size", 9)
+	tag.add_theme_color_override("font_color", Color("f5c542"))
+	tag.add_theme_color_override("font_shadow_color", Color.BLACK)
+	tag.add_theme_constant_override("shadow_size", 2)
+	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tag.text = text
+	button.add_child(tag)
 
 
 func _on_solo_pressed() -> void:

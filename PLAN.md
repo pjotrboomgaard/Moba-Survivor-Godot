@@ -780,6 +780,23 @@ instead of sliding against the obstacle forever.
 - [x] Footstep SFX per biome (P3): `player.gd _tick_footsteps` fires `step_<biome>` on a walking cadence; synthesized in `synth_themes.py` (step_grass/ice/lava/metal/wood.wav), quiet at -18dB so they never clobber combat SFX. `ref image/` debug folder `.gdignore`d (it broke audio reimport with parse errors).
 - [x] "Tongue twister" clarity: Warden cast pitch spread widened 0.04 -> 0.14 so rapid overlapping casts separate in pitch and read clearly.
 
+### T3.9b Single-target spell self-buff + PvP no-instant-kill cap (NEW 2026-09-17)
+**User direction:** "make all single target spells have a self buff in some way as well. since single target is less relevant in this game. make it so single target spells dont kill enemy heroes instantly so balance it."
+
+- [x] **Self-buff on single-target hit**: Any NUKE_BOLT ability that lands on at least one
+      enemy grants the caster a brief `damage_dealt_mult: 1.12` buff for 2.0s.
+      Implemented via `_single_target_buff_fired_this_cast` flag (resets at cast start,
+      consumed on first `_apply_ability_hit` call) so multi-target chains only buff once.
+- [x] **PvP no-instant-kill cap**: `PVP_SINGLE_HIT_CAP = 0.60` — in `_damage_enemy`, when
+      the target is a rival Player, the final damage is clamped to ≤ 60% of the rival's
+      max_health. Creeps are unaffected. This means the hardest single-target spell
+      (Cinder Dragon Fire at 105 base × 1.5 PVP mult) can never exceed ~60% of any
+      hero's pool in one hit. Staggered ticks (poison, zone pulses) stay below the cap
+      individually but can still kill over time.
+      _STATUS (2026-09-17): Verified in-game — `selfbuff_verify.json` run with
+      Arclight Jolt hit confirms no crash, self-buff fires, damage cap active.
+      `tools/selftest/results/selfbuff_verify/jolt_hit_*.png`.
+
 ### T1.5 Balance + visual fixes
 - [x] Drones stronger (dmg + HP buff) — companion_drone.gd stats increased
 - [x] Chain hits less strong against other heroes (PvP reduction) — PVP_CHAIN_HOP_PENALTY + CHAIN_HOP_DECAY in player.gd

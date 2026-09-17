@@ -141,36 +141,41 @@ func _finish() -> void:
 		return
 
 	# AFTER assertions:
-	#  1. 5 parts present
-	#  2. each part has a collision body
+	#  1. 3 collision segments present
+	#  2. full crash + shop sprites present
 	#  3. interact point at the true centre (0,0)
 	#  4. morph completed: current_state == "shop"
-	#  5. each part's z_index tracks world-clock depth (front part > back part)
-	var parts: Array = _wreck.get("_parts")
-	var part_count := parts.size() if parts != null else 0
+	#  5. depth sorting works (front marker > back marker)
+	var colliders: Array = _wreck.get("_colliders")
+	var collider_count := colliders.size() if colliders != null else 0
 	var all_have_collision := true
-	var z_sorted := true
 	var z_values: Array = []
-	for p in parts:
+	for p in colliders:
 		if not is_instance_valid(p):
 			all_have_collision = false
 			continue
-		if p.get_node_or_null("Body") == null:
+		# The collision shape is a child of the StaticBody2D collider.
+		var shape := p.get_node_or_null("CollisionShape2D")
+		if shape == null:
+			# Fallback: search any descendant CollisionShape2D.
+			shape = p.find_child("CollisionShape2D", true, false)
+		if shape == null:
 			all_have_collision = false
+			continue
 		z_values.append(int(p.get("z_index")))
-	if z_values.size() >= 2:
-		# front marker (y=60) should have a higher depth_z than back marker (y=-260)
-		var front_z := WorldClock.depth_z(60.0)
-		var back_z := WorldClock.depth_z(-260.0)
-		z_sorted = front_z > back_z
+	var crash_spr = _wreck.get("_crash_sprite")
+	var shop_spr = _wreck.get("_shop_sprite")
+	var sprites_ok := crash_spr != null and shop_spr != null
+	var z_sorted := WorldClock.depth_z(60.0) > WorldClock.depth_z(-260.0)
 	var state_ok := str(_wreck.get("current_state")) == "shop"
 	var interact_ok := Vector2(_wreck.get("interact_point")).distance_to(WRECK_CENTER) < 1.0
-	var ok := part_count == 5 and all_have_collision and state_ok and interact_ok and z_sorted
+	var ok := collider_count == 3 and all_have_collision and sprites_ok and state_ok and interact_ok and z_sorted
 	var report := {
 		"verdict": "PASS" if ok else "FAIL",
 		"mode": "after",
-		"part_count": part_count,
+		"collider_count": collider_count,
 		"all_have_collision": all_have_collision,
+		"sprites_ok": sprites_ok,
 		"current_state": str(_wreck.get("current_state")),
 		"morph_progress": float(_wreck.get("morph_progress")),
 		"interact_point": _wreck.get("interact_point"),
@@ -186,7 +191,7 @@ func _write_report(report: Dictionary) -> void:
 	if f:
 		f.store_string(JSON.stringify(report, "  "))
 		f.close()
-	print("[ShipWreckIso] verdict=%s mode=%s parts=%d state=%s" % [
+	print("[ShipWreckIso] verdict=%s mode=%s colliders=%d state=%s" % [
 		report["verdict"], str(report.get("mode", "")),
-		int(report.get("part_count", -1)), str(report.get("current_state", "?"))])
+		int(report.get("collider_count", -1)), str(report.get("current_state", "?"))])
 	get_tree().quit()

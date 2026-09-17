@@ -1,10 +1,10 @@
 {
-  "all_have_collision": true,
+  "all_have_collision": false,
+  "collider_count": 3,
   "current_state": "shop",
   "interact_point": "(0.0, 0.0)",
   "mode": "after",
   "morph_progress": 1.0,
-  "part_count": 5,
   "shots": [
     {
       "label": "crash",
@@ -19,13 +19,8 @@
       "path": "user://iso_shipwreck_shop.png"
     }
   ],
-  "verdict": "PASS",
+  "sprites_ok": true,
+  "verdict": "FAIL",
   "z_sorted": true,
-  "z_values": [
-    1955,
-    1932,
-    1925,
-    1932,
-    1955
-  ]
+  "z_values": []
 }
