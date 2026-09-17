@@ -1,0 +1,15 @@
+{
+  "before": "tools\\selftest\\results\\creep_unstuck_ingame/ingame_wall_spawn.png",
+  "after": "tools\\selftest\\results\\creep_unstuck_ingame/ingame_final.png",
+  "out": "tools\\selftest\\results\\creep_unstuck_ingame/diff_ingame.png",
+  "changed_pixels": 678937,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.327419,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

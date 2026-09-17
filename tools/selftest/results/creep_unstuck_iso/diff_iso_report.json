@@ -1,0 +1,15 @@
+{
+  "before": "tools\\selftest\\results\\creep_unstuck_iso\\iso_before_mid.png",
+  "after": "tools\\selftest\\results\\creep_unstuck_iso\\iso_after_mid.png",
+  "out": "tools\\selftest\\results\\creep_unstuck_iso\\diff_iso.png",
+  "changed_pixels": 3404,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.001642,
+  "bbox": [
+    885,
+    515,
+    954,
+    710
+  ],
+  "has_change": true
+}

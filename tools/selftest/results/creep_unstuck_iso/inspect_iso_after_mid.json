@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\creep_unstuck_iso\\iso_after_mid.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.5624,
+  "bounding_box": [
+    420,
+    0,
+    1499,
+    1079
+  ],
+  "coverage": 0.5625,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2499,
+    "TR": 0.25,
+    "BL": 0.25,
+    "BR": 0.25
+  },
+  "edge_fractions": {
+    "top": 0.0185,
+    "bottom": 0.0185,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\creep_unstuck_iso\\thumb_iso_after_mid.png"
+}

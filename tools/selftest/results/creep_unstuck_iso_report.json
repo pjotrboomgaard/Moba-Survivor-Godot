@@ -1,0 +1,24 @@
+{
+  "elapsed": 7.03333333333344,
+  "enemy_x": -37.0660400390625,
+  "enemy_y": 108.34986114502,
+  "escaped_wall": true,
+  "mode": "after",
+  "note": "post-fix: enemy slides around / teleports past the wall",
+  "shots": [
+    {
+      "label": "approach",
+      "path": "user://iso_creepunk_approach.png"
+    },
+    {
+      "label": "mid",
+      "path": "user://iso_creepunk_mid.png"
+    }
+  ],
+  "target_pos": [
+    150,
+    0
+  ],
+  "verdict": "PASS",
+  "wall_face_x": -20.0
+}

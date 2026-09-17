@@ -645,6 +645,32 @@ all upgrades and stats with you but you get all the attributes of the other hero
         `player_class: arclight`)
       - `tools/selftest/results/ship_wreck/diff_ingame.png`
 
+### T4.12 Creeps un-stuck when blocked by objects (NEW 2026-09-16) _STATUS: verified_
+**User direction:** "make sure creeps don't stay stuck behind objects but will
+move around it if they stay too long". When a creep's straight path to its target
+is blocked by a solid prop/obstacle for long enough, it now side-slips along the
+blocker (persistent directional escape) and, as a last resort, teleports past it,
+instead of sliding against the obstacle forever.
+- [x] `scripts/enemy.gd` — `_unstick_from_props()`: after `_stuck_time` exceeds a
+      threshold, apply a lateral (perpendicular) escape velocity to slide around
+      the blocker; if still blocked, teleport past the obstacle face. Reset timer
+      once movement resumes.
+- [x] 6-step verify (DONE 2026-09-16):
+      - Isolated BEFORE: `tools/selftest/results/creep_unstuck_iso/iso_before_mid.png`
+        (pre-fix: grunt jammed against the wall face, x≈-22, no progress).
+      - Isolated AFTER: `tools/selftest/results/creep_unstuck_iso/iso_after_mid.png`
+        (post-fix: grunt slides around / teleports past the wall, reaches target).
+      - Isolated COMPARE: `tools/selftest/results/creep_unstuck_iso/diff_iso.png`
+        (0.16% changed; report `escaped_wall: true, verdict: PASS`).
+      - In-game BEFORE: `tools/selftest/results/creep_unstuck_ingame/ingame_wall_spawn.png`
+        (grunt spawned far side of a 76-rock wall, x=-298).
+      - In-game AFTER: `tools/selftest/results/creep_unstuck_ingame/ingame_final.png`
+        (grunt advanced past the wall to x=+4, within 39px of player).
+      - In-game COMPARE: `tools/selftest/results/creep_unstuck_ingame/diff_ingame.png`.
+      - Reports: `creep_unstuck_iso_report.json` (verdict PASS),
+        `creep_unstuck_ingame_report.json` (passed_wall=true, reached_player=true,
+        verdict PASS).
+
 ---
 
 ## P0 — CRITICAL (blocks everything)
