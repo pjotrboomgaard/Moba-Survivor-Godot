@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/hero_morph_iso/hero_morph_iso.gd" id="1_morph"]
+
+[node name="HeroMorphIso" type="Node2D"]
+script = ExtResource("1_morph")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, -40)
+zoom = Vector2(2.2, 2.2)
+position_smoothing_enabled = false

@@ -19,6 +19,7 @@
     {"t": 9.8, "kind": "dev_command", "command": "add_3000_gold"},
     {"t": 10.0, "kind": "snap", "label": "ingame_char_shop"},
     {"t": 10.2, "kind": "dev_command", "command": "buy_hero:arclight"},
+    {"t": 10.3, "kind": "snap", "label": "ingame_hero_morph_flash"},
     {"t": 10.6, "kind": "snap", "label": "ingame_after_buy"},
     {"t": 10.8, "kind": "report"}
   ]

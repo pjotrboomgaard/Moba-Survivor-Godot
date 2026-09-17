@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/hero_morph_iso/iso_hero_morph_before.png",
+  "after": "tools/selftest/results/hero_morph_iso/iso_hero_morph_after.png",
+  "out": "tools/selftest/results/hero_morph_iso/diff_iso_hero_morph.png",
+  "changed_pixels": 44415,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.021419,
+  "bbox": [
+    846,
+    508,
+    1065,
+    802
+  ],
+  "has_change": true
+}

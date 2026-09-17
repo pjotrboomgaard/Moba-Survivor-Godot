@@ -706,7 +706,20 @@ activate beacon, add beacon animation, then open beacon tab in shop and buy hero
       `_ensure_beacon_tab_button()`: a "📡 BEACON — SUMMON HEROES" button appears in
       the shop; pressing it toggles the hero-buy grid (same grid as the character shop).
 - [x] `assets/sprites/beacon.png` — generated 128×128 glowing-signal icon (shop item icon).
-- [ ] 6-step verify (in-game: buy beacon → beacon appears + animates → BEACON tab opens → buy hero).
+- [x] **Hero-switch morph (T4.11)** — when a hero is bought/switched via the
+      character shop / beacon, the player now visibly *morphs* into the new hero
+      instead of hard-swapping.
+      - `scripts/player.gd` — `_hero_switch_morph()` (called from `switch_hero`):
+        brief bright-white silhouette + 1.55× scale pop, then settles back to the
+        hero's normal look over 0.7s; spawns a `_hero_morph_ring` VFX child.
+      - `scripts/hero_morph_ring.gd` — self-freeing expanding cyan ring burst
+        (18→70px over 0.55s) marking the morph moment. Vector art, matches the
+        ship-morph aesthetic.
+      - Isolated: `scenes/hero_morph_iso/` (empty world, real Player, tobor→arclight
+        switch, before/flash/after). Flash frame shows white hero + cyan ring.
+      - In-game: buy_hero:arclight triggers the flash + ring in the full scene
+        (HUD ability bar updates to ARCLIGHT JOLT).
+- [x] 6-step verify (in-game: buy beacon → beacon appears + animates → BEACON tab opens → buy hero).
 
 ---
 

@@ -1,0 +1,6 @@
+{
+  "hero": "tobor",
+  "mode": "solo",
+  "scene": "res://scenes/hero_morph_iso/hero_morph_iso.tscn",
+  "comment": "T4.11 isolated hero-morph test: empty world, real Player, switch_hero(tobor->arclight) triggers white-flash morph. Scene is self-contained and self-terminating."
+}

@@ -109,6 +109,8 @@ var taunt_weight := 1.0
 
 var support_heal_per_second := PlayerClass.SUPPORT_HEAL_PER_SECOND
 var support_damage_bonus := PlayerClass.SUPPORT_DAMAGE_BONUS
+## T4.11: active tween for the hero-switch morph flash (null when idle).
+var _morph_tween: Tween = null
 var frost_burst_radius := PlayerClass.FROST_BURST_RADIUS
 var frost_slow_factor := PlayerClass.FROST_SLOW_FACTOR
 var frost_slow_duration := PlayerClass.FROST_SLOW_DURATION
@@ -653,7 +655,51 @@ func switch_hero(next_class_id: String) -> void:
 	gold_changed.emit(gold)
 	xp_changed.emit(current_xp, xp_required, level)
 	_apply_sprite()
+	_hero_switch_morph()
 	queue_redraw()
+
+
+## T4.11 hero-switch morph: when the player morphs into a newly-bought hero (via
+## the beacon / character shop), flash the sprite to a bright white + a scale pop,
+## then settle back to normal — a visible "summoned" transformation rather than a
+## hard swap. Mirrors the ship-wreck color->white->color morph aesthetic.
+func _hero_switch_morph() -> void:
+	if sprite == null:
+		return
+	# Kill any in-flight morph tween first.
+	if _morph_tween != null and _morph_tween.is_valid():
+		_morph_tween.kill()
+	_spawn_hero_morph_ring()
+	# Phase 1: snap to a bright, enlarged white silhouette (0-0.18s hold).
+	# Phase 2: settle down to the hero's normal look (0.18-0.7s).
+	var base_scale := _hero_sprite_scale()
+	var target_offset := sprite.offset
+	sprite.modulate = Color(2.0, 2.0, 2.0)
+	sprite.scale = base_scale * 1.55
+	_morph_tween = create_tween()
+	_morph_tween.set_trans(Tween.TRANS_SINE)
+	_morph_tween.set_ease(Tween.EASE_OUT)
+	_morph_tween.tween_property(sprite, "modulate", Color(1.0, 1.0, 1.0), 0.7)
+	_morph_tween.parallel().tween_property(sprite, "scale", base_scale, 0.7)
+	_morph_tween.parallel().tween_property(sprite, "offset", target_offset, 0.7)
+
+
+## T4.11: expanding ring burst that plays at the player's position when a hero
+## is summoned via a switch. A self-freed Node2D child that draws an expanding
+## fading ring for ~0.5s, matching the game's vector-art VFX style.
+func _spawn_hero_morph_ring() -> void:
+	if sprite == null:
+		return
+	var ring := Node2D.new()
+	ring.name = "HeroSwitchMorphRing"
+	ring.z_as_relative = false
+	ring.z_index = z_index + 1
+	ring.set_script(_HERO_MORPH_RING_SCRIPT)
+	add_child(ring)
+	ring.global_position = global_position
+
+
+const _HERO_MORPH_RING_SCRIPT := preload("res://scripts/hero_morph_ring.gd")
 
 
 ## The hero's BASE max health (before any upgrades), so a hero switch can re-layer
