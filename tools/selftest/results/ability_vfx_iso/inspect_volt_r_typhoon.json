@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\ability_vfx_iso\\volt_r_typhoon.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    15,
+    18,
+    25
+  ],
+  "content_fill_ratio": 0.1257,
+  "bounding_box": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2541,
+    "TR": 0.2486,
+    "BL": 0.2486,
+    "BR": 0.2486
+  },
+  "edge_fractions": {
+    "top": 0.0184,
+    "bottom": 0.0184,
+    "left": 0.0829,
+    "right": 0.0829
+  },
+  "thumbnail": "tools\\selftest\\results\\ability_vfx_iso\\thumb_volt_r_typhoon.png"
+}

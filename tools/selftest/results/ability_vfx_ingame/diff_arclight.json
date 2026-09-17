@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/ability_vfx_ingame/ingame_before_arclight_0.902_5245.png",
+  "after": "tools/selftest/results/ability_vfx_ingame/ingame_arclight_r_1.601_5945.png",
+  "out": "tools/selftest/results/ability_vfx_ingame/diff_arclight.png",
+  "changed_pixels": 5099,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.002459,
+  "bbox": [
+    660,
+    36,
+    1877,
+    1043
+  ],
+  "has_change": true
+}

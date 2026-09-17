@@ -1,0 +1,83 @@
+{
+  "captured": 15,
+  "cases_total": 15,
+  "scene": "ability_vfx_iso",
+  "shots": [
+    {
+      "ability_id": "arclight_blast_of_lightning",
+      "label": "arclight_q_bolts",
+      "path": "user://ability_vfx_iso_run_1789684914/arclight_q_bolts.png"
+    },
+    {
+      "ability_id": "arclight_thundergods_wrath",
+      "label": "arclight_r_pillar",
+      "path": "user://ability_vfx_iso_run_1789684914/arclight_r_pillar.png"
+    },
+    {
+      "ability_id": "bulwark_echo_slam",
+      "label": "bulwark_r_quake",
+      "path": "user://ability_vfx_iso_run_1789684914/bulwark_r_quake.png"
+    },
+    {
+      "ability_id": "warden_life_drain",
+      "label": "warden_r_orbit",
+      "path": "user://ability_vfx_iso_run_1789684914/warden_r_orbit.png"
+    },
+    {
+      "ability_id": "cinder_pillar_of_flame",
+      "label": "cinder_r_flame",
+      "path": "user://ability_vfx_iso_run_1789684914/cinder_r_flame.png"
+    },
+    {
+      "ability_id": "pyra_air_strike",
+      "label": "pyra_r_bombrun",
+      "path": "user://ability_vfx_iso_run_1789684914/pyra_r_bombrun.png"
+    },
+    {
+      "ability_id": "slag_eruption",
+      "label": "slag_r_eruption",
+      "path": "user://ability_vfx_iso_run_1789684914/slag_r_eruption.png"
+    },
+    {
+      "ability_id": "ember_unbreakable",
+      "label": "ember_r_ward",
+      "path": "user://ability_vfx_iso_run_1789684914/ember_r_ward.png"
+    },
+    {
+      "ability_id": "thorn_poison_burst",
+      "label": "thorn_r_bloom",
+      "path": "user://ability_vfx_iso_run_1789684914/thorn_r_bloom.png"
+    },
+    {
+      "ability_id": "willow_wall_of_roots",
+      "label": "willow_r_roots",
+      "path": "user://ability_vfx_iso_run_1789684914/willow_r_roots.png"
+    },
+    {
+      "ability_id": "stump_overgrowth",
+      "label": "stump_r_roots",
+      "path": "user://ability_vfx_iso_run_1789684914/stump_r_roots.png"
+    },
+    {
+      "ability_id": "volt_typhoon",
+      "label": "volt_r_typhoon",
+      "path": "user://ability_vfx_iso_run_1789684914/volt_r_typhoon.png"
+    },
+    {
+      "ability_id": "nebula_chronofield",
+      "label": "nebula_r_clock",
+      "path": "user://ability_vfx_iso_run_1789684914/nebula_r_clock.png"
+    },
+    {
+      "ability_id": "astral_moonfall",
+      "label": "astral_r_moonfall",
+      "path": "user://ability_vfx_iso_run_1789684914/astral_r_moonfall.png"
+    },
+    {
+      "ability_id": "rime_freezing_field",
+      "label": "rime_r_freeze",
+      "path": "user://ability_vfx_iso_run_1789684914/rime_r_freeze.png"
+    }
+  ],
+  "verdict": "PASS"
+}

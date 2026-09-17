@@ -1,0 +1,17 @@
+{
+  "hero": "arclight",
+  "mode": "solo",
+  "comment": "In-game ability VFX: cast Arclight R (Thundergods Wrath, instant) and capture the storm pillar in the live arena. Then swap to Cinder, cast R, capture flame pillar. Proves the vector effects fire through the real cast path.",
+  "events": [
+    {"t": 0.4, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.7, "kind": "spawn", "at": [180, 0], "type": "hound"},
+    {"t": 0.9, "kind": "snap", "label": "ingame_before_arclight"},
+    {"t": 1.3, "kind": "cast", "slot": 3},
+    {"t": 1.6, "kind": "snap", "label": "ingame_arclight_r"},
+    {"t": 4.5, "kind": "hero", "id": "cinder"},
+    {"t": 4.9, "kind": "snap", "label": "ingame_before_cinder"},
+    {"t": 5.3, "kind": "cast", "slot": 3},
+    {"t": 5.7, "kind": "snap", "label": "ingame_cinder_r"},
+    {"t": 9.5, "kind": "report"}
+  ]
+}

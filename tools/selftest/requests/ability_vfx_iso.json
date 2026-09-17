@@ -1,0 +1,8 @@
+{
+  "hero": "tobor",
+  "mode": "solo",
+  "comment": "Isolated ability VFX test. Empty world, spawn each representative ability's vector effect via KitFxLibrary, capture one shot per draw_mode. Verifies visual distinctness across heroes.",
+  "events": [
+    {"t": 10.5, "kind": "report"}
+  ]
+}
