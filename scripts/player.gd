@@ -3965,16 +3965,32 @@ func _cast_ability_thorn_poison_burst(data: Dictionary, values: Dictionary, _ran
 	)
 
 
-## Willow's Strangling Vines: Forsaken Archer's choke zone — roots snap shut and whip every
-## enemy in the radius.
+## Willow's Strangling Vines: Forsaken Archer's choke zone — roots snap shut and WHIP
+## every enemy in the radius, briefly ROOTING them (HoN-faithful: the vines grab and
+## hold, not just damage). The choke zone persists for a short time and re-roots
+## anyone who wanders in.
 func _cast_ability_willow_strangling_vines(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	var reach := maxf(float(values.get("range", 480.0)), 340.0)
 	var center := _ability_aim_center(reach)
 	var radius := maxf(float(values.get("radius", 240.0)), 180.0)
+	var root_dur := 1.4  # HoN root duration
 	for enemy in _enemies_in_radius(center, radius):
 		_apply_ability_hit(enemy, data, values)
+		# HoN-faithful: vines grab and root the enemy in place.
+		if enemy.has_method("apply_movement_lock"):
+			enemy.apply_movement_lock(root_dur)
 	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
 	_spawn_ability_zone_pulse(center, radius, 1.5)
+	# Lingering vine zone: re-roots enemies who linger inside.
+	get_tree().create_timer(0.5).timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for enemy in _enemies_in_radius(center, radius * 0.7):
+			if enemy.has_method("apply_movement_lock"):
+				enemy.apply_movement_lock(0.6)
+			if enemy.has_method("apply_slow"):
+				enemy.apply_slow(0.55, 1.5)
+	)
 
 
 ## Stump's Overgrowth: the forest reclaims the arena. Chokes and rebels every hostile inside.
