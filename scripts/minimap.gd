@@ -216,8 +216,11 @@ func _draw_camera_viewport_overlay() -> void:
 		return
 	local_rect = Rect2(Vector2(clamped_x, clamped_y), Vector2(clamped_right - clamped_x, clamped_bottom - clamped_y))
 
-	draw_rect(local_rect, Color(1, 1, 1, 0.15), true)
-	draw_rect(local_rect, Color(1, 1, 1, 0.4), false, 1.5)
+	# Subtle tinted viewport: a faint amber/teal fill so it reads as "your view"
+	# without looking like a white box. Previously used white (1,1,1) which bled
+	# into a bright patch in the bottom-right when the camera was near the map edge.
+	draw_rect(local_rect, Color(0.4, 0.75, 0.95, 0.12), true)
+	draw_rect(local_rect, Color(0.5, 0.85, 1.0, 0.35), false, 1.5)
 
 
 ## Returns the ghost-wave records (off-screen incoming enemies) for drawing as
