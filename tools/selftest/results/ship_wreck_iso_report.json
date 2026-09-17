@@ -1,5 +1,5 @@
 {
-  "all_have_collision": false,
+  "all_have_collision": true,
   "collider_count": 3,
   "current_state": "shop",
   "interact_point": "(0.0, 0.0)",
@@ -11,6 +11,14 @@
       "path": "user://iso_shipwreck_crash.png"
     },
     {
+      "label": "morph_early",
+      "path": "user://iso_shipwreck_morph_early.png"
+    },
+    {
+      "label": "morph_white",
+      "path": "user://iso_shipwreck_morph_white.png"
+    },
+    {
       "label": "morph_mid",
       "path": "user://iso_shipwreck_morph_mid.png"
     },
@@ -20,7 +28,11 @@
     }
   ],
   "sprites_ok": true,
-  "verdict": "FAIL",
+  "verdict": "PASS",
   "z_sorted": true,
-  "z_values": []
+  "z_values": [
+    1943,
+    1943,
+    1943
+  ]
 }

@@ -101,18 +101,24 @@ func _process(delta: float) -> void:
 		if _elapsed >= 2.4:
 			_finish()
 	else:
-		# AFTER: show crash state, capture; start morph, capture mid-morph;
-		# wait for morph to finish, capture shop state.
+		# AFTER: show crash state, capture; start morph, capture the WHITE
+		# silhouette phase and a resolving frame; wait for morph to finish,
+		# capture shop state. Morph duration is 2.8s; white phase is at
+		# progress 0.35-0.50 (≈1.0-1.4s after start).
 		if _elapsed >= 1.0 and not _captured.has("crash"):
 			_snap("crash")
 		if _elapsed >= 2.2 and not _morph_started:
 			_morph_started = true
 			_wreck.call("start_repurpose_morph")
-		if _elapsed >= 2.8 and not _captured.has("morph_mid"):
+		if _elapsed >= 3.0 and not _captured.has("morph_early"):
+			_snap("morph_early")
+		if _elapsed >= 3.7 and not _captured.has("morph_white"):
+			_snap("morph_white")
+		if _elapsed >= 4.2 and not _captured.has("morph_mid"):
 			_snap("morph_mid")
-		if _elapsed >= 4.0 and not _captured.has("shop"):
+		if _elapsed >= 5.6 and not _captured.has("shop"):
 			_snap("shop")
-		if _elapsed >= 5.0:
+		if _elapsed >= 6.4:
 			_finish()
 
 
@@ -154,11 +160,13 @@ func _finish() -> void:
 		if not is_instance_valid(p):
 			all_have_collision = false
 			continue
-		# The collision shape is a child of the StaticBody2D collider.
-		var shape := p.get_node_or_null("CollisionShape2D")
-		if shape == null:
-			# Fallback: search any descendant CollisionShape2D.
-			shape = p.find_child("CollisionShape2D", true, false)
+		# The collision shape is a child of the StaticBody2D collider (added with
+		# no explicit name), so search by TYPE instead of node name.
+		var shape: Node = null
+		for child in p.get_children():
+			if child is CollisionShape2D:
+				shape = child
+				break
 		if shape == null:
 			all_have_collision = false
 			continue

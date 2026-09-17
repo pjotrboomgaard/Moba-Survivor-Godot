@@ -25,6 +25,9 @@ const WorldClock := preload("res://scripts/world_clock.gd")
 ## Both have had their white background stripped -> transparent.
 const CRASH_SPRITE := "res://SpritesImport/toborship/ElevenLabs_image_gpt-image-2_make it like th_2026-09-16T20_03_12.png"
 const SHOP_SPRITE := "res://SpritesImport/toborship/ElevenLabs_image_gpt-image-2_make it like th_2026-09-16T20_04_32.png"
+## White-silhouette versions (same alpha, all-opaque pixels white) for the morph.
+const CRASH_SPRITE_WHITE := "res://SpritesImport/toborship/ElevenLabs_image_gpt-image-2_make it like th_2026-09-16T20_03_12_white.png"
+const SHOP_SPRITE_WHITE := "res://SpritesImport/toborship/ElevenLabs_image_gpt-image-2_make it like th_2026-09-16T20_04_32_white.png"
 
 ## World width the full ship image renders at. The PNG is 1280x720; its ship
 ## content spans x[0.10,0.91] y[0.26,0.79] so the visual ship is ~0.81 wide and
@@ -46,7 +49,7 @@ const COLLISION_H_FRACTION := 0.40
 const COLLISION_Y_CENTER := 0.52
 
 ## Morph duration in seconds.
-const MORPH_DURATION := 1.8
+const MORPH_DURATION := 2.8
 
 var _wreck_center := Vector2.ZERO
 var _tex_crash: Texture2D = null
@@ -55,6 +58,9 @@ var _tex_shop: Texture2D = null
 var _crash_sprite: Sprite2D = null
 ## The full-image shop sprite (front layer).
 var _shop_sprite: Sprite2D = null
+## White-silhouette sprites for the morph crossfade (color -> white -> color).
+var _crash_white_sprite: Sprite2D = null
+var _shop_white_sprite: Sprite2D = null
 ## Collision segment nodes (StaticBody2D) — invisible, depth-sorted.
 var _colliders: Array[Node2D] = []
 ## Which sprite the wreck currently shows: "crash" or "shop".
@@ -65,11 +71,16 @@ var interact_point := Vector2.ZERO
 ## T4.10: morph progress (0.0 = crash state, 1.0 = shop state).
 var morph_progress := 0.0
 var _morphing := false
+## White-silhouette textures for the morph (color -> white -> color).
+var _tex_crash_white: Texture2D = null
+var _tex_shop_white: Texture2D = null
 
 
 func _ready() -> void:
 	_tex_crash = load(CRASH_SPRITE) as Texture2D
 	_tex_shop = load(SHOP_SPRITE) as Texture2D
+	_tex_crash_white = load(CRASH_SPRITE_WHITE) as Texture2D
+	_tex_shop_white = load(SHOP_SPRITE_WHITE) as Texture2D
 	set_process(true)
 
 
@@ -127,43 +138,82 @@ func _apply_static_state() -> void:
 	var is_shop := current_state == "shop"
 	_crash_sprite.visible = not is_shop
 	_crash_sprite.modulate = Color.WHITE
+	if _crash_white_sprite != null:
+		_crash_white_sprite.visible = false
 	if _shop_sprite != null:
 		_shop_sprite.visible = is_shop
 		_shop_sprite.modulate = Color.WHITE
+	if _shop_white_sprite != null:
+		_shop_white_sprite.visible = false
 
 
 func _update_morph_visuals() -> void:
-	# T4.10 morph, 3 phases across morph_progress 0..1:
-	#   Phase 1 (0.00–0.40): crashed-ship colour fades toward a white silhouette.
-	#   Phase 2 (0.40–0.60): white silhouette holds; shop sprite crossfades in on top.
-	#   Phase 3 (0.60–1.00): shop white silhouette resolves into full colour; crash fades out.
+	# T4.10 morph. The ship stays SOLID the whole time (never fades to
+	# transparent). Three clean, non-overlapping stages:
+	#   0.00-0.30 : colour crash ship (solid).
+	#   0.30-0.42 : fast crossfade colour -> white silhouette.
+	#   0.42-0.58 : white silhouette holds SOLID by itself (colour sprites fully
+	#               hidden so the ship reads as a pure white silhouette, the
+	#               upgraded shape with the radar).
+	#   0.58-0.70 : fast crossfade white -> colour shop ship.
+	#   0.70-1.00 : colour shop ship (solid).
 	if _crash_sprite == null:
 		return
 	var p := morph_progress
-	var crash_alpha: float
-	var shop_alpha: float
-	if p < 0.40:
-		crash_alpha = 1.0
-		shop_alpha = 0.0
-	elif p < 0.60:
-		crash_alpha = 1.0
-		shop_alpha = (p - 0.40) / 0.20
+
+	# Which of the three visual states we are in, and how far through.
+	var crash_visible := false
+	var shop_visible := false
+	var white_visible := false
+	var white_a := 0.0
+	var crash_a := 0.0
+	var shop_a := 0.0
+	var k := 0.0
+
+	if p < 0.30:
+		# Stage 1: solid colour crash ship.
+		crash_a = 1.0
+		crash_visible = true
+	elif p < 0.42:
+		# Stage 2: colour -> white crossfade (0.12s).
+		k = (p - 0.30) / 0.12
+		crash_a = 1.0 - k
+		white_a = k
+		crash_visible = crash_a > 0.01
+		white_visible = white_a > 0.01
+	elif p < 0.58:
+		# Stage 3: pure white silhouette, held solid, colour sprites off.
+		white_a = 1.0
+		white_visible = true
+	elif p < 0.70:
+		# Stage 4: white -> colour shop crossfade (0.12s).
+		k = (p - 0.58) / 0.12
+		white_a = 1.0 - k
+		shop_a = k
+		white_visible = white_a > 0.01
+		shop_visible = shop_a > 0.01
 	else:
-		crash_alpha = maxf(0.0, 1.0 - (p - 0.60) / 0.40)
-		shop_alpha = 1.0
+		# Stage 5: solid colour shop ship.
+		shop_a = 1.0
+		shop_visible = true
 
-	_crash_sprite.visible = crash_alpha > 0.01
-	_crash_sprite.modulate = Color(1.0, 1.0, 1.0, crash_alpha)
+	_crash_sprite.visible = crash_visible
+	_crash_sprite.modulate = Color(1.0, 1.0, 1.0, crash_a)
+	if _crash_white_sprite != null:
+		_crash_white_sprite.visible = white_visible
+		_crash_white_sprite.modulate = Color(1.0, 1.0, 1.0, white_a)
 	if _shop_sprite != null:
-		_shop_sprite.visible = shop_alpha > 0.01
-		_shop_sprite.modulate = Color(1.0, 1.0, 1.0, shop_alpha)
-
+		_shop_sprite.visible = shop_visible
+		_shop_sprite.modulate = Color(1.0, 1.0, 1.0, shop_a)
+	if _shop_white_sprite != null:
+		_shop_white_sprite.visible = white_visible
+		_shop_white_sprite.modulate = Color(1.0, 1.0, 1.0, white_a)
 
 ## Build the full-image sprites + collision segments. Idempotent: frees any
 ## existing nodes first so it can be called from place()/switch_*.
 func _build() -> void:
 	# Free previous sprites/colliders.
-	for n in [_crash_sprite, _shop_sprite]:
+	for n in [_crash_sprite, _shop_sprite, _crash_white_sprite, _shop_white_sprite]:
 		if is_instance_valid(n):
 			n.queue_free()
 	for n in _colliders:
@@ -172,6 +222,8 @@ func _build() -> void:
 	_colliders.clear()
 	_crash_sprite = null
 	_shop_sprite = null
+	_crash_white_sprite = null
+	_shop_white_sprite = null
 
 	if _tex_crash == null and _tex_shop == null:
 		push_error("[ShipWreck] no textures loaded")
@@ -188,6 +240,13 @@ func _build() -> void:
 	_crash_sprite = _make_full_sprite("ShipCrashSprite", _tex_crash, scale)
 	# Full shop sprite (front layer), drawn on top of the crash sprite.
 	_shop_sprite = _make_full_sprite("ShipShopSprite", _tex_shop, scale)
+	# White silhouette layers used during the morph crossfade.
+	_crash_white_sprite = _make_full_sprite("ShipCrashSpriteWhite", _tex_crash_white, scale)
+	_shop_white_sprite = _make_full_sprite("ShipShopSpriteWhite", _tex_shop_white, scale)
+	if _crash_white_sprite != null:
+		_crash_white_sprite.visible = false
+	if _shop_white_sprite != null:
+		_shop_white_sprite.visible = false
 
 	# Collision segments: invisible StaticBody2D blocks over the solid parts of
 	# the ship, with walkable gaps between them. Each is placed at the wreck

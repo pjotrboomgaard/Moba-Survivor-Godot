@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/ship_wreck_iso/iso_shipwreck_crash.png",
+  "after": "tools/selftest/results/ship_wreck_iso/iso_shipwreck_shop.png",
+  "out": "tools/selftest/results/ship_wreck_iso/diff_iso_crash_to_shop.png",
+  "changed_pixels": 1596,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.00077,
+  "bbox": [
+    934,
+    363,
+    985,
+    435
+  ],
+  "has_change": true
+}
