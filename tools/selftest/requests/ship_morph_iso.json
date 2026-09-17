@@ -1,0 +1,8 @@
+{
+  "hero": "tobor",
+  "mode": "solo",
+  "comment": "Isolated ship morph test on white background. Captures crash -> white silhouette -> shop.",
+  "events": [
+    {"t": 10.8, "kind": "report"}
+  ]
+}

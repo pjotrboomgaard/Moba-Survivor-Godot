@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\storm_wood_full\\wood_fire_spreading_14.000_18455.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    165,
+    178,
+    189
+  ],
+  "content_fill_ratio": 0.5607,
+  "bounding_box": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2356,
+    "TR": 0.2524,
+    "BL": 0.2262,
+    "BR": 0.2858
+  },
+  "edge_fractions": {
+    "top": 0.0062,
+    "bottom": 0.0044,
+    "left": 0.0019,
+    "right": 0.0018
+  },
+  "thumbnail": "tools\\selftest\\results\\storm_wood_full\\thumb_wood_fire_spreading_14.000_18455.png"
+}

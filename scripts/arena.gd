@@ -1352,6 +1352,11 @@ const STORM_ONSET_MIN := 40.0
 const STORM_ONSET_MAX := 90.0
 const STORM_DURATION_MIN := 15.0
 const STORM_DURATION_MAX := 25.0
+## User direction (2026-09-17): "add storm more often when it's raining." When
+## rain is active, the next storm onset is drawn from a much shorter window so
+## storms track the rain instead of firing on an independent 40-90s clock.
+const STORM_ONSET_WHILE_RAINING_MIN := 8.0
+const STORM_ONSET_WHILE_RAINING_MAX := 20.0
 var _storm_remaining := 0.0
 const STORM_STRIKE_INTERVAL := 2.2  # seconds between lightning strikes during a storm
 const STORM_STRIKE_DAMAGE := 28.0
@@ -1376,7 +1381,11 @@ var _arena_time := 0.0
 ## global_position (Quantized to int grid so re-spawned identical positions don't
 ## collide). Each value: { burn_time, spread_done }.
 var _burning_trees: Dictionary = {}
-const _FIRE_SPREAD_AFTER := 3.5
+## 2026-09-17: fire now spreads to neighbours slowly and repeatedly (user
+## direction: "spread to other trees slowly"). Each burning tree keeps looking
+## for a fresh unburnt neighbour on a rolling timer instead of a one-shot flag.
+const _FIRE_FIRST_SPREAD_AFTER := 3.5
+const _FIRE_REPEAT_SPREAD_EVERY := 4.0   # seconds between spread attempts
 const _FIRE_SPREAD_RADIUS := 70.0
 const _FIRE_BURNOUT := 7.5
 const _FIRE_DOT_RADIUS := 30.0
@@ -1462,6 +1471,11 @@ func _update_biome_weather(delta: float) -> void:
 		_rain_timer -= delta
 		if _rain_timer <= 0.0:
 			_set_rain(true)
+			# User direction (2026-09-17): storms cluster around rain. Pull the
+			# next-storm onset forward the moment rain starts (if none active),
+			# so lightning/fire land during the rain instead of on a dry 40-90s clock.
+			if not _storm_active and _storm_timer > STORM_ONSET_WHILE_RAINING_MAX:
+				_storm_timer = _next_storm_onset()
 			_rain_remaining = randf_range(RAIN_DURATION_MIN, RAIN_DURATION_MAX)
 			_rain_timer = randf_range(RAIN_ONSET_MIN, RAIN_ONSET_MAX)
 	# Volcano black lava.
@@ -1537,6 +1551,14 @@ func _update_storm(delta: float) -> void:
 			_set_storm(true)
 
 
+func _next_storm_onset() -> float:
+	# Storms track the rain: while it's raining, the next storm is much more likely
+	# to arrive soon (8-20s); when dry, it reverts to the original 40-90s cadence.
+	if _rain_active:
+		return randf_range(STORM_ONSET_WHILE_RAINING_MIN, STORM_ONSET_WHILE_RAINING_MAX)
+	return randf_range(STORM_ONSET_MIN, STORM_ONSET_MAX)
+
+
 func _set_storm(active: bool) -> void:
 	if _storm_active == active:
 		return
@@ -1545,11 +1567,11 @@ func _set_storm(active: bool) -> void:
 		_storm_remaining = randf_range(STORM_DURATION_MIN, STORM_DURATION_MAX)
 		_storm_strike_timer = 0.0   # fire the first strike immediately
 		_storm_pending_strike_at = 0.0
-		_storm_timer = randf_range(STORM_ONSET_MIN, STORM_ONSET_MAX)
+		_storm_timer = _next_storm_onset()
 	else:
 		_storm_remaining = 0.0
 		_storm_pending_strike_at = 0.0
-		_storm_timer = randf_range(STORM_ONSET_MIN, STORM_ONSET_MAX)
+		_storm_timer = _next_storm_onset()
 	# The storm drives the heavier rain profile on the weather node.
 	if _biome_weather == null:
 		_spawn_biome_weather()
@@ -1744,11 +1766,15 @@ func _update_burning_trees(delta: float) -> void:
 	for key in _burning_trees.keys():
 		var info: Dictionary = _burning_trees[key]
 		info.burn_time = float(info.burn_time) + delta
-		# Spread to the nearest alive tree once, after SPREAD_AFTER seconds.
-		if float(info.burn_time) >= _FIRE_SPREAD_AFTER and not bool(info.get("spread_done", false)):
-			info.spread_done = true
-			var pos: Vector2 = _tree_pos_from_key(key)
-			var near := _nearest_alive_tree(pos, _FIRE_SPREAD_RADIUS)
+		# 2026-09-17: slow, repeated spread. A tree first tries to spread after
+		# _FIRE_FIRST_SPREAD_AFTER, then retries every _FIRE_REPEAT_SPREAD_EVERY
+		# seconds until every in-radius neighbour is already burning or the tree
+		# burns out. Each attempt ignites the nearest not-yet-burning neighbour.
+		var last_spread: float = float(info.get("last_spread_at", -999.0))
+		var min_interval: float = _FIRE_FIRST_SPREAD_AFTER if last_spread < 0.0 else _FIRE_REPEAT_SPREAD_EVERY
+		if float(info.burn_time) - last_spread >= min_interval:
+			info.last_spread_at = float(info.burn_time)
+			var near := _nearest_alive_tree(_tree_pos_from_key(key), _FIRE_SPREAD_RADIUS)
 			if near != Vector2.INF:
 				ignite_tree(near)
 		# Fire DOT on nearby units.
@@ -1758,7 +1784,6 @@ func _update_burning_trees(delta: float) -> void:
 		if float(info.burn_time) >= _FIRE_BURNOUT:
 			_burning_trees.erase(key)
 			_add_dead_tree(_tree_pos_from_key(key))
-			# Remove the obstacle node so the tree is no longer drawn/solid.
 			_remove_tree_at(_tree_pos_from_key(key))
 			print("[Arena] tree at %s burned out to stump" % str(pos))
 	queue_redraw()
@@ -1771,7 +1796,7 @@ func ignite_tree(pos: Vector2) -> void:
 	var tree_pos := _snap_to_tree(pos)
 	if tree_pos == Vector2.INF:
 		return
-	_burning_trees[tree_pos] = { "burn_time": 0.0, "spread_done": false }
+	_burning_trees[tree_pos] = { "burn_time": 0.0, "last_spread_at": -1.0 }
 	print("[Arena] ignited tree at %s" % str(tree_pos))
 	queue_redraw()
 
@@ -2125,6 +2150,11 @@ func _set_rain(active: bool) -> void:
 		_spawn_biome_weather()
 	if _biome_weather != null:
 		_biome_weather.set_rain_active(active)
+	# User direction (2026-09-17): "add storm more often when it's raining."
+	# When rain starts (and no storm is already active), pull the next-storm
+	# onset timer forward so a storm is likely to roll in during the rain.
+	if active and not _storm_active and _storm_timer > STORM_ONSET_WHILE_RAINING_MAX:
+		_storm_timer = _next_storm_onset()
 
 
 func is_lava_cooled() -> bool:
@@ -3683,42 +3713,56 @@ func _load_fire_frames() -> void:
 func _draw_fire_vfx(pos: Vector2, burn_time: float) -> void:
 	if not _fire_frame_loaded:
 		_load_fire_frames()
-	# Cycle through 3 flame frames every ~0.12s for flicker.
-	var frame_idx := int(burn_time * 8.0) % 3
-	var frame_tex: Texture2D = _fire_frame_textures[frame_idx]
-	if frame_tex != null:
-		# Flames sit on top of the tree trunk; offset so the base of the flame
-		# aligns with the tree canopy.
-		var flame_pos := pos + Vector2(0.0, -46.0)
-		var scale_factor := 2.2  # scale 24x32 sprite to ~53x70 world units
+	# Spread multiple small pure-flame tiles across the tree canopy so the fire
+	# reads as "burning around the tree" rather than one blob on top. Each flame
+	# gets its own stable position + a per-flame animation phase offset so they
+	# flicker independently. Positions are seeded from the tree's world position
+	# so they stay put frame-to-frame (no jitter).
+	var flame_count := 5
+	var rng := RandomNumberGenerator.new()
+	# Seed from the tree position (stable across frames).
+	rng.seed = int(pos.x * 31 + pos.y * 57)
+	var flame_offsets: Array[Vector2] = []
+	for i in flame_count:
+		# Ring around the canopy: spread x in -40..40, y (up) in -120..-15 to
+		# cover the full tree height (trunk to top of canopy).
+		var fx := rng.randf_range(-40.0, 40.0)
+		var fy := rng.randf_range(-120.0, -15.0)
+		flame_offsets.append(Vector2(fx, fy))
+	var tw := 12.0
+	var th := 16.0
+	for i in flame_count:
+		var foff := flame_offsets[i]
+		# Per-flame frame phase: offset so adjacent flames are out of sync.
+		var frame_idx := int(burn_time * 8.0 + i * 2.1) % 3
+		var frame_tex: Texture2D = _fire_frame_textures[frame_idx]
+		if frame_tex == null:
+			continue
+		# Gentle scale oscillation per flame so it "breathes".
+		var pulse := 1.0 + 0.18 * sin(burn_time * 6.28318 * 1.4 + i * 2.09)
+		var scale := 1.9 * pulse
+		var fx := pos.x + foff.x
+		var fy := pos.y + foff.y
+		var w := tw * scale
+		var h := th * scale
+		# Anchor the flame base near foff, tip up.
 		draw_texture_rect(
 			frame_tex,
-			Rect2(
-				flame_pos.x - frame_tex.get_width() * scale_factor * 0.5,
-				flame_pos.y - frame_tex.get_height() * scale_factor * 0.85,
-				frame_tex.get_width() * scale_factor,
-				frame_tex.get_height() * scale_factor
-			),
+			Rect2(fx - w * 0.5, fy - h * 0.85, w, h),
 			false
 		)
-	else:
-		# Fallback to procedural circles if sprites failed to load.
-		var rng := RandomNumberGenerator.new()
-		rng.seed = int(burn_time * 12.0)
-		var base_y := pos.y - 46.0
-		for i in 8:
-			var fx := pos.x + rng.randf_range(-9.0, 9.0) + sin(burn_time * 10.0 + i) * 4.0
-			var fy := base_y - rng.randf_range(0.0, 34.0)
-			var r := rng.randf_range(9.0, 18.0) * (1.0 + 0.2 * sin(burn_time * 14.0 + i))
-			draw_circle(Vector2(fx, fy), r, Color(1.0, 0.65, 0.10, 0.80))
-	# Embers drifting up (procedural, small).
+	# Embers drifting up — a few, varied, swaying.
 	var rng2 := RandomNumberGenerator.new()
-	rng2.seed = int(burn_time * 12.0) + 100
-	for i in 4:
-		var rise := fposmod(burn_time * 24.0 + float(i) * 5.0, 20.0)
-		var ey: float = pos.y - 46.0 - rng2.randf_range(10.0, 60.0) - rise
-		var ex := pos.x + rng2.randf_range(-20.0, 20.0)
-		draw_circle(Vector2(ex, ey), 2.0, Color(1.0, 0.7, 0.2, 0.6))
+	rng2.seed = int(pos.x * 31 + pos.y * 57) + 100
+	for i in 6:
+		var drift_speed: float = 20.0 + (i % 3) * 8.0
+		var rise := fposmod(burn_time * drift_speed + float(i) * 7.0, 28.0)
+		var ey: float = pos.y - 60.0 - rng2.randf_range(0.0, 40.0) - rise
+		var sway := sin(burn_time * 5.0 + i * 1.3) * 8.0
+		var ex: float = pos.x + rng2.randf_range(-30.0, 30.0) + sway
+		var er: float = 1.5 + (i % 4) * 0.7
+		var ea: float = 0.45 + 0.3 * sin(burn_time * 8.0 + i)
+		draw_circle(Vector2(ex, ey), er, Color(1.0, 0.7, 0.2, maxf(0.2, ea)))
 
 
 ## Charred dead-tree stump (T3.14). T3.75 update: the stump is now a CUTOFF of

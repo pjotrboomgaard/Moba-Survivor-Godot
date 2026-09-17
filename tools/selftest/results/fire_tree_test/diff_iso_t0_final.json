@@ -1,0 +1,10 @@
+{
+  "before": "tools\\selftest\\results\\fire_tree_test\\iso_before_t0.png",
+  "after": "tools\\selftest\\results\\fire_tree_test\\iso_after_t0.png",
+  "out": "tools\\selftest\\results\\fire_tree_test\\diff_iso_t0_final.png",
+  "changed_pixels": 0,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.0,
+  "bbox": null,
+  "has_change": false
+}

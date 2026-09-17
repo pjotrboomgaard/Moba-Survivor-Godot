@@ -3,12 +3,12 @@
     {
       "command": "toggle_invulnerable",
       "kind": "dev_command",
-      "t": 0.400712666666667
+      "t": 0.416666666666667
     },
     {
       "command": "open_cinematic",
       "kind": "dev_command",
-      "t": 0.603749303030303
+      "t": 0.680831
     },
     {
       "current_state": "crash",
@@ -37,13 +37,13 @@
           "z_index": 1943
         }
       ],
-      "t": 5.00773933333338,
+      "t": 5.07945057142857,
       "wreck_present": true
     },
     {
       "command": "open_shop",
       "kind": "dev_command",
-      "t": 5.6036933333334
+      "t": 5.6
     },
     {
       "current_state": "crash",
@@ -72,13 +72,13 @@
           "z_index": 1943
         }
       ],
-      "t": 5.80586463636371,
+      "t": 5.91666666666667,
       "wreck_present": true
     },
     {
       "command": "ship_wreck:repurpose",
       "kind": "dev_command",
-      "t": 6.20055066666675
+      "t": 6.2
     },
     {
       "current_state": "shop",
@@ -107,23 +107,23 @@
           "z_index": 1943
         }
       ],
-      "t": 9.40073866666675,
+      "t": 9.49633533333333,
       "wreck_present": true
     },
     {
       "command": "add_3000_gold",
       "kind": "dev_command",
-      "t": 9.80092033333342
+      "t": 9.93333333333334
     },
     {
       "command": "buy_hero:arclight",
       "kind": "dev_command",
-      "t": 10.2000000000001
+      "t": 10.2083163333333
     }
   ],
-  "elapsed": 10.8000000000001,
+  "elapsed": 10.8011436666667,
   "enemies_spawned": 0,
-  "hero_position": "(10.18616, -0.420274)",
+  "hero_position": "(0.0, 0.0)",
   "player_class": "arclight",
   "results": {
     "alive": true,
@@ -158,38 +158,43 @@
   "shots": [
     {
       "label": "ingame_crash_wreck",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9176/ingame_crash_wreck_5.408_9176.png",
-      "t": 5.4077393333334
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_19472/ingame_crash_wreck_5.468_19472.png",
+      "t": 5.46843933333333
     },
     {
       "label": "ingame_locked_shop",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9776/ingame_locked_shop_6.007_9776.png",
-      "t": 6.00736433333341
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_21052/ingame_locked_shop_6.043_21052.png",
+      "t": 6.043257
     },
     {
       "label": "ingame_morph_white",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11376/ingame_morph_white_7.601_11376.png",
-      "t": 7.60074966666679
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_24189/ingame_morph_white_7.667_24189.png",
+      "t": 7.66666666666667
     },
     {
       "label": "ingame_morph_resolving",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12176/ingame_morph_resolving_8.401_12176.png",
-      "t": 8.40093433333345
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_25961/ingame_morph_resolving_8.510_25960.png",
+      "t": 8.50994366666667
     },
     {
       "label": "ingame_unlocked_shop",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13372/ingame_unlocked_shop_9.601_13372.png",
-      "t": 9.60082466666675
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_28359/ingame_unlocked_shop_9.623_28359.png",
+      "t": 9.62327566666667
     },
     {
       "label": "ingame_char_shop",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13776/ingame_char_shop_10.005_13776.png",
-      "t": 10.005298878788
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_29974/ingame_char_shop_10.059_29974.png",
+      "t": 10.0585393333333
+    },
+    {
+      "label": "ingame_hero_morph_flash",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_31748/ingame_hero_morph_flash_10.333_31748.png",
+      "t": 10.3333333333333
     },
     {
       "label": "ingame_after_buy",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_14368/ingame_after_buy_10.601_14368.png",
-      "t": 10.6007026666667
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_33134/ingame_after_buy_10.646_33134.png",
+      "t": 10.6460013333333
     }
   ]
 }

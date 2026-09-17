@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\fire_tree_test\\t4_first_spread_4.05.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    56,
+    62,
+    56
+  ],
+  "content_fill_ratio": 0.7432,
+  "bounding_box": [
+    211,
+    0,
+    1707,
+    1079
+  ],
+  "coverage": 0.7797,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.251,
+    "TR": 0.2503,
+    "BL": 0.2497,
+    "BR": 0.249
+  },
+  "edge_fractions": {
+    "top": 0.0191,
+    "bottom": 0.0191,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\fire_tree_test\\thumb_t4_first_spread_4.05.png"
+}

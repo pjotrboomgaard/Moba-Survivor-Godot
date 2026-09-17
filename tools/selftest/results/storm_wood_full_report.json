@@ -1,0 +1,112 @@
+{
+  "feature": "creep_unstuck_from_objects_ingame",
+  "grunt_timeline": [
+    {
+      "dist_to_player": 345.0,
+      "enemy_alive": true,
+      "enemy_pos": [
+        -345.0,
+        0.0
+      ],
+      "label": "ingame_wall_spawn.png",
+      "max_enemy_x": 0.0,
+      "path": "user://creep_unstuck_ingame_shots/ingame_wall_spawn.png",
+      "wall_rocks": 97
+    },
+    {
+      "dist_to_player": 214.0,
+      "enemy_alive": true,
+      "enemy_pos": [
+        -209.0,
+        46.0
+      ],
+      "label": "ingame_blocked.png",
+      "max_enemy_x": 0.0,
+      "path": "user://creep_unstuck_ingame_shots/ingame_blocked.png",
+      "wall_rocks": 97
+    },
+    {
+      "dist_to_player": 48.0,
+      "enemy_alive": true,
+      "enemy_pos": [
+        -46.0,
+        11.0
+      ],
+      "label": "ingame_detour.png",
+      "max_enemy_x": 0.0,
+      "path": "user://creep_unstuck_ingame_shots/ingame_detour.png",
+      "wall_rocks": 97
+    },
+    {
+      "dist_to_player": 54.0,
+      "enemy_alive": true,
+      "enemy_pos": [
+        -25.0,
+        -22.0
+      ],
+      "label": "ingame_final.png",
+      "max_enemy_x": 0.0,
+      "path": "user://creep_unstuck_ingame_shots/ingame_final.png",
+      "wall_rocks": 97
+    }
+  ],
+  "notes": [
+    "grunt alive and reached within 150px of player"
+  ],
+  "passed_wall": true,
+  "reached_player": true,
+  "result_dir": "user://creep_unstuck_ingame_shots",
+  "scene": "res://scenes/creep_unstuck_ingame/creep_unstuck_ingame.tscn",
+  "shots": [
+    {
+      "dist_to_player": 345.0,
+      "enemy_alive": true,
+      "enemy_pos": [
+        -345.0,
+        0.0
+      ],
+      "label": "ingame_wall_spawn.png",
+      "max_enemy_x": 0.0,
+      "path": "user://creep_unstuck_ingame_shots/ingame_wall_spawn.png",
+      "wall_rocks": 97
+    },
+    {
+      "dist_to_player": 214.0,
+      "enemy_alive": true,
+      "enemy_pos": [
+        -209.0,
+        46.0
+      ],
+      "label": "ingame_blocked.png",
+      "max_enemy_x": 0.0,
+      "path": "user://creep_unstuck_ingame_shots/ingame_blocked.png",
+      "wall_rocks": 97
+    },
+    {
+      "dist_to_player": 48.0,
+      "enemy_alive": true,
+      "enemy_pos": [
+        -46.0,
+        11.0
+      ],
+      "label": "ingame_detour.png",
+      "max_enemy_x": 0.0,
+      "path": "user://creep_unstuck_ingame_shots/ingame_detour.png",
+      "wall_rocks": 97
+    },
+    {
+      "dist_to_player": 54.0,
+      "enemy_alive": true,
+      "enemy_pos": [
+        -25.0,
+        -22.0
+      ],
+      "label": "ingame_final.png",
+      "max_enemy_x": 0.0,
+      "path": "user://creep_unstuck_ingame_shots/ingame_final.png",
+      "wall_rocks": 97
+    }
+  ],
+  "verdict": "PASS",
+  "wall_rock_count": 97
+}

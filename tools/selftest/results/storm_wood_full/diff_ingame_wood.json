@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/storm_wood_full/wood_before_1.000_5456.png",
+  "after": "tools/selftest/results/storm_wood_full/wood_storm_strikes_8.006_12459.png",
+  "out": "tools/selftest/results/storm_wood_full/diff_ingame_wood.png",
+  "changed_pixels": 888316,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.428393,
+  "bbox": [
+    96,
+    2,
+    1913,
+    1079
+  ],
+  "has_change": true
+}

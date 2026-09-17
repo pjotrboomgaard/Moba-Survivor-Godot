@@ -25,20 +25,23 @@ var _report_path := "user://selftest_report.json"
 
 ## A tree in this test: { "id": int, "pos": Vector2, "sprite": String,
 ##                         "state": 0=alive 1=burning 2=dead, "burn_time": float,
-##                         "has_spread": bool }
+##                         "last_spread_at": float }
 var trees: Array[Dictionary] = []
 ## Parallel burning state keyed by tree id (mirrors arena.burning_trees).
 var burning: Dictionary = {}
 const FIRE_DPS := 5.0
-const SPREAD_AFTER := 3.5
+const FIRST_SPREAD_AFTER := 3.5
+const REPEAT_SPREAD_EVERY := 4.0
 const SPREAD_RADIUS := 70.0
 const BURNOUT_TIME := 7.5
 
-## Capture schedule: [world_time, label]
+## Capture schedule: [world_time, label] — spread now happens repeatedly, so we
+## capture a later frame where a 3rd tree has caught too.
 const CAPTURES: Array = [
 	[0.6, "t0_one_burning"],
-	[4.5, "t4_spread"],
-	[9.5, "t8_burned_out"],
+	[4.0, "t4_first_spread"],
+	[7.5, "t7_second_spread"],
+	[10.5, "t10_burned_out"],
 ]
 var _captured := {}
 var _trees_ignited := 0
@@ -73,7 +76,7 @@ func _build_trees() -> void:
 			"sprite": ids[i],
 			"state": 0,
 			"burn_time": 0.0,
-			"has_spread": false,
+			"last_spread_at": -1.0,
 		})
 
 
@@ -82,7 +85,7 @@ func _process(delta: float) -> void:
 	_update_fire(delta)
 	_capture_due()
 	# Hard stop so the harness never hangs.
-	if _elapsed > 13.0 and not _done:
+	if _elapsed > 12.0 and not _done:
 		_finish()
 
 
@@ -124,9 +127,13 @@ func _update_fire(delta: float) -> void:
 		if int(t.state) != 1:
 			continue
 		t.burn_time = float(t.burn_time) + delta
-		# Fire spread: after SPREAD_AFTER seconds, ignite the nearest alive tree
-		# within SPREAD_RADIUS (chain reaction). Each tree spreads at most once.
-		if t.burn_time >= SPREAD_AFTER and not bool(t.has_spread):
+		# Fire spread (mirrors arena.gd 2026-09-17 slow repeated spread): first
+		# attempt after FIRST_SPREAD_AFTER, then every REPEAT_SPREAD_EVERY until
+		# every in-radius neighbour is already burning or the tree burns out.
+		var last_spread: float = float(t.last_spread_at)
+		var min_interval: float = FIRST_SPREAD_AFTER if last_spread < 0.0 else REPEAT_SPREAD_EVERY
+		if float(t.burn_time) - last_spread >= min_interval:
+			t.last_spread_at = float(t.burn_time)
 			_spread_from(t)
 		# Burn out: after BURNOUT_TIME, become a dead stump.
 		if t.burn_time >= BURNOUT_TIME:
@@ -149,7 +156,6 @@ func _spread_from(t: Dictionary) -> void:
 		if d <= SPREAD_RADIUS and d < best_dist:
 			best_dist = d
 			best_id = int(o.id)
-	t.has_spread = true
 	if best_id >= 0:
 		_ignite_tree(best_id)
 
@@ -217,44 +223,50 @@ func _draw_fallback_tree(pos: Vector2, burning_now: bool, burn_time: float) -> v
 
 
 func _draw_flames(pos: Vector2, size: Vector2, burn_time: float) -> void:
-	# T3.14: use pixel-art flame frames (fire_frame_0/1/2) with a 3-frame flicker.
-	var frame_idx := int(burn_time * 8.0) % 3
-	var frame_tex := SpriteLibrary.texture_for("fire_frame_%d" % frame_idx)
-	if frame_tex != null:
-		var base_y := pos.y - size.y * 0.35
-		var scale_factor := 2.2
-		var tw := frame_tex.get_width() * scale_factor
-		var th := frame_tex.get_height() * scale_factor
+	# Spread multiple small pure-flame tiles across the tree canopy so the fire
+	# reads as "burning around the tree" rather than one centered blob on top.
+	# Each flame gets its own stable position + a per-flame animation phase offset
+	# so they flicker independently. Positions seeded from tree position so they
+	# stay put frame-to-frame (no jitter).
+	var flame_count := 5
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(pos.x * 31 + pos.y * 57)
+	var flame_offsets: Array[Vector2] = []
+	for i in flame_count:
+		var fx := rng.randf_range(-28.0, 28.0)
+		var fy := rng.randf_range(-size.y * 0.85, -size.y * 0.45)
+		flame_offsets.append(Vector2(fx, fy))
+	var tw := 12.0
+	var th := 16.0
+	for i in flame_count:
+		var foff := flame_offsets[i]
+		var frame_idx := int(burn_time * 8.0 + i * 2.1) % 3
+		var frame_tex: Texture2D = SpriteLibrary.texture_for("fire_frame_%d" % frame_idx)
+		if frame_tex == null:
+			continue
+		var pulse := 1.0 + 0.18 * sin(burn_time * 6.28318 * 1.4 + i * 2.09)
+		var scale := 1.9 * pulse
+		var fx := pos.x + foff.x
+		var fy := pos.y + foff.y
+		var w := tw * scale
+		var h := th * scale
 		draw_texture_rect(
 			frame_tex,
-			Rect2(pos.x - tw * 0.5, base_y - th * 0.85, tw, th),
+			Rect2(fx - w * 0.5, fy - h * 0.85, w, h),
 			false
 		)
-		# Small procedural embers drifting up for extra life.
-		var rng := RandomNumberGenerator.new()
-		rng.seed = int(burn_time * 12.0) + 100
-		for i in 4:
-			var rise := fposmod(burn_time * 24.0 + float(i) * 5.0, 20.0)
-			var ey: float = base_y - rng.randf_range(10.0, 50.0) - rise
-			var ex := pos.x + rng.randf_range(-16.0, 16.0)
-			draw_circle(Vector2(ex, ey), 2.0, Color(1.0, 0.7, 0.2, 0.6))
-	else:
-		# Fallback: procedural circles.
-		var rng := RandomNumberGenerator.new()
-		rng.seed = int(burn_time * 12.0)
-		var base_y := pos.y - size.y * 0.35
-		var cols: Array[Color] = [
-			Color(1.0, 0.45, 0.05, 0.85),
-			Color(1.0, 0.65, 0.10, 0.80),
-			Color(1.0, 0.85, 0.25, 0.90),
-		]
-		for i in 7:
-			var jitter := rng.randf_range(-6.0, 6.0)
-			var fx := pos.x + jitter + sin(burn_time * 10.0 + i) * 4.0
-			var fy := base_y - rng.randf_range(0.0, 26.0)
-			var r := rng.randf_range(8.0, 16.0) * (1.0 + 0.2 * sin(burn_time * 14.0 + i))
-			draw_circle(Vector2(fx, fy), r, cols[i % cols.size()])
-		draw_circle(Vector2(pos.x, base_y + 4), 10.0, Color(1.0, 0.9, 0.4, 0.9))
+	# Embers drifting up — a few, varied, swaying.
+	var rng2 := RandomNumberGenerator.new()
+	rng2.seed = int(pos.x * 31 + pos.y * 57) + 100
+	for i in 6:
+		var drift_speed: float = 20.0 + (i % 3) * 8.0
+		var rise := fposmod(burn_time * drift_speed + float(i) * 7.0, 28.0)
+		var ey: float = pos.y - size.y * 0.65 - rng2.randf_range(0.0, 40.0) - rise
+		var sway := sin(burn_time * 5.0 + i * 1.3) * 8.0
+		var ex: float = pos.x + rng2.randf_range(-30.0, 30.0) + sway
+		var er: float = 1.5 + (i % 4) * 0.7
+		var ea: float = 0.45 + 0.3 * sin(burn_time * 8.0 + i)
+		draw_circle(Vector2(ex, ey), er, Color(1.0, 0.7, 0.2, maxf(0.2, ea)))
 
 
 func _draw_dead_tree(t: Dictionary) -> void:
@@ -302,7 +314,9 @@ func _write_report() -> void:
 		if _captured.has(label):
 			shots.append({"label": label, "path": String(_captured[label])})
 	var verdict := "PASS"
-	if _trees_ignited < 2:
+	# Repeated spread: the central tree should chain-ignite 2+ more neighbours
+	# over the ~10s window, so we expect at least 3 ignited total.
+	if _trees_ignited < 3:
 		verdict = "FAIL"
 	if _dead_stumps < 1:
 		verdict = "FAIL"

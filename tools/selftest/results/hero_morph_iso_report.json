@@ -1,0 +1,21 @@
+{
+  "class_after_switch": "arclight",
+  "mode": "hero_morph",
+  "shots": [
+    {
+      "label": "before",
+      "path": "user://iso_hero_morph_before.png"
+    },
+    {
+      "label": "flash",
+      "path": "user://iso_hero_morph_flash.png"
+    },
+    {
+      "label": "after",
+      "path": "user://iso_hero_morph_after.png"
+    }
+  ],
+  "sprite_modulate": "(1.0, 1.0, 1.0, 1.0)",
+  "sprite_scale": 2.47499990463257,
+  "verdict": "PASS"
+}
