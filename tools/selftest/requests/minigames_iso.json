@@ -1,0 +1,8 @@
+{
+  "hero": "tobor",
+  "mode": "solo",
+  "comment": "Isolated minigame spawn test. Empty world, spawn all 16 minigames at default layout, capture states, verify all exist and start works.",
+  "events": [
+    {"t": 10.5, "kind": "report"}
+  ]
+}

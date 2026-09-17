@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/storm_wood_full/wood_fire_spreading_14.000_18455.png",
+  "after": "tools/selftest/results/storm_wood_full/wood_fire_spreading_14.004_21539.png",
+  "out": "tools/selftest/results/storm_wood_full/diff_ingame_fire_v2.png",
+  "changed_pixels": 498193,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.240255,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

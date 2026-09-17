@@ -1,0 +1,95 @@
+{
+  "hero": "tobor",
+  "mode": "solo",
+  "comment": "In-game verification that all 16 minigames are findable/accessible: walk-to each location, start it, probe active state. Arena half-extents are 2400x1600, so all default positions are within bounds.",
+  "events": [
+    {"t": 0.4, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.6, "kind": "dev_command", "command": "open_cinematic"},
+
+    {"t": 1.0, "kind": "minigame", "label": "all_spawned_probe"},
+    {"t": 1.2, "kind": "snap", "label": "ingame_all_minigames"},
+
+    {"t": 1.4, "kind": "start_minigame", "index": 0},
+    {"t": 1.6, "kind": "camera_zoom", "to": [-2520, -1680], "zoom": 1.6},
+    {"t": 1.8, "kind": "snap", "label": "mg0_treasure_dash"},
+    {"t": 2.0, "kind": "minigame", "label": "mg0_active"},
+
+    {"t": 2.2, "kind": "start_minigame", "index": 1},
+    {"t": 2.4, "kind": "camera_zoom", "to": [-2520, 1680], "zoom": 1.6},
+    {"t": 2.6, "kind": "snap", "label": "mg1_keg_toss"},
+    {"t": 2.8, "kind": "minigame", "label": "mg1_active"},
+
+    {"t": 3.0, "kind": "start_minigame", "index": 2},
+    {"t": 3.2, "kind": "camera_zoom", "to": [2520, -1680], "zoom": 1.6},
+    {"t": 3.4, "kind": "snap", "label": "mg2_whack_creep"},
+    {"t": 3.6, "kind": "minigame", "label": "mg2_active"},
+
+    {"t": 3.8, "kind": "start_minigame", "index": 3},
+    {"t": 4.0, "kind": "camera_zoom", "to": [2520, 1680], "zoom": 1.6},
+    {"t": 4.2, "kind": "snap", "label": "mg3_rps_creep"},
+    {"t": 4.4, "kind": "minigame", "label": "mg3_active"},
+
+    {"t": 4.6, "kind": "start_minigame", "index": 4},
+    {"t": 4.8, "kind": "camera_zoom", "to": [0, 0], "zoom": 1.6},
+    {"t": 5.0, "kind": "snap", "label": "mg4_dance_disco"},
+    {"t": 5.2, "kind": "minigame", "label": "mg4_active"},
+
+    {"t": 5.4, "kind": "start_minigame", "index": 5},
+    {"t": 5.6, "kind": "camera_zoom", "to": [-1470, -1540], "zoom": 1.6},
+    {"t": 5.8, "kind": "snap", "label": "mg5_gem_relay"},
+    {"t": 6.0, "kind": "minigame", "label": "mg5_active"},
+
+    {"t": 6.2, "kind": "start_minigame", "index": 6},
+    {"t": 6.4, "kind": "camera_zoom", "to": [1890, 1260], "zoom": 1.6},
+    {"t": 6.6, "kind": "snap", "label": "mg6_keg_toss_pro"},
+    {"t": 6.8, "kind": "minigame", "label": "mg6_active"},
+
+    {"t": 7.0, "kind": "start_minigame", "index": 7},
+    {"t": 7.2, "kind": "camera_zoom", "to": [2310, -980], "zoom": 1.6},
+    {"t": 7.4, "kind": "snap", "label": "mg7_whack_rush"},
+    {"t": 7.6, "kind": "minigame", "label": "mg7_active"},
+
+    {"t": 7.8, "kind": "start_minigame", "index": 8},
+    {"t": 8.0, "kind": "camera_zoom", "to": [-2310, 700], "zoom": 1.6},
+    {"t": 8.2, "kind": "snap", "label": "mg8_creep_tag"},
+    {"t": 8.4, "kind": "minigame", "label": "mg8_active"},
+
+    {"t": 8.6, "kind": "start_minigame", "index": 9},
+    {"t": 8.8, "kind": "camera_zoom", "to": [1470, 1540], "zoom": 1.6},
+    {"t": 9.0, "kind": "snap", "label": "mg9_treasure_dash2"},
+    {"t": 9.2, "kind": "minigame", "label": "mg9_active"},
+
+    {"t": 9.4, "kind": "start_minigame", "index": 10},
+    {"t": 9.6, "kind": "camera_zoom", "to": [-1470, 1540], "zoom": 1.6},
+    {"t": 9.8, "kind": "snap", "label": "mg10_ring_roll"},
+    {"t": 10.0, "kind": "minigame", "label": "mg10_active"},
+
+    {"t": 10.2, "kind": "start_minigame", "index": 11},
+    {"t": 10.4, "kind": "camera_zoom", "to": [1470, -1540], "zoom": 1.6},
+    {"t": 10.6, "kind": "snap", "label": "mg11_creep_pinball"},
+    {"t": 10.8, "kind": "minigame", "label": "mg11_active"},
+
+    {"t": 11.0, "kind": "start_minigame", "index": 12},
+    {"t": 11.2, "kind": "camera_zoom", "to": [0, 1820], "zoom": 1.6},
+    {"t": 11.4, "kind": "snap", "label": "mg12_balloon_pop"},
+    {"t": 11.6, "kind": "minigame", "label": "mg12_active"},
+
+    {"t": 11.8, "kind": "start_minigame", "index": 13},
+    {"t": 12.0, "kind": "camera_zoom", "to": [-1890, -1260], "zoom": 1.6},
+    {"t": 12.2, "kind": "snap", "label": "mg13_slime_splat"},
+    {"t": 12.4, "kind": "minigame", "label": "mg13_active"},
+
+    {"t": 12.6, "kind": "start_minigame", "index": 14},
+    {"t": 12.8, "kind": "camera_zoom", "to": [2100, 840], "zoom": 1.6},
+    {"t": 13.0, "kind": "snap", "label": "mg14_crystal_catch"},
+    {"t": 13.2, "kind": "minigame", "label": "mg14_active"},
+
+    {"t": 13.4, "kind": "start_minigame", "index": 15},
+    {"t": 13.6, "kind": "camera_zoom", "to": [-2100, 980], "zoom": 1.6},
+    {"t": 13.8, "kind": "snap", "label": "mg15_crate_stack"},
+    {"t": 14.0, "kind": "minigame", "label": "mg15_active"},
+
+    {"t": 14.5, "kind": "minigame", "label": "all_final"},
+    {"t": 15.0, "kind": "report"}
+  ]
+}

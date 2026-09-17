@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/minigames_iso/iso_center_closeup_1.60.png",
+  "after": "tools/selftest/results/minigames_iso/iso_dance_started_2.80.png",
+  "out": "tools/selftest/results/minigames_iso/diff_iso_dance.png",
+  "changed_pixels": 270979,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.13068,
+  "bbox": [
+    637,
+    8,
+    1882,
+    903
+  ],
+  "has_change": true
+}

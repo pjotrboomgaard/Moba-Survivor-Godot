@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\minigames_iso\\iso_after_spawns_0.80.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.0008,
+  "bounding_box": [
+    555,
+    282,
+    1364,
+    838
+  ],
+  "coverage": 0.2176,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.0338,
+    "TR": 0.155,
+    "BL": 0.4679,
+    "BR": 0.3432
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\minigames_iso\\thumb_iso_after_spawns_0.80.png"
+}

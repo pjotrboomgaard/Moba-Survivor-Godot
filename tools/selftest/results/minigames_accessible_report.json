@@ -1,0 +1,867 @@
+{
+  "effects": [
+    {
+      "command": "toggle_invulnerable",
+      "kind": "dev_command",
+      "t": 0.403028666666666
+    },
+    {
+      "command": "open_cinematic",
+      "kind": "dev_command",
+      "t": 0.615193333333333
+    },
+    {
+      "games": [
+        {
+          "active": false,
+          "finished": false,
+          "id": "Treasure Dash",
+          "index": 0,
+          "pos": "(-2520.0, -1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss",
+          "index": 1,
+          "pos": "(-2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack-a-Creep",
+          "index": 2,
+          "pos": "(2520.0, -1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Rock-Paper-Creep",
+          "index": 3,
+          "pos": "(2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Gem Relay",
+          "index": 5,
+          "pos": "(-1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss Pro",
+          "index": 6,
+          "pos": "(1890.0, 1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack Rush",
+          "index": 7,
+          "pos": "(2310.0, -980.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Tag",
+          "index": 8,
+          "pos": "(-2310.0, 700.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Treasure Dash 2",
+          "index": 9,
+          "pos": "(1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Ring Roll",
+          "index": 10,
+          "pos": "(-1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Pinball",
+          "index": 11,
+          "pos": "(1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Balloon Pop",
+          "index": 12,
+          "pos": "(0.0, 1820.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Slime Splat",
+          "index": 13,
+          "pos": "(-1890.0, -1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crystal Catch",
+          "index": 14,
+          "pos": "(2100.0, 840.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crate Stack",
+          "index": 15,
+          "pos": "(-2100.0, 980.0)",
+          "score": 0,
+          "timer": 15.0
+        }
+      ],
+      "kind": "minigame",
+      "label": "all_minigames_probe",
+      "t": 1.00287566666667
+    },
+    {
+      "index": 0,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 1.20332055555555
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Treasure Dash",
+          "index": 0,
+          "pos": "(-2520.0, -1680.0)",
+          "score": 0,
+          "timer": 14.7942355555556
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss",
+          "index": 1,
+          "pos": "(-2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack-a-Creep",
+          "index": 2,
+          "pos": "(2520.0, -1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Rock-Paper-Creep",
+          "index": 3,
+          "pos": "(2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Gem Relay",
+          "index": 5,
+          "pos": "(-1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss Pro",
+          "index": 6,
+          "pos": "(1890.0, 1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack Rush",
+          "index": 7,
+          "pos": "(2310.0, -980.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Tag",
+          "index": 8,
+          "pos": "(-2310.0, 700.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Treasure Dash 2",
+          "index": 9,
+          "pos": "(1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Ring Roll",
+          "index": 10,
+          "pos": "(-1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Pinball",
+          "index": 11,
+          "pos": "(1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Balloon Pop",
+          "index": 12,
+          "pos": "(0.0, 1820.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Slime Splat",
+          "index": 13,
+          "pos": "(-1890.0, -1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crystal Catch",
+          "index": 14,
+          "pos": "(2100.0, 840.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crate Stack",
+          "index": 15,
+          "pos": "(-2100.0, 980.0)",
+          "score": 0,
+          "timer": 15.0
+        }
+      ],
+      "kind": "minigame",
+      "label": "index0_active",
+      "t": 1.409085
+    },
+    {
+      "index": 4,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 2.0139963030303
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Treasure Dash",
+          "index": 0,
+          "pos": "(-2520.0, -1680.0)",
+          "score": 0,
+          "timer": 13.9836235858586
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss",
+          "index": 1,
+          "pos": "(-2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack-a-Creep",
+          "index": 2,
+          "pos": "(2520.0, -1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Rock-Paper-Creep",
+          "index": 3,
+          "pos": "(2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": true,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 0,
+          "timer": 59.7942993333333
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Gem Relay",
+          "index": 5,
+          "pos": "(-1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss Pro",
+          "index": 6,
+          "pos": "(1890.0, 1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack Rush",
+          "index": 7,
+          "pos": "(2310.0, -980.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Tag",
+          "index": 8,
+          "pos": "(-2310.0, 700.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Treasure Dash 2",
+          "index": 9,
+          "pos": "(1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Ring Roll",
+          "index": 10,
+          "pos": "(-1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Pinball",
+          "index": 11,
+          "pos": "(1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Balloon Pop",
+          "index": 12,
+          "pos": "(0.0, 1820.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Slime Splat",
+          "index": 13,
+          "pos": "(-1890.0, -1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crystal Catch",
+          "index": 14,
+          "pos": "(2100.0, 840.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crate Stack",
+          "index": 15,
+          "pos": "(-2100.0, 980.0)",
+          "score": 0,
+          "timer": 15.0
+        }
+      ],
+      "kind": "minigame",
+      "label": "index4_active",
+      "t": 2.21969696969697
+    },
+    {
+      "index": 15,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 2.80733148484849
+    },
+    {
+      "games": [
+        {
+          "active": true,
+          "finished": false,
+          "id": "Treasure Dash",
+          "index": 0,
+          "pos": "(-2520.0, -1680.0)",
+          "score": 0,
+          "timer": 13.1947672222222
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss",
+          "index": 1,
+          "pos": "(-2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack-a-Creep",
+          "index": 2,
+          "pos": "(2520.0, -1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Rock-Paper-Creep",
+          "index": 3,
+          "pos": "(2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": true,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 0,
+          "timer": 59.005442969697
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Gem Relay",
+          "index": 5,
+          "pos": "(-1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss Pro",
+          "index": 6,
+          "pos": "(1890.0, 1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack Rush",
+          "index": 7,
+          "pos": "(2310.0, -980.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Tag",
+          "index": 8,
+          "pos": "(-2310.0, 700.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Treasure Dash 2",
+          "index": 9,
+          "pos": "(1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Ring Roll",
+          "index": 10,
+          "pos": "(-1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Pinball",
+          "index": 11,
+          "pos": "(1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Balloon Pop",
+          "index": 12,
+          "pos": "(0.0, 1820.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Slime Splat",
+          "index": 13,
+          "pos": "(-1890.0, -1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crystal Catch",
+          "index": 14,
+          "pos": "(2100.0, 840.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": true,
+          "finished": false,
+          "id": "Crate Stack",
+          "index": 15,
+          "pos": "(-2100.0, 980.0)",
+          "score": 0,
+          "timer": 44.7987781515152
+        }
+      ],
+      "kind": "minigame",
+      "label": "index15_active",
+      "t": 3.00855333333334
+    },
+    {
+      "finished": true,
+      "id": "Treasure Dash",
+      "index": 0,
+      "kind": "minigame_stop",
+      "label": "stop0",
+      "owner_gold_after": 30,
+      "owner_gold_before": 0,
+      "reward_granted": true,
+      "score": 0,
+      "t": 3.52103366666667,
+      "was_active": false
+    },
+    {
+      "finished": true,
+      "id": "Dance Disco",
+      "index": 4,
+      "kind": "minigame_stop",
+      "label": "stop4",
+      "owner_gold_after": 80,
+      "owner_gold_before": 30,
+      "reward_granted": true,
+      "score": 0,
+      "t": 3.61666666666667,
+      "was_active": false
+    },
+    {
+      "finished": true,
+      "id": "Crate Stack",
+      "index": 15,
+      "kind": "minigame_stop",
+      "label": "stop15",
+      "owner_gold_after": 110,
+      "owner_gold_before": 80,
+      "reward_granted": true,
+      "score": 0,
+      "t": 3.71666666666667,
+      "was_active": false
+    },
+    {
+      "games": [
+        {
+          "active": false,
+          "finished": true,
+          "id": "Treasure Dash",
+          "index": 0,
+          "pos": "(-2520.0, -1680.0)",
+          "score": 0,
+          "timer": 12.6822868888889
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss",
+          "index": 1,
+          "pos": "(-2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack-a-Creep",
+          "index": 2,
+          "pos": "(2520.0, -1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Rock-Paper-Creep",
+          "index": 3,
+          "pos": "(2520.0, 1680.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": true,
+          "id": "Dance Disco",
+          "index": 4,
+          "pos": "(0.0, 0.0)",
+          "score": 0,
+          "timer": 58.3973296363637
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Gem Relay",
+          "index": 5,
+          "pos": "(-1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Keg Toss Pro",
+          "index": 6,
+          "pos": "(1890.0, 1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Whack Rush",
+          "index": 7,
+          "pos": "(2310.0, -980.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Tag",
+          "index": 8,
+          "pos": "(-2310.0, 700.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Treasure Dash 2",
+          "index": 9,
+          "pos": "(1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Ring Roll",
+          "index": 10,
+          "pos": "(-1470.0, 1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Creep Pinball",
+          "index": 11,
+          "pos": "(1470.0, -1540.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Balloon Pop",
+          "index": 12,
+          "pos": "(0.0, 1820.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Slime Splat",
+          "index": 13,
+          "pos": "(-1890.0, -1260.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Crystal Catch",
+          "index": 14,
+          "pos": "(2100.0, 840.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": true,
+          "id": "Crate Stack",
+          "index": 15,
+          "pos": "(-2100.0, 980.0)",
+          "score": 0,
+          "timer": 44.0906648181818
+        }
+      ],
+      "kind": "minigame",
+      "label": "all_after",
+      "t": 5.01666666666667
+    }
+  ],
+  "elapsed": 5.50030466666667,
+  "enemies_spawned": 0,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 190,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 150
+  },
+  "shots": [
+    {
+      "label": "ingame_minigames_world",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11215/ingame_minigames_world_4.518_11215.png",
+      "t": 4.51830644444445
+    }
+  ]
+}

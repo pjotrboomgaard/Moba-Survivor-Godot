@@ -3249,3 +3249,36 @@ explicit cleanup of `active_summons` when a player node exits the tree.
       Compare: `diff_ingame.png` (0.59% changed, bbox = summon region),
       SSIM=0.9878 (expected — small sprites removed from large scene).
       Vision check: "Three orange circular enemies/objects disappeared."
+
+### T4.21 Verify all 16 minigame areas findable + work (NEW 2026-09-17)
+**User direction:** "i can never find the mini game areas and never try one on the map
+— full verification that all minigames work and are accessible."
+
+**Isolated test** (`scenes/minigames_iso/`):
+- BEFORE: `tools/selftest/results/minigames_iso/iso_before_spawns_0.30.png`
+  (empty grey void, no rings)
+- AFTER: `tools/selftest/results/minigames_iso/iso_after_spawns_0.80.png`
+  (all 16 minigame idle-rings visible at distinct positions — 4 corners, center,
+  mid-edges, inner ring)
+- Center closeup BEFORE: `iso_center_closeup_1.60.png` (idle purple ring, Dance Disco)
+- Center closeup AFTER start: `iso_dance_started_2.80.png`
+  (active ring + "DANCE DISCO" banner + score + timer bar + real Player at center)
+- COMPARE: `diff_iso_dance.png` (13.07% pixels changed — banner + timer bar + player
+  sprite appear)
+- verdict: PASS (16 spawned, distinct positions, dance_disco_active=true)
+
+**In-game test** (`minigames_ingame_all.json`, hero=tobor, solo):
+- All 16 minigames spawned at distinct in-world positions (report:
+  `tools/selftest/results/minigames_ingame_all_report.json`)
+- Each of the 16 was started via `start_minigame` index 0–15, then probed:
+  every one reports `active=true` after start, `finished=false`, correct position
+- Final probe `all_final` confirms all 16 remain active; one (Creep Pinball, idx 11)
+  already scored 23 points via bot play
+- 17 in-game screenshots captured, one per minigame location:
+  `tools/selftest/results/minigames_ingame_all/` (mg0..mg15 + ingame_all_minigames)
+- Sample screenshots read: Dance Disco (mg4), Treasure Dash (mg0), Crate Stack (mg15)
+  — each shows the arena biome + the minigame zone at the expected world position
+
+6-step status: isolated before/after/compare done + read; in-game before (spawn probe
+all inactive) / after (each started + active) / compare (all_final probe) done + read.
+All 16 minigames are findable (distinct world positions) and startable (active=true).

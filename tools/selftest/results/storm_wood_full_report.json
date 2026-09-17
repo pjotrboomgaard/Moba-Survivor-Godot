@@ -1,112 +1,83 @@
 {
-  "feature": "creep_unstuck_from_objects_ingame",
-  "grunt_timeline": [
+  "effects": [
     {
-      "dist_to_player": 345.0,
-      "enemy_alive": true,
-      "enemy_pos": [
-        -345.0,
-        0.0
-      ],
-      "label": "ingame_wall_spawn.png",
-      "max_enemy_x": 0.0,
-      "path": "user://creep_unstuck_ingame_shots/ingame_wall_spawn.png",
-      "wall_rocks": 97
+      "command": "force_rain",
+      "kind": "dev_command",
+      "t": 1.21666666666667
     },
     {
-      "dist_to_player": 214.0,
-      "enemy_alive": true,
-      "enemy_pos": [
-        -209.0,
-        46.0
-      ],
-      "label": "ingame_blocked.png",
-      "max_enemy_x": 0.0,
-      "path": "user://creep_unstuck_ingame_shots/ingame_blocked.png",
-      "wall_rocks": 97
+      "kind": "storm_probe",
+      "label": "after_rain_on",
+      "rain_active": true,
+      "rain_remaining": 7.2,
+      "storm_active": false,
+      "storm_timer": 9.9,
+      "t": 2.00476190476191
     },
     {
-      "dist_to_player": 48.0,
-      "enemy_alive": true,
-      "enemy_pos": [
-        -46.0,
-        11.0
-      ],
-      "label": "ingame_detour.png",
-      "max_enemy_x": 0.0,
-      "path": "user://creep_unstuck_ingame_shots/ingame_detour.png",
-      "wall_rocks": 97
+      "command": "force_storm",
+      "kind": "dev_command",
+      "t": 2.21666666666667
     },
     {
-      "dist_to_player": 54.0,
-      "enemy_alive": true,
-      "enemy_pos": [
-        -25.0,
-        -22.0
-      ],
-      "label": "ingame_final.png",
-      "max_enemy_x": 0.0,
-      "path": "user://creep_unstuck_ingame_shots/ingame_final.png",
-      "wall_rocks": 97
+      "kind": "storm_probe",
+      "label": "after_storm",
+      "rain_active": false,
+      "rain_remaining": 0.0,
+      "storm_active": true,
+      "storm_timer": 8.2,
+      "t": 18.004297
     }
   ],
-  "notes": [
-    "grunt alive and reached within 150px of player"
-  ],
-  "passed_wall": true,
-  "reached_player": true,
-  "result_dir": "user://creep_unstuck_ingame_shots",
-  "scene": "res://scenes/creep_unstuck_ingame/creep_unstuck_ingame.tscn",
+  "elapsed": 20.0222222222222,
+  "enemies_spawned": 0,
+  "hero_position": "(44.93194, -90.27502)",
+  "player_class": "arclight",
+  "results": {
+    "alive": false,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
   "shots": [
     {
-      "dist_to_player": 345.0,
-      "enemy_alive": true,
-      "enemy_pos": [
-        -345.0,
-        0.0
-      ],
-      "label": "ingame_wall_spawn.png",
-      "max_enemy_x": 0.0,
-      "path": "user://creep_unstuck_ingame_shots/ingame_wall_spawn.png",
-      "wall_rocks": 97
+      "label": "wood_before",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8520/wood_before_1.000_8520.png",
+      "t": 1.0
     },
     {
-      "dist_to_player": 214.0,
-      "enemy_alive": true,
-      "enemy_pos": [
-        -209.0,
-        46.0
-      ],
-      "label": "ingame_blocked.png",
-      "max_enemy_x": 0.0,
-      "path": "user://creep_unstuck_ingame_shots/ingame_blocked.png",
-      "wall_rocks": 97
+      "label": "wood_storm_strikes",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_15515/wood_storm_strikes_8.036_15515.png",
+      "t": 8.03607666666667
     },
     {
-      "dist_to_player": 48.0,
-      "enemy_alive": true,
-      "enemy_pos": [
-        -46.0,
-        11.0
-      ],
-      "label": "ingame_detour.png",
-      "max_enemy_x": 0.0,
-      "path": "user://creep_unstuck_ingame_shots/ingame_detour.png",
-      "wall_rocks": 97
-    },
-    {
-      "dist_to_player": 54.0,
-      "enemy_alive": true,
-      "enemy_pos": [
-        -25.0,
-        -22.0
-      ],
-      "label": "ingame_final.png",
-      "max_enemy_x": 0.0,
-      "path": "user://creep_unstuck_ingame_shots/ingame_final.png",
-      "wall_rocks": 97
+      "label": "wood_fire_spreading",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_21539/wood_fire_spreading_14.004_21539.png",
+      "t": 14.0043353333333
     }
-  ],
-  "verdict": "PASS",
-  "wall_rock_count": 97
+  ]
 }

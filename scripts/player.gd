@@ -6096,10 +6096,12 @@ func _damage_enemy(target: Node2D, amount: float) -> void:
 	# this hero, while leaving creep damage and self-heals untouched.
 	if _pvp_vs_rival(target):
 		dealt *= PVP_TAKEN_MULT
-		# No-instant-kill: cap a single ability hit so it can't exceed a fixed
-		# fraction of the rival's max health. Staggered ticks from zone/poison
-		# effects stay below the cap individually but add up over time.
-		var cap := target_health.max_health * PVP_SINGLE_HIT_CAP
+		# No-instant-kill: cap a single ability hit so it can't exceed a threshold
+		# that scales with this hero's current damage multiplier. A hero at base
+		# multiplier (1.0) is capped at PVP_SINGLE_HIT_CAP of the rival's max HP;
+		# buffed heroes (self-buff, charge, etc.) get proportionally more, but the
+		# cap always applies so nothing one-shots a healthy rival.
+		var cap := target_health.max_health * PVP_SINGLE_HIT_CAP * (damage_dealt_multiplier * ability_damage_mult)
 		dealt = minf(dealt, cap)
 	var was_alive := not target_health.is_dead
 	target_health.take_damage(dealt, self)

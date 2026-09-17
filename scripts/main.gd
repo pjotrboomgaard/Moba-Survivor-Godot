@@ -3130,6 +3130,9 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 		"force_rain":
 			if arena is Arena:
 				(arena as Arena).debug_force_rain()
+		"force_storm":
+			if arena is Arena:
+				(arena as Arena).debug_force_storm()
 		"force_night":
 			# T3.59 test hook: jump straight into the night window so the surge
 			# triggers this frame (WorldClock.tick will pick it up next tick).

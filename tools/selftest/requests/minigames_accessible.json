@@ -1,0 +1,23 @@
+{
+  "hero": "tobor",
+  "mode": "solo",
+  "comment": "Verify all 16 minigames are spawned at their positions. Probe each, then start a few to confirm they activate.",
+  "events": [
+    {"t": 0.4, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.6, "kind": "dev_command", "command": "open_cinematic"},
+    {"t": 1.0, "kind": "minigame", "label": "all_minigames_probe"},
+    {"t": 1.2, "kind": "start_minigame", "index": 0},
+    {"t": 1.4, "kind": "minigame", "label": "index0_active"},
+    {"t": 2.0, "kind": "start_minigame", "index": 4},
+    {"t": 2.2, "kind": "minigame", "label": "index4_active"},
+    {"t": 2.8, "kind": "start_minigame", "index": 15},
+    {"t": 3.0, "kind": "minigame", "label": "index15_active"},
+    {"t": 3.5, "kind": "minigame_stop", "index": 0, "label": "stop0"},
+    {"t": 3.6, "kind": "minigame_stop", "index": 4, "label": "stop4"},
+    {"t": 3.7, "kind": "minigame_stop", "index": 15, "label": "stop15"},
+    {"t": 4.0, "kind": "camera_zoom", "to": [0.0, -120.0], "zoom": 0.5},
+    {"t": 4.5, "kind": "snap", "label": "ingame_minigames_world"},
+    {"t": 5.0, "kind": "minigame", "label": "all_after"},
+    {"t": 5.5, "kind": "report"}
+  ]
+}

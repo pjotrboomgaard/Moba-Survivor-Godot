@@ -1,0 +1,17 @@
+{
+  "hero": "arclight",
+  "mode": "solo",
+  "biome": 2,
+  "comment": "Wood biome (Verdant Wilds, biome 2) storm + fire verification. Force rain, then force storm; lightning strikes should hit trees and set them on fire in the wood biome. Also probes storm/rain state to verify the 'storm more often when raining' coupling.",
+  "time_scale": 1.0,
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "wood_before"},
+    {"t": 1.2, "kind": "dev_command", "command": "force_rain"},
+    {"t": 2.0, "kind": "storm_probe", "label": "after_rain_on"},
+    {"t": 2.2, "kind": "dev_command", "command": "force_storm"},
+    {"t": 8.0, "kind": "snap", "label": "wood_storm_strikes"},
+    {"t": 14.0, "kind": "snap", "label": "wood_fire_spreading"},
+    {"t": 18.0, "kind": "storm_probe", "label": "after_storm"},
+    {"t": 20.0, "kind": "report"}
+  ]
+}

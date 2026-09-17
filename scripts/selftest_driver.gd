@@ -636,6 +636,10 @@ func _process(delta: float) -> void:
 				_record_fps(str(event.get("label", "fps")))
 			"biome_probe":
 				_record_biome(str(event.get("label", "biome")))
+			"storm_probe":
+				# 2026-09-17: report storm/rain state + the next-storm-onset timer
+				# so a test can verify the "storm more often when raining" coupling.
+				_record_storm_probe(str(event.get("label", "storm")))
 			"sound_probe":
 				_record_sound_probe(str(event.get("label", "")), str(event.get("ability_id", "")))
 			"world_theme_probe":
@@ -1636,23 +1640,22 @@ func _record_ship_wreck_probe(label: String) -> void:
 		var w: Node = wreck
 		entry["current_state"] = str(w.get("current_state"))
 		entry["morph_progress"] = float(w.get("morph_progress"))
-		var parts: Array = w.get("_parts")
-		entry["part_count"] = parts.size() if parts != null else -1
+		# T4.10+: the wreck is a single full-image sprite pair + collision segments.
+		# `_colliders` is the array of StaticBody2D segments; fall back to `_parts`
+		# for any older layout that still exposes it.
+		var colliders: Array = []
+		if w.get("_colliders") != null:
+			colliders = w.get("_colliders") as Array
+		entry["part_count"] = colliders.size()
 		entry["interact_point"] = w.get("interact_point")
-		# Per-part collision + z_index so the test can assert movement-blocking + depth.
 		var part_info := []
-		if parts != null:
-			for p in parts:
-				if not is_instance_valid(p):
-					continue
-				var body: Node = p.get_node_or_null("Body")
-				var spr: Node = p.get_node_or_null("Sprite")
-				part_info.append({
-					"pos": p.global_position,
-					"z_index": int(p.get("z_index")),
-					"has_collision": body != null,
-					"sprite_visible": bool(spr.get("visible")) if spr != null else null,
-				})
+		for p in colliders:
+			if not is_instance_valid(p):
+				continue
+			part_info.append({
+				"pos": p.get("global_position"),
+				"z_index": int(p.get("z_index")),
+			})
 		entry["parts"] = part_info
 	# Count old SUPERMERCATOR stand nodes still present (should be 0 after T4.6).
 	var arena: Variant = _host_main.get("arena") if _host_main != null else null
@@ -1814,6 +1817,34 @@ func _record_biome(label: String) -> void:
 		"biome_name": GameRuntime.biome_name(),
 		"obstacles": obstacles_info,
 	})
+
+
+## 2026-09-17: probe the arena's rain + storm state and the next-storm-onset timer.
+## Verifies the "storm more often when it's raining" coupling (arena.gd):
+## while raining, the next-storm timer is short; when dry, it's long.
+func _record_storm_probe(label: String) -> void:
+	var host_main: Variant = get_tree().get_first_node_in_group("main") if _host_main == null else _host_main
+	var arena: Variant = host_main.get("arena") if host_main != null else null
+	var rain_active := false
+	var storm_active := false
+	var storm_timer := -1.0
+	var rain_remaining := -1.0
+	if arena != null and arena is Arena:
+		rain_active = bool(arena.get("_rain_active"))
+		storm_active = bool(arena.get("_storm_active"))
+		storm_timer = float(arena.get("_storm_timer"))
+		rain_remaining = float(arena.get("_rain_remaining"))
+	_active_effects.append({
+		"kind": "storm_probe",
+		"label": label,
+		"t": _elapsed,
+		"rain_active": rain_active,
+		"storm_active": storm_active,
+		"storm_timer": round(storm_timer * 10) / 10,
+		"rain_remaining": round(rain_remaining * 10) / 10,
+	})
+
+
 
 
 func _record_teleporters(label: String) -> void:
