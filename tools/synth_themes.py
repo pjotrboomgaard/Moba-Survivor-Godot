@@ -495,6 +495,30 @@ DRONE_FIRE_RECIPE = [
      dict(wave="sine", f0=1800, f1=700, dur=0.07, amp=0.3)],
 ]
 
+# Arclight chain-lightning bounce stinger (Thunderbringer-style). A sharp, bright
+# electric "crack" with a fast downward zap sweep and a tiny low thud at the tail
+# so each hop of the bouncing bolt reads as a distinct strike. Two takes so rapid
+# overlapping bounces vary slightly and don't phase-cancellation into silence.
+CHAIN_BOUNCE_RECIPE = [
+    [dict(wave="zap_noise", f0=3600, f1=1100, dur=0.12, amp=0.55),
+     dict(wave="saw", f0=2200, f1=520, dur=0.10, amp=0.30),
+     dict(wave="sine", f0=1400, f1=600, dur=0.08, amp=0.28)],
+    [dict(wave="zap_noise", f0=3000, f1=850, dur=0.14, amp=0.52),
+     dict(wave="square", f0=900, f1=400, dur=0.08, amp=0.18, duty=0.3),
+     dict(wave="sine", f0=1100, f1=500, dur=0.09, amp=0.30)],
+]
+
+# Pyra Bombardier bombing-run: a low propeller/engine drone that rises in pitch as the
+# flight approaches, with a metallic "clack" per bomb release and a muffled sub-bass
+# thud at the tail (the first bombs hitting). One take — this is a longer (~0.9s)
+# sweeping sound so pitch variation between casts reads as the run changing altitude.
+BOMB_RUN_RECIPE = [
+    [dict(wave="saw", f0=180, f1=420, dur=0.85, amp=0.28, duty=0.5),
+     dict(wave="saw", f0=140, f1=300, dur=0.85, amp=0.20, duty=0.5),
+     dict(wave="zap_noise", f0=1200, f1=400, dur=0.06, amp=0.25),
+     dict(wave="sine", f0=90, f1=55, dur=0.22, amp=0.45)],
+]
+
 # T3.6 volcano "lava cooled" SFX: a deep, resonant thud followed by a slow,
 # downward-panning rumble, signalling the lava has solidified.
 LAVA_COOL_RECIPE = [
@@ -700,6 +724,16 @@ def main():
     write_wav(os.path.join(OUT_DIR, "drone_fire.wav"), synthesize(DRONE_FIRE_RECIPE[0], rng))
     written += 1
     print("wrote assets/audio/themes/drone_fire.wav")
+    # Arclight chain-lightning bounce stinger (2 takes).
+    for i, take in enumerate(CHAIN_BOUNCE_RECIPE):
+        suffix = "" if i == 0 else "_%d" % (i + 1)
+        write_wav(os.path.join(OUT_DIR, "chain_bounce" + suffix + ".wav"), synthesize(take, rng))
+        written += 1
+        print("wrote assets/audio/themes/chain_bounce%s.wav" % suffix)
+    # Pyra Bombardier bombing-run engine drone + bomb drops.
+    write_wav(os.path.join(OUT_DIR, "bomb_run.wav"), synthesize(BOMB_RUN_RECIPE[0], rng))
+    written += 1
+    print("wrote assets/audio/themes/bomb_run.wav")
     # Minigame win stinger.
     for i, take in enumerate(MINIGAME_WIN_RECIPE):
         suffix = "" if i == 0 else "_%d" % (i + 1)

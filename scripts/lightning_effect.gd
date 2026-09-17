@@ -148,6 +148,11 @@ func _draw_burst(center: Vector2, radius: float, alpha: float) -> void:
 			_draw_vine_ring(center, radius, alpha, false)
 		"overgrowth", "root_wall":
 			_draw_vine_ring(center, radius, alpha, true)
+		"root_erupt":
+			# HoN Treant Overgrowth: roots erupt from the ground across the whole
+			# area — a dense web of radial + spiral roots that visibly locks
+			# everything standing on it. Much heavier than the ring variant.
+			_draw_root_eruption(center, radius, alpha)
 		"toxic_bloom", "ward_spit":
 			_draw_toxic_bloom(center, radius, alpha)
 		"storm_bolts", "storm_pillar", "fist_shock":
@@ -166,6 +171,8 @@ func _draw_burst(center: Vector2, radius: float, alpha: float) -> void:
 			_draw_petal_burst(center, radius, alpha)
 		"air_strike":
 			_draw_air_strike(center + Vector2(0.0, -radius * 0.8), center, radius * 0.45, alpha)
+		"bomb_run":
+			_draw_bomb_run(center, radius, alpha)
 		_:
 			_draw_tagged_burst_fallback(center, radius, alpha)
 
@@ -681,6 +688,46 @@ func _draw_vine_ring(center: Vector2, radius: float, alpha: float, heavy: bool) 
 			draw_arc(center, radius * f, 0.0, TAU, 40, ring, 2.0, true)
 
 
+## HoN Treant Overgrowth: roots erupt from the ground across the whole area.
+## A dense web of radial roots + a slow-rotating spiral + ground cracks that
+## reads as "the forest just grew here and is holding you in place."
+func _draw_root_eruption(center: Vector2, radius: float, alpha: float) -> void:
+	var core := main_color
+	core.a *= alpha * 0.14
+	draw_circle(center, radius * 0.2, core)
+	# Radial roots: dense, thick, growing outward from the center.
+	var roots := maxi(ribbon_count, 9)
+	for i in roots:
+		var a := TAU * float(i) / float(roots) + elapsed * 0.15
+		var jag := 0.85 + 0.15 * _noise(i)
+		var tip := center + Vector2.from_angle(a) * radius * jag
+		# Each root is a slightly wavy thick line (the root's trunk + 2 side shoots).
+		var root_col := main_color if i % 2 == 0 else chain_color
+		root_col.a *= alpha * 0.85
+		_draw_wave(center, tip, root_col, 3.4, i, alpha)
+		# Side shoots: two short branchlets off the main root.
+		for side in 2:
+			var side_dir := 1.0 if side == 0 else -1.0
+			var branch_base := center + Vector2.from_angle(a) * radius * 0.45
+			var branch_tip := center + Vector2.from_angle(a + side_dir * 0.35) * radius * 0.75
+			var branch_col := chain_color
+			branch_col.a *= alpha * 0.55
+			_draw_wave(branch_base, branch_tip, branch_col, 2.2, i + 20, alpha)
+	# Ground cracks: a ring of short jagged lines radiating from the center.
+	var cracks := maxi(pulse_count, 4) * 4
+	for c in cracks:
+		var a := TAU * float(c) / float(cracks) + 0.4
+		var inner := center + Vector2.from_angle(a) * radius * 0.15
+		var outer := center + Vector2.from_angle(a + 0.1 * _noise(c)) * radius * 0.4
+		var crack_col := main_color
+		crack_col.a *= alpha * 0.6
+		draw_line(inner, outer, crack_col, 1.6)
+	# Outer containment ring (the "wall of roots" that holds enemies in place).
+	var ring := chain_color
+	ring.a *= alpha * 0.7
+	_draw_vine_ring(center, radius * 0.95, alpha * 0.7, true)
+
+
 func _draw_toxic_bloom(center: Vector2, radius: float, alpha: float) -> void:
 	var core := main_color
 	core.a *= alpha * 0.18
@@ -863,6 +910,66 @@ func _draw_air_strike(from: Vector2, impact: Vector2, radius: float, alpha: floa
 		draw_line(p + Vector2(-12.0 - float(i) * 4.0, -8.0), p, chev, 2.4)
 		draw_line(p + Vector2(12.0 + float(i) * 4.0, -8.0), p, chev, 2.4)
 	_draw_fire_petals(impact, radius, alpha, false)
+
+
+## HoN Bombardier Air Strike: a flight of bombing-run planes sweeps down onto the
+## target, each dropping a bomb that streaks down and detonates. Vector-only: a
+## handful of small plane glyphs arc from upper-left to the impact point, releasing
+## bomb streaks + trailing smoke. The final fire-petal burst reads as the detonation.
+func _draw_bomb_run(center: Vector2, radius: float, alpha: float) -> void:
+	# Planes sweep from the upper-left, in a V-formation, descending onto `center`.
+	var t := clampf(elapsed / maxf(lifetime, 0.001), 0.0, 1.0)
+	var plane_count := maxi(pulse_count, 4)
+	for i in plane_count:
+		var lane := float(i) - float(plane_count - 1) * 0.5
+		# Each plane takes a slightly offset path so the flight reads as a formation.
+		var start := center + Vector2(-radius * 2.4 - lane * 26.0, -radius * 2.0 - absf(lane) * 22.0)
+		var plane_t := clampf((t - float(i) * 0.04) / 0.7, 0.0, 1.0)
+		var pos := start.lerp(center + Vector2(lane * 14.0, 0.0), plane_t)
+		var col := main_color
+		col.a *= alpha * (1.0 - plane_t * 0.35)
+		# Plane glyph: fuselage + swept wings + tail fin.
+		var fwd := Vector2.RIGHT.rotated(0.5)  # ~28deg nose-down dive
+		var side := Vector2(-fwd.y, fwd.x)
+		var tip := pos + fwd * 12.0
+		var tail := pos - fwd * 8.0
+		draw_line(tail, tip, col, 3.0)
+		# Wings (swept).
+		var wing_span := 14.0
+		var wing_tip_l := pos + side * wing_span - fwd * 3.0
+		var wing_tip_r := pos - side * wing_span - fwd * 3.0
+		var wing_col := chain_color
+		wing_col.a *= alpha * (1.0 - plane_t * 0.3)
+		draw_line(pos - fwd * 2.0, wing_tip_l, wing_col, 2.2)
+		draw_line(pos - fwd * 2.0, wing_tip_r, wing_col, 2.2)
+		# Trailing engine smoke puffs.
+		for puff_i in 3:
+			var puff_t := plane_t - 0.08 * float(puff_i + 1)
+			if puff_t <= 0.0:
+				continue
+			var puff_pos := start.lerp(center + Vector2(lane * 14.0, 0.0), clampf(puff_t, 0.0, 1.0))
+			var puff := chain_color
+			puff.a *= alpha * 0.3 * (1.0 - float(puff_i) * 0.25)
+			draw_circle(puff_pos - fwd * (10.0 + puff_i * 4.0), 3.5 + puff_i * 1.5, puff)
+	# Bombs streaking down from the flight (the actual ordnance that detonates).
+	var bombs := maxi(ribbon_count, 4)
+	for b in bombs:
+		var b_angle := TAU * float(b) / float(bombs) + 0.3
+		var drop_start := center + Vector2(0.0, -radius * 1.4) + Vector2.from_angle(b_angle) * 18.0
+		var bomb_t := clampf((t - 0.35 - float(b) * 0.05) / 0.4, 0.0, 1.0)
+		if bomb_t <= 0.0:
+			continue
+		var bomb_pos := drop_start.lerp(drop_start + Vector2(sin(b_angle) * 30.0, radius * 0.9), bomb_t)
+		var bomb_col := chain_color
+		bomb_col.a *= alpha
+		draw_circle(bomb_pos, 3.4, bomb_col)
+		# Bomb trail.
+		var trail := main_color
+		trail.a *= alpha * 0.6
+		draw_line(bomb_pos - Vector2(0.0, 10.0), bomb_pos, trail, 1.6)
+	# Detonation: fire petals at the impact point once the run is complete.
+	if t > 0.6:
+		_draw_fire_petals(center, radius * 0.6, alpha * (t - 0.6) * 2.5, false)
 
 
 func _draw_wave(from: Vector2, to: Vector2, color: Color, width: float, segment_index: int, progress: float) -> void:

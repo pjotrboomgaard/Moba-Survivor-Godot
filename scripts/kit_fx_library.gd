@@ -274,13 +274,16 @@ const KIT_VISUALS: Dictionary = {
 		"lifetime": 0.5,
 	},
 	"pyra_air_strike": {
+		# HoN Bombardier Air Strike: a flight of bombing-run planes sweeps down
+		# onto the target dropping bombs that detonate. Vector-only: plane
+		# glyphs + bomb streaks + fire-petal detonation.
 		"primary_color": "ff6b2a",
 		"secondary_color": "ffe14a",
-		"pulse_count": 4,
-		"ribbon_count": 5,
+		"pulse_count": 5,
+		"ribbon_count": 6,
 		"style": "fire",
-		"draw_mode": "air_strike",
-		"lifetime": 2.6,
+		"draw_mode": "bomb_run",
+		"lifetime": 2.8,
 	},
 	"pyra_molten_charge": {
 		"primary_color": "ff8a5c",
@@ -465,12 +468,16 @@ const KIT_VISUALS: Dictionary = {
 		"lifetime": 0.35,
 	},
 	"stump_overgrowth": {
+		# HoN Treant Overgrowth: roots erupt from the ground across the whole
+		# area and root everyone standing in it. Dense radial roots + branchlets
+		# + ground cracks + a containment ring — the "forest just grew here"
+		# look. Much heavier than the ring variant (overgrowth draw mode).
 		"primary_color": "8ee04a",
-		"secondary_color": "d4b06b",
+		"secondary_color": "6b4a2a",
 		"pulse_count": 4,
-		"ribbon_count": 7,
+		"ribbon_count": 12,
 		"style": "nature",
-		"draw_mode": "overgrowth",
+		"draw_mode": "root_erupt",
 		"lifetime": 3.4,
 	},
 	# ── Sage (Nymphel / Nymphora) ────────────────────────────────────────────

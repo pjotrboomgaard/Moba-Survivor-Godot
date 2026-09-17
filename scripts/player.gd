@@ -10,6 +10,12 @@ signal gold_changed(gold: int)
 signal level_reached(level: int)
 signal staff_cast(effect_kind: String, points: PackedVector2Array)
 signal ability_cast(ability_id: String, effect_style: int, points: PackedVector2Array)
+## Arclight's bouncing lightning: fired once per chain hop at the hop's world
+## position so main.gd can play a positional lightning SFX + VFX at each bounce.
+## (bounce_index, of_hops) lets the last bounce read as a heavier "landing" hit.
+## `from` is the previous hop position so the VFX can draw the bolt segment
+## between the two points.
+signal chain_bounce(position: Vector2, radius: float, bounce_index: int, of_hops: int, from: Vector2)
 signal secondary_fx(class_id: String, style: int, points: PackedVector2Array)
 signal support_wall_spawned(points: PackedVector2Array, duration: float, color: Color)
 
@@ -3418,10 +3424,64 @@ func _cast_ability_rime_ice_imprisonment(data: Dictionary, values: Dictionary, _
 ## hops — Arc Lightning reimagined. The cast always leads with the PRIMARY target and lets
 ## the chain find its own way from there, no random-leap-ahead weirdness.
 func _cast_ability_arclight_chain_lightning(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	# Thunderbringer-inspired: the bolt bounces hop-by-hop with a visible delay
+	# between each strike (not an instant chain). Each bounce fires a positional
+	# lightning SFX + a short VFX segment so the player sees/hears the bolt
+	# arcing across the field instead of a single flash.
 	var chain := data.duplicate()
 	chain["chain_range"] = maxf(float(data.get("chain_range", 240.0)), 260.0)
 	chain["chain_count"] = maxi(int(data.get("chain_count", 5)), 4)
-	_cast_ability_chain_nuke(chain, values)
+	var hop_delay := 0.12  # seconds between each bounce — "slow bounce"
+	_arclight_slow_chain(chain, values, hop_delay)
+
+
+## Builds the chain path and fires each hop on a staggered timer. Each hop:
+##  - damages all enemies in the hop's blast radius
+##  - emits chain_bounce (for SFX + VFX at the bounce point)
+##  - shakes/damages trees around the bounce
+func _arclight_slow_chain(data: Dictionary, values: Dictionary, hop_delay: float) -> void:
+	var primary := _nearest_enemy_in_range(values.range)
+	var centers: Array[Vector2] = []
+	if primary == null:
+		centers.append(_ability_aim_center(values.range))
+	else:
+		centers.append(primary.global_position)
+	var struck: Array[Node2D] = []
+	var chain_origin: Node2D = primary if primary != null else self
+	var chain_range := float(data.get("chain_range", 260.0))
+	var max_hops := int(values.chain_count)
+	for _i in max_hops:
+		var next_target := _find_ability_chain_target(chain_origin, struck, chain_range)
+		if next_target == null:
+			break
+		centers.append(next_target.global_position)
+		chain_origin = next_target
+	# Fire each hop staggered by hop_delay so the bolt visibly bounces. The
+	# bolt starts at the caster and arcs to each target in sequence.
+	var start_pos := global_position
+	# Emit the initial ability_cast so the main VFX (chain bolt) plays once.
+	_emit_ability_cast(PackedVector2Array([start_pos, centers[0], Vector2(values.radius, 0.0)]))
+	for i in centers.size():
+		var from_pos := start_pos if i == 0 else centers[i - 1]
+		_fire_arclight_hop(centers[i], values, struck, i, hop_delay, data, from_pos)
+
+
+func _fire_arclight_hop(center: Vector2, values: Dictionary, struck: Array[Node2D], hop_index: int, hop_delay: float, data: Dictionary, from: Vector2) -> void:
+	var delay := hop_delay * float(hop_index)
+	var timer := get_tree().create_timer(maxf(delay, 0.0))
+	timer.timeout.connect(func() -> void:
+		if not is_inside_tree():
+			return
+		for target in _enemies_in_radius(center, values.radius):
+			if target in struck:
+				continue
+			struck.append(target)
+			_apply_ability_hit(target, data, values)
+		_aoe_damage_trees_in_radius(center, float(values.get("radius", 0.0)), float(values.get("power", 0.0)))
+		# Draw the bolt segment from the previous point to this hop so the bolt
+		# visibly arcs across the field between strikes.
+		chain_bounce.emit(center, values.radius, hop_index + 1, from)
+	)
 
 
 ## Bulwark's Heavyweight: Behemoth's heavyweight swing — attack frenzy with DRAMATICALLY
@@ -3663,10 +3723,37 @@ func _cast_ability_cinder_pillar_of_flame(data: Dictionary, values: Dictionary, 
 	)
 
 
-## Pyra's Air Strike: Bombardier's ordnance called from above (artillery). Paint the ring,
-## scream down, detonate. The sky_strike data path handles the shell already.
+## Pyra's Air Strike: Bombardier's bombing run. A flight of planes sweeps over the
+## target, dropping bombs in a line — not a single shell. The zone detonates as the
+## bombs land. (HoN Bombardier "Bombardment" style.)
 func _cast_ability_pyra_air_strike(data: Dictionary, values: Dictionary, _rank: int) -> void:
-	_cast_ability_radius_burst(data, values)
+	var center := _ability_aim_center(float(values.get("range", 620.0)))
+	var radius := float(values.get("radius", 340.0))
+	# Paint the bombing-run target zone (ground ring) so the player sees where the
+	# planes will strike.
+	_spawn_ability_zone_pulse(center, radius, 1.2)
+	# The flight: vector planes + bomb streaks, drawn over ~1.2s.
+	_emit_ability_cast(PackedVector2Array([center, Vector2(radius, 0.0)]))
+	# Bombing-run engine drone SFX at the cast origin (positioned + screen-gated).
+	if simulation_mode != SimulationMode.CPU:
+		SoundDirector.play("bomb_run", global_position)
+	# Bombs land in a line across the zone with a stagger, each detonating.
+	var bomb_count := 3
+	var spread := radius * 1.1
+	for i in bomb_count:
+		var t := float(i) / maxf(bomb_count - 1, 1)
+		var bomb_pos := center + Vector2(spread * (t - 0.5), 0.0)
+		var delay := 0.5 + float(i) * 0.28
+		get_tree().create_timer(delay).timeout.connect(func() -> void:
+			if not is_inside_tree():
+				return
+			for target in _enemies_in_radius(bomb_pos, radius * 0.55):
+				_apply_ability_hit(target, data, values)
+			# Bomb impact VFX: fire petals at each landing point.
+			var impact := PackedVector2Array([bomb_pos + Vector2(0.0, -radius * 0.9), bomb_pos, Vector2(radius * 0.5, 0.0)])
+			_emit_ability_cast(impact)
+			_aoe_damage_trees_in_radius(bomb_pos, radius * 0.55, float(values.get("power", 0.0)) / bomb_count)
+	)
 
 
 ## Slag's Eruption: Magmus's volcanic tantrum. Blows the ground apart around the caster with
@@ -3732,14 +3819,21 @@ func _cast_ability_stump_overgrowth(data: Dictionary, values: Dictionary, _rank:
 	var origin := global_position
 	_cast_ability_zone_channel(data, values)
 	print("[player] stump_overgrowth post-channel frame=%d" % Engine.get_process_frames())
-	# Overgrowth roots enemies inside while the forest eats them.
+	# HoN Treant's Overgrowth: roots erupt and LOCK enemies in place (true root,
+	# not a slow) while the forest drains them. Enemies are immobile for the root
+	# duration — they cannot dodge, dash, or blink out.
+	var root_duration := 2.8
 	get_tree().create_timer(0.35).timeout.connect(func() -> void:
 		if not is_inside_tree():
 			return
 		for target in _enemies_in_radius(origin, float(values.radius) * 0.7):
 			_damage_enemy(target, float(values.get("power", 30.0)) * 0.5)
-			if target.has_method("apply_slow"):
-				target.apply_slow(0.45, 2.5)
+			# True root: movement lock (distinct from a slow — the enemy cannot
+			# move at all while rooted, matching HoN's Treant Overgrowth).
+			if target.has_method("apply_movement_lock"):
+				target.apply_movement_lock(root_duration)
+			elif target.has_method("apply_slow"):
+				target.apply_slow(0.1, root_duration)
 	)
 
 
@@ -4110,6 +4204,38 @@ func _spawn_sky_bolt_vfx(center: Vector2, impact_radius: float) -> void:
 	_spawn_ability_zone_pulse(center, maxf(impact_radius, 40.0), 0.5)
 
 
+## Tempest Call (Arclight R): a full storm of sky-bolts. Spawns 5 staggered
+## lightning bolts across the blast zone, each with its own jagged fall from the
+## sky, so the ult clearly reads as "lightning raining from the heavens" rather
+## than a single bolt. Staggered timing keeps it visually distinct from a single
+## _spawn_sky_bolt_vfx.
+func _spawn_tempest_storm(center: Vector2, impact_radius: float) -> void:
+	if not is_inside_tree():
+		return
+	var bolt_count := 5
+	var spread := impact_radius * 1.6
+	for i in bolt_count:
+		# Spread strike points in a rough ring around the centre.
+		var ang := TAU * float(i) / float(bolt_count) + 0.4
+		var dist := (impact_radius * 0.45) * (0.5 + 0.5 * absf(sin(ang * 1.7)))
+		var strike := center + Vector2.from_angle(ang) * dist
+		var delay := float(i) * 0.12
+		# Capture values for the deferred callback.
+		var captured_strike := strike
+		var captured_radius := maxf(impact_radius * 0.35, 50.0)
+		get_tree().create_timer(delay).timeout.connect(func() -> void:
+			if not is_inside_tree():
+				return
+			# Jagged bolt from far above down to the strike point.
+			var top := captured_strike + Vector2(0.0, -captured_radius * 4.0)
+			var jag1 := captured_strike + Vector2(randf_range(-24.0, 24.0), -captured_radius * 1.6)
+			var jag2 := captured_strike + Vector2(randf_range(-30.0, 30.0), -captured_radius * 0.8)
+			var points := PackedVector2Array([top, jag1, jag2, captured_strike])
+			ability_cast.emit(_casting_ability_id, PlayerClass.EffectStyle.BOLT, points)
+			_spawn_ability_zone_pulse(captured_strike, captured_radius, 0.5)
+		)
+
+
 ## NEW hero↔tree interaction: fire-themed heroes ignite trees inside `radius` of
 ## `center`, lightning/storm-themed heroes char (burn) trees in the same band.
 ## Trees have a shared API on the arena: ignite_tree(pos). Returns the number of
@@ -4305,6 +4431,11 @@ func _cast_ability_radius_burst(data: Dictionary, values: Dictionary) -> void:
 		if _casting_ability_id == "arclight_ion_storm" and _arclight_charge_left_a <= 0:
 			return
 		_spawn_sky_bolt_vfx(center, float(values.get("radius", 0.0)))
+		# Tempest Call (R): a STORM of sky-bolts, each splitting into arcs — the
+		# signature "lightning from the sky" ult. Spawn 5 staggered bolts across
+		# the blast zone so it clearly reads as a tempest, not one bolt.
+		if _casting_ability_id == "arclight_thundergods_wrath":
+			_spawn_tempest_storm(center, float(values.get("radius", 0.0)))
 		# T3.95: Static Storm (Ion Storm) is a PERSISTENT electric field — a zone that
 		# stays for a long time, electrocutes (slow damage ticks) and slows enemies inside.
 		if _casting_ability_id == "arclight_ion_storm":
