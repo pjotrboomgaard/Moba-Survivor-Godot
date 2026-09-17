@@ -1,0 +1,14 @@
+{
+  "hero": "willow",
+  "comment": "In-game verify: Willow's Forsaken Shot now pierces multiple enemies in its path (HoN-faithful piercing arrow).",
+  "events": [
+    {"t": 0.5, "kind": "snap", "label": "ingame_before"},
+    {"t": 1.0, "kind": "spawn", "at": [250, -60], "type": "grunt", "hp_mult": 0.5},
+    {"t": 1.1, "kind": "spawn", "at": [350, -40], "type": "grunt", "hp_mult": 0.5},
+    {"t": 1.2, "kind": "spawn", "at": [450, -20], "type": "grunt", "hp_mult": 0.5},
+    {"t": 1.4, "kind": "aim", "at": [500, -20]},
+    {"t": 1.6, "kind": "cast", "slot": 1},
+    {"t": 2.2, "kind": "snap", "label": "ingame_forsaken_pierce"},
+    {"t": 3.5, "kind": "report"}
+  ]
+}

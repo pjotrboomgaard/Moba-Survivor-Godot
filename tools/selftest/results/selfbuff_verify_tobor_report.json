@@ -1,0 +1,54 @@
+{
+  "effects": [],
+  "elapsed": 3.00535666666666,
+  "enemies_spawned": 1,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 1,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 2.09588315151515
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 6,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": [
+    {
+      "label": "before",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5050/before_0.503_5050.png",
+      "t": 0.503290575757576
+    },
+    {
+      "label": "jolt_hit",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6337/jolt_hit_1.802_6337.png",
+      "t": 1.80151515151515
+    }
+  ]
+}

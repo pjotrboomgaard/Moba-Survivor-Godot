@@ -3457,9 +3457,13 @@ func _cast_ability_rime_ice_imprisonment(data: Dictionary, values: Dictionary, _
 	var target := _nearest_enemy_in_range(reach)
 	if target == null:
 		return
-	# Ice Imprisonment: hard-freeze the target with a long lingering slow.
-	if target.has_method("apply_slow"):
-		target.apply_slow(0.25, 3.5)
+	# HoN-faithful Ice Imprisonment: fully imprison the target (root, not just slow).
+	# The target is trapped in an ice block and cannot move for the duration.
+	var imprison_duration := 3.5
+	if target.has_method("apply_movement_lock"):
+		target.apply_movement_lock(imprison_duration)
+	elif target.has_method("apply_slow"):
+		target.apply_slow(0.1, imprison_duration)
 	# Splash chill to nearby enemies too — Glacius's ice always spreads.
 	for enemy in _enemies_in_radius(target.global_position, 140.0):
 		if enemy == target:
@@ -3637,20 +3641,27 @@ func _cast_ability_thorn_toxin_ward(data: Dictionary, values: Dictionary, _rank:
 
 
 ## Willow's Forsaken Shot: a single perfect arrow that crosses the WHOLE field, piercing
-## everything in its path. Forsaken Archer's legendary one-shot — reads as a long nuke
-## with a wider effective radius and no chain.
+## everything in its path. HoN-faithful: the arrow is a PIERCING LINE — it damages every
+## enemy within a corridor from the caster to the aim point, not just the one target.
+## The arrow keeps full power down the corridor (Forsaken's signature one-shot reach).
 func _cast_ability_willow_forsaken_shot(data: Dictionary, values: Dictionary, _rank: int) -> void:
-	var v := values.duplicate()
-	v.radius = 60.0
 	var shot := data.duplicate()
 	shot["_forsaken_shot"] = true
 	var reach := maxf(float(values.get("range", 700.0)), 600.0)
 	var primary := _nearest_enemy_in_range(reach)
-	var center := primary.global_position if primary != null else _ability_aim_center(reach)
-	_spawn_ability_projectile(_casting_ability_id, global_position, center)
-	for target in _enemies_in_radius(center, v.radius):
-		_apply_ability_hit(target, shot, v)
-	_emit_ability_cast(PackedVector2Array([center, Vector2(v.radius, 0.0)]))
+	var end := primary.global_position if primary != null else _ability_aim_center(reach)
+	var pierce_radius := 55.0
+	_spawn_ability_projectile(_casting_ability_id, global_position, end)
+	# Piercing corridor: every enemy within `pierce_radius` of the caster->end segment
+	# takes the hit. This replicates HoN's Forsaken arrow threading the whole enemy line.
+	var segment_a := global_position
+	var segment_b := end
+	for target in _all_enemies():
+		var dist := _distance_to_segment((target as Node2D).global_position, segment_a, segment_b)
+		if dist <= pierce_radius:
+			_apply_ability_hit(target, shot, values)
+	# Emit the VFX along the full pierce path so it reads as a long arrow.
+	_emit_ability_cast(PackedVector2Array([global_position, end, Vector2(pierce_radius, 0.0)]))
 
 
 ## Stump's Camouflage: Keeper's ability to settle unnoticed. Makes the hero such poor news
@@ -3944,10 +3955,14 @@ func _cast_ability_volt_typhoon(data: Dictionary, values: Dictionary, _rank: int
 func _cast_ability_nebula_chronofield(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	var origin := global_position
 	_cast_ability_zone_channel(data, values)
-	# Chronofield roots caught enemies — time stands still.
+	# HoN-faithful Chronofield: enemies caught inside are TIME-FROZEN (movement lock,
+	# not just a slow). Chronos literally stops time for them.
+	var freeze_dur := minf(float(values.get("duration", 2.5)), 3.0)
 	for enemy in _enemies_in_radius(origin, float(values.get("radius", 380.0))):
-		if enemy.has_method("apply_slow"):
-			enemy.apply_slow(0.3, 2.5)
+		if enemy.has_method("apply_movement_lock"):
+			enemy.apply_movement_lock(freeze_dur)
+		elif enemy.has_method("apply_slow"):
+			enemy.apply_slow(0.1, freeze_dur)
 
 
 ## Astral's As One: Empath's ultimate — pour your courage into the party. Massive heal AND
@@ -5560,6 +5575,25 @@ func _enemies_in_radius(center: Vector2, radius: float) -> Array[Node2D]:
 		if center.distance_squared_to((candidate as Node2D).global_position) <= radius_sq:
 			found.append(candidate as Node2D)
 	return found
+
+
+## All damageable enemies (no radius filter) — for piercing / line-based abilities.
+func _all_enemies() -> Array[Node2D]:
+	var found: Array[Node2D] = []
+	for candidate in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(candidate) or not candidate is Node2D:
+			continue
+		if candidate.has_method("is_damageable") and not candidate.is_damageable():
+			continue
+		found.append(candidate as Node2D)
+	return found
+
+
+## Distance from point P to the segment AB (for piercing / line-of-sight corridor checks).
+func _distance_to_segment(p: Vector2, a: Vector2, b: Vector2) -> float:
+	var ab := b - a
+	var t := clampf((p - a).dot(ab) / ab.length_squared(), 0.0, 1.0)
+	return p.distance_to(a + ab * t)
 
 
 ## Rift Clash: everything worth hitting. Enemies and rival-team players share "hostile"
