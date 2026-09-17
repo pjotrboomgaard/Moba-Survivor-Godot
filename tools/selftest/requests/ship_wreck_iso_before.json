@@ -1,0 +1,6 @@
+{
+  "comment": "T4.8 isolated BEFORE marker request: the scene reads the marker file user://shipwreck_before (staged by the runner) to capture the empty-world baseline with NO ship wreck present.",
+  "events": [
+    {"t": 0.5, "kind": "report"}
+  ]
+}

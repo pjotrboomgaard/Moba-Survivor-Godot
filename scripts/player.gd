@@ -64,6 +64,11 @@ const HERO_FOOT_ANCHOR: Dictionary = {
 }
 ## Reference feet anchor (Tobor = the ground line every hero aligns to).
 const _REF_FOOT_ANCHOR := 11.0
+## Tobor's procedurally-composed art (32px canvas) ends ~4px above the texture's
+## bottom edge (the hoverboard base sits at row 27, leaving rows 28-31 blank).
+## With centered=true this makes tobor float above the ground line, so we add a
+## fixed downward nudge (in pre-scale texture px) to seat the feet on the ground.
+const TOBOR_GROUND_NUDGE := 6.0
 
 
 func _hero_feet_offset() -> float:
@@ -533,6 +538,125 @@ func apply_class(next_class_id: String) -> void:
 	queue_redraw()
 
 
+## T4.11 (2026-09-17): heroes this player has bought in the character shop this
+## run, plus the hero they started the run as. Used to gate "EQUIP" vs "BUY".
+var owned_heroes: Array[String] = []
+
+func refresh_owned_heroes() -> void:
+	if not owned_heroes.has(class_id):
+		owned_heroes.append(class_id)
+
+
+## T4.11 (2026-09-17): buy a hero for HERO_BUY_COST gold. Deducts gold and marks
+## the hero owned. Does NOT switch — call switch_hero() to equip.
+const HERO_BUY_COST := 2000
+func buy_hero(hero_class_id: String) -> bool:
+	if simulation_mode == SimulationMode.PROXY:
+		return false
+	var target := PlayerClass.sanitize_id(hero_class_id)
+	if owned_heroes.has(target):
+		return true
+	if gold < HERO_BUY_COST:
+		return false
+	gold -= HERO_BUY_COST
+	if not owned_heroes.has(target):
+		owned_heroes.append(target)
+	gold_changed.emit(gold)
+	return true
+
+
+func is_hero_owned(hero_class_id: String) -> bool:
+	var target := PlayerClass.sanitize_id(hero_class_id)
+	return owned_heroes.has(target)
+
+
+## T4.11 (2026-09-17): switch to a different hero mid-run, carrying over every
+## earned upgrade, shop stack, gold, level, XP and synergy — but applying the NEW
+## hero's base attributes / abilities / kit. This is what the character shop's
+## "switch to <hero>" buttons call. All stat bonuses that were applied on top of
+## the old hero's base (from level-up upgrades + shop items) are re-applied on top
+## of the new hero's base, so nothing the player earned is lost.
+func switch_hero(next_class_id: String) -> void:
+	if simulation_mode == SimulationMode.PROXY:
+		return
+	var target := PlayerClass.sanitize_id(next_class_id)
+	if target == class_id:
+		return
+	# Snapshot everything that must survive the hero change.
+	var saved_gold := gold
+	var saved_gold_mult := gold_multiplier
+	var saved_level := level
+	var saved_xp := current_xp
+	var saved_xp_req := xp_required
+	var saved_taken := taken_upgrades.duplicate()
+	var saved_synergies := _granted_synergies.duplicate()
+	var saved_upgrades_by_level := level_upgrades.duplicate(true)
+	var saved_stacks := shop_stacks.duplicate(true)
+	var saved_regen := health_regen_per_second
+	var saved_thorns := thorns_ratio
+	var saved_pierce := resistance_pierce
+	var saved_ember_dps := ember_damage_per_second
+	var saved_knockback := knockback_strength
+	var saved_pickup_bonus := pickup_radius_bonus
+	var saved_jetpack := jetpack_slam
+	var saved_skate := skate_speed_bonus
+	var saved_board_jump := board_jump
+	var saved_water_walk := water_walk
+	var saved_grab := grab_radius
+	var saved_base_hp := health.max_health - _base_max_health_for_class(class_id)
+	var saved_dmg_mult := base_damage_taken_multiplier
+
+	# 1) Switch the hero: apply the new class's full base attributes + abilities.
+	apply_class(target)
+
+	# 2) Re-apply everything that was earned on top of the old base.
+	#    (apply_class reset all these to the new class's base values.)
+	gold = saved_gold
+	gold_multiplier = saved_gold_mult
+	level = saved_level
+	current_xp = saved_xp
+	xp_required = saved_xp_req
+	taken_upgrades = saved_taken.duplicate()
+	_granted_synergies = saved_synergies.duplicate()
+	level_upgrades = saved_upgrades_by_level.duplicate(true)
+	shop_stacks = saved_stacks.duplicate(true)
+	health_regen_per_second = saved_regen
+	thorns_ratio = saved_thorns
+	resistance_pierce = saved_pierce
+	ember_damage_per_second = saved_ember_dps
+	knockback_strength = saved_knockback
+	pickup_radius_bonus = saved_pickup_bonus
+	jetpack_slam = saved_jetpack
+	skate_speed_bonus = saved_skate
+	board_jump = saved_board_jump
+	water_walk = saved_water_walk
+	grab_radius = saved_grab
+	# Re-layer the accumulated max-HP bonus onto the new hero's base HP.
+	health.max_health = _base_max_health_for_class(target) + saved_base_hp
+	base_damage_taken_multiplier = saved_dmg_mult
+	health.damage_taken_multiplier = saved_dmg_mult * _ability_damage_taken_factor
+	# Keep the same fraction of HP the player had before the switch.
+	var prev_frac := clampf(health.current_health / maxf(1.0, health.max_health), 0.0, 1.0)
+	health.current_health = health.max_health * prev_frac
+	health.is_dead = false
+	health.health_changed.emit(health.current_health, health.max_health)
+	# Re-emit the signals so HUD / network resync.
+	gold_changed.emit(gold)
+	xp_changed.emit(current_xp, xp_required, level)
+	_apply_sprite()
+	queue_redraw()
+
+
+## The hero's BASE max health (before any upgrades), so a hero switch can re-layer
+## the accumulated HP bonus on top of the new hero's base instead of stacking.
+func _base_max_health_for_class(class_id: String) -> float:
+	var data := PlayerClass.by_id(class_id)
+	var base := float(data.max_health)
+	if GameRuntime.is_ffa():
+		base *= GameRuntime.FFA_HEALTH_MULT
+	return base
+
+
 ## ---- Boss-form (takeover) state -----------------------------------------------------------
 
 func is_in_boss_form() -> bool:
@@ -934,7 +1058,7 @@ func _paint_tobor_sprite() -> void:
 	if sprite == null:
 		return
 	var walk_frame := 0
-	var hop := 0.0
+	var hop := TOBOR_GROUND_NUDGE
 	if skate_speed_bonus <= 0.0 and _tobor_walk_phase > 0.0:
 		walk_frame = 1 + int(floor(_tobor_walk_phase)) % 2
 		hop = -sin(fmod(_tobor_walk_phase, 1.0) * PI) * 10.0

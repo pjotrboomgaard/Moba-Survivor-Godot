@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/ship_wreck_iso/ship_wreck_iso.gd" id="1"]
+
+[node name="ShipWreckIso" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, -80)
+zoom = Vector2(0.55, 0.55)
+enabled = true

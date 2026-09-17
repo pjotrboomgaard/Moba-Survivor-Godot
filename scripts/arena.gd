@@ -540,6 +540,9 @@ func clear_editable_props() -> void:
 	for child in get_children():
 		if child.is_in_group("world_feature"):
 			child.free()
+	for child in get_children():
+		if child is MinigameTrigger:
+			child.free()
 
 
 func apply_saved_level(data: Dictionary) -> void:
@@ -574,6 +577,17 @@ func apply_saved_level(data: Dictionary) -> void:
 			String(entry.get("sprite", "")),
 			String(entry.get("hint", ""))
 		)
+	for entry in data.get("minigames", []):
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var mp: Array = entry.get("pos", [0.0, 0.0])
+		var trig := MinigameTrigger.new()
+		trig.minigame_index = int(entry.get("index", 0))
+		trig.display_name = str(entry.get("name", "Minigame"))
+		var accent_hex := str(entry.get("accent", "8fae6a"))
+		trig.accent = Color(accent_hex)
+		add_child(trig)
+		trig.global_position = Vector2(float(mp[0]), float(mp[1]))
 	# The saved level now includes the full procedural scatter (trees, rocks,
 	# grass tufts) plus any user-placed props. If the saved level was authored
 	# before the dense ground-cover scatter was enabled, it may be sparse. To
@@ -1155,9 +1169,10 @@ func _build_field() -> void:
 	_plant_zone_props()
 	_scatter_ground_cover()
 	_clear_crater_props()
-	var shop_stand := SHOP_STAND_SCENE.instantiate() as Node2D
-	shop_stand.global_position = shop_stand_position()
-	add_child(shop_stand)
+	# T4.6 (2026-09-17): the standalone SUPERMERCATOR stand was removed. The shop is
+	# now the crashed-ship wreck in the crater, spawned by main.gd on impact
+	# (ShipWreck). Its interact point is Arena.shop_stand_position() (crater centre)
+	# for proximity/interact logic — no more standalone stand node.
 	# Solid void for the water / lava / pit between pads so bodies can't leave the pads.
 	_build_void_bodies()
 	_spawn_teleporters()
@@ -2389,6 +2404,23 @@ func _add_obstacle(world_position: Vector2, type_data: Dictionary) -> void:
 func register_obstacle(obstacle: Obstacle) -> void:
 	if obstacle != null and not obstacles.has(obstacle):
 		obstacles.append(obstacle)
+
+
+## Test hook (2026-09-16): place a blocking rock obstacle at a world position so
+## in-game tests can create a deterministic wall for creep-unstuck verification.
+## The rock is a real Obstacle node with collision, so creeps must path around it.
+func place_test_obstacle(world_position: Vector2, sprite_id: String = "rock_large", radius: float = 30.0) -> Obstacle:
+	var o := OBSTACLE_SCENE.instantiate() as Obstacle
+	if o == null:
+		push_error("[Arena] place_test_obstacle: OBSTACLE_SCENE null")
+		return null
+	o.global_position = world_position
+	add_child(o)
+	o.configure(sprite_id, radius, PIXEL_ZOOM, 3.0)
+	o.add_to_group("obstacles")
+	o.add_to_group("obstacle_" + sprite_id)
+	register_obstacle(o)
+	return o
 
 
 func unregister_obstacle(obstacle: Obstacle) -> void:

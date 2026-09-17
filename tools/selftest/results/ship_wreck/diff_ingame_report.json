@@ -1,0 +1,15 @@
+{
+  "before": "tools\\selftest\\results\\ship_wreck\\ingame_before.png",
+  "after": "tools\\selftest\\results\\ship_wreck\\ingame_unlocked.png",
+  "out": "tools\\selftest\\results\\ship_wreck\\diff_ingame.png",
+  "changed_pixels": 1247143,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.601439,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

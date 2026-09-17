@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\ship_wreck\\iso_crash.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.2265,
+  "bounding_box": [
+    539,
+    276,
+    1380,
+    935
+  ],
+  "coverage": 0.268,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2085,
+    "TR": 0.2057,
+    "BL": 0.2935,
+    "BR": 0.2923
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\ship_wreck\\thumb_iso_crash.png"
+}

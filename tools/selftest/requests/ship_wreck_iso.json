@@ -1,0 +1,6 @@
+{
+  "comment": "T4.8 isolated: 5-part crashed-ship wreck — collision gaps + tree-like depth sort. Marker file user://shipwreck_before selects the BEFORE (empty world) capture; run without the marker for the AFTER (wreck + morph) capture.",
+  "events": [
+    {"t": 0.5, "kind": "report"}
+  ]
+}

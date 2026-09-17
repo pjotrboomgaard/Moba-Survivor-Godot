@@ -7,6 +7,11 @@ const RunSave := preload("res://scripts/run_save.gd")
 signal upgrade_chosen(upgrade_id: String)
 signal ability_chosen(ability_id: String)
 signal shop_item_chosen(item_id: String)
+## T4.9 (2026-09-17): player pressed the "Repurpose" button on the locked ship
+## wreck to unlock the shop for 1500 gold.
+signal repurchase_requested
+## T4.11 (2026-09-17): player bought / switched to a hero in the character shop.
+signal hero_buy_requested(hero_class_id: String)
 signal shop_closed
 signal restart_requested
 signal leave_requested
@@ -45,6 +50,17 @@ const UPGRADE_ICON_MAX_WIDTH := 28
 @onready var shop_gold_label: Label = $ShopPanel/ShopLayout/ShopGold
 @onready var shop_grid: GridContainer = $ShopPanel/ShopLayout/ShopGrid
 @onready var shop_continue: Button = $ShopPanel/ShopLayout/ShopContinue
+
+## T4.9 / T4.11 (2026-09-17): ship-wreck shop state. The wreck starts LOCKED; only
+## the "Repurpose" button is shown until it's bought for 1500 gold. Once unlocked
+## the normal item shop + the character shop appear.
+var _shop_unlocked := false
+## Heroes the player owns (bought in the character shop) for this run.
+var _owned_heroes: Array[String] = []
+var _repurchase_button: Button = null
+var _hero_grid: GridContainer = null
+var _hero_buttons: Dictionary = {}
+var _hero_section_label: Label = null
 @onready var upgrade_panel: PanelContainer = $UpgradePanel
 @onready var offer_title_label: Label = $UpgradePanel/Layout/OfferTitle
 @onready var choice_buttons: Array[Button] = [
@@ -1336,7 +1352,17 @@ func bind_player(player: Player) -> void:
 	show_player_class(player.class_id)
 	if GameRuntime.is_ffa() and player.team_id != "":
 		set_team_health_color(RiftClashManager.team_color(player.team_id))
+	_sync_hero_ownership()
 	_build_shop()
+
+
+## T4.11: mirror the player's owned-hero roster into the HUD so the character shop
+## shows EQUIP for bought heroes and BUY for the rest.
+func _sync_hero_ownership() -> void:
+	_owned_heroes.clear()
+	if bound_player != null:
+		for hero_id in bound_player.owned_heroes:
+			_owned_heroes.append(str(hero_id))
 
 
 func show_player_class(class_id: String) -> void:
@@ -1788,12 +1814,20 @@ func _build_codex_text() -> String:
 
 
 const SHOP_ICON_MAX_WIDTH := 72
+## T4.9: gold cost to repurpose (unlock) the crashed-ship wreck into a working shop.
+const SHOP_REPURPOSE_COST := 1500
+## T4.11: gold cost to buy / switch to a different hero in the character shop.
+const HERO_BUY_COST := 2000
 
 func _build_shop() -> void:
 	for child in shop_grid.get_children():
 		shop_grid.remove_child(child)
 		child.free()
 	shop_buttons.clear()
+	if _hero_grid != null and is_instance_valid(_hero_grid):
+		_hero_grid.queue_free()
+		_hero_grid = null
+	_hero_buttons.clear()
 	var class_id := bound_player.class_id if bound_player != null else PlayerClass.DEFAULT_CLASS_ID
 	for item in ShopCatalog.items_for(class_id):
 		var item_id := str(item.id)
@@ -1808,10 +1842,53 @@ func _build_shop() -> void:
 		shop_buttons[item_id] = button
 
 
+## T4.11: build the scrollable "Characters" section listing every hero. The local
+## hero shows a "SWITCH" action; owned heroes show "EQUIP"; the rest show "BUY".
+func _build_hero_shop() -> void:
+	if _hero_grid == null or not is_instance_valid(_hero_grid):
+		_hero_grid = GridContainer.new()
+		_hero_grid.columns = 3
+		shop_panel.get_child(0).add_child(_hero_grid)
+	_hero_grid.columns = 3
+	for child in _hero_grid.get_children():
+		_hero_grid.remove_child(child)
+		child.free()
+	_hero_buttons.clear()
+	var current_id := bound_player.class_id if bound_player != null else PlayerClass.DEFAULT_CLASS_ID
+	for hero_id in PlayerClass.playable_ids():
+		var button := Button.new()
+		button.custom_minimum_size = Vector2(300.0, 96.0)
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		var tex := SpriteLibrary.texture_for(hero_id)
+		if tex != null:
+			button.icon = tex
+			button.expand_icon = true
+			button.add_theme_constant_override("icon_max_width", 48)
+		button.pressed.connect(_on_hero_shop_pressed.bind(hero_id))
+		_hero_grid.add_child(button)
+		_hero_buttons[hero_id] = button
+
+
 func _refresh_shop() -> void:
 	var gold := bound_player.gold if bound_player != null else 0
 	var class_id := bound_player.class_id if bound_player != null else PlayerClass.DEFAULT_CLASS_ID
 	shop_gold_label.text = "%d GOLD" % gold
+	if not _shop_unlocked:
+		# T4.9: locked shop — hide items, show only the single "Repurpose" button.
+		shop_title.text = "WRECKED SHIP"
+		shop_grid.visible = false
+		if _hero_grid != null:
+			_hero_grid.visible = false
+		if _repurchase_button == null:
+			_repurchase_button = _make_locked_repurchase_button()
+			shop_panel.get_child(0).add_child(_repurchase_button)
+		_refresh_repurchase_button(gold)
+		return
+	# Unlocked: show the normal items + the character shop.
+	shop_title.text = "SUPERMERCATOR"
+	shop_grid.visible = true
+	if _repurchase_button != null and is_instance_valid(_repurchase_button):
+		_repurchase_button.visible = false
 	for item in ShopCatalog.items_for(class_id):
 		var item_id := str(item.id)
 		if not shop_buttons.has(item_id):
@@ -1828,11 +1905,83 @@ func _refresh_shop() -> void:
 		var cap := int(item.max_stacks)
 		button.text = "%s  %d/%d\n%s\n%d gold" % [item_name, stacks, cap, item_description, price]
 		button.disabled = gold < price
+	_refresh_hero_shop(gold)
+
+
+## T4.9: create the big "Repurpose" button shown while the wreck is still locked.
+func _make_locked_repurchase_button() -> Button:
+	var b := Button.new()
+	b.custom_minimum_size = Vector2(520.0, 110.0)
+	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	b.pressed.connect(_on_repurchase_pressed)
+	return b
+
+
+## T4.9: keep the Repurpose button's label / enabled state in sync with the wallet.
+func _refresh_repurchase_button(gold: int) -> void:
+	if _repurchase_button == null:
+		return
+	_repurchase_button.visible = true
+	_repurchase_button.text = "REPURPOSE — UNLOCK SHOP\n%d gold" % SHOP_REPURPOSE_COST
+	_repurchase_button.disabled = gold < SHOP_REPURPOSE_COST
+
+
+## T4.11: refresh the character shop buttons (SWITCH / EQUIP / BUY + affordability).
+func _refresh_hero_shop(gold: int) -> void:
+	if _hero_grid == null or not is_instance_valid(_hero_grid):
+		_build_hero_shop()
+	if _hero_grid == null:
+		return
+	_hero_grid.visible = true
+	var current_id := bound_player.class_id if bound_player != null else PlayerClass.DEFAULT_CLASS_ID
+	for hero_id in _hero_buttons.keys():
+		var button := _hero_buttons[hero_id] as Button
+		var hero_name: String = str(PlayerClass.by_id(hero_id).name)
+		if hero_id == current_id:
+			button.text = "%s\nCURRENT" % hero_name
+			button.disabled = true
+			continue
+		var owned := _owned_heroes.has(hero_id)
+		if owned:
+			button.text = "%s\nEQUIP" % hero_name
+			button.disabled = false
+		else:
+			button.text = "%s\nBUY — %d gold" % [hero_name, HERO_BUY_COST]
+			button.disabled = gold < HERO_BUY_COST
 
 
 func _on_shop_item_pressed(item_id: String) -> void:
 	AudioService.play("ui_click")
 	shop_item_chosen.emit(item_id)
+
+
+## T4.9: the locked shop's Repurchase button was pressed.
+func _on_repurchase_pressed() -> void:
+	AudioService.play("ui_click")
+	repurchase_requested.emit()
+
+
+## T4.11: a character-shop button was pressed. main.gd decides buy vs switch.
+func _on_hero_shop_pressed(hero_id: String) -> void:
+	AudioService.play("ui_click")
+	hero_buy_requested.emit(hero_id)
+
+
+## T4.9: called by main.gd after the repurchase succeeds so the HUD flips to the
+## unlocked shop view.
+func mark_shop_unlocked() -> void:
+	_shop_unlocked = true
+	if _repurchase_button != null and is_instance_valid(_repurchase_button):
+		_repurchase_button.queue_free()
+		_repurchase_button = null
+	_refresh_shop()
+
+
+## T4.11: register a hero as owned (after a successful purchase).
+func add_owned_hero(hero_id: String) -> void:
+	if not _owned_heroes.has(hero_id):
+		_owned_heroes.append(hero_id)
+	_refresh_shop()
 
 
 func _on_shop_continue_pressed() -> void:

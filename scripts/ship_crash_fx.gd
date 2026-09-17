@@ -28,11 +28,29 @@ var _explosion_done := false
 var _explosion_t := 0.0
 var _on_impact: Callable = Callable()
 var _explosion: Node2D = null
+## Start angle of the dive in radians (0 = horizontal right; PI/2 = straight down).
+## main.gd passes a steep angle so the ship plunges from the top of the screen.
+var start_angle := PI / 2.0
 
-## Total travel time in seconds (faster = shorter).
-var travel_time := 1.6
+## Total travel time in seconds. A touch longer so the plunge reads as a slow,
+## helpless tumble rather than a flicker.
+var travel_time := 1.9
 ## How far off-screen the ship starts (relative to map half-extents).
 const START_FACTOR := 1.4
+## T4.7b (2026-09-17): dramatic crash tuning — the ship dives in steep from the
+## top of the screen, tumbles end-over-end as it falls, and detonates much bigger.
+const TUMBLE_SPIN := 9.42   # ~1.5 full rotations over the fall
+const IMPACT_SCALE_BOOST := 2.6
+
+## T4.7 (2026-09-17): use the imported Tobor-ship PNG instead of the procedural
+## pixel-art ship. The PNG is a large 1024×1024 artwork of the crashed ship; we
+## draw it (scaled) during flight and on impact, replacing _draw_ship().
+const SHIP_SPRITE_PATH := "res://SpritesImport/toborship/ElevenLabs_image_gpt-image-2_make it like th_2026-09-16T20_03_12.png"
+var _ship_sprite: Sprite2D = null
+var _ship_tex: Texture2D = null
+## How large to render the imported ship artwork in world units. Larger = more
+## dramatic, clearly-readable crash even at the full-map overhead zoom.
+const SHIP_RENDER_WIDTH := 680.0
 
 
 func _ready() -> void:
@@ -41,6 +59,19 @@ func _ready() -> void:
 	z_index = 4095
 	visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# Load the imported ship PNG (T4.7).
+	_ship_tex = load(SHIP_SPRITE_PATH) as Texture2D
+	_ship_sprite = Sprite2D.new()
+	_ship_sprite.name = "ShipSprite"
+	_ship_sprite.z_as_relative = false
+	_ship_sprite.z_index = 4095
+	_ship_sprite.visible = false
+	if _ship_tex != null:
+		var s := SHIP_RENDER_WIDTH / float(_ship_tex.get_width())
+		_ship_sprite.scale = Vector2(s, s)
+		# Centre the sprite so its origin is at the ship's visual centre; the
+		# landed wreck will sit "slightly above middle" via the impact offset.
+	add_child(_ship_sprite)
 
 
 ## Kick off the crash. `start` is the off-screen entry point, `target` the impact
@@ -69,18 +100,29 @@ func _process(delta: float) -> void:
 		# Travel: fast, eased slightly so it accelerates into impact.
 		_t += delta
 		var p := clampf(_t / travel_time, 0.0, 1.0)
-		var eased := p * p * (3.0 - 2.0 * p)  # smoothstep — accelerates then eases
+		# Steep dive + accelerate into impact: ease-in (p^2.2) so the ship lingers
+		# briefly at the top then plunges fast — reads as a real crash, not a
+		# slow glide.
+		var eased := pow(p, 2.2)
 		_pos = _start.lerp(_target, eased)
 		# Wobble: small sinusoidal offset that grows as it approaches.
 		var wobble := sin(_t * 14.0) * (6.0 + p * 10.0)
 		global_position = _pos + Vector2(0.0, wobble) * 0.5 + Vector2(wobble * 0.4, 0.0)
+		# Tumble end-over-end as it falls: spin over the whole travel.
+		rotation = TUMBLE_SPIN * p
+		if _ship_sprite != null:
+			_ship_sprite.visible = true
 		queue_redraw()
 		if p >= 1.0:
 			_explode()
 	else:
+		# T4.7: hide the ship sprite at the moment of impact — the explosion
+		# takes over, and the persistent wreck is handled by the ShipWreck node.
+		if _ship_sprite != null:
+			_ship_sprite.visible = false
 		# Explosion: hold the shockwave for a beat, then finish.
 		_explosion_t += delta
-		if _explosion_t >= 1.8:
+		if _explosion_t >= 3.0:
 			active = false
 			visible = false
 			_explosion_done = true
@@ -104,7 +146,10 @@ func _draw() -> void:
 	if not active:
 		return
 	if not _exploded:
-		_draw_ship()
+		# T4.7: the ship is now drawn by the Sprite2D child (imported PNG), so
+		# nothing is painted here during flight. Keep the hook for the fallback.
+		if _ship_sprite == null:
+			_draw_ship()
 	else:
 		_draw_explosion()
 
@@ -170,14 +215,16 @@ func _draw_explosion() -> void:
 	var t := _explosion_t
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4242
+	# T4.7b: bigger impact — scale the whole explosion up.
+	var base := 440.0 * IMPACT_SCALE_BOOST
 	if t <= 0.55:
 		# Phase A — the chunky starburst pops open.
 		var p := t / 0.55
-		# Fast pop with a slight overshoot (expand to ~1.1 then settle).
+		# Fast pop with a slight overshoot (expand to ~1.15 then settle).
 		var open := clampf(1.0 - (1.0 - p) * (1.0 - p) * 3.0, 0.0, 1.0)
-		var overshoot := 1.0 + 0.12 * sin(p * PI)
+		var overshoot := 1.0 + 0.18 * sin(p * PI)
 		var fl := 1.0 + 0.05 * sin(t * 55.0)   # subtle flame flicker
-		var outer := 440.0 * (0.3 + 0.7 * open) * overshoot * fl
+		var outer := base * (0.3 + 0.7 * open) * overshoot * fl
 		# Layers, outer (dark) -> inner (white-hot). Each is a jagged star polygon
 		# with slightly different rotation so the silhouettes don't line up.
 		_explosion_star(outer, 0.62, 18, 13, Color(0.30, 0.03, 0.02, 1.0))
@@ -208,7 +255,7 @@ func _draw_explosion() -> void:
 		var bt := t - 0.55
 		var expand := bt / 1.25
 		var a := clampf(1.0 - expand, 0.0, 1.0)
-		var outer := 440.0 * (1.0 + expand * 2.2)
+		var outer := base * (1.0 + expand * 2.2)
 		var cA := Color(0.85, 0.12, 0.04, a * 0.55)
 		var cO := Color(1.0, 0.45, 0.08, a * 0.4)
 		_explosion_star(outer, 0.6, 16, 5, cA)

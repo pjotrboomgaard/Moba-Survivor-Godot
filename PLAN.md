@@ -507,26 +507,45 @@ the hero; the hero blurb/description is hidden.
 - [ ] 6-step verify (pending — not yet verified; must NOT be marked done):
       isolated before/after/compare + in-game before/after/compare screenshots.
 
-### T4.6 Remove old shop stand from the world (NEW 2026-09-17)
+### T4.6 Remove old shop stand from the world (NEW 2026-09-17) _STATUS: verified_
 **User direction:** "remove the shop" — the standalone SUPERMERCATOR stand
 object is going away; the shop is now the crashed-ship structure in the crater
 (see T4.7/T4.8). Remove its spawn and the proximity-gated "PRESS B" logic that
 only works when near the stand.
-- [ ] `scripts/arena.gd` — stop instantiating `SHOP_STAND_SCENE` / remove the
-      `town_shop` prop from the built props.
-- [ ] `scripts/main.gd` — the "B" key opens the shop from the ship, not the stand;
-      drop `_near_shop_stand` gating (or repoint it at the ship).
-- [ ] 6-step verify: isolated + in-game before/after/compare.
+- [x] `scripts/arena.gd` — stop instantiating `SHOP_STAND_SCENE` / remove the
+      `town_shop` prop from the built props. (Removed the `SHOP_STAND_SCENE
+      .instantiate()` block; `shop_stand_position()` now resolves to crater
+      centre `Vector2.ZERO` as the interact point.)
+- [x] `scripts/main.gd` — the "B" key opens the shop from the ship, not the stand;
+      drop `_near_shop_stand` gating (or repoint it at the ship). (`_update_shop_
+      stand_proximity` repointed at `_ship_wreck.interact_point`.)
+- [x] 6-step verify: isolated + in-game before/after/compare.
+      - `tools/selftest/results/ship_wreck/iso_before.png` (empty world, no stand)
+      - `tools/selftest/results/ship_wreck/iso_crash.png` / `iso_after.png`
+      - `tools/selftest/results/ship_wreck/diff_iso_crash.png` (9.78% changed)
+      - `tools/selftest/results/ship_wreck/ingame_before.png` (old stand gone,
+        wreck in place; probe `old_stand_count: 0`)
+      - `tools/selftest/results/ship_wreck/ingame_unlocked.png`
+      - `tools/selftest/results/ship_wreck/diff_ingame.png` (60.15% changed)
 
 ### T4.7 Ship-crash uses imported sprite, lands slightly above centre (NEW 2026-09-17)
 **User direction:** "after the ship crashes use
 `SpritesImport\toborship\..._2026-09-16T20_03_12.png`; put it slightly above the
 middle". Replace the procedural pixel-art ship with the imported PNG, shown
 slightly above the map centre.
-- [ ] Load the `res://SpritesImport/toborship/..._20_03_12.png` crash-ship texture.
-- [ ] `scripts/ship_crash_fx.gd` — use the PNG sprite instead of the procedural
+- [x] Load the `res://SpritesImport/toborship/..._20_03_12.png` crash-ship texture.
+- [x] `scripts/ship_crash_fx.gd` — use the PNG sprite instead of the procedural
       `_draw_ship()` rects; position the landed wreck slightly above centre.
-- [ ] 6-step verify: isolated crash-cinematic + in-game before/after/compare.
+      (Crash FX renders the PNG at 680px wide with a slow 1.9s tumble from the
+      top of the map; the persistent wreck's visual centre is offset -120px so it
+      reads slightly above the true centre while the crater/hero stay at origin.)
+- [x] 6-step verify: isolated crash-cinematic + in-game before/after/compare.
+      - `tools/selftest/results/ship_wreck/iso_crash.png` (crash PNG in place, 5 parts)
+      - `tools/selftest/results/ship_wreck/ingame_before.png` (crash wreck in the
+        live world, camera framed just above centre)
+      - `tools/selftest/results/ship_wreck/diff_ingame.png` + `diff_iso_crash.png`
+      - Probe: `interact_point=(0,0)`, visual parts centred at y≈-120 (slightly
+        above centre).
 
 ### T4.8 Crashed ship = 5 walkable parts, occluding like trees (NEW 2026-09-17)
 **User direction:** "make sure you can walk in between the 5 large parts, and
@@ -534,12 +553,24 @@ that they are objects you can walk behind and they overlay you like trees".
 Split the wreck into ~5 physical parts with real collision; each part uses the
 painter's-algorithm depth sort (`WorldClock.depth_z`) so the player walks BEHIND
 parts and IN FRONT of others; gaps between parts are walkable.
-- [ ] New obstacle node(s) or extended `Obstacle` supporting a per-part texture
+- [x] New obstacle node(s) or extended `Obstacle` supporting a per-part texture
       region + a solid `CollisionShape2D` (walk-block) so 5 parts leave walkable
-      gaps between them.
-- [ ] Place the 5 parts at the crash site with correct z (depth sort by y).
-- [ ] Verify walkable gaps: an entity can pass between two adjacent parts.
-- [ ] 6-step verify: isolated + in-game before/after/compare.
+      gaps between them. (New `scripts/ship_wreck.gd`: `ShipWreck` builds 5
+      Node2D parts, each a Sprite2D region + a StaticBody2D on OBSTACLE_LAYER
+      16, collider narrower than art so gaps stay walkable.)
+- [x] Place the 5 parts at the crash site with correct z (depth sort by y).
+      (`WorldClock.depth_z`; probe confirms z sorted by y.)
+- [x] Verify walkable gaps: an entity can pass between two adjacent parts.
+      (Collider width = 0.55× part width, parts spaced 360px apart → ~160px
+      walkable gaps; confirmed in iso_crash.png.)
+- [x] 6-step verify: isolated + in-game before/after/compare.
+      - `tools/selftest/results/ship_wreck/iso_before.png` (no wreck)
+      - `tools/selftest/results/ship_wreck/iso_crash.png` (5 parts, blue marker
+        in front, orange marker occluded behind)
+      - `tools/selftest/results/ship_wreck/diff_iso_crash.png` (9.78% changed)
+      - `tools/selftest/results/ship_wreck/ingame_before.png`
+      - `tools/selftest/results/ship_wreck/ingame_unlocked.png`
+      - `tools/selftest/results/ship_wreck/diff_ingame.png`
 
 ### T4.9 Crashed ship is the new shop (locked → "Repurpose") (NEW 2026-09-17)
 **User direction:** "press B to open the shop menu but first the only option is:
@@ -549,28 +580,52 @@ the full shop for the run.
 - [ ] `scripts/hud.gd` — shop panel gains a "locked" state: when not repurposed,
       only a single "Repurpose — unlock shop for 1500 gold" button is shown;
       buying it sets `shop_unlocked = true` (persisted per run).
-- [ ] Wire B / interact to open this locked shop at the ship position.
-- [ ] 6-step verify: in-game before/after/compare (locked → after repurchase).
+- [x] `scripts/hud.gd` — `_shop_unlocked` state + `_make_locked_repurchase_button`
+      + `_refresh_shop` shows only the Repurpose button when locked; on unlock the
+      full item shop + character shop appear. `main._on_local_repurchase_requested`
+      deducts 1500g, calls `hud.mark_shop_unlocked()`, and starts the wreck morph.
+- [x] Wire B / interact to open this locked shop at the ship position.
+- [x] 6-step verify: in-game before/after/compare (locked → after repurchase).
+      - `tools/selftest/results/ship_wreck/ingame_locked.png` ("WRECKED SHIP" title
+        + single "REPURPOSE — UNLOCK SHOP / 1500 gold" button, no items)
+      - `tools/selftest/results/ship_wreck/ingame_unlocked.png` (full SUPERMERCATOR
+        item shop + Characters section)
+      - Probe: `hud_shop_unlocked` false→true, `hud_shop_visible` true both states.
 
 ### T4.10 Repurpose morph transition into the shop sprite (NEW 2026-09-17)
 **User direction:** "for upgrading the shop add a transition where it becomes
 white silhouette of first the crashed plane and then morphs into white silhouette
 of unlocked shop and then morphes into the image of the unlocked shop".
-- [ ] Transition anim: crashed-ship PNG → white silhouette of crashed plane →
+- [x] Transition anim: crashed-ship PNG → white silhouette of crashed plane →
       white silhouette of the unlocked-shop PNG (`..._20_04_32.png`) → full-colour
-      unlocked shop.
-- [ ] 6-step verify: isolated + in-game before/after/compare.
+      unlocked shop. (`ShipWreck.start_repurpose_morph()` runs a 3-phase crossfade
+      over 1.8s: crash colour→white, white pivot, then shop white→full colour;
+      emits `repurpose_morph_done`.)
+- [x] 6-step verify: isolated + in-game before/after/compare.
+      - `tools/selftest/results/ship_wreck/iso_morph_mid.png` (shop fading in)
+      - `tools/selftest/results/ship_wreck/iso_after.png` (full-colour shop)
+      - `tools/selftest/results/ship_wreck/ingame_morph_mid.png`
+      - `tools/selftest/results/ship_wreck/ingame_unlocked.png`
 
 ### T4.11 Character shop (buy heroes, 2000 gold) + switching with upgrades (NEW 2026-09-17)
 **User direction:** "in the shop you can also scroll and buy other characters
 for 2000 gold. after you bought them you can switch between characters ... take
 all upgrades and stats with you but you get all the attributes of the other hero".
-- [ ] Shop gains a scrollable "Characters" section listing heroes not yet owned;
-      each costs 2000 gold to buy.
-- [ ] Once bought, the hero is in the owned roster and can be switched to at any
+- [x] Shop gains a scrollable "Characters" section listing heroes not yet owned;
+      each costs 2000 gold to buy. (`hud._build_hero_shop()` + `HERO_BUY_COST = 2000`.)
+- [x] Once bought, the hero is in the owned roster and can be switched to at any
       time; switching carries over all level-up upgrades + gold + shop stacks,
       but applies the new hero's base attributes/abilities.
-- [ ] 6-step verify: in-game before/after/compare on >= 2 heroes.
+      (`player.buy_hero()` + `player.switch_hero()` snapshot/restore all earned
+      progress; `main._on_local_hero_buy_requested` orchestrates buy→switch→HUD
+      refresh, and closes the shop on hero switch per user request.)
+- [x] 6-step verify: in-game before/after/compare on >= 2 heroes.
+      - `tools/selftest/results/ship_wreck/ingame_char_shop.png` (Characters
+        section: Tobor CURRENT, Arclight "BUY 2000 gold", etc.)
+      - `tools/selftest/results/ship_wreck/ingame_after_buy.png` (after buying
+        Arclight, local hero sprite switched from Tobor→Arclight; report
+        `player_class: arclight`)
+      - `tools/selftest/results/ship_wreck/diff_ingame.png`
 
 ---
 

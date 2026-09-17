@@ -40,6 +40,9 @@ const GhostWaveSystem := preload("res://scripts/ghost_wave_system.gd")
 var _opening_ship: Node2D = null
 ## True while the opening crash-landing cinematic is playing; wave 1 spawn waits.
 var _opening_cinematic_playing := false
+## T4.8: the persistent crashed-ship wreck (5 walkable parts) that becomes the shop.
+## Spawns at the crater after the opening cinematic lands.
+var _ship_wreck: Node2D = null
 ## Selftest: when true, level-up upgrade/ability offers are held open for screenshots.
 var _freeze_offers := false
 ## One-shot helper so the many `game_over = true` sites can flip the ghost trickle
@@ -222,6 +225,9 @@ func _ready() -> void:
 	hud.upgrade_chosen.connect(_hud_track_upgrade)
 	hud.ability_chosen.connect(_on_local_ability_chosen)
 	hud.shop_item_chosen.connect(_on_local_shop_item_chosen)
+	# T4.9/T4.11: ship-wreck shop — repurchase (unlock) + hero buy/switch.
+	hud.repurchase_requested.connect(_on_local_repurchase_requested)
+	hud.hero_buy_requested.connect(_on_local_hero_buy_requested)
 	hud.shop_closed.connect(_on_local_shop_closed)
 	hud.next_wave_requested.connect(_on_local_next_wave_requested)
 	hud.restart_requested.connect(_on_restart_requested)
@@ -756,6 +762,60 @@ func _on_local_shop_item_chosen(item_id: String) -> void:
 		_apply_shop_purchase(local_player.owner_peer_id, item_id)
 
 
+## T4.9: player pressed "Repurpose" on the locked ship wreck. Costs 1500 gold; on
+## success the wreck morphs into the working shop and the HUD unlocks the full shop.
+func _on_local_repurchase_requested() -> void:
+	var local_player := _local_player()
+	if local_player == null:
+		return
+	if not GameRuntime.is_classic():
+		# Solo run: cut the breather short once the shop is unlocked.
+		pass
+	if local_player.gold >= 1500:
+		local_player.gold -= 1500
+		local_player.gold_changed.emit(local_player.gold)
+		hud.mark_shop_unlocked()
+		# T4.10: morph the wreck into the shop sprite.
+		if _ship_wreck != null and is_instance_valid(_ship_wreck):
+			_ship_wreck.start_repurpose_morph()
+
+
+## T4.11: player clicked a hero in the character shop. If owned -> switch; else
+## try to buy (2000 gold) then switch.
+func _on_local_hero_buy_requested(hero_id: String) -> void:
+	var local_player := _local_player()
+	if local_player == null:
+		return
+	var target := PlayerClass.sanitize_id(hero_id)
+	if target == local_player.class_id:
+		return
+	if local_player.is_hero_owned(target):
+		# Already owned: just switch.
+		local_player.switch_hero(target)
+		hud.show_player_class(target)
+		_refresh_hud_after_hero_switch(local_player)
+		return
+	# Not owned: buy it first.
+	if local_player.buy_hero(target):
+		local_player.switch_hero(target)
+		hud.show_player_class(target)
+		hud.add_owned_hero(target)
+		_refresh_hud_after_hero_switch(local_player)
+		# Close the shop on hero switch (per user request: "when upgrading to
+		# another hero close the shop and morph into the other hero").
+		hud.close_shop()
+
+
+## After a hero switch, resync the HUD's class label / ability bar / codex.
+func _refresh_hud_after_hero_switch(player: Player) -> void:
+	if hud == null:
+		return
+	hud.show_player_class(player.class_id)
+	# Re-sync the ability hint / codex to the new hero's kit.
+	hud._refresh_ability()
+	hud._refresh_ability_bar()
+
+
 ## Only the solo run may cut its own breather short.
 func _on_local_shop_closed() -> void:
 	if GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE:
@@ -774,7 +834,14 @@ func _update_shop_stand_proximity() -> void:
 		if local_player != null:
 			local_player.set_shop_hint_visible(false)
 		return
-	var in_range := local_player.global_position.distance_to(Arena.shop_stand_position()) <= Arena.SHOP_STAND_INTERACT_RADIUS
+	# T4.6: the shop is now the crashed-ship wreck at the crater, not the old
+	# SUPERMERCATOR stand. Interact point sits at the true centre so the player
+	# stands just in front of the wreck. Fall back to the legacy stand position
+	# until the wreck has spawned (opening cinematic not yet finished).
+	var shop_pos: Vector2 = Arena.shop_stand_position()
+	if _ship_wreck != null and is_instance_valid(_ship_wreck):
+		shop_pos = Vector2(_ship_wreck.get("interact_point"))
+	var in_range := local_player.global_position.distance_to(shop_pos) <= Arena.SHOP_STAND_INTERACT_RADIUS
 	if in_range != _near_shop_stand:
 		_near_shop_stand = in_range
 		local_player.set_shop_hint_visible(in_range)
@@ -2896,15 +2963,99 @@ func _on_local_dev_command(command: String) -> void:
 			_apply_dev_command(local_player.owner_peer_id, command)
 
 
+## Test hook: place a MinigameTrigger node in the arena at a world position.
+## Command format: "place_minigame_trigger:<index>:<x>:<y>"
+func _dev_place_minigame_trigger(command: String) -> void:
+	var parts := command.split(":")
+	# parts: ["place_minigame_trigger", "<index>", "<x>", "<y>"]
+	if parts.size() < 4 or not (arena is Node2D):
+		return
+	var idx := int(parts[1])
+	var x := float(parts[2])
+	var y := float(parts[3])
+	var trig := MinigameTrigger.new()
+	trig.name = "DevMinigameTrigger_%d" % int(arena.get_child_count())
+	trig.minigame_index = idx
+	trig.display_name = "DevMinigame"
+	trig.accent = Color("8fae6a")
+	(arena as Node2D).add_child(trig)
+	trig.global_position = Vector2(x, y)
+	print("[main] placed dev MinigameTrigger idx=%d at (%.0f, %.0f)" % [idx, x, y])
+
+
+## Test hook: place a blocking rock obstacle in the arena at a world position.
+## Used by the creep-unstuck in-game test to build a deterministic wall the
+## creep must path around. Format: "place_obstacle:<x>:<y>"
+func _dev_place_obstacle(command: String) -> void:
+	var parts := command.split(":")
+	if parts.size() < 3:
+		return
+	var x := float(parts[1])
+	var y := float(parts[2])
+	if arena == null:
+		return
+	var a := arena as Arena
+	if a == null or not a.has_method("place_test_obstacle"):
+		push_error("[main] _dev_place_obstacle: arena has no place_test_obstacle")
+		return
+	var ob: Obstacle = a.place_test_obstacle(Vector2(x, y), "rock_large", 30.0)
+	if ob != null:
+		print("[main] placed dev obstacle at (%.0f, %.0f)" % [x, y])
+
+
 func _apply_dev_command(peer_id: int, command: String) -> void:
 	# Resolution changes affect the local window, not a specific player entity.
 	if command.begins_with("resolution:"):
 		_apply_resolution_command(command)
 		return
 	# Global commands that don't need a player reference.
+	if command.begins_with("place_minigame_trigger:"):
+		# Test hook: place a MinigameTrigger in the arena. Format:
+		# place_minigame_trigger:<index>:<x>:<y>
+		_dev_place_minigame_trigger(command)
+		return
+	if command.begins_with("place_obstacle:"):
+		# Test hook: place a blocking tree obstacle at a world position.
+		# Format: place_obstacle:<x>:<y>
+		_dev_place_obstacle(command)
+		return
+	# T4.6-T4.10 test hooks: control the crashed-ship wreck state.
+	if command.begins_with("ship_wreck:"):
+		_dev_ship_wreck_command(command)
+		return
+	# T4.11 test hook: buy + switch to a hero directly (bypasses the HUD button).
+	# Format: buy_hero:<class_id>. Deducts gold, marks owned, then switches.
+	if command.begins_with("buy_hero:"):
+		var local := _local_player()
+		if local != null:
+			var target := PlayerClass.sanitize_id(command.trim_prefix("buy_hero:"))
+			if not local.is_hero_owned(target):
+				local.buy_hero(target)
+			local.switch_hero(target)
+			if hud != null:
+				hud.show_player_class(target)
+				hud.add_owned_hero(target)
+		return
 	match command:
 		"freeze_offers":
 			_freeze_offers = true
+			return
+		"rescan_minigames":
+			# Test hook: re-run the MinigameArea layout so it re-reads any
+			# user-placed MinigameTrigger nodes currently in the arena.
+			if _minigame_area != null and _minigame_area.has_method("rescan_triggers"):
+				_minigame_area.call("rescan_triggers")
+			return
+		"spawn_creep_at:":
+			# Test hook: spawn a creep at a world position.
+			# Format: spawn_creep_at:<type>:<x>:<y>
+			_dev_spawn_creep_at(command)
+			return
+		"open_shop":
+			# Test hook: force the local HUD to open the shop panel regardless of
+			# proximity, so the self-test can screenshot the locked/unlocked state.
+			if hud != null and not hud.shop_panel.visible:
+				hud.open_shop(false)
 			return
 	var player := players.get(peer_id) as Player
 	if player == null:
@@ -2928,6 +3079,9 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 				_play_world_flash()
 		"add_gold":
 			player.add_gold(500)
+		"add_3000_gold":
+			# T4.11 test hook: enough gold to buy a hero (2000g) for the char shop.
+			player.add_gold(3000)
 		"skip_wave":
 			_dev_skip_wave()
 		"open_cinematic":
@@ -3446,6 +3600,21 @@ func _dev_spawn_boss() -> void:
 		_spawn_enemy(Vector2.ZERO, boss_id, multiplier)
 
 
+## Test hook: spawn a creep at an exact world position. Format: spawn_creep_at:<type>:<x>:<y>
+func _dev_spawn_creep_at(command: String) -> void:
+	if game_over:
+		return
+	var parts := command.split(":")
+	if parts.size() < 4:
+		return
+	var type_id := parts[1]
+	var x := float(parts[2])
+	var y := float(parts[3])
+	var e := _spawn_enemy_at(Vector2(x, y), type_id, 1.0, 1.0, true)
+	if e != null:
+		print("[main] spawned creep %s at (%.0f, %.0f)" % [type_id, x, y])
+
+
 ## Self-test helper: "resolution:<w>x<h>" or "resolution:fullscreen".
 func _apply_resolution_command(command: String) -> void:
 	if command == "resolution:fullscreen":
@@ -3487,17 +3656,22 @@ func play_opening_cinematic() -> void:
 	var half := Vector2(4800.0, 3400.0)
 	if arena is Arena:
 		half = (arena as Arena).half_extents()
-	var start_pos := Vector2(0.0, -1.4 * half.y)  # enter from far above
+	# T4.7b: start at the very top of the map so the ship visibly plunges down the
+	# screen from the top edge, like a real crash, rather than appearing mid-air.
+	var start_pos := Vector2(0.0, -half.y)
 	_opening_ship = Node2D.new()
 	var ship_script: GDScript = load("res://scripts/ship_crash_fx.gd")
 	_opening_ship.set_script(ship_script)
 	add_child(_opening_ship)
 	# Wait a beat for the zoom-out to start settling, then launch the ship.
-	await get_tree().create_timer(1.0).timeout
+	await get_tree().create_timer(0.8).timeout
 	if not is_instance_valid(_opening_ship):
 		_opening_cinematic_playing = false
 		return
-	_opening_ship.call("play", start_pos, Vector2.ZERO, _on_opening_impact)
+	# T4.7: land the ship slightly above the map middle so the wreck reads a touch
+	# high of centre; the crater + hero stay at the true centre.
+	var impact_pos := Vector2(0.0, -half.y * 0.18)
+	_opening_ship.call("play", start_pos, impact_pos, _on_opening_impact)
 	await _opening_ship.finished
 	_opening_cinematic_playing = false
 	# Restore control now that the ship has landed and the camera is zooming in.
@@ -3509,16 +3683,81 @@ func play_opening_cinematic() -> void:
 	_spawn_initial_wave()
 
 
+## T4.6-T4.10 test hooks: drive the crashed-ship wreck / shop state from the
+## self-test driver so the 6-step pipeline can capture locked -> repurpose ->
+## unlocked morph frames without waiting for the full run.
+##   ship_wreck:spawn        — spawn the wreck in crash state now
+##   ship_wreck:lock         — force crash/locked state
+##   ship_wreck:repurpose    — run the morph transition into the shop sprite
+##   ship_wreck:shop         — force full shop (unlocked) state instantly
+##   ship_wreck:probe        — print wreck state + interact point + part count
+func _dev_ship_wreck_command(command: String) -> void:
+	var sub := command.trim_prefix("ship_wreck:")
+	if sub.begins_with("spawn"):
+		_spawn_ship_wreck()
+		return
+	if _ship_wreck == null or not is_instance_valid(_ship_wreck):
+		push_error("[main] ship_wreck dev command but no wreck spawned: ", sub)
+		return
+	match sub:
+		"lock":
+			_ship_wreck.call("switch_to_crash")
+		"repurpose":
+			_ship_wreck.call("start_repurpose_morph")
+		"shop":
+			_ship_wreck.call("switch_to_shop")
+		"probe":
+			var w: Node2D = _ship_wreck
+			print("[main] ship_wreck_probe state=%s interact=%s parts=%d morph=%.2f pos=%s" % [
+				w.get("current_state"),
+				str(w.get("interact_point")),
+				w.get("_parts").size() if w.get("_parts") != null else -1,
+				float(w.get("morph_progress")),
+				str(w.global_position),
+			])
+		_:
+			push_error("[main] unknown ship_wreck sub-command: ", sub)
+
+
 ## Fire on the ship's impact: reveal the crater, shake, and zoom back in to the hero.
 func _on_opening_impact() -> void:
 	if arena is Arena:
 		(arena as Arena).set_crater_unlocked(true)
 	# T3.50: Reveal hero sprites at the moment of impact.
 	_set_player_sprites_visible(true)
-	_shake_cameras(16.0, 0.6)
+	# T4.7b: much more dramatic impact shake (bigger amplitude, longer duration).
+	_shake_cameras(46.0, 1.4)
+	# T4.8: leave the persistent 5-part crashed-ship wreck at the crater; it is
+	# also the new shop structure (T4.9). Spawned once, on impact.
+	_spawn_ship_wreck()
 	_play_sound("explosion")
 	# Zoom back into the crater where the hero(es) are standing.
 	_transition_zoom_back_to_players()
+
+
+## T4.8: instantiate the persistent 5-part crashed-ship wreck centred at the
+## crater, slightly above the map middle, as a movement-blocking obstacle with
+## tree-style depth occlusion.
+func _spawn_ship_wreck() -> void:
+	if _ship_wreck != null and is_instance_valid(_ship_wreck):
+		return
+	if not GameRuntime.is_dedicated_server():
+		var wreck_script: GDScript = load("res://scripts/ship_wreck.gd")
+		if wreck_script != null:
+			_ship_wreck = Node2D.new()
+			_ship_wreck.set_script(wreck_script)
+			# Spawn as a sibling of the arena so it sorts/depths with world content.
+			if arena != null:
+				arena.add_child(_ship_wreck)
+			else:
+				add_child(_ship_wreck)
+			_ship_wreck.call("place", Vector2.ZERO, "crash", 120.0)
+			_ship_wreck.add_to_group("ship_wreck")
+			# T4.10: when the morph transition finishes, the wreck is a working shop.
+			_ship_wreck.repurpose_morph_done.connect(func():
+				if hud != null:
+					hud.mark_shop_unlocked()
+			)
 
 
 ## Resizes the window and rescales the local player's camera zoom so the visible
@@ -3797,6 +4036,15 @@ func _right_selftest_boot() -> void:
 	driver.name = "SelfTestDriver"
 	add_child(driver)
 	print("[main.gd] SelfTestDriver attached")
+
+	# Creep unstuck in-game driver (2026-09-16).
+	if FileAccess.file_exists("user://creep_unstuck_ingame"):
+		var creeps_scene: PackedScene = load("res://scenes/creep_unstuck_ingame/creep_unstuck_ingame.tscn")
+		if creeps_scene != null:
+			var creeps_driver := creeps_scene.instantiate()
+			creeps_driver.name = "CreepUnstuckInGame"
+			add_child(creeps_driver)
+			print("[main.gd] CreepUnstuckInGame driver attached")
 
 
 func _first_active_player() -> Player:

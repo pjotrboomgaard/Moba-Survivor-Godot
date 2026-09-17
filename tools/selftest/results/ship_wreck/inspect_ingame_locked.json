@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\ship_wreck\\ingame_locked.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.5705,
+  "bounding_box": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2391,
+    "TR": 0.2484,
+    "BL": 0.236,
+    "BR": 0.2765
+  },
+  "edge_fractions": {
+    "top": 0.0033,
+    "bottom": 0.0015,
+    "left": 0.0015,
+    "right": 0.0023
+  },
+  "thumbnail": "tools\\selftest\\results\\ship_wreck\\thumb_ingame_locked.png"
+}

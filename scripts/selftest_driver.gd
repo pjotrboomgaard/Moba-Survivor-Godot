@@ -932,6 +932,10 @@ func _process(delta: float) -> void:
 					var peer_id := int(local.owner_peer_id) if local else 0
 					_host_main._apply_dev_command(peer_id, cmd)
 				_active_effects.append({"kind": "dev_command", "command": cmd, "t": _elapsed})
+			"ship_wreck_probe":
+				# T4.6-T4.10: report the crashed-ship wreck / shop state so a
+				# test can assert spawn/lock/repurpose/unlock + part count.
+				_record_ship_wreck_probe(str(event.get("label", "ship_wreck")))
 			"resolution_probe":
 				_record_resolution_probe(str(event.get("label", "resolution")))
 			"report":
@@ -1615,6 +1619,57 @@ func _record_gun_drone_probe(label: String) -> void:
 					if pos.length_squared() > 1.0:
 						fired = true
 	_active_effects.append({"kind": "gun_drone_probe", "label": label, "t": _elapsed, "beam_fired": fired})
+
+
+## T4.6-T4.10: report the crashed-ship wreck / shop state (current_state,
+## interact_point, part count, morph progress, and whether the old shop stand
+## node still exists in the arena).
+func _record_ship_wreck_probe(label: String) -> void:
+	var wreck: Variant = _host_main.get("_ship_wreck") if _host_main != null else null
+	var entry := {
+		"kind": "ship_wreck_probe",
+		"label": label,
+		"t": _elapsed,
+		"wreck_present": wreck != null,
+	}
+	if wreck != null:
+		var w: Node = wreck
+		entry["current_state"] = str(w.get("current_state"))
+		entry["morph_progress"] = float(w.get("morph_progress"))
+		var parts: Array = w.get("_parts")
+		entry["part_count"] = parts.size() if parts != null else -1
+		entry["interact_point"] = w.get("interact_point")
+		# Per-part collision + z_index so the test can assert movement-blocking + depth.
+		var part_info := []
+		if parts != null:
+			for p in parts:
+				if not is_instance_valid(p):
+					continue
+				var body: Node = p.get_node_or_null("Body")
+				var spr: Node = p.get_node_or_null("Sprite")
+				part_info.append({
+					"pos": p.global_position,
+					"z_index": int(p.get("z_index")),
+					"has_collision": body != null,
+					"sprite_visible": bool(spr.get("visible")) if spr != null else null,
+				})
+		entry["parts"] = part_info
+	# Count old SUPERMERCATOR stand nodes still present (should be 0 after T4.6).
+	var arena: Variant = _host_main.get("arena") if _host_main != null else null
+	var stand_count := 0
+	if arena != null and arena.get("props") != null:
+		for prop in arena.get("props"):
+			if str(prop.get("sprite_id")) == "town_shop" or str(prop.get("prop_id")) == "town_shop":
+				stand_count += 1
+	entry["old_stand_count"] = stand_count
+	# HUD shop state (locked vs unlocked) so a test can assert the repurpose flow.
+	var hud: Variant = _host_main.get("hud") if _host_main != null else null
+	if hud != null:
+		entry["hud_shop_unlocked"] = bool(hud.get("_shop_unlocked"))
+		entry["hud_owned_heroes"] = hud.get("_owned_heroes")
+		var shop_panel: Node = hud.get("shop_panel")
+		entry["hud_shop_visible"] = bool(shop_panel.visible) if shop_panel != null else false
+	_active_effects.append(entry)
 
 
 ## T3.81: report whether the player's ability aim-snap finds a nearby enemy for

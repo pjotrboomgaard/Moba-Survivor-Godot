@@ -1,0 +1,24 @@
+{
+  "hero": "tobor",
+  "mode": "solo",
+  "comment": "T4.6-T4.11 in-game verify: crashed-ship wreck at the crater becomes the new shop. (1) open the opening cinematic on demand -> ship uses imported PNG and lands slightly above centre; (2) 5-part wreck persists with collision + tree-like depth; (3) B opens a LOCKED shop with only 'Repurpose 1500g'; (4) repurpose triggers a white-silhouette morph into the shop sprite + unlocks full shop; (5) character shop lets you buy a second hero for 2000g, switching carries upgrades/stats.",
+  "events": [
+    {"t": 0.4, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.6, "kind": "dev_command", "command": "open_cinematic"},
+    {"t": 5.0, "kind": "ship_wreck_probe", "label": "after_crash"},
+    {"t": 5.2, "kind": "camera_zoom", "to": [0.0, -120.0], "zoom": 0.5},
+    {"t": 5.4, "kind": "snap", "label": "ingame_crash_wreck"},
+    {"t": 5.6, "kind": "dev_command", "command": "open_shop"},
+    {"t": 5.8, "kind": "ship_wreck_probe", "label": "locked_shop"},
+    {"t": 6.0, "kind": "snap", "label": "ingame_locked_shop"},
+    {"t": 6.2, "kind": "dev_command", "command": "ship_wreck:repurpose"},
+    {"t": 6.9, "kind": "snap", "label": "ingame_morph_mid"},
+    {"t": 8.4, "kind": "ship_wreck_probe", "label": "unlocked_shop"},
+    {"t": 8.6, "kind": "snap", "label": "ingame_unlocked_shop"},
+    {"t": 8.8, "kind": "dev_command", "command": "add_3000_gold"},
+    {"t": 9.0, "kind": "snap", "label": "ingame_char_shop"},
+    {"t": 9.2, "kind": "dev_command", "command": "buy_hero:arclight"},
+    {"t": 9.6, "kind": "snap", "label": "ingame_after_buy"},
+    {"t": 9.8, "kind": "report"}
+  ]
+}
