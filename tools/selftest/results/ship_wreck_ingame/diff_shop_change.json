@@ -1,0 +1,15 @@
+{
+  "before": "tools\\selftest\\results\\ship_wreck_ingame\\ingame_crash_wreck_5.401_9075.png",
+  "after": "tools\\selftest\\results\\ship_wreck_ingame\\ingame_unlocked_shop_8.601_12275.png",
+  "out": "tools\\selftest\\results\\ship_wreck_ingame\\diff_shop_change.png",
+  "changed_pixels": 1224337,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.59044,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

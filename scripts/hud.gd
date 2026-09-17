@@ -54,6 +54,7 @@ const UPGRADE_ICON_MAX_WIDTH := 28
 @onready var shop_gold_label: Label = $ShopPanel/ShopLayout/ShopGold
 @onready var shop_grid: GridContainer = $ShopPanel/ShopLayout/ShopGrid
 @onready var shop_continue: Button = $ShopPanel/ShopLayout/ShopContinue
+@onready var minimap: Control = $MiniMap
 
 ## T4.9 / T4.11 (2026-09-17): ship-wreck shop state. The wreck starts LOCKED; only
 ## the "Repurpose" button is shown until it's bought for 1500 gold. Once unlocked
@@ -1763,6 +1764,9 @@ func open_shop(pause_game: bool) -> void:
 	shop_pauses_game = pause_game
 	shop_panel.visible = true
 	_refresh_shop()
+	# Push the minimap behind the shop panel so it doesn't overlap the items.
+	if minimap != null:
+		minimap.set_z_index(-1)
 	AudioService.play("shop_open")
 	if shop_pauses_game:
 		get_tree().paused = true
@@ -1773,6 +1777,9 @@ func close_shop() -> void:
 		return
 	shop_panel.visible = false
 	AudioService.play("shop_close")
+	# Restore the minimap's default z-order.
+	if minimap != null:
+		minimap.set_z_index(0)
 	if shop_pauses_game:
 		get_tree().paused = false
 	shop_pauses_game = false
