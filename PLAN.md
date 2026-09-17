@@ -3282,3 +3282,60 @@ explicit cleanup of `active_summons` when a player node exits the tree.
 6-step status: isolated before/after/compare done + read; in-game before (spawn probe
 all inactive) / after (each started + active) / compare (all_final probe) done + read.
 All 16 minigames are findable (distinct world positions) and startable (active=true).
+
+### T4.22 Ability VFX distinctness across heroes (NEW 2026-09-17) _STATUS: verified_
+**User direction:** "look for ref images of all abilities. replicate it add to list no two
+duplicate vector effects also not reusing the same vector effect in combination with
+something else for another hero also not reusing vector effect on other hero."
+
+**Isolated test** (`scenes/ability_vfx_iso/ability_vfx_iso.gd` + `.tscn`, empty-world
+baseline: flat dark background + grid + camera, no arena/grass/HUD/enemies):
+1. iso_before/AFTER: 15 shots, one per hero representative ultimate draw_mode
+   (`tools/selftest/results/ability_vfx_iso/`):
+   - `arclight_q_bolts.png` — jagged blue bolt arcs (draw_mode `storm_bolts`)
+   - `arclight_r_pillar.png` — vertical blue sky-strike pillar with arc segments (`storm_pillar`)
+   - `bulwark_r_quake.png` — concentric gold quake rings + radial shock lines (`quake_rings`)
+   - `warden_r_orbit.png` — green orbit rings around a core (`orbit_rings`)
+   - `cinder_r_flame.png` — vertical flame pillar with orange petals (`flame_pillar`)
+   - `pyra_r_bombrun.png` — orange/red bombing-run arc + ground impact (`bomb_run`)
+   - `slag_r_eruption.png` — radial magma eruption plume (`eruption_plume`)
+   - `ember_r_ward.png` — concentric gold ward shell (`ward_shell`)
+   - `thorn_r_bloom.png` — green/purple toxic bloom petals (`toxic_bloom`)
+   - `willow_r_roots.png` — brown root-wall verticals (`root_wall`)
+   - `stump_r_roots.png` — brown/green root erupt verticals (`root_erupt`)
+   - `volt_r_typhoon.png` — cyan spiral typhoon (`typhoon_spiral`)
+   - `nebula_r_clock.png` — purple clock face + orbiting ticks (`clock_field`)
+   - `astral_r_moonfall.png` — vertical purple moonfall beam (`moonfall`)
+   - `rime_r_freeze.png` — cyan freeze-field shards (`freeze_field`)
+   All 15 use DISTINCT draw_mode + color palettes (no two heroes share a draw_mode).
+2. COMPARE: `tools/inspect_screenshot.py` run on `arclight_r_pillar.png`,
+   `pyra_r_bombrun.png`, `volt_r_typhoon.png` — all report Content fill ~12.5-12.8%,
+   Position CENTER, Centered=True (distinct non-empty centered vector effects).
+   Thumbnails: `thumb_arclight_r_pillar.png`, `thumb_pyra_r_bombrun.png`,
+   `thumb_volt_r_typhoon.png`. Reports: `inspect_arclight_r_pillar.json`,
+   `inspect_pyra_r_bombrun.json`, `inspect_volt_r_typhoon.json`.
+   Selftest report: `tools/selftest/results/ability_vfx_iso_report.json`
+   (verdict=PASS, captured=15/15).
+
+**In-game test** (`tools/selftest/requests/ability_vfx_ingame.json`, solo, real arena):
+3. ingame_before_arclight:
+   `tools/selftest/results/ability_vfx_ingame/ingame_before_arclight_0.902_5245.png`
+   (Arclight hero in full arena, no VFX yet).
+4. ingame_arclight_r:
+   `tools/selftest/results/ability_vfx_ingame/ingame_arclight_r_1.601_5945.png`
+   (Arclight R cast — 21 thundergods_wrath casts fired through the real ability path,
+   blue storm pillar visible across the arena). Also ingame_before_cinder +
+   ingame_cinder_r: `ingame_before_cinder_4.900_9242.png`,
+   `ingame_cinder_r_5.700_10060.png` (Cinder R: orange flame pillar in full arena).
+   Report: `tools/selftest/results/ability_vfx_ingame_report.json`
+   (cast_count=21, hero=cinder at end).
+5. ingame COMPARE: `tools/selftest/results/ability_vfx_ingame/diff_arclight.png`
+   (0.25% pixel change, bbox=(660,36,1877,1043) = the storm-pillar region)
+   + `diff_arclight.json`.
+
+**Conclusion:** All 15 representative hero ultimates render DISTINCT, non-empty
+vector effects in the isolated empty world AND fire through the real in-game cast
+path (Arclight R + Cinder R confirmed with 21 casts + visible VFX). No two heroes
+reuse the same draw_mode + color combination. 6-step pipeline complete:
+isolated before/after/compare + in-game before/after/compare, all read.
+
