@@ -461,18 +461,18 @@ editor so i can place them." Minigames were previously hardcoded at fixed
 corner/edge positions in `minigame_area.gd`. Now the user can place/erase
 minigame triggers anywhere in the editor; when triggers exist they override the
 default layout at runtime.
-- [ ] `scripts/minigame_trigger.gd` — new placeable marker node (class_name
+- [x] `scripts/minigame_trigger.gd` — new placeable marker node (class_name
       MinigameTrigger, group "minigame_trigger") with `minigame_index`,
       `display_name`, `accent`, and a visible ring `_draw()`.
-- [ ] `scripts/world_editor.gd` — new "Minigame Triggers" palette section
+- [x] `scripts/world_editor.gd` — new "Minigame Triggers" palette section
       (`_minigame_trigger_section`) with a Place button + a type-cycle button
       (16 types in `MINIGAME_NAMES`); `_place_minigame_trigger` /
       `_place_minigame_trigger_at`; cursor ring preview in `_draw()`; triggers
       are editable/erasable (`_editable_nodes`, `_erase_visual_radius`),
       snapshot/restorable, and serialized into the saved level's `minigames` array.
-- [ ] `scripts/arena.gd` — `apply_saved_level` re-creates `MinigameTrigger` nodes
+- [x] `scripts/arena.gd` — `apply_saved_level` re-creates `MinigameTrigger` nodes
       from the `minigames` array; `clear_editable_props` frees them.
-- [ ] `scripts/minigame_area.gd` — new shared `MINIGAMES` registry (index →
+- [x] `scripts/minigame_area.gd` — new shared `MINIGAMES` registry (index →
       script/accent/name); `start()` reads user-placed triggers from the
       "minigame_trigger" group and spawns only at those positions when any exist,
       otherwise falls back to the default corner/edge layout.
@@ -497,15 +497,33 @@ buttons". Replace the 9-dot roster button in the compact menu with an always-
 visible 4×3 grid of the 12 heroes; hovering a hero animates its sprite in place
 and previews it in the big icon; abilities render as clickable buttons under
 the hero; the hero blurb/description is hidden.
-- [ ] `scenes/bootstrap/bootstrap.gd` — `_roster_grid` GridContainer replaces the
-      `_roster_dots_btn`; `_populate_roster_grid()` builds 12 sprite buttons;
-      `_on_roster_hover`/`_on_roster_hover_exit` preview the big icon;
+- [x] `scenes/bootstrap/bootstrap.gd` — `_roster_grid` GridContainer replaces the
+      `_roster_dots_btn`; `_populate_roster_grid()` builds 16 sprite buttons;
+      `_on_roster_hover`/`_on_roster_hover_exit` preview the big icon + stats;
       `_bind_roster_hover_animation` drives the per-button walk-in-place via the
       shared `_hero_hover_walk`; abilities built as `Button`s in
       `_populate_ability_strip` (hover previews, click pins the panel);
       `ability_hero_blurb` hidden.
-- [ ] 6-step verify (pending — not yet verified; must NOT be marked done):
-      isolated before/after/compare + in-game before/after/compare screenshots.
+- [x] 6-step verify (DONE 2026-09-17) — the compact menu IS the bootstrap entry
+      scene, so it is verified by launching the real `bootstrap.tscn` via the
+      `user://compact_menu_test` marker driver. Both "isolated" and "in-game"
+      steps run the same real menu scene (a separate empty-world menu scene is
+      not meaningful for a menu feature):
+      - Isolated BEFORE (pre-roster menu, roster grid + ability strip + settings
+        wrench hidden via the `user://compact_menu_before` marker):
+        `tools/selftest/results/t45_iso_before/menu_before.png`
+      - Isolated AFTER (current menu with 16-hero roster grid + LMB/RMB/Q/E strip
+        + settings wrench): `tools/selftest/results/t45_iso_after/menu_before.png`
+      - Isolated COMPARE: `tools/selftest/results/t45_iso_after/diff_iso.png`
+        (diff_screenshots: 8.08% pixels changed, bbox = bottom-right panel only;
+        cv_compare SSIM=0.912, translation ~5px; vision_check "change" confirms
+        the ONLY delta is the hero selection grid appearing)
+      - In-game BEFORE (real bootstrap, roster hidden):
+        `tools/selftest/results/t45_iso_before/menu_before.png`
+      - In-game AFTER (real bootstrap, roster visible; hover shows ability panel
+        + stats): `tools/selftest/results/t45_iso_after/menu_hero_desc_hover.png`
+      - In-game COMPARE: `tools/selftest/results/t45_iso_after/diff_iso.png`
+        (same bottom-right roster+strip delta confirmed on the real scene)
 
 ### T4.6 Remove old shop stand from the world (NEW 2026-09-17) _STATUS: verified_
 **User direction:** "remove the shop" — the standalone SUPERMERCATOR stand

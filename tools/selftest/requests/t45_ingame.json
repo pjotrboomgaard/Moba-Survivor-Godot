@@ -1,0 +1,10 @@
+{
+  "test_name": "t45_ingame",
+  "comment": "T4.5 in-game before/after: capture the compact menu with and without the 16-hero roster grid. Driver attaches to root so it survives the bootstrap->main transition. t=3s is the menu; after that the game starts so we only capture the menu state.",
+  "hero": "tobor",
+  "biome": 0,
+  "events": [
+    {"t": 3.0, "kind": "snap", "label": "menu_ingame_roster"}
+  ],
+  "wait_ms": 6000
+}
