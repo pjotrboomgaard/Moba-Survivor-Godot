@@ -1,0 +1,22 @@
+{
+  "at_pos_a": true,
+  "at_pos_b": true,
+  "at_pos_c": true,
+  "markers_hidden": true,
+  "mode": "after",
+  "pos_a": "(-260.0, -160.0)",
+  "pos_b": "(240.0, 180.0)",
+  "pos_c": "(0.0, 340.0)",
+  "shots": [
+    {
+      "label": "before",
+      "path": "user://iso_mgtrigger_before.png"
+    },
+    {
+      "label": "after",
+      "path": "user://iso_mgtrigger_after.png"
+    }
+  ],
+  "spawned_minigames": 3,
+  "verdict": "PASS"
+}

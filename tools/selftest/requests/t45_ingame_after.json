@@ -1,0 +1,11 @@
+{
+  "test_name": "t45_ingame_after",
+  "comment": "T4.5 in-game AFTER: launch main scene, capture the compact menu with the 16-hero roster grid + ability strip visible.",
+  "hero": "tobor",
+  "biome": 0,
+  "events": [
+    {"t": 4.0, "kind": "snap", "label": "ingame_after_roster"},
+    {"t": 8.0, "kind": "snap", "label": "ingame_after_roster_2"}
+  ],
+  "wait_ms": 12000
+}

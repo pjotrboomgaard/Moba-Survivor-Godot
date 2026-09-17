@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/minigame_trigger_ingame/ingame_before_2.032_7058.png",
+  "after": "tools/selftest/results/minigame_trigger_ingame/ingame_after_3.617_8745.png",
+  "out": "tools/selftest/results/minigame_trigger_ingame/diff_ingame.png",
+  "changed_pixels": 400340,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.193065,
+  "bbox": [
+    227,
+    9,
+    1919,
+    1042
+  ],
+  "has_change": true
+}

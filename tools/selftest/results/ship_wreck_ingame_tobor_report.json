@@ -1,0 +1,244 @@
+{
+  "effects": [
+    {
+      "command": "toggle_invulnerable",
+      "kind": "dev_command",
+      "t": 0.407536666666667
+    },
+    {
+      "command": "open_cinematic",
+      "kind": "dev_command",
+      "t": 0.601515151515152
+    },
+    {
+      "current_state": "crash",
+      "hud_owned_heroes": [
+        "arclight"
+      ],
+      "hud_shop_unlocked": false,
+      "hud_shop_visible": false,
+      "interact_point": "(0.0, 0.0)",
+      "kind": "ship_wreck_probe",
+      "label": "after_crash",
+      "morph_progress": 0.0,
+      "old_stand_count": 0,
+      "part_count": 5,
+      "parts": [
+        {
+          "has_collision": true,
+          "pos": "(-360.0, -90.0)",
+          "sprite_visible": true,
+          "z_index": 1955
+        },
+        {
+          "has_collision": true,
+          "pos": "(-180.0, -135.0)",
+          "sprite_visible": true,
+          "z_index": 1932
+        },
+        {
+          "has_collision": true,
+          "pos": "(0.0, -150.0)",
+          "sprite_visible": true,
+          "z_index": 1925
+        },
+        {
+          "has_collision": true,
+          "pos": "(180.0, -135.0)",
+          "sprite_visible": true,
+          "z_index": 1932
+        },
+        {
+          "has_collision": true,
+          "pos": "(360.0, -90.0)",
+          "sprite_visible": true,
+          "z_index": 1955
+        }
+      ],
+      "t": 5.00075757575762,
+      "wreck_present": true
+    },
+    {
+      "command": "open_shop",
+      "kind": "dev_command",
+      "t": 5.60323866666673
+    },
+    {
+      "current_state": "crash",
+      "hud_owned_heroes": [
+        "arclight"
+      ],
+      "hud_shop_unlocked": false,
+      "hud_shop_visible": true,
+      "interact_point": "(0.0, 0.0)",
+      "kind": "ship_wreck_probe",
+      "label": "locked_shop",
+      "morph_progress": 0.0,
+      "old_stand_count": 0,
+      "part_count": 5,
+      "parts": [
+        {
+          "has_collision": true,
+          "pos": "(-360.0, -90.0)",
+          "sprite_visible": true,
+          "z_index": 1955
+        },
+        {
+          "has_collision": true,
+          "pos": "(-180.0, -135.0)",
+          "sprite_visible": true,
+          "z_index": 1932
+        },
+        {
+          "has_collision": true,
+          "pos": "(0.0, -150.0)",
+          "sprite_visible": true,
+          "z_index": 1925
+        },
+        {
+          "has_collision": true,
+          "pos": "(180.0, -135.0)",
+          "sprite_visible": true,
+          "z_index": 1932
+        },
+        {
+          "has_collision": true,
+          "pos": "(360.0, -90.0)",
+          "sprite_visible": true,
+          "z_index": 1955
+        }
+      ],
+      "t": 5.80420248484855,
+      "wreck_present": true
+    },
+    {
+      "command": "ship_wreck:repurpose",
+      "kind": "dev_command",
+      "t": 6.20628900000007
+    },
+    {
+      "current_state": "shop",
+      "hud_owned_heroes": [
+        "arclight"
+      ],
+      "hud_shop_unlocked": true,
+      "hud_shop_visible": true,
+      "interact_point": "(0.0, 0.0)",
+      "kind": "ship_wreck_probe",
+      "label": "unlocked_shop",
+      "morph_progress": 1.0,
+      "old_stand_count": 0,
+      "part_count": 5,
+      "parts": [
+        {
+          "has_collision": true,
+          "pos": "(-360.0, -90.0)",
+          "sprite_visible": false,
+          "z_index": 1955
+        },
+        {
+          "has_collision": true,
+          "pos": "(-180.0, -135.0)",
+          "sprite_visible": false,
+          "z_index": 1932
+        },
+        {
+          "has_collision": true,
+          "pos": "(0.0, -150.0)",
+          "sprite_visible": false,
+          "z_index": 1925
+        },
+        {
+          "has_collision": true,
+          "pos": "(180.0, -135.0)",
+          "sprite_visible": false,
+          "z_index": 1932
+        },
+        {
+          "has_collision": true,
+          "pos": "(360.0, -90.0)",
+          "sprite_visible": false,
+          "z_index": 1955
+        }
+      ],
+      "t": 8.40219233333345,
+      "wreck_present": true
+    },
+    {
+      "command": "add_3000_gold",
+      "kind": "dev_command",
+      "t": 8.8063210000001
+    },
+    {
+      "command": "buy_hero:arclight",
+      "kind": "dev_command",
+      "t": 9.20069766666677
+    }
+  ],
+  "elapsed": 9.8039790000001,
+  "enemies_spawned": 0,
+  "hero_position": "(7.661295, -0.346037)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 1000,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "ingame_crash_wreck",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8645/ingame_crash_wreck_5.401_8645.png",
+      "t": 5.40149266666673
+    },
+    {
+      "label": "ingame_locked_shop",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9245/ingame_locked_shop_6.000_9245.png",
+      "t": 6.00000000000007
+    },
+    {
+      "label": "ingame_morph_mid",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10153/ingame_morph_mid_6.902_10153.png",
+      "t": 6.90222166666676
+    },
+    {
+      "label": "ingame_unlocked_shop",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11845/ingame_unlocked_shop_8.602_11845.png",
+      "t": 8.6021660000001
+    },
+    {
+      "label": "ingame_char_shop",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12245/ingame_char_shop_9.000_12245.png",
+      "t": 9.0000000000001
+    },
+    {
+      "label": "ingame_after_buy",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12853/ingame_after_buy_9.605_12853.png",
+      "t": 9.60471954545464
+    }
+  ]
+}

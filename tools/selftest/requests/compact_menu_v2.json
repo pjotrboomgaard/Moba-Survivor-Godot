@@ -1,0 +1,9 @@
+{
+  "test_name": "compact_menu_v2",
+  "comment": "Verify compact menu v2: no title, 16-hero roster, abilities under roster with LMB/RMB, hero desc on hover, hover-only panel. Driver attached via user://compact_menu_test marker.",
+  "hero": "tobor",
+  "biome": 0,
+  "events": [
+    {"t": 10.0, "kind": "report"}
+  ]
+}

@@ -180,7 +180,7 @@ const ASSET_LABELS := {
 	"mountain_goat": "Goat", "mountain_yeti": "Yeti", "mountain_wolf": "M- wolf", "mountain_owl": "M- owl",
 	"mountain_icebear": "Ice bear", "mountain_lizard": "Lizard",
 	"wolf": "Wolf", "fox": "Town fox", "raven": "Raven", "otter": "Otter", "boar": "Boar", "golem": "Golem",
-	"landmark": "Landmark", "erase": "Erase",
+	"landmark": "Landmark", "erase": "Erase", "minigame_trigger": "Minigame Trigger",
 }
 
 const FEATURES := [
@@ -213,6 +213,13 @@ var _rng := RandomNumberGenerator.new()
 # Tools: one of an obstacle sprite id, or the special tokens "landmark"/"erase".
 var _tool := "tree_oak"
 var _landmark_effect := 0
+## Index of the minigame type to place when _tool == "minigame_trigger".
+var _minigame_index := 0
+const MINIGAME_NAMES := [
+	"Treasure Dash", "Keg Toss", "Whack-a-Creep", "Rock-Paper-Creep", "Dance Disco",
+	"Gem Relay", "Keg Toss Pro", "Whack Rush", "Creep Tag", "Treasure Dash 2",
+	"Ring Roll", "Creep Pinball", "Balloon Pop", "Slime Splat", "Crystal Catch", "Crate Stack",
+]
 var _ghost: Sprite2D = null
 var _palette_buttons: Dictionary = {}
 var _undo_stack: Array = []
@@ -374,6 +381,10 @@ func _refresh_ghost() -> void:
 	if _tool == "erase" or _tool == "landmark" or _over_ui():
 		_ghost.visible = false
 		return
+	if _tool == "minigame_trigger":
+		# No texture for the trigger; show a colored ring ghost via _draw() instead.
+		_ghost.visible = false
+		return
 	var spec: Dictionary = OBSTACLE_SPEC.get(_tool, {"radius": 18.0, "lift": 0.0})
 	var tex: Texture2D = null
 	var zoom := 4.0
@@ -404,6 +415,12 @@ func _draw() -> void:
 		var color := Color(0.95, 0.72, 0.35, 0.9) if _paint_enabled else Color(0.55, 0.95, 0.55, 0.85)
 		draw_arc(pos, _sprawl_radius, 0.0, TAU, 64, color, line, true)
 		draw_circle(pos, 4.0 / maxf(cam_zoom, 0.05), color)
+	if _tool == "minigame_trigger":
+		# Draw a placement-preview ring at the cursor for the chosen minigame type.
+		var accent := Color(_minigame_accent_hex(_minigame_index % MINIGAME_NAMES.size()))
+		draw_arc(pos, 48.0, 0.0, TAU, 40, Color(accent.r, accent.g, accent.b, 0.7), 3.0)
+		draw_arc(pos, 38.0, 0.0, TAU, 32, Color(accent.r, accent.g, accent.b, 0.35), 2.0)
+		draw_circle(pos, 6.0, Color(accent.r, accent.g, accent.b, 0.9))
 	var target := _nearest_editable(pos, _erase_world_slop())
 	if target == null:
 		return
@@ -595,13 +612,18 @@ func _place() -> void:
 	if _tool == "erase":
 		_erase_at(pos)
 		return
-	if _sprawl_enabled and _tool != "landmark":
+	if _sprawl_enabled and _tool != "landmark" and _tool != "minigame_trigger":
 		_place_sprawl(pos)
 		return
 	if _tool == "landmark":
 		var lm := _place_landmark(pos)
 		if lm != null:
 			_push_undo_create([lm])
+		return
+	if _tool == "minigame_trigger":
+		var trig := _place_minigame_trigger(pos)
+		if trig != null:
+			_push_undo_create([trig])
 		return
 	var node := _spawn_at(pos, _stamp_id())
 	if node != null:
@@ -752,6 +774,52 @@ func _place_landmark(pos: Vector2) -> Node2D:
 	return lm
 
 
+## Place a minigame trigger at `pos` for the currently-selected minigame type.
+## The trigger is a placeable marker node that gets saved into the level and
+## read back by MinigameArea at runtime to spawn the game at that position.
+func _place_minigame_trigger(pos: Vector2) -> Node2D:
+	return _place_minigame_trigger_at(pos, _minigame_index % MINIGAME_NAMES.size())
+
+
+## Place a minigame trigger at `pos` for a specific minigame index (used on load).
+func _place_minigame_trigger_at(pos: Vector2, index: int) -> Node2D:
+	if arena == null:
+		return null
+	var trigger := MinigameTrigger.new()
+	trigger.name = "MinigameTrigger_%d" % int(arena.get_child_count())
+	trigger.minigame_index = index % MINIGAME_NAMES.size()
+	trigger.display_name = MINIGAME_NAMES[trigger.minigame_index]
+	trigger.accent = Color(_minigame_accent_hex(trigger.minigame_index))
+	arena.add_child(trigger)
+	trigger.global_position = pos
+	if not _placed_nodes.has(trigger):
+		_placed_nodes.append(trigger)
+	_placed = _placed_nodes.size()
+	_refresh_status()
+	return trigger
+
+
+## Accent hex for a minigame index (matches the MinigameArea registry).
+func _minigame_accent_hex(index: int) -> String:
+	match index:
+		0: return "8fae6a"
+		1: return "5ad4ff"
+		2: return "7dbb5a"
+		3: return "ff9a3d"
+		4: return "b44dff"
+		5: return "2ee0c0"
+		6: return "3fb0e0"
+		7: return "3fa84a"
+		8: return "c07bff"
+		9: return "e0c05a"
+		10: return "4de0f0"
+		11: return "f0a04d"
+		12: return "f05090"
+		13: return "40e080"
+		14: return "a080f0"
+		_: return "7dbb5a"
+
+
 ## Public: erase the nearest placed node within `radius` of `world_pos`. Used by the
 ## verify harness; returns true if a node was erased.
 func erase_at_radius(world_pos: Vector2, radius: float) -> bool:
@@ -770,6 +838,8 @@ func _erase_world_slop() -> float:
 func _erase_visual_radius(node: Node2D) -> float:
 	if node is ArenaLandmark:
 		return ArenaLandmark.STAND_RADIUS
+	if node is MinigameTrigger:
+		return 48.0
 	if node is Obstacle:
 		var obstacle := node as Obstacle
 		var visual := maxf(24.0, obstacle.body_radius)
@@ -822,7 +892,7 @@ func _editable_nodes() -> Array[Node2D]:
 	for child in arena.get_children():
 		if not (child is Node2D):
 			continue
-		if child is Obstacle or child is ArenaLandmark or child.is_in_group("world_feature"):
+		if child is Obstacle or child is ArenaLandmark or child.is_in_group("world_feature") or child is MinigameTrigger:
 			found.append(child as Node2D)
 	return found
 
@@ -887,6 +957,15 @@ func _snapshot_node(node: Node2D) -> Dictionary:
 			"pos": node.global_position,
 			"id": str(node.get("feature_id")),
 		}
+	if node is MinigameTrigger:
+		var trig := node as MinigameTrigger
+		return {
+			"kind": "minigame_trigger",
+			"pos": node.global_position,
+			"index": int(trig.minigame_index),
+			"name": trig.display_name,
+			"accent": trig.accent.to_html(false),
+		}
 	return {}
 
 
@@ -911,6 +990,8 @@ func _restore_snapshot(snap: Dictionary) -> void:
 					_placed = _placed_nodes.size()
 			else:
 				_place_landmark(pos)
+		"minigame_trigger":
+			_place_minigame_trigger_at(pos, int(snap.get("index", 0)))
 
 
 func _undo() -> void:
@@ -1026,7 +1107,7 @@ func _randomize() -> void:
 
 
 func _collect_level() -> Dictionary:
-	var data := {"obstacles": [], "landmarks": [], "features": [], "biome": GameRuntime.biome_id}
+	var data := {"obstacles": [], "landmarks": [], "features": [], "minigames": [], "biome": GameRuntime.biome_id}
 	var baked_sprays: Dictionary = {}
 	if arena is Arena:
 		# Baked decorative props (grass, mushrooms, trees, flowers, dirt) are NOT live
@@ -1064,6 +1145,14 @@ func _collect_level() -> Dictionary:
 				"effect": str(lm.effect_id),
 				"sprite": lm.sprite_name,
 				"hint": str(lm.get("_hint")),
+			})
+		elif node is MinigameTrigger:
+			var trig := node as MinigameTrigger
+			data.minigames.append({
+				"pos": [node.global_position.x, node.global_position.y],
+				"index": int(trig.minigame_index),
+				"name": trig.display_name,
+				"accent": trig.accent.to_html(false),
 			})
 	return data
 
@@ -1681,6 +1770,7 @@ func _rebuild_palette() -> void:
 	# Recruit-area sprites (houses/creatures for Town, Lagoon, Forest, Mountain)
 	# are available in every world so the user can place them in any biome.
 	_palette_list.add_child(_palette_section("Recruit areas", RECRUIT_AREA_SPRITES))
+	_palette_list.add_child(_minigame_trigger_section())
 	_palette_list.add_child(_palette_section("Tools", ["landmark", "erase"]))
 	if not _palette_buttons.has(_tool):
 		var trees := current_trees()
@@ -1707,6 +1797,46 @@ func _palette_section(title: String, ids: Array) -> VBoxContainer:
 			continue
 		grid.add_child(_make_palette_button(str(id)))
 	return box
+
+
+## Palette section for placing minigame triggers.
+## A single "Minigame Trigger" button selects the tool; a separate button
+## cycles the chosen minigame type (0..15) so the user picks which game to place.
+func _minigame_trigger_section() -> VBoxContainer:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	var header := _make_label("Minigame Triggers")
+	header.add_theme_color_override("font_color", Color("9ad4ff"))
+	box.add_child(header)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	box.add_child(grid)
+	# Place-tool button.
+	var place_btn := _make_palette_button("minigame_trigger")
+	place_btn.tooltip_text = "Place a minigame trigger at the click point."
+	grid.add_child(place_btn)
+	# Type-cycle button: shows the currently selected minigame type.
+	var type_btn := Button.new()
+	type_btn.custom_minimum_size = Vector2(120, 72)
+	type_btn.tooltip_text = "Click to cycle which minigame type is placed."
+	type_btn.clip_text = true
+	_refresh_minigame_type_button(type_btn)
+	type_btn.pressed.connect(func() -> void:
+		_minigame_index = (_minigame_index + 1) % MINIGAME_NAMES.size()
+		_refresh_minigame_type_button(type_btn)
+		_refresh_status()
+		AudioService.play("ui_click")
+	)
+	grid.add_child(type_btn)
+	return box
+
+
+## Update the type-cycle button label/icon to reflect the currently selected
+## minigame type.
+func _refresh_minigame_type_button(type_btn: Button) -> void:
+	type_btn.text = "Type: %s" % MINIGAME_NAMES[_minigame_index]
 
 
 func _make_palette_button(sprite_id: String) -> Button:

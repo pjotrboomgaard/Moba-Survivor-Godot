@@ -1,0 +1,5 @@
+{
+  "test_name": "creep_unstuck_iso",
+  "scene": "res://scenes/creep_unstuck_test/creep_unstuck_test.tscn",
+  "comment": "T5.1 isolated: verify creep unstuck — grunt enemy must slide around a wall instead of staying stuck pushing into it. BEFORE mode (marker user://creep_unstuck_before present) simulates pre-fix (stuck_time forced to 0). AFTER mode runs the new unstuck logic."
+}

@@ -1,0 +1,16 @@
+{
+  "test_name": "minigame_trigger_ingame",
+  "comment": "T4.4 in-game: place MinigameTriggers via dev command into the real arena, rescan MinigameArea, verify minigames spawn ONLY at the user-placed positions (not the default corner layout) and markers are hidden.",
+  "hero": "tobor",
+  "biome": 0,
+  "wait_ms": 9000,
+  "events": [
+    {"t": 2.0, "kind": "snap", "label": "ingame_before"},
+    {"t": 2.4, "kind": "dev_command", "command": "place_minigame_trigger:4:80:-60"},
+    {"t": 2.6, "kind": "dev_command", "command": "place_minigame_trigger:12:-80:90"},
+    {"t": 2.8, "kind": "dev_command", "command": "rescan_minigames"},
+    {"t": 3.6, "kind": "snap", "label": "ingame_after"},
+    {"t": 4.2, "kind": "minigame", "label": "mg_all"},
+    {"t": 4.6, "kind": "report"}
+  ]
+}

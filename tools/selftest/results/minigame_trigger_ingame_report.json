@@ -1,0 +1,90 @@
+{
+  "effects": [
+    {
+      "command": "place_minigame_trigger:4:80:-60",
+      "kind": "dev_command",
+      "t": 2.40909090909091
+    },
+    {
+      "command": "place_minigame_trigger:12:-80:90",
+      "kind": "dev_command",
+      "t": 2.603435
+    },
+    {
+      "command": "rescan_minigames",
+      "kind": "dev_command",
+      "t": 2.80021633333333
+    },
+    {
+      "games": [
+        {
+          "active": false,
+          "finished": false,
+          "id": "Dance Disco",
+          "index": 0,
+          "pos": "(80.0, -60.0)",
+          "score": 0,
+          "timer": 15.0
+        },
+        {
+          "active": false,
+          "finished": false,
+          "id": "Balloon Pop",
+          "index": 1,
+          "pos": "(-80.0, 90.0)",
+          "score": 0,
+          "timer": 15.0
+        }
+      ],
+      "kind": "minigame",
+      "label": "mg_all",
+      "t": 4.20522795238096
+    }
+  ],
+  "elapsed": 4.60640800000001,
+  "enemies_spawned": 0,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 6,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": [
+    {
+      "label": "ingame_before",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7455/ingame_before_2.003_7455.png",
+      "t": 2.0029626060606
+    },
+    {
+      "label": "ingame_after",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9054/ingame_after_3.604_9054.png",
+      "t": 3.60402995238095
+    }
+  ]
+}

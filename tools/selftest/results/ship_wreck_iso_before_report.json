@@ -1,0 +1,12 @@
+{
+  "mode": "before",
+  "note": "no ship wreck present in tree (pre-feature baseline)",
+  "shots": [
+    {
+      "label": "before",
+      "path": "user://iso_shipwreck_before.png"
+    }
+  ],
+  "verdict": "PASS",
+  "wreck_nodes": 0
+}

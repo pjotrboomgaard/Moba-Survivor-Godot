@@ -1,0 +1,18 @@
+{
+  "test_name": "creep_unstuck_ingame",
+  "comment": "Creep unstuck in-game: build a rock wall at x=-200 between a spawn point and the player, spawn a grunt at (-400,0), verify the grunt paths AROUND the wall to reach the player. Camera follows the player at origin; wall + grunt are within view.",
+  "hero": "tobor",
+  "biome": 0,
+  "wait_ms": 12000,
+  "events": [
+    {"t": 1.5, "kind": "snap", "label": "ingame_before_wall"},
+    {"t": 1.8, "kind": "dev_command", "command": "place_obstacle:-200:-120"},
+    {"t": 2.0, "kind": "dev_command", "command": "place_obstacle:-200:0"},
+    {"t": 2.2, "kind": "dev_command", "command": "place_obstacle:-200:120"},
+    {"t": 2.6, "kind": "snap", "label": "ingame_wall_spawn"},
+    {"t": 2.8, "kind": "dev_command", "command": "spawn_creep_at:grunt:-400:0"},
+    {"t": 5.5, "kind": "snap", "label": "ingame_mid_detour"},
+    {"t": 8.0, "kind": "snap", "label": "ingame_late_detour"},
+    {"t": 10.5, "kind": "snap", "label": "ingame_final"}
+  ]
+}

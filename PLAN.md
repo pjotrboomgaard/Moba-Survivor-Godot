@@ -595,7 +595,7 @@ parts and IN FRONT of others; gaps between parts are walkable.
 Repurpose to unlock shop for 1500 gold". At the ship, B opens a locked shop UI
 with a single "Repurpose — unlock shop for 1500 gold" button; buying it unlocks
 the full shop for the run.
-- [ ] `scripts/hud.gd` — shop panel gains a "locked" state: when not repurposed,
+- [x] `scripts/hud.gd` — shop panel gains a "locked" state: when not repurposed,
       only a single "Repurpose — unlock shop for 1500 gold" button is shown;
       buying it sets `shop_unlocked = true` (persisted per run).
 - [x] `scripts/hud.gd` — `_shop_unlocked` state + `_make_locked_repurchase_button`

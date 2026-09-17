@@ -1,0 +1,5 @@
+{
+  "test_name": "minigame_trigger_iso",
+  "scene": "res://scenes/minigame_trigger_iso/minigame_trigger_iso.tscn",
+  "comment": "T4.4 isolated: user-placed MinigameTrigger markers are picked up by MinigameArea and minigames spawn at those positions; markers hidden after spawn."
+}

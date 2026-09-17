@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/creep_unstuck_ingame/creep_unstuck_ingame.gd" id="1"]
+
+[node name="CreepUnstuckInGame" type="Node"]
+script = ExtResource("1")

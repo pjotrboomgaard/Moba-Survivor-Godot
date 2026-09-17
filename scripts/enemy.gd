@@ -178,6 +178,7 @@ var slam_shots_left := 0
 var slam_shot_gap := 0.0
 var _base_projectile_count := 1
 var _stuck_time := 0.0
+var _stuck_side := Vector2.ZERO
 
 ## Camp Guardian: a stationary tanky elite that guards a creep camp.
 ## - Holds its position (leashed to spawn point within CAMP_GUARDIAN_LEASH_RADIUS).
@@ -669,32 +670,71 @@ func _move(direction_velocity: Vector2, allow_crater_inward: bool = false) -> vo
 func _unstick_from_props(desired: Vector2, before: Vector2) -> void:
 	if flying or is_boss:
 		_stuck_time = 0.0
+		_stuck_side = Vector2.ZERO
 		return
 	var want := desired.length() * get_physics_process_delta_time()
-	if want < 6.0:
+	# Skip the unstuck bookkeeping only when we are *barely* moving this frame
+	# (e.g. near-zero speed or a tiny delta). The previous threshold of 6.0px/frame
+	# was wrong: at 60fps a 100px/s enemy only expects ~1.6px/frame of movement,
+	# so the check always fired and _stuck_time never accumulated — the unstuck
+	# logic was effectively dead. 1.0px/frame corresponds to ~60px/s, well below
+	# any real creep speed, so it only guards degenerate frames.
+	if want < 1.0:
 		_stuck_time = 0.0
+		_stuck_side = Vector2.ZERO
 		return
-	var moved := global_position.distance_to(before)
-	if moved > want * 0.18:
+	# "Stuck" = not making meaningful progress *toward* the target.
+	# Sliding along a wall face gives non-zero `moved` but near-zero progress
+	# toward `desired`, so use the dot-product component instead.
+	var progress := (global_position - before).normalized().dot(desired.normalized())
+	var progress_px := (global_position - before).dot(desired.normalized())
+	if progress_px > want * 0.25:
 		_stuck_time = 0.0
+		_stuck_side = Vector2.ZERO
 		return
 	_stuck_time += get_physics_process_delta_time()
+	# Pick a side to slip around the obstacle. Use the collision normal when we
+	# have one, otherwise fall back to the perpendicular of our desired direction.
+	# We commit to ONE side and keep it across frames (no per-frame flipping):
+	# a wall-parallel desired direction makes n.orthogonal().dot(desired) ≈ 0, so
+	# the previous per-frame sign check caused the enemy to oscillate up/down the
+	# wall face forever instead of committing and going around.
 	var side := desired.orthogonal().normalized()
 	if get_slide_collision_count() > 0:
 		var hit := get_slide_collision(0)
 		if hit != null:
-			side = hit.get_normal().orthogonal()
-	velocity = side * maxf(desired.length(), movement_speed * 0.85)
+			var n := hit.get_normal()
+			# For a wall face the normal points away from the wall; its perpendicular
+			# is the "around the obstacle" direction. Pick the one that keeps us
+			# moving (n.orthogonal() is already near-perpendicular to desired, so
+			# just use it stably).
+			side = n.orthogonal()
+			if side.length_squared() < 0.1:
+				side = desired.orthogonal().normalized()
+	# Persist the side: commit once, and only flip if we've been sliding this way
+	# for a long time (>1.5s) with still no forward progress (i.e. this side is a
+	# dead end, so try the other way around).
+	if _stuck_side.length_squared() < 0.1:
+		_stuck_side = side
+	else:
+		var progress_ever := (global_position - before).dot(desired.normalized())
+		if _stuck_time > 1.5 and progress_ever <= 0.0 and _stuck_side.dot(side) < 0.0:
+			_stuck_side = -_stuck_side
+	# Move laterally along the committed side at near full speed.
+	velocity = _stuck_side * maxf(desired.length(), movement_speed * 0.9)
 	move_and_slide()
-	if _stuck_time < 0.22:
+	if _stuck_time < 0.45:
 		return
+	# Sustained stuck: give up and teleport to a free spot offset sideways + forward
+	# so we actually get past the obstacle.
 	_stuck_time = 0.0
+	_stuck_side = Vector2.ZERO
 	var arena := Arena.arena_root(self)
 	if arena == null:
 		return
-	var nudge := global_position + side * (body_radius + 22.0)
+	var nudge := global_position + _stuck_side * (body_radius + 30.0)
 	if desired.length_squared() > 1.0:
-		nudge += desired.normalized() * 18.0
+		nudge += desired.normalized() * 40.0
 	global_position = arena.free_position_near(nudge, body_radius)
 
 
