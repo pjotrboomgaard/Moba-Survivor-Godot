@@ -278,6 +278,9 @@ var command_aim := Vector2.RIGHT * 100.0
 var command_attack := false
 var command_ability_slots: Array = [false, false, false, false]
 var _casting_ability_id := ""
+## Tracks whether the self-buff for a single-target spell has already fired this cast
+## (so multi-hit abilities like chains only buff once per cast, not per target).
+var _single_target_buff_fired_this_cast := false
 var network_target_position := Vector2.ZERO
 ## Self-test driver latch: once it injects a slot press, OFFLINE input stops overriding the
 ## externally-set command slots so scripted casts land. Cleared by `clear_external_command()`.
@@ -1106,6 +1109,20 @@ const PVP_CHAIN_HOP_PENALTY := 0.22
 ## Decay factor applied to each successive mending-bolt chain hop (vs creeps). Vs
 ## rivals the first hop keeps full damage and every later hop decays by this factor.
 const CHAIN_HOP_DECAY := 0.55
+
+## PVP balance: a single ability hit can never land more than this fraction of a
+## rival hero's max health, so no single-target spell can instant-kill a hero.
+## Applies only when the target is a rival Player (creeps are unaffected).
+## 0.60 means at most ~3.4 hits to kill at full health with no shields — heroes
+## must survive a focused burst and get a chance to react or reposition.
+const PVP_SINGLE_HIT_CAP := 0.60
+
+## Single-target spell self-buff: when a single-target spell (NUKE_BOLT or the
+## single-target part of a chain) lands on an enemy, the caster gains a short,
+## modest damage-dealt buff so that single-target casts still feel rewarding in
+## this swarm-first game. The buff is intentionally small and short.
+const SINGLE_TARGET_SELF_BUFF_DURATION := 2.0
+const SINGLE_TARGET_SELF_BUFF_DAMAGE_MULT := 1.12
 
 
 ## True when this hit's target is a rival hero (FFA or cross-team Rift Clash). Shields,
@@ -2016,6 +2033,7 @@ func _cast_known_ability(slot: int) -> void:
 		return
 	var values := PlayerClass.ability_values(ability_id, int(entry.rank))
 	_casting_ability_id = ability_id
+	_single_target_buff_fired_this_cast = false
 	ability_cooldowns[slot] = values.cooldown
 	# Consume one charge for charge-bank abilities (after data validation so we
 	# don't waste a charge on an invalid cast).
@@ -2922,6 +2940,11 @@ func _cast_ability_bulwark_fissure(data: Dictionary, values: Dictionary, _rank: 
 			continue
 		_apply_ability_hit(enemy, data, values)
 
+	# HoN-faithful: Behemoth's Fissure is a persistent terrain feature. Enemies standing
+	# inside the crack channel take continuous "molten rock" damage + a lingering slow
+	# for the full duration of the wall (like a lava pit), not just a one-time stun.
+	_fissure_lingering_slow(origin, direction, wall_length, hit_radius, wall_duration)
+
 	_spawn_fissure_wall(origin, direction, wall_length, wall_segments, wall_duration)
 	_emit_ability_cast(PackedVector2Array([origin, endpoint, Vector2(hit_radius, wall_duration)]))
 	# Spend a fissure charge only after the wall actually spawned.
@@ -3106,6 +3129,36 @@ func _draw() -> void:
 		return null
 	_fissure_band_cache = src
 	return src
+
+
+## HoN-faithful Fissure: while the crack is active, enemies standing inside the
+## band take a lingering "molten-rock" slow for the full wall duration. This
+## replicates Behemoth's persistent-terrain behaviour — the fissure keeps
+## impeding enemies that linger on it, not just a one-time stun on cast.
+func _fissure_lingering_slow(origin: Vector2, direction: Vector2, wall_length: float, hit_radius: float, duration: float) -> void:
+	var direction_normalized := direction.normalized()
+	var tick_interval := 0.5
+	var total_ticks := int(duration / tick_interval)
+	var slow_factor := 0.45  # 45% speed while standing in the crack
+	var dps := 1.5  # small continuous molten-rock damage per second (scaled down)
+
+	for tick in range(1, total_ticks + 1):
+		get_tree().create_timer(tick * tick_interval).timeout.connect(func() -> void:
+			if not is_inside_tree():
+				return
+			for enemy in _enemies_in_radius(origin + direction_normalized * (wall_length * 0.5), wall_length * 0.5 + hit_radius):
+				var rel: Vector2 = (enemy as Node2D).global_position - origin
+				var along := rel.dot(direction_normalized)
+				if along < -hit_radius * 0.5 or along > wall_length + hit_radius * 0.5:
+					continue
+				var perpendicular: Vector2 = rel - direction_normalized * along
+				if perpendicular.length() > hit_radius:
+					continue
+				# Small continuous damage + refresh the slow while in the band.
+				_damage_enemy(enemy, dps)
+				if enemy.has_method("apply_slow"):
+					enemy.apply_slow(slow_factor, tick_interval * 2.0)
+		)
 
 
 ## 1x1 soft round ember texture (procedural — no external asset).
@@ -3681,14 +3734,27 @@ func _cast_ability_arclight_thundergods_wrath(data: Dictionary, values: Dictiona
 ## reverb — the more enemies in the ring, the more the ground echoes.
 func _cast_ability_bulwark_echo_slam(data: Dictionary, values: Dictionary, _rank: int) -> void:
 	var hit_count := _enemies_in_radius(global_position, float(values.radius)).size()
+	# HoN Behemoth's ult: a massive seismic slam that KNOCKS BACK + stuns,
+	# then the ground rings "echo" outward for lingering damage.
+	var knockback_dist := 120.0
+	# Initial slam: knock back + damage + stun (applied via _cast_ability_radius_burst).
 	_cast_ability_radius_burst(data, values)
-	# Echo Slam's echo: every enemy hit answers with another ring.
-	for index in range(mini(hit_count, 4)):
-		get_tree().create_timer(0.15 * index + 0.2).timeout.connect(func() -> void:
+	# HoN-faithful: knock enemies back radially so they feel the "seismic push".
+	for enemy in _enemies_in_radius(global_position, float(values.radius) * 0.7):
+		var dir := enemy.global_position - global_position
+		if dir.length_squared() > 0:
+			enemy.global_position += dir.normalized() * knockback_dist
+	# Echo rings: staggered waves of lingering damage expanding outward.
+	for index in range(mini(hit_count + 1, 5)):
+		get_tree().create_timer(0.15 * index + 0.25).timeout.connect(func() -> void:
 			if not is_inside_tree():
 				return
-			for enemy in _enemies_in_radius(global_position, float(values.radius) * 0.6):
-				_damage_enemy(enemy, values.power * 0.2)
+			var echo_radius := float(values.radius) * (0.4 + 0.15 * float(index))
+			for enemy in _enemies_in_radius(global_position, echo_radius):
+				_damage_enemy(enemy, values.power * 0.18)
+				# A lingering slow so the seismic after-math drags enemies down.
+				if enemy.has_method("apply_slow"):
+					enemy.apply_slow(0.7, 1.5)
 		)
 
 
@@ -4016,6 +4082,17 @@ func _play_ability_sfx(ability_id: String) -> void:
 ## whatever on-hit modifiers the ability carries (slow/stun/mark/poison).
 func _apply_ability_hit(target: Node2D, data: Dictionary, values: Dictionary) -> void:
 	_damage_enemy(target, values.power)
+	# Single-target spells (NUKE_BOLT) grant the caster a brief damage boost on
+	# a successful hit — makes single-target casts rewarding in a swarm game
+	# without breaking balance. Fires once per cast even if multiple targets
+	# are hit (e.g. chain nuke hitting several creeps).
+	var arch := int(data.get("archetype", -1))
+	if arch == PlayerClass.Archetype.NUKE_BOLT and not _single_target_buff_fired_this_cast:
+		_single_target_buff_fired_this_cast = true
+		# Only stack on top of existing buff if there isn't one already active.
+		if ability_buff_timer <= 0.0:
+			ability_buff_stats = {"damage_dealt_mult": SINGLE_TARGET_SELF_BUFF_DAMAGE_MULT}
+			ability_buff_timer = SINGLE_TARGET_SELF_BUFF_DURATION
 	if data.has("stun_on_hit") and target.has_method("apply_slow"):
 		target.apply_slow(0.1, float(data.stun_on_hit.duration))
 	if data.has("slow_on_hit") and target.has_method("apply_slow"):
@@ -5621,6 +5698,11 @@ func _damage_enemy(target: Node2D, amount: float) -> void:
 	# this hero, while leaving creep damage and self-heals untouched.
 	if _pvp_vs_rival(target):
 		dealt *= PVP_TAKEN_MULT
+		# No-instant-kill: cap a single ability hit so it can't exceed a fixed
+		# fraction of the rival's max health. Staggered ticks from zone/poison
+		# effects stay below the cap individually but add up over time.
+		var cap := target_health.max_health * PVP_SINGLE_HIT_CAP
+		dealt = minf(dealt, cap)
 	var was_alive := not target_health.is_dead
 	target_health.take_damage(dealt, self)
 	# T3.33 — track cumulative damage dealt for the FFA balance harness.

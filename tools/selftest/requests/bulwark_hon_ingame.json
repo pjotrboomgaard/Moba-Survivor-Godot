@@ -1,0 +1,58 @@
+{
+  "hero": "bulwark",
+  "comment": "In-game verify: Behemoth Fissure + Echo Slam HoN-faithful",
+  "events": [
+    {
+      "t": 0.5,
+      "kind": "snap",
+      "label": "ingame_before"
+    },
+    {
+      "t": 1.0,
+      "kind": "spawn",
+      "at": [
+        300,
+        20
+      ],
+      "type": "grunt",
+      "hp_mult": 0.3
+    },
+    {
+      "t": 1.2,
+      "kind": "aim",
+      "at": [
+        520,
+        0
+      ]
+    },
+    {
+      "t": 1.4,
+      "kind": "cast",
+      "slot": 0
+    },
+    {
+      "t": 1.9,
+      "kind": "snap",
+      "label": "ingame_fissure_midlife"
+    },
+    {
+      "t": 2.4,
+      "kind": "dev_command",
+      "command": "reset_ability_cd"
+    },
+    {
+      "t": 3.0,
+      "kind": "cast",
+      "slot": 2
+    },
+    {
+      "t": 3.4,
+      "kind": "snap",
+      "label": "ingame_echo_slam"
+    },
+    {
+      "t": 5.5,
+      "kind": "report"
+    }
+  ]
+}

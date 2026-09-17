@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\fissure_test\\fissure_test_fissure.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    25,
+    33,
+    41
+  ],
+  "content_fill_ratio": 0.0164,
+  "bounding_box": [
+    28,
+    0,
+    1736,
+    714
+  ],
+  "coverage": 0.5893,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.151,
+    "TR": 0.0103,
+    "BL": 0.248,
+    "BR": 0.5907
+  },
+  "edge_fractions": {
+    "top": 0.1121,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\fissure_test\\thumb_fissure_test_fissure.png"
+}

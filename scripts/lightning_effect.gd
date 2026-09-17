@@ -800,6 +800,22 @@ func _draw_quake_rings(center: Vector2, radius: float, alpha: float) -> void:
 		var crack := chain_color
 		crack.a *= alpha * 0.7
 		draw_line(center, center + Vector2.from_angle(a) * radius, crack, 2.0)
+	# HoN Behemoth signature: a shockwave ring that visibly EXPANDS outward over
+	# the effect lifetime (fades as it grows) — reads as a seismic shockwave.
+	var life := maxf(lifetime, 0.001)
+	var progress := clampf(elapsed / life, 0.0, 1.0)
+	if progress < 1.0:
+		var wave_r := radius * (0.25 + 0.95 * progress)
+		var wave_col := chain_color
+		wave_col.a *= alpha * (1.0 - progress) * 0.9
+		var segs2 := 48
+		var wprev := center + Vector2.RIGHT * wave_r
+		for s2 in range(1, segs2 + 1):
+			var a2 := TAU * float(s2) / float(segs2)
+			var jag2 := 1.0 + 0.15 * sin(a2 * 6.0 + elapsed * 8.0)
+			var n2 := center + Vector2.from_angle(a2) * wave_r * jag2
+			draw_line(wprev, n2, wave_col, 4.0, true)
+			wprev = n2
 
 
 func _draw_orbit_rings(center: Vector2, radius: float, alpha: float, clock: bool) -> void:

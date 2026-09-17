@@ -179,7 +179,7 @@ const KIT_VISUALS: Dictionary = {
 		"ribbon_count": 3,
 		"style": "nature",
 		"draw_mode": "quake_rings",
-		"lifetime": 3.0,
+		"lifetime": 3.5,
 	},
 	# ── Warden (Totem / Pollywog) ────────────────────────────────────────────
 	"warden_tongue_tied": {
