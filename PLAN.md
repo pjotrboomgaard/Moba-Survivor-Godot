@@ -671,6 +671,43 @@ instead of sliding against the obstacle forever.
         `creep_unstuck_ingame_report.json` (passed_wall=true, reached_player=true,
         verdict PASS).
 
+### T4.13 Compact menu v3 — top-right block, settings panel, ability strip (NEW 2026-09-17)
+**User direction:** "remove hero description", "put title+play+continue in top-right",
+"hero roster in middle", "4 ability buttons between roster and settings",
+"settings opens a separate panel on top".
+- [x] `scenes/bootstrap/bootstrap.gd` — `_build_compact_menu` v3: title + PLAY + CONTINUE
+      in a right-aligned top block; 4x4 roster grid in the middle; 4-ability strip
+      (LMB/RMB/Q/E) between roster and settings; settings button at bottom.
+- [x] `scenes/bootstrap/bootstrap.gd` — `_build_settings_panel()` + `_on_settings_resolution_selected()`:
+      a separate overlay panel (top-right, 272px wide) with SFX/Music/Resolution toggles,
+      shown/hidden by the settings button. No inline audio row.
+- [x] Hero description text removed (class_description stays hidden; no blurb shown in menu).
+- [ ] 6-step verify (in-game before/after/compare for the menu + settings panel).
+
+### T4.14 Shop: close on buy + ship white-outline removal (NEW 2026-09-17)
+**User direction:** "after buying upgrade close shop window", "broken ship has small white
+outline, shrink the cutout by 1 pixel", "upgraded should have same width".
+- [x] `scripts/main.gd` — `_on_local_shop_item_chosen`: after a successful purchase,
+      call `hud.close_shop()` + `hud.shop_closed.emit()` (skips the intermission breather).
+- [x] `tools/remove_ship_bg.py` — edge flood-fill removes the cream/white halo from both
+      ship PNGs (crash + upgraded). Both remain 1280x720 (same width in-game via
+      `SHIP_WIDTH_WORLD`). Originals backed up to `*_orig.png`.
+- [ ] 6-step verify (in-game ship before/after + close-on-buy behavior).
+
+### T4.15 Beacon: 2nd shop upgrade + BEACON tab to buy heroes (NEW 2026-09-17)
+**User direction:** "add another upgrade — beacon, bottom right, buy in shop with icon,
+activate beacon, add beacon animation, then open beacon tab in shop and buy heroes".
+- [x] `scripts/shop_catalog.gd` — new `"beacon"` item (1200 gold, 1 stack, all heroes).
+- [x] `scripts/summon_beacon.gd` — new `SummonBeacon` node: pulsing ground ring + light
+      beam, placed in the arena bottom-right when purchased.
+- [x] `scripts/main.gd` — `_activate_beacon()`: spawns the beacon near the wreck,
+      calls `hud.mark_beacon_active()` to reveal the BEACON tab.
+- [x] `scripts/hud.gd` — `_beacon_active` flag, `mark_beacon_active()`,
+      `_ensure_beacon_tab_button()`: a "📡 BEACON — SUMMON HEROES" button appears in
+      the shop; pressing it toggles the hero-buy grid (same grid as the character shop).
+- [x] `assets/sprites/beacon.png` — generated 128×128 glowing-signal icon (shop item icon).
+- [ ] 6-step verify (in-game: buy beacon → beacon appears + animates → BEACON tab opens → buy hero).
+
 ---
 
 ## P0 — CRITICAL (blocks everything)

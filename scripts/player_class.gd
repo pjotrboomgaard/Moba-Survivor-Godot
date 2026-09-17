@@ -1273,6 +1273,7 @@ const ABILITIES: Dictionary = {
 		"description": "Hurls a searing bolt that bursts into dragon fire up to {range} range, dealing {power} Magic damage.",
 		"cooldown_base": 7.0, "cooldown_per_rank": -0.7, "cooldown_min": 3.8,
 		"power_base": 105.0, "power_per_rank": 26.0, "range": 620.0,
+		"burn_on_hit": {"power": 18.0, "duration": 3.0},
 	},
 	"cinder_pillar_of_flame": {
 		"name": "Pillar of Flame", "archetype": Archetype.ZONE_CHANNEL,

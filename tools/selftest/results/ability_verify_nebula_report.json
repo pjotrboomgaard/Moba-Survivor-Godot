@@ -1,0 +1,215 @@
+{
+  "hero": "nebula",
+  "kit_slots": {
+    "0": "nebula_arcane_bolt",
+    "1": "nebula_curse_of_ages",
+    "2": "nebula_chronofield",
+    "3": "nebula_time_shift"
+  },
+  "probes": [
+    {
+      "dummies": [
+        {
+          "alive": true,
+          "hp": 160.0,
+          "idx": 0,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            65.1,
+            -26.0
+          ],
+          "slowed": false,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 260.0,
+          "idx": 1,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            102.3,
+            31.5
+          ],
+          "slowed": false,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 260.0,
+          "idx": 2,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            155.0,
+            0.0
+          ],
+          "slowed": false,
+          "stunned": false
+        }
+      ],
+      "label": "probe_slot0",
+      "player": {
+        "alive": true,
+        "buff_active": true,
+        "hp": 115.0,
+        "max_hp": 115.0,
+        "shield": 0.0
+      },
+      "t": 3.3
+    },
+    {
+      "dummies": [
+        {
+          "alive": true,
+          "hp": 11.5,
+          "idx": 0,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            11.0,
+            -20.2
+          ],
+          "slowed": true,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 111.5,
+          "idx": 1,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            0.6,
+            31.7
+          ],
+          "slowed": true,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 111.5,
+          "idx": 2,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            56.3,
+            6.5
+          ],
+          "slowed": true,
+          "stunned": false
+        }
+      ],
+      "label": "probe_slot1",
+      "player": {
+        "alive": true,
+        "buff_active": false,
+        "hp": 82.0,
+        "max_hp": 115.0,
+        "shield": 0.0
+      },
+      "t": 6.6
+    },
+    {
+      "dummies": [
+        {
+          "alive": false,
+          "idx": 0
+        },
+        {
+          "alive": false,
+          "idx": 1
+        },
+        {
+          "alive": false,
+          "idx": 2
+        }
+      ],
+      "label": "probe_slot2",
+      "player": {
+        "alive": true,
+        "buff_active": false,
+        "hp": 64.0,
+        "max_hp": 115.0,
+        "shield": 0.0
+      },
+      "t": 9.9
+    },
+    {
+      "dummies": [
+        {
+          "alive": false,
+          "idx": 0
+        },
+        {
+          "alive": false,
+          "idx": 1
+        },
+        {
+          "alive": false,
+          "idx": 2
+        }
+      ],
+      "label": "probe_slot3",
+      "player": {
+        "alive": true,
+        "buff_active": false,
+        "hp": 64.0,
+        "max_hp": 115.0,
+        "shield": 0.0
+      },
+      "t": 13.2
+    }
+  ],
+  "scene": "ability_verify_test",
+  "shots": [
+    {
+      "label": "iso_before_slot0",
+      "path": "user://ability_verify_1789656132/iso_before_slot0.png",
+      "t": 0.88
+    },
+    {
+      "label": "iso_after_slot0",
+      "path": "user://ability_verify_1789656132/iso_after_slot0.png",
+      "t": 3.08
+    },
+    {
+      "label": "iso_before_slot1",
+      "path": "user://ability_verify_1789656132/iso_before_slot1.png",
+      "t": 4.19
+    },
+    {
+      "label": "iso_after_slot1",
+      "path": "user://ability_verify_1789656132/iso_after_slot1.png",
+      "t": 6.39
+    },
+    {
+      "label": "iso_before_slot2",
+      "path": "user://ability_verify_1789656132/iso_before_slot2.png",
+      "t": 7.48
+    },
+    {
+      "label": "iso_after_slot2",
+      "path": "user://ability_verify_1789656132/iso_after_slot2.png",
+      "t": 9.68
+    },
+    {
+      "label": "iso_before_slot3",
+      "path": "user://ability_verify_1789656132/iso_before_slot3.png",
+      "t": 10.79
+    },
+    {
+      "label": "iso_after_slot3",
+      "path": "user://ability_verify_1789656132/iso_after_slot3.png",
+      "t": 12.99
+    }
+  ],
+  "verdict": "PASS"
+}

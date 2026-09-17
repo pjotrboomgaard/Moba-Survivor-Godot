@@ -1,0 +1,175 @@
+{
+  "hero": "warden",
+  "kit_slots": {
+    "0": "warden_tongue_tied",
+    "1": "warden_thorn_volley",
+    "2": "warden_life_drain",
+    "3": "warden_tongue_tied"
+  },
+  "probes": [
+    {
+      "dummies": [
+        {
+          "alive": false,
+          "idx": 0
+        },
+        {
+          "alive": true,
+          "hp": 260.0,
+          "idx": 1,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            102.3,
+            31.5
+          ],
+          "slowed": false,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 260.0,
+          "idx": 2,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            155.0,
+            0.0
+          ],
+          "slowed": false,
+          "stunned": false
+        }
+      ],
+      "label": "probe_slot0",
+      "player": {
+        "alive": true,
+        "buff_active": false,
+        "hp": 150.0,
+        "max_hp": 150.0,
+        "shield": 0.0
+      },
+      "t": 3.31
+    },
+    {
+      "dummies": [
+        {
+          "alive": false,
+          "idx": 0
+        },
+        {
+          "alive": false,
+          "idx": 1
+        },
+        {
+          "alive": false,
+          "idx": 2
+        }
+      ],
+      "label": "probe_slot1",
+      "player": {
+        "alive": true,
+        "buff_active": false,
+        "hp": 138.775000000001,
+        "max_hp": 150.0,
+        "shield": 0.0
+      },
+      "t": 6.6
+    },
+    {
+      "dummies": [
+        {
+          "alive": false,
+          "idx": 0
+        },
+        {
+          "alive": false,
+          "idx": 1
+        },
+        {
+          "alive": false,
+          "idx": 2
+        }
+      ],
+      "label": "probe_slot2",
+      "player": {
+        "alive": true,
+        "buff_active": false,
+        "hp": 143.725000000002,
+        "max_hp": 150.0,
+        "shield": 0.0
+      },
+      "t": 9.9
+    },
+    {
+      "dummies": [
+        {
+          "alive": false,
+          "idx": 0
+        },
+        {
+          "alive": false,
+          "idx": 1
+        },
+        {
+          "alive": false,
+          "idx": 2
+        }
+      ],
+      "label": "probe_slot3",
+      "player": {
+        "alive": true,
+        "buff_active": false,
+        "hp": 148.675000000003,
+        "max_hp": 150.0,
+        "shield": 0.0
+      },
+      "t": 13.2
+    }
+  ],
+  "scene": "ability_verify_test",
+  "shots": [
+    {
+      "label": "iso_before_slot0",
+      "path": "user://ability_verify_1789656696/iso_before_slot0.png",
+      "t": 0.88
+    },
+    {
+      "label": "iso_after_slot0",
+      "path": "user://ability_verify_1789656696/iso_after_slot0.png",
+      "t": 3.09
+    },
+    {
+      "label": "iso_before_slot1",
+      "path": "user://ability_verify_1789656696/iso_before_slot1.png",
+      "t": 4.19
+    },
+    {
+      "label": "iso_after_slot1",
+      "path": "user://ability_verify_1789656696/iso_after_slot1.png",
+      "t": 6.39
+    },
+    {
+      "label": "iso_before_slot2",
+      "path": "user://ability_verify_1789656696/iso_before_slot2.png",
+      "t": 7.48
+    },
+    {
+      "label": "iso_after_slot2",
+      "path": "user://ability_verify_1789656696/iso_after_slot2.png",
+      "t": 9.68
+    },
+    {
+      "label": "iso_before_slot3",
+      "path": "user://ability_verify_1789656696/iso_before_slot3.png",
+      "t": 10.79
+    },
+    {
+      "label": "iso_after_slot3",
+      "path": "user://ability_verify_1789656696/iso_after_slot3.png",
+      "t": 12.99
+    }
+  ],
+  "verdict": "PASS"
+}

@@ -1,119 +1,29 @@
 {
-  "effects": [
-    {
-      "cd_left": 23.04,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 0.2714
-    },
-    {
-      "cd_left": 22.94,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 0,
-      "t": 0.367696
-    },
-    {
-      "cd_left": 7.7,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 1,
-      "t": 2.16844866666667
-    },
-    {
-      "cd_left": 37.4066666666667,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 2,
-      "t": 4.18333333333333
-    },
-    {
-      "cd_left": 37.3233333333333,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 2,
-      "t": 4.2781746031746
-    },
-    {
-      "cd_left": 99.74,
-      "kind": "cast_skipped",
-      "reason": "cooldown",
-      "slot": 3,
-      "t": 6.15977466666667
-    }
-  ],
-  "elapsed": 9.03434343434344,
-  "enemies_spawned": 4,
-  "hero_position": "(18.41469, 28.83217)",
-  "player_class": "thorn",
-  "results": {
-    "alive": true,
-    "beaten_wave": 0,
-    "build": "",
-    "cast_count": 4,
-    "casts": [
-      {
-        "ability_id": "thorn_poison_spray",
-        "t": 0.2714
-      },
-      {
-        "ability_id": "thorn_toxicity",
-        "t": 2.06666666666667
-      },
-      {
-        "ability_id": "thorn_toxin_ward",
-        "t": 4.15089333333333
-      },
-      {
-        "ability_id": "thorn_poison_burst",
-        "t": 6.05871966666667
-      }
-    ],
-    "creep_kills": 3,
-    "died": false,
-    "errors": [],
-    "ffa": {},
-    "gold": 35,
-    "hero_kills": 0,
-    "hp_samples": [],
-    "landmark_saves": 0,
-    "level": 1,
-    "level_upgrades": {},
-    "max_hp": 0.0,
-    "min_hp": 1.0,
-    "min_hp_late": 1.0,
-    "pressure_boosts": 0,
-    "quest_types": 0,
-    "quests_seen": {},
-    "shop_buy_count": 0,
-    "shop_buys": [],
-    "taken_upgrades": [],
-    "until_wave": 20,
-    "verdict": "",
-    "wave": 1,
-    "xp": 65
-  },
+  "expected_shots": 5,
+  "scene": "compact_menu_test",
   "shots": [
     {
-      "label": "t1",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5781/t1_1.003_5781.png",
-      "t": 1.00292677777778
+      "label": "menu_before",
+      "path": "user://compact_menu_run_1944/menu_before.png"
     },
     {
-      "label": "t3",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7792/t3_3.032_7792.png",
-      "t": 3.03167833333333
+      "label": "menu_after_next",
+      "path": "user://compact_menu_run_1944/menu_after_next.png"
     },
     {
-      "label": "t5",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9786/t5_5.018_9786.png",
-      "t": 5.01784966666667
+      "label": "menu_after_hero_select",
+      "path": "user://compact_menu_run_1944/menu_after_hero_select.png"
     },
     {
-      "label": "t8",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_12783/t8_8.016_12783.png",
-      "t": 8.01610833333333
+      "label": "menu_after_mode",
+      "path": "user://compact_menu_run_1944/menu_after_mode.png"
+    },
+    {
+      "label": "menu_hero_desc_hover",
+      "path": "user://compact_menu_run_1944/menu_hero_desc_hover.png"
     }
-  ]
+  ],
+  "shots_captured": 5,
+  "task": "Compact main menu redesign (big hero icon + < > nav + roster + mode nav)",
+  "verdict": "PASS"
 }

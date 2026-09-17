@@ -467,51 +467,58 @@ func _constrain_lobby_layout() -> void:
 
 func _build_compact_menu(layout: VBoxContainer) -> void:
 	# ========================================================================
-	# 2026-09-17 v2 LAYOUT — single vertical column, no side-by-side clutter.
-	# Every item is its own full-width row, stacked top to bottom:
-	#   [HERO NAME]     ← selected hero name (updates on roster click)
-	#   [PLAY]          ← full-width button
-	#   [CONTINUE]      ← full-width button (hidden when no save)
-	#   [< SOLO >]      ← mode row (single row, centered)
-	#   [< NORMAL >]    ← difficulty row (single row, centered)
-	#   [4x4 roster]    ← 16 hero buttons (defines panel width)
-	#   [⚙ Settings]    ← full-width button
+	# 2026-09-17 v3 LAYOUT (user request) — single vertical column.
+	#   [RIFT SURVIVORS + PLAY + CONTINUE]  ← compact block, top-right aligned
+	#   [< SOLO >]                          ← mode row
+	#   [< NORMAL >]                        ← difficulty row
+	#   [4x4 hero roster]                   ← MIDDLE of panel
+	#   [4 ability buttons]                 ← hero's kit, between roster & settings
+	#   [⚙ SETTINGS]                        ← bottom; opens a separate settings panel
+	# No hero-description text anywhere.
 	# ========================================================================
 
-	# --- HERO NAME label (top of panel, centered) ---
-	_compact_hero_name_label = Label.new()
-	_compact_hero_name_label.name = "CompactHeroName"
-	_compact_hero_name_label.text = "TOBOR"
-	_compact_hero_name_label.add_theme_font_size_override("font_size", 22)
-	_compact_hero_name_label.add_theme_color_override("font_color", Color(1.0, 0.75, 0.3, 1.0))
-	_compact_hero_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_compact_hero_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	layout.add_child(_compact_hero_name_label)
+	# --- TOP-RIGHT BLOCK: title + PLAY + CONTINUE (right-aligned, compact) ---
+	var top_block := VBoxContainer.new()
+	top_block.name = "CompactTopBlock"
+	top_block.alignment = BoxContainer.ALIGNMENT_END
+	top_block.add_theme_constant_override("separation", 4)
+	top_block.size_flags_horizontal = Control.SIZE_SHRINK_END
+	layout.add_child(top_block)
 
-	# --- PLAY button (full width) ---
+	# Title
+	var title_lbl := Label.new()
+	title_lbl.name = "CompactTitle"
+	title_lbl.text = "RIFT SURVIVORS"
+	title_lbl.add_theme_font_size_override("font_size", 20)
+	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.78, 0.32, 1.0))
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_block.add_child(title_lbl)
+
+	# PLAY button (compact, right-aligned)
 	_compact_start_btn = Button.new()
 	_compact_start_btn.name = "CompactStartBtn"
 	_compact_start_btn.text = "PLAY"
-	_compact_start_btn.custom_minimum_size = Vector2(0, 48)
-	_compact_start_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_compact_start_btn.add_theme_font_size_override("font_size", 18)
+	_compact_start_btn.custom_minimum_size = Vector2(150, 42)
+	_compact_start_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_compact_start_btn.add_theme_font_size_override("font_size", 17)
 	_compact_start_btn.focus_mode = Control.FOCUS_NONE
 	_compact_start_btn.pressed.connect(_on_solo_pressed)
 	_style_action_button(_compact_start_btn)
-	layout.add_child(_compact_start_btn)
+	top_block.add_child(_compact_start_btn)
 
-	# --- CONTINUE button (full width, hidden when no save) ---
+	# CONTINUE button (compact, right-aligned, hidden when no save)
 	_compact_continue_btn = Button.new()
 	_compact_continue_btn.name = "CompactContinueBtn"
 	_compact_continue_btn.text = "CONTINUE"
-	_compact_continue_btn.custom_minimum_size = Vector2(0, 44)
-	_compact_continue_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_compact_continue_btn.add_theme_font_size_override("font_size", 15)
+	_compact_continue_btn.custom_minimum_size = Vector2(150, 36)
+	_compact_continue_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_compact_continue_btn.add_theme_font_size_override("font_size", 14)
 	_compact_continue_btn.focus_mode = Control.FOCUS_NONE
 	_compact_continue_btn.pressed.connect(_on_continue_pressed)
 	_compact_continue_btn.visible = false
 	_style_action_button(_compact_continue_btn)
-	layout.add_child(_compact_continue_btn)
+	top_block.add_child(_compact_continue_btn)
 
 	# --- MODE row: < SOLO > (full width, centered) ---
 	var mode_row := HBoxContainer.new()
@@ -557,17 +564,26 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	_diff_next_btn.pressed.connect(_cycle_diff.bind(1))
 	diff_row.add_child(_diff_next_btn)
 
-	# --- 16-hero roster grid (4x4) — defines the panel width ---
+	# --- 16-hero roster grid (4x4) — MIDDLE of the panel ---
 	_roster_grid = GridContainer.new()
 	_roster_grid.name = "CompactRosterGrid"
 	_roster_grid.columns = 4
 	_roster_grid.add_theme_constant_override("h_separation", 6)
 	_roster_grid.add_theme_constant_override("v_separation", 6)
 	_roster_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_roster_grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	layout.add_child(_roster_grid)
 	_populate_roster_grid()
 
-	# --- SETTINGS button (full width) ---
+	# --- 4 ABILITY buttons (kit) between roster and settings (2026-09-17) ---
+	_ability_strip = HBoxContainer.new()
+	_ability_strip.name = "CompactAbilityStrip"
+	_ability_strip.add_theme_constant_override("separation", 6)
+	_ability_strip.alignment = BoxContainer.ALIGNMENT_CENTER
+	_ability_strip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	layout.add_child(_ability_strip)
+
+	# --- SETTINGS button (full width, bottom) ---
 	_compact_settings_btn = Button.new()
 	_compact_settings_btn.name = "CompactSettingsBtn"
 	_compact_settings_btn.text = "⚙  SETTINGS"
@@ -579,6 +595,9 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	_compact_settings_btn.pressed.connect(_on_compact_settings_pressed)
 	_style_action_button(_compact_settings_btn)
 	layout.add_child(_compact_settings_btn)
+
+	# --- Populate the 4 ability strip with the current hero's kit ---
+	_populate_ability_strip(PlayerProfile.selected_class_id)
 
 	# --- Hide old UI elements ---
 	title_label.visible = false
@@ -649,24 +668,158 @@ func _sync_compact_continue() -> void:
 
 
 ## Called when the settings (wrench) button is pressed — toggle audio row.
+var _settings_panel: PanelContainer = null
+var _settings_panel_visible := false
+
 func _on_compact_settings_pressed() -> void:
 	AudioService.play("ui_click")
-	if audio_row == null:
-		return
-	# Toggle visibility of the audio row; insert it right above the settings row.
-	var layout := lobby_panel.get_node_or_null("Margin/Layout") as VBoxContainer
-	if layout == null:
-		return
-	if audio_row.visible:
-		audio_row.visible = false
+	if _settings_panel == null:
+		_build_settings_panel()
+	_settings_panel_visible = not _settings_panel_visible
+	_settings_panel.visible = _settings_panel_visible
+
+
+## Builds a separate settings panel that overlays the top of the compact menu.
+## Contains SFX, Music, and Resolution controls. Shown/hidden by the settings
+## button; the main menu layout stays clean.
+func _build_settings_panel() -> void:
+	_settings_panel = PanelContainer.new()
+	_settings_panel.name = "CompactSettingsPanel"
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.08, 0.09, 0.13, 0.97)
+	sb.border_color = Color(0.3, 0.35, 0.5, 0.8)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(8)
+	_settings_panel.add_theme_stylebox_override("panel", sb)
+	_settings_panel.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
+	_settings_panel.anchor_left = 1.0
+	_settings_panel.anchor_top = 0.0
+	_settings_panel.anchor_right = 1.0
+	_settings_panel.anchor_bottom = 0.0
+	_settings_panel.offset_left = -272.0
+	_settings_panel.offset_top = 8.0
+	_settings_panel.offset_right = -8.0
+	_settings_panel.offset_bottom = 200.0
+	_settings_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_settings_panel.z_index = 100
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	_settings_panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	margin.add_child(vbox)
+
+	# Title row
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 8)
+	title_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(title_row)
+	var title := Label.new()
+	title.text = "⚙ SETTINGS"
+	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_color_override("font_color", Color(0.9, 0.85, 0.7, 1.0))
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_row.add_child(title)
+	var close_btn := Button.new()
+	close_btn.text = "✕"
+	close_btn.custom_minimum_size = Vector2(28, 28)
+	close_btn.focus_mode = Control.FOCUS_NONE
+	close_btn.add_theme_font_size_override("font_size", 14)
+	close_btn.pressed.connect(func() -> void:
+		_settings_panel_visible = false
+		_settings_panel.visible = false
+	)
+	title_row.add_child(close_btn)
+
+	# SFX toggle
+	var sfx_row := HBoxContainer.new()
+	sfx_row.add_theme_constant_override("separation", 8)
+	sfx_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(sfx_row)
+	var sfx_lbl := Label.new()
+	sfx_lbl.text = "Sound FX"
+	sfx_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sfx_lbl.add_theme_font_size_override("font_size", 14)
+	sfx_row.add_child(sfx_lbl)
+	var sfx_chk := CheckButton.new()
+	sfx_chk.button_pressed = AudioService.sfx_enabled
+	sfx_chk.toggled.connect(_on_sfx_toggled)
+	sfx_row.add_child(sfx_chk)
+
+	# Music toggle
+	var music_row := HBoxContainer.new()
+	music_row.add_theme_constant_override("separation", 8)
+	music_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(music_row)
+	var music_lbl := Label.new()
+	music_lbl.text = "Music"
+	music_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	music_lbl.add_theme_font_size_override("font_size", 14)
+	music_row.add_child(music_lbl)
+	var music_chk := CheckButton.new()
+	music_chk.button_pressed = AudioService.music_enabled
+	music_chk.toggled.connect(_on_music_toggled)
+	music_row.add_child(music_chk)
+
+	# Resolution
+	var res_row := HBoxContainer.new()
+	res_row.add_theme_constant_override("separation", 8)
+	res_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(res_row)
+	var res_lbl := Label.new()
+	res_lbl.text = "Resolution"
+	res_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	res_lbl.add_theme_font_size_override("font_size", 14)
+	res_row.add_child(res_lbl)
+	var res_opt := OptionButton.new()
+	res_opt.custom_minimum_size = Vector2(140, 0)
+	res_opt.clear()
+	for size in MENU_RESOLUTIONS:
+		res_opt.add_item("%dx%d" % [int(size.x), int(size.y)])
+	res_opt.add_item("FULLSCREEN")
+	res_opt.set_item_metadata(res_opt.item_count - 1, _MENU_FULLWIDTH)
+	# Sync current selection.
+	var wsize := DisplayServer.window_get_size()
+	var wmode := DisplayServer.window_get_mode()
+	if wmode == DisplayServer.WINDOW_MODE_FULLSCREEN or wmode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		res_opt.select(res_opt.item_count - 1)
 	else:
-		audio_row.visible = true
-		# Move audio row to just before the settings row
-		var settings_row := layout.get_node_or_null("CompactSettingsRow")
-		if settings_row != null:
-			layout.move_child(audio_row, settings_row.get_index())
-		else:
-			layout.add_child(audio_row)
+		var best := 0
+		var best_dist := INF
+		for idx in MENU_RESOLUTIONS.size():
+			var d := absf(int(MENU_RESOLUTIONS[idx].x) - int(wsize.x))
+			if d < best_dist:
+				best_dist = d
+				best = idx
+		res_opt.select(best)
+	res_opt.item_selected.connect(_on_settings_resolution_selected.bind(res_opt))
+	res_row.add_child(res_opt)
+
+	# Parent to StatusLayer (sibling of LobbyPanel so it floats above).
+	var status_layer := get_node_or_null("StatusLayer")
+	if status_layer:
+		status_layer.add_child(_settings_panel)
+	_settings_panel.visible = false
+
+
+## Handler for the settings panel's resolution OptionButton (separate from the
+## original resolution_option which lives in the old audio_row).
+func _on_settings_resolution_selected(index: int, opt: OptionButton) -> void:
+	AudioService.play("ui_click")
+	if opt.get_item_metadata(index) == _MENU_FULLWIDTH:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		opt.select(opt.item_count - 1)
+		return
+	var size := MENU_RESOLUTIONS[index]
+	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN \
+		or DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(size)
 
 
 func _make_nav_btn(txt: String, min_h: float = 84) -> Button:

@@ -19,6 +19,10 @@ signal dev_command(command: String)
 signal next_wave_requested
 signal save_run_requested
 signal load_run_requested
+## Beacon: player bought the beacon (shop item "beacon").
+signal beacon_bought
+## Beacon: player clicked the BEACON tab toggle in the shop.
+signal beacon_tab_toggled(visible: bool)
 
 const UPGRADE_ICON_MAX_WIDTH := 28
 
@@ -61,6 +65,10 @@ var _repurchase_button: Button = null
 var _hero_grid: GridContainer = null
 var _hero_buttons: Dictionary = {}
 var _hero_section_label: Label = null
+## Beacon state (2026-09-17): a beacon-activated flag + the BEACON tab toggle button.
+var _beacon_active := false
+var _beacon_tab_button: Button = null
+var _beacon_label: Label = null
 @onready var upgrade_panel: PanelContainer = $UpgradePanel
 @onready var offer_title_label: Label = $UpgradePanel/Layout/OfferTitle
 @onready var choice_buttons: Array[Button] = [
@@ -1905,6 +1913,13 @@ func _refresh_shop() -> void:
 		var cap := int(item.max_stacks)
 		button.text = "%s  %d/%d\n%s\n%d gold" % [item_name, stacks, cap, item_description, price]
 		button.disabled = gold < price
+	# Beacon: show the BEACON tab button once the beacon is active.
+	if _beacon_active:
+		_ensure_beacon_tab_button()
+		if _beacon_tab_button != null:
+			_beacon_tab_button.visible = true
+	elif _beacon_tab_button != null and is_instance_valid(_beacon_tab_button):
+		_beacon_tab_button.visible = false
 	_refresh_hero_shop(gold)
 
 
@@ -1915,6 +1930,47 @@ func _make_locked_repurchase_button() -> Button:
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	b.pressed.connect(_on_repurchase_pressed)
 	return b
+
+
+## Beacon: called by main.gd when the beacon is purchased/activated.
+## Sets the flag, and shows a BEACON tab button in the shop.
+func mark_beacon_active() -> void:
+	_beacon_active = true
+	_beacon_tab_button = null  # force re-build
+	_refresh_shop()
+
+
+## Build the BEACON tab button that appears in the shop when the beacon is active.
+## The BEACON tab reveals the hero-buy grid (heroes the team can summon).
+func _ensure_beacon_tab_button() -> void:
+	if _beacon_tab_button != null and is_instance_valid(_beacon_tab_button):
+		return
+	_beacon_tab_button = Button.new()
+	_beacon_tab_button.custom_minimum_size = Vector2(0, 44)
+	_beacon_tab_button.text = "📡  BEACON — SUMMON HEROES"
+	_beacon_tab_button.add_theme_font_size_override("font_size", 15)
+	_beacon_tab_button.focus_mode = Control.FOCUS_NONE
+	_beacon_tab_button.tooltip_text = "Open the BEACON tab to buy heroes for your team"
+	_beacon_tab_button.pressed.connect(_on_beacon_tab_pressed)
+	# Insert before the ShopContinue button (last child of the layout).
+	var layout := shop_panel.get_child(0) as Control
+	if layout != null:
+		var idx := layout.get_child_count() - 1
+		if idx >= 0:
+			layout.add_child(_beacon_tab_button)
+			layout.move_child(_beacon_tab_button, idx)
+		else:
+			layout.add_child(_beacon_tab_button)
+	# Start with the hero grid hidden (shown when the tab is opened).
+	if _hero_grid != null:
+		_hero_grid.visible = false
+
+
+func _on_beacon_tab_pressed() -> void:
+	AudioService.play("ui_click")
+	# Toggle the hero (beacon) grid visibility.
+	if _hero_grid != null and is_instance_valid(_hero_grid):
+		_hero_grid.visible = not _hero_grid.visible
 
 
 ## T4.9: keep the Repurpose button's label / enabled state in sync with the wallet.

@@ -200,6 +200,15 @@ const ITEMS: Array[Dictionary] = [
 		"board_jump": true,
 		"heroes": ALL_HEROES,
 	},
+	{
+		"id": "beacon",
+		"name": "Beacon",
+		"description": "Installs a summoning beacon in the arena. Unlocks the BEACON tab in the shop where you can buy heroes to join your team. One-shot.",
+		"base_price": 1200,
+		"price_step": 0,
+		"max_stacks": 1,
+		"heroes": ALL_HEROES,
+	},
 ]
 
 

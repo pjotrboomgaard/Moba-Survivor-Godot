@@ -2249,6 +2249,159 @@ func _cast_known_ability(slot: int) -> void:
 			_cast_ability_attack_fury(data, values)
 
 
+## Direct-cast helper for self-test / isolated verification scenes.
+## Bypasses cooldown / charge gates so tests can force-cast any ability on demand.
+## Mirrors the dispatch table in _cast_known_ability exactly.
+func _cast_known_ability_direct(ability_id: String, data: Dictionary, values: Dictionary, rank: int = 0) -> void:
+	_casting_ability_id = ability_id
+	_single_target_buff_fired_this_cast = false
+	_play_ability_sfx(ability_id)
+	match ability_id:
+		"tobor_steam_keg":
+			_cast_ability_wrench_keg(data, values, rank); return
+		"tobor_steam_turret":
+			_cast_ability_wrench_turret(data, values, rank); return
+		"tobor_spider_mines":
+			_cast_ability_wrench_mines(data, values, rank); return
+		"tobor_energy_field":
+			_cast_ability_wrench_field(data, values, rank); return
+		"arclight_blast_of_lightning":
+			_cast_ability_arclight_blast(data, values, rank); return
+		"bulwark_fissure":
+			_cast_ability_bulwark_fissure(data, values, rank); return
+		"warden_tongue_tied":
+			_cast_ability_warden_tongue_tied(data, values, rank); return
+		"cinder_dragon_fire":
+			_cast_ability_cinder_dragon_fire(data, values, rank); return
+		"pyra_sticky_bomb":
+			_cast_ability_pyra_sticky_bomb(data, values, rank); return
+		"slag_steam_bath":
+			_cast_ability_slag_steam_bath(data, values, rank); return
+		"ember_entangle":
+			_cast_ability_ember_entangle(data, values, rank); return
+		"thorn_poison_spray":
+			_cast_ability_thorn_poison_spray(data, values, rank); return
+		"willow_swift_strike":
+			_cast_ability_willow_swift_strike(data, values, rank); return
+		"stump_natures_rally":
+			_cast_ability_stump_natures_rally(data, values, rank); return
+		"sage_grace":
+			_cast_ability_sage_grace(data, values, rank); return
+		"volt_gust":
+			_cast_ability_volt_gust(data, values, rank); return
+		"nebula_time_shift":
+			_cast_ability_nebula_time_shift(data, values, rank); return
+		"astral_essence_link":
+			_cast_ability_astral_essence_link(data, values, rank); return
+		"arclight_arc_cascade":
+			_cast_ability_arclight_chain_lightning(data, values, rank); return
+		"bulwark_heavyweight":
+			_cast_ability_bulwark_heavyweight(data, values, rank); return
+		"warden_thorn_volley":
+			_cast_ability_warden_voodoo_wards(data, values, rank); return
+		"cinder_fiery_assault":
+			_cast_ability_cinder_fiery_assault(data, values, rank); return
+		"pyra_boom_dust":
+			_cast_ability_pyra_boom_dust(data, values, rank); return
+		"slag_volcanic_touch":
+			_cast_ability_slag_volcanic_touch(data, values, rank); return
+		"ember_healing_wave":
+			_cast_ability_ember_healing_wave(data, values, rank); return
+		"thorn_toxin_ward":
+			_cast_ability_thorn_toxin_ward(data, values, rank); return
+		"willow_forsaken_shot":
+			_cast_ability_willow_forsaken_shot(data, values, rank); return
+		"stump_root_charge":
+			_cast_ability_stump_camouflage(data, values, rank); return
+		"sage_volatile_pod":
+			_cast_ability_sage_volatile_pod(data, values, rank); return
+		"volt_wind_shield":
+			_cast_ability_volt_wind_shield(data, values, rank); return
+		"nebula_curse_of_ages":
+			_cast_ability_nebula_curse_of_ages(data, values, rank); return
+		"astral_guardian_angel":
+			_cast_ability_astral_guardian_angel(data, values, rank); return
+		"rime_chilling_touch":
+			_cast_ability_rime_chilling_touch(data, values, rank); return
+		"arclight_thundergods_wrath":
+			_cast_ability_arclight_thundergods_wrath(data, values, rank); return
+		"bulwark_echo_slam":
+			_cast_ability_bulwark_echo_slam(data, values, rank); return
+		"warden_life_drain":
+			_cast_ability_warden_life_drain(data, values, rank); return
+		"cinder_pillar_of_flame":
+			_cast_ability_cinder_pillar_of_flame(data, values, rank); return
+		"pyra_air_strike":
+			_cast_ability_pyra_air_strike(data, values, rank); return
+		"slag_eruption":
+			_cast_ability_slag_eruption(data, values, rank); return
+		"ember_unbreakable":
+			_cast_ability_ember_unbreakable(data, values, rank); return
+		"thorn_poison_burst":
+			_cast_ability_thorn_poison_burst(data, values, rank); return
+		"willow_strangling_vines":
+			_cast_ability_willow_strangling_vines(data, values, rank); return
+		"stump_overgrowth":
+			_cast_ability_stump_overgrowth(data, values, rank); return
+		"sage_charm":
+			_cast_ability_sage_charm(data, values, rank); return
+		"volt_typhoon":
+			_cast_ability_volt_typhoon(data, values, rank); return
+		"nebula_chronofield":
+			_cast_ability_nebula_chronofield(data, values, rank); return
+		"astral_as_one":
+			_cast_ability_astral_as_one(data, values, rank); return
+		"rime_freezing_field":
+			_cast_ability_rime_freezing_field(data, values, rank); return
+		"astral_ghastly_touch":
+			_cast_ability_astral_ghastly_touch(data, values, rank); return
+		"nebula_arcane_bolt":
+			_cast_ability_nebula_arcane_bolt(data, values, rank); return
+		"rime_ice_imprisonment":
+			_cast_ability_rime_ice_imprisonment(data, values, rank); return
+		"sage_petal_dance":
+			_cast_ability_sage_petal_dance(data, values, rank); return
+		_:
+			# Fall through to the generic archetype dispatch.
+			var arch := int(data.get("archetype", -1))
+			match arch:
+				PlayerClass.Archetype.NUKE_BOLT:
+					_cast_ability_nuke_bolt(data, values)
+				PlayerClass.Archetype.CONE_BURST:
+					_cast_ability_cone_burst(data, values)
+				PlayerClass.Archetype.RADIUS_BURST:
+					_cast_ability_radius_burst(data, values)
+				PlayerClass.Archetype.CHAIN_NUKE:
+					_cast_ability_chain_nuke(data, values)
+				PlayerClass.Archetype.DASH_STRIKE:
+					_cast_ability_dash_strike(data, values)
+				PlayerClass.Archetype.BLINK:
+					_cast_ability_blink(data, values)
+				PlayerClass.Archetype.SELF_HEAL:
+					_cast_ability_self_heal(data, values)
+				PlayerClass.Archetype.AOE_HEAL:
+					_cast_ability_aoe_heal(data, values)
+				PlayerClass.Archetype.SHIELD_BURST:
+					_cast_ability_shield_burst(data, values)
+				PlayerClass.Archetype.BUFF_SELF:
+					_cast_ability_buff_self(data, values)
+				PlayerClass.Archetype.PUSH_PULL_BURST:
+					_cast_ability_push_pull_burst(data, values)
+				PlayerClass.Archetype.STORM_PULL:
+					_cast_ability_storm_pull(data, values)
+				PlayerClass.Archetype.ZONE_CHANNEL:
+					_cast_ability_zone_channel(data, values)
+				PlayerClass.Archetype.SUMMON_SPIRIT:
+					_cast_ability_summon_spirit(data, values)
+				PlayerClass.Archetype.SLAM_TAUNT:
+					_cast_ability_slam_taunt(data, values)
+				PlayerClass.Archetype.BLINK_STRIKE:
+					_cast_ability_blink_strike(data, values)
+				PlayerClass.Archetype.PIT_SLOW:
+					_cast_ability_pit_slow(data, values)
+				PlayerClass.Archetype.ATTACK_FURY:
+					_cast_ability_attack_fury(data, values)
+
 ## Helpers ------------------------------------------------------------------------
 
 ## (Every damageable enemy in a radius is already helper'd below — used by all new "ground zone" casts.)
@@ -3219,24 +3372,83 @@ func _cast_ability_warden_tongue_tied(data: Dictionary, values: Dictionary, _ran
 ## CONE_BURST with a built-in burn tick after the flash, so targets keep smouldering after
 ## the fire passes. Uses `burn_on_hit` if present in data.
 func _cast_ability_cinder_dragon_fire(data: Dictionary, values: Dictionary, _rank: int) -> void:
+	## HoN Ember Spirit's Searing Chains: a searing bolt that CHAINS to up to 4 targets in
+	## sequence, each link dealing full damage, and leaves a lingering burn zone at the
+	## final impact point. The chain "pulls" each target slightly toward the previous one
+	## (the searing yank), matching Ember's signature effect.
 	var origin := global_position
-	_cast_ability_cone_burst(data, values)
-	# Burn-on-hit data: if the ability carries burn_on_hit, apply an extra delayed tick so the
-	# scorched targets keep taking fire damage after the cone clears.
-	if data.has("burn_on_hit"):
-		var burn: Dictionary = data.burn_on_hit
-		var tick_power := float(burn.get("power", values.power * 0.35))
-		var duration := float(burn.get("duration", 3.0))
-		var half_angle := deg_to_rad(PlayerClass.ABILITY_CONE_HALF_ANGLE_DEGREES)
-		get_tree().create_timer(0.45).timeout.connect(func() -> void:
-			if not is_inside_tree():
-				return
-			for target in _enemies_in_radius(origin, float(values.radius) * 0.7):
-				var to_t := origin.direction_to(target.global_position)
-				if to_t.length_squared() > 0.0 and absf(facing_direction.angle_to(to_t)) > half_angle:
-					continue
-				_damage_enemy(target, tick_power * (duration / 3.0))
-		)
+	var reach := maxf(float(values.get("range", 620.0)), 500.0)
+	var chain_count := 4
+	var chain_range := 240.0
+	# Build the chain: start from the nearest enemy in range, then jump to the next nearest.
+	var chain_targets: Array[Node2D] = []
+	var remaining := _enemies_in_radius(origin, reach)
+	if not remaining.is_empty():
+		# Pick the closest enemy to the aim point (or facing direction) as the first target.
+		var aim_dir := facing_direction
+		var best_t: Node2D = null
+		var best_score := INF
+		for e in remaining:
+			var to_e := origin.direction_to(e.global_position)
+			var score := absf(aim_dir.angle_to(to_e))
+			if score < best_score:
+				best_score = score
+				best_t = e
+		if best_t:
+			chain_targets.append(best_t)
+			var visited: Dictionary = { best_t: true }
+			for _i in chain_count - 1:
+				var last: Node2D = chain_targets.back()
+				var next_pick: Node2D = null
+				var best_d := INF
+				for e in remaining:
+					if visited.has(e):
+						continue
+					var d := last.global_position.distance_to(e.global_position)
+					if d > chain_range:
+						continue
+					if d < best_d:
+						best_d = d
+						next_pick = e
+				if next_pick == null:
+					break
+				chain_targets.append(next_pick)
+				visited[next_pick] = true
+
+	# Apply damage along the chain with a slight pull toward the previous target.
+	var power := float(values.get("power", 100.0))
+	for i in chain_targets.size():
+		var target: Node2D = chain_targets[i]
+		# Searing yank: pull target 30 units toward the previous chain link (or toward
+		# the caster for the first target). This is Ember's signature "pull" feel.
+		var pull_from := origin
+		if i > 0:
+			pull_from = chain_targets[i - 1].global_position
+		if target.has_method("apply_knockback"):
+			var pull_dir := pull_from.direction_to(target.global_position).normalized()
+			target.apply_knockback(pull_dir * -30.0)  # negative = pull toward
+		_damage_enemy(target, power)
+		# Burning ground: leave a small burn zone at each chain link.
+		if data.has("burn_on_hit"):
+			var burn: Dictionary = data.burn_on_hit
+			var burn_power := float(burn.get("power", power * 0.35))
+			var burn_dur := float(burn.get("duration", 3.0))
+			var link_pos := target.global_position
+			# Staggered burn ticks: 3 ticks over the burn duration.
+			for tick in 3:
+				get_tree().create_timer(0.45 + 0.45 * tick).timeout.connect(func() -> void:
+					if not is_inside_tree():
+						return
+					for e in _enemies_in_radius(link_pos, 80.0):
+						_damage_enemy(e, burn_power * (burn_dur / 6.0))
+						if e.has_method("apply_slow"):
+							e.apply_slow(0.8, 0.8)
+				)
+	# Emit VFX along the full chain path.
+	var pts := PackedVector2Array([origin])
+	for t in chain_targets:
+		pts.append(t.global_position)
+	_emit_ability_cast(pts)
 
 
 ## Pyra's Sticky Bomb: HoN Bombardier's signature trap. Lobs an adhesive bomb that clings

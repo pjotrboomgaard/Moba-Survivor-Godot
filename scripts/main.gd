@@ -756,10 +756,21 @@ func _on_local_shop_item_chosen(item_id: String) -> void:
 	AudioService.play("purchase")
 	if GameRuntime.mode == GameRuntime.RuntimeMode.CLIENT:
 		server_buy_shop_item.rpc_id(1, item_id)
+		hud.close_shop()
+		hud.shop_closed.emit()
 		return
 	var local_player := _local_player()
 	if local_player != null:
-		_apply_shop_purchase(local_player.owner_peer_id, item_id)
+		# Only close the shop if the purchase actually succeeds (player can afford it).
+		var gold := local_player.gold
+		var price := ShopCatalog.price_for(item_id, local_player.stacks_of(item_id))
+		if gold >= price:
+			_apply_shop_purchase(local_player.owner_peer_id, item_id)
+			# Beacon: activate the arena beacon + unlock the shop's BEACON tab.
+			if item_id == "beacon":
+				_activate_beacon()
+			hud.close_shop()
+			hud.shop_closed.emit()
 
 
 ## T4.9: player pressed "Repurpose" on the locked ship wreck. Costs 1500 gold; on
@@ -3778,10 +3789,43 @@ func _spawn_ship_wreck() -> void:
 			_ship_wreck.call("place", Vector2.ZERO, "crash", 120.0)
 			_ship_wreck.add_to_group("ship_wreck")
 			# T4.10: when the morph transition finishes, the wreck is a working shop.
-			_ship_wreck.repurpose_morph_done.connect(func():
-				if hud != null:
-					hud.mark_shop_unlocked()
-			)
+		_ship_wreck.repurpose_morph_done.connect(func():
+			if hud != null:
+				hud.mark_shop_unlocked()
+		)
+
+
+## Beacon: spawn + activate the summoning beacon in the bottom-right of the arena.
+## Emits the HUD's BEACON tab so the player can buy heroes from it.
+var _summon_beacon: Node2D = null
+func _activate_beacon() -> void:
+	if _summon_beacon != null and is_instance_valid(_summon_beacon):
+		# Already active — just make sure the HUD shows the tab.
+		if hud != null and hud.has_method("mark_beacon_active"):
+			hud.mark_beacon_active()
+		return
+	# Place the beacon just off the bottom-right of the shop wreck.
+	var beacon_pos := Vector2(360.0, 360.0)
+	if _ship_wreck != null and is_instance_valid(_ship_wreck):
+		var ip = _ship_wreck.get("interact_point")
+		if ip is Vector2:
+			beacon_pos = ip + Vector2(320.0, 320.0)
+	var beacon_script: GDScript = load("res://scripts/summon_beacon.gd")
+	if beacon_script == null:
+		push_error("[main] _activate_beacon: summon_beacon.gd not found")
+		return
+	_summon_beacon = Node2D.new()
+	_summon_beacon.set_script(beacon_script)
+	if arena != null:
+		arena.add_child(_summon_beacon)
+	else:
+		add_child(_summon_beacon)
+	_summon_beacon.call("place", beacon_pos)
+	_summon_beacon.add_to_group("summon_beacon")
+	# Tell the HUD to show the BEACON tab in the shop.
+	if hud != null and hud.has_method("mark_beacon_active"):
+		hud.mark_beacon_active()
+	print("[main] beacon activated at %s" % str(beacon_pos))
 
 
 ## Resizes the window and rescales the local player's camera zoom so the visible

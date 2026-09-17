@@ -1,0 +1,275 @@
+{
+  "hero": "ember",
+  "kit_slots": {
+    "0": "ember_entangle",
+    "1": "ember_firebomb",
+    "2": "ember_unbreakable",
+    "3": "ember_entangle"
+  },
+  "probes": [
+    {
+      "dummies": [
+        {
+          "alive": true,
+          "hp": 202.5,
+          "idx": 0,
+          "max_hp": 260.0,
+          "movement_locked": true,
+          "poisoned": false,
+          "pos": [
+            144.3,
+            -57.7
+          ],
+          "slowed": true,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 195.6,
+          "idx": 1,
+          "max_hp": 260.0,
+          "movement_locked": true,
+          "poisoned": false,
+          "pos": [
+            202.7,
+            62.4
+          ],
+          "slowed": true,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 195.6,
+          "idx": 2,
+          "max_hp": 260.0,
+          "movement_locked": true,
+          "poisoned": false,
+          "pos": [
+            260.0,
+            0.0
+          ],
+          "slowed": true,
+          "stunned": false
+        }
+      ],
+      "label": "probe_slot0",
+      "player": {
+        "alive": true,
+        "buff_active": false,
+        "hp": 118.0,
+        "max_hp": 118.0,
+        "shield": 0.0
+      },
+      "t": 3.3
+    },
+    {
+      "dummies": [
+        {
+          "alive": true,
+          "hp": 87.5,
+          "idx": 0,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            26.6,
+            -14.1
+          ],
+          "slowed": false,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 66.8,
+          "idx": 1,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            34.7,
+            29.0
+          ],
+          "slowed": false,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 66.8,
+          "idx": 2,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            83.8,
+            -1.6
+          ],
+          "slowed": false,
+          "stunned": false
+        }
+      ],
+      "label": "probe_slot1",
+      "player": {
+        "alive": true,
+        "buff_active": false,
+        "hp": 102.865,
+        "max_hp": 118.0,
+        "shield": 0.0
+      },
+      "t": 6.6
+    },
+    {
+      "dummies": [
+        {
+          "alive": true,
+          "hp": 87.5,
+          "idx": 0,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            -6.6,
+            -26.6
+          ],
+          "slowed": false,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 66.8,
+          "idx": 1,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            -19.3,
+            25.3
+          ],
+          "slowed": false,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 66.8,
+          "idx": 2,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            30.5,
+            9.0
+          ],
+          "slowed": false,
+          "stunned": false
+        }
+      ],
+      "label": "probe_slot2",
+      "player": {
+        "alive": true,
+        "buff_active": true,
+        "hp": 89.5990000000015,
+        "max_hp": 118.0,
+        "shield": 0.0
+      },
+      "t": 9.9
+    },
+    {
+      "dummies": [
+        {
+          "alive": true,
+          "hp": 30.0,
+          "idx": 0,
+          "max_hp": 260.0,
+          "movement_locked": true,
+          "poisoned": false,
+          "pos": [
+            -12.5,
+            -37.2
+          ],
+          "slowed": true,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 66.8,
+          "idx": 1,
+          "max_hp": 260.0,
+          "movement_locked": false,
+          "poisoned": false,
+          "pos": [
+            -27.1,
+            22.8
+          ],
+          "slowed": false,
+          "stunned": false
+        },
+        {
+          "alive": true,
+          "hp": 9.30000000000005,
+          "idx": 2,
+          "max_hp": 260.0,
+          "movement_locked": true,
+          "poisoned": false,
+          "pos": [
+            33.4,
+            9.3
+          ],
+          "slowed": true,
+          "stunned": false
+        }
+      ],
+      "label": "probe_slot3",
+      "player": {
+        "alive": true,
+        "buff_active": true,
+        "hp": 87.9250000000026,
+        "max_hp": 118.0,
+        "shield": 0.0
+      },
+      "t": 13.2
+    }
+  ],
+  "scene": "ability_verify_test",
+  "shots": [
+    {
+      "label": "iso_before_slot0",
+      "path": "user://ability_verify_1789656722/iso_before_slot0.png",
+      "t": 0.89
+    },
+    {
+      "label": "iso_after_slot0",
+      "path": "user://ability_verify_1789656722/iso_after_slot0.png",
+      "t": 3.09
+    },
+    {
+      "label": "iso_before_slot1",
+      "path": "user://ability_verify_1789656722/iso_before_slot1.png",
+      "t": 4.19
+    },
+    {
+      "label": "iso_after_slot1",
+      "path": "user://ability_verify_1789656722/iso_after_slot1.png",
+      "t": 6.39
+    },
+    {
+      "label": "iso_before_slot2",
+      "path": "user://ability_verify_1789656722/iso_before_slot2.png",
+      "t": 7.49
+    },
+    {
+      "label": "iso_after_slot2",
+      "path": "user://ability_verify_1789656722/iso_after_slot2.png",
+      "t": 9.69
+    },
+    {
+      "label": "iso_before_slot3",
+      "path": "user://ability_verify_1789656722/iso_before_slot3.png",
+      "t": 10.79
+    },
+    {
+      "label": "iso_after_slot3",
+      "path": "user://ability_verify_1789656722/iso_after_slot3.png",
+      "t": 12.99
+    }
+  ],
+  "verdict": "PASS"
+}
