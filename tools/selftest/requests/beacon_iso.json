@@ -1,0 +1,5 @@
+{
+  "hero": "tobor",
+  "comment": "Isolated beacon test — AFTER state (beacon present and activated). Runs beacon_iso.tscn which spawns a SummonBeacon and captures 3 pulse-phase screenshots.",
+  "events": []
+}

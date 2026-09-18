@@ -1,0 +1,24 @@
+{
+  "activated": true,
+  "beacon_ok": true,
+  "in_group": true,
+  "mode": "after",
+  "pos_ok": true,
+  "position": "(0.0, 0.0)",
+  "shots": [
+    {
+      "label": "beacon_early",
+      "path": "user://iso_beacon_beacon_early.png"
+    },
+    {
+      "label": "beacon_pulse",
+      "path": "user://iso_beacon_beacon_pulse.png"
+    },
+    {
+      "label": "beacon_late",
+      "path": "user://iso_beacon_beacon_late.png"
+    }
+  ],
+  "verdict": "PASS",
+  "z_ok": true
+}

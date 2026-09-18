@@ -1,0 +1,95 @@
+{
+  "effects": [
+    {
+      "command": "toggle_invulnerable",
+      "kind": "dev_command",
+      "t": 0.404007666666667
+    },
+    {
+      "command": "open_cinematic",
+      "kind": "dev_command",
+      "t": 0.600568333333334
+    },
+    {
+      "command": "buy_item:sirene",
+      "kind": "dev_command",
+      "t": 2.50208890909091
+    },
+    {
+      "command": "buy_item:antenne",
+      "kind": "dev_command",
+      "t": 2.70208890909091
+    },
+    {
+      "command": "buy_item:sjaal",
+      "kind": "dev_command",
+      "t": 2.90331566666666
+    },
+    {
+      "command": "buy_item:romp",
+      "kind": "dev_command",
+      "t": 3.10041333333333
+    },
+    {
+      "command": "buy_item:armen",
+      "kind": "dev_command",
+      "t": 3.30555555555555
+    },
+    {
+      "command": "buy_item:benen",
+      "kind": "dev_command",
+      "t": 3.50031933333333
+    },
+    {
+      "command": "buy_item:hoverboard",
+      "kind": "dev_command",
+      "t": 3.702367
+    }
+  ],
+  "elapsed": 5.00000000000003,
+  "enemies_spawned": 0,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "ingame_before_items",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_6322/ingame_before_items_2.003_6322.png",
+      "t": 2.00309433333333
+    },
+    {
+      "label": "ingame_after_items",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_8818/ingame_after_items_4.503_8818.png",
+      "t": 4.50313700000002
+    }
+  ]
+}

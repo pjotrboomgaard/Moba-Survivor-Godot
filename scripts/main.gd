@@ -3071,6 +3071,16 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 				hud.show_player_class(target)
 				hud.add_owned_hero(target)
 		return
+	if command.begins_with("buy_item:"):
+		# T4.x test hook: buy a shop item directly. Format: buy_item:<item_id>
+		var item_id := command.trim_prefix("buy_item:")
+		var buy_player := _local_player()
+		if buy_player != null and ShopCatalog.is_valid_id(item_id) and ShopCatalog.available_for(item_id, buy_player.class_id):
+			buy_player.dev_buy_item(item_id)
+			print("[main] dev buy_item: %s (stacks now %d)" % [item_id, buy_player.stacks_of(item_id)])
+		else:
+			push_warning("[main] dev buy_item: invalid or unavailable item '%s'" % item_id)
+		return
 	# T4.15 test hook: activate the beacon directly. Format: beacon:activate
 	if command == "beacon:activate":
 		_activate_beacon()

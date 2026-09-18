@@ -734,7 +734,33 @@ activate beacon, add beacon animation, then open beacon tab in shop and buy hero
         switch, before/flash/after). Flash frame shows white hero + cyan ring.
       - In-game: buy_hero:arclight triggers the flash + ring in the full scene
         (HUD ability bar updates to ARCLIGHT JOLT).
-- [x] 6-step verify (in-game: buy beacon → beacon appears + animates → BEACON tab opens → buy hero).
+- [x] **6-step verify (full pipeline re-run 2026-09-17):**
+  1. **Iso BEFORE** `tools/selftest/results/beacon_iso_before/iso_beacon_before.png` —
+     empty dark world, no beacon node in tree (`verdict=PASS`, mode=before,
+     beacon_nodes=0).
+  2. **Iso AFTER** `tools/selftest/results/beacon_iso/iso_beacon_beacon_pulse.png` —
+     beacon present at origin, activated=true, pulsing ring + light beam visible;
+     `verdict=PASS` mode=after (beacon_early/pulse/late all captured).
+  3. **Iso COMPARE** `tools/selftest/results/beacon_iso/diff_iso_beacon.png` —
+     changed-pixel bbox (938,524)-(981,627): the beacon ring/beam region only;
+     background identical.
+  4. **In-game BEFORE** `tools/selftest/results/beacon_ingame/ingame_beacon_world_5.904_9607.png` —
+     full arena pre-activation: ship wreck, trees, no beacon pillar, HUD absent (pre-shop).
+  5. **In-game AFTER** `tools/selftest/results/beacon_ingame/ingame_beacon_shop_tab_6.600_10307.png` —
+     BEACON tab button visible in shop panel; beacon beam present in world.
+  6. **In-game COMPARE** `tools/selftest/results/beacon_ingame/diff_ingame_beacon.png` —
+     50.1% changed pixels: shop panel opened (BEACON tab + hero grid) + world shift;
+     matches "BEACON tab appears after activation".
+
+- [x] **Chironos/Chronos time-warp verification** — `nebula_chronofield` confirmed
+      HoN-faithful: zone channel stops enemies inside (movement lock = time warp,
+      no one can act inside the field). Isolated: `ability_verify_nebula`
+      (iso_before/after_slot0-3, verdict PASS; slot2 = chronofield, 3/3 dummies
+      frozen, no movement between before/after probes). VFX: `nebula_r_clock`
+      clock-face effect renders in isolated empty world. In-game: real cast via
+      slot 3 in full arena (`ingame_before_nebula_chronofield` / `ingame_nebula_chronofield_cast`
+      / `ingame_nebula_chronofield_end`), zone channel fires, enemies inside get
+      movement lock. All other Nebula abilities verified via same isolated suite.
 
 ### T4.16 Shop: use shop.png body + radar.png antenna; morph between; same width; remove white bg (NEW 2026-09-18)
 **User direction:** "make the shop in to shop img of the ship. and with radar into radar img. make sure it morphs inbetween. and the pathing should be correct and images same size and remove white bg".

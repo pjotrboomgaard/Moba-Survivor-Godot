@@ -6173,6 +6173,14 @@ func buy(item_id: String) -> bool:
 	gold_changed.emit(gold)
 	return true
 
+## Dev hook: grant an item without the gold check (self-test only).
+func dev_buy_item(item_id: String) -> void:
+	if not ShopCatalog.is_valid_id(item_id) or not ShopCatalog.available_for(item_id, class_id):
+		return
+	shop_stacks[item_id] = stacks_of(item_id) + 1
+	_apply_shop_item(item_id)
+	queue_redraw()
+
 
 func _apply_shop_item(item_id: String) -> void:
 	var item := ShopCatalog.by_id(item_id)
@@ -6643,6 +6651,101 @@ func _draw() -> void:
 			Color(0.4, 0.7, 1.0, 0.5 + 0.3 * _shield_frac), 3.0, true)
 		draw_arc(Vector2.ZERO, _shield_r * 0.85, 0.0, TAU * _shield_frac, 24,
 			Color(0.6, 0.9, 1.0, 0.3), 2.0, true)
+	# Item visual additions: small gear/accessory accents for owned items.
+	_draw_item_visuals()
+
+
+## Draw small visual accents for each owned item. Each item gets a unique
+## visual so the hero's appearance changes as they gear up. These are subtle
+## vector accents that don't obscure the hero sprite.
+func _draw_item_visuals() -> void:
+	# Mech Arms: a small metallic bracket on the side.
+	if stacks_of("antenne") > 0:
+		var arm_color := Color(0.7, 0.75, 0.8, 0.6 + 0.2 * sin(Time.get_ticks_msec() * 0.004))
+		# Left arm bracket.
+		draw_rect(Rect2(-18.0, -4.0, 5.0, 8.0), arm_color)
+		draw_rect(Rect2(13.0, -4.0, 5.0, 8.0), arm_color)
+		# Joint dots.
+		draw_circle(Vector2(-15.5, 0.0), 2.0, Color(0.9, 0.9, 1.0, 0.8))
+		draw_circle(Vector2(15.5, 0.0), 2.0, Color(0.9, 0.9, 1.0, 0.8))
+
+	# Wings: a soft feathered glow behind the hero.
+	if stacks_of("sjaal") > 0:
+		var wing_alpha := 0.15 + 0.1 * stacks_of("sjaal") + 0.05 * sin(Time.get_ticks_msec() * 0.003)
+		var wing_col := Color(0.6, 0.9, 1.0, wing_alpha)
+		# Two wing shapes flanking the hero.
+		var wing_left := PackedVector2Array([
+			Vector2(-12.0, -6.0), Vector2(-24.0, -14.0), Vector2(-20.0, 4.0),
+			Vector2(-14.0, 2.0), Vector2(-12.0, -6.0)
+		])
+		var wing_right := PackedVector2Array([
+			Vector2(12.0, -6.0), Vector2(24.0, -14.0), Vector2(20.0, 4.0),
+			Vector2(14.0, 2.0), Vector2(12.0, -6.0)
+		])
+		draw_colored_polygon(wing_left, wing_col)
+		draw_colored_polygon(wing_right, wing_col)
+
+	# Jetpack: a small engine glow under the hero when hopping.
+	if stacks_of("romp") > 0:
+		if _jump_t >= 0.0:
+			var flame_alpha := 0.4 + 0.4 * sin(Time.get_ticks_msec() * 0.015)
+			draw_circle(Vector2(0.0, 14.0), 5.0 + 2.0 * sin(Time.get_ticks_msec() * 0.01),
+				Color(1.0, 0.6, 0.2, flame_alpha))
+			draw_circle(Vector2(0.0, 12.0), 3.0, Color(1.0, 0.9, 0.4, flame_alpha * 0.8))
+		# Jetpack body (always visible when owned).
+		var jp_col := Color(0.5, 0.55, 0.6, 0.7)
+		draw_rect(Rect2(-6.0, 6.0, 12.0, 6.0), jp_col)
+		# Nozzle dots.
+		draw_circle(Vector2(-4.0, 12.0), 1.5, Color(0.8, 0.8, 0.85, 0.6))
+		draw_circle(Vector2(4.0, 12.0), 1.5, Color(0.8, 0.8, 0.85, 0.6))
+
+	# Cannons: a subtle muzzle flash ring when attack charge is high.
+	if stacks_of("armen") > 0:
+		if attack_charge > 0.5:
+			var cb := 0.5 + 0.3 * sin(Time.get_ticks_msec() * 0.008)
+			var cdir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
+			var tip := cdir * 22.0
+			draw_circle(tip, 3.0 + 2.0 * attack_charge, Color(1.0, 0.85, 0.3, 0.3 * cb))
+			# Cannon barrel accent.
+			draw_line(cdir * 12.0, cdir * 20.0, Color(0.8, 0.85, 0.9, 0.5), 3.0)
+
+	# Grippers: a subtle slow-effect ring pulse.
+	if stacks_of("benen") > 0:
+		var grip_pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.005)
+		draw_arc(Vector2.ZERO, 26.0, 0.0, TAU, 24,
+			Color(0.4, 0.8, 0.6, 0.15 * grip_pulse), 1.0, true)
+
+	# Hoverboard: a glowing trail under the hero when moving.
+	if stacks_of("hoverboard") > 0:
+		var speed := absf(velocity.x) + absf(velocity.y)
+		if speed > 10.0:
+			var trail_alpha := minf(0.4, speed / 400.0)
+			var trail_len := 12.0 + speed * 0.02
+			var dir := Vector2(-velocity.x, -velocity.y).normalized()
+			# Trail: fading rectangles behind the hero.
+			for i in 4:
+				var t := float(i) / 4.0
+				var pos := dir * (8.0 + trail_len * t)
+				var w := 8.0 * (1.0 - t * 0.6)
+				draw_rect(Rect2(pos - Vector2(w * 0.5, 2.0), Vector2(w, 4.0)),
+					Color(0.5, 0.9, 1.0, trail_alpha * (1.0 - t)))
+			# Board glow.
+			draw_arc(Vector2(0.0, 10.0), 10.0, PI * 0.15, PI * 0.85, 12,
+				Color(0.5, 0.9, 1.0, trail_alpha * 1.5), 2.0, true)
+
+	# Siren (dash item): a small speed-line accent when dashing.
+	if stacks_of("sirene") > 0:
+		var dash_pulse := 0.3 + 0.3 * sin(Time.get_ticks_msec() * 0.006)
+		# Small chevron marks on the front of the hero.
+		var sdir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
+		var c1 := sdir * 18.0 + Vector2(0, -6.0)
+		var c2 := sdir * 18.0 + Vector2(0, 6.0)
+		draw_line(sdir * 14.0 + Vector2(0, -6.0), c1, Color(0.9, 0.95, 1.0, 0.4 * dash_pulse), 1.5)
+		draw_line(sdir * 14.0 + Vector2(0, 6.0), c2, Color(0.9, 0.95, 1.0, 0.4 * dash_pulse), 1.5)
+
+	# Beacon: a small antenna glow on top of the hero's head (the beacon is an
+	# arena-level item, but a subtle indicator on the hero ties the two together).
+	# No visual on the hero itself — the beacon is a separate arena entity.
 
 
 ## LMB charge indicator: shows the growing damage number above the hero while the

@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/sfx_iso/iso_item_visuals_before.png",
+  "after": "tools/selftest/results/sfx_iso/iso_item_visuals_after.png",
+  "out": "tools/selftest/results/item_visuals_test/diff_iso.png",
+  "changed_pixels": 294,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.000142,
+  "bbox": [
+    927,
+    519,
+    995,
+    539
+  ],
+  "has_change": true
+}

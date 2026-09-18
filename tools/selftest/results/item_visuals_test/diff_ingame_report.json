@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/item_visuals_ingame/ingame_before_items_2.003_6322.png",
+  "after": "tools/selftest/results/item_visuals_ingame/ingame_after_items_4.503_8818.png",
+  "out": "tools/selftest/results/item_visuals_test/diff_ingame.png",
+  "changed_pixels": 1902343,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.917411,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

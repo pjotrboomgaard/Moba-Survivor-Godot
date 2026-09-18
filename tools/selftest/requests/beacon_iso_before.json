@@ -1,0 +1,5 @@
+{
+  "hero": "tobor",
+  "comment": "Isolated beacon test — BEFORE state (no beacon, pre-feature baseline). Runs beacon_iso.tscn with the beacon_before marker staged in user:// so the scene skips beacon spawn.",
+  "events": []
+}

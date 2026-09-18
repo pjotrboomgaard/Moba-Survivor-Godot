@@ -1,0 +1,20 @@
+{
+  "hero": "arclight",
+  "mode": "solo",
+  "comment": "In-game item visuals: buy several items via dev command, verify the hero shows the item visual additions (arm brackets, wings, jetpack, etc.) in the full arena.",
+  "events": [
+    {"t": 0.4, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.6, "kind": "dev_command", "command": "open_cinematic"},
+    {"t": 1.5, "kind": "camera_zoom", "to": [0, 0], "zoom": 0.8},
+    {"t": 2.0, "kind": "snap", "label": "ingame_before_items"},
+    {"t": 2.5, "kind": "dev_command", "command": "buy_item:sirene"},
+    {"t": 2.7, "kind": "dev_command", "command": "buy_item:antenne"},
+    {"t": 2.9, "kind": "dev_command", "command": "buy_item:sjaal"},
+    {"t": 3.1, "kind": "dev_command", "command": "buy_item:romp"},
+    {"t": 3.3, "kind": "dev_command", "command": "buy_item:armen"},
+    {"t": 3.5, "kind": "dev_command", "command": "buy_item:benen"},
+    {"t": 3.7, "kind": "dev_command", "command": "buy_item:hoverboard"},
+    {"t": 4.5, "kind": "snap", "label": "ingame_after_items"},
+    {"t": 5.0, "kind": "report"}
+  ]
+}

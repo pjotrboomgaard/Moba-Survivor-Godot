@@ -1,0 +1,13 @@
+{
+  "all_items_owned": true,
+  "has_draw_fn": true,
+  "missing_items": [],
+  "mode": "after",
+  "shots": [
+    {
+      "label": "after",
+      "path": "user://iso_item_visuals_after.png"
+    }
+  ],
+  "verdict": "PASS"
+}

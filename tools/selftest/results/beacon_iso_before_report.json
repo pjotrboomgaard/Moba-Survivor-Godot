@@ -1,0 +1,12 @@
+{
+  "beacon_nodes": 0,
+  "mode": "before",
+  "note": "no beacon present in tree (pre-feature baseline)",
+  "shots": [
+    {
+      "label": "before",
+      "path": "user://iso_beacon_before.png"
+    }
+  ],
+  "verdict": "PASS"
+}

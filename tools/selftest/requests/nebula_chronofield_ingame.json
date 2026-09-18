@@ -1,0 +1,14 @@
+{
+  "hero": "nebula",
+  "mode": "solo",
+  "comment": "In-game Nebula Chronofield (time warp): cast slot 3 (R) in the live arena, capture before/cast/after. Proves the time-warp zone + freeze works through the real cast path.",
+  "events": [
+    {"t": 0.4, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.6, "kind": "open_cinematic"},
+    {"t": 0.9, "kind": "snap", "label": "ingame_before_nebula_chronofield"},
+    {"t": 1.3, "kind": "cast", "slot": 3},
+    {"t": 2.3, "kind": "snap", "label": "ingame_nebula_chronofield_cast"},
+    {"t": 5.5, "kind": "snap", "label": "ingame_nebula_chronofield_end"},
+    {"t": 6.2, "kind": "report"}
+  ]
+}

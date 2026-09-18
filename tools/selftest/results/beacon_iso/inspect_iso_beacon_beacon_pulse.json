@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\beacon_iso\\iso_beacon_beacon_pulse.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.2101,
+  "bounding_box": [
+    630,
+    276,
+    1289,
+    935
+  ],
+  "coverage": 0.2101,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.1999,
+    "TR": 0.2,
+    "BL": 0.3,
+    "BR": 0.3
+  },
+  "edge_fractions": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\beacon_iso\\thumb_iso_beacon_beacon_pulse.png"
+}

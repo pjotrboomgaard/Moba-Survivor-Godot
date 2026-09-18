@@ -1,0 +1,5 @@
+{
+  "hero": "tobor",
+  "comment": "Isolated SFX verification: test LMB/RMB/ability SFX banks for all 16 heroes. The sfx_iso scene fires AudioService.play() for each bank and records the stream path to confirm the correct bank resolved.",
+  "events": []
+}

@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/beacon_ingame/ingame_beacon_world_5.904_9607.png",
+  "after": "tools/selftest/results/beacon_ingame/ingame_beacon_shop_tab_6.600_10307.png",
+  "out": "tools/selftest/results/beacon_ingame/diff_ingame_beacon.png",
+  "changed_pixels": 1038734,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.500933,
+  "bbox": [
+    21,
+    11,
+    1913,
+    1045
+  ],
+  "has_change": true
+}

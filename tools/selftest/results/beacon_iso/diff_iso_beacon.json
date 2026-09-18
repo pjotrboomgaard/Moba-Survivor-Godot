@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/beacon_iso_before/iso_beacon_before.png",
+  "after": "tools/selftest/results/beacon_iso/iso_beacon_beacon_pulse.png",
+  "out": "tools/selftest/results/beacon_iso/diff_iso_beacon.png",
+  "changed_pixels": 1910,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.000921,
+  "bbox": [
+    938,
+    524,
+    981,
+    627
+  ],
+  "has_change": true
+}
