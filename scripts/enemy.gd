@@ -35,7 +35,6 @@ const SEPARATION_CELL_SIZE := 64.0
 ## cutoff and falloff — just no longer wastefully comparing against enemies that are
 ## nowhere near close enough to matter.
 static var _separation_grid: Dictionary = {}  # Vector2i cell -> Array[Enemy]
-static var _separation_grid_frame: int = -1
 
 ## T3.92 — shared per-frame player snapshot for cheap on-screen AI.
 ## Every on-screen enemy used to call _find_nearest_player() which does
@@ -187,6 +186,29 @@ var _stuck_side := Vector2.ZERO
 var _unstuck_move_timer := 0.0
 const UNSTUCK_TICK_INTERVAL := 0.12  # ~8 Hz per enemy
 
+## Perf (large groups): _update_standing_lava called Arena.hazard_at() — a linear
+## scan over hazard zones — for EVERY enemy EVERY physics frame. Throttle it to ~6
+## Hz with a short accumulator so ticks stay continuous: total DoT damage over the
+## same window is unchanged (dot * (sum of ticks) ≈ dot * window), but the zone
+## scan cost drops ~10x for a large pool.
+var _lava_scan_timer := 0.0
+const LAVA_SCAN_INTERVAL := 0.16  # ~6.25 Hz per enemy
+
+## Perf (large groups): every enemy refreshed its target every TARGET_REFRESH_INTERVAL
+## on an identical cadence, so all N enemies ran _find_nearest_player() (O(players +
+## turrets) each) in the same frames — a synchronized burst. The jitter spreads the
+## refreshes across ~2x the interval so bursts don't stack up.
+var _target_refresh_jitter := 0.0
+
+## Perf (large groups): _rebuild_separation_grid() was gated per PHYSICS frame, so the
+## whole pool's bucket map was rebuilt once every frame even though separation pushes
+## are velocity offsets that need far less than 60Hz freshness. Rebuilding at ~12.5 Hz
+## halves the O(n) rebuild frequency while keeping separation visually identical.
+## Perf (large groups): newly spawned / just-re-enabled enemies are inserted lazily so
+## they appear in the bucket map on their first move even between rebuilds.
+static var _separation_grid_time := 0.0
+const SEPARATION_GRID_INTERVAL := 0.08  # ~12.5 Hz grid rebuild
+
 ## Camp Guardian: a stationary tanky elite that guards a creep camp.
 ## - Holds its position (leashed to spawn point within CAMP_GUARDIAN_LEASH_RADIUS).
 ## - Emits a periodic undodgeable area "slam" pulse around itself.
@@ -231,6 +253,7 @@ const LAVA_SCRAMBLE_SPEED_MULT := 0.45
 const KNOCKBACK_FLIGHT_THRESHOLD := 60.0
 var _target_refresh_timer := 0.0
 const TARGET_REFRESH_INTERVAL := 0.4
+var _lava_scan_acc := 0.0
 ## FFA performance cull: when no living player is within FAR_CULL_RADIUS, the enemy
 ## skips expensive AI (target find, separation, behaviour dispatch) and just idles in
 ## place. Refreshed on FAR_CULL_CHECK_INTERVAL so the per-frame cost is a single
@@ -260,6 +283,14 @@ func _ready() -> void:
 	health.damaged.connect(_on_damaged)
 	network_target_position = global_position
 	queue_redraw()
+	# Perf (large groups): insert into the separation grid immediately so a newly
+	# spawned enemy participates in separation without waiting for the next 12.5 Hz
+	# rebuild. The per-frame rebuild (or the next one) keeps the map current.
+	if separation_weight > 0.0:
+		var key := _separation_cell(global_position)
+		var bucket: Array = Enemy._separation_grid.get(key, [])
+		bucket.append(self)
+		Enemy._separation_grid[key] = bucket
 
 
 func configure(next_network_id: int, authoritative: bool, next_type_id: String = EnemyType.DEFAULT_TYPE_ID, health_multiplier: float = 1.0, speed_multiplier: float = 1.0) -> void:
@@ -555,7 +586,7 @@ func _physics_process(delta: float) -> void:
 	_contact_attack_player()
 	_target_refresh_timer -= delta
 	if _target_refresh_timer <= 0.0:
-		_target_refresh_timer = TARGET_REFRESH_INTERVAL
+		_target_refresh_timer = TARGET_REFRESH_INTERVAL + _target_refresh_jitter
 		target = _find_nearest_player()
 	if target == null:
 		if Arena.ffa_blocks_creeps_from_crater() and _any_living_player_in_crater():
@@ -817,18 +848,22 @@ static func _separation_cell(pos: Vector2) -> Vector2i:
 	return Vector2i(int(floor(pos.x / SEPARATION_CELL_SIZE)), int(floor(pos.y / SEPARATION_CELL_SIZE)))
 
 
-## Rebuilds the shared enemy->cell bucket map at most once per physics frame (guarded by
-## Engine.get_physics_frames(), which only advances once per tick regardless of how many
-## enemies call in). O(n) total per frame however many enemies call _separation_offset(),
-## versus the old O(n) `get_tree().get_nodes_in_group("enemies")` call repeated by every
-## single one of them (O(n^2) overall).
+## Rebuilds the shared enemy->cell bucket map at ~12.5 Hz (gated by time, not by
+## physics frame). O(n) total per rebuild however many enemies call
+## _separation_offset() — far cheaper than the old per-enemy
+## `get_tree().get_nodes_in_group("enemies")` linear scan (O(n^2) overall).
+## 12.5 Hz rebuilds are visually identical for a velocity-offset push while
+## halving the rebuild frequency for large pools.
 func _rebuild_separation_grid() -> void:
-	var frame := Engine.get_physics_frames()
-	if frame == Enemy._separation_grid_frame:
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - Enemy._separation_grid_time < SEPARATION_GRID_INTERVAL:
 		return
-	Enemy._separation_grid_frame = frame
+	Enemy._separation_grid_time = now
 	Enemy._separation_grid.clear()
-	for candidate in get_tree().get_nodes_in_group("enemies"):
+	# Perf (large groups): single-pass group scan (one allocation per rebuild
+	# instead of one per enemy), same O(n) total cost as before.
+	var all_enemies := get_tree().get_nodes_in_group("enemies")
+	for candidate in all_enemies:
 		if not is_instance_valid(candidate) or not candidate is Node2D:
 			continue
 		var key := _separation_cell((candidate as Node2D).global_position)
@@ -1602,13 +1637,23 @@ func _update_standing_lava(delta: float) -> void:
 		_arena = Arena.arena_root(self)
 		if _arena == null:
 			return
+	# Perf (large groups): hazard_at() is a linear scan over the arena's hazard
+	# zones — calling it every physics frame for every enemy is O(zones * enemies).
+	# Throttle the scan to ~6.25 Hz; the DoT accumulates in _lava_scan_acc so the
+	# total damage over any window is unchanged (dot * elapsed, applied in ~0.16s
+	# batches). Standing-in-lava is a slow-effect, not a reaction-critical one.
+	_lava_scan_acc += delta
+	if _lava_scan_acc < LAVA_SCAN_INTERVAL:
+		return
+	var scan_dt := _lava_scan_acc
+	_lava_scan_acc = 0.0
 	var hazard := _arena.hazard_at(global_position)
 	if hazard.is_empty() or str(hazard.get("type", "")) != "lava":
 		return
 	var dot := float(hazard.get("enemy_dot", 0.0))
 	if dot <= 0.0:
 		return
-	health.take_damage(dot * delta, self)
+	health.take_damage(dot * scan_dt, self)
 
 
 func apply_mark(bonus_pct: float, duration: float) -> void:

@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\enemy_unstuck_perf_iso\\iso_stuck_3.5s.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.0571,
+  "bounding_box": [
+    4,
+    0,
+    1909,
+    1074
+  ],
+  "coverage": 0.9881,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.3346,
+    "TR": 0.0721,
+    "BL": 0.5219,
+    "BR": 0.0714
+  },
+  "edge_fractions": {
+    "top": 0.01,
+    "bottom": 0.0063,
+    "left": 0.0036,
+    "right": 0.003
+  },
+  "thumbnail": "tools\\selftest\\results\\enemy_unstuck_perf_iso\\thumb_iso_stuck_3.5s.png"
+}
