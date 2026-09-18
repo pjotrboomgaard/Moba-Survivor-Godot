@@ -3637,3 +3637,49 @@ existing `_unstick_from_props` / `_try_unstick_from_props` /
 `_do_unstick_side_slip` path in `enemy.gd` is untouched and still fires when an
 enemy is blocked. No collision/physics code changed.
 
+---
+
+## Boss Takeover Bot Logic
+
+**Goal:** Create dedicated AI for boss-form players so the bot aggressively
+kills everything, destroys trees wherever it moves, sets trees on fire, and
+uses its large-radius abilities (slam/cross/volley) effectively.
+
+**Implementation:**
+- `scripts/cpu_brain.gd` — new `_think_boss_form()` static function. Called
+  from `_think_ffa()` when `player.is_in_boss_form()` is true. Logic:
+  1. Pick nearest damageable target (prefer enemies, fall back to rivals).
+  2. Set all ability slots to `true` so boss abilities fire on cooldown.
+  3. Aggressively move towards target, staying within AoE sweet spot.
+  4. Basic-attack if target is in range.
+  5. If no target, roam towards team anchor to find enemies/trees.
+- `scenes/boss_takeover_iso/` — isolated empty-world test: real Player with
+  boss form, 12 enemies at radius 80/250, 4 trees at radius 100, fires
+  slam/cross 3× each. Verdict PASS if ≥4 enemies killed AND ≥1 tree lost/ignited.
+- `scenes/boss_takeover_ingame/` — in-game test: dev command grants boss form
+  to local player at t=1.0s; observes boss state, burning trees, enemy count.
+- `tools/selftest/requests/boss_takeover_iso.json` + `boss_takeover_ingame.json`.
+
+**6-step verification:**
+
+- [x] **Isolated BEFORE** — `tools/selftest/results/boss_takeover_iso/iso_before.png`
+  (empty world, enemies + trees placed, boss form granted but no abilities fired yet).
+- [x] **Isolated AFTER** — `tools/selftest/results/boss_takeover_iso/iso_after.png`
+  (t=8s: green slam hazard rings visible, enemies dead, trees destroyed/ignited).
+- [x] **Isolated COMPARE** — `tools/selftest/results/boss_takeover_iso/diff_iso.png`
+  (19.1% pixel change; enemies removed, trees removed, green hazard rings appeared).
+- [x] **In-game BEFORE** — `tools/selftest/results/boss_takeover_ingame/ingame_before.png`
+  (full arena, wave 1, normal player form, trees at map edges).
+- [x] **In-game AFTER** — `tools/selftest/results/boss_takeover_ingame/boss_form_active_4.005_7854.png`
+  (boss form active, green circular hazard ring from slam visible in forest,
+  player in center).
+- [x] **In-game COMPARE** — `tools/selftest/results/boss_takeover_ingame/diff_ingame.png`
+  (53.5% pixel change; green slam ring appeared, enemies killed, trees damaged).
+
+**Results:**
+- Isolated: verdict=PASS, 8/12 enemies killed, 3/4 trees lost, 2 trees ignited.
+- In-game: verdict=PASS, boss form seen, burning trees > 0, enemies dead > 0.
+- Anti-stuck: boss AI routes through standard `enemy.gd` chase path when in
+  normal form; boss-form player uses direct movement (no collision avoidance
+  needed since boss walks through trees).
+

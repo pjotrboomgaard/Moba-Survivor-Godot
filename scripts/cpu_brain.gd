@@ -101,6 +101,12 @@ static func _think_ffa(player: Player, result: Dictionary, delta: float) -> Dict
 	if tactic == FfaTactic.SKIRMISHER:
 		panic = 0.28
 
+	# 2026-09-18: boss-form bots use a dedicated aggressive AI (kill everything,
+	# walk through trees, spam large-radius abilities).
+	if player.is_in_boss_form():
+		_think_boss_form(player, result, delta)
+		return result
+
 	if not protected and hp < panic and rival_open:
 		result.aim = rival.global_position
 		# Flee AWAY from the rival (not toward center where other bots fight).
@@ -652,3 +658,41 @@ static func _ffa_minigame_play(player: Player, mpos: Vector2, result: Dictionary
 			result.move = _smooth_move(player, mv, delta, FFA_MOVE_SCALE)
 			result.aim = mpos
 			result.attack = false
+
+
+## 2026-09-18: Boss-form AI — aggressive "kill everything" behaviour.
+## The boss-form hero: chases the nearest enemy, fires all boss abilities on
+## cooldown, walks through trees (slam/cross ignite + damage them), and uses
+## the large-radius AoE to clear groups. FFA bots in boss form also hunt rivals.
+static func _think_boss_form(player: Player, result: Dictionary, delta: float) -> void:
+	# 1. Pick the nearest damageable target: prefer enemies, fall back to rivals.
+	var target: Node2D = _nearest_enemy(player)
+	if target == null:
+		var rival := _pick_hunt_target(player, _ffa_tactic(player))
+		if rival != null:
+			target = rival
+
+	# 2. Fire boss abilities on cooldown (slam=slot0, cross=slot1, volley=slot2).
+	#    These are the boss-form overrides wired in player.gd _update_ability_slots.
+	#    Hold all slots so _is_slot_held sees them as pressed each frame.
+	result.ability_slots = [true, true, true, true]
+
+	# 3. Movement: chase the target aggressively. No kiting, no hold-back.
+	#    The boss is fast (1.45x) and wants to run through everything.
+	if target != null and target is Node2D:
+		var gap := player.global_position.distance_to((target as Node2D).global_position)
+		# Stay in the AoE sweet spot: slam radius ~90-170px.
+		# Don't stop at contact — run through to ignite trees on the way.
+		var hold_dist := 30.0 if gap > 80.0 else 0.0
+		result.move = _smooth_move(player, _steer_towards(player.global_position, (target as Node2D).global_position, hold_dist), delta, FFA_MOVE_SCALE)
+		result.aim = (target as Node2D).global_position
+		# Basic attack: always hold LMB when a target is in range.
+		result.attack = gap < 220.0
+	else:
+		# No target: roam the arena to find enemies / trees to set on fire.
+		var home := RiftClashManager.team_anchor(player.team_id)
+		result.move = _smooth_move(player, _steer_towards(player.global_position, home, 60.0), delta, FFA_MOVE_SCALE)
+		result.aim = home
+		result.attack = false
+
+	_with_jump(player, result)

@@ -1,0 +1,21 @@
+{
+  "test_name": "boss_takeover_ingame",
+  "hero": "tobor",
+  "mode": "ffa",
+  "players": 1,
+  "ffa_all_bots": false,
+  "description": "In-game boss takeover test: grant boss form to local player via dev command, verify boss abilities fire in real game with trees and enemies",
+  "events": [
+    {"t": 0.5, "kind": "dev_command", "command": "spawn_boss"},
+    {"t": 1.0, "kind": "dev_command", "command": "grant_boss_form:brute"},
+    {"t": 1.5, "kind": "snap", "label": "ingame_before"},
+    {"t": 4.0, "kind": "snap", "label": "boss_form_active"},
+    {"t": 8.0, "kind": "snap", "label": "boss_fighting"},
+    {"t": 12.0, "kind": "snap", "label": "boss_after"},
+    {"t": 15.0, "kind": "report"}
+  ],
+  "wait_ms": 18000,
+  "expected": {
+    "report_fields": ["verdict", "boss_form_active"]
+  }
+}

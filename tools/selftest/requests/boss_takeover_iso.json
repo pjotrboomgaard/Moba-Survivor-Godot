@@ -1,0 +1,13 @@
+{
+  "test_name": "boss_takeover_iso",
+  "description": "Isolated boss takeover test - boss form abilities kill enemies + damage trees in empty world",
+  "events": [
+    {"t": 0.5, "kind": "snap", "label": "iso_before"},
+    {"t": 8.0, "kind": "snap", "label": "iso_after"},
+    {"t": 15.0, "kind": "report"}
+  ],
+  "wait_ms": 18000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}

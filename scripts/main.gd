@@ -1184,7 +1184,8 @@ func _maybe_advance_ffa_world(wave: int) -> void:
 
 func _on_team_wave_group_ready(
 		type_id: String, formation: int, count: int,
-		health_multiplier: float, speed_multiplier: float, focus: Variant = null, team_id: String = ""
+		health_multiplier: float, speed_multiplier: float, focus: Variant = null,
+		team_id: String = "", tactic_id: int = -1, tactic_index: int = -1
 ) -> void:
 	if game_over or players.is_empty():
 		return
@@ -1193,9 +1194,9 @@ func _on_team_wave_group_ready(
 	if focus is Vector2 and (focus as Vector2).length_squared() > 0.0:
 		# FFA pressure pack targeted at this team's own spawn lane (main.gd set the focus
 		# position so "more creeps come toward the local player's side").
-		_spawn_formation_near(focus, type_id, formation, count, health_multiplier, speed_multiplier, false)
+		_spawn_formation_near(focus, type_id, formation, count, health_multiplier, speed_multiplier, false, tactic_id, tactic_index)
 	else:
-		_spawn_team_formation(team_id, type_id, formation, count, health_multiplier, speed_multiplier)
+		_spawn_team_formation(team_id, type_id, formation, count, health_multiplier, speed_multiplier, tactic_id, tactic_index)
 
 
 func _spawn_initial_wave() -> void:
@@ -1461,11 +1462,11 @@ func _spawn_formation(type_id: String, formation: int, count: int, health_multip
 ## Team-zoned variant: same shapes as co-op, but `focus` is the team's anchor instead of
 ## an arbitrary player, so each corner gets its own vector-of-attack. Raiding players
 ## wander into "enemy" formations that simply don't follow them home.
-func _spawn_team_formation(team_id: String, type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0) -> void:
+func _spawn_team_formation(team_id: String, type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0, tactic_id: int = -1, tactic_index: int = -1) -> void:
 	_last_spawn_team = team_id
 	_spawn_formation_near(
 		RiftClashManager.spawn_focus_for_team(team_id),
-		type_id, formation, count, health_multiplier, speed_multiplier
+		type_id, formation, count, health_multiplier, speed_multiplier, false, tactic_id, tactic_index
 	)
 	_last_spawn_team = ""
 
@@ -3085,6 +3086,14 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 	# T4.15 test hook: activate the beacon directly. Format: beacon:activate
 	if command == "beacon:activate":
 		_activate_beacon()
+		return
+	# Test hook: grant boss form to the local player. Format: grant_boss_form:<type_id>
+	if command.begins_with("grant_boss_form:"):
+		var local := _local_player()
+		if local != null:
+			var boss_id := command.trim_prefix("grant_boss_form:")
+			local.grant_boss_form(boss_id)
+			print("[main] dev grant_boss_form: %s" % boss_id)
 		return
 	match command:
 		"freeze_offers":

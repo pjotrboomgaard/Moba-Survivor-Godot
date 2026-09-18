@@ -1,0 +1,174 @@
+{
+  "effects": [
+    {
+      "command": "spawn_boss",
+      "kind": "dev_command",
+      "t": 0.502974666666667
+    },
+    {
+      "command": "grant_boss_form:brute",
+      "kind": "dev_command",
+      "t": 1.00290990909091
+    }
+  ],
+  "elapsed": 15.0205510000001,
+  "enemies_spawned": 0,
+  "hero_position": "(825.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": false,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": false,
+          "damage_dealt": 0.0,
+          "damage_taken": 0.0,
+          "hp": 218.6,
+          "kills": 0,
+          "local": true,
+          "max_hp": 218.6,
+          "peer": 1,
+          "pos": [
+            825.0,
+            0.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "damage_dealt": 404.0,
+          "damage_taken": 270.0,
+          "hp": 78.3,
+          "kills": 0,
+          "local": false,
+          "max_hp": 348.0,
+          "peer": 101,
+          "pos": [
+            -493.0,
+            843.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "damage_dealt": 1077.0,
+          "damage_taken": 240.0,
+          "hp": 48.7,
+          "kills": 0,
+          "local": false,
+          "max_hp": 217.5,
+          "peer": 102,
+          "pos": [
+            -248.0,
+            215.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "cinder",
+          "cpu": true,
+          "damage_dealt": 420.0,
+          "damage_taken": 0.0,
+          "hp": 130.5,
+          "kills": 0,
+          "local": false,
+          "max_hp": 130.5,
+          "peer": 103,
+          "pos": [
+            -78.0,
+            -79.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 261,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.16
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "ingame_before",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5355/ingame_before_1.505_5355.png",
+      "t": 1.50463266666666
+    },
+    {
+      "label": "boss_form_active",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7854/boss_form_active_4.005_7854.png",
+      "t": 4.004512
+    },
+    {
+      "label": "boss_fighting",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11860/boss_fighting_8.000_11860.png",
+      "t": 8.00000000000011
+    },
+    {
+      "label": "boss_after",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_15873/boss_after_12.010_15873.png",
+      "t": 12.0096393333334
+    }
+  ]
+}
