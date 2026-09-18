@@ -152,6 +152,8 @@ func _finish() -> void:
 	#  3. interact point at the true centre (0,0)
 	#  4. morph completed: current_state == "shop"
 	#  5. depth sorting works (front marker > back marker)
+	#  6. NEW: composite shop image is same width as crash sprite, has radar
+	#     content in top region, and no white background bleed below the hull.
 	var colliders: Array = _wreck.get("_colliders")
 	var collider_count := colliders.size() if colliders != null else 0
 	var all_have_collision := true
@@ -177,7 +179,84 @@ func _finish() -> void:
 	var z_sorted := WorldClock.depth_z(60.0) > WorldClock.depth_z(-260.0)
 	var state_ok := str(_wreck.get("current_state")) == "shop"
 	var interact_ok := Vector2(_wreck.get("interact_point")).distance_to(WRECK_CENTER) < 1.0
-	var ok := collider_count == 3 and all_have_collision and sprites_ok and state_ok and interact_ok and z_sorted
+	# Composite radar check: compare crash + shop sprite textures directly.
+	var radar_ok := false
+	var width_match := false
+	var radar_in_top := false
+	var no_white_bleed := false
+	var crash_w := 0
+	var shop_w := 0
+	if crash_spr != null and shop_spr != null:
+		var ct: Texture2D = crash_spr.get("texture")
+		var st: Texture2D = shop_spr.get("texture")
+		if ct != null and st != null:
+			crash_w = ct.get_width()
+			shop_w = st.get_width()
+			# Same canvas dimensions (both are full-frame 1280x768 composites,
+			# so the radar is "mounted" inside the same frame as the crash hull).
+			width_match = (ct.get_width() == st.get_width() and ct.get_height() == st.get_height())
+			# Radar content in top region: count opaque pixels in top 25% of the
+			# shop texture. The radar dish should be there (crash hull is mostly
+			# in the middle, so top 25% is sparse on the crash sprite but rich
+			# on the shop sprite because of the radar).
+			var ci := ct.get_image()
+			var si := st.get_image()
+			if ci != null and si != null:
+				var h4: int = int(ci.get_height() * 0.25)
+				var crash_top_oppixels := 0
+				var shop_top_oppixels := 0
+				var y0 := 0
+				while y0 < h4:
+					var x0 := 0
+					while x0 < ci.get_width():
+						if ci.get_pixel(x0, y0).a > 0.1:
+							crash_top_oppixels += 1
+						if si.get_pixel(x0, y0).a > 0.1:
+							shop_top_oppixels += 1
+						x0 += 2
+					y0 += 2
+				# Radar adds a lot of opaque pixels in the top region vs crash.
+				radar_in_top = shop_top_oppixels > crash_top_oppixels * 2.0 and shop_top_oppixels > 500
+				# No white background bleed: scan the bottom 20% of the shop
+				# texture for near-white pixels that are NOT part of the hull.
+				# (A white bg would show up as a large contiguous bright area
+				# at the very bottom of the canvas.)
+				var white_count := 0
+				var y1 := int(si.get_height() * 0.85)
+				while y1 < si.get_height():
+					var x1 := 0
+					while x1 < si.get_width():
+						var c: Color = si.get_pixel(x1, y1)
+						if c.a > 0.5 and c.r > 0.9 and c.g > 0.9 and c.b > 0.9:
+							white_count += 1
+						x1 += 4
+					y1 += 4
+				no_white_bleed = white_count < 20
+	# White-silhouette check: the shop_combined_white texture should be
+	# predominantly white (all silhouette pixels are near-white, alpha high).
+	var white_silhouette_ok := false
+	var white_spr = _wreck.get("_shop_sprite_white")
+	if white_spr != null:
+		var wt: Texture2D = white_spr.get("texture")
+		if wt != null:
+			var wi := wt.get_image()
+			if wi != null:
+				var total_opq := 0
+				var total_white := 0
+				var y2 := 0
+				while y2 < wi.get_height():
+					var x2 := 0
+					while x2 < wi.get_width():
+						var c2: Color = wi.get_pixel(x2, y2)
+						if c2.a > 0.1:
+							total_opq += 1
+							if c2.r > 0.85 and c2.g > 0.85 and c2.b > 0.85:
+								total_white += 1
+						x2 += 4
+					y2 += 4
+				white_silhouette_ok = total_opq > 200 and (total_white / max(total_opq, 1)) > 0.7
+	radar_ok = width_match and radar_in_top and no_white_bleed and white_silhouette_ok
+	var ok := collider_count == 3 and all_have_collision and sprites_ok and state_ok and interact_ok and z_sorted and radar_ok
 	var report := {
 		"verdict": "PASS" if ok else "FAIL",
 		"mode": "after",
@@ -189,6 +268,13 @@ func _finish() -> void:
 		"interact_point": _wreck.get("interact_point"),
 		"z_sorted": z_sorted,
 		"z_values": z_values,
+		"radar_width_match": width_match,
+		"radar_crash_w": crash_w,
+		"radar_shop_w": shop_w,
+		"radar_in_top_region": radar_in_top,
+		"radar_no_white_bleed": no_white_bleed,
+		"radar_white_silhouette_ok": white_silhouette_ok,
+		"radar_ok": radar_ok,
 		"shots": _captured.values(),
 	}
 	_write_report(report)
@@ -199,7 +285,8 @@ func _write_report(report: Dictionary) -> void:
 	if f:
 		f.store_string(JSON.stringify(report, "  "))
 		f.close()
-	print("[ShipWreckIso] verdict=%s mode=%s colliders=%d state=%s" % [
+	print("[ShipWreckIso] verdict=%s mode=%s colliders=%d state=%s radar_ok=%s" % [
 		report["verdict"], str(report.get("mode", "")),
-		int(report.get("collider_count", -1)), str(report.get("current_state", "?"))])
+		int(report.get("collider_count", -1)), str(report.get("current_state", "?")),
+		bool(report.get("radar_ok", false))])
 	get_tree().quit()

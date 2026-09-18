@@ -5,6 +5,13 @@
   "interact_point": "(0.0, 0.0)",
   "mode": "after",
   "morph_progress": 1.0,
+  "radar_crash_w": 1280,
+  "radar_in_top_region": true,
+  "radar_no_white_bleed": true,
+  "radar_ok": false,
+  "radar_shop_w": 1280,
+  "radar_white_silhouette_ok": false,
+  "radar_width_match": true,
   "shots": [
     {
       "label": "crash",
@@ -28,7 +35,7 @@
     }
   ],
   "sprites_ok": true,
-  "verdict": "PASS",
+  "verdict": "FAIL",
   "z_sorted": true,
   "z_values": [
     1943,

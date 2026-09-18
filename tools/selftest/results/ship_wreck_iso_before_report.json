@@ -1,195 +1,45 @@
 {
-  "effects": [
-    {
-      "command": "toggle_invulnerable",
-      "kind": "dev_command",
-      "t": 0.405879575757576
-    },
-    {
-      "command": "open_cinematic",
-      "kind": "dev_command",
-      "t": 0.601097242424243
-    },
-    {
-      "current_state": "crash",
-      "hud_owned_heroes": [
-        "arclight"
-      ],
-      "hud_shop_unlocked": false,
-      "hud_shop_visible": false,
-      "interact_point": "(0.0, 0.0)",
-      "kind": "ship_wreck_probe",
-      "label": "after_crash",
-      "morph_progress": 0.0,
-      "old_stand_count": 0,
-      "part_count": 3,
-      "parts": [
-        {
-          "pos": "(-195.3, -113.025)",
-          "z_index": 1943
-        },
-        {
-          "pos": "(-37.2, -113.025)",
-          "z_index": 1943
-        },
-        {
-          "pos": "(148.8, -113.025)",
-          "z_index": 1943
-        }
-      ],
-      "t": 5.00430233333338,
-      "wreck_present": true
-    },
-    {
-      "command": "open_shop",
-      "kind": "dev_command",
-      "t": 5.60617266666674
-    },
-    {
-      "current_state": "crash",
-      "hud_owned_heroes": [
-        "arclight"
-      ],
-      "hud_shop_unlocked": false,
-      "hud_shop_visible": true,
-      "interact_point": "(0.0, 0.0)",
-      "kind": "ship_wreck_probe",
-      "label": "locked_shop",
-      "morph_progress": 0.0,
-      "old_stand_count": 0,
-      "part_count": 3,
-      "parts": [
-        {
-          "pos": "(-195.3, -113.025)",
-          "z_index": 1943
-        },
-        {
-          "pos": "(-37.2, -113.025)",
-          "z_index": 1943
-        },
-        {
-          "pos": "(148.8, -113.025)",
-          "z_index": 1943
-        }
-      ],
-      "t": 5.80151515151523,
-      "wreck_present": true
-    },
-    {
-      "command": "ship_wreck:repurpose",
-      "kind": "dev_command",
-      "t": 6.20443733333342
-    },
-    {
-      "current_state": "shop",
-      "hud_owned_heroes": [
-        "arclight"
-      ],
-      "hud_shop_unlocked": true,
-      "hud_shop_visible": true,
-      "interact_point": "(0.0, 0.0)",
-      "kind": "ship_wreck_probe",
-      "label": "unlocked_shop",
-      "morph_progress": 1.0,
-      "old_stand_count": 0,
-      "part_count": 3,
-      "parts": [
-        {
-          "pos": "(-195.3, -113.025)",
-          "z_index": 1943
-        },
-        {
-          "pos": "(-37.2, -113.025)",
-          "z_index": 1943
-        },
-        {
-          "pos": "(148.8, -113.025)",
-          "z_index": 1943
-        }
-      ],
-      "t": 9.40605466666676,
-      "wreck_present": true
-    },
-    {
-      "command": "add_3000_gold",
-      "kind": "dev_command",
-      "t": 9.80687000000008
-    },
-    {
-      "command": "buy_hero:arclight",
-      "kind": "dev_command",
-      "t": 10.2046553333334
-    }
-  ],
-  "elapsed": 10.8050943333334,
-  "enemies_spawned": 0,
-  "hero_position": "(11.09903, -0.425775)",
-  "player_class": "arclight",
-  "results": {
-    "alive": true,
-    "beaten_wave": 0,
-    "build": "",
-    "cast_count": 0,
-    "casts": [],
-    "creep_kills": 0,
-    "died": false,
-    "errors": [],
-    "ffa": {},
-    "gold": 1000,
-    "hero_kills": 0,
-    "hp_samples": [],
-    "landmark_saves": 0,
-    "level": 1,
-    "level_upgrades": {},
-    "max_hp": 0.0,
-    "min_hp": 1.0,
-    "min_hp_late": 1.0,
-    "pressure_boosts": 0,
-    "quest_types": 0,
-    "quests_seen": {},
-    "shop_buy_count": 0,
-    "shop_buys": [],
-    "taken_upgrades": [],
-    "until_wave": 20,
-    "verdict": "",
-    "wave": 1,
-    "xp": 0
-  },
+  "all_have_collision": true,
+  "collider_count": 3,
+  "current_state": "shop",
+  "interact_point": "(0.0, 0.0)",
+  "mode": "after",
+  "morph_progress": 1.0,
+  "radar_crash_w": 0,
+  "radar_in_top_region": false,
+  "radar_no_white_bleed": false,
+  "radar_ok": false,
+  "radar_shop_w": 0,
+  "radar_white_silhouette_ok": false,
+  "radar_width_match": false,
   "shots": [
     {
-      "label": "ingame_crash_wreck",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9062/ingame_crash_wreck_5.404_9062.png",
-      "t": 5.40436466666673
+      "label": "crash",
+      "path": "user://iso_shipwreck_crash.png"
     },
     {
-      "label": "ingame_locked_shop",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9662/ingame_locked_shop_6.004_9662.png",
-      "t": 6.00378787878796
+      "label": "morph_early",
+      "path": "user://iso_shipwreck_morph_early.png"
     },
     {
-      "label": "ingame_morph_white",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_10861/ingame_morph_white_7.206_10861.png",
-      "t": 7.20612633333344
+      "label": "morph_white",
+      "path": "user://iso_shipwreck_morph_white.png"
     },
     {
-      "label": "ingame_morph_resolving",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11862/ingame_morph_resolving_8.205_11862.png",
-      "t": 8.20534324242436
+      "label": "morph_mid",
+      "path": "user://iso_shipwreck_morph_mid.png"
     },
     {
-      "label": "ingame_unlocked_shop",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13270/ingame_unlocked_shop_9.607_13270.png",
-      "t": 9.60749100000008
-    },
-    {
-      "label": "ingame_char_shop",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13662/ingame_char_shop_10.002_13662.png",
-      "t": 10.0022727272728
-    },
-    {
-      "label": "ingame_after_buy",
-      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_14262/ingame_after_buy_10.605_14262.png",
-      "t": 10.6045454545455
+      "label": "shop",
+      "path": "user://iso_shipwreck_shop.png"
     }
+  ],
+  "sprites_ok": false,
+  "verdict": "FAIL",
+  "z_sorted": true,
+  "z_values": [
+    1943,
+    1943,
+    1943
   ]
 }

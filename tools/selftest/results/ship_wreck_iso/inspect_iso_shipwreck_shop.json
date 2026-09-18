@@ -7,7 +7,7 @@
     76,
     76
   ],
-  "content_fill_ratio": 0.2075,
+  "content_fill_ratio": 0.2074,
   "bounding_box": [
     630,
     276,
@@ -18,10 +18,10 @@
   "position": "CENTER",
   "is_centered": true,
   "quadrant_fractions": {
-    "TL": 0.1985,
-    "TR": 0.2016,
-    "BL": 0.3002,
-    "BR": 0.2997
+    "TL": 0.1983,
+    "TR": 0.1985,
+    "BL": 0.3018,
+    "BR": 0.3015
   },
   "edge_fractions": {
     "top": 0.0,
