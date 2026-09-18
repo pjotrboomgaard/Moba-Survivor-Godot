@@ -3743,7 +3743,7 @@ func _cast_ability_nebula_time_shift(data: Dictionary, values: Dictionary, _rank
 	global_position += direction * float(values.get("dash_distance", 420.0))
 	# Swap the hit for a time-blast instead of standard blink damage.
 	for target in _enemies_in_radius(global_position, burst_radius):
-		_damage_enemy(target, values.power)
+		_apply_ability_hit(target, data, values)
 		if target.has_method("apply_slow"):
 			target.apply_slow(0.45, 2.5)
 	# TELEPORT style: [origin, destination, Vector2(ring_radius, 0)]
@@ -3775,7 +3775,7 @@ func _cast_ability_astral_ghastly_touch(data: Dictionary, values: Dictionary, _r
 	var target := _nearest_enemy_in_range(reach)
 	if target == null:
 		return
-	_damage_enemy(target, values.power)
+	_apply_ability_hit(target, data, values)
 	# HoN Empath lifesteal: heal for 45% of damage dealt (strong sustain in solo).
 	health.heal(float(values.power) * 0.45)
 	_emit_ability_cast(PackedVector2Array([global_position, target.global_position]))
@@ -3823,7 +3823,7 @@ func _cast_ability_rime_ice_imprisonment(data: Dictionary, values: Dictionary, _
 		if enemy.has_method("apply_slow"):
 			enemy.apply_slow(0.55, 1.5)
 		_damage_enemy(enemy, values.power * 0.5)
-	_damage_enemy(target, values.power)
+	_apply_ability_hit(target, data, values)
 	_emit_ability_cast(PackedVector2Array([target.global_position, Vector2(60.0, 0.0)]))
 
 
@@ -4474,7 +4474,10 @@ func _apply_ability_hit(target: Node2D, data: Dictionary, values: Dictionary) ->
 	# without breaking balance. Fires once per cast even if multiple targets
 	# are hit (e.g. chain nuke hitting several creeps).
 	var arch := int(data.get("archetype", -1))
-	if arch == PlayerClass.Archetype.NUKE_BOLT and not _single_target_buff_fired_this_cast:
+	var is_single_target := (arch == PlayerClass.Archetype.NUKE_BOLT
+		or arch == PlayerClass.Archetype.DASH_STRIKE
+		or arch == PlayerClass.Archetype.BLINK_STRIKE)
+	if is_single_target and not _single_target_buff_fired_this_cast:
 		_single_target_buff_fired_this_cast = true
 		# Only stack on top of existing buff if there isn't one already active.
 		if ability_buff_timer <= 0.0:

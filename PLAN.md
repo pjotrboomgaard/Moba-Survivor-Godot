@@ -869,10 +869,15 @@ activate beacon, add beacon animation, then open beacon tab in shop and buy hero
 ### T3.9b Single-target spell self-buff + PvP no-instant-kill cap (NEW 2026-09-17)
 **User direction:** "make all single target spells have a self buff in some way as well. since single target is less relevant in this game. make it so single target spells dont kill enemy heroes instantly so balance it."
 
-- [x] **Self-buff on single-target hit**: Any NUKE_BOLT ability that lands on at least one
-      enemy grants the caster a brief `damage_dealt_mult: 1.12` buff for 2.0s.
-      Implemented via `_single_target_buff_fired_this_cast` flag (resets at cast start,
-      consumed on first `_apply_ability_hit` call) so multi-target chains only buff once.
+- [x] **Self-buff on single-target hit**: Any NUKE_BOLT, DASH_STRIKE, or BLINK_STRIKE
+      ability that lands on at least one enemy grants the caster a brief
+      `damage_dealt_mult: 1.12` buff for 2.0s. Implemented via
+      `_single_target_buff_fired_this_cast` flag (resets at cast start, consumed on
+      first `_apply_ability_hit` call) so multi-target chains only buff once.
+      2026-09-18: extended from NUKE_BOLT-only to also cover DASH_STRIKE (Volt Dash,
+      Iron Charge, Whirling Flame) and BLINK_STRIKE. Fixed Rime Ice Imprisonment and
+      Nebula Time Shift to route primary damage through `_apply_ability_hit` so the
+      self-buff + PVP cap apply (they previously called `_damage_enemy` directly).
 - [x] **PvP no-instant-kill cap**: `PVP_SINGLE_HIT_CAP = 0.60` — in `_damage_enemy`, when
       the target is a rival Player, the final damage is clamped to ≤ 60% of the rival's
       max_health. Creeps are unaffected. This means the hardest single-target spell
