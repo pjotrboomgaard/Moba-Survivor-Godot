@@ -1,0 +1,18 @@
+{
+  "comment": "In-game BEFORE/AFTER for minimap camp-creep markers. Pin hero at corner 0, start minigame with bot_force, let it run ~16s so all 20 camp creeps recruit. Snap the minimap at t=6 (all idle, should show 80 hollow red rings across 4 corners) and t=20 (camp 0 recruited, should show ~20 owner-colored dots near the hero + remaining idle rings at other corners).",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.7},
+    {"t": 6.0, "kind": "snap", "label": "ingame_minimap_before_recruit"},
+    {"t": 6.5, "kind": "camp_creep_probe", "label": "probe_before_recruit"},
+    {"t": 7.0, "kind": "minigame_bot_force", "index": 0, "on": true},
+    {"t": 7.5, "kind": "start_minigame", "index": 0},
+    {"t": 10.0, "kind": "snap", "label": "ingame_minimap_recruit_early"},
+    {"t": 16.0, "kind": "snap", "label": "ingame_minimap_ring_formation"},
+    {"t": 17.0, "kind": "camp_creep_probe", "label": "probe_ring"},
+    {"t": 20.0, "kind": "snap", "label": "ingame_minimap_after_recruit"},
+    {"t": 21.0, "kind": "camp_creep_probe", "label": "probe_after"},
+    {"t": 24.0, "kind": "report"}
+  ],
+  "wait_ms": 40000
+}

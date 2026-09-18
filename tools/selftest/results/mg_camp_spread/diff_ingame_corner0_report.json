@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/mg_camp_spread/ingame_before_corner0.png",
+  "after": "tools/selftest/results/mg_camp_spread/ingame_after_corner0.png",
+  "out": "tools/selftest/results/mg_camp_spread/diff_ingame_corner0.png",
+  "changed_pixels": 81612,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.039358,
+  "bbox": [
+    31,
+    11,
+    1913,
+    1057
+  ],
+  "has_change": true
+}

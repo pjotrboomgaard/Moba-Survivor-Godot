@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\minimap_camp_iso\\minimap_iso_test.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.626,
+  "bounding_box": [
+    360,
+    0,
+    1785,
+    1079
+  ],
+  "coverage": 0.7427,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2495,
+    "TR": 0.2496,
+    "BL": 0.2496,
+    "BR": 0.2513
+  },
+  "edge_fractions": {
+    "top": 0.0185,
+    "bottom": 0.0185,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\minimap_camp_iso\\thumb_minimap_iso_test.png"
+}

@@ -1,0 +1,8 @@
+{
+  "test_name": "camp_lighter_yellow_before",
+  "comment": "Isolated BEFORE capture for the lighter-yellow change: same isolated camp_creep_iso_test scene, but the tint script is temporarily reverted to the OLD saturated YELLOW=(255,235,80). 5x HP + 1.5x scale assertions (params unchanged in both).",
+  "hero": "tobor",
+  "scene": "res://scenes/camp_creep_iso_test/camp_creep_iso_test.tscn",
+  "events": [],
+  "wait_ms": 4000
+}

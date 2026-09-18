@@ -1,0 +1,27 @@
+{
+  "creep_count": 26,
+  "hp_5x_ok": true,
+  "idle_row_ok": true,
+  "path": "user://camp_creep_iso_grid.png",
+  "recruit_damage_ok": true,
+  "recruit_row_ok": true,
+  "scale_1_5x_ok": true,
+  "scene": "camp_creep_iso_test",
+  "screenshot": "user://camp_creep_iso_grid.png",
+  "types": [
+    "grunt",
+    "swarmling",
+    "spitter",
+    "drifter",
+    "brute",
+    "stalker",
+    "bomber",
+    "hexer",
+    "sentinel",
+    "splitter",
+    "lurker",
+    "charger",
+    "summoner"
+  ],
+  "verdict": "PASS"
+}

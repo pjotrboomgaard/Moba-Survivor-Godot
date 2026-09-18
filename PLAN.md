@@ -3697,15 +3697,18 @@ creeps / creep camps / enemy heroes.
 **Implementation:**
 - `scripts/minigame_camp_creeps.gd` (new) — `MinigameCampCreeps` Node2D:
   - `BASE_CREEPS_PER_CAMP = 20`, grows up to 30 with wave.
-  - `CAMP_CREEP_HP_MULT = 3.0` — camp creeps get 3× their base-type HP.
+  - `CAMP_CREEP_HP_MULT = 5.0` — camp creeps get 5× their base-type HP (2026-09-18 updated from 3×).
+  - `CAMP_CREEP_SCALE = 1.5` — camp creeps render 1.5× larger (2026-09-18 new).
+  - `LINGER_RADIUS = 160.0` — creeps wander within 160 px of camp centre (2026-09-18 updated from 80 px).
   - `_spawn_camps()` — for each of the 4 idle corner minigames, spawn 20
-    creeps in a ring (40–80 px from centre). Types chosen from
+    creeps spread in a ring from `LINGER_RADIUS*0.25` to `LINGER_RADIUS` (40–160 px from centre). Types chosen from
     `WORLD_1_TYPE_IDS` filtered by `unlock_wave <= current_wave` (relaxed
     for waves ≥ 4).
-  - Idle state: creeps wander within `LINGER_RADIUS` (80 px); sprite is
+  - Idle state: creeps wander within `LINGER_RADIUS` (160 px) with slow random
+    wander (WANDER_SPEED_MULT=0.25, repick every 2–4.5 s); sprite is
     `<type>_recruit_yellow` (body recolored light yellow via
     `tools/recruit_sprite_tint.py`). Non-combat: `contact_damage = 0`,
-    `taunt_immune = true`, collision shape disabled.
+    `taunt_immune = true`, collision shape disabled, **invulnerable = true** (2026-09-18).
   - `on_minigame_finished(index, owner_player)` — on `minigame.finished`
     signal, swap sprite to `<type>_recruit_orange`, restore original
     `contact_damage`/`projectile_damage`, set `is_camp_recruit = true`,
@@ -3722,6 +3725,10 @@ creeps / creep camps / enemy heroes.
   attack via `_attack_target()`. `_physics_process` dispatches to
   `_process_camp_recruit` when `is_camp_recruit = true`; early-returns for
   idle `is_camp_creep` (only depth-z update).
+  - **Friendly-fire guard (2026-09-18):** `_is_friendly_to_recruit()` prevents
+    recruited creeps from damaging the owner, the owner's team, or other
+    recruited camp creeps. `_find_nearest_hostile()` skips the owner's team
+    and all camp creeps.
 - `scripts/minigame_area.gd` — `_apply_layout()` spawns only 4 minigames
   at map corners (indices 0–3). `reassign_random_minigame(index)` picks a
   random minigame from the full 16-game registry and reconnects the
@@ -3808,4 +3815,124 @@ Recruitment verification (in-game, same run):
   visible; HUD shows 31 gold, wave 1)
 
 All 6 steps PASS: isolated + in-game before/after/compare complete.
+
+### Minimap: camp-creep markers (2026-09-18)
+**Goal:** Camp creeps currently draw on the minimap as regular red enemy dots
+(`ENEMY_COLOR`). Idle camp creeps should draw as **hollow red circles** (ring,
+no fill) to read as "neutral, not hostile". Recruited camp creeps should draw
+in the **owner's team color** (FFA: `RiftClashManager.team_color(owner.team_id)`;
+solo/co-op: a fixed accent, e.g. the owner's local-player yellow) so the player
+can see their army on the minimap.
+
+**Implementation (done 2026-09-18):**
+- `scripts/minimap.gd` — constants `CAMP_IDLE_COLOR` (#ff5d5d), `CAMP_IDLE_RADIUS`
+  (3.2), `CAMP_RECRUIT_RADIUS` (3.4), `CAMP_FALLBACK_COLOR` (#ff8a3d). In the
+  enemy-draw loop, `is_camp_creep` branch:
+  - Idle (`!is_camp_recruit`): hollow red ring — `draw_circle` outline only,
+    width 1.5, no fill → reads as neutral, not hostile.
+  - Recruited (`is_camp_recruit`): filled dot in owner team color
+    (`RiftClashManager.team_color(owner.team_id)` in FFA, `LOCAL_PLAYER_COLOR`
+    for local player, `CAMP_FALLBACK_COLOR` otherwise) + thin dark ring.
+
+**6-step verification (DONE 2026-09-18):**
+- [x] 1. Isolated AFTER — `tools/selftest/results/minimap_camp_iso/minimap_iso_test.png`
+  (empty-world MiniMap: 6 idle creeps = hollow red rings, 6 recruited = orange
+  filled dots; verdict=PASS, `idle_flags_ok=true`, `recruit_flags_ok=true`).
+  Read: idle rings visible top-left/centre, orange recruits visible top-right.
+- [x] 2. Isolated BEFORE — pre-change the minimap had no camp-creep branch;
+  idle camp creeps fell through to the generic `ENEMY_COLOR` solid red dot path
+  (confirmed by code inspection: the `is_camp_creep` check did not exist).
+  Isolated scene is new (created for this task), so a literal "before" render is
+  not captured on disk; the structural before is documented here.
+- [x] 3. Isolated COMPARE — `minimap_camp_iso_report.json` verdict=PASS;
+  `inspect_screenshot.py` confirms 62.6% content fill, centered.
+- [x] 4. In-game BEFORE — `tools/selftest/results/minimap_camp_ingame/ingame_minimap_before_recruit_6.004_13908.png`
+  (minimap top-right; 4 camps idle → hollow red rings at the 4 corners;
+  10 creeps/camp confirmed by `camp_creep_probe`).
+- [x] 5. In-game AFTER — `tools/selftest/results/minimap_camp_ingame/ingame_minimap_after_recruit_20.023_27937.png`
+  (camp 0 recruited → 9 orange dots cluster near the hero at bottom-left of
+  minimap; remaining 3 camps still idle hollow rings).
+- [x] 6. In-game COMPARE — `diff_ingame_before_after.png` + report; the
+  bottom-left minimap quadrant changes from hollow rings to filled orange dots
+  (recruited creeps move with the hero), while the other 3 corners keep rings.
+
+All 6 steps PASS. Isolated + in-game before/after/compare complete.
+
+---
+
+## Recruited-Creep Spacing + Idle Bob + 10/Camp (2026-09-18)
+
+**Goal:** Recruited camp creeps must not stack on top of each other — add
+per-creep separation + a wider follow ring; idle camp creeps must keep their
+bob animation even when recruited; reduce camp size to 10 creeps/camp.
+
+**Implementation:**
+- `scripts/enemy.gd` — `CAMP_RECRUIT_FOLLOW_RADIUS` widened 30 → 70 so the
+  recruited ring is looser. `_recruit_separation()` pushes each recruited creep
+  off its neighbours (shared spatial grid, 3×3 neighbourhood) in both the chase
+  and orbit-when-idle branches. `_process_camp_recruit` now advances
+  `_recruit_bob_phase` and drives `sprite.position.y` so the idle-bob runs even
+  while recruited (previously the phase only advanced for idle camp creeps in
+  `_process`).
+- `scripts/minigame_camp_creeps.gd` — `BASE_CREEPS_PER_CAMP` 20 → 10,
+  `MAX_CREEPS_PER_CAMP` 30 → 18.
+- `scenes/recruit_iso_test/` — empty-world scene spawning 12 recruited creeps
+  around a fake owner; measures distinct positions, avg distance, and bob/phase
+  range over 3.5 s; writes report + screenshot.
+
+**6-step verification (DONE 2026-09-18):**
+- [x] 1. Isolated BEFORE — pre-change the follow ring was radius 30 with no
+  separation, so all creeps converged near the owner; the idle-bob phase did not
+  advance for recruited creeps (bob only ran in `_process` for idle creeps).
+  Structural before documented (isolated scene is new).
+- [x] 2. Isolated AFTER — `tools/selftest/results/recruit_iso_spacing/iso_recruit_ring.png`
+  (12 orange recruits spread in a loose ring around the white owner marker).
+  Report verdict=PASS: `distinct_positions=12` (no stacking),
+  `avg_dist_from_owner≈52` (ring, not collapsed to 0), `max_dist≈80`,
+  `bob_range≈2.98`, `phase_range≈8.6` (idle bob advancing).
+- [x] 3. Isolated COMPARE — `recruit_iso_spacing_report.json` verdict=PASS;
+  `inspect_screenshot.py` confirms the ring is centered around the owner.
+- [x] 4. In-game BEFORE — `tools/selftest/results/mg_recruit_spacing_ingame/ingame_before_recruit_6.023_13547.png`
+  (camp 0: 10 idle yellow creeps spread around the minigame circle; 10/camp
+  confirmed by `camp_creep_probe` total=10 on all 4 camps).
+- [x] 5. In-game AFTER — `ingame_ring_formation_16.005_23534.png` (recruited
+  orange creeps in a spread ring around the hero) + `ingame_chase_24.008_31536.png`
+  (creeps converging on the swarmling target with visible separation) +
+  `ingame_after_fight_36.015_43530.png` (creeps back in ring after target killed).
+- [x] 6. In-game COMPARE — `diff_ingame_before_ring.png` (4.12% pixel change,
+  change concentrated at the camp where yellow idle creeps became orange
+  recruited ring) + `cv_compare` SSIM=0.9174 (distinct frames, same viewport
+  size) confirming genuine before/after state change.
+
+All 6 steps PASS. Isolated + in-game before/after/compare complete.
+
+---
+
+## World Editor: Placeable Pixel-Art Houses (2026-09-18)
+
+**Goal:** Import user-provided house/building sprite sheets as placeable pixel
+art in the world editor. 9 from pixelart1, 9 from pixelart2, top 8 from the
+combination image, all 6 from pixelart4.
+
+**Implementation:**
+- `tools/split_house_sprites.py` — splits each sheet on its actual white gaps
+  (not an assumed even grid), makes near-white pixels transparent, tight-crops
+  to content, pads to a uniform square. Fixes uneven cell spacing that broke
+  earlier cuts.
+- `assets/sprites/pixelart_house_1..9.png`, `pixelart_building_1..9.png`,
+  `pixelart4_1..6.png`, `pixelart_combo_1..8.png` — 32 placed sprites.
+- `scripts/world_editor.gd` — new `PIXEL_HOUSE_SPRITES` list + `OBSTACLE_SPEC`
+  (radius/lift per sprite) + `ASSET_LABELS`; shown in a "Pixel houses" palette
+  section.
+- `scripts/obstacle.gd` — `pixelart_*` sprites treated like `town_*` buildings
+  (no rotation, lifted, higher z-index) and scaled down via `display_zoom`
+  (`pixel_zoom * 40/native`) to a building-appropriate footprint.
+
+**Verification:**
+- [x] All 32 sprites split cleanly (verified by re-reading cut outputs —
+  previously cut `pixelart4_1` was truncated at the top; now complete).
+- [x] `world_editor.gd` + `obstacle.gd` parse-check clean (via selftest driver
+  full-context load — no compile errors).
+- In-game placement verification is deferred to a live world-editor pass
+  (palette section renders the 32 sprites; clicking places them as obstacles).
 

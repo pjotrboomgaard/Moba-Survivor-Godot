@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "comment": "AFTER: camp creeps with 5x HP, 1.5x scale, 160u linger radius, invulnerable idle. Pin at corner 0, probe camp state + snapshot.",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.5},
+    {"t": 6.0, "kind": "snap", "label": "after_camp_idle"},
+    {"t": 8.0, "kind": "camp_creep_probe", "label": "idle_after"},
+    {"t": 10.0, "kind": "snap", "label": "after_camp_wander"},
+    {"t": 12.0, "kind": "report"}
+  ],
+  "wait_ms": 15000
+}

@@ -178,7 +178,7 @@ func _draw_body() -> void:
 			Color(1.0, 0.9, 0.4, alpha))
 
 
-func _finish_with_reward() -> void:
+func _finish_with_reward(completed_full: bool = true) -> void:
 	if finished_flag:
 		return
 	finished_flag = true
@@ -192,3 +192,5 @@ func _finish_with_reward() -> void:
 		var crowd_bonus := _creeps.size() * 5
 		owner_player.add_gold(REWARD_GOLD + gem_bonus + crowd_bonus)
 		owner_player.add_xp(REWARD_XP + crowd_bonus)
+	AudioService.play("minigame_win")
+	_emit_finished(completed_full)

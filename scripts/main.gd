@@ -1431,6 +1431,9 @@ func _on_wave_started(wave: int, theme_name: String, debut_type_id: String) -> v
 			_shake_cameras(16.0, 0.6)
 			_play_world_flash(false)
 	_persist_run_save()
+	# 2026-09-18: top up minigame camps with newly-introduced creep types.
+	if _minigame_camp_creeps != null and _minigame_camp_creeps.has_method("on_wave_started"):
+		_minigame_camp_creeps.on_wave_started()
 	if GameRuntime.is_rift_clash() and SteamService.is_available():
 		var my_team := ""
 		for peer_id in players.keys():
@@ -4559,11 +4562,20 @@ func _connect_minigame_finished_signal(index: int, g: Node) -> void:
 		return
 	if g.has_signal("finished"):
 		g.finished.connect(_on_minigame_finished.bind(index))
+	# minigame_started signal already includes the index as 2nd arg;
+	# connect without .bind() so the handler signature matches.
+	if g.has_signal("minigame_started"):
+		g.minigame_started.connect(_on_minigame_started)
 
 
-func _on_minigame_finished(owner_player: Player, _score: int, _rewards: Dictionary, minigame_index: int) -> void:
+func _on_minigame_started(owner_player: Player, minigame_index: int) -> void:
+	if _minigame_camp_creeps != null and _minigame_camp_creeps.has_method("on_minigame_started"):
+		_minigame_camp_creeps.on_minigame_started(minigame_index, owner_player)
+
+
+func _on_minigame_finished(owner_player: Player, _score: int, _rewards: Dictionary, completed_full: bool, minigame_index: int) -> void:
 	if _minigame_camp_creeps != null and _minigame_camp_creeps.has_method("on_minigame_finished"):
-		_minigame_camp_creeps.on_minigame_finished(minigame_index, owner_player)
+		_minigame_camp_creeps.on_minigame_finished(minigame_index, owner_player, completed_full)
 
 
 ## Continuous "ghost trickle": lightweight enemy records that stream in from the

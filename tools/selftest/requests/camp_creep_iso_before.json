@@ -1,0 +1,4 @@
+{
+  "comment": "Isolated BEFORE capture for lighter-yellow + team-color changes. Scene spawns idle yellow camp creeps and orange recruited creeps on an empty background. The test scene checks 5x HP + 1.5x scale (params unchanged by this task).",
+  "events": []
+}

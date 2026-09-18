@@ -1,0 +1,658 @@
+{
+  "effects": [
+    {
+      "camps": [
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 0,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2476.0,
+              -1680.0
+            ],
+            [
+              -2460.0,
+              -1665.0
+            ],
+            [
+              -2462.0,
+              -1634.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2477.0,
+              1682.0
+            ],
+            [
+              -2456.0,
+              1701.0
+            ],
+            [
+              -2477.0,
+              1711.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2573.0,
+              -1678.0
+            ],
+            [
+              2589.0,
+              -1661.0
+            ],
+            [
+              2572.0,
+              -1640.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2597.0,
+              1684.0
+            ],
+            [
+              2565.0,
+              1696.0
+            ],
+            [
+              2577.0,
+              1724.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "idle_probe_before",
+      "t": 8.00366166666679
+    },
+    {
+      "display_name": "Keg Toss Pro",
+      "index": 0,
+      "kind": "minigame_reassign_start",
+      "started": true,
+      "t": 9.00379900000007
+    },
+    {
+      "camps": [
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 0,
+          "minigame_active": true,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 1,
+          "sample_pos": [
+            [
+              -2470.0,
+              -1686.0
+            ],
+            [
+              -2459.0,
+              -1664.0
+            ],
+            [
+              -2462.0,
+              -1634.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_orange",
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2476.0,
+              1683.0
+            ],
+            [
+              -2457.0,
+              1700.0
+            ],
+            [
+              -2477.0,
+              1711.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2572.0,
+              -1678.0
+            ],
+            [
+              2589.0,
+              -1660.0
+            ],
+            [
+              2572.0,
+              -1638.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2598.0,
+              1684.0
+            ],
+            [
+              2566.0,
+              1695.0
+            ],
+            [
+              2577.0,
+              1725.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "recruit_at_1s",
+      "t": 10.0033483333334
+    },
+    {
+      "camps": [
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 0,
+          "minigame_active": true,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 5,
+          "sample_pos": [
+            [
+              -2482.0,
+              -1727.0
+            ],
+            [
+              -2476.0,
+              -1712.0
+            ],
+            [
+              -2470.0,
+              -1702.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_orange",
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2477.0,
+              1683.0
+            ],
+            [
+              -2457.0,
+              1701.0
+            ],
+            [
+              -2477.0,
+              1711.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2571.0,
+              -1678.0
+            ],
+            [
+              2587.0,
+              -1659.0
+            ],
+            [
+              2573.0,
+              -1639.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2597.0,
+              1687.0
+            ],
+            [
+              2567.0,
+              1697.0
+            ],
+            [
+              2577.0,
+              1724.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "recruit_at_4s",
+      "t": 13.0048729696969
+    },
+    {
+      "finished": true,
+      "id": "Keg Toss Pro",
+      "index": 0,
+      "kind": "minigame_stop",
+      "label": "stop_early",
+      "owner_gold_after": 242,
+      "owner_gold_before": 142,
+      "reward_granted": true,
+      "score": 140,
+      "t": 15.0048729696968,
+      "was_active": false
+    },
+    {
+      "camps": [
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 0,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": true,
+          "recruited_count": 20,
+          "sample_pos": [
+            [
+              -2501.0,
+              -1751.0
+            ],
+            [
+              -2333.0,
+              -1578.0
+            ],
+            [
+              -2335.0,
+              -1581.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_orange"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2475.0,
+              1683.0
+            ],
+            [
+              -2458.0,
+              1702.0
+            ],
+            [
+              -2476.0,
+              1712.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2571.0,
+              -1679.0
+            ],
+            [
+              2588.0,
+              -1658.0
+            ],
+            [
+              2573.0,
+              -1641.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2598.0,
+              1687.0
+            ],
+            [
+              2568.0,
+              1698.0
+            ],
+            [
+              2576.0,
+              1724.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "after_early_stop",
+      "t": 16.0052606666664
+    },
+    {
+      "camps": [
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 0,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": true,
+          "recruited_count": 20,
+          "sample_pos": [
+            [
+              -2520.0,
+              -1747.0
+            ],
+            [
+              -2410.0,
+              -1580.0
+            ],
+            [
+              -2458.0,
+              -1631.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_orange"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2476.0,
+              1685.0
+            ],
+            [
+              -2457.0,
+              1701.0
+            ],
+            [
+              -2475.0,
+              1710.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2572.0,
+              -1681.0
+            ],
+            [
+              2588.0,
+              -1657.0
+            ],
+            [
+              2573.0,
+              -1640.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_3x_hp": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2599.0,
+              1689.0
+            ],
+            [
+              2569.0,
+              1698.0
+            ],
+            [
+              2579.0,
+              1725.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "post_stop_probe",
+      "t": 22.0042706666662
+    }
+  ],
+  "elapsed": 28.0040396666658,
+  "enemies_spawned": 0,
+  "hero_position": "(-2444.222, -1663.754)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 371,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 3,
+    "level_upgrades": {
+      "3": [
+        "push_drone"
+      ]
+    },
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [
+      "push_drone"
+    ],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 52
+  },
+  "shots": [
+    {
+      "label": "before_minigame_start",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9328/before_minigame_start_6.004_9328.png",
+      "t": 6.00359466666673
+    },
+    {
+      "label": "recruit_early",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13812/recruit_early_10.503_13812.png",
+      "t": 10.5033483333334
+    },
+    {
+      "label": "after_early_stop",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_21310/after_early_stop_18.004_21310.png",
+      "t": 18.0036223333331
+    }
+  ]
+}

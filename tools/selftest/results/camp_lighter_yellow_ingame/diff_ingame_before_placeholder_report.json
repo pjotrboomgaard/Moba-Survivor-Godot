@@ -1,0 +1,10 @@
+{
+  "before": "tools/selftest/results/camp_lighter_yellow_ingame/idle_camps_ingame_10.006_14274.png",
+  "after": "tools/selftest/results/camp_lighter_yellow_ingame/idle_camps_ingame_10.006_14274.png",
+  "out": "tools/selftest/results/camp_lighter_yellow_ingame/diff_ingame_before_placeholder.png",
+  "changed_pixels": 0,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.0,
+  "bbox": null,
+  "has_change": false
+}

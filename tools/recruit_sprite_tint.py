@@ -50,8 +50,10 @@ WORLD_1_TYPES = [
     "summoner",
 ]
 
-# Idle = light yellow (neutral recruitable pool). Saturated so it reads clearly.
-YELLOW = (255, 235, 80)
+# Idle = LIGHT yellow (neutral recruitable pool). 2026-09-18: bumped to a
+# paler, more pastel tone so the idle camp reads as "soft/available" rather
+# than a hard saturated yellow.
+YELLOW = (255, 248, 190)
 # Recruited = orange (player accent colour family).
 ORANGE = (255, 138, 61)
 

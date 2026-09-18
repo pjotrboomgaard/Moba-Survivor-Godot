@@ -211,7 +211,7 @@ func _draw_body() -> void:
 			Color(1.0, 0.9, 0.3, 0.9))
 
 
-func _finish_with_reward() -> void:
+func _finish_with_reward(completed_full: bool = true) -> void:
 	if finished_flag:
 		return
 	finished_flag = true
@@ -224,4 +224,4 @@ func _finish_with_reward() -> void:
 		owner_player.add_gold(REWARD_GOLD + int(score * 0.15) + combo_bonus + crowd_bonus)
 		owner_player.add_xp(REWARD_XP + combo_bonus)
 	AudioService.play("minigame_win")
-	_emit_finished()
+	_emit_finished(completed_full)

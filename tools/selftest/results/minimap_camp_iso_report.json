@@ -1,0 +1,14 @@
+{
+  "idle_alive": 6,
+  "idle_flags_ok": true,
+  "minimap_size": [
+    320.0,
+    214.0
+  ],
+  "path": "user://selftest_selftest_run_7981/minimap_iso_test.png",
+  "recruit_alive": 6,
+  "recruit_flags_ok": true,
+  "scene": "minimap_camp_iso_test",
+  "screenshot": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7981/minimap_iso_test.png",
+  "verdict": "PASS"
+}

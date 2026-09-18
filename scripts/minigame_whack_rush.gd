@@ -188,7 +188,7 @@ func _draw_body() -> void:
 		draw_rect(Rect2(rel + Vector2(-6.0, -6.0), Vector2(12.0, 12.0)), Color(0.4, 0.8, 1.0, 0.5))
 
 
-func _finish_with_reward() -> void:
+func _finish_with_reward(completed_full: bool = true) -> void:
 	if finished_flag:
 		return
 	finished_flag = true

@@ -298,7 +298,7 @@ func _draw_body() -> void:
 
 
 ## Override reward: bigger crowd = bigger reward.
-func _finish_with_reward() -> void:
+func _finish_with_reward(completed_full: bool = true) -> void:
 	if finished_flag:
 		return
 	finished_flag = true

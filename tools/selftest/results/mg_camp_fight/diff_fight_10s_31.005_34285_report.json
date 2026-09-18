@@ -1,0 +1,15 @@
+{
+  "before": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\mg_camp_recruit_flow\\ingame_camp_before_recruit_6.001_9741.png",
+  "after": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\mg_camp_fight\\fight_10s_31.005_34285.png",
+  "out": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\mg_camp_fight\\diff_fight_10s_31.005_34285.png",
+  "changed_pixels": 146392,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.070598,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

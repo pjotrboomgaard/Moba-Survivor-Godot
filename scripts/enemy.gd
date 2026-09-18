@@ -306,6 +306,8 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 	health.damaged.connect(_on_damaged)
 	network_target_position = global_position
+	# 2026-09-18: random phase so camp-creep idle bobs are out of sync.
+	_recruit_bob_phase = randf_range(0.0, TAU)
 	queue_redraw()
 	# Perf (large groups): insert into the separation grid immediately so a newly
 	# spawned enemy participates in separation without waiting for the next 12.5 Hz
@@ -574,6 +576,13 @@ func _process(_delta: float) -> void:
 		queue_redraw()
 		if sprite != null and is_instance_valid(sprite):
 			_update_night_sprite_tint()
+	# 2026-09-18: idle camp creeps bob up/down (sprite.position.y) so they read
+	# as alive rather than a static pile. Driven here because _physics_process
+	# early-returns for idle camp creeps (is_camp_creep && !is_camp_recruit).
+	if is_camp_creep and not is_camp_recruit and not _in_far_mode:
+		_recruit_bob_phase += _delta * 2.6
+		if sprite != null:
+			sprite.position = Vector2(0.0, sin(_recruit_bob_phase) * 1.5)
 	if not _in_far_mode:
 		return
 	_far_target_timer -= _delta
@@ -634,6 +643,10 @@ func _physics_process(delta: float) -> void:
 		# Just landed from a knockback arc — check if we ended up in lava.
 		_was_knocked = false
 		_on_knockback_landed()
+	if _in_far_mode:
+		velocity = Vector2.ZERO
+		queue_redraw()
+		return
 
 	_update_lava_burn(delta)
 	_update_standing_lava(delta)
@@ -1116,11 +1129,49 @@ func _process_ranged() -> void:
 ## 2026-09-18: Recruited camp-creep AI — the camp creep follows its owner
 ## player (orbit at CAMP_RECRUIT_FOLLOW_RADIUS) and attacks the nearest regular
 ## enemy / camp guardian / enemy hero. Does NOT attack its own owner.
-const CAMP_RECRUIT_FOLLOW_RADIUS := 30.0
-const CAMP_RECRUIT_COMBAT_RANGE := 220.0
+## 2026-09-18: follow ring widened (30 -> 70) so recruited creeps spread out
+## around the hero instead of stacking on top of each other; aggro range raised
+## (220 -> 360) so they notice enemies sooner.
+const CAMP_RECRUIT_FOLLOW_RADIUS := 70.0
+const CAMP_RECRUIT_COMBAT_RANGE := 360.0
+
+## Per-camp-creep idle-bob phase. Every camp creep (idle or recruited) gets its
+## own random phase, so the whole camp bobs out of sync and reads as "alive"
+## rather than a static pile of sprites.
+var _recruit_bob_phase := 0.0
 
 var _recruit_target: Node2D = null
 var _recruit_retarget_timer := 0.0
+
+
+## 2026-09-18: separation push for recruited creeps. Uses the shared enemy
+## spatial grid (same _separation_grid the regular creeps use) so a recruited
+## camp of 20 creeps spreads out around the hero instead of stacking into a
+## single overlapping blob. Cheap: one 3x3 neighbourhood scan per recruit.
+func _recruit_separation() -> Vector2:
+	if not Enemy._separation_grid.has(_separation_cell(global_position)):
+		_rebuild_separation_grid()
+	var push := Vector2.ZERO
+	var range_sq := SEPARATION_RANGE * SEPARATION_RANGE
+	var base_cell := _separation_cell(global_position)
+	for dx in range(-1, 2):
+		for dy in range(-1, 2):
+			var bucket_raw = Enemy._separation_grid.get(Vector2i(base_cell.x + dx, base_cell.y + dy))
+			if bucket_raw == null:
+				continue
+			var bucket: Array = bucket_raw
+			for candidate in bucket:
+				if candidate == self or not is_instance_valid(candidate):
+					continue
+				var cand_node: Node2D = candidate as Node2D
+				if cand_node == null:
+					continue
+				var offset: Vector2 = global_position - cand_node.global_position
+				var distance_sq := offset.length_squared()
+				if distance_sq > range_sq or distance_sq <= 0.0:
+					continue
+				push += offset.normalized() * (1.0 - sqrt(distance_sq) / SEPARATION_RANGE)
+	return push * SEPARATION_STRENGTH
 
 
 func _process_camp_recruit(delta: float) -> void:
@@ -1128,6 +1179,15 @@ func _process_camp_recruit(delta: float) -> void:
 		# Owner gone — stop moving.
 		velocity = Vector2.ZERO
 		return
+
+	# 2026-09-18: advance the recruit bob phase so the idle-bob animation
+	# (sprite.position.y) runs even while recruited. This also drives the
+	# orbital slot angle in the orbit-when-idle branch below.
+	_recruit_bob_phase += delta * 2.6
+	if sprite != null:
+		sprite.position = Vector2(0.0, sin(_recruit_bob_phase) * 1.5)
+
+	attack_cooldown = maxf(0.0, attack_cooldown - delta)
 
 	_recruit_retarget_timer -= delta
 	if _recruit_retarget_timer <= 0.0:
@@ -1139,32 +1199,74 @@ func _process_camp_recruit(delta: float) -> void:
 		var dist := global_position.distance_to(_recruit_target.global_position)
 		if dist <= attack_distance:
 			velocity = Vector2.ZERO
+			# Friendly-fire guard: never damage the owner, the owner's
+			# same-team players, or other recruited camp creeps.
+			if _is_friendly_to_recruit(_recruit_target):
+				target = null
+				queue_redraw()
+				return
 			# Recruits have no normal `target`; point it at the hostile and
-			# fire a contact hit via the same path the player's attacks use.
-			target = _recruit_target
-			_attack_target()
-			if attack_cooldown > 0.0 and contact_damage > 0.0:
-				# Fallback: _attack_target gated on `target`, so call take_damage
-				# directly on the host's HealthComponent to guarantee the hit lands.
+			# fire a direct contact hit. _attack_target() is gated on the
+			# shared `target` var + attack_cooldown, so we drive the hit and
+			# cooldown ourselves to guarantee a per-attack_interval cadence.
+			if contact_damage > 0.0 and attack_cooldown <= 0.0:
 				var th := _recruit_target.get_node_or_null("HealthComponent") as HealthComponent
 				if th != null and th.has_method("take_damage"):
 					th.call("take_damage", contact_damage, self)
+				attack_cooldown = attack_interval
+				target = _recruit_target
+				_play_melee_dash()
 		else:
-			_move(global_position.direction_to(_recruit_target.global_position) * movement_speed)
+			# Recruits move via direct position update, not move_and_slide():
+			# their collision shapes were deferred-disabled/enabled on recruit,
+			# and the shared physics frame can be full of other enemies'
+			# move_and_slide calls, which silently blocks/zeroes this body's
+			# motion. Direct position move is the pattern idle camp creeps and
+			# flying enemies already use, and it guarantees the recruit closes
+			# the gap regardless of the physics frame's other traffic.
+			var chase_dir := global_position.direction_to(_recruit_target.global_position)
+			# 2026-09-18: add separation so a recruited swarm doesn't stack
+			# on top of the same target — each creep pushes off its neighbours
+			# while still converging on the hostile.
+			var sep := _recruit_separation()
+			var step := (chase_dir * movement_speed + sep) * get_physics_process_delta_time()
+			global_position += step
+			# Face the movement direction for the sprite.
+			if sprite != null and step.length_squared() > 0.01:
+				sprite.flip_h = step.x < 0.0
 		queue_redraw()
 		return
 
-	# No hostile in range — orbit the owner.
+	# No hostile in range — orbit the owner on a per-camp-creep ring slot so
+	# the group forms a loose ring instead of a single overlapping point.
+	# Each creep has a fixed slot angle (hash of its network_id) and a fixed
+	# orbital radius (base + phase offset), so creeps settle at different
+	# angles AND different radii instead of all chasing the same orbit.
 	var to_owner: Vector2 = recruit_owner.global_position - global_position
 	var owner_dist := to_owner.length()
-	if owner_dist > CAMP_RECRUIT_FOLLOW_RADIUS + 10.0:
-		_move(to_owner.normalized() * movement_speed * 0.7)
-	elif owner_dist < CAMP_RECRUIT_FOLLOW_RADIUS - 10.0:
-		_move(to_owner.normalized() * -movement_speed * 0.3)
+	if owner_dist < 1.0:
+		queue_redraw()
+		return
+	# Per-camp-creep phase (seeded in _ready) gives each creep its own slot
+	# angle and orbital radius offset.
+	var phase := fmod(_recruit_bob_phase, TAU)
+	var slot_angle: float = fmod(sin(phase) * PI, TAU) - PI
+	var slot_radius: float = CAMP_RECRUIT_FOLLOW_RADIUS * (0.85 + 0.3 * fmod(sin(phase * 1.7 + 1.3), 1.0))
+	var target_pos: Vector2 = recruit_owner.global_position + Vector2(cos(slot_angle), sin(slot_angle)) * slot_radius
+	var to_target: Vector2 = target_pos - global_position
+	var target_dist: float = to_target.length()
+	# Move toward the slot position (faster when far, slower when close),
+	# plus a gentle tangential drift so the ring feels alive.
+	var tangential: Vector2 = to_target.rotated(PI / 2.0)
+	var step: Vector2
+	if target_dist > 12.0:
+		step = to_target.normalized() * minf(movement_speed * 0.9, target_dist * 4.0) * get_physics_process_delta_time()
 	else:
-		# Small orbital drift.
-		var orbit := to_owner.rotated(PI / 2.0)
-		_move(orbit * movement_speed * 0.25)
+		step = tangential * movement_speed * 0.2 * get_physics_process_delta_time()
+	# 2026-09-18: separation push so recruited creeps spread out instead of
+	# stacking at the same follow point.
+	step += _recruit_separation() * get_physics_process_delta_time()
+	global_position += step
 	queue_redraw()
 
 
@@ -1188,11 +1290,16 @@ func _find_nearest_hostile() -> Node2D:
 		if d_sq < best_d:
 			best_d = d_sq
 			best = node
-	# Enemy players (FFA rivals).
+	# Enemy players (FFA rivals). In co-op, all players are allies of the owner,
+	# so only FFA rivals are hostiles.
 	if recruit_owner != null and recruit_owner is Player:
 		for p in get_tree().get_nodes_in_group("players"):
 			if not is_instance_valid(p) or p == recruit_owner:
 				continue
+			# Friendly-fire guard: never target the owner's own team.
+			if "team_id" in p and str(p.get("team_id")) != "":
+				if str(p.get("team_id")) == str(recruit_owner.get("team_id")):
+					continue
 			if "is_local_player" in p and p.is_local_player:
 				continue
 			var d_sq: float = global_position.distance_squared_to(p.global_position)
@@ -1200,6 +1307,26 @@ func _find_nearest_hostile() -> Node2D:
 				best_d = d_sq
 				best = p
 	return best
+
+
+## True when `other` is a friendly unit that this recruited camp creep must
+## never damage: its owner, the owner's same-team players, or any other
+## recruited camp creep. Idle (un-recruited) camp creeps are neutral and also
+## never targeted.
+func _is_friendly_to_recruit(other: Node2D) -> bool:
+	if other == null or not is_instance_valid(other):
+		return false
+	# Never fight the owner or the owner's team.
+	if recruit_owner != null and recruit_owner is Player:
+		if other == recruit_owner:
+			return true
+		if other is Player and "team_id" in other:
+			if str(other.get("team_id")) != "" and str(other.get("team_id")) == str(recruit_owner.get("team_id")):
+				return true
+	# Never fight other recruited camp creeps (allies) or any camp creep.
+	if "is_camp_creep" in other and bool(other.get("is_camp_creep")):
+		return true
+	return false
 
 
 func _process_support() -> void:
@@ -2142,6 +2269,13 @@ func _enter_far_mode() -> void:
 	_in_far_mode = true
 	if sprite != null:
 		sprite.visible = false
+	# 2026-09-18: far-cull is a perf optimization for regular creeps off-screen.
+	# Camp creeps are small, fixed, and externally driven (idle linger or
+	# recruited follow/attack) — culling their physics would freeze their
+	# bob/wander/recruit AI when the player is far away. Keep them always-on.
+	if is_camp_creep:
+		_in_far_mode = false
+		return
 	set_physics_process(false)
 
 

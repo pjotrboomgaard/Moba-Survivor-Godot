@@ -189,7 +189,7 @@ func _draw_body() -> void:
 			_comment_text, HORIZONTAL_ALIGNMENT_CENTER, 200, 14,
 			Color(1.0, 0.8, 0.3, alpha))
 
-func _finish_with_reward() -> void:
+func _finish_with_reward(completed_full: bool = true) -> void:
 	if finished_flag:
 		return
 	finished_flag = true
@@ -199,4 +199,7 @@ func _finish_with_reward() -> void:
 	if owner_player != null and is_instance_valid(owner_player):
 		owner_player.add_gold(REWARD_GOLD + int(score * 0.15))
 		owner_player.add_xp(REWARD_XP + int(score * 0.1))
+	AudioService.play("minigame_win")
+	_vfx_burst(Color(0.4, 0.7, 0.9), 180.0, 180.0)
+	_emit_finished(completed_full)
 

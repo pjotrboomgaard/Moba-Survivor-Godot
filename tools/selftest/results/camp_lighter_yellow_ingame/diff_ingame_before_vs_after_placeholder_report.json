@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/camp_lighter_yellow_before/camp_creep_iso_grid.png",
+  "after": "tools/selftest/results/camp_lighter_yellow_ingame/idle_camps_ingame_10.006_14274.png",
+  "out": "tools/selftest/results/camp_lighter_yellow_ingame/diff_ingame_before_vs_after_placeholder.png",
+  "changed_pixels": 1388329,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.669526,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

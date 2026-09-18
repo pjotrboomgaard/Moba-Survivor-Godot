@@ -1,4 +1,4 @@
-ï»¿extends "res://scripts/minigame_base.gd"
+extends "res://scripts/minigame_base.gd"
 ## RING ROLL (ice): steer your ring to lap a frozen track and collect gems.
 ##
 ## A glowing ring follows the hero; each lap collects the gems on the track.
@@ -101,12 +101,12 @@ func on_input_event(_event: InputEvent) -> void:
 	pass
 
 func _draw_body() -> void:
-	# Frozen floor â€” a chunky square panel (pixel-art reads better than a smooth
+	# Frozen floor — a chunky square panel (pixel-art reads better than a smooth
 	# disc) sized to the ring.
 	var floor_half := RING_RADIUS + 30.0
 	draw_rect(Rect2(Vector2(-floor_half, -floor_half), Vector2(floor_half * 2.0, floor_half * 2.0)), Color(0.15, 0.25, 0.35, 0.5))
 
-	# Ring track â€” a chunky square frame (4 sides) standing in for the smooth ring.
+	# Ring track — a chunky square frame (4 sides) standing in for the smooth ring.
 	var track_col := Color(0.5, 0.8, 1.0, 0.5)
 	var th := RING_RADIUS
 	var bar := 4.0
@@ -115,7 +115,7 @@ func _draw_body() -> void:
 	draw_rect(Rect2(Vector2(-th, -th + bar), Vector2(bar, th * 2.0 - bar * 2.0)), track_col)  # left
 	draw_rect(Rect2(Vector2(th - bar, -th + bar), Vector2(bar, th * 2.0 - bar * 2.0)), track_col)  # right
 
-	# Gems â€” chunky 3x3 pixel gem (small square cluster reads as a gem in pixel art).
+	# Gems — chunky 3x3 pixel gem (small square cluster reads as a gem in pixel art).
 	for g in _gems:
 		var gp: Vector2 = g.get("pos", Vector2.ZERO)
 		if bool(g.get("taken", false)):
@@ -137,7 +137,7 @@ func _draw_body() -> void:
 			draw_rect(Rect2(gp2 + Vector2(-ph, -ph + 3.0), Vector2(3.0, ph * 2.0 - 6.0)), Color(0.8, 1.0, 1.0, 0.7))
 			draw_rect(Rect2(gp2 + Vector2(ph - 3.0, -ph + 3.0), Vector2(3.0, ph * 2.0 - 6.0)), Color(0.8, 1.0, 1.0, 0.7))
 
-	# Creeps â€” blocky body + head + eyes.
+	# Creeps — blocky body + head + eyes.
 	for c in _creeps:
 		var cp: Vector2 = c.get("pos", Vector2.ZERO)
 		var cc: Color = c.get("color", Color.WHITE)
@@ -148,7 +148,7 @@ func _draw_body() -> void:
 		draw_rect(Rect2(cb + Vector2(-4.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
 		draw_rect(Rect2(cb + Vector2(2.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
 
-	# Player marker â€” chunky square.
+	# Player marker — chunky square.
 	if owner_player != null and is_instance_valid(owner_player):
 		var rel := owner_player.global_position - global_position
 		draw_rect(Rect2(rel + Vector2(-13.0, -13.0), Vector2(26.0, 26.0)), Color(0.5, 0.9, 1.0, 0.95))
@@ -169,7 +169,7 @@ func _draw_body() -> void:
 			_comment_text, HORIZONTAL_ALIGNMENT_CENTER, 200, 15,
 			Color(0.8, 1.0, 0.5, alpha))
 
-func _finish_with_reward() -> void:
+func _finish_with_reward(completed_full: bool = true) -> void:
 	if finished_flag:
 		return
 	finished_flag = true
@@ -182,4 +182,6 @@ func _finish_with_reward() -> void:
 		var crowd_bonus := _creeps.size() * 5
 		owner_player.add_gold(REWARD_GOLD + int(score * 0.2) + crowd_bonus)
 		owner_player.add_xp(REWARD_XP + crowd_bonus)
+	AudioService.play("minigame_win")
+	_emit_finished(completed_full)
 

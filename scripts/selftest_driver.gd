@@ -27,6 +27,7 @@ var _walk_target: Variant = null  # Vector2 or null while a walk_to is in flight
 var _walk_deadline := 0.0  # give up if the player hasn't reached by then
 var _pin_pos := Vector2.ZERO  # when _pin_active, hold the hero here each frame
 var _pin_active := false
+var _hold_release_at := 0.0  # when >0, auto-unpin at this elapsed time (hold event)
 var _kill_live_boss_pending := false  # deferred boss kill for a just-spawned boss
 var _shots_taken: Array[Dictionary] = []
 var _active_effects: Array[Dictionary] = []
@@ -608,6 +609,9 @@ func _process(delta: float) -> void:
 			"camp_creep_probe":
 				# 2026-09-18: report the state of all camp creeps spawned by the
 				# MinigameCampCreeps system: count, recruited status, positions,
+				# plus a spawn_count_probe-style live count of NON-camp enemies so
+				# a fight test can assert the recruited army actually killed the
+				# spawned regular enemies (creep_kills only counts player kills).
 				# and recruit_sprite names. Used to verify camp creeps exist and
 				# transition from idle-yellow to recruited-orange.
 				var cc_label := str(event.get("label", "camp"))
@@ -617,6 +621,21 @@ func _process(delta: float) -> void:
 					var mcc: Variant = host_main_cc.get("_minigame_camp_creeps")
 					if mcc != null and is_instance_valid(mcc) and mcc.has_method("get_camp_state_summary"):
 						cc_entry["camps"] = mcc.get_camp_state_summary()
+					# 2026-09-18: count NON-camp enemies alive so a fight test can
+					# assert the recruited army actually killed the spawned grunts
+					# (the player's own creep_kills counter only tracks player kills).
+					var camp_count := 0
+					var regular_count := 0
+					for en in get_tree().get_nodes_in_group("enemies"):
+						if not is_instance_valid(en):
+							continue
+						var is_camp: bool = "is_camp_creep" in en and bool(en.get("is_camp_creep"))
+						if is_camp:
+							camp_count += 1
+						else:
+							regular_count += 1
+					cc_entry["camp_enemy_count"] = camp_count
+					cc_entry["regular_enemy_count"] = regular_count
 				else:
 					cc_entry["error"] = "no host_main"
 				_active_effects.append(cc_entry)
@@ -857,6 +876,17 @@ func _process(delta: float) -> void:
 				if _player != null:
 					_walk_target = null
 					_player.set_authority_command(Vector2.ZERO, _player.aim_world_position, false, false, [false, false, false, false], false)
+			"hold":
+				# 2026-09-18: pin the hero at an absolute world position for `duration`
+				# seconds, then release (unpin) so the driver's normal survival bot resumes.
+				# Auto-unpins when _elapsed reaches _hold_release_at (see _tick_pin).
+				if _player != null:
+					var hold_to: Array = event.get("to", [0.0, 0.0])
+					_pin_pos = Vector2(float(hold_to[0]), float(hold_to[1]))
+					_player.global_position = _pin_pos
+					_player.movement_locked = true
+					_pin_active = true
+					_hold_release_at = _elapsed + float(event.get("duration", 2.0))
 			"teleport":
 				# Instant move: used for stand-on-landmark tests where the walk itself is
 				# not what we want to verify. `at` is player-relative (use [0,0] + "to" for
@@ -1095,6 +1125,11 @@ func _tick_pin() -> void:
 		return
 	_player.global_position = _pin_pos
 	_player.set_authority_command(Vector2.ZERO, _pin_pos, false, false, [false, false, false, false], false)
+	# 2026-09-18: `hold` events schedule an auto-unpin; unpin when the deadline passes.
+	if _hold_release_at > 0.0 and _elapsed >= _hold_release_at:
+		_hold_release_at = 0.0
+		_pin_active = false
+		_player.movement_locked = false
 
 
 ## Move the 2D camera to a world position and set a zoom so the next snap is a

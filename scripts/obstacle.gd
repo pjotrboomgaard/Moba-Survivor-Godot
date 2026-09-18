@@ -59,8 +59,9 @@ func configure(sprite_name: String, radius: float, pixel_zoom: float, lift_pixel
 	var is_tree := sprite_name.contains("tree")
 	# Town buildings are drawn straight (no tilt) so they read as placed houses
 	# rather than random spinning blocks. Each style has its own pixel art, so the
-	# variety comes from the art, not from rotation.
-	if sprite_name.begins_with("town_"):
+	# variety comes from the art, not from rotation. Imported pixel-art houses
+	# (pixelart_*) are treated the same way: straight, slightly lifted, higher z.
+	if sprite_name.begins_with("town_") or sprite_name.begins_with("pixelart_"):
 		sprite.rotation = 0.0
 		sprite.offset = Vector2(0.0, -lift_pixels * 0.6)
 		z_index = WorldClock.depth_z(global_position.y) + 4
@@ -340,6 +341,12 @@ static func display_zoom(sprite_name: String, pixel_zoom: float, texture: Textur
 	var native := 16.0
 	if texture != null:
 		native = float(maxi(1, texture.get_width()))
+	# Imported pixel-art houses (~300px native from SpritesImport sheets).
+	# Scale down to a footprint similar to town buildings: ~40 world px wide
+	# at pixel_zoom 4 → zoom factor ≈ 40/300 ≈ 0.13.
+	if sprite_name.begins_with("pixelart_house") or sprite_name.begins_with("pixelart_building") \
+		or sprite_name.begins_with("pixelart4_") or sprite_name.begins_with("pixelart_combo_"):
+		return pixel_zoom * (40.0 / native)
 	if sprite_name.contains("mushroom"):
 		return pixel_zoom * (10.0 / native)
 	if sprite_name.contains("bush") and native > 16.0:

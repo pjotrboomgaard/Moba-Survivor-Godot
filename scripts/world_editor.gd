@@ -112,6 +112,39 @@ const OBSTACLE_SPEC := {
 	"otter": {"radius": 9.0, "lift": 0.0},
 	"boar": {"radius": 12.0, "lift": 0.0},
 	"golem": {"radius": 14.0, "lift": 0.0},
+	# --- Imported pixel-art houses/buildings (from SpritesImport/houses) ---
+	"pixelart_house_1": {"radius": 34.0, "lift": 14.0},
+	"pixelart_house_2": {"radius": 30.0, "lift": 14.0},
+	"pixelart_house_3": {"radius": 36.0, "lift": 14.0},
+	"pixelart_house_4": {"radius": 34.0, "lift": 16.0},
+	"pixelart_house_5": {"radius": 38.0, "lift": 18.0},
+	"pixelart_house_6": {"radius": 38.0, "lift": 18.0},
+	"pixelart_house_7": {"radius": 36.0, "lift": 18.0},
+	"pixelart_house_8": {"radius": 40.0, "lift": 18.0},
+	"pixelart_house_9": {"radius": 38.0, "lift": 18.0},
+	"pixelart_building_1": {"radius": 36.0, "lift": 14.0},
+	"pixelart_building_2": {"radius": 36.0, "lift": 14.0},
+	"pixelart_building_3": {"radius": 34.0, "lift": 16.0},
+	"pixelart_building_4": {"radius": 40.0, "lift": 18.0},
+	"pixelart_building_5": {"radius": 42.0, "lift": 18.0},
+	"pixelart_building_6": {"radius": 40.0, "lift": 18.0},
+	"pixelart_building_7": {"radius": 42.0, "lift": 18.0},
+	"pixelart_building_8": {"radius": 42.0, "lift": 18.0},
+	"pixelart_building_9": {"radius": 42.0, "lift": 18.0},
+	"pixelart4_1": {"radius": 32.0, "lift": 14.0},
+	"pixelart4_2": {"radius": 36.0, "lift": 14.0},
+	"pixelart4_3": {"radius": 32.0, "lift": 14.0},
+	"pixelart4_4": {"radius": 32.0, "lift": 14.0},
+	"pixelart4_5": {"radius": 36.0, "lift": 14.0},
+	"pixelart4_6": {"radius": 32.0, "lift": 14.0},
+	"pixelart_combo_1": {"radius": 34.0, "lift": 16.0},
+	"pixelart_combo_2": {"radius": 40.0, "lift": 14.0},
+	"pixelart_combo_3": {"radius": 40.0, "lift": 14.0},
+	"pixelart_combo_4": {"radius": 30.0, "lift": 16.0},
+	"pixelart_combo_5": {"radius": 34.0, "lift": 16.0},
+	"pixelart_combo_6": {"radius": 40.0, "lift": 16.0},
+	"pixelart_combo_7": {"radius": 42.0, "lift": 16.0},
+	"pixelart_combo_8": {"radius": 32.0, "lift": 16.0},
 }
 
 const TREES := [
@@ -148,6 +181,21 @@ const RECRUIT_AREA_SPRITES := [
 	"mountain_goat", "mountain_yeti", "mountain_wolf",
 	"mountain_owl", "mountain_icebear", "mountain_lizard",
 ]
+## Imported pixel-art houses/buildings split from SpritesImport/houses/*.webp.
+## These are large decorative structures (not 16px props), rendered at a small
+## zoom so their ~300px native art reads as proper buildings in-world.
+const PIXEL_HOUSE_SPRITES := [
+	"pixelart_house_1", "pixelart_house_2", "pixelart_house_3",
+	"pixelart_house_4", "pixelart_house_5", "pixelart_house_6",
+	"pixelart_house_7", "pixelart_house_8", "pixelart_house_9",
+	"pixelart_building_1", "pixelart_building_2", "pixelart_building_3",
+	"pixelart_building_4", "pixelart_building_5", "pixelart_building_6",
+	"pixelart_building_7", "pixelart_building_8", "pixelart_building_9",
+	"pixelart4_1", "pixelart4_2", "pixelart4_3",
+	"pixelart4_4", "pixelart4_5", "pixelart4_6",
+	"pixelart_combo_1", "pixelart_combo_2", "pixelart_combo_3", "pixelart_combo_4",
+	"pixelart_combo_5", "pixelart_combo_6", "pixelart_combo_7", "pixelart_combo_8",
+]
 const LANDMARK_EFFECTS := ["pulse_wipe", "heal_all", "freeze_time", "phase_cloak", "speed_surge", "battle_frenzy"]
 const ASSET_LABELS := {
 	"tree_oak": "Oak", "tree_round": "Round", "tree_pine": "Pine", "tree_fir": "Fir",
@@ -180,6 +228,17 @@ const ASSET_LABELS := {
 	"mountain_goat": "Goat", "mountain_yeti": "Yeti", "mountain_wolf": "M- wolf", "mountain_owl": "M- owl",
 	"mountain_icebear": "Ice bear", "mountain_lizard": "Lizard",
 	"wolf": "Wolf", "fox": "Town fox", "raven": "Raven", "otter": "Otter", "boar": "Boar", "golem": "Golem",
+	"pixelart_house_1": "House A", "pixelart_house_2": "House B", "pixelart_house_3": "House C",
+	"pixelart_house_4": "House D", "pixelart_house_5": "House E", "pixelart_house_6": "House F",
+	"pixelart_house_7": "House G", "pixelart_house_8": "House H", "pixelart_house_9": "House I",
+	"pixelart_building_1": "Town hall", "pixelart_building_2": "Tavern", "pixelart_building_3": "Lighthouse",
+	"pixelart_building_4": "Townhouse", "pixelart_building_5": "Castle", "pixelart_building_6": "Bakery",
+	"pixelart_building_7": "Workshop", "pixelart_building_8": "Windmill", "pixelart_building_9": "Chapel",
+	"pixelart4_1": "Blue cottage", "pixelart4_2": "Yellow flat", "pixelart4_3": "Blue cottage B",
+	"pixelart4_4": "Green cottage", "pixelart4_5": "Rose flat", "pixelart4_6": "Green cottage B",
+	"pixelart_combo_1": "Cottage", "pixelart_combo_2": "Two-storey house", "pixelart_combo_3": "Cottage B",
+	"pixelart_combo_4": "Cottage C", "pixelart_combo_5": "Blue cottage", "pixelart_combo_6": "Rose house",
+	"pixelart_combo_7": "Two-storey red", "pixelart_combo_8": "Cottage D",
 	"landmark": "Landmark", "erase": "Erase", "minigame_trigger": "Minigame Trigger",
 }
 
@@ -1767,6 +1826,10 @@ func _rebuild_palette() -> void:
 		ids.append_array(kit.get("theme", []))
 		ids.append_array(kit.get("anim", []))
 		_palette_list.add_child(_palette_section(str(kit.get("name", "World")), ids))
+	# Imported pixel-art houses/buildings (from SpritesImport/houses sheets).
+	_palette_list.add_child(_palette_section("Pixel houses", PIXEL_HOUSE_SPRITES))
+	# Imported pixel-art houses/buildings (from SpritesImport/houses sheets).
+	_palette_list.add_child(_palette_section("Pixel houses", PIXEL_HOUSE_SPRITES))
 	# Recruit-area sprites (houses/creatures for Town, Lagoon, Forest, Mountain)
 	# are available in every world so the user can place them in any biome.
 	_palette_list.add_child(_palette_section("Recruit areas", RECRUIT_AREA_SPRITES))

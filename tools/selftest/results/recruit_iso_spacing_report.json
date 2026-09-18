@@ -1,0 +1,13 @@
+{
+  "avg_dist_from_owner": 53.0063927968343,
+  "bob_range": 2.99259567260742,
+  "bob_samples_count": 21,
+  "creep_count": 12,
+  "distinct_positions": 12,
+  "max_dist_from_owner": 81.0478820800781,
+  "path": "user://selftest_selftest_run_8373/iso_recruit_ring.png",
+  "phase_range": 8.57999999999993,
+  "scene": "recruit_iso_test",
+  "screenshot": "user://selftest_selftest_run_8373/iso_recruit_ring.png",
+  "verdict": "PASS"
+}

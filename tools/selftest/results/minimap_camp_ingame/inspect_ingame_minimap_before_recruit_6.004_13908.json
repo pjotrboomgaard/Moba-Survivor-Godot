@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\minimap_camp_ingame\\ingame_minimap_before_recruit_6.004_13908.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.121,
+  "bounding_box": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.1887,
+    "TR": 0.2566,
+    "BL": 0.1288,
+    "BR": 0.4258
+  },
+  "edge_fractions": {
+    "top": 0.0129,
+    "bottom": 0.0066,
+    "left": 0.006,
+    "right": 0.0045
+  },
+  "thumbnail": "tools\\selftest\\results\\minimap_camp_ingame\\thumb_ingame_minimap_before_recruit_6.004_13908.png"
+}

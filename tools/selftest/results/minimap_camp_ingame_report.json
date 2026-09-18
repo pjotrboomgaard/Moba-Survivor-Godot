@@ -1,0 +1,527 @@
+{
+  "effects": [
+    {
+      "camp_enemy_count": 40,
+      "camps": [
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 0,
+          "minigame_active": false,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 0,
+          "recruited": false,
+          "recruited_count": 0,
+          "recruited_pos": [],
+          "sample_pos": [
+            [
+              -2319.0,
+              -1710.0
+            ],
+            [
+              -2472.0,
+              -1678.0
+            ],
+            [
+              -2342.0,
+              -1595.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        },
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 0,
+          "recruited": false,
+          "recruited_count": 0,
+          "recruited_pos": [],
+          "sample_pos": [
+            [
+              -2405.0,
+              1797.0
+            ],
+            [
+              -2329.0,
+              1868.0
+            ],
+            [
+              -2560.0,
+              1855.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        },
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 0,
+          "recruited": false,
+          "recruited_count": 0,
+          "recruited_pos": [],
+          "sample_pos": [
+            [
+              2692.0,
+              -1814.0
+            ],
+            [
+              2774.0,
+              -1650.0
+            ],
+            [
+              2701.0,
+              -1602.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        },
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 0,
+          "recruited": false,
+          "recruited_count": 0,
+          "recruited_pos": [],
+          "sample_pos": [
+            [
+              2773.0,
+              1634.0
+            ],
+            [
+              2554.0,
+              1750.0
+            ],
+            [
+              2586.0,
+              1746.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "probe_before_recruit",
+      "regular_enemy_count": 52,
+      "t": 6.523824
+    },
+    {
+      "index": 0,
+      "kind": "minigame_bot_force",
+      "on": true,
+      "t": 7.0009914983165
+    },
+    {
+      "index": 0,
+      "kind": "start_minigame",
+      "started": true,
+      "t": 7.5
+    },
+    {
+      "camp_enemy_count": 40,
+      "camps": [
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 0,
+          "minigame_active": true,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 6,
+          "recruited": false,
+          "recruited_count": 6,
+          "recruited_pos": [
+            [
+              -2294.0,
+              -1618.0
+            ],
+            [
+              -2342.0,
+              -1558.0
+            ],
+            [
+              -2289.0,
+              -1586.0
+            ],
+            [
+              -2370.0,
+              -1514.0
+            ],
+            [
+              -2644.0,
+              -1673.0
+            ]
+          ],
+          "sample_pos": [
+            [
+              -2294.0,
+              -1618.0
+            ],
+            [
+              -2342.0,
+              -1558.0
+            ],
+            [
+              -2289.0,
+              -1586.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_orange",
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        },
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 0,
+          "recruited": false,
+          "recruited_count": 0,
+          "recruited_pos": [],
+          "sample_pos": [
+            [
+              -2421.0,
+              1811.0
+            ],
+            [
+              -2329.0,
+              1868.0
+            ],
+            [
+              -2560.0,
+              1855.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        },
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 0,
+          "recruited": false,
+          "recruited_count": 0,
+          "recruited_pos": [],
+          "sample_pos": [
+            [
+              2689.0,
+              -1821.0
+            ],
+            [
+              2774.0,
+              -1650.0
+            ],
+            [
+              2701.0,
+              -1602.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        },
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 0,
+          "recruited": false,
+          "recruited_count": 0,
+          "recruited_pos": [],
+          "sample_pos": [
+            [
+              2773.0,
+              1634.0
+            ],
+            [
+              2554.0,
+              1750.0
+            ],
+            [
+              2579.0,
+              1693.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "probe_ring",
+      "regular_enemy_count": 68,
+      "t": 17.004694
+    },
+    {
+      "camp_enemy_count": 40,
+      "camps": [
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 0,
+          "minigame_active": true,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 8,
+          "recruited": false,
+          "recruited_count": 9,
+          "recruited_pos": [
+            [
+              -2290.0,
+              -1619.0
+            ],
+            [
+              -2342.0,
+              -1558.0
+            ],
+            [
+              -2289.0,
+              -1586.0
+            ],
+            [
+              -2371.0,
+              -1514.0
+            ],
+            [
+              -2656.0,
+              -1614.0
+            ]
+          ],
+          "sample_pos": [
+            [
+              -2290.0,
+              -1619.0
+            ],
+            [
+              -2342.0,
+              -1558.0
+            ],
+            [
+              -2289.0,
+              -1586.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_orange",
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        },
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 0,
+          "recruited": false,
+          "recruited_count": 0,
+          "recruited_pos": [],
+          "sample_pos": [
+            [
+              -2421.0,
+              1811.0
+            ],
+            [
+              -2329.0,
+              1868.0
+            ],
+            [
+              -2560.0,
+              1855.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        },
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 0,
+          "recruited": false,
+          "recruited_count": 0,
+          "recruited_pos": [],
+          "sample_pos": [
+            [
+              2689.0,
+              -1821.0
+            ],
+            [
+              2774.0,
+              -1650.0
+            ],
+            [
+              2701.0,
+              -1602.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        },
+        {
+          "alive": 10,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_dmg_ok": true,
+          "recruit_progress": 0.0,
+          "recruit_target_count": 0,
+          "recruited": false,
+          "recruited_count": 0,
+          "recruited_pos": [],
+          "sample_pos": [
+            [
+              2773.0,
+              1634.0
+            ],
+            [
+              2554.0,
+              1750.0
+            ],
+            [
+              2579.0,
+              1693.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 10
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "probe_after",
+      "regular_enemy_count": 64,
+      "t": 21.0135416666666
+    }
+  ],
+  "elapsed": 24.0150756666666,
+  "enemies_spawned": 0,
+  "hero_position": "(-2520.0, -1680.0)",
+  "player_class": "arclight",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 78,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 105
+  },
+  "shots": [
+    {
+      "label": "ingame_minimap_before_recruit",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13909/ingame_minimap_before_recruit_6.004_13908.png",
+      "t": 6.0041354949495
+    },
+    {
+      "label": "ingame_minimap_recruit_early",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_17908/ingame_minimap_recruit_early_10.010_17908.png",
+      "t": 10.0095886666667
+    },
+    {
+      "label": "ingame_minimap_ring_formation",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_23921/ingame_minimap_ring_formation_16.023_23921.png",
+      "t": 16.0229475925926
+    },
+    {
+      "label": "ingame_minimap_after_recruit",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_27937/ingame_minimap_after_recruit_20.023_27937.png",
+      "t": 20.0233333333333
+    }
+  ]
+}

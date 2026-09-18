@@ -62,7 +62,8 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 ## Legacy hero content scroll + loadout (built in _build_overhaul_ui). The compact
 ## menu (2026-09-18) replaces it, so it is hidden at runtime but kept for FFA/co-op
 ## lobby flows that still use the big 4-button loadout panel.
-@onready var hero_content_scroll: ScrollContainer = $StatusLayer/LobbyPanel/Margin/Layout/HeroContentScroll
+## 2026-09-18: node removed from tscn; now nullable so the @onready doesn't crash.
+var hero_content_scroll: ScrollContainer = null
 
 # --- Overhaul UI (built programmatically in _ready, parented into the existing Layout) ---
 var world_row: HFlowContainer = null
@@ -153,6 +154,8 @@ var _compact_hero_name_label: Label = null
 var _compact_start_btn: Button = null
 var _compact_continue_btn: Button = null
 var _compact_settings_btn: Button = null
+var _compact_menu_editor: Node = null
+var _settings_vbox: VBoxContainer = null
 
 ## T3.71 / T3.97: animated menu background (from MP4 frame extraction).
 ## Generic per-hero: any hero whose class def has an "animated_menu_bg" folder
@@ -454,7 +457,8 @@ func _constrain_lobby_layout() -> void:
 	# --- Hide old full-width UI elements (grid, mode row, etc.) ---
 	class_label.visible = false
 	class_grid.visible = false
-	class_description.visible = false
+	if class_description != null:
+		class_description.visible = false
 	world_row.visible = false
 	mode_row.visible = false
 	title_label.visible = false
@@ -467,8 +471,10 @@ func _constrain_lobby_layout() -> void:
 	# 2026-09-18: the compact menu replaces the legacy hero content (old class
 	# grid + abilities loadout + hero description). Hide the scroll + text so
 	# nothing from the old layout leaks through.
-	hero_content_scroll.visible = false
-	class_description.visible = false
+	if hero_content_scroll != null:
+		hero_content_scroll.visible = false
+	if class_description != null:
+		class_description.visible = false
 	# Difficulty + audio rows will be re-shown and reordered in _build_compact_menu.
 	# --- Build compact menu in the layout ---
 	_build_compact_menu(layout)
@@ -605,6 +611,40 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	_init_mode_nav()
 	_init_diff_nav()
 
+	# 2026-09-18: In-game menu editor (F3 to toggle). Lets the user drag/resize
+	# menu controls, reorder them, and save the layout to user://menu_layout.json.
+	_setup_menu_editor()
+
+
+## 2026-09-18: In-game menu layout editor.
+## Creates the MenuEditor node, loads any saved layout, and adds a toggle
+## button to the settings panel so the user can also reach it from the UI.
+func _setup_menu_editor() -> void:
+	var editor_script: GDScript = load("res://scripts/menu_editor.gd")
+	if editor_script == null:
+		push_warning("MenuEditor: failed to load script, editor disabled.")
+		return
+	var editor: Node = editor_script.new()
+	editor.name = "MenuEditor"
+	add_child(editor)
+	# Apply any previously saved layout on startup.
+	editor.call_deferred("load_layout")
+	# Add a small "Edit Menu Layout (F3)" button to the settings panel so it
+	# can be reached from the UI as well as the F3 key.
+	if _settings_panel != null:
+		var toggle_btn := Button.new()
+		toggle_btn.text = "✏  Edit Menu Layout (F3)"
+		toggle_btn.custom_minimum_size = Vector2(0, 36)
+		toggle_btn.focus_mode = Control.FOCUS_NONE
+		toggle_btn.pressed.connect(editor.toggle)
+		# Attach to the settings panel's VBox if it exists.
+		var sb := _settings_vbox
+		if sb != null:
+			sb.add_child(toggle_btn)
+		else:
+			_settings_panel.add_child(toggle_btn)
+	_compact_menu_editor = editor
+
 
 ## Shared background style for all action/nav buttons in the compact menu.
 func _style_action_button(btn: Button) -> void:
@@ -710,6 +750,7 @@ func _build_settings_panel() -> void:
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 6)
 	margin.add_child(vbox)
+	_settings_vbox = vbox
 
 	# Title row
 	var title_row := HBoxContainer.new()
@@ -2733,7 +2774,8 @@ func _refresh_header_detail(hero_id: String) -> void:
 	var selected := PlayerClass.by_id(hero_id)
 	if subtitle_label != null:
 		subtitle_label.visible = false
-	class_description.text = "%s\n%s" % [str(selected.description), _stat_summary(selected)]
+	if class_description != null:
+		class_description.text = "%s\n%s" % [str(selected.description), _stat_summary(selected)]
 
 
 func _stat_summary(cls: Dictionary) -> String:

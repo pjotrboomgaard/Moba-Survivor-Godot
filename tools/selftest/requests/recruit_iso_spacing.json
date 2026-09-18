@@ -1,0 +1,7 @@
+{
+  "comment": "Isolated: recruited camp creeps must not stack — they form a loose ring around the owner with per-creep separation + idle bob. Also verifies idle bob is animating (sprite.position.y varies over time).",
+  "scene": "res://scenes/recruit_iso_test/recruit_iso_test.tscn",
+  "hero": "tobor",
+  "events": [],
+  "wait_ms": 8000
+}

@@ -1,0 +1,32 @@
+{
+  "hero": "tobor",
+  "comment": "Tasks E/F/G/H: In-game recruit flow. Pin hero at corner 0. Start minigame via bot_force. Probe recruitment progress over time (F: progressive). After early stop, unpin and teleport the hero toward the center to verify recruited creeps follow (G). Then spawn regular grunts near the hero to verify recruits intercept them (H) without hitting the hero or each other (E: friendly fire off).",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.7},
+    {"t": 6.0, "kind": "snap", "label": "ingame_camp_before_recruit"},
+    {"t": 7.0, "kind": "camp_creep_probe", "label": "probe_before_recruit"},
+    {"t": 9.0, "kind": "minigame_reassign_start", "index": 0, "bot_force": true},
+    {"t": 10.0, "kind": "camp_creep_probe", "label": "probe_recruit_1s"},
+    {"t": 11.0, "kind": "snap", "label": "ingame_recruit_early"},
+    {"t": 13.0, "kind": "camp_creep_probe", "label": "probe_recruit_4s"},
+    {"t": 15.0, "kind": "minigame_stop", "index": 0, "label": "stop_early"},
+    {"t": 16.0, "kind": "camp_creep_probe", "label": "probe_after_early_stop"},
+    {"t": 17.0, "kind": "snap", "label": "ingame_after_early_stop"},
+    {"t": 20.0, "kind": "camp_creep_probe", "label": "probe_after_wait"},
+    {"t": 22.0, "kind": "unpin"},
+    {"t": 23.0, "kind": "teleport", "to": [-2200.0, -1680.0]},
+    {"t": 27.0, "kind": "snap", "label": "ingame_follow_test"},
+    {"t": 28.0, "kind": "teleport", "to": [-1900.0, -1500.0]},
+    {"t": 29.5, "kind": "snap", "label": "ingame_follow_test2"},
+    {"t": 30.0, "kind": "camp_creep_probe", "label": "probe_follow"},
+    {"t": 31.0, "kind": "spawn", "at": [30, 0], "type": "grunt", "hp_mult": 1.0, "spd_mult": 1.0},
+    {"t": 31.2, "kind": "spawn", "at": [-30, 0], "type": "grunt", "hp_mult": 1.0, "spd_mult": 1.0},
+    {"t": 31.4, "kind": "spawn", "at": [0, 30], "type": "grunt", "hp_mult": 1.0, "spd_mult": 1.0},
+    {"t": 31.6, "kind": "spawn", "at": [0, -30], "type": "grunt", "hp_mult": 1.0, "spd_mult": 1.0},
+    {"t": 34.0, "kind": "snap", "label": "ingame_recruits_fight"},
+    {"t": 36.0, "kind": "camp_creep_probe", "label": "probe_fight"},
+    {"t": 40.0, "kind": "report"}
+  ],
+  "wait_ms": 70000
+}

@@ -19,6 +19,12 @@ const ENEMY_COLOR := Color("ff5d5d")
 ## Drawn before real enemies so a real dot overwrites it cleanly on materialization.
 const GHOST_COLOR := Color("d99a3f", 0.85)
 const BOSS_COLOR := Color("ff2a2a")
+## Camp creeps (minigame recruits): idle = hollow red ring, recruited = owner's team color.
+## See scripts/minigame_camp_creeps.gd + scripts/enemy.gd (_process_camp_recruit).
+const CAMP_IDLE_COLOR := Color("ff5d5d")
+const CAMP_IDLE_RADIUS := 3.2
+const CAMP_RECRUIT_RADIUS := 3.4
+const CAMP_FALLBACK_COLOR := Color("ff8a3d")
 const QUEST_COLOR := Color("c9a84e")
 const TREE_COLOR := Color(0.42, 0.52, 0.42, 0.55)
 const ROCK_COLOR := Color(0.52, 0.50, 0.48, 0.45)
@@ -135,6 +141,27 @@ func _draw() -> void:
 		if enemy == null:
 			continue
 		var point := _to_local(enemy.global_position)
+		# 2026-09-18: camp creeps get special markers. Idle = hollow red ring
+		# (neutral, not hostile). Recruited = owner's team color (so the player
+		# can see their recruited army on the minimap).
+		if enemy.is_camp_creep:
+			if enemy.is_camp_recruit:
+				var color := CAMP_FALLBACK_COLOR
+				if enemy.recruit_owner != null and is_instance_valid(enemy.recruit_owner) and enemy.recruit_owner is Player:
+					var owner: Player = enemy.recruit_owner
+					if owner.is_local_player:
+						color = LOCAL_PLAYER_COLOR
+					elif GameRuntime.is_ffa() and owner.team_id != "":
+						color = RiftClashManager.team_color(owner.team_id)
+					elif owner.team_id != "":
+						color = RiftClashManager.team_color(owner.team_id)
+				draw_circle(point, CAMP_RECRUIT_RADIUS, color)
+				draw_circle(point, CAMP_RECRUIT_RADIUS, Color(0.05, 0.05, 0.08, 0.7), false, 1.0)
+			else:
+				# Idle camp creep: hollow red ring (no fill) so it reads as a
+				# neutral camp member rather than a hostile enemy.
+				draw_circle(point, CAMP_IDLE_RADIUS, CAMP_IDLE_COLOR, false, 1.5)
+			continue
 		if enemy.is_boss:
 			draw_circle(point, BOSS_RADIUS, BOSS_COLOR)
 		else:

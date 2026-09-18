@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "comment": "In-game capture of the idle camp-creep sprite colors at corner 0. Pin the hero at the top-left corner so the camp is on screen; no minigame started, so all 20 creeps stay idle with the yellow recruit sprite. This proves the lighter-yellow idle tint renders in the real world (grass, trees, HUD).",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.8},
+    {"t": 8.0, "kind": "camp_creep_probe", "label": "idle_camps"},
+    {"t": 10.0, "kind": "snap", "label": "idle_camps_ingame"},
+    {"t": 12.0, "kind": "unpin"},
+    {"t": 14.0, "kind": "report"}
+  ],
+  "wait_ms": 30000
+}

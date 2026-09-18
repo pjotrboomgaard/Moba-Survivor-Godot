@@ -1,0 +1,6 @@
+{
+  "hero": "tobor",
+  "comment": "Isolated empty-world test for camp creep params (5x HP, 1.5x scale, invulnerable). Scene handles its own report + quit.",
+  "events": [],
+  "wait_ms": 5000
+}

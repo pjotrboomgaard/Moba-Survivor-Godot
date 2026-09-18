@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/mg_camp_fight/ingame_fight_2s_28.001_31300.png",
+  "after": "tools/selftest/results/mg_camp_fight/ingame_fight_9s_36.003_39283.png",
+  "out": "tools/selftest/results/mg_camp_fight/diff_ingame_fight.png",
+  "changed_pixels": 53462,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.025782,
+  "bbox": [
+    0,
+    11,
+    1913,
+    1047
+  ],
+  "has_change": true
+}

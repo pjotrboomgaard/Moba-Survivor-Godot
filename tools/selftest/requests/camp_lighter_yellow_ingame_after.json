@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "comment": "In-game AFTER capture for the lighter-yellow change: recruit sprites regenerated with the lighter YELLOW=(255,248,190). Same corner-0 idle camp pin as the BEFORE capture.",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.8},
+    {"t": 8.0, "kind": "camp_creep_probe", "label": "idle_camps"},
+    {"t": 10.0, "kind": "snap", "label": "idle_camps_ingame_after"},
+    {"t": 12.0, "kind": "unpin"},
+    {"t": 14.0, "kind": "report"}
+  ],
+  "wait_ms": 30000
+}

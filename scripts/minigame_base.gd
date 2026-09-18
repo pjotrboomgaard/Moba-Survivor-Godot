@@ -10,7 +10,8 @@ extends Node2D
 ## lines while sharing the lifecycle + UI banner/ring plumbing.
 ## No class_name to avoid circular dependency with Player at parse time.
 
-signal finished(owner_player: Player, score: int, rewards: Dictionary)
+signal finished(owner_player: Player, score: int, rewards: Dictionary, completed_full: bool)
+signal minigame_started(owner_player: Player, index: int)
 
 const DURATION: float = 15.0
 const REWARD_GOLD := 30
@@ -19,6 +20,10 @@ const REWARD_XP := 25
 var owner_player: Player = null
 var active := false
 var finished_flag := false
+## True when the minigame timer ran out naturally (full completion), false when
+## the player stopped/abandoned it early. Camp creeps use this to decide
+## whether to recruit the full army or only the creeps that joined so far.
+var completed_full := false
 var score := 0
 var timer: float = DURATION
 var area_index := 0
@@ -45,6 +50,10 @@ func start(p_owner: Player, index: int = -1, accent_color: Color = Color.WHITE) 
 	_reset()
 	_update_ui_label()
 	queue_redraw()
+	# Emit minigame_started so systems like MinigameCampCreeps can begin
+	# progressive recruitment immediately.
+	if is_inside_tree():
+		minigame_started.emit(p_owner, area_index)
 
 
 func _update_ui_label() -> void:
@@ -62,7 +71,8 @@ func stop() -> void:
 	if not active:
 		return
 	active = false
-	_finish_with_reward()
+	# Early stop (player walked away or pressed stop): only partially recruited.
+	_finish_with_reward(false)
 
 
 ## Public entry point: the player/bot "pops" the minigame. Subclasses do NOT
@@ -204,12 +214,12 @@ func _process(delta: float) -> void:
 	_finished_flash = maxf(0.0, _finished_flash - delta * 1.2)
 	_update_ui_label()
 	if timer <= 0.0:
-		_finish_with_reward()
+		_finish_with_reward(true)
 		return
 	queue_redraw()
 
 
-func _finish_with_reward() -> void:
+func _finish_with_reward(completed_full: bool = true) -> void:
 	if finished_flag:
 		return
 	finished_flag = true
@@ -221,7 +231,7 @@ func _finish_with_reward() -> void:
 		owner_player.add_xp(REWARD_XP)
 	AudioService.play("minigame_win")
 	_vfx_burst(Color(1.0, 0.95, 0.4), 24.0, 200.0)
-	_emit_finished()
+	_emit_finished(completed_full)
 
 
 ## Lightweight action VFX: spawn a small one-shot GPUParticles burst at a local
@@ -264,8 +274,8 @@ static func _make_vfx_texture(color: Color) -> ImageTexture:
 	return ImageTexture.create_from_image(img)
 
 
-func _emit_finished() -> void:
-	finished.emit(owner_player, score, {"gold": REWARD_GOLD, "xp": REWARD_XP})
+func _emit_finished(completed_full: bool = true) -> void:
+	finished.emit(owner_player, score, {"gold": REWARD_GOLD, "xp": REWARD_XP}, completed_full)
 	if is_inside_tree():
 		var main: Node = get_tree().get_first_node_in_group("main")
 		if main != null and main.has_method("flash_recruit_joined"):

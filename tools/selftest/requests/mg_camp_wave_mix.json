@@ -1,0 +1,15 @@
+{
+  "hero": "tobor",
+  "comment": "Task C: verify camps mix in new creep types as waves progress. Skip waves 1->3 before starting a minigame; the camp roster should contain at least 2 distinct sprite types after the wave advances (grunt + at least one newly-introduced type).",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.8},
+    {"t": 6.0, "kind": "camp_creep_probe", "label": "wave1_camps"},
+    {"t": 7.0, "kind": "skip_wave"},
+    {"t": 8.0, "kind": "skip_wave"},
+    {"t": 9.0, "kind": "skip_wave"},
+    {"t": 10.0, "kind": "camp_creep_probe", "label": "wave4_camps"},
+    {"t": 11.0, "kind": "snap", "label": "wave4_camps"}
+  ],
+  "wait_ms": 30000
+}

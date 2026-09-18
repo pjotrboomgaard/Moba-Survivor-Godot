@@ -1,4 +1,4 @@
-ï»¿extends "res://scripts/minigame_base.gd"
+extends "res://scripts/minigame_base.gd"
 ## BALLOON POP (lagoon): pop balloons that float up from the bottom.
 ##
 ## Balloons rise from the bottom of the arena. The hero must move to pop them
@@ -130,10 +130,10 @@ func on_input_event(_event: InputEvent) -> void:
 	pass
 
 func _draw_body() -> void:
-	# Lagoon water floor â€” a chunky square panel.
+	# Lagoon water floor — a chunky square panel.
 	var floor_half := 160.0
 	draw_rect(Rect2(Vector2(-floor_half, -floor_half), Vector2(floor_half * 2.0, floor_half * 2.0)), Color(0.1, 0.3, 0.4, 0.5))
-	# Balloons â€” chunky balloon (rounded-square body + small knot + pixel string).
+	# Balloons — chunky balloon (rounded-square body + small knot + pixel string).
 	for b in _balloons:
 		var bp: Vector2 = b.get("pos", Vector2.ZERO)
 		var bc: Color = b.get("color", Color.WHITE)
@@ -148,7 +148,7 @@ func _draw_body() -> void:
 		draw_rect(Rect2(bpos + Vector2(-2.5, br - 2.0), Vector2(5.0, 4.0)), bc.darkened(0.3))
 		# String: a thin pixel column below the knot.
 		draw_rect(Rect2(bpos + Vector2(0.0, br + 2.0), Vector2(2.0, 16.0)), Color(0.8, 0.8, 0.8, 0.4))
-	# Creeps â€” blocky body + head + eyes.
+	# Creeps — blocky body + head + eyes.
 	for c in _creeps:
 		var cp: Vector2 = c.get("pos", Vector2.ZERO)
 		var cc: Color = c.get("color", Color.WHITE)
@@ -158,7 +158,7 @@ func _draw_body() -> void:
 		draw_rect(Rect2(cb + Vector2(-6.0, -16.0), Vector2(12.0, 12.0)), cc.lightened(0.2))
 		draw_rect(Rect2(cb + Vector2(-4.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
 		draw_rect(Rect2(cb + Vector2(2.0, -12.0), Vector2(3.0, 3.0)), Color(0.1, 0.1, 0.15))
-	# Player marker â€” chunky square.
+	# Player marker — chunky square.
 	if owner_player != null and is_instance_valid(owner_player):
 		var rel := owner_player.global_position - global_position
 		draw_rect(Rect2(rel + Vector2(-13.0, -13.0), Vector2(26.0, 26.0)), Color(0.5, 0.9, 0.95, 0.95))
@@ -174,7 +174,7 @@ func _draw_body() -> void:
 			_comment_text, HORIZONTAL_ALIGNMENT_CENTER, 200, 15,
 			Color(0.4, 1.0, 0.9, alpha))
 
-func _finish_with_reward() -> void:
+func _finish_with_reward(completed_full: bool = true) -> void:
 	if finished_flag:
 		return
 	finished_flag = true
@@ -186,4 +186,7 @@ func _finish_with_reward() -> void:
 		var crowd_bonus := _creeps.size() * 4
 		owner_player.add_gold(REWARD_GOLD + int(score * 0.15) + combo_bonus + crowd_bonus)
 		owner_player.add_xp(REWARD_XP + int(score * 0.1) + crowd_bonus)
+	AudioService.play("minigame_win")
+	_vfx_burst(Color(0.9, 0.4, 0.6), 200.0, 160.0)
+	_emit_finished(completed_full)
 

@@ -1,0 +1,24 @@
+{
+  "hero": "tobor",
+  "comment": "In-game BEFORE/AFTER for recruit spacing: pin hero at corner 0, start minigame with bot_force, let it run ~16s so all 20 camp creeps recruit. Spawn 3 weak swarmlings near the hero so the recruited creeps have a target. Snap at t=16 (recruit complete, no target -> pure orbit ring), t=24 (chasing, separation visible), t=36 (post-fight, ring again).",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.7},
+    {"t": 6.0, "kind": "snap", "label": "ingame_before_recruit"},
+    {"t": 6.5, "kind": "camp_creep_probe", "label": "probe_before_recruit"},
+    {"t": 7.0, "kind": "minigame_bot_force", "index": 0, "on": true},
+    {"t": 7.5, "kind": "start_minigame", "index": 0},
+    {"t": 10.0, "kind": "snap", "label": "ingame_recruit_early"},
+    {"t": 16.0, "kind": "snap", "label": "ingame_ring_formation"},
+    {"t": 17.0, "kind": "camp_creep_probe", "label": "probe_ring"},
+    {"t": 18.0, "kind": "spawn", "at": [80, 0], "type": "swarmling", "hp_mult": 0.3, "spd_mult": 0.2},
+    {"t": 18.2, "kind": "spawn", "at": [-80, 0], "type": "swarmling", "hp_mult": 0.3, "spd_mult": 0.2},
+    {"t": 18.4, "kind": "spawn", "at": [0, 80], "type": "swarmling", "hp_mult": 0.3, "spd_mult": 0.2},
+    {"t": 24.0, "kind": "snap", "label": "ingame_chase"},
+    {"t": 25.0, "kind": "camp_creep_probe", "label": "probe_chase"},
+    {"t": 36.0, "kind": "snap", "label": "ingame_after_fight"},
+    {"t": 37.0, "kind": "camp_creep_probe", "label": "probe_after"},
+    {"t": 40.0, "kind": "report"}
+  ],
+  "wait_ms": 90000
+}

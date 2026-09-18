@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/mg_camp_spread/iso_before_3x_1.0.png",
+  "after": "tools/selftest/results/mg_camp_spread/iso_after_5x_1.5.png",
+  "out": "tools/selftest/results/mg_camp_spread/diff_iso.png",
+  "changed_pixels": 103713,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.050016,
+  "bbox": [
+    64,
+    11,
+    1431,
+    1079
+  ],
+  "has_change": true
+}

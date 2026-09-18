@@ -1,0 +1,7 @@
+{
+  "comment": "Isolated: minimap camp-creep markers. 6 idle camp creeps + 6 recruited camp creeps on the map, captured via a real MiniMap Control. Idle should draw as hollow red rings; recruited should draw in owner team color (fallback orange when owner isn't a real Player).",
+  "scene": "res://scenes/minimap_camp_iso_test/minimap_camp_iso_test.tscn",
+  "hero": "tobor",
+  "events": [],
+  "wait_ms": 10000
+}

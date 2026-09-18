@@ -1,0 +1,6 @@
+{
+  "hero": "tobor",
+  "comment": "Isolated AFTER capture for the lighter-yellow change: same isolated camp_creep_iso_test scene, now with the lighter (255,248,190) yellow + orange recruit sprites. 5x HP + 1.5x scale assertions (params unchanged).",
+  "events": [],
+  "wait_ms": 4000
+}

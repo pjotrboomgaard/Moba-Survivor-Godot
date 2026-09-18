@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/mg_recruit_spacing_ingame/ingame_before_recruit_6.023_13547.png",
+  "after": "tools/selftest/results/mg_recruit_spacing_ingame/ingame_ring_formation_16.005_23534.png",
+  "out": "tools/selftest/results/mg_recruit_spacing_ingame/diff_ingame_before_ring.png",
+  "changed_pixels": 85496,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.041231,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

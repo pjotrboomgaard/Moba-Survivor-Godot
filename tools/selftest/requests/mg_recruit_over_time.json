@@ -1,0 +1,21 @@
+{
+  "hero": "tobor",
+  "comment": "Verify progressive minigame recruitment: creeps join one-by-one over the minigame duration. Pin hero at corner 0, start minigame at t=9, probe at t=12/15/18/21, stop early at t=15 (6s in) to verify only ~40% recruited. Then check post-stop state.",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.7},
+    {"t": 6.0, "kind": "snap", "label": "before_minigame_start"},
+    {"t": 8.0, "kind": "camp_creep_probe", "label": "idle_probe_before"},
+    {"t": 9.0, "kind": "minigame_reassign_start", "index": 0, "bot_force": true},
+    {"t": 10.0, "kind": "camp_creep_probe", "label": "recruit_at_1s"},
+    {"t": 10.5, "kind": "snap", "label": "recruit_early"},
+    {"t": 13.0, "kind": "camp_creep_probe", "label": "recruit_at_4s"},
+    {"t": 15.0, "kind": "minigame_stop", "index": 0, "label": "stop_early"},
+    {"t": 16.0, "kind": "camp_creep_probe", "label": "after_early_stop"},
+    {"t": 18.0, "kind": "snap", "label": "after_early_stop"},
+    {"t": 22.0, "kind": "camp_creep_probe", "label": "post_stop_probe"},
+    {"t": 25.0, "kind": "unpin"},
+    {"t": 28.0, "kind": "report"}
+  ],
+  "wait_ms": 60000
+}

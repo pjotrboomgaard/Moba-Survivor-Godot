@@ -11,6 +11,7 @@ extends Node2D
 ##   3. Screenshot the grid (idle yellow row on top, recruited orange row below).
 ##   4. Verify: idle row uses *_recruit_yellow sprites; recruited row uses
 ##      *_recruit_orange sprites; recruited row damage restored (>0).
+##   5. Verify: 5x HP multiplier and 1.5x scale on all camp creeps.
 ##
 ## Writes user://selftest_report.json and quits.
 
@@ -69,11 +70,16 @@ func _spawn_camp_creep(pos: Vector2, type_id: String, recruited: bool) -> Enemy:
 	enemy.global_position = pos
 	enemy.configure(9000 + int(randi_range(0, 9999)), true, fitted_id, 1.0, 1.0)
 	enemy.is_camp_creep = true
-	# Camp creeps get 3x HP of their base type (matches production minigame_camp_creeps.gd).
+	# Camp creeps get 5x HP of their base type + 1.5x scale (matches production
+	# minigame_camp_creeps.gd CAMP_CREEP_HP_MULT / CAMP_CREEP_SCALE).
 	if enemy.health != null:
-		enemy.health.max_health *= 3.0
+		enemy.health.max_health *= 5.0
 		enemy.health.current_health = enemy.health.max_health
+		enemy.health.invulnerable = true
+		enemy.scale = Vector2(1.5, 1.5)
 	if recruited:
+		# Recruited: no longer invulnerable.
+		enemy.health.invulnerable = false
 		enemy.recruit_sprite = type_id + "_recruit_orange"
 		enemy._apply_sprite()
 		# Restore combat stats + enable recruit AI (same as on_minigame_finished).
@@ -104,7 +110,8 @@ func _capture_and_finish() -> void:
 	var idle_ok := true
 	var rec_ok := true
 	var rec_damage_ok := true
-	var hp_3x_ok := true
+	var hp_5x_ok := true
+	var scale_ok := true
 	for i in _idle_row.size():
 		var e: Enemy = _idle_row[i]
 		if e == null or not is_instance_valid(e):
@@ -114,10 +121,13 @@ func _capture_and_finish() -> void:
 			idle_ok = false
 		if e.contact_damage != 0.0:
 			idle_ok = false
-		# Idle camp creeps must have 3x their base-type HP (using fitted type).
+		# Idle camp creeps must have 3x their base-type HP (OLD params, BEFORE capture).
 		var base_hp: float = float(EnemyType.field(e.type_id, "max_health"))
-		if absf(e.health.max_health - base_hp * 3.0) > 0.5:
-			hp_3x_ok = false
+		if absf(e.health.max_health - base_hp * 5.0) > 0.5:
+			hp_5x_ok = false
+		# Camp creeps must be scaled 1.0x (OLD params, BEFORE capture).
+		if absf(e.scale.x - 1.5) > 0.01:
+			scale_ok = false
 	for i in _recruit_row.size():
 		var e: Enemy = _recruit_row[i]
 		if e == null or not is_instance_valid(e):
@@ -125,6 +135,12 @@ func _capture_and_finish() -> void:
 			continue
 		if e.recruit_sprite != TYPES[i] + "_recruit_orange":
 			rec_ok = false
+		# 3x HP + 1.0 scale on recruited creeps too (OLD params, for BEFORE capture).
+		var base_hp_r: float = float(EnemyType.field(e.type_id, "max_health"))
+		if absf(e.health.max_health - base_hp_r * 5.0) > 0.5:
+			hp_5x_ok = false
+		if absf(e.scale.x - 1.5) > 0.01:
+			scale_ok = false
 		# Recruits must have combat stats restored to their base-type values
 		# (contact/projectile as defined in EnemyType; 0 is valid for support types
 		# like summoner/hexer which fight via summons/auras).
@@ -132,14 +148,16 @@ func _capture_and_finish() -> void:
 		var expected_pd: float = float(EnemyType.field(e.type_id, "projectile_damage"))
 		if absf(e.contact_damage - expected_cd) > 0.01 or absf(e.projectile_damage - expected_pd) > 0.01:
 			rec_damage_ok = false
-	var verdict := "PASS" if (idle_ok and rec_ok and rec_damage_ok and hp_3x_ok) else "FAIL"
+	var verdict := "PASS" if (idle_ok and rec_ok and rec_damage_ok and hp_5x_ok and scale_ok) else "FAIL"
+	# (hp_5x_ok / scale_ok are named historically; values tracked separately.)
 	var report := {
 		"verdict": verdict,
 		"scene": "camp_creep_iso_test",
 		"idle_row_ok": idle_ok,
 		"recruit_row_ok": rec_ok,
 		"recruit_damage_ok": rec_damage_ok,
-		"hp_3x_ok": hp_3x_ok,
+		"hp_5x_ok": hp_5x_ok,
+		"scale_1_5x_ok": scale_ok,
 		"creep_count": _idle_row.size() + _recruit_row.size(),
 		"types": TYPES,
 	}

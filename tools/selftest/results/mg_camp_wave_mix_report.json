@@ -1,0 +1,853 @@
+{
+  "effects": [
+    {
+      "camps": [
+        {
+          "alive": 20,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 0,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2491.0,
+              -1759.0
+            ],
+            [
+              -2420.0,
+              -1663.0
+            ],
+            [
+              -2379.0,
+              -1649.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2502.0,
+              1669.0
+            ],
+            [
+              -2386.0,
+              1623.0
+            ],
+            [
+              -2473.0,
+              1669.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2587.0,
+              -1727.0
+            ],
+            [
+              2662.0,
+              -1696.0
+            ],
+            [
+              2589.0,
+              -1755.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2600.0,
+              1783.0
+            ],
+            [
+              2675.0,
+              1855.0
+            ],
+            [
+              2719.0,
+              1767.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "wave1_probe",
+      "t": 6.00413233333339
+    },
+    {
+      "advanced": true,
+      "kind": "skip_wave",
+      "t": 8.00409500000012,
+      "wave_after": 2,
+      "wave_before": 1
+    },
+    {
+      "camps": [
+        {
+          "alive": 20,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 0,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2491.0,
+              -1759.0
+            ],
+            [
+              -2420.0,
+              -1663.0
+            ],
+            [
+              -2379.0,
+              -1649.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2502.0,
+              1669.0
+            ],
+            [
+              -2386.0,
+              1623.0
+            ],
+            [
+              -2473.0,
+              1669.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2587.0,
+              -1727.0
+            ],
+            [
+              2662.0,
+              -1696.0
+            ],
+            [
+              2589.0,
+              -1755.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        },
+        {
+          "alive": 20,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2600.0,
+              1783.0
+            ],
+            [
+              2675.0,
+              1855.0
+            ],
+            [
+              2719.0,
+              1767.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 20
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "wave2_probe",
+      "t": 9.00403933333342
+    },
+    {
+      "advanced": true,
+      "kind": "skip_wave",
+      "t": 11.5073623333333,
+      "wave_after": 3,
+      "wave_before": 2
+    },
+    {
+      "camps": [
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 0,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2491.0,
+              -1759.0
+            ],
+            [
+              -2420.0,
+              -1663.0
+            ],
+            [
+              -2379.0,
+              -1649.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 21
+        },
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2502.0,
+              1669.0
+            ],
+            [
+              -2386.0,
+              1623.0
+            ],
+            [
+              -2473.0,
+              1669.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow"
+          ],
+          "total": 21
+        },
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2587.0,
+              -1727.0
+            ],
+            [
+              2662.0,
+              -1696.0
+            ],
+            [
+              2589.0,
+              -1755.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow"
+          ],
+          "total": 21
+        },
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2600.0,
+              1783.0
+            ],
+            [
+              2675.0,
+              1855.0
+            ],
+            [
+              2719.0,
+              1767.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow"
+          ],
+          "total": 21
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "wave3_probe",
+      "t": 12.5073623333333
+    },
+    {
+      "advanced": true,
+      "kind": "skip_wave",
+      "t": 15.0083333333332,
+      "wave_after": 4,
+      "wave_before": 3
+    },
+    {
+      "camps": [
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 0,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2491.0,
+              -1759.0
+            ],
+            [
+              -2420.0,
+              -1663.0
+            ],
+            [
+              -2379.0,
+              -1649.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 21
+        },
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2502.0,
+              1669.0
+            ],
+            [
+              -2386.0,
+              1623.0
+            ],
+            [
+              -2473.0,
+              1669.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow"
+          ],
+          "total": 21
+        },
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2587.0,
+              -1727.0
+            ],
+            [
+              2662.0,
+              -1696.0
+            ],
+            [
+              2589.0,
+              -1755.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow"
+          ],
+          "total": 21
+        },
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2600.0,
+              1783.0
+            ],
+            [
+              2675.0,
+              1855.0
+            ],
+            [
+              2719.0,
+              1767.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow"
+          ],
+          "total": 21
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "wave4_probe",
+      "t": 16.0083333333331
+    },
+    {
+      "advanced": true,
+      "kind": "skip_wave",
+      "t": 18.5063646666664,
+      "wave_after": 5,
+      "wave_before": 4
+    },
+    {
+      "camps": [
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 0,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2491.0,
+              -1759.0
+            ],
+            [
+              -2420.0,
+              -1663.0
+            ],
+            [
+              -2379.0,
+              -1649.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow"
+          ],
+          "total": 21
+        },
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2502.0,
+              1669.0
+            ],
+            [
+              -2386.0,
+              1623.0
+            ],
+            [
+              -2473.0,
+              1669.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow"
+          ],
+          "total": 21
+        },
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2587.0,
+              -1727.0
+            ],
+            [
+              2662.0,
+              -1696.0
+            ],
+            [
+              2589.0,
+              -1755.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow"
+          ],
+          "total": 21
+        },
+        {
+          "alive": 21,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2600.0,
+              1783.0
+            ],
+            [
+              2675.0,
+              1855.0
+            ],
+            [
+              2719.0,
+              1767.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow"
+          ],
+          "total": 21
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "wave5_probe",
+      "t": 19.5027799999997
+    },
+    {
+      "advanced": true,
+      "kind": "skip_wave",
+      "t": 21.000344333333,
+      "wave_after": 6,
+      "wave_before": 5
+    },
+    {
+      "camps": [
+        {
+          "alive": 22,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 0,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2491.0,
+              -1759.0
+            ],
+            [
+              -2420.0,
+              -1663.0
+            ],
+            [
+              -2379.0,
+              -1649.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "brute_recruit_yellow"
+          ],
+          "total": 22
+        },
+        {
+          "alive": 22,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 1,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              -2502.0,
+              1669.0
+            ],
+            [
+              -2386.0,
+              1623.0
+            ],
+            [
+              -2473.0,
+              1669.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow",
+            "spitter_recruit_yellow"
+          ],
+          "total": 22
+        },
+        {
+          "alive": 22,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 2,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2587.0,
+              -1727.0
+            ],
+            [
+              2662.0,
+              -1696.0
+            ],
+            [
+              2589.0,
+              -1755.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow",
+            "spitter_recruit_yellow"
+          ],
+          "total": 22
+        },
+        {
+          "alive": 22,
+          "all_5x_hp": true,
+          "all_invuln_idle": true,
+          "all_scaled": true,
+          "index": 3,
+          "minigame_active": false,
+          "recruit_progress": 0.0,
+          "recruited": false,
+          "recruited_count": 0,
+          "sample_pos": [
+            [
+              2600.0,
+              1783.0
+            ],
+            [
+              2675.0,
+              1855.0
+            ],
+            [
+              2719.0,
+              1767.0
+            ]
+          ],
+          "sprites": [
+            "grunt_recruit_yellow",
+            "swarmling_recruit_yellow"
+          ],
+          "total": 22
+        }
+      ],
+      "kind": "camp_creep_probe",
+      "label": "wave6_probe",
+      "t": 22.006113424242
+    }
+  ],
+  "elapsed": 30.001576757575,
+  "enemies_spawned": 0,
+  "hero_position": "(-2503.047, -1506.512)",
+  "player_class": "tobor",
+  "results": {
+    "alive": false,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 72,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 2,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 6,
+    "xp": 9
+  },
+  "shots": [
+    {
+      "label": "camp_roster_wave1",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9782/camp_roster_wave1_6.504_9782.png",
+      "t": 6.50431500000008
+    },
+    {
+      "label": "camp_roster_wave2",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13281/camp_roster_wave2_10.005_13281.png",
+      "t": 10.004726
+    },
+    {
+      "label": "camp_roster_wave3",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_16776/camp_roster_wave3_13.507_16776.png",
+      "t": 13.5073623333332
+    },
+    {
+      "label": "camp_roster_wave4",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_20264/camp_roster_wave4_17.002_20264.png",
+      "t": 17.0022175757573
+    },
+    {
+      "label": "camp_roster_wave6",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_26265/camp_roster_wave6_23.004_26265.png",
+      "t": 23.0037233333329
+    }
+  ]
+}

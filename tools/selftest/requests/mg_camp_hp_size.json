@@ -1,0 +1,16 @@
+{
+  "hero": "tobor",
+  "comment": "Task B: Verify camp creeps have 5x HP of base type and 1.5x scale. The camp_creep_probe reports all_5x_hp and all_scaled per camp. Expect all_5x_hp=true and all_scaled=true for all 4 camps in early waves.",
+  "events": [
+    {"t": 4.0, "kind": "wait"},
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.7},
+    {"t": 6.0, "kind": "snap", "label": "camp_hp_size_before"},
+    {"t": 8.0, "kind": "camp_creep_probe", "label": "hp_size_probe"},
+    {"t": 12.0, "kind": "camp_creep_probe", "label": "hp_size_probe_2"},
+    {"t": 16.0, "kind": "snap", "label": "camp_hp_size_after"},
+    {"t": 20.0, "kind": "unpin"},
+    {"t": 24.0, "kind": "report"}
+  ],
+  "wait_ms": 60000
+}

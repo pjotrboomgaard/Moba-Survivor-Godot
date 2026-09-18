@@ -1,0 +1,29 @@
+{
+  "hero": "tobor",
+  "comment": "Task H v3: recruited camp creeps fight regular enemies. Pin local hero at camp 0 corner, start minigame with bot_force, let it run to full completion (20s) so all 20 creeps recruit. Then spawn 4 weak swarmlings right at the hero position and verify the recruited army kills them. In co-op mode the player's own creep_kills counter is NOT affected by minion kills, but the enemies must be dead (enemies=0 in snap). Also verify player survives (no friendly fire) and min_hp stays high.",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.7},
+    {"t": 6.0, "kind": "snap", "label": "ingame_camp_before_recruit"},
+    {"t": 7.0, "kind": "camp_creep_probe", "label": "probe_before_recruit"},
+    {"t": 8.0, "kind": "minigame_bot_force", "index": 0, "on": true},
+    {"t": 8.5, "kind": "start_minigame", "index": 0},
+    {"t": 10.0, "kind": "snap", "label": "ingame_recruit_1s"},
+    {"t": 13.0, "kind": "camp_creep_probe", "label": "probe_recruit_5s"},
+    {"t": 15.0, "kind": "snap", "label": "ingame_recruit_7s"},
+    {"t": 18.0, "kind": "camp_creep_probe", "label": "probe_recruit_10s"},
+    {"t": 22.0, "kind": "snap", "label": "ingame_recruit_14s"},
+    {"t": 24.0, "kind": "camp_creep_probe", "label": "probe_full_recruit"},
+    {"t": 26.0, "kind": "spawn", "at": [10, 0], "type": "swarmling", "hp_mult": 0.4, "spd_mult": 0.3},
+    {"t": 26.2, "kind": "spawn", "at": [-10, 0], "type": "swarmling", "hp_mult": 0.4, "spd_mult": 0.3},
+    {"t": 26.4, "kind": "spawn", "at": [0, 10], "type": "swarmling", "hp_mult": 0.4, "spd_mult": 0.3},
+    {"t": 26.6, "kind": "spawn", "at": [0, -10], "type": "swarmling", "hp_mult": 0.4, "spd_mult": 0.3},
+    {"t": 28.0, "kind": "snap", "label": "ingame_fight_2s"},
+    {"t": 29.0, "kind": "camp_creep_probe", "label": "probe_fight_3s"},
+    {"t": 32.0, "kind": "snap", "label": "ingame_fight_5s"},
+    {"t": 34.0, "kind": "camp_creep_probe", "label": "probe_fight_7s"},
+    {"t": 36.0, "kind": "snap", "label": "ingame_fight_9s"},
+    {"t": 38.0, "kind": "report"}
+  ],
+  "wait_ms": 80000
+}

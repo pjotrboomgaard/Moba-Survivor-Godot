@@ -160,7 +160,7 @@ func _draw_body() -> void:
 		HORIZONTAL_ALIGNMENT_CENTER, 80, 15, Color(0.5, 1.0, 0.6, 0.9))
 
 
-func _finish_with_reward() -> void:
+func _finish_with_reward(completed_full: bool = true) -> void:
 	if finished_flag:
 		return
 	finished_flag = true

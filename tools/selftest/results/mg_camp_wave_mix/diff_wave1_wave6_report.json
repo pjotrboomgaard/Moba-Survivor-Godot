@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/mg_camp_wave_mix/ingame_wave1.png",
+  "after": "tools/selftest/results/mg_camp_wave_mix/ingame_wave6.png",
+  "out": "tools/selftest/results/mg_camp_wave_mix/diff_wave1_wave6.png",
+  "changed_pixels": 1732662,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.835582,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

@@ -1,0 +1,23 @@
+{
+  "hero": "tobor",
+  "comment": "Task A: Verify bigger camp spread radius (160u) and ~20 alive creeps at each of 4 corner camps. Pin hero at corner 0 (-2520,-1680), camera-focus that corner, capture camp_spread shot. Then probe each corner to confirm ~20 alive, spread radius ~160.",
+  "events": [
+    {"t": 4.0, "kind": "wait"},
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.55},
+    {"t": 6.0, "kind": "snap", "label": "camp_spread_corner0"},
+    {"t": 8.0, "kind": "camp_creep_probe", "label": "corner0_probe"},
+    {"t": 10.0, "kind": "camera_focus", "to": [2520.0, -1680.0], "zoom": 0.55},
+    {"t": 11.0, "kind": "snap", "label": "camp_spread_corner1"},
+    {"t": 12.0, "kind": "camp_creep_probe", "label": "corner1_probe"},
+    {"t": 14.0, "kind": "camera_focus", "to": [-2520.0, 1680.0], "zoom": 0.55},
+    {"t": 15.0, "kind": "snap", "label": "camp_spread_corner2"},
+    {"t": 16.0, "kind": "camp_creep_probe", "label": "corner2_probe"},
+    {"t": 18.0, "kind": "camera_focus", "to": [2520.0, 1680.0], "zoom": 0.55},
+    {"t": 19.0, "kind": "snap", "label": "camp_spread_corner3"},
+    {"t": 20.0, "kind": "camp_creep_probe", "label": "corner3_probe"},
+    {"t": 24.0, "kind": "unpin"},
+    {"t": 28.0, "kind": "report"}
+  ],
+  "wait_ms": 60000
+}
