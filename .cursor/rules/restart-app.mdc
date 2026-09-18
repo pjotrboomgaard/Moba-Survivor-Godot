@@ -1,14 +1,31 @@
 ---
-description: Always restart the Godot game after making changes
+description: Restart the Godot game only when the user needs to see live changes (not every turn)
 alwaysApply: true
 ---
 
-# Always restart the app
+# Restart the app only when the user will verify live
 
-After any gameplay, UI, asset, or script change that should be visible in-game:
+Do NOT restart the game at the end of every turn. The user is iterating quickly and
+does not want the game relaunched after each small change or each test run.
 
-1. Run `powershell -ExecutionPolicy Bypass -File tools/restart_app.ps1` from the project root before ending your turn.
-2. Do this even when tests already passed — the user verifies changes in the running game.
-3. Skip restart only for docs-only or question-only replies with zero code/asset edits.
+## When to restart
 
-Default launch is the normal bootstrap scene. Use `-Pjotr` or `-Classic` only when the change is mode-specific.
+Run `powershell -ExecutionPolicy Bypass -File tools/restart_app.ps1` from the project
+root ONLY when:
+- The user is about to verify the change in the running game and has just finished
+  asking for it (e.g. "restart the game", "let me see it", "I'll check it now").
+- A batch of related changes is complete and the user was waiting for them live.
+
+## When NOT to restart
+
+- After running a self-test / selftest harness run (those spawn their own Godot
+  process and exit).
+- After a code edit that has not been asked to be viewed live.
+- Mid-plan, while there are still pending tasks to implement. Keep building;
+  restart once when the batch is done and the user asks to look.
+- Docs-only / question-only replies with zero code/asset edits.
+
+If in doubt, do NOT restart — finish the remaining tasks first, then restart once.
+
+Default launch is the normal bootstrap scene. Use `-Pjotr` or `-Classic` only when
+the change is mode-specific.

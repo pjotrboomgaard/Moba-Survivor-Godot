@@ -1185,7 +1185,7 @@ func _maybe_advance_ffa_world(wave: int) -> void:
 func _on_team_wave_group_ready(
 		type_id: String, formation: int, count: int,
 		health_multiplier: float, speed_multiplier: float, focus: Variant = null,
-		team_id: String = "", tactic_id: int = -1, tactic_index: int = -1
+		tactic_id: int = -1, tactic_index: int = -1, team_id: String = ""
 ) -> void:
 	if game_over or players.is_empty():
 		return

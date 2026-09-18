@@ -65,7 +65,7 @@ anchor_left = 1.0
 anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -508.0
+offset_left = -480.0
 offset_top = 10.0
 offset_right = -10.0
 offset_bottom = -10.0
@@ -84,7 +84,112 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 8
 
+; ==================== COMPACT MENU (2026-09-18) ====================
+; This is the live menu. Edit in Godot editor: drag, snap, resize.
+
+; --- TOP BLOCK: PLAY + CONTINUE (full-width, stacked) ---
+[node name="CompactTopBlock" type="VBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="CompactStartBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "PLAY"
+
+[node name="CompactContinueBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock"]
+visible = false
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "CONTINUE"
+
+; --- MODE row: < SOLO > (full width, centered) ---
+[node name="CompactModeRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="ModePrevBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+focus_mode = 0
+text = "<"
+
+[node name="ModeLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+text = "SOLO"
+
+[node name="ModeNextBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+focus_mode = 0
+text = ">"
+
+; --- DIFFICULTY row: < NORMAL > (full width, centered) ---
+[node name="CompactDiffRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="DiffPrevBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactDiffRow"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+focus_mode = 0
+text = "<"
+
+[node name="DiffLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactDiffRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.88, 1, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+text = "NORMAL"
+
+[node name="DiffNextBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactDiffRow"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+focus_mode = 0
+text = ">"
+
+; --- 16-hero roster grid (4x4) — MIDDLE of the panel ---
+[node name="CompactRosterGrid" type="GridContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 4
+
+; --- 4 ABILITY buttons (kit) between roster and settings ---
+[node name="CompactAbilityStrip" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+theme_override_constants/separation = 6
+
+; --- SETTINGS button (full width, bottom) ---
+[node name="CompactSettingsBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "⚙  SETTINGS"
+
+; ==================== LEGACY UI (hidden — compact menu replaces these) ====================
+
 [node name="Title" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.48, 0.18, 1)
 theme_override_font_sizes/font_size = 28
@@ -99,6 +204,7 @@ text = ""
 horizontal_alignment = 1
 
 [node name="ModeRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
@@ -196,15 +302,18 @@ horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="SpacerTop" type="Control" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
 
 [node name="DifficultyLabel" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.67, 0.73, 0.82, 1)
 text = "Difficulty"
 
 [node name="DifficultyRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
@@ -280,12 +389,14 @@ toggle_mode = true
 text = "CLASS 4"
 
 [node name="ClassDescription" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.82, 0.95, 1)
 text = "Hero summary"
 autowrap_mode = 3
 
 [node name="AudioRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 
@@ -306,6 +417,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="SoloButton" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+visible = false
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "PLAY"

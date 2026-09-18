@@ -1,0 +1,5 @@
+{
+  "test_name": "creep_reach_iso",
+  "scene": "res://scenes/creep_reach_test/creep_reach_test.tscn",
+  "comment": "Isolated empty-world test: 6 grunts spawn 900px from a target marker and must walk to it. Verifies creeps reach their target without dying from self-damage or movement bugs (the 'creeps die by themselves before reaching player' complaint)."
+}

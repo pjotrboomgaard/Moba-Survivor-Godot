@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/menu_rework/before_menu_before.png",
+  "after": "tools/selftest/results/menu_rework_after/menu_before.png",
+  "out": "tools/selftest/results/menu_rework/diff_menu.png",
+  "changed_pixels": 183163,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.088331,
+  "bbox": [
+    1209,
+    224,
+    1880,
+    1073
+  ],
+  "has_change": true
+}

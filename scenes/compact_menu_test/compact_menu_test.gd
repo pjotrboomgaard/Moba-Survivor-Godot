@@ -38,6 +38,10 @@ func _ready() -> void:
 	_run_dir = "user://compact_menu_run_%d" % int(Time.get_ticks_msec())
 	DirAccess.make_dir_recursive_absolute(_run_dir)
 	print("[CompactMenu] driver ready, run_dir=", _run_dir)
+	# Dump the layout tree after a couple of frames so all setup code has run.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_dump_layout_tree()
 	# T4.5 BEFORE state: if the marker user://compact_menu_before exists, hide the
 	# roster grid + ability strip so the capture shows the pre-roster menu layout
 	# (big hero icon / name + < > nav only, no 16-hero grid, no ability strip).
@@ -126,10 +130,55 @@ func _snap_deferred(label: String) -> void:
 		print("[CompactMenu] snap ", label, " FAILED: no image")
 
 
+func _dump_layout_tree() -> void:
+	if _boot == null:
+		return
+	# Dump the Margin's children too (PlayRow / CoopRow may be siblings of Layout)
+	var margin = _boot.get_node_or_null("StatusLayer/LobbyPanel/Margin")
+	if margin != null:
+		print("[CompactMenu] DIAG Margin children:")
+		for i in margin.get_child_count():
+			var c := margin.get_child(i)
+			print("[CompactMenu] DIAG  Margin ", i, ": ", c.name, " (", c.get_class(), ") visible=", c.visible)
+			if c is Container:
+				for j in c.get_child_count():
+					var cc := c.get_child(j)
+					var t := ""
+					if cc is Button:
+						t = str((cc as Button).text)
+					elif cc is Label:
+						t = str((cc as Label).text)
+					print("[CompactMenu] DIAG    ", j, ": ", cc.name, " (", cc.get_class(), ") visible=", cc.visible, " text=", t)
+	var layout = _boot.get_node_or_null("StatusLayer/LobbyPanel/Margin/Layout")
+	if layout == null:
+		print("[CompactMenu] DIAG: layout not found")
+		return
+	print("[CompactMenu] DIAG: Layout children (index: name type visible):")
+	for i in layout.get_child_count():
+		var c := layout.get_child(i)
+		var c_text := ""
+		if c is Button:
+			c_text = (c as Button).text
+		elif c is Label:
+			c_text = (c as Label).text
+		print("[CompactMenu] DIAG  ", i, ": ", c.name, " (", c.get_class(), ") visible=", c.visible, " text=", c_text)
+		# Also dump direct children of containers
+		if c is Container:
+			for j in c.get_child_count():
+				var cc := c.get_child(j)
+				var cc_text := ""
+				if cc is Button:
+					cc_text = (cc as Button).text
+				elif cc is Label:
+					cc_text = (cc as Label).text
+				print("[CompactMenu] DIAG    ", j, ": ", cc.name, " (", cc.get_class(), ") visible=", cc.visible, " text=", cc_text)
+
+
 func _finish() -> void:
 	if _done:
 		return
 	_done = true
+	_dump_layout_tree()
 	var ok_shots := 0
 	for s in _shots:
 		if not str(s.get("path", "")).ends_with("none") and not str(s.get("path", "")).is_empty():

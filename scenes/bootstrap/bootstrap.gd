@@ -44,6 +44,26 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var resolution_option: OptionButton = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow/ResolutionOption
 @onready var audio_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow
 
+# Compact menu nodes (defined in bootstrap.tscn, editable in Godot editor)
+@onready var compact_start_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock/CompactStartBtn
+@onready var compact_continue_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock/CompactContinueBtn
+@onready var compact_mode_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow
+@onready var mode_prev_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow/ModePrevBtn
+@onready var mode_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow/ModeLabel
+@onready var mode_next_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow/ModeNextBtn
+@onready var compact_diff_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/CompactDiffRow
+@onready var diff_prev_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactDiffRow/DiffPrevBtn
+@onready var diff_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/CompactDiffRow/DiffLabel
+@onready var diff_next_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactDiffRow/DiffNextBtn
+@onready var compact_roster_grid: GridContainer = $StatusLayer/LobbyPanel/Margin/Layout/CompactRosterGrid
+@onready var compact_ability_strip: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/CompactAbilityStrip
+@onready var compact_settings_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactSettingsBtn
+
+## Legacy hero content scroll + loadout (built in _build_overhaul_ui). The compact
+## menu (2026-09-18) replaces it, so it is hidden at runtime but kept for FFA/co-op
+## lobby flows that still use the big 4-button loadout panel.
+@onready var hero_content_scroll: ScrollContainer = $StatusLayer/LobbyPanel/Margin/Layout/HeroContentScroll
+
 # --- Overhaul UI (built programmatically in _ready, parented into the existing Layout) ---
 var world_row: HFlowContainer = null
 var loadout_panel: VBoxContainer = null
@@ -113,24 +133,23 @@ var _roster_dots_btn: Button = null
 var _roster_popup: Control = null
 ## Mode < > nav: 0=Solo, 1=FFA, 2=Co-op, 3=World Editor
 var _mode_nav_index := 0
+## Difficulty < > nav: 0=Easy,1=Normal,2=Hard,3=Brutal
+var _diff_nav_index := 1
+## 2026-09-18: compact menu nodes live in bootstrap.tscn (editable in Godot
+## editor). The @onready refs at the top of this file point to them.
+## Backward-compat aliases assigned in _build_compact_menu.
 var _mode_label: Label = null
 var _mode_prev_btn: Button = null
 var _mode_next_btn: Button = null
-## Difficulty < > nav: 0=Easy,1=Normal,2=Hard,3=Brutal
-var _diff_nav_index := 1
 var _diff_label: Label = null
 var _diff_prev_btn: Button = null
 var _diff_next_btn: Button = null
-## Ability strip (icons under the hero)
 var _ability_strip: HBoxContainer = null
 var _roster_preview_icon: TextureRect = null
-## 16-hero roster grid shown in the menu (bottom-right of the panel)
 var _roster_grid: GridContainer = null
-## Compact top-row widgets (2026-09-17 menu redesign):
-##   - hero name top-right (TOBOR), START / CONTINUE buttons, < MODE > nav
-##   - difficulty < > nav below, roster + ability strip pinned to bottom-right,
-##   - small wrench/gear settings button (resolution + sound) bottom-right.
 var _compact_hero_name_label: Label = null
+# 2026-09-18: these alias the tscn-defined compact menu buttons (@onready).
+# Assigned in _build_compact_menu for backward compat with existing call sites.
 var _compact_start_btn: Button = null
 var _compact_continue_btn: Button = null
 var _compact_settings_btn: Button = null
@@ -313,10 +332,9 @@ func _build_overhaul_ui() -> void:
 	if layout == null:
 		return
 	layout.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	# Wrap WorldRow + ClassGrid + LoadoutPanel in a ScrollContainer so the growing
-	# hero content scrolls instead of pushing StartGameButton (a later Layout sibling)
-	# offscreen. The scroll container expands to fill leftover space, so the ModeRow
-	# and StartGameButton keep their fixed slots below it.
+	# 2026-09-18: HeroContentScroll now lives in bootstrap.tscn (editable in Godot
+	# editor). The compact menu hides it at runtime; FFA/co-op lobby flows may
+	# still use the big 4-button loadout panel inside it.
 	var hero_scroll := ScrollContainer.new()
 	hero_scroll.name = "HeroContentScroll"
 	hero_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -410,11 +428,10 @@ func _constrain_lobby_layout() -> void:
 	lobby_panel.anchor_top = 0.0
 	lobby_panel.anchor_right = 1.0
 	lobby_panel.anchor_bottom = 1.0
-	# 2026-09-17 user rule: the whole panel is a FIXED width equal to the hero
-	# roster's natural width, so picking a different hero never reflows / moves
-	# the panel. Roster = 4 cols x 52px + 3 x 6px gaps = 224px; add ~24px
-	# margin/padding each side -> ~272px. No content may stretch past this.
-	var panel_w := 272
+	# 2026-09-18 user rule: panel widened so the hero roster takes full width to
+	# the right and every control (play/continue, mode, difficulty) spans it.
+	# Roster = 4 cols x 60px + 3 x 6px gaps = 258px; add ~34px margin each side.
+	var panel_w := 480
 	lobby_panel.offset_left = -float(panel_w)
 	lobby_panel.offset_top = 10.0
 	lobby_panel.offset_right = -10.0
@@ -447,6 +464,11 @@ func _constrain_lobby_layout() -> void:
 	join_label.visible = false
 	address_input.visible = false
 	start_game_button.visible = false
+	# 2026-09-18: the compact menu replaces the legacy hero content (old class
+	# grid + abilities loadout + hero description). Hide the scroll + text so
+	# nothing from the old layout leaks through.
+	hero_content_scroll.visible = false
+	class_description.visible = false
 	# Difficulty + audio rows will be re-shown and reordered in _build_compact_menu.
 	# --- Build compact menu in the layout ---
 	_build_compact_menu(layout)
@@ -477,124 +499,75 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	# No hero-description text anywhere.
 	# ========================================================================
 
-	# --- TOP-RIGHT BLOCK: title + PLAY + CONTINUE (right-aligned, compact) ---
-	var top_block := VBoxContainer.new()
-	top_block.name = "CompactTopBlock"
-	top_block.alignment = BoxContainer.ALIGNMENT_END
-	top_block.add_theme_constant_override("separation", 4)
-	top_block.size_flags_horizontal = Control.SIZE_SHRINK_END
-	layout.add_child(top_block)
+	# ========================================================================
+	# 2026-09-18: compact menu nodes now live in bootstrap.tscn (editable in
+	# the Godot editor). We only style them, connect signals, and populate.
+	# ========================================================================
 
-	# Title
-	var title_lbl := Label.new()
-	title_lbl.name = "CompactTitle"
-	title_lbl.text = "RIFT SURVIVORS"
-	title_lbl.add_theme_font_size_override("font_size", 20)
-	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.78, 0.32, 1.0))
-	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_block.add_child(title_lbl)
+	# Alias the tscn buttons for existing call sites that check _compact_*.
+	_compact_start_btn = compact_start_btn
+	_compact_continue_btn = compact_continue_btn
 
-	# PLAY button (compact, right-aligned)
-	_compact_start_btn = Button.new()
-	_compact_start_btn.name = "CompactStartBtn"
-	_compact_start_btn.text = "PLAY"
-	_compact_start_btn.custom_minimum_size = Vector2(150, 42)
-	_compact_start_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
-	_compact_start_btn.add_theme_font_size_override("font_size", 17)
-	_compact_start_btn.focus_mode = Control.FOCUS_NONE
-	_compact_start_btn.pressed.connect(_on_solo_pressed)
-	_style_action_button(_compact_start_btn)
-	top_block.add_child(_compact_start_btn)
+	# PLAY button (full-width, yellow) — from tscn
+	compact_start_btn.add_theme_font_size_override("font_size", 18)
+	compact_start_btn.pressed.connect(_on_solo_pressed)
+	_style_play_button(compact_start_btn)
 
-	# CONTINUE button (compact, right-aligned, hidden when no save)
-	_compact_continue_btn = Button.new()
-	_compact_continue_btn.name = "CompactContinueBtn"
-	_compact_continue_btn.text = "CONTINUE"
-	_compact_continue_btn.custom_minimum_size = Vector2(150, 36)
-	_compact_continue_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
-	_compact_continue_btn.add_theme_font_size_override("font_size", 14)
-	_compact_continue_btn.focus_mode = Control.FOCUS_NONE
-	_compact_continue_btn.pressed.connect(_on_continue_pressed)
-	_compact_continue_btn.visible = false
-	_style_action_button(_compact_continue_btn)
-	top_block.add_child(_compact_continue_btn)
+	# CONTINUE button (full-width, hidden when no save) — from tscn
+	compact_continue_btn.add_theme_font_size_override("font_size", 15)
+	compact_continue_btn.pressed.connect(_on_continue_pressed)
+	compact_continue_btn.visible = false
+	_style_action_button(compact_continue_btn)
 
-	# --- MODE row: < SOLO > (full width, centered) ---
-	var mode_row := HBoxContainer.new()
-	mode_row.name = "CompactModeRow"
-	mode_row.add_theme_constant_override("separation", 6)
-	mode_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	mode_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	layout.add_child(mode_row)
-	_mode_prev_btn = _make_nav_btn("<", 40)
+	# --- MODE row: < SOLO > (full width, centered) — from tscn ---
+	_mode_prev_btn = mode_prev_btn
+	_mode_prev_btn.add_theme_font_size_override("font_size", 18)
+	_mode_prev_btn.add_theme_color_override("font_color", Color(0.7, 0.8, 0.95, 1.0))
 	_mode_prev_btn.pressed.connect(_cycle_mode.bind(-1))
-	mode_row.add_child(_mode_prev_btn)
-	_mode_label = Label.new()
-	_mode_label.text = "SOLO"
-	_mode_label.add_theme_font_size_override("font_size", 16)
-	_mode_label.add_theme_color_override("font_color", Color(0.85, 0.92, 1.0, 1.0))
-	_mode_label.custom_minimum_size = Vector2(120, 0)
+	_style_action_button(_mode_prev_btn)
+
+	_mode_label = mode_label
+	_mode_label.custom_minimum_size = Vector2(200, 0)
 	_mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_style_nav_label_bg(_mode_label)
-	mode_row.add_child(_mode_label)
-	_mode_next_btn = _make_nav_btn(">", 40)
-	_mode_next_btn.pressed.connect(_cycle_mode.bind(1))
-	mode_row.add_child(_mode_next_btn)
 
-	# --- DIFFICULTY row: < NORMAL > (full width, centered) ---
-	var diff_row := HBoxContainer.new()
-	diff_row.name = "CompactDiffRow"
-	diff_row.add_theme_constant_override("separation", 6)
-	diff_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	diff_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	layout.add_child(diff_row)
-	_diff_prev_btn = _make_nav_btn("<", 40)
+	_mode_next_btn = mode_next_btn
+	_mode_next_btn.add_theme_font_size_override("font_size", 18)
+	_mode_next_btn.add_theme_color_override("font_color", Color(0.7, 0.8, 0.95, 1.0))
+	_mode_next_btn.pressed.connect(_cycle_mode.bind(1))
+	_style_action_button(_mode_next_btn)
+
+	# --- DIFFICULTY row: < NORMAL > (full width, centered) — from tscn ---
+	_diff_prev_btn = diff_prev_btn
+	_diff_prev_btn.add_theme_font_size_override("font_size", 18)
+	_diff_prev_btn.add_theme_color_override("font_color", Color(0.7, 0.8, 0.95, 1.0))
 	_diff_prev_btn.pressed.connect(_cycle_diff.bind(-1))
-	diff_row.add_child(_diff_prev_btn)
-	_diff_label = Label.new()
-	_diff_label.text = "NORMAL"
-	_diff_label.add_theme_font_size_override("font_size", 16)
-	_diff_label.add_theme_color_override("font_color", Color(0.8, 0.88, 1.0, 1.0))
-	_diff_label.custom_minimum_size = Vector2(120, 0)
+	_style_action_button(_diff_prev_btn)
+
+	_diff_label = diff_label
+	_diff_label.custom_minimum_size = Vector2(200, 0)
 	_diff_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_style_nav_label_bg(_diff_label)
-	diff_row.add_child(_diff_label)
-	_diff_next_btn = _make_nav_btn(">", 40)
-	_diff_next_btn.pressed.connect(_cycle_diff.bind(1))
-	diff_row.add_child(_diff_next_btn)
 
-	# --- 16-hero roster grid (4x4) — MIDDLE of the panel ---
-	_roster_grid = GridContainer.new()
-	_roster_grid.name = "CompactRosterGrid"
-	_roster_grid.columns = 4
-	_roster_grid.add_theme_constant_override("h_separation", 6)
-	_roster_grid.add_theme_constant_override("v_separation", 6)
-	_roster_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_roster_grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	layout.add_child(_roster_grid)
+	_diff_next_btn = diff_next_btn
+	_diff_next_btn.add_theme_font_size_override("font_size", 18)
+	_diff_next_btn.add_theme_color_override("font_color", Color(0.7, 0.8, 0.95, 1.0))
+	_diff_next_btn.pressed.connect(_cycle_diff.bind(1))
+	_style_action_button(_diff_next_btn)
+
+	# --- 16-hero roster grid (4x4) — MIDDLE of the panel — from tscn ---
+	_roster_grid = compact_roster_grid
 	_populate_roster_grid()
 
-	# --- 4 ABILITY buttons (kit) between roster and settings (2026-09-17) ---
-	_ability_strip = HBoxContainer.new()
-	_ability_strip.name = "CompactAbilityStrip"
-	_ability_strip.add_theme_constant_override("separation", 6)
-	_ability_strip.alignment = BoxContainer.ALIGNMENT_CENTER
-	_ability_strip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	layout.add_child(_ability_strip)
+	# --- 4 ABILITY buttons (kit) between roster and settings — from tscn ---
+	_ability_strip = compact_ability_strip
 
-	# --- SETTINGS button (full width, bottom) ---
-	_compact_settings_btn = Button.new()
-	_compact_settings_btn.name = "CompactSettingsBtn"
-	_compact_settings_btn.text = "⚙  SETTINGS"
-	_compact_settings_btn.custom_minimum_size = Vector2(0, 44)
-	_compact_settings_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# --- SETTINGS button (full width, bottom) — from tscn ---
+	_compact_settings_btn = compact_settings_btn
 	_compact_settings_btn.add_theme_font_size_override("font_size", 15)
-	_compact_settings_btn.focus_mode = Control.FOCUS_NONE
 	_compact_settings_btn.tooltip_text = "Settings: Resolution & Sound"
 	_compact_settings_btn.pressed.connect(_on_compact_settings_pressed)
 	_style_action_button(_compact_settings_btn)
-	layout.add_child(_compact_settings_btn)
 
 	# --- Populate the 4 ability strip with the current hero's kit ---
 	_populate_ability_strip(PlayerProfile.selected_class_id)
@@ -603,23 +576,26 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	title_label.visible = false
 	difficulty_row.visible = false
 	difficulty_label.visible = false
-	mode_row.visible = false
+	# NOTE: the compact mode row (compact_mode_row) must stay visible.
+	# The legacy mode_row is already hidden in _constrain_lobby_layout (line ~441).
 	solo_button.visible = false
+	# Remove any legacy PlayRow that may have been installed around solo_button
+	# (it holds a duplicate CONTINUE button). The compact menu now owns PLAY/CONTINUE.
+	if solo_button.get_parent() != null and solo_button.get_parent().name == "PlayRow":
+		solo_button.get_parent().queue_free()
 	# The old 4-big-button "Abilities" loadout panel is replaced by the compact
 	# ability strip (LMB/RMB + 4 small icons) under the roster — keep it hidden.
 	if loadout_panel != null:
 		loadout_panel.visible = false
-		if class_description != null:
-			class_description.visible = false
+	# HeroContentScroll + ClassDescription: legacy hero content, hidden by compact menu.
+	if hero_content_scroll != null:
+		hero_content_scroll.visible = false
+	if class_description != null:
+		class_description.visible = false
 
 	# Hide old audio row (moved behind settings button)
 	if audio_row != null:
 		audio_row.visible = false
-
-	# --- Steam status ---
-	if steam_status_label != null:
-		steam_status_label.visible = true
-		layout.move_child(steam_status_label, layout.get_child_count())
 
 	# Sync the continue button visibility
 	_sync_compact_continue()
@@ -649,6 +625,27 @@ func _style_action_button(btn: Button) -> void:
 	btn.add_theme_stylebox_override("pressed", pressed)
 	btn.add_theme_stylebox_override("focus", normal)
 	btn.add_theme_color_override("font_color", Color("f4f0e6"))
+
+
+## Yellow play-button style (2026-09-18).
+func _style_play_button(btn: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.85, 0.72, 0.15, 0.95)
+	normal.border_color = Color(1.0, 0.85, 0.3, 1.0)
+	normal.set_border_width_all(2)
+	normal.set_corner_radius_all(8)
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = Color(0.95, 0.82, 0.25, 1.0)
+	hover.border_color = Color(1.0, 0.9, 0.4, 1.0)
+	var pressed := normal.duplicate() as StyleBoxFlat
+	pressed.bg_color = Color(0.7, 0.58, 0.1, 0.95)
+	pressed.border_color = Color(0.8, 0.7, 0.2, 1.0)
+	btn.add_theme_stylebox_override("normal", normal)
+	btn.add_theme_stylebox_override("hover", hover)
+	btn.add_theme_stylebox_override("pressed", pressed)
+	btn.add_theme_stylebox_override("focus", normal)
+	btn.add_theme_color_override("font_color", Color(0.1, 0.08, 0.02, 1.0))
+	btn.add_theme_color_override("font_hover_color", Color(0.1, 0.08, 0.02, 1.0))
 
 
 ## Shared background for the mode/difficulty nav labels (looks like a button slot).
@@ -1768,9 +1765,10 @@ func _refresh_play_mode() -> void:
 		return
 	var coop := _play_mode == 2
 	var ffa := _play_mode == 1
-	solo_button.visible = not coop
+	# 2026-09-18: compact menu owns the PLAY button; keep the legacy solo_button hidden.
+	solo_button.visible = (not coop) and _compact_start_btn == null
 	solo_button.text = "PLAY FFA" if ffa else "PLAY"
-	host_button.visible = coop
+	host_button.visible = coop and _compact_start_btn == null
 	join_button.visible = coop
 	join_label.visible = coop
 	address_input.visible = coop
@@ -2851,6 +2849,17 @@ func _play_row() -> HBoxContainer:
 
 
 func _sync_continue_button() -> void:
+	# 2026-09-18: the compact menu owns its own PLAY/CONTINUE buttons (top block).
+	# Do NOT install the legacy SoloButton+ContinueButton "PlayRow" on top of it,
+	# otherwise the user sees two sets of Play/Continue buttons.
+	if _compact_continue_btn != null:
+		solo_button.visible = false
+		# Remove a legacy PlayRow (SoloButton/ContinueButton) if one was installed.
+		if solo_button != null and solo_button.get_parent() != null:
+			var p: Node = solo_button.get_parent()
+			if p is HBoxContainer and p.name == "PlayRow":
+				p.queue_free()
+		return
 	if solo_button == null:
 		return
 	var row := _play_row()
@@ -3439,16 +3448,27 @@ func _show_lobby(message: String) -> void:
 	_leave_network_lobby()
 	backdrop.visible = true
 	lobby_panel.visible = true
-	status_label.visible = true
-	status_label.text = message
+	# 2026-09-18: compact menu hides the "Pick a hero" status line and the legacy
+	# full-width rows (mode_row / difficulty_row / class_description). They are
+	# replaced by the compact top block + mode/difficulty nav rows built in
+	# _build_compact_menu.
+	if _compact_start_btn != null:
+		status_label.visible = false
+		mode_row.visible = false
+		class_description.visible = false
+		difficulty_label.visible = false
+		difficulty_row.visible = false
+	else:
+		status_label.visible = true
+		status_label.text = message
+		mode_row.visible = true
+		class_description.visible = true
+		difficulty_label.visible = true
+		difficulty_row.visible = true
 	var action := $StatusLayer.get_node_or_null("ToborAction") as CanvasItem
 	if action != null:
 		action.visible = true
 	_set_lobby_enabled(true)
-	mode_row.visible = true
-	class_description.visible = true
-	difficulty_label.visible = true
-	difficulty_row.visible = true
 	leave_lobby_button.visible = false
 	cancel_create_button.visible = false
 	roster_label.visible = false
