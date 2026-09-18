@@ -200,6 +200,27 @@ const LAVA_SCAN_INTERVAL := 0.16  # ~6.25 Hz per enemy
 ## refreshes across ~2x the interval so bursts don't stack up.
 var _target_refresh_jitter := 0.0
 
+## Movement variety (2026-09-17): each enemy picks a movement pattern on spawn so
+## large groups don't all walk in straight lines. The pattern is chosen per type:
+##   swarmling  -> PACK (tight formation, no individual variation)
+##   grunt      -> STRAFE (sideswipe perpendicular to target)
+##   spitter    -> CIRCLE (orbit at preferred distance)
+##   brute      -> LUNGE (periodic forward burst)
+##   charger    -> (existing charge logic, no extra pattern)
+##   other      -> ZIGZAG (alternating perpendicular offset)
+enum MovePattern { NONE, STRAFE, ZIGZAG, CIRCLE, LUNGE }
+var _move_pattern: int = MovePattern.NONE
+var _move_pattern_phase := 0.0
+var _move_pattern_timer := 0.0
+var _lunge_timer := 0.0
+const LUNGE_INTERVAL := 3.5
+const LUNGE_DURATION := 0.6
+const LUNGE_SPEED_MULT := 2.2
+const STRAFE_AMP := 0.45       # fraction of movement_speed added perpendicular
+const ZIGZAG_PERIOD := 2.0     # seconds per zigzag cycle
+const CIRCLE_SPEED := 0.35     # fraction of movement_speed for orbital motion
+
+
 ## Perf (large groups): _rebuild_separation_grid() was gated per PHYSICS frame, so the
 ## whole pool's bucket map was rebuilt once every frame even though separation pushes
 ## are velocity offsets that need far less than 60Hz freshness. Rebuilding at ~12.5 Hz
@@ -358,6 +379,14 @@ func apply_type(next_type_id: String, health_multiplier: float = 1.0, speed_mult
 			stealth_alpha = 0.35
 	separation_weight = float(EnemyType.field(type_id, "separation_weight"))
 	summon_timer = summon_interval
+
+	# Movement variety: pick a per-type pattern so large groups don't all walk
+	# in identical straight lines.
+	_move_pattern = _pick_move_pattern()
+	_move_pattern_phase = randf_range(0.0, TAU)
+	_move_pattern_timer = 0.0
+	_lunge_timer = randf_range(0.0, LUNGE_INTERVAL)
+
 
 	var shape := CircleShape2D.new()
 	shape.radius = body_radius
@@ -872,6 +901,23 @@ func _rebuild_separation_grid() -> void:
 		Enemy._separation_grid[key] = bucket
 
 
+## Pick a movement pattern based on enemy type so large groups move with variety.
+func _pick_move_pattern() -> int:
+	match type_id:
+		"swarmling":
+			return MovePattern.NONE  # Pack formation — no individual variation
+		"grunt":
+			return MovePattern.STRAFE
+		"spitter", "frostspitter", "embercaster":
+			return MovePattern.CIRCLE
+		"brute":
+			return MovePattern.LUNGE
+		"charger", "skitter":
+			return MovePattern.ZIGZAG
+		_:
+			return MovePattern.ZIGZAG
+
+
 func _separation_offset() -> Vector2:
 	if separation_weight <= 0.0:
 		return Vector2.ZERO
@@ -937,10 +983,50 @@ func _process_melee() -> void:
 		_explode()
 		return
 	if distance > attack_distance:
-		_move(global_position.direction_to(target.global_position) * movement_speed * slow_factor)
+		var chase_dir := global_position.direction_to(target.global_position)
+		_move(_apply_move_pattern(chase_dir * movement_speed * slow_factor))
 	else:
 		velocity = Vector2.ZERO
 		_attack_target()
+
+
+## Applies the per-enemy movement pattern to a base chase direction.
+## Returns the modified velocity vector.
+func _apply_move_pattern(base_dir: Vector2) -> Vector2:
+	_move_pattern_timer += get_physics_process_delta_time()
+	if _move_pattern == MovePattern.NONE:
+		return base_dir
+	var to_target := target.global_position - global_position
+	if to_target.length_squared() < 1.0:
+		return base_dir
+	var target_dir := to_target.normalized()
+	match _move_pattern:
+		MovePattern.STRAFE:
+			# Sideswipe: add a perpendicular component that oscillates.
+			var perp := target_dir.orthogonal()
+			var strafe := sin(_move_pattern_phase + _move_pattern_timer * 3.0) * STRAFE_AMP
+			return (target_dir + perp * strafe).normalized() * base_dir.length()
+		MovePattern.ZIGZAG:
+			# Alternating left/right offset.
+			var perp := target_dir.orthogonal()
+			var zig := sin(_move_pattern_timer * (TAU / ZIGZAG_PERIOD)) * STRAFE_AMP
+			return (target_dir + perp * zig).normalized() * base_dir.length()
+		MovePattern.CIRCLE:
+			# Orbit: move mostly perpendicular to the target direction.
+			var perp := target_dir.orthogonal()
+			var mix := CIRCLE_SPEED
+			return (target_dir * (1.0 - mix) + perp * mix * signf(sin(_move_pattern_timer * 0.8))) * base_dir.length()
+		MovePattern.LUNGE:
+			# Periodic forward burst.
+			_lunge_timer -= get_physics_process_delta_time()
+			if _lunge_timer <= 0.0:
+				_lunge_timer = LUNGE_INTERVAL
+			var in_lunge := _lunge_timer > LUNGE_INTERVAL - LUNGE_DURATION
+			if in_lunge:
+				return base_dir * LUNGE_SPEED_MULT
+			return base_dir
+		_:
+			return base_dir
 
 
 func _process_ranged() -> void:
@@ -1443,11 +1529,17 @@ func _hold_preferred_distance() -> void:
 	var distance := global_position.distance_to(target.global_position)
 	var to_target := global_position.direction_to(target.global_position)
 	if distance > preferred_distance + 60.0:
-		_move(to_target * movement_speed * slow_factor)
+		_move(_apply_move_pattern(to_target * movement_speed * slow_factor))
 	elif distance < preferred_distance - 60.0:
-		_move(-to_target * movement_speed * slow_factor)
+		_move(_apply_move_pattern(-to_target * movement_speed * slow_factor))
 	else:
-		_move(Vector2.ZERO)
+		# Orbit in place: small perpendicular drift so ranged enemies don't stand still.
+		if _move_pattern != MovePattern.NONE:
+			var perp := to_target.orthogonal()
+			var orbit := sin(_move_pattern_timer * 0.9 + _move_pattern_phase) * 0.2
+			_move(perp * movement_speed * orbit * slow_factor)
+		else:
+			_move(Vector2.ZERO)
 
 
 func _fire_projectile() -> void:

@@ -53,20 +53,22 @@ const CLASSES: Array[Dictionary] = [
 		"effect_color": "ffd36b",
 		"effect_secondary": "ff8a3d",
 		"health_bar_color": "ff9a3c",
-		# Was 72.0 / 1.25x — the lowest EHP in the roster by ~30% versus the next-most-fragile
-		# hero (Cinder/Willow around 82-86 effective HP), which made a 20-wave solo endurance
-		# clear essentially unwinnable regardless of play skill. Nudged toward that pack while
-		# keeping Tobor the roster's most fragile hero by a clear margin (flavor intact).
-		"max_health": 90.0,
+		# 2026-09-17 balance pass: user wants Tobor "very hard" — the bot should
+		# struggle to survive without using heal points and varying movement.
+		# max_health 90→68 (genuinely fragile glass cannon),
+		# damage_taken_multiplier 1.05→1.35 (takes 35% more damage),
+		# weapon_damage 18→14 (weaker DPS so waves outlast him longer).
+		# The bot must kite, use abilities, and spend heal points to survive.
+		"max_health": 68.0,
 		"movement_speed": 355.0,
 		"attack_interval": 0.65,
-		"weapon_damage": 18.0,
+		"weapon_damage": 14.0,
 		"attack_range": 520.0,
 		"aim_assist_radius": 14.0,
 		"chain_count": 0,
 		"chain_range": 0.0,
 		"blast_radius": 30.0,
-		"damage_taken_multiplier": 1.05,
+		"damage_taken_multiplier": 1.35,
 		"taunt_weight": 1.0,
 		"secondary": "repulse",
 		"secondary_cooldown": 9.0,

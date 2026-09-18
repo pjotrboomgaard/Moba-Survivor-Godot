@@ -55,7 +55,10 @@ func _ready() -> void:
     _player.active = true
 
     # Cluster N enemies in a ring (all on-screen within the camera view).
+    # 2026-09-17: use a mix of enemy types (grunts, swarmlings, spitters, brutes)
+    # to test movement variety + diverse AI under load.
     var n := ENEMY_COUNT
+    var type_cycle: Array = ["grunt", "swarmling", "grunt", "spitter", "brute", "swarmling", "grunt", "spitter"]
     for i in n:
         var ang := (float(i) / float(n)) * TAU
         var ring := (i % 5)
@@ -66,7 +69,8 @@ func _ready() -> void:
         add_child(e)
         # Authoritative = server-side, so full AI (target + movement + separation) runs.
         if e.has_method("configure"):
-            e.configure(i + 1, true, "grub", 1.0, 1.0)
+            var type_id: String = str(type_cycle[i % type_cycle.size()])
+            e.configure(i + 1, true, type_id, 1.0, 1.0)
         _enemies.append(e)
     print("[Perf] spawned %d enemies around player" % _enemies.size())
 

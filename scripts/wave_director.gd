@@ -610,6 +610,12 @@ func budget_for_wave(target_wave: int) -> float:
 		solo_budget *= 0.60
 	elif target_wave == 3:
 		solo_budget *= 0.75
+	# Balance pass (2026-09-17): mid-game (waves 10-20) pressure bump so heroes
+	# don't snowball. The curve was too gentle between the early ramp-in and the
+	# late-game surge; a 1.35x multiplier on waves 10-20 keeps the escalation
+	# steady and forces active play (kiting, heal points, ability rotation).
+	if target_wave >= 10 and target_wave <= 20:
+		solo_budget *= 1.35
 	# T3.58: Camp Gauntlet test mode (id 6) is a camp-farm world — the 7 camps +
 	# their guardians are the main threat, so regular waves are reduced to ~40%.
 	if GameRuntime.uses_biomes() and GameRuntime.biome_id == 6:
