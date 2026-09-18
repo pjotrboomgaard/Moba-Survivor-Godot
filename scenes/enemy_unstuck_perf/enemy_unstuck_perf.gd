@@ -154,7 +154,7 @@ func _check_routed() -> void:
 		#   - brutes (62 px/s) may not cross the full 1300px in 7s.
 		# The metric therefore measures "did the unstuck mechanic let it get to
 		# the obstacle row", which is exactly what the mechanic is responsible for.
-		if e.position.x > -470.0:
+		if e.global_position.x > -470.0:
 			_enemies_routed += 1
 		else:
 			_enemies_stuck += 1
@@ -166,13 +166,14 @@ func _check_routed() -> void:
 		var tid: String = e.get("type_id") or "?"
 		if tid not in by_type:
 			by_type[tid] = []
-		by_type[tid].append(e.position.x)
+		by_type[tid].append(e.global_position.x)
 	for tid in by_type.keys():
 		var xs: Array = by_type[tid]
 		xs.sort()
 		var n := xs.size()
+		var mid := n / 2
 		print("[EnemyUnstuckPerf] type=%s n=%d x_min=%.0f x_mid=%.0f x_max=%.0f" % [
-			tid, n, xs[0], xs[n // 2], xs[n - 1]])
+			tid, n, xs[0], xs[mid], xs[n - 1]])
 
 func _capture(label: String) -> void:
 	var img := get_viewport().get_texture().get_image()

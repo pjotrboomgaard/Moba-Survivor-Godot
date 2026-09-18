@@ -3339,3 +3339,19 @@ path (Arclight R + Cinder R confirmed with 21 casts + visible VFX). No two heroe
 reuse the same draw_mode + color combination. 6-step pipeline complete:
 isolated before/after/compare + in-game before/after/compare, all read.
 
+### T4.23 Enemy perf: large diverse groups — throttled target/lava/grid (NEW 2026-09-18) _STATUS: isolated verified_
+**User direction:** "optimize enemies again, after the unstuck mechanic the fps got lower. find more performance optimization with large groups of enemies large diversity all kinds of enemies. isolated and ingame."
+- [x] **Optimizations in `scripts/enemy.gd`:**
+  - Target refresh: `TARGET_REFRESH_INTERVAL` 0.25s + per-enemy `_target_refresh_jitter` (0–0.35s) staggers refreshes so 200+ enemies don't all re-query `_find_nearest_player()` in the same frame.
+  - Lava scan: `_lava_scan_timer` / `LAVA_SCAN_INTERVAL` 0.16s throttles the expensive `hazard_at()` scan; accumulated `delta` applied once per tick.
+  - Separation grid: `_rebuild_separation_grid()` is time-gated to `SEPARATION_GRID_INTERVAL` 0.08s (static var `_separation_grid_time`) — only one enemy per frame window triggers a full rebuild; other enemies just read the existing grid.
+  - `_ready()` lazily inserts the enemy into the grid so the first frame doesn't pay the full rebuild cost.
+- [x] **Isolated test** (`scenes/enemy_unstuck_perf/enemy_unstuck_perf.gd`, v4 diversified mix):
+  - 40 enemies: 16 grunt, 8 swarmling, 6 spitter (ranged), 6 brute (tanky), 4 charger (fast dash).
+  - 5 solid obstacle blocks in a row; player stub on the right.
+  - avg_frame_ms = **8.39 ms** (< 12 ms threshold) → **PASS**.
+  - Routing: 32/40 reached the block row (x > -470). The 8 not routed are ranged spitters (correctly stop at preferred_distance) + slow brutes in the 7 s window — expected, not stuck.
+  - Screenshots: `tools/selftest/results/enemy_unstuck_perf_iso/iso_stuck_3.5s.png`, `iso_routed_7.0s.png`.
+  - Report: `tools/selftest/results/enemy_unstuck_perf_iso_report.json` (verdict=PASS).
+- [ ] **In-game FFA perf test:** run the same 40-enemy mix in the real FFA scene and confirm frame time stays under 12 ms with the real HUD / arena / wave system active.
+

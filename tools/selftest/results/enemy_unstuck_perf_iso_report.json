@@ -1,7 +1,7 @@
 {
-  "avg_frame_ms": 8.4033349301396,
-  "enemies_routed": 15,
-  "enemies_stuck": 25,
+  "avg_frame_ms": 8.42352637889678,
+  "enemies_routed": 32,
+  "enemies_stuck": 8,
   "enemy_count": 40,
   "enemy_mix": [
     "grunt:16",
@@ -12,20 +12,20 @@
   ],
   "obstacle_count": 5,
   "run_seconds": 8.0,
-  "samples": 835,
+  "samples": 834,
   "scene": "enemy_unstuck_perf",
   "shots": [
     {
       "label": "iso_stuck_3.5s",
-      "path": "user://enemy_unstuck_perf_run_1789691131/iso_stuck_3.5s.png",
-      "t": 3.54800009727478
+      "path": "user://enemy_unstuck_perf_run_1789692623/iso_stuck_3.5s.png",
+      "t": 3.54699993133545
     },
     {
       "label": "iso_routed_7.0s",
-      "path": "user://enemy_unstuck_perf_run_1789691131/iso_routed_7.0s.png",
-      "t": 7.04900002479553
+      "path": "user://enemy_unstuck_perf_run_1789692623/iso_routed_7.0s.png",
+      "t": 7.0479998588562
     }
   ],
   "threshold_ms": 12.0,
-  "verdict": "FAIL"
+  "verdict": "PASS"
 }
