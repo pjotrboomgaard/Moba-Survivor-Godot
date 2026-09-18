@@ -1,0 +1,474 @@
+{
+  "effects": [
+    {
+      "kind": "spawn_tree",
+      "pos": "(80.0, 0.0)",
+      "spawned": true,
+      "sprite": "tree_oak",
+      "t": 1.20531633333333
+    },
+    {
+      "kind": "spawn_tree",
+      "pos": "(140.0, 40.0)",
+      "spawned": true,
+      "sprite": "tree_pine",
+      "t": 1.20531633333333
+    },
+    {
+      "kind": "spawn_tree",
+      "pos": "(60.0, -70.0)",
+      "spawned": true,
+      "sprite": "tree_oak",
+      "t": 1.20531633333333
+    },
+    {
+      "abilities": [
+        {
+          "id": "tobor_steam_keg",
+          "rank": 1
+        },
+        {
+          "id": "tobor_spider_mines",
+          "rank": 1
+        },
+        {
+          "id": "tobor_steam_turret",
+          "rank": 1
+        },
+        {
+          "id": "tobor_energy_field",
+          "rank": 1
+        }
+      ],
+      "attack_range": 520.0,
+      "biome_id": 0,
+      "biome_name": "Scrapyard Outskirts",
+      "blast_radius": 30.0,
+      "cds": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "enemies_alive": 0,
+      "ffa": {
+        "all_bots": false,
+        "count": 1,
+        "enabled": false,
+        "heroes": [
+          {
+            "alive": true,
+            "class": "tobor",
+            "cpu": false,
+            "damage_dealt": 0.0,
+            "damage_taken": 0.0,
+            "hp": 210.0,
+            "kills": 0,
+            "local": true,
+            "max_hp": 210.0,
+            "peer": 1,
+            "pos": [
+              0.0,
+              0.0
+            ],
+            "team": ""
+          }
+        ],
+        "kills_to_win": 15,
+        "map": [
+          8400.0,
+          5600.0
+        ]
+      },
+      "frost_burst_radius": 65.0,
+      "gold": 0,
+      "hero": "tobor",
+      "hp": 210.0,
+      "hp_frac": 1.0,
+      "hp_max": 210.0,
+      "kind": "probe",
+      "label": "bossform_granted",
+      "last_sfx": "",
+      "last_tapped": -1,
+      "level": 1,
+      "obstacle_count": 864,
+      "pending_ability_ids": [],
+      "pending_id": "",
+      "pending_slot": -1,
+      "pending_upgrade_ids": [],
+      "player_positions": {
+        "1": {
+          "locked": false,
+          "pos": "(0.0, 0.0)"
+        }
+      },
+      "pulse_interval": 0.0,
+      "pulse_last_sfx": "",
+      "pulse_radius": 160.0,
+      "pvp_invuln": 0.0,
+      "recruits": {
+        "area_positions": [
+          "(-2520.0, -1680.0)",
+          "(-2520.0, 1680.0)",
+          "(2520.0, -1680.0)",
+          "(2520.0, 1680.0)"
+        ],
+        "arts": [],
+        "minions": 0
+      },
+      "summons": 0,
+      "summons_owned": [],
+      "t": 1.50228603030303,
+      "teleporters": [],
+      "transition": {
+        "camera_zoom": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "ring_live": 0,
+        "world_transition_active": false,
+        "world_transition_progress": 0.0
+      },
+      "wave": 1,
+      "wave_name": "First Contact",
+      "weapon_damage": 32.4,
+      "xp": 0
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": true,
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 44.4967750303031,
+      "creep_kills": 0,
+      "cross_cd": 0.0,
+      "hero_kills": 0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "after_grant",
+      "movement_speed": 514.75,
+      "slam_cd": 0.0,
+      "t": 2.005511,
+      "volley_cd": 0.0,
+      "weapon_damage": 32.4
+    },
+    {
+      "center": "(0.0, 0.0)",
+      "kind": "trees_in_radius_probe",
+      "label": "trees_before",
+      "radius": 250.0,
+      "t": 3.00629533333333,
+      "trees": [
+        {
+          "breaking": false,
+          "burning": false,
+          "hp": -1.0,
+          "instance_id": 508014104325
+        },
+        {
+          "breaking": false,
+          "burning": false,
+          "hp": -1.0,
+          "instance_id": 539639160951
+        },
+        {
+          "breaking": false,
+          "burning": false,
+          "hp": -1.0,
+          "instance_id": 539756601469
+        },
+        {
+          "breaking": false,
+          "burning": false,
+          "hp": -1.0,
+          "instance_id": 539874041987
+        }
+      ]
+    },
+    {
+      "count": 0,
+      "kind": "burning_trees_probe",
+      "label": "burning_before",
+      "positions": [],
+      "t": 3.00629533333333
+    },
+    {
+      "cross_cd_after": 0.0,
+      "kind": "bossform_attack",
+      "slam_cd_after": 3.0,
+      "t": 4.00622066666666,
+      "volley_cd_after": 0.0,
+      "which": "slam"
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": false,
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 40.4835790303032,
+      "creep_kills": 0,
+      "cross_cd": 0.0,
+      "hero_kills": 0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "after_slam_probe",
+      "movement_speed": 514.75,
+      "slam_cd": 0.987513666666669,
+      "t": 6.018707,
+      "volley_cd": 0.0,
+      "weapon_damage": 32.4
+    },
+    {
+      "center": "(0.0, 0.0)",
+      "kind": "trees_in_radius_probe",
+      "label": "trees_after_slam",
+      "radius": 250.0,
+      "t": 6.50303030303031,
+      "trees": [
+        {
+          "breaking": false,
+          "burning": true,
+          "hp": 79.5,
+          "instance_id": 539639160951
+        },
+        {
+          "breaking": false,
+          "burning": true,
+          "hp": 79.5,
+          "instance_id": 539874041987
+        },
+        {
+          "breaking": false,
+          "burning": false,
+          "hp": -1.0,
+          "instance_id": 508014104325
+        },
+        {
+          "breaking": false,
+          "burning": false,
+          "hp": -1.0,
+          "instance_id": 539756601469
+        }
+      ]
+    },
+    {
+      "count": 2,
+      "kind": "burning_trees_probe",
+      "label": "burning_after_slam",
+      "positions": [
+        "(80.0, 0.0)",
+        "(60.0, -70.0)"
+      ],
+      "t": 6.50303030303031
+    },
+    {
+      "cross_cd_after": 2.6,
+      "kind": "bossform_attack",
+      "slam_cd_after": 0.0,
+      "t": 8.01590909090911,
+      "volley_cd_after": 0.0,
+      "which": "cross"
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": false,
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 36.4966715858589,
+      "creep_kills": 0,
+      "cross_cd": 0.610294646464649,
+      "hero_kills": 0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "after_cross_probe",
+      "movement_speed": 514.75,
+      "slam_cd": 0.0,
+      "t": 10.0056144444445,
+      "volley_cd": 0.0,
+      "weapon_damage": 32.4
+    },
+    {
+      "center": "(0.0, 0.0)",
+      "kind": "trees_in_radius_probe",
+      "label": "trees_after_cross",
+      "radius": 250.0,
+      "t": 10.5273153333334,
+      "trees": [
+        {
+          "breaking": false,
+          "burning": true,
+          "hp": 79.5,
+          "instance_id": 539639160951
+        },
+        {
+          "breaking": false,
+          "burning": true,
+          "hp": 79.5,
+          "instance_id": 539874041987
+        },
+        {
+          "breaking": false,
+          "burning": false,
+          "hp": -1.0,
+          "instance_id": 508014104325
+        },
+        {
+          "breaking": false,
+          "burning": false,
+          "hp": -1.0,
+          "instance_id": 539756601469
+        }
+      ]
+    },
+    {
+      "count": 2,
+      "kind": "burning_trees_probe",
+      "label": "burning_after_cross",
+      "positions": [
+        "(80.0, 0.0)",
+        "(60.0, -70.0)"
+      ],
+      "t": 10.5273153333334
+    },
+    {
+      "cross_cd_after": 0.0,
+      "kind": "bossform_attack",
+      "slam_cd_after": 0.0,
+      "t": 12.00708,
+      "volley_cd_after": 3.5,
+      "which": "volley"
+    },
+    {
+      "abilities_still_castable": true,
+      "boss_all_ready": false,
+      "boss_form_hero_kills": 0,
+      "boss_form_timer": 32.4814666969701,
+      "creep_kills": 5,
+      "cross_cd": 0.0,
+      "hero_kills": 0,
+      "in_boss_form": true,
+      "kind": "bossform_probe",
+      "kit_all_ready": true,
+      "label": "after_volley_probe",
+      "movement_speed": 514.75,
+      "slam_cd": 0.0,
+      "t": 14.0208193333333,
+      "volley_cd": 1.48626066666667,
+      "weapon_damage": 32.4
+    },
+    {
+      "enemies_alive": 72,
+      "kills_after": 5,
+      "kills_before": 0,
+      "kind": "primary_probe",
+      "label": "primary_hold",
+      "t": 14.1980836666667
+    },
+    {
+      "center": "(0.0, 0.0)",
+      "kind": "trees_in_radius_probe",
+      "label": "trees_final",
+      "radius": 250.0,
+      "t": 15.0147266666667,
+      "trees": [
+        {
+          "breaking": false,
+          "burning": true,
+          "hp": 79.5,
+          "instance_id": 539639160951
+        },
+        {
+          "breaking": false,
+          "burning": true,
+          "hp": 79.5,
+          "instance_id": 539874041987
+        },
+        {
+          "breaking": false,
+          "burning": false,
+          "hp": -1.0,
+          "instance_id": 508014104325
+        },
+        {
+          "breaking": false,
+          "burning": false,
+          "hp": -1.0,
+          "instance_id": 539756601469
+        }
+      ]
+    },
+    {
+      "count": 2,
+      "kind": "burning_trees_probe",
+      "label": "burning_final",
+      "positions": [
+        "(80.0, 0.0)",
+        "(60.0, -70.0)"
+      ],
+      "t": 15.0147266666667
+    }
+  ],
+  "elapsed": 16.0034524242424,
+  "enemies_spawned": 5,
+  "hero_position": "(0.0, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 5,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 105,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 98
+  },
+  "shots": [
+    {
+      "label": "before_boss",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_4820/before_boss_1.005_4820.png",
+      "t": 1.005418
+    },
+    {
+      "label": "after_slam",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9336/after_slam_5.518_9336.png",
+      "t": 5.51778027272727
+    },
+    {
+      "label": "after_cross",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_13339/after_cross_9.518_13339.png",
+      "t": 9.51826193939395
+    },
+    {
+      "label": "after_volley",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_17340/after_volley_13.520_17340.png",
+      "t": 13.519732
+    },
+    {
+      "label": "final_state",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_19334/final_state_15.502_19334.png",
+      "t": 15.5015151515152
+    }
+  ]
+}

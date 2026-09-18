@@ -850,6 +850,12 @@ func _boss_form_slam() -> void:
 		var offset := Vector2.RIGHT.rotated(TAU * float(index) / float(count) + offset_dir) * ring
 		_emit_boss_form_hazard("circle", global_position + offset, radius, 1.1, 0.28, dmg, Color("ff5533"))
 	_emit_boss_form_hazard("circle", global_position, radius, 0.9, 0.28, dmg, Color("ff5533"))
+	# Boss stomps through the forest: damage + ignite trees in the central slam radius.
+	# Trees take the full slam damage (so ~2 slams breaks one at 120 HP) and the
+	# inner 70% of the radius ignites any standing trees (flames spread from there).
+	var tree_radius := radius + 40.0
+	_aoe_damage_trees_in_radius(global_position, tree_radius, dmg)
+	_ignite_trees_in_radius(global_position, tree_radius * 0.7)
 
 
 ## Boss-form ability B (slot E): Cross Lines — directional hazard lines that sweep
@@ -866,6 +872,8 @@ func _boss_form_cross() -> void:
 	for angle in angles:
 		var dir := Vector2.RIGHT.rotated(angle)
 		_emit_boss_form_hazard_line(dir, 1.1, 0.28, dmg, Color("ffaa33"))
+	# Boss cross lines scorch trees along both sweep directions.
+	_ignite_trees_in_radius(global_position, 120.0)
 
 
 ## Boss-form ability C (slot R): Volley — fires a ring of projectiles in many
@@ -4700,7 +4708,9 @@ const _FIRE_TREE_HEROES := ["cinder", "pyra", "ember", "slag"]
 const _LIGHTNING_TREE_HEROES := ["volt", "arclight", "nebula"]
 func _ignite_trees_in_radius(center: Vector2, radius: float) -> int:
 	var affected := 0
-	if not (_FIRE_TREE_HEROES.has(class_id) or _LIGHTNING_TREE_HEROES.has(class_id)):
+	# Fire/lightning heroes AND the boss form ignite trees (the boss stomps
+	# through the forest and sets it alight regardless of its base class).
+	if not (in_boss_form or _FIRE_TREE_HEROES.has(class_id) or _LIGHTNING_TREE_HEROES.has(class_id)):
 		return affected
 	if _arena == null:
 		_arena = Arena.arena_root(self)

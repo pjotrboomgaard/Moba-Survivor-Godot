@@ -1,0 +1,43 @@
+{
+  "test_name": "boss_bot_logic",
+  "hero": "tobor",
+  "mode": "solo",
+  "description": "Verify boss form bot logic: grant boss form, fire slam/cross/volley, confirm tree damage + ignition, verify boss form kills enemies via auto-attack + hazard damage.",
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "before_boss"},
+    {"t": 1.2, "kind": "spawn_tree", "at": [80, 0], "sprite": "tree_oak"},
+    {"t": 1.2, "kind": "spawn_tree", "at": [140, 40], "sprite": "tree_pine"},
+    {"t": 1.2, "kind": "spawn_tree", "at": [60, -70], "sprite": "tree_oak"},
+    {"t": 1.5, "kind": "bossform_grant", "boss": "ravager"},
+    {"t": 2.0, "kind": "bossform_probe", "label": "after_grant"},
+    {"t": 2.5, "kind": "spawn", "at": [80, 0], "type": "grunt", "hp_mult": 1.0},
+    {"t": 2.5, "kind": "spawn", "at": [120, 40], "type": "grunt", "hp_mult": 1.0},
+    {"t": 2.5, "kind": "spawn", "at": [100, -60], "type": "swarmling", "hp_mult": 1.0},
+    {"t": 2.5, "kind": "spawn", "at": [60, 80], "type": "swarmling", "hp_mult": 1.0},
+    {"t": 2.5, "kind": "spawn", "at": [140, -30], "type": "grunt", "hp_mult": 1.0},
+    {"t": 3.0, "kind": "trees_in_radius_probe", "label": "trees_before", "radius": 250},
+    {"t": 3.0, "kind": "burning_trees_probe", "label": "burning_before"},
+    {"t": 4.0, "kind": "bossform_attack", "which": "slam"},
+    {"t": 5.5, "kind": "snap", "label": "after_slam"},
+    {"t": 6.0, "kind": "bossform_probe", "label": "after_slam_probe"},
+    {"t": 6.5, "kind": "trees_in_radius_probe", "label": "trees_after_slam", "radius": 250},
+    {"t": 6.5, "kind": "burning_trees_probe", "label": "burning_after_slam"},
+    {"t": 8.0, "kind": "bossform_attack", "which": "cross"},
+    {"t": 9.5, "kind": "snap", "label": "after_cross"},
+    {"t": 10.0, "kind": "bossform_probe", "label": "after_cross_probe"},
+    {"t": 10.5, "kind": "trees_in_radius_probe", "label": "trees_after_cross", "radius": 250},
+    {"t": 10.5, "kind": "burning_trees_probe", "label": "burning_after_cross"},
+    {"t": 12.0, "kind": "bossform_attack", "which": "volley"},
+    {"t": 13.0, "kind": "primary_hold", "duration": 2.0},
+    {"t": 13.5, "kind": "snap", "label": "after_volley"},
+    {"t": 14.0, "kind": "bossform_probe", "label": "after_volley_probe"},
+    {"t": 15.0, "kind": "trees_in_radius_probe", "label": "trees_final", "radius": 250},
+    {"t": 15.0, "kind": "burning_trees_probe", "label": "burning_final"},
+    {"t": 15.5, "kind": "snap", "label": "final_state"},
+    {"t": 16.0, "kind": "report"}
+  ],
+  "wait_ms": 25000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/boss_bot_logic/before_boss_1.005_4820.png",
+  "after": "tools/selftest/results/boss_bot_logic/after_slam_5.518_9336.png",
+  "out": "tools/selftest/results/boss_bot_logic/diff_before_vs_slam.png",
+  "changed_pixels": 747461,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.360465,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

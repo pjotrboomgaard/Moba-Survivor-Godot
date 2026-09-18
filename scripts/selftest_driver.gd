@@ -287,6 +287,26 @@ func _spawn_at(pos: Vector2, type_id: String = "grunt", hp_mult: float = 1.0, sp
 	return e
 
 
+## Boss-bot-logic test: place a real tree obstacle near the player so tree
+## damage/ignition can be verified deterministically (the biome may have few
+## trees near the spawn point).
+func _spawn_tree(at_offset: Vector2, sprite: String) -> void:
+	var host_main: Variant = _host_main if _host_main != null else get_tree().get_first_node_in_group("main")
+	if host_main == null:
+		return
+	var arena: Variant = host_main.get("arena")
+	if arena == null or not arena is Arena:
+		return
+	var world_pos := at_offset
+	if _player != null:
+		world_pos = _player.global_position + at_offset
+	var tree: Obstacle = (arena as Arena).place_test_obstacle(world_pos, sprite, 18.0, 28.0)
+	_active_effects.append({
+		"kind": "spawn_tree", "t": _elapsed,
+		"pos": world_pos, "sprite": sprite, "spawned": tree != null,
+	})
+
+
 ## T3.84: spawn a real turret SummonEntity directly in the live arena so the
 ## turret_probe can read its max_health. Uses the same scene the game spawns
 ## turrets with (scenes/effects/summon_entity.tscn) so the value is authentic.
@@ -456,6 +476,10 @@ func _process(delta: float) -> void:
 					_active_effects.append({"kind": "hero", "t": _elapsed, "error": "bad hero id '%s'" % hero_id})
 			"spawn":
 				_spawn_at(_event_vec(event, "at", Vector2(160, 0)), str(event.get("type", "hound")), float(event.get("hp_mult", 1.0)), float(event.get("spd_mult", 1.0)))
+			"spawn_tree":
+				# Boss-bot-logic test: place a real tree obstacle at a player-relative
+				# position so the test can verify tree damage/ignition deterministically.
+				_spawn_tree(_event_vec(event, "at", Vector2(80, 0)), str(event.get("sprite", "tree_oak")))
 			"spawn_roster":
 				# T3.28 hero-art verification: spawn a list of CPU heroes parked
 				# in a row near the local player so one in-game screenshot shows
@@ -647,6 +671,17 @@ func _process(delta: float) -> void:
 			"tree_hp_probe":
 				# T3.75: report tree HP / breaking / collision state for verification.
 				_record_tree_hp_probe(str(event.get("label", "tree_hp")))
+			"trees_in_radius_probe":
+				# Boss-bot-logic test: report HP of trees within `radius` of the
+				# player (or `center` if given, player-relative) so a test can
+				# confirm slam/cross actually damaged/ignited nearby trees.
+				_record_trees_in_radius_probe(str(event.get("label", "trees")),
+					_event_vec(event, "center", Vector2.ZERO),
+					float(event.get("radius", 200.0)))
+			"burning_trees_probe":
+				# Report the count of currently-burning trees in the arena so a
+				# test can verify ignition (storm, boss form, hero abilities).
+				_record_burning_trees_probe(str(event.get("label", "burning")))
 			"nearest_tree_probe":
 				# T3.77: report the position of the tree nearest to the player so a
 				# test can aim casts AT a real tree (not an arbitrary empty spot).
@@ -728,8 +763,33 @@ func _process(delta: float) -> void:
 						dmg_pos,
 						float(event.get("radius", 60.0)),
 						float(event.get("amount", 120.0)))
+					_active_effects.append({
+						"kind": "custom", "text": "damage_tree hits=%d amount=%s" % [dmg_hits, str(event.get("amount", 120.0))], "t": _elapsed})
+			"ignite_tree":
+				# Boss bot logic: ignite a tree directly via the arena API.
+				# "nearest_tree" finds the closest alive (non-burning) tree to the player.
+				var ig_arena: Variant = _host_main.get("arena") if _host_main != null else null
+				var ig_ignited := false
+				if ig_arena != null and ig_arena.has_method("ignite_tree"):
+					var ig_pos := _event_vec(event, "at", Vector2.ZERO)
+					if bool(event.get("nearest_tree", false)):
+						var ig_best_dist := 99999.0
+						for obs in (ig_arena as Arena).obstacles:
+							if not is_instance_valid(obs):
+								continue
+							if not str(obs.sprite_id).begins_with("tree"):
+								continue
+							if ig_arena._is_tree_burning(obs.global_position):
+								continue
+							var d: float = obs.global_position.distance_to(_player.global_position) if _player != null else 0.0
+							if d < ig_best_dist:
+								ig_best_dist = d
+								ig_pos = obs.global_position
+					(ig_arena as Arena).ignite_tree(ig_pos)
+					ig_ignited = true
 				_active_effects.append({
-					"kind": "custom", "text": "damage_tree hits=%d amount=%s" % [dmg_hits, str(event.get("amount", 120.0))], "t": _elapsed})
+					"kind": "ignite_tree", "ignited": ig_ignited,
+					"nearest_tree": bool(event.get("nearest_tree", false)), "t": _elapsed})
 			"fast_forward_cycles":
 				# T3.90: fast-forward the tree-regrow cycle counter by N cycles.
 				# time_of_day ranges [0,1) (a full day/night cycle = 1.0, 210s).
@@ -1725,6 +1785,45 @@ func _record_tree_hp_probe(label: String) -> void:
 					"collision_disabled": obs.collision.disabled,
 				})
 	_active_effects.append({"kind": "tree_hp_probe", "label": label, "t": _elapsed, "trees": trees})
+
+
+## Boss-bot-logic test helper: report tree HP within a radius of a given
+## (player-relative) center, using the arena's instance-keyed tree_hp_in_radius.
+func _record_trees_in_radius_probe(label: String, center_offset: Vector2, radius: float) -> void:
+	var host_main: Variant = _host_main if _host_main != null else get_tree().get_first_node_in_group("main")
+	var trees: Array = []
+	var center := _player.global_position + center_offset if _player != null else center_offset
+	if host_main != null:
+		var arena: Variant = host_main.get("arena")
+		if arena != null and arena is Arena and (arena as Arena).has_method("tree_hp_in_radius"):
+			trees = (arena as Arena).tree_hp_in_radius(center, radius)
+	_active_effects.append({
+		"kind": "trees_in_radius_probe", "label": label, "t": _elapsed,
+		"center": center, "radius": radius, "trees": trees,
+	})
+	print("[trees_in_radius_probe %s] center=%s r=%.0f trees=%d" % [label, str(center), radius, trees.size()])
+
+
+## Report the count of currently-burning trees in the arena so a test can
+## verify ignition (storm, boss form, hero abilities) without reading
+## private state directly.
+func _record_burning_trees_probe(label: String) -> void:
+	var host_main: Variant = _host_main if _host_main != null else get_tree().get_first_node_in_group("main")
+	var burning: Array = []
+	if host_main != null:
+		var arena: Variant = host_main.get("arena")
+		if arena != null and arena is Arena:
+			var burning_tree: Dictionary = (arena as Arena)._burning_trees
+			for key in burning_tree.keys():
+				var pos: Variant = key
+				if pos is Vector2:
+					burning.append(pos)
+	var count := burning.size()
+	_active_effects.append({
+		"kind": "burning_trees_probe", "label": label, "t": _elapsed,
+		"count": count, "positions": burning,
+	})
+	print("[burning_trees_probe %s] burning=%d" % [label, count])
 
 func _record_tree_regrow_probe(label: String) -> void:
 	# T3.90: report the arena's tree-regrow state (stumps, cycles

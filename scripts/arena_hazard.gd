@@ -90,19 +90,36 @@ func _circle_radius() -> float:
 func _try_damage() -> void:
 	if cosmetic or damage <= 0.0 or not is_inside_tree():
 		return
-	for candidate in get_tree().get_nodes_in_group("players"):
-		if not is_instance_valid(candidate) or not candidate is Player:
+	# Boss-form hazards strike both players and enemies — the taken-over boss
+	# "kills everything" in its blast radius, so hazards must damage the enemy
+	# group too (previously player-only).
+	_hit_group("players")
+	_hit_group("enemies")
+
+
+func _hit_group(group_name: String) -> void:
+	for candidate in get_tree().get_nodes_in_group(group_name):
+		if not is_instance_valid(candidate):
 			continue
-		var player := candidate as Player
-		if not player.active or player.health.is_dead:
+		if not _overlaps(candidate.global_position):
 			continue
-		var id := player.get_instance_id()
+		var id := candidate.get_instance_id()
 		if _hit_ids.has(id):
 			continue
-		if not _overlaps(player.global_position):
-			continue
 		_hit_ids[id] = true
-		player.health.take_damage(damage, self)
+		if candidate is Player:
+			var player := candidate as Player
+			if not player.active or player.health.is_dead:
+				_hit_ids.erase(id)
+				continue
+			player.health.take_damage(damage, self)
+		elif candidate is Enemy:
+			var enemy := candidate as Enemy
+			# Guard against re-hitting already-dead/queued enemies.
+			if not is_instance_valid(enemy) or enemy.health.is_dead:
+				_hit_ids.erase(id)
+				continue
+			enemy.health.take_damage(damage, self)
 
 
 func _overlaps(world_point: Vector2) -> bool:

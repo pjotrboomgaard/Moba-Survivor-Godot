@@ -1825,6 +1825,55 @@ kill other creeps and bots."
       `hero_kills`, `abilities_still_castable` (kit or boss CDs all ready),
       `kit_all_ready`, `boss_all_ready`.
 
+### Boss bot logic: kill everything + destroy/ignite trees (NEW 2026-09-15)
+**User direction:** "Create bot logic and make sure there is the killing everything and
+that he kills trees wherever he moves and sets trees on fire around him. And that his
+attacks and abilities work and that kill enemies easily in large radius. Test all of this
+separately."
+
+- [x] **Boss-form hazards now damage enemies** — `arena_hazard.gd` `_try_damage()` now
+      hits both `players` AND `enemies` groups (was player-only). Boss slam/cross/volley
+      hazard zones now kill creeps standing in their blast radius.
+- [x] **Boss-form tree ignition** — `_ignite_trees_in_radius` now also fires when
+      `in_boss_form` (was fire/lightning heroes only). Boss slam ignites trees within
+      70% of its radius; boss cross scorch-ignites a 120px band.
+- [x] **Boss slam tree damage** — `_boss_form_slam` now deals FULL slam damage to trees
+      (was ×0.5). With tree HP 120 and slam ~81 damage, ~2 slams breaks a tree.
+- [x] **New selftest events**: `spawn_tree` (place a real tree obstacle via
+      `place_test_obstacle`), `trees_in_radius_probe` (report HP/burning of trees in
+      radius by instance id), `burning_trees_probe` (count of burning trees in arena).
+- [x] **`tree_hp_in_radius`** added to `arena.gd` — reports per-instance tree HP,
+      breaking state, and burning state within a radius. Fixes the old position-keyed
+      lookup that returned -1 for undamaged trees.
+- [x] 6-step verify (isolated + in-game before/after/compare for tree damage/ignition
+      + enemy kills from boss hazards). Test: `boss_bot_logic.json` — grant boss form,
+      spawn 3 trees + 5 enemies near player, fire slam/cross/volley + primary_hold,
+      probe trees_in_radius + burning_trees at each phase.
+
+      **VERIFIED 2026-09-15** (`boss_bot_logic.json`, hero tobor, solo mode):
+      - `before_boss`: clean start, 0 burning trees, no boss form.
+      - `after_slam` (t≈5.5s): 2 trees damaged from 120→79.5 HP (full slam damage 40.5
+        applied to each), 2 trees ignited (burning=true at positions (80,0) and (60,-70)),
+        all 5 enemies spawned. Red slam hazard ring + 4 offset circle hazards visible.
+      - `after_cross` (t≈9.5s): 2 orange cross-hazard lines sweep both directions;
+        tree HP unchanged (cross only ignites, doesn't damage trees).
+      - `after_volley` (t≈13.5s): `creep_kills: 5` — all 5 spawned enemies killed by
+        hazard damage + auto-attack. No enemies visible on screen.
+      - `final_state` (t≈15.5s): 2 trees still burning with animated flame overlay,
+        all enemies gone. `in_boss_form: true` throughout.
+      - Diff `before_boss` vs `after_slam`: 36% pixels changed (hazards + trees +
+        enemies all visible). Diff `after_slam` vs `after_cross`: 0.56% (cross lines
+        + tree fire frames). All layout checks CENTER/100% coverage — no corner bugs.
+      - Screenshot paths:
+        `tools/selftest/results/boss_bot_logic/before_boss_1.005_4820.png`
+        `tools/selftest/results/boss_bot_logic/after_slam_5.518_9336.png`
+        `tools/selftest/results/boss_bot_logic/after_cross_9.518_13339.png`
+        `tools/selftest/results/boss_bot_logic/after_volley_13.520_17340.png`
+        `tools/selftest/results/boss_bot_logic/final_state_15.502_19334.png`
+        `tools/selftest/results/boss_bot_logic/diff_before_vs_slam.png`
+        `tools/selftest/results/boss_bot_logic/diff_slam_vs_cross.png`
+      - Report: `tools/selftest/results/boss_bot_logic_report.json`
+
 ## Isolated empty-world note
 T3.34's "isolated" context is the deterministic FFA arena (1 local + 3 CPU bots, no
 external players, scripted event timeline) — not a separate empty-world `.tscn`.

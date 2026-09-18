@@ -2059,6 +2059,44 @@ func tree_hp_at(pos: Vector2) -> float:
 	return float(info.get("hp", _TREE_HP))
 
 
+## Boss-bot-logic test helper: report the HP of trees within `radius` of
+## `center` by instance id (the same key _tree_hp uses), so probes can
+## verify damage/ignition deterministically even when the tree has no
+## tracked entry yet (-1 means "not yet damaged, full HP").
+func tree_hp_in_radius(center: Vector2, radius: float) -> Array:
+	var out: Array = []
+	var r_sq := radius * radius
+	for key in _tree_hp:
+		var info: Dictionary = _tree_hp[key]
+		var o: Obstacle = info.get("node") as Obstacle
+		if o == null or not is_instance_valid(o):
+			continue
+		if o.global_position.distance_squared_to(center) > r_sq:
+			continue
+		out.append({
+			"instance_id": int(key),
+			"hp": float(info.get("hp", _TREE_HP)),
+			"breaking": bool(info.get("breaking", false)),
+			"burning": _is_tree_burning(o.global_position),
+		})
+	for obs in obstacles:
+		if not is_instance_valid(obs):
+			continue
+		if not obs.sprite_id.begins_with("tree"):
+			continue
+		if obs.global_position.distance_squared_to(center) > r_sq:
+			continue
+		# Only report trees with no tracked entry yet (fresh, full HP).
+		if not _tree_hp.has(obs.get_instance_id()):
+			out.append({
+				"instance_id": obs.get_instance_id(),
+				"hp": -1.0,
+				"breaking": false,
+				"burning": _is_tree_burning(obs.global_position),
+			})
+	return out
+
+
 ## T3.90: update tree regrowth. A broken tree's stump counts down day/night
 ## cycles (3 full cycles) and then the tree morphs back from small to full
 ## size over 10 seconds, in the same position.
@@ -2439,14 +2477,14 @@ func register_obstacle(obstacle: Obstacle) -> void:
 ## Test hook (2026-09-16): place a blocking rock obstacle at a world position so
 ## in-game tests can create a deterministic wall for creep-unstuck verification.
 ## The rock is a real Obstacle node with collision, so creeps must path around it.
-func place_test_obstacle(world_position: Vector2, sprite_id: String = "rock_large", radius: float = 30.0) -> Obstacle:
+func place_test_obstacle(world_position: Vector2, sprite_id: String = "rock_large", radius: float = 30.0, lift: float = 3.0) -> Obstacle:
 	var o := OBSTACLE_SCENE.instantiate() as Obstacle
 	if o == null:
 		push_error("[Arena] place_test_obstacle: OBSTACLE_SCENE null")
 		return null
 	o.global_position = world_position
 	add_child(o)
-	o.configure(sprite_id, radius, PIXEL_ZOOM, 3.0)
+	o.configure(sprite_id, radius, PIXEL_ZOOM, lift)
 	o.add_to_group("obstacles")
 	o.add_to_group("obstacle_" + sprite_id)
 	register_obstacle(o)
