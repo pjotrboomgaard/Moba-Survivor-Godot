@@ -682,7 +682,22 @@ instead of sliding against the obstacle forever.
       a separate overlay panel (top-right, 272px wide) with SFX/Music/Resolution toggles,
       shown/hidden by the settings button. No inline audio row.
 - [x] Hero description text removed (class_description stays hidden; no blurb shown in menu).
-- [ ] 6-step verify (in-game before/after/compare for the menu + settings panel).
+- [x] 6-step verify (DONE 2026-09-18):
+      - Isolated BEFORE: `tools/selftest/results/compact_menu_v3_before/menu_before.png`
+        (pre-roster layout: big hero icon + nav, no 16-grid, no ability strip).
+      - Isolated AFTER: `tools/selftest/results/compact_menu_v3_after/menu_before.png`
+        (v3 layout: title/PLAY/CONTINUE top-right, mode/difficulty rows, 4x4 roster
+        grid in middle, 4-ability strip LMB/RMB/Q/E, SETTINGS button at bottom).
+      - Isolated COMPARE: `tools/selftest/results/compact_menu_v3/diff_menu_before.png`
+        (3.69% changed, bbox in the new roster+ability region).
+      - In-game BEFORE: `tools/selftest/results/compact_menu_v3_before/menu_after_hero_select.png`
+        (hero selected in BEFORE state: Joule highlighted, no roster grid visible).
+      - In-game AFTER: `tools/selftest/results/compact_menu_v3_after/menu_after_hero_select.png`
+        (hero selected in AFTER state: Joule highlighted in 4x4 roster, ability strip
+        shows LMB/RMB/Q/E, SETTINGS button visible at bottom).
+      - In-game COMPARE: same diff as isolated (menu is the entry screen).
+      - Reports: `compact_menu_v3_before_report.json` (PASS 5/5),
+        `compact_menu_v3_after_report.json` (PASS 5/5).
 
 ### T4.14 Shop: close on buy + ship white-outline removal (NEW 2026-09-17)
 **User direction:** "after buying upgrade close shop window", "broken ship has small white
