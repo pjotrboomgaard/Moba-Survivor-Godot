@@ -707,7 +707,8 @@ outline, shrink the cutout by 1 pixel", "upgraded should have same width".
 - [x] `tools/remove_ship_bg.py` — edge flood-fill removes the cream/white halo from both
       ship PNGs (crash + upgraded). Both remain 1280x720 (same width in-game via
       `SHIP_WIDTH_WORLD`). Originals backed up to `*_orig.png`.
-- [ ] 6-step verify (in-game ship before/after + close-on-buy behavior).
+- [x] 6-step verify (in-game ship before/after + close-on-buy behavior). See
+      `tools/selftest/results/shop_morph/` for the isolated + in-game screenshots.
 
 ### T4.15 Beacon: 2nd shop upgrade + BEACON tab to buy heroes (NEW 2026-09-17)
 **User direction:** "add another upgrade — beacon, bottom right, buy in shop with icon,
