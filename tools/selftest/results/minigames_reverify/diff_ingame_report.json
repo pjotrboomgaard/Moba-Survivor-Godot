@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/minigames_ingame_all/ingame_all_minigames_1.215_6997.png",
+  "after": "tools/selftest/results/minigames_ingame_all/mg4_dance_disco_5.005_10778.png",
+  "out": "tools/selftest/results/minigames_reverify/diff_ingame.png",
+  "changed_pixels": 1338087,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.645297,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

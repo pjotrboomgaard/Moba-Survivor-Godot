@@ -1,0 +1,10 @@
+{
+  "before": "tools/selftest/results/minigames_iso/iso_before_spawns_0.30.png",
+  "after": "tools/selftest/results/minigames_iso/iso_after_spawns_0.81.png",
+  "out": "tools/selftest/results/minigames_reverify/diff_iso.png",
+  "changed_pixels": 0,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.0,
+  "bbox": null,
+  "has_change": false
+}

@@ -3414,6 +3414,18 @@ explicit cleanup of `active_summons` when a player node exits the tree.
 all inactive) / after (each started + active) / compare (all_final probe) done + read.
 All 16 minigames are findable (distinct world positions) and startable (active=true).
 
+**Re-verify 2026-09-18:** Re-ran both isolated and in-game tests to confirm all 16
+minigames still work after subsequent changes (SFX, item visuals, shop morph, beacon).
+- Isolated: `minigames_iso_report.json` verdict=PASS (16 spawned, distinct positions, dance_disco_active=true).
+- In-game: `minigames_ingame_all_report.json` — all 16 started via start_minigame index 0–15,
+  every one reports active=true after start.
+- Diffs: `tools/selftest/results/minigames_reverify/diff_iso.png` (0% — same static frame,
+  minigames are world objects not in camera view), `diff_ingame.png` (64.5% — camera moved
+  between locations).
+- Screenshots read: `mg2_whack_creep` (arena with trees + HUD), `mg5_gem_relay` (arena),
+  `mg12_balloon_pop` (arena with HUD showing wave 1, 82/160 XP).
+- All 16 minigames confirmed working and accessible. PASS.
+
 ### T4.22 Ability VFX distinctness across heroes (NEW 2026-09-17) _STATUS: verified_
 **User direction:** "look for ref images of all abilities. replicate it add to list no two
 duplicate vector effects also not reusing the same vector effect in combination with
@@ -3494,4 +3506,27 @@ isolated before/after/compare + in-game before/after/compare, all read.
   - Report: `tools/selftest/results/enemy_perf_ingame_report.json` (verdict FAIL_NO_PROGRESS
     is expected — the test only runs 26s which is too short to beat wave 1; the perf
     data (FPS + enemy counts) is the meaningful signal here).
+
+### T4.24 Hero item visual additions — all 6 items show small gear accents (NEW 2026-09-18) _STATUS: verified_
+**User direction:** "make sure all heroes get the items additions as well the little additions visually from the items."
+- [x] **`scripts/player.gd` — `_draw_item_visuals()`**: called from `_draw()` after the shield indicator. Draws a unique small vector accent for each owned item:
+  - `antenne` (Mech Arms): two metallic side brackets + joint dots.
+  - `sjaal` (Wings): soft feathered glow polygons flanking the hero.
+  - `romp` (Jetpack): engine glow under hero when jumping + always-visible jetpack body.
+  - `armen` (Cannons): muzzle-flash ring + barrel accent when attack charge > 0.5.
+  - `benen` (Grippers): subtle slow-effect ring pulse.
+  - `hoverboard`: glowing speed trail behind the hero when moving.
+- [x] **`scripts/player.gd` — `dev_buy_item()`**: grants an item without the gold check (self-test hook).
+- [x] **`scripts/main.gd` — `buy_item:<item_id>` dev command**: calls `player.dev_buy_item()` for the local player.
+- [x] **Isolated test** (`scenes/item_visuals_test/`):
+  - BEFORE: no items, empty-world baseline (marker file `item_visuals_before_marker`).
+  - AFTER: all 6 items at stack 2, verifies `all_items_owned` + `has_draw_fn`.
+  - Screenshots: `tools/selftest/results/sfx_iso/iso_item_visuals_before.png`, `iso_item_visuals_after.png`.
+  - Diff: `tools/selftest/results/item_visuals_test/diff_iso.png` (294 px changed, 0.014% — item accents visible).
+  - Reports: `tools/selftest/results/sfx_iso_report.json` (both PASS).
+- [x] **In-game test** (`tools/selftest/requests/item_visuals_ingame.json`):
+  - 7 items bought via `buy_item:` dev commands in the full arena.
+  - Screenshots: `tools/selftest/results/item_visuals_ingame/ingame_before_items_2.003_6322.png`, `ingame_after_items_4.503_8818.png`.
+  - Diff: `tools/selftest/results/item_visuals_test/diff_ingame.png` (91.7% changed — game state + item visuals).
+  - Report: `tools/selftest/results/item_visuals_ingame_report.json`.
 
