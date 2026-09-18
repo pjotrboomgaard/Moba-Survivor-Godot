@@ -219,6 +219,9 @@ const LUNGE_SPEED_MULT := 2.2
 const STRAFE_AMP := 0.45       # fraction of movement_speed added perpendicular
 const ZIGZAG_PERIOD := 2.0     # seconds per zigzag cycle
 const CIRCLE_SPEED := 0.35     # fraction of movement_speed for orbital motion
+## 2026-09-18: wave tactic assignment — which tactical wave group this enemy belongs to.
+var _wave_tactic: int = -1
+var _wave_tactic_index: int = -1
 
 
 ## Perf (large groups): _rebuild_separation_grid() was gated per PHYSICS frame, so the
@@ -423,6 +426,54 @@ func apply_wave_growth(wave: int) -> void:
 		(collision_shape.shape as CircleShape2D).radius = body_radius
 	_apply_sprite()
 	queue_redraw()
+
+
+## 2026-09-18: wave tactic assignment. Called by main.gd when spawning an enemy
+## that belongs to a tactical wave group. Sets the movement pattern based on
+## the tactic type and the enemy's role within the tactic.
+func set_tactic(tactic_id: int, tactic_index: int) -> void:
+	_wave_tactic = tactic_id
+	_wave_tactic_index = tactic_index
+	# Override the per-type default movement pattern with the tactic's pattern.
+	match tactic_id:
+		0:  # PINCER — flanking groups move with a wide strafe
+			_move_pattern = MovePattern.STRAFE
+		1:  # PINCER_RANGED — ranged pincer, orbit while shooting
+			_move_pattern = MovePattern.CIRCLE
+		2:  # ENCIRCLE — slow closing ring
+			_move_pattern = MovePattern.NONE  # ring formation handles it
+		3:  # OVERWHELM — fast pack rush
+			_move_pattern = MovePattern.NONE  # pack formation handles it
+		4:  # FEINT_STRIKE — first group feints from front, second from behind
+			if tactic_index == 0:
+				_move_pattern = MovePattern.ZIGZAG  # feint: erratic approach
+			else:
+				_move_pattern = MovePattern.STRAFE  # strike: wide approach
+		5:  # SNIPER_CURTAIN — ranged units hold and fire
+			_move_pattern = MovePattern.CIRCLE
+		6:  # BOLT_SQUAD — dash forward, pause, dash again
+			_move_pattern = MovePattern.LUNGE
+			_lunge_timer = randf_range(0.0, 2.0)
+		7:  # WALL_PUSH — slow tanky advance
+			_move_pattern = MovePattern.NONE
+		8:  # POISON_RAIN — ranged units rain from multiple angles
+			_move_pattern = MovePattern.CIRCLE
+		9:  # ANVIL_CLAW — anvil (index 0) advances, claws (index 1+) flank
+			if tactic_index == 0:
+				_move_pattern = MovePattern.NONE  # anvil: straight advance
+			else:
+				_move_pattern = MovePattern.STRAFE  # claw: flanking approach
+		10:  # WING_HARASS — air units circle, ground units push
+			if tactic_index == 0:
+				_move_pattern = MovePattern.CIRCLE  # wing: circling
+			else:
+				_move_pattern = MovePattern.NONE  # ground: straight push
+		11:  # STAMPEDE — single large fast group
+			_move_pattern = MovePattern.NONE  # pack formation handles it
+		_:
+			pass
+	# Desynchronize the pattern phase so enemies in the same group don't move in lockstep.
+	_move_pattern_phase = randf_range(0.0, TAU)
 
 
 ## Classic mode stays on the plain vector look (see arena.gd's grid background), so it never
@@ -1003,8 +1054,10 @@ func _apply_move_pattern(base_dir: Vector2) -> Vector2:
 	match _move_pattern:
 		MovePattern.STRAFE:
 			# Sideswipe: add a perpendicular component that oscillates.
+			# PINCER tactic uses a wider strafe (0.7) for more dramatic flanking.
+			var amp := 0.7 if _wave_tactic == 0 else STRAFE_AMP
 			var perp := target_dir.orthogonal()
-			var strafe := sin(_move_pattern_phase + _move_pattern_timer * 3.0) * STRAFE_AMP
+			var strafe := sin(_move_pattern_phase + _move_pattern_timer * 3.0) * amp
 			return (target_dir + perp * strafe).normalized() * base_dir.length()
 		MovePattern.ZIGZAG:
 			# Alternating left/right offset.

@@ -1,0 +1,13 @@
+{
+  "test_name": "tactics_iso",
+  "description": "Isolated wave tactics test - spawn enemies with different tactic assignments in empty world, verify movement patterns differ",
+  "events": [
+    {"t": 0.5, "kind": "snap", "label": "iso_before"},
+    {"t": 3.0, "kind": "snap", "label": "iso_after"},
+    {"t": 5.0, "kind": "report"}
+  ],
+  "wait_ms": 8000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}

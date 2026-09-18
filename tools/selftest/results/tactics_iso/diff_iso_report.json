@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/tactics_iso/tactics_t2.png",
+  "after": "tools/selftest/results/tactics_iso/tactics_t4.png",
+  "out": "tools/selftest/results/tactics_iso/diff_iso.png",
+  "changed_pixels": 82180,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.039632,
+  "bbox": [
+    592,
+    263,
+    1576,
+    819
+  ],
+  "has_change": true
+}

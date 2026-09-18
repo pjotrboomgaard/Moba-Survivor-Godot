@@ -1444,20 +1444,18 @@ func _queue_wave_draft() -> void:
 		_offer_next_upgrade(peer_id)
 
 
-func _on_wave_group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float, focus: Variant = null) -> void:
+func _on_wave_group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float, focus: Variant = null, tactic_id: int = -1, tactic_index: int = -1) -> void:
 	if game_over or players.is_empty():
 		return
 	var close := wave_director.take_close_spawn()
 	if focus is Vector2 and (focus as Vector2).length_squared() > 0.0:
-		# A lane-targeted pack (FFA local-side pressure) spawns from the given corner
-		# instead of the map-edge random point.
-		_spawn_formation_near(focus, EnemyType.fit_to_biome(type_id), formation, count, health_multiplier, speed_multiplier, close)
+		_spawn_formation_near(focus, EnemyType.fit_to_biome(type_id), formation, count, health_multiplier, speed_multiplier, close, tactic_id, tactic_index)
 	else:
-		_spawn_formation(EnemyType.fit_to_biome(type_id), formation, count, health_multiplier, speed_multiplier, close)
+		_spawn_formation(EnemyType.fit_to_biome(type_id), formation, count, health_multiplier, speed_multiplier, close, tactic_id, tactic_index)
 
 
-func _spawn_formation(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false) -> void:
-	_spawn_formation_near(_first_active_player(), type_id, formation, count, health_multiplier, speed_multiplier, close_spawn)
+func _spawn_formation(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false, tactic_id: int = -1, tactic_index: int = -1) -> void:
+	_spawn_formation_near(_first_active_player(), type_id, formation, count, health_multiplier, speed_multiplier, close_spawn, tactic_id, tactic_index)
 
 
 ## Team-zoned variant: same shapes as co-op, but `focus` is the team's anchor instead of
@@ -1488,7 +1486,7 @@ func _lobby_claims() -> Dictionary:
 var _last_spawn_team := ""
 
 
-func _spawn_formation_near(focus: Variant, type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false) -> void:
+func _spawn_formation_near(focus: Variant, type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false, tactic_id: int = -1, tactic_index: int = -1) -> void:
 	var focus_position := Vector2.ZERO
 	if focus is Vector2:
 		focus_position = focus
@@ -1575,7 +1573,7 @@ func _spawn_enemy(offset: Vector2, type_id: String, health_multiplier: float, sp
 	return _spawn_enemy_at(focus.global_position + offset, type_id, health_multiplier, speed_multiplier)
 
 
-func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false, camp_guardian: bool = false) -> Enemy:
+func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier: float, speed_multiplier: float = 1.0, close_spawn: bool = false, camp_guardian: bool = false, tactic_id: int = -1, tactic_index: int = -1) -> Enemy:
 	var enemy := enemy_scene.instantiate() as Enemy
 	var entity_id := next_entity_id
 	next_entity_id += 1
@@ -1605,6 +1603,9 @@ func _spawn_enemy_at(world_position: Vector2, type_id: String, health_multiplier
 	enemy.team_id = _last_spawn_team
 	actors.add_child(enemy)
 	enemy.configure(entity_id, true, fitted_id, health_multiplier, speed_multiplier)
+	# 2026-09-18: apply wave tactic movement pattern to this enemy.
+	if tactic_id >= 0:
+		enemy.set_tactic(tactic_id, tactic_index)
 	enemy.apply_wave_growth(current_wave)
 	if not enemy.is_boss:
 		var dmg := wave_director.contact_multiplier_for_wave(current_wave)

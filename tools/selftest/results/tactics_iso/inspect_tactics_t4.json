@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\tactics_iso\\tactics_t4.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.0413,
+  "bounding_box": [
+    5,
+    12,
+    1914,
+    1072
+  ],
+  "coverage": 0.9773,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.168,
+    "TR": 0.3494,
+    "BL": 0.1788,
+    "BR": 0.3039
+  },
+  "edge_fractions": {
+    "top": 0.007,
+    "bottom": 0.0112,
+    "left": 0.0078,
+    "right": 0.0086
+  },
+  "thumbnail": "tools\\selftest\\results\\tactics_iso\\thumb_tactics_t4.png"
+}

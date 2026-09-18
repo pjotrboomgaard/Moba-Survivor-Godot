@@ -1,0 +1,26 @@
+{
+  "test_name": "tactics_ingame",
+  "hero": "tobor",
+  "mode": "ffa",
+  "players": 1,
+  "ffa_all_bots": false,
+  "description": "In-game FFA test verifying wave tactics fire through the real wave_director spawn path. Captures wave 1 start (1 tactic expected) and wave 2+ (more tactics). Verifies no crash and that enemies spawn and move toward the player.",
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "ingame_wave1_start"},
+    {"t": 3.0, "kind": "snap", "label": "ingame_wave1_t3"},
+    {"t": 6.0, "kind": "fps_probe", "label": "wave1_t6"},
+    {"t": 6.2, "kind": "snap", "label": "ingame_wave1_t6"},
+    {"t": 8.0, "kind": "snap", "label": "ingame_wave1_t8"},
+    {"t": 12.0, "kind": "fps_probe", "label": "wave1_t12"},
+    {"t": 12.2, "kind": "snap", "label": "ingame_wave1_t12"},
+    {"t": 16.0, "kind": "snap", "label": "ingame_wave1_t16"},
+    {"t": 20.0, "kind": "fps_probe", "label": "wave1_t20"},
+    {"t": 20.2, "kind": "snap", "label": "ingame_wave1_t20"},
+    {"t": 24.0, "kind": "snap", "label": "ingame_wave1_t24"},
+    {"t": 26.0, "kind": "report"}
+  ],
+  "wait_ms": 30000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}

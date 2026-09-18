@@ -1,0 +1,99 @@
+{
+  "all_moved": true,
+  "scene": "tactics_iso",
+  "shots": [
+    {
+      "label": "t2",
+      "path": "user://tactics_iso_run_1789714673/tactics_t2.png"
+    },
+    {
+      "label": "t4",
+      "path": "user://tactics_iso_run_1789714673/tactics_t4.png"
+    }
+  ],
+  "tactic_groups": [
+    {
+      "avg_x_end": -42.3138476133347,
+      "avg_x_start": -500.0,
+      "count": 5,
+      "label": "Tactic0_G0",
+      "moved_toward": true,
+      "tactic_id": 0,
+      "type_id": "grunt"
+    },
+    {
+      "avg_x_end": -71.663775062561,
+      "avg_x_start": -500.0,
+      "count": 5,
+      "label": "Tactic0_G0",
+      "moved_toward": true,
+      "tactic_id": 0,
+      "type_id": "grunt"
+    },
+    {
+      "avg_x_end": 316.610549926758,
+      "avg_x_start": -450.0,
+      "count": 8,
+      "label": "Ring_G0",
+      "moved_toward": true,
+      "tactic_id": 2,
+      "type_id": "swarmling"
+    },
+    {
+      "avg_x_end": 388.564842224121,
+      "avg_x_start": -400.0,
+      "count": 4,
+      "label": "Tactic3_G0",
+      "moved_toward": true,
+      "tactic_id": 3,
+      "type_id": "swarmling"
+    },
+    {
+      "avg_x_end": 339.50080871582,
+      "avg_x_start": -450.0,
+      "count": 4,
+      "label": "Tactic3_G1",
+      "moved_toward": true,
+      "tactic_id": 3,
+      "type_id": "swarmling"
+    },
+    {
+      "avg_x_end": 446.03125,
+      "avg_x_start": -400.0,
+      "count": 4,
+      "label": "Tactic3_G2",
+      "moved_toward": true,
+      "tactic_id": 3,
+      "type_id": "swarmling"
+    },
+    {
+      "avg_x_end": 277.595540364583,
+      "avg_x_start": -350.0,
+      "count": 3,
+      "label": "Tactic6_G0",
+      "moved_toward": true,
+      "tactic_id": 6,
+      "type_id": "charger"
+    },
+    {
+      "avg_x_end": 280.277247111003,
+      "avg_x_start": -350.0,
+      "count": 3,
+      "label": "Tactic6_G1",
+      "moved_toward": true,
+      "tactic_id": 6,
+      "type_id": "charger"
+    },
+    {
+      "avg_x_end": 183.406608581543,
+      "avg_x_start": -550.0,
+      "count": 6,
+      "label": "Tactic11_G0",
+      "moved_toward": true,
+      "tactic_id": 11,
+      "type_id": "swarmling"
+    }
+  ],
+  "total_enemies": 42,
+  "verdict": "PASS"
+}

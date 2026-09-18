@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\tactics_ingame\\ingame_wave1_t20_20.200_23906.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    63,
+    78,
+    59
+  ],
+  "content_fill_ratio": 0.22,
+  "bounding_box": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "coverage": 1.0,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.4002,
+    "TR": 0.1397,
+    "BL": 0.2191,
+    "BR": 0.241
+  },
+  "edge_fractions": {
+    "top": 0.0063,
+    "bottom": 0.0079,
+    "left": 0.0199,
+    "right": 0.0069
+  },
+  "thumbnail": "tools\\selftest\\results\\tactics_ingame\\thumb_ingame_wave1_t20_20.200_23906.png"
+}

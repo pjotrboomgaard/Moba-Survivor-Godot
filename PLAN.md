@@ -3584,3 +3584,56 @@ isolated before/after/compare + in-game before/after/compare, all read.
 
 All 6 screenshots on disk, read with the Read tool, and referenced above.
 
+---
+
+## Wave Tactics System (2026-09-18)
+
+**Goal:** Make waves more interesting by spawning enemies in tactical groups that
+attack in formations rather than all walking straight at the player. Each wave
+uses 1–4 distinct tactics depending on wave number.
+
+**Implementation:**
+- `scripts/wave_tactics.gd` (new) — `WaveTactics` static class with 12 tactics:
+  Pincer, Ranged Pincer, Encircle, Overwhelm, Feint & Strike, Sniper Curtain,
+  Bolt Squad, Wall Push, Poison Rain, Anvil & Claw, Wing Harass, Stampede.
+  Each has `min_wave`, compatible `types`, `speed_mult`, preferred `formation`,
+  and `group_count_range`. `pick_tactics(wave, count)` returns random valid tactics.
+- `scripts/wave_director.gd` — `plan_wave` now calls `_apply_wave_tactics(groups, wave)`
+  after building the base group list. Non-BOSS waves get 1 tactic (w1–2), 2 (w3–5),
+  3 (w6–9), or 3–4 (w10+) tactics. `group_ready` signal extended with `tactic_id`
+  and `tactic_index` params; all 3 emit sites updated.
+- `scripts/enemy.gd` — new `set_tactic(tactic_id, tactic_index)` assigns a
+  `MovePattern` override per tactic (STRAFE for pincer/claw, CIRCLE for ranged,
+  LUNGE for bolt squad, ZIGZAG for feint, NONE for pack/encircle/wall/stampede).
+  Pincer uses a wider strafe amplitude (0.7 vs 0.45) for dramatic flanking.
+  Per-enemy `_move_pattern_phase` randomized so no lockstep.
+- `scripts/main.gd` — `_on_wave_group_ready` passes `tactic_id`/`tactic_index`
+  through `_spawn_formation_near` → `_spawn_enemy_at` → `enemy.set_tactic()`.
+  Pincer/feint groups get `flank_angle` hints so they spawn from left/right
+  flanks instead of random perimeter positions.
+
+**6-step verification:**
+
+- [x] **Isolated BEFORE** — `tools/selftest/results/tactics_iso/iso_before_start.png`
+  (tactic groups just spawned, all at edge positions, empty-world baseline).
+- [x] **Isolated AFTER** — `tools/selftest/results/tactics_iso/iso_after_t4.png`
+  (t=4s: groups have converged inward — pincer from both flanks, encircle ring
+  closing in, overwhelm packs rushing forward, bolt squad chargers lunging,
+  stampede swarm flooding in).
+- [x] **Isolated COMPARE** — `tools/selftest/results/tactics_iso/diff_iso.png`
+  (3.96% pixel change; all 9 tactic groups moved from x≈-350..-550 to x≈+30..+400).
+- [x] **In-game BEFORE** — `tools/selftest/results/tactics_ingame/ingame_wave1_start_1.008_4704.png`
+  (wave 1 start, full arena, enemies at map edges, "WAVE 1 – FIRST CONTACT" banner).
+- [x] **In-game AFTER** — `tools/selftest/results/tactics_ingame/ingame_wave1_t24_24.017_27712.png`
+  (wave 2 active, "GROWING NUMBERS" banner, 144 gold earned, enemies converged
+  from all edges into the central combat zone around the player).
+- [x] **In-game COMPARE** — `tools/selftest/results/tactics_ingame/diff_ingame.png`
+  (41.4% pixel change; enemies moved from perimeter to center, wave advanced,
+  XP/gold updated, "Scoop fireflies" objective appeared).
+
+**Anti-stuck behaviour preserved:** All tactic movement patterns route through
+`_apply_move_pattern()` which only modifies the chase direction vector; the
+existing `_unstick_from_props` / `_try_unstick_from_props` /
+`_do_unstick_side_slip` path in `enemy.gd` is untouched and still fires when an
+enemy is blocked. No collision/physics code changed.
+

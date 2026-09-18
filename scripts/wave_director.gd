@@ -1,9 +1,11 @@
 class_name WaveDirector
 extends Node
 
+const WaveTactics := preload("res://scripts/wave_tactics.gd")
+
 signal wave_started(wave: int, theme_name: String, debut_type_id: String)
 signal intermission_started(next_wave: int, seconds: float)
-signal group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float, focus: Variant)
+signal group_ready(type_id: String, formation: int, count: int, health_multiplier: float, speed_multiplier: float, focus: Variant, tactic_id: int, tactic_index: int)
 
 enum Archetype {
 	STANDARD,
@@ -454,7 +456,7 @@ func _process_classic(delta: float) -> void:
 	if group_timer > 0.0:
 		return
 	group_timer = CLASSIC_SPAWN_INTERVAL
-	group_ready.emit(EnemyType.DEFAULT_TYPE_ID, EnemyType.Formation.SCATTERED, 1, 1.0, 1.0)
+	group_ready.emit(EnemyType.DEFAULT_TYPE_ID, EnemyType.Formation.SCATTERED, 1, 1.0, 1.0, null, -1, -1)
 
 
 ## True while the breather before the given wave is a shopping break.
@@ -555,7 +557,10 @@ func _release_next_group() -> void:
 		int(group.formation),
 		final_count,
 		float(group.health_multiplier),
-		float(group.speed_multiplier)
+		float(group.speed_multiplier),
+		null,
+		int(group.get("tactic", -1)),
+		int(group.get("tactic_index", -1))
 	)
 
 
@@ -776,7 +781,8 @@ func _emit_pressure_pack() -> void:
 			clampi(n / 2, 3, 8),
 			health_multiplier_for_wave(wave),
 			1.0,
-			team_focus_position
+			team_focus_position,
+			-1, -1
 		)
 	if cruising and wave >= 4:
 		var tougher_id := _tougher_reinforcement_type(wave)
@@ -786,7 +792,8 @@ func _emit_pressure_pack() -> void:
 				EnemyType.Formation.SCATTERED,
 				2 + int(wave / 6),
 				health_multiplier_for_wave(wave),
-				1.0
+				1.0,
+				null, -1, -1
 			)
 
 
@@ -976,7 +983,54 @@ func plan_wave(target_wave: int, wave_archetype: Archetype, wave_modifier: Modif
 			groups.append_array(_plan_ambush(budget, multiplier, speed_multiplier, available))
 		_:
 			groups.append_array(_plan_standard(budget, multiplier, speed_multiplier, available))
+	# 2026-09-18: wave tactics — assign tactical behaviors to groups so they
+	# attack in formations instead of all walking straight at the player.
+	# Number of tactics scales with wave: 1 (w1-2), 2 (w3-5), 3 (w6-9), 3-4 (w10+).
+	if wave_archetype != Archetype.BOSS and not groups.is_empty():
+		_apply_wave_tactics(groups, target_wave)
 	return groups
+
+
+## Assigns wave tactics to the generated groups. Each tactic picks 1-3 groups
+## and overrides their formation/speed so they attack with a distinct behavior.
+## Tactics are chosen from WaveTactics based on the wave number (more tactics
+## for later waves). Groups not assigned to any tactic keep their original
+## formation (no-op / "straight rush").
+func _apply_wave_tactics(groups: Array[Dictionary], wave: int) -> void:
+	var count := WaveTactics.tactic_count_for_wave(wave)
+	if count <= 0:
+		return
+	var tactics := WaveTactics.pick_tactics(wave, count)
+	if tactics.is_empty():
+		return
+	# Mark all groups as unassigned, then assign tactic groups in order.
+	# The first N groups get tactics (where N = total tactic group count).
+	var assign_idx := 0
+	for tactic in tactics:
+		var tactic_id: int = int(tactic.id)
+		var num_groups: int = int(tactic.num_groups)
+		for g in num_groups:
+			if assign_idx >= groups.size():
+				break
+			var group: Dictionary = groups[assign_idx]
+			# Override formation + speed to match the tactic.
+			group.formation = int(tactic.formation)
+			group.speed_multiplier = float(tactic.speed_mult) * float(group.get("speed_multiplier", 1.0))
+			group.tactic = tactic_id
+			group.tactic_index = g
+			assign_idx += 1
+		# For PINCER: give the two groups different flank angles via a
+		# "flank" hint that main.gd uses to offset spawn positions.
+		if tactic_id == WaveTactics.TacticId.PINCER or tactic_id == WaveTactics.TacticId.PINCER_RANGED:
+			# First group spawns from the left flank, second from the right.
+			if assign_idx >= 2:
+				groups[assign_idx - 2].flank_angle = PI * 0.6  # left flank
+				groups[assign_idx - 1].flank_angle = -PI * 0.6  # right flank
+		elif tactic_id == WaveTactics.TacticId.FEINT_STRIKE:
+			# First group is the feint (fast, from the front), second is the strike (from behind).
+			if assign_idx >= 2:
+				groups[assign_idx - 2].flank_angle = 0.0  # front
+				groups[assign_idx - 1].flank_angle = PI  # behind
 
 
 func _without(available: Array[Dictionary], excluded_id: String) -> Array[Dictionary]:
