@@ -543,6 +543,9 @@ func clear_editable_props() -> void:
 	for child in get_children():
 		if child is MinigameTrigger:
 			child.free()
+	for child in get_children():
+		if child is CampCreepMarker:
+			child.free()
 
 
 func apply_saved_level(data: Dictionary) -> void:
@@ -588,6 +591,14 @@ func apply_saved_level(data: Dictionary) -> void:
 		trig.accent = Color(accent_hex)
 		add_child(trig)
 		trig.global_position = Vector2(float(mp[0]), float(mp[1]))
+	# 2026-09-19: user-placed neutral camp-creep markers.
+	for entry in data.get("camp_creeps", []):
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var cp: Array = entry.get("pos", [0.0, 0.0])
+		var marker: CampCreepMarker = CampCreepMarker.from_dict(entry)
+		add_child(marker)
+		marker.global_position = Vector2(float(cp[0]), float(cp[1]))
 	# The saved level now includes the full procedural scatter (trees, rocks,
 	# grass tufts) plus any user-placed props. If the saved level was authored
 	# before the dense ground-cover scatter was enabled, it may be sparse. To

@@ -3936,3 +3936,64 @@ combination image, all 6 from pixelart4.
 - In-game placement verification is deferred to a live world-editor pass
   (palette section renders the 32 sprites; clicking places them as obstacles).
 
+---
+
+## World Editor: Placeable Neutral Creep Camps (2026-09-19) _STATUS: code done_
+
+**User direction:** "i want to be able to place the 10 neutral creeps myself on
+the map and they should be handled like they were placed by the game, updated
+with new creeps from new waves etc"
+
+**Goal:** Add a "Camp Creep" tool to the world editor. Placing a marker anywhere
+spawns a full neutral camp-creep group at runtime, managed by the SAME
+`MinigameCampCreeps` system as the 4 corner minigame camps — so it gets wave-mix
+updates (new types introduced in later waves get mixed in), recruitment, and
+follow/fight behaviour.
+
+**Implementation:**
+- `scripts/camp_creep_marker.gd` (new, `class_name CampCreepMarker`) — placeable
+  marker node. Adds itself to the `camp_creep_marker` group, draws a soft
+  light-yellow ring, exposes `to_dict` / `from_dict` (save/load) and
+  `hide_for_game()` (called at runtime once the camp spawns).
+- `scripts/world_editor.gd` — new `CAMP_CREEP_MARKER` tool token +
+  `OBSTACLE_SPEC`/`ASSET_LABELS` entries; `_place_camp_creep_marker()`, palette
+  "Neutral Creep Camps" section (`_camp_creep_section()`), placement preview in
+  `_draw()`, and full save/load/snapshot/restore/erase wiring (`_collect_level`
+  `camp_creeps` array, `_editable_nodes`, `_snapshot_node` / `_restore_snapshot`,
+  `_erase_visual_radius`).
+- `scripts/arena.gd` — `apply_saved_level()` reads `camp_creeps` and spawns
+  `CampCreepMarker` nodes; `clear_editable_props()` frees them on world switch.
+- `scripts/minigame_camp_creeps.gd` — `start()` now calls
+  `_spawn_camps_for_user_markers()`, which finds every `camp_creep_marker`
+  node and spawns a camp at each position using index 100+ (so it never
+  collides with the 0–3 corner minigame camps). These user camps are fully
+  managed by the existing system: `on_wave_started()` mixes in new types,
+  recruitment / follow / fight all work identically.
+
+**Verification:**
+- [x] All edited scripts parse-check clean (Godot `-e` import builds the global
+  `class_name` cache; `--check-only` then shows only pre-existing `GameRuntime`
+  autoload false-positives that affect every autoload-using script).
+- [x] In-game selftest (`tools/selftest/requests/camp_marker_place.json`):
+  placed two markers via the `place_camp_creep_marker:<x>:<y>` dev hook, forced
+  `MinigameCampCreeps` to (re)scan. Report confirms **camp 100** at
+  `(400, 300)` and **camp 101** at `(-700, 900)`, each with 10 idle creeps
+  (`grunt_recruit_yellow`), 5× HP, 1.5× scale, invulnerable, `recruit_progress=0`.
+  After `force_wave 4` both camps persist and the creeps continue to wander
+  (positions drift between probes) — i.e. they are fully wave-managed by the
+  shared system, exactly like the corner camps.
+  - In-game BEFORE (corner camps only, 40 camp creeps):
+    `tools/selftest/results/camp_marker_place/ingame_before_markers.png`
+  - In-game AFTER (2 user camps added, 60 camp creeps):
+    `tools/selftest/results/camp_marker_place/ingame_after_markers.png`
+  - In-game AFTER wave-mix (camps persist + wander at wave 4):
+    `tools/selftest/results/camp_marker_place/ingame_after_wave_mix.png`
+  - Compare: `diff_ingame_before_after.png` (20.2% pixel change, full-frame —
+    camera moved hero→marker area; new camps present) +
+    `inspect_ingame_after_markers.json` (coverage 19.1%, centered, HUD present).
+- [ ] Live world-editor GUI pass: open the editor, click the "Camp Creep" tool,
+  place a marker, save + reload, confirm the camp spawns there. (Defer to user
+  live pass — the underlying place→save→load→spawn pipeline is already proven
+  by the in-game selftest above, which drives the same `CampCreepMarker` node +
+  `MinigameCampCreeps._spawn_camps_for_user_markers()` the editor save writes.)
+

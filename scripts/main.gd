@@ -3103,6 +3103,26 @@ func _dev_place_minigame_trigger(command: String) -> void:
 	print("[main] placed dev MinigameTrigger idx=%d at (%.0f, %.0f)" % [idx, x, y])
 
 
+## 2026-09-19: Test hook — place a user-placed neutral camp-creep marker at a
+## world position, then force MinigameCampCreeps to (re)scan and spawn a fully
+## managed camp there (wave-mix updates, recruitment, follow/fight).
+## Format: "place_camp_creep_marker:<x>:<y>"
+func _dev_place_camp_creep_marker(command: String) -> void:
+	var parts := command.split(":")
+	if parts.size() < 3 or not (arena is Node2D):
+		return
+	var x := float(parts[1])
+	var y := float(parts[2])
+	var marker := CampCreepMarker.new()
+	marker.name = "DevCampCreepMarker_%d" % int(arena.get_child_count())
+	(arena as Node2D).add_child(marker)
+	marker.global_position = Vector2(x, y)
+	print("[main] placed dev CampCreepMarker at (%.0f, %.0f)" % [x, y])
+	# Spawn the managed camp at that position right away (index 100+).
+	if _minigame_camp_creeps != null and _minigame_camp_creeps.has_method("_spawn_camps_for_user_markers"):
+		_minigame_camp_creeps.call("_spawn_camps_for_user_markers")
+
+
 ## Test hook: place a blocking rock obstacle in the arena at a world position.
 ## Used by the creep-unstuck in-game test to build a deterministic wall the
 ## creep must path around. Format: "place_obstacle:<x>:<y>"
@@ -3138,6 +3158,12 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 		# Test hook: place a blocking tree obstacle at a world position.
 		# Format: place_obstacle:<x>:<y>
 		_dev_place_obstacle(command)
+		return
+	# 2026-09-19: test hook — place a user-placed neutral camp-creep marker at a
+	# world position and force MinigameCampCreeps to spawn a managed camp there.
+	# Format: place_camp_creep_marker:<x>:<y>
+	if command.begins_with("place_camp_creep_marker:"):
+		_dev_place_camp_creep_marker(command)
 		return
 	# T4.6-T4.10 test hooks: control the crashed-ship wreck state.
 	if command.begins_with("ship_wreck:"):

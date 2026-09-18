@@ -140,6 +140,35 @@ func _spawn_camps() -> void:
 			# Already active — skip for now; camp will be created on finish.
 			continue
 		_spawn_camp_for_minigame(i, g.global_position)
+	# 2026-09-19: user-placed "Camp Creep" markers (from the world editor) get
+	# their own fully-managed camps. These are independent of the corner
+	# minigames, so they index starting at 100 to avoid clobbering the 0-3
+	# minigame camps.
+	_spawn_camps_for_user_markers()
+
+
+## Spawn a camp at every user-placed CampCreepMarker in the arena.
+## Uses index 100+ so it never collides with the 4 corner minigame camps.
+func _spawn_camps_for_user_markers() -> void:
+	if _actors == null or _arena == null:
+		return
+	var markers: Array[Node2D] = []
+	for node in _arena.get_children():
+		if node is Node2D and node.is_in_group("camp_creep_marker"):
+			markers.append(node as Node2D)
+	if markers.is_empty():
+		return
+	markers.sort_custom(func(a: Node2D, b: Node2D) -> bool: return a.global_position.distance_to(Vector2.ZERO) < b.global_position.distance_to(Vector2.ZERO))
+	for i in markers.size():
+		var index := 100 + i
+		if _camp_state.has(index):
+			continue  # already have a camp for this marker
+		var marker: Node2D = markers[i]
+		_spawn_camp_for_minigame(index, marker.global_position)
+		# Hide the marker ring so it doesn't clutter gameplay.
+		if marker.has_method("hide_for_game"):
+			marker.call("hide_for_game")
+	print("[MinigameCampCreeps] %d user-placed camp markers found" % markers.size())
 
 
 ## Called by main.gd when a new wave starts: add newly-introduced enemy types
@@ -163,13 +192,24 @@ func on_wave_started() -> void:
 		var target_count := _target_camp_count()
 		if existing_count >= target_count:
 			continue
-		# Find the minigame position to spawn near.
+		# Find the camp centre to spawn new creeps near. Corner minigames (0-3)
+		# resolve via the minigame area; user-placed marker camps (100+) have no
+		# minigame, so they fall back to their own stored position.
 		var g: Node2D = null
 		if _minigame_area != null:
 			g = _minigame_area.get_minigame(index)
-		if g == null or not is_instance_valid(g):
+		var camp_pos: Vector2
+		var have_pos := false
+		if g != null and is_instance_valid(g):
+			camp_pos = g.global_position
+			have_pos = true
+		else:
+			var stored: Array = state.get("positions", []) as Array
+			if stored.size() > 0:
+				camp_pos = Vector2(stored[0])
+				have_pos = true
+		if not have_pos:
 			continue
-		var camp_pos: Vector2 = g.global_position
 		# Add only the new creeps (target - existing), not the whole camp.
 		var to_add: int = target_count - existing_count
 		var wave: int = 1

@@ -145,6 +145,8 @@ const OBSTACLE_SPEC := {
 	"pixelart_combo_6": {"radius": 40.0, "lift": 16.0},
 	"pixelart_combo_7": {"radius": 42.0, "lift": 16.0},
 	"pixelart_combo_8": {"radius": 32.0, "lift": 16.0},
+	# --- Neutral camp-creep marker (world editor tool) ---
+	"camp_creep_marker": {"radius": 44.0, "lift": 0.0},
 }
 
 const TREES := [
@@ -197,6 +199,10 @@ const PIXEL_HOUSE_SPRITES := [
 	"pixelart_combo_5", "pixelart_combo_6", "pixelart_combo_7", "pixelart_combo_8",
 ]
 const LANDMARK_EFFECTS := ["pulse_wipe", "heal_all", "freeze_time", "phase_cloak", "speed_surge", "battle_frenzy"]
+## Special placeable token: a "Camp Creep" marker. Placing one spawns a full
+## neutral-camp-creep group (10 light-yellow idle creeps, managed by the same
+## MinigameCampCreeps system as the corner minigames) at that position at runtime.
+const CAMP_CREEP_MARKER := "camp_creep_marker"
 const ASSET_LABELS := {
 	"tree_oak": "Oak", "tree_round": "Round", "tree_pine": "Pine", "tree_fir": "Fir",
 	"tree_willow": "Willow", "tree_maple": "Maple", "tree_cypress": "Cypress",
@@ -240,6 +246,8 @@ const ASSET_LABELS := {
 	"pixelart_combo_4": "Cottage C", "pixelart_combo_5": "Blue cottage", "pixelart_combo_6": "Rose house",
 	"pixelart_combo_7": "Two-storey red", "pixelart_combo_8": "Cottage D",
 	"landmark": "Landmark", "erase": "Erase", "minigame_trigger": "Minigame Trigger",
+	"camp_creep_marker": "Camp Creep",
+	"camp_creep_marker": "Camp Creep",
 }
 
 const FEATURES := [
@@ -440,8 +448,8 @@ func _refresh_ghost() -> void:
 	if _tool == "erase" or _tool == "landmark" or _over_ui():
 		_ghost.visible = false
 		return
-	if _tool == "minigame_trigger":
-		# No texture for the trigger; show a colored ring ghost via _draw() instead.
+	if _tool == "minigame_trigger" or _tool == CAMP_CREEP_MARKER:
+		# No texture for the marker; show a colored ring ghost via _draw() instead.
 		_ghost.visible = false
 		return
 	var spec: Dictionary = OBSTACLE_SPEC.get(_tool, {"radius": 18.0, "lift": 0.0})
@@ -480,6 +488,13 @@ func _draw() -> void:
 		draw_arc(pos, 48.0, 0.0, TAU, 40, Color(accent.r, accent.g, accent.b, 0.7), 3.0)
 		draw_arc(pos, 38.0, 0.0, TAU, 32, Color(accent.r, accent.g, accent.b, 0.35), 2.0)
 		draw_circle(pos, 6.0, Color(accent.r, accent.g, accent.b, 0.9))
+	if _tool == CAMP_CREEP_MARKER:
+		# Draw a placement-preview ring at the cursor for the camp-creep camp.
+		var cc := Color("f5e0a0")
+		draw_circle(pos, 40.0, Color(cc.r, cc.g, cc.b, 0.10))
+		draw_arc(pos, 42.0, 0.0, TAU, 40, Color(cc.r, cc.g, cc.b, 0.65), 3.0)
+		draw_arc(pos, 30.0, 0.0, TAU, 32, Color(cc.r, cc.g, cc.b, 0.40), 2.0)
+		draw_circle(pos, 5.0, Color(cc.r, cc.g, cc.b, 0.95))
 	var target := _nearest_editable(pos, _erase_world_slop())
 	if target == null:
 		return
@@ -684,6 +699,11 @@ func _place() -> void:
 		if trig != null:
 			_push_undo_create([trig])
 		return
+	if _tool == CAMP_CREEP_MARKER:
+		var marker := _place_camp_creep_marker(pos)
+		if marker != null:
+			_push_undo_create([marker])
+		return
 	var node := _spawn_at(pos, _stamp_id())
 	if node != null:
 		_push_undo_create([node])
@@ -858,6 +878,23 @@ func _place_minigame_trigger_at(pos: Vector2, index: int) -> Node2D:
 	return trigger
 
 
+## Place a CampCreepMarker at `pos`. At runtime MinigameCampCreeps spawns a
+## full neutral camp-creep group here, managed exactly like the corner minigame
+## camps (wave-mix updates, recruitment, follow/fight).
+func _place_camp_creep_marker(pos: Vector2) -> Node2D:
+	if arena == null:
+		return null
+	var marker := CampCreepMarker.new()
+	marker.name = "CampCreepMarker_%d" % int(arena.get_child_count())
+	arena.add_child(marker)
+	marker.global_position = pos
+	if not _placed_nodes.has(marker):
+		_placed_nodes.append(marker)
+	_placed = _placed_nodes.size()
+	_refresh_status()
+	return marker
+
+
 ## Accent hex for a minigame index (matches the MinigameArea registry).
 func _minigame_accent_hex(index: int) -> String:
 	match index:
@@ -899,6 +936,8 @@ func _erase_visual_radius(node: Node2D) -> float:
 		return ArenaLandmark.STAND_RADIUS
 	if node is MinigameTrigger:
 		return 48.0
+	if node is CampCreepMarker:
+		return 44.0
 	if node is Obstacle:
 		var obstacle := node as Obstacle
 		var visual := maxf(24.0, obstacle.body_radius)
@@ -951,7 +990,7 @@ func _editable_nodes() -> Array[Node2D]:
 	for child in arena.get_children():
 		if not (child is Node2D):
 			continue
-		if child is Obstacle or child is ArenaLandmark or child.is_in_group("world_feature") or child is MinigameTrigger:
+		if child is Obstacle or child is ArenaLandmark or child.is_in_group("world_feature") or child is MinigameTrigger or child is CampCreepMarker:
 			found.append(child as Node2D)
 	return found
 
@@ -1025,6 +1064,11 @@ func _snapshot_node(node: Node2D) -> Dictionary:
 			"name": trig.display_name,
 			"accent": trig.accent.to_html(false),
 		}
+	if node is CampCreepMarker:
+		return {
+			"kind": "camp_creep_marker",
+			"pos": node.global_position,
+		}
 	return {}
 
 
@@ -1051,6 +1095,8 @@ func _restore_snapshot(snap: Dictionary) -> void:
 				_place_landmark(pos)
 		"minigame_trigger":
 			_place_minigame_trigger_at(pos, int(snap.get("index", 0)))
+		"camp_creep_marker":
+			_place_camp_creep_marker(pos)
 
 
 func _undo() -> void:
@@ -1166,7 +1212,7 @@ func _randomize() -> void:
 
 
 func _collect_level() -> Dictionary:
-	var data := {"obstacles": [], "landmarks": [], "features": [], "minigames": [], "biome": GameRuntime.biome_id}
+	var data := {"obstacles": [], "landmarks": [], "features": [], "minigames": [], "camp_creeps": [], "biome": GameRuntime.biome_id}
 	var baked_sprays: Dictionary = {}
 	if arena is Arena:
 		# Baked decorative props (grass, mushrooms, trees, flowers, dirt) are NOT live
@@ -1212,6 +1258,10 @@ func _collect_level() -> Dictionary:
 				"index": int(trig.minigame_index),
 				"name": trig.display_name,
 				"accent": trig.accent.to_html(false),
+			})
+		elif node is CampCreepMarker:
+			data.camp_creeps.append({
+				"pos": [node.global_position.x, node.global_position.y],
 			})
 	return data
 
@@ -1834,6 +1884,7 @@ func _rebuild_palette() -> void:
 	# are available in every world so the user can place them in any biome.
 	_palette_list.add_child(_palette_section("Recruit areas", RECRUIT_AREA_SPRITES))
 	_palette_list.add_child(_minigame_trigger_section())
+	_palette_list.add_child(_camp_creep_section())
 	_palette_list.add_child(_palette_section("Tools", ["landmark", "erase"]))
 	if not _palette_buttons.has(_tool):
 		var trees := current_trees()
@@ -1900,6 +1951,33 @@ func _minigame_trigger_section() -> VBoxContainer:
 ## minigame type.
 func _refresh_minigame_type_button(type_btn: Button) -> void:
 	type_btn.text = "Type: %s" % MINIGAME_NAMES[_minigame_index]
+
+
+## Palette section for placing neutral camp-creep markers. A single button
+## selects the "Camp Creep" tool; placing one spawns a full neutral camp at
+## that spot, managed by MinigameCampCreeps at runtime (wave-mix, recruit,
+## follow/fight) exactly like the corner minigame camps.
+func _camp_creep_section() -> VBoxContainer:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	var header := _make_label("Neutral Creep Camps")
+	header.add_theme_color_override("font_color", Color("f5e0a0"))
+	box.add_child(header)
+	var hint := _make_label("Place anywhere; each spawns 10 idle creeps that join you when recruited.")
+	hint.add_theme_color_override("font_color", Color(0.85, 0.85, 0.8, 0.75))
+	hint.add_theme_font_size_override("font_size", 11)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.custom_minimum_size = Vector2(260, 0)
+	box.add_child(hint)
+	var grid := GridContainer.new()
+	grid.columns = 1
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	box.add_child(grid)
+	var place_btn := _make_palette_button(CAMP_CREEP_MARKER)
+	place_btn.tooltip_text = "Place a neutral camp-creep group. At runtime this becomes a full recruitable camp managed like the corner minigame camps."
+	grid.add_child(place_btn)
+	return box
 
 
 func _make_palette_button(sprite_id: String) -> Button:

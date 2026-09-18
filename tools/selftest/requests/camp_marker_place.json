@@ -1,0 +1,22 @@
+{
+  "hero": "tobor",
+  "biome": 0,
+  "comment": "In-game verification of user-placed neutral camp-creep markers. Places two CampCreepMarker nodes at distinct world positions via the dev_command hook, forces MinigameCampCreeps to spawn a fully-managed camp at each (index 100+), then probes camp state to confirm the user camps exist with 10 idle creeps, correct HP/scale/invuln, and that on_wave_started mixes in new types. Also captures before/after screenshots of a marker + camp.",
+  "events": [
+    {"t": 4.0, "kind": "camp_creep_probe", "label": "before_markers"},
+    {"t": 4.5, "kind": "snap", "label": "ingame_before_markers"},
+    {"t": 5.0, "kind": "pin", "to": [0.0, 0.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [400.0, 300.0], "zoom": 0.6},
+    {"t": 6.0, "kind": "dev_command", "command": "place_camp_creep_marker:400:300"},
+    {"t": 6.5, "kind": "dev_command", "command": "place_camp_creep_marker:-700:900"},
+    {"t": 7.0, "kind": "camp_creep_probe", "label": "after_markers"},
+    {"t": 10.0, "kind": "snap", "label": "ingame_after_markers"},
+    {"t": 12.0, "kind": "camp_creep_probe", "label": "wave1_state"},
+    {"t": 14.0, "kind": "force_wave", "wave": 4, "label": "advance_wave"},
+    {"t": 16.0, "kind": "camp_creep_probe", "label": "wave4_mix"},
+    {"t": 20.0, "kind": "snap", "label": "ingame_after_wave_mix"},
+    {"t": 22.0, "kind": "unpin"},
+    {"t": 24.0, "kind": "report"}
+  ],
+  "wait_ms": 30000
+}
