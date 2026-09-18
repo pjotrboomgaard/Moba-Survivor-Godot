@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/enemy_perf_bench_iso/perf_iso_before_1.00.png",
+  "after": "tools/selftest/results/enemy_perf_bench_iso/perf_iso_after_4.50.png",
+  "out": "tools/selftest/results/enemy_perf_bench_iso/diff_iso.png",
+  "changed_pixels": 186102,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.089748,
+  "bbox": [
+    653,
+    235,
+    1463,
+    850
+  ],
+  "has_change": true
+}

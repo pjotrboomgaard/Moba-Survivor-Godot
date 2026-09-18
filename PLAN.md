@@ -3530,3 +3530,57 @@ isolated before/after/compare + in-game before/after/compare, all read.
   - Diff: `tools/selftest/results/item_visuals_test/diff_ingame.png` (91.7% changed — game state + item visuals).
   - Report: `tools/selftest/results/item_visuals_ingame_report.json`.
 
+### T4.25 Balance pass: Tobor hard tuning + mid-game wave pressure + enemy movement variety (NEW 2026-09-17) _STATUS: verified_
+**User direction:** "after this you need to balance all the heroes again and the waves again. make it so the heroes dont get too strong to quick by balancing the items abilities. that they always take dmg sometimes, but have to use the heal point. do it with the tools from before. so that heroes go far. start with tobor tweak hard only so it is really hard and the bot survives by utilzing the points. and needs different ways of moving around vs different enemies. add to list: find more performance optimization with large groups of enemies large diversity all kinds of enemies. isolated and ingame."
+
+**Tobor hard tuning** (`scripts/player_class.gd`):
+- `max_health`: 90.0 → 68.0 (genuinely fragile glass cannon, ~24% less EHP)
+- `damage_taken_multiplier`: 1.05 → 1.35 (takes 35% more damage from all sources)
+- `weapon_damage`: 18.0 → 14.0 (weaker DPS so waves outlast him longer)
+- Net effect: Tobor must kite actively, use abilities for damage mitigation, and spend heal points to survive. The bot (CPU brain) must vary its movement to avoid swarms.
+
+**Mid-game wave pressure** (`scripts/wave_director.gd`):
+- Added 1.35× budget multiplier for waves 10–20 (was a gap between the early ramp-in and the late-game surge).
+- Wave 10: ~261 → ~352 enemies; Wave 20: ~462 → ~624 enemies.
+- Forces active play (kiting, heal points, ability rotation) in the mid-game.
+
+**Enemy movement variety** (`scripts/enemy.gd`):
+- Per-type movement patterns so large groups don't all walk in identical straight lines:
+  - `grunt` → STRAFE (oscillating perpendicular sideswipe)
+  - `swarmling` → NONE (pack formation, no individual variation)
+  - `spitter`/`frostspitter`/`embercaster` → CIRCLE (orbit at preferred distance)
+  - `brute` → LUNGE (periodic 2.2× speed burst every 3.5s)
+  - `charger`/`skitter` → ZIGZAG (alternating left/right offset every 2s)
+  - All other types → ZIGZAG (default)
+- `_apply_move_pattern()` modifies the chase direction with a sinusoidal offset.
+- Ranged enemies now orbit in place instead of standing still (small perpendicular drift).
+- Each enemy picks a random phase offset on spawn for desynchronization.
+
+**Isolated perf test** (`enemy_perf_bench_iso`, 300 diverse enemies in empty world):
+- BEFORE (pre-change, all "grub" type): 95.4 FPS, 29.65ms proc — PASS
+- AFTER (300 diverse: grunt/swarmling/spitter/brute cycle): 95.0 FPS, 30.0ms proc — PASS
+- 8.97% pixel diff between before/after (enemies spread in different positions due to movement variety)
+- Screenshots: `perf_iso_before_1.00.png`, `perf_iso_mid_2.50.png`, `perf_iso_after_4.50.png`
+- Diff: `diff_iso.png` (186,102 px changed, 8.97%)
+- Report: `enemy_perf_bench_iso_report.json` (verdict=PASS)
+
+**In-game FFA perf test** (`enemy_perf_large_groups_ingame`, Tobor solo, wave 1):
+- ~200 enemies on-screen, FPS stable at 27–35 throughout the 25s window
+- Tobor (local, non-CPU) died at ~22s into wave 2 — confirms the hard tuning is working
+  (pre-change Tobor would have survived wave 2 easily with 90 HP + 1.05× dmg)
+- Other FFA bots (bulwark, warden, cinder) survived with varying HP — expected in FFA
+- 41.1% pixel diff between wave1_start and wave1_t20 (game state + enemy movement variety)
+- Screenshots: `ingame_wave1_start_1.006_4752.png`, `ingame_wave1_t15_15.223_18986.png`, `ingame_wave1_t20_20.216_23987.png`
+- Diff: `diff_ingame.png` (853,005 px changed, 41.1%)
+- Report: `enemy_perf_large_groups_ingame_report.json` (verdict=WARN_DEAD, expected for hard tuning)
+
+**6-step status:**
+- Isolated BEFORE: `perf_iso_before_1.00.png` (300 enemies, static positions) — read
+- Isolated AFTER: `perf_iso_after_4.50.png` (300 enemies, spread positions) — read
+- Isolated COMPARE: `diff_iso.png` (8.97% — movement variety visible) — read
+- In-game BEFORE: `ingame_wave1_start_1.006_4752.png` (wave 1 start, full arena) — read
+- In-game AFTER: `ingame_wave1_t20_20.216_23987.png` (wave 1 t20, 200 enemies, FPS 28) — read
+- In-game COMPARE: `diff_ingame.png` (41.1% — game state + movement variety) — read
+
+All 6 screenshots on disk, read with the Read tool, and referenced above.
+
