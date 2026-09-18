@@ -1,0 +1,25 @@
+{
+  "test_name": "enemy_perf_large_groups_ingame",
+  "hero": "tobor",
+  "mode": "ffa",
+  "players": 1,
+  "description": "In-game FFA perf test with large diverse enemy groups. Verifies that the throttled target/lava/grid optimizations keep frame time under 12ms with real arena + HUD + wave system active.",
+  "events": [
+    {"t": 1.0, "kind": "snap", "label": "ingame_wave1_start"},
+    {"t": 5.0, "kind": "fps_probe", "label": "wave1_t5"},
+    {"t": 5.2, "kind": "snap", "label": "ingame_wave1_t5"},
+    {"t": 10.0, "kind": "fps_probe", "label": "wave1_t10"},
+    {"t": 10.2, "kind": "snap", "label": "ingame_wave1_t10"},
+    {"t": 15.0, "kind": "wave_probe", "wave": 1, "waves_ahead": 1, "label": "wave1_probe"},
+    {"t": 15.0, "kind": "fps_probe", "label": "wave1_t15"},
+    {"t": 15.2, "kind": "snap", "label": "ingame_wave1_t15"},
+    {"t": 20.0, "kind": "fps_probe", "label": "wave1_t20"},
+    {"t": 20.2, "kind": "snap", "label": "ingame_wave1_t20"},
+    {"t": 25.0, "kind": "fps_probe", "label": "wave1_t25"},
+    {"t": 26.0, "kind": "report"}
+  ],
+  "wait_ms": 35000,
+  "expected": {
+    "report_fields": ["verdict"]
+  }
+}

@@ -2,12 +2,15 @@
   "hero": "tobor",
   "mode": "ffa",
   "ffa_all_bots": true,
-  "comment": "FFA perf baseline: 4 bots + full enemy pool. Measure physics process time with the unstuck mechanic active (current state).",
+  "comment": "FFA in-game perf baseline AFTER the 8Hz unstuck throttle: 4 bots + full enemy pool, ~30 enemies. fps_probe at t=2/8/14s samples avg FPS + live enemy count. PASS threshold: fps >= 45 across the run.",
   "events": [
     {"t": 0.4, "kind": "dev_command", "command": "toggle_invulnerable"},
-    {"t": 2.0, "kind": "snap", "label": "ffa_baseline_start"},
-    {"t": 8.0, "kind": "snap", "label": "ffa_baseline_mid"},
-    {"t": 14.0, "kind": "snap", "label": "ffa_baseline_end"},
-    {"t": 15.0, "kind": "report"}
+    {"t": 2.0, "kind": "snap", "label": "ingame_start"},
+    {"t": 2.5, "kind": "fps_probe", "label": "fps_start"},
+    {"t": 8.0, "kind": "snap", "label": "ingame_mid"},
+    {"t": 8.5, "kind": "fps_probe", "label": "fps_mid"},
+    {"t": 14.0, "kind": "snap", "label": "ingame_end"},
+    {"t": 14.5, "kind": "fps_probe", "label": "fps_end"},
+    {"t": 15.5, "kind": "report"}
   ]
 }

@@ -1,0 +1,213 @@
+{
+  "effects": [
+    {
+      "command": "toggle_invulnerable",
+      "kind": "dev_command",
+      "t": 0.400257
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 113.0,
+      "kind": "fps_probe",
+      "label": "fps_start",
+      "t": 2.50044299999999
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 64.0,
+      "kind": "fps_probe",
+      "label": "fps_mid",
+      "t": 8.5246517777779
+    },
+    {
+      "enemies_alive": 0,
+      "enemies_total": 0,
+      "fps": 24.0,
+      "kind": "fps_probe",
+      "label": "fps_end",
+      "t": 14.5232276666668
+    }
+  ],
+  "elapsed": 15.5165963333335,
+  "enemies_spawned": 0,
+  "hero_position": "(795.5048, 181.9648)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 4,
+    "casts": [
+      {
+        "ability_id": "tobor_energy_field",
+        "t": 7.51106000000012
+      },
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 8.33750000000012
+      },
+      {
+        "ability_id": "tobor_spider_mines",
+        "t": 12.1480272222223
+      },
+      {
+        "ability_id": "tobor_steam_turret",
+        "t": 12.2902903333335
+      }
+    ],
+    "creep_kills": 20,
+    "died": false,
+    "errors": [],
+    "ffa": {
+      "all_bots": true,
+      "count": 4,
+      "enabled": true,
+      "heroes": [
+        {
+          "alive": true,
+          "class": "tobor",
+          "cpu": true,
+          "damage_dealt": 2000.0,
+          "damage_taken": 0.0,
+          "hp": 130.5,
+          "kills": 0,
+          "local": true,
+          "max_hp": 130.5,
+          "peer": 1,
+          "pos": [
+            796.0,
+            182.0
+          ],
+          "team": ""
+        },
+        {
+          "alive": true,
+          "class": "bulwark",
+          "cpu": true,
+          "damage_dealt": 1076.0,
+          "damage_taken": 7.0,
+          "hp": 381.3,
+          "kills": 0,
+          "local": false,
+          "max_hp": 388.0,
+          "peer": 101,
+          "pos": [
+            84.0,
+            1287.0
+          ],
+          "team": "1"
+        },
+        {
+          "alive": true,
+          "class": "warden",
+          "cpu": true,
+          "damage_dealt": 0.0,
+          "damage_taken": 0.0,
+          "hp": 217.5,
+          "kills": 0,
+          "local": false,
+          "max_hp": 217.5,
+          "peer": 102,
+          "pos": [
+            236.0,
+            245.0
+          ],
+          "team": "2"
+        },
+        {
+          "alive": true,
+          "class": "cinder",
+          "cpu": true,
+          "damage_dealt": 0.0,
+          "damage_taken": 0.0,
+          "hp": 130.5,
+          "kills": 0,
+          "local": false,
+          "max_hp": 130.5,
+          "peer": 103,
+          "pos": [
+            753.0,
+            264.0
+          ],
+          "team": "3"
+        }
+      ],
+      "kills_to_win": 15,
+      "map": [
+        8400.0,
+        5600.0
+      ]
+    },
+    "gold": 404,
+    "hero_kills": 0,
+    "hp_samples": [
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 0.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 0,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 5.15
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 131,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 10.16
+      },
+      {
+        "alive": true,
+        "class": "tobor",
+        "gold": 404,
+        "hp": 1.0,
+        "kills": 0,
+        "t": 15.18
+      }
+    ],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 1.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "PASS_OK",
+    "wave": 2,
+    "xp": 100
+  },
+  "shots": [
+    {
+      "label": "ingame_start",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_5680/ingame_start_2.001_5680.png",
+      "t": 2.00065566666666
+    },
+    {
+      "label": "ingame_mid",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_11730/ingame_mid_8.032_11730.png",
+      "t": 8.03249766666679
+    },
+    {
+      "label": "ingame_end",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_17712/ingame_end_14.026_17712.png",
+      "t": 14.0256165555557
+    }
+  ]
+}
