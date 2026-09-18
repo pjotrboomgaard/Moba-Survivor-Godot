@@ -1,8 +1,8 @@
 {
   "effects": [],
-  "elapsed": 10.0009212424243,
+  "elapsed": 10.0040156666667,
   "enemies_spawned": 0,
-  "hero_position": "(0.0, 0.0)",
+  "hero_position": "(35.07599, 0.0)",
   "player_class": "tobor",
   "results": {
     "alive": true,
