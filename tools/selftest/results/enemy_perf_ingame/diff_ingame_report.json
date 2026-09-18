@@ -1,0 +1,15 @@
+{
+  "before": "tools/selftest/results/enemy_perf_ingame/ingame_wave1_start_2.002_6384.png",
+  "after": "tools/selftest/results/enemy_perf_ingame/ingame_wave1_t20_20.401_24785.png",
+  "out": "tools/selftest/results/enemy_perf_ingame/diff_ingame.png",
+  "changed_pixels": 927381,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.447232,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}
