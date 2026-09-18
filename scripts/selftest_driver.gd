@@ -605,6 +605,21 @@ func _process(delta: float) -> void:
 					entry["max_hp"] = float(h.max_health) if h != null else -1.0
 					entry["pos"] = target.global_position if target is Node2D else null
 				_active_effects.append(entry)
+			"camp_creep_probe":
+				# 2026-09-18: report the state of all camp creeps spawned by the
+				# MinigameCampCreeps system: count, recruited status, positions,
+				# and recruit_sprite names. Used to verify camp creeps exist and
+				# transition from idle-yellow to recruited-orange.
+				var cc_label := str(event.get("label", "camp"))
+				var cc_entry := {"kind": "camp_creep_probe", "label": cc_label, "t": _elapsed}
+				var host_main_cc: Variant = _host_main
+				if host_main_cc != null:
+					var mcc: Variant = host_main_cc.get("_minigame_camp_creeps")
+					if mcc != null and is_instance_valid(mcc) and mcc.has_method("get_camp_state_summary"):
+						cc_entry["camps"] = mcc.get_camp_state_summary()
+				else:
+					cc_entry["error"] = "no host_main"
+				_active_effects.append(cc_entry)
 			"snap":
 				await _screenshot(str(event.get("label", "snap")))
 			"probe":
@@ -647,6 +662,12 @@ func _process(delta: float) -> void:
 				_record_recruit_probe(str(event.get("label", "recruits")))
 			"start_minigame":
 				_start_minigame_event(int(event.get("index", 0)))
+			"minigame_reassign_start":
+				# 2026-09-18: exercises the P-key flow end-to-end — reassign the
+				# corner to a random minigame, start it for the local player, and
+				# optionally bot_force it. Verifies that reassignment reconnects
+				# the `finished` signal so camp-creep recruitment fires.
+				_minigame_reassign_start_event(int(event.get("index", 0)), bool(event.get("bot_force", true)))
 			"minigame_bot_force":
 				# Toggle bot_force on a minigame so it plays itself via bot_tick
 				# each frame (used to verify bot playability without a CPU brain).
@@ -1568,6 +1589,36 @@ func _start_minigame_event(index: int) -> void:
 		"index": index,
 		"t": _elapsed,
 		"started": result != null,
+	})
+
+
+## 2026-09-18: reassign a corner to a random minigame (P-key flow) and start it.
+func _minigame_reassign_start_event(index: int, bot_force: bool) -> void:
+	var host_main: Variant = _host_main
+	if host_main == null:
+		_active_effects.append({"kind": "minigame_reassign_start", "index": index, "t": _elapsed, "error": "no host"})
+		return
+	var ma: Variant = host_main.get("_minigame_area")
+	if ma == null or not is_instance_valid(ma):
+		_active_effects.append({"kind": "minigame_reassign_start", "index": index, "t": _elapsed, "error": "no minigame_area"})
+		return
+	if _player == null:
+		_active_effects.append({"kind": "minigame_reassign_start", "index": index, "t": _elapsed, "error": "no player"})
+		return
+	ma.call("reassign_random_minigame", index)
+	var g: Variant = ma.call("get_minigame", index)
+	if g == null or not is_instance_valid(g):
+		_active_effects.append({"kind": "minigame_reassign_start", "index": index, "t": _elapsed, "error": "no minigame after reassign"})
+		return
+	var result: Variant = ma.call("start_minigame", index, _player)
+	if bot_force:
+		g.set("bot_force", true)
+	_active_effects.append({
+		"kind": "minigame_reassign_start",
+		"index": index,
+		"t": _elapsed,
+		"started": result != null,
+		"display_name": str(g.get("display_name")),
 	})
 
 

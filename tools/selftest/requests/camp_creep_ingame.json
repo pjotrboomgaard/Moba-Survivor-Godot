@@ -1,0 +1,20 @@
+{
+  "hero": "tobor",
+  "comment": "In-game verification of minigame camp creeps: pin hero at corner camp, capture idle yellow ring, complete a (random) minigame via bot_force, verify camp creeps recruit (orange) and follow the pinned hero.",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.7},
+    {"t": 6.0, "kind": "snap", "label": "ingame_camp_corner_idle"},
+    {"t": 8.0, "kind": "camp_creep_probe", "label": "idle_probe"},
+    {"t": 9.0, "kind": "minigame_reassign_start", "index": 0, "bot_force": true},
+    {"t": 12.0, "kind": "camp_creep_probe", "label": "minigame_started_probe"},
+    {"t": 20.0, "kind": "snap", "label": "ingame_minigame_active"},
+    {"t": 24.0, "kind": "minigame_stop", "index": 0, "label": "finish_minigame"},
+    {"t": 27.0, "kind": "camp_creep_probe", "label": "recruit_probe"},
+    {"t": 34.0, "kind": "snap", "label": "ingame_after_recruit"},
+    {"t": 38.0, "kind": "camp_creep_probe", "label": "post_recruit_probe"},
+    {"t": 42.0, "kind": "unpin"},
+    {"t": 45.0, "kind": "report"}
+  ],
+  "wait_ms": 50000
+}

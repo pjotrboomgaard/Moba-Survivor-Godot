@@ -55,6 +55,7 @@ const UPGRADE_ICON_MAX_WIDTH := 28
 @onready var shop_grid: GridContainer = $ShopPanel/ShopLayout/ShopGrid
 @onready var shop_continue: Button = $ShopPanel/ShopLayout/ShopContinue
 @onready var minimap: Control = $MiniMap
+@onready var minigame_prompt: Label = $MinigamePrompt
 
 ## T4.9 / T4.11 (2026-09-17): ship-wreck shop state. The wreck starts LOCKED; only
 ## the "Repurpose" button is shown until it's bought for 1500 gold. Once unlocked
@@ -1422,6 +1423,19 @@ func set_wave(wave: int, archetype_name: String = "") -> void:
 
 
 var _last_boss_ref: Node = null
+
+## Shows a "Press P to enter" prompt near the bottom of the screen when the local
+## player is standing at a minigame circle. Text is "Press P to enter · <name>".
+## Pass an empty string to hide the prompt.
+func set_minigame_prompt(text: String) -> void:
+	if minigame_prompt == null:
+		return
+	if text.is_empty():
+		minigame_prompt.visible = false
+	else:
+		minigame_prompt.visible = true
+		minigame_prompt.text = text
+
 
 func update_boss(boss: Enemy) -> void:
 	if boss == null or not is_instance_valid(boss):

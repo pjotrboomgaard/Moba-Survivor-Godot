@@ -1,0 +1,8 @@
+{
+  "test_name": "camp_creep_iso",
+  "comment": "Isolated empty-world test for the minigame camp-creep recruit sprites: grid of all 13 biome-1 types, idle row (yellow) + recruited row (orange).",
+  "hero": "tobor",
+  "scene": "res://scenes/camp_creep_iso_test/camp_creep_iso_test.tscn",
+  "events": [],
+  "wait_ms": 4000
+}

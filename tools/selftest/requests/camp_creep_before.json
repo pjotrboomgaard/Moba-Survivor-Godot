@@ -1,0 +1,11 @@
+{
+  "hero": "tobor",
+  "comment": "BEFORE shot: no camp creeps. Pin hero at corner 0, camera to corner, capture idle state.",
+  "events": [
+    {"t": 5.0, "kind": "pin", "to": [-2520.0, -1680.0]},
+    {"t": 5.5, "kind": "camera_focus", "to": [-2520.0, -1680.0], "zoom": 0.7},
+    {"t": 6.0, "kind": "snap", "label": "before_corner_idle"},
+    {"t": 8.0, "kind": "report"}
+  ],
+  "wait_ms": 12000
+}

@@ -1,0 +1,15 @@
+{
+  "before": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\camp_creep_before_tobor\\before_corner_idle_6.007_9370.png",
+  "after": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\camp_creep_ingame_tobor\\ingame_camp_corner_idle_6.006_9421.png",
+  "out": "c:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\camp_creep_ingame_tobor\\diff_before_after.png",
+  "changed_pixels": 43188,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.020828,
+  "bbox": [
+    31,
+    11,
+    1913,
+    1045
+  ],
+  "has_change": true
+}

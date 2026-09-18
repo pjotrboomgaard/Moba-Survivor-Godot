@@ -481,11 +481,16 @@ func set_tactic(tactic_id: int, tactic_index: int) -> void:
 func _apply_sprite() -> void:
 	if sprite == null or GameRuntime.is_classic():
 		return
-	_day_texture = SpriteLibrary.texture_for(type_id)
+	# 2026-09-18: camp creeps use their own recolored sprite name (yellow idle,
+	# orange recruited) instead of the normal biome-skinned type sprite.
+	var sprite_name := type_id
+	if recruit_sprite != "":
+		sprite_name = recruit_sprite
+	_day_texture = SpriteLibrary.texture_for(sprite_name)
 	# T3.85: also load the red-eyed night variant (same base name + "_night").
 	# 2026-09-16: use the biome-skinned name for the night variant too, so each
 	# biome's minions get their own night texture (with matching skin + eyes).
-	_night_texture = SpriteLibrary.texture_for(SpriteLibrary._skinned_name(type_id) + "_night")
+	_night_texture = SpriteLibrary.texture_for(SpriteLibrary._skinned_name(sprite_name) + "_night")
 	if _night_texture == null:
 		_night_texture = SpriteLibrary.texture_for(type_id + "_night")
 	# Start with whichever matches the current time of day.
@@ -587,7 +592,27 @@ func _process(_delta: float) -> void:
 	global_position += dir * movement_speed * 0.85 * _delta
 
 
+## 2026-09-18: camp creeps are externally controlled by MinigameCampCreeps.
+## Their movement is driven by the camp system, not normal enemy AI.
+## When recruited (is_camp_recruit), they use a special "ally" AI that
+## follows the local player and attacks the nearest regular enemy/camp.
+var is_camp_creep := false
+## True once the camp creep has been recruited by completing a minigame.
+var is_camp_recruit := false
+## The player this recruited camp creep follows (set by MinigameCampCreeps).
+var recruit_owner: Node2D = null
+## Recruit sprite name (day). When set, _apply_sprite uses this instead of
+## type_id so idle camp creeps render in light-yellow and recruited ones in
+## orange. See assets/sprites/*_recruit_yellow.png / *_recruit_orange.png.
+var recruit_sprite := ""
+
+
 func _physics_process(delta: float) -> void:
+	if is_camp_creep:
+		z_index = WorldClock.depth_z(global_position.y, 2)
+		if is_camp_recruit:
+			_process_camp_recruit(delta)
+		return
 	if stealth_alpha < 1.0:
 		modulate.a = 1.0 if winding_up else stealth_alpha
 	z_index = WorldClock.depth_z(global_position.y, 2)
@@ -1086,6 +1111,95 @@ func _process_ranged() -> void:
 	_hold_preferred_distance()
 	if global_position.distance_to(target.global_position) <= attack_distance:
 		_fire_projectile()
+
+
+## 2026-09-18: Recruited camp-creep AI — the camp creep follows its owner
+## player (orbit at CAMP_RECRUIT_FOLLOW_RADIUS) and attacks the nearest regular
+## enemy / camp guardian / enemy hero. Does NOT attack its own owner.
+const CAMP_RECRUIT_FOLLOW_RADIUS := 30.0
+const CAMP_RECRUIT_COMBAT_RANGE := 220.0
+
+var _recruit_target: Node2D = null
+var _recruit_retarget_timer := 0.0
+
+
+func _process_camp_recruit(delta: float) -> void:
+	if recruit_owner == null or not is_instance_valid(recruit_owner):
+		# Owner gone — stop moving.
+		velocity = Vector2.ZERO
+		return
+
+	_recruit_retarget_timer -= delta
+	if _recruit_retarget_timer <= 0.0:
+		_recruit_retarget_timer = 0.4
+		_recruit_target = _find_nearest_hostile()
+
+	# If there is a hostile target in combat range, move toward it and attack.
+	if _recruit_target != null and is_instance_valid(_recruit_target):
+		var dist := global_position.distance_to(_recruit_target.global_position)
+		if dist <= attack_distance:
+			velocity = Vector2.ZERO
+			# Recruits have no normal `target`; point it at the hostile and
+			# fire a contact hit via the same path the player's attacks use.
+			target = _recruit_target
+			_attack_target()
+			if attack_cooldown > 0.0 and contact_damage > 0.0:
+				# Fallback: _attack_target gated on `target`, so call take_damage
+				# directly on the host's HealthComponent to guarantee the hit lands.
+				var th := _recruit_target.get_node_or_null("HealthComponent") as HealthComponent
+				if th != null and th.has_method("take_damage"):
+					th.call("take_damage", contact_damage, self)
+		else:
+			_move(global_position.direction_to(_recruit_target.global_position) * movement_speed)
+		queue_redraw()
+		return
+
+	# No hostile in range — orbit the owner.
+	var to_owner: Vector2 = recruit_owner.global_position - global_position
+	var owner_dist := to_owner.length()
+	if owner_dist > CAMP_RECRUIT_FOLLOW_RADIUS + 10.0:
+		_move(to_owner.normalized() * movement_speed * 0.7)
+	elif owner_dist < CAMP_RECRUIT_FOLLOW_RADIUS - 10.0:
+		_move(to_owner.normalized() * -movement_speed * 0.3)
+	else:
+		# Small orbital drift.
+		var orbit := to_owner.rotated(PI / 2.0)
+		_move(orbit * movement_speed * 0.25)
+	queue_redraw()
+
+
+func _find_nearest_hostile() -> Node2D:
+	"""Find the nearest hostile entity (regular enemy, camp guardian, or enemy
+	hero — i.e. any node in group 'enemies' that is not this camp creep,
+	plus any Player that is NOT the recruit_owner)."""
+	var best: Node2D = null
+	var best_d := CAMP_RECRUIT_COMBAT_RANGE * CAMP_RECRUIT_COMBAT_RANGE
+	# Regular enemies / camp guardians.
+	for node in get_tree().get_nodes_in_group("enemies"):
+		if node == self:
+			continue
+		if not is_instance_valid(node) or node is Player:
+			continue
+		# Skip other camp creeps (both idle and recruited) — they're neutral
+		# until recruited, and recruited allies shouldn't fight each other.
+		if "is_camp_creep" in node and bool(node.get("is_camp_creep")):
+			continue
+		var d_sq: float = global_position.distance_squared_to(node.global_position)
+		if d_sq < best_d:
+			best_d = d_sq
+			best = node
+	# Enemy players (FFA rivals).
+	if recruit_owner != null and recruit_owner is Player:
+		for p in get_tree().get_nodes_in_group("players"):
+			if not is_instance_valid(p) or p == recruit_owner:
+				continue
+			if "is_local_player" in p and p.is_local_player:
+				continue
+			var d_sq: float = global_position.distance_squared_to(p.global_position)
+			if d_sq < best_d:
+				best_d = d_sq
+				best = p
+	return best
 
 
 func _process_support() -> void:

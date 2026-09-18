@@ -73,6 +73,46 @@ func _clear_games() -> void:
 	_games = []
 
 
+## Re-instantiate the minigame at `index` with a randomly chosen game from the
+## full registry. Keeps the same position/accent/name of the previous game so the
+## player sees the same corner but a different mini-game (2026-09-18: "when you
+## start mini game you can get different ones").
+func reassign_random_minigame(index: int) -> void:
+	if index < 0 or index >= _games.size():
+		return
+	var old: Node2D = _games[index]
+	if old == null or not is_instance_valid(old):
+		return
+	# Pick a random game index from the full registry.
+	var new_idx := int(randi_range(0, MINIGAMES.size() - 1))
+	var spec: Dictionary = _minigame_spec(new_idx)
+	if spec.is_empty():
+		push_warning("MinigameArea: no registry entry for random pick %d" % new_idx)
+		return
+	var script: GDScript = load(str(spec.get("script", "")))
+	if script == null:
+		push_warning("MinigameArea: could not load script for random pick %d" % new_idx)
+		return
+	var game: Node2D = script.new()
+	game.name = "Minigame_%d" % index
+	add_child(game)
+	# Preserve the original position so the corner stays the same.
+	game.position = old.global_position
+	game.z_index = 4000
+	game.set("display_name", str(spec.get("name", "Minigame")))
+	game.set("accent", Color(str(spec.get("accent", "ffffff"))))
+	game.set("area_index", index)
+	_games[index] = game
+	# 2026-09-18: reconnect the finished signal so camp-creep recruitment
+	# still works after a random reassignment (main.gd only connected the
+	# initial set of games).
+	if _main != null and _main.has_method("_connect_minigame_finished_signal"):
+		_main._connect_minigame_finished_signal(index, game)
+	# Free the old game. Use queue_free so any in-flight signals are safe.
+	old.queue_free()
+	print("[MinigameArea] corner %d re-assigned to %s" % [index, spec.get("name", "?")])
+
+
 func _apply_layout() -> void:
 	# Clear any existing games first so re-layout (e.g. rescan_triggers) does
 	# not accumulate duplicates.
@@ -114,26 +154,13 @@ func _apply_layout() -> void:
 		for c in corners:
 			positions.append(Vector2(c.x * half.x * 0.60, c.y * half.y * 0.60))
 
-		# Create the minigames: 4 at corners + 1 at center + 3 at mid-edges.
+		# 2026-09-18: reduced to exactly 4 minigames at the 4 map corners.
+		# When started, the player gets a randomly chosen game from the full
+		# registry (see start_random_at), so each playthrough feels different.
 		_spawn_minigame(0, positions[0], Color("8fae6a"), "Treasure Dash")
 		_spawn_minigame(1, positions[1], Color("5ad4ff"), "Keg Toss")
 		_spawn_minigame(2, positions[2], Color("7dbb5a"), "Whack-a-Creep")
 		_spawn_minigame(3, positions[3], Color("ff9a3d"), "Rock-Paper-Creep")
-		# Dance Disco at arena center
-		_spawn_minigame(4, Vector2.ZERO, Color("b44dff"), "Dance Disco")
-		# 5 new minigames at mid-edges + inner ring (lagoon/forest/mountain/town themed)
-		_spawn_minigame(5, Vector2.ZERO + Vector2(-half.x * 0.35, -half.y * 0.55), Color("2ee0c0"), "Gem Relay")
-		_spawn_minigame(6, Vector2.ZERO + Vector2(half.x * 0.45, half.y * 0.45), Color("3fb0e0"), "Keg Toss Pro")
-		_spawn_minigame(7, Vector2.ZERO + Vector2(half.x * 0.55, -half.y * 0.35), Color("3fa84a"), "Whack Rush")
-		_spawn_minigame(8, Vector2.ZERO + Vector2(-half.x * 0.55, half.y * 0.25), Color("c07bff"), "Creep Tag")
-		_spawn_minigame(9, Vector2.ZERO + Vector2(half.x * 0.35, half.y * 0.55), Color("e0c05a"), "Treasure Dash 2")
-		# 3 more minigames at remaining spots
-		_spawn_minigame(10, Vector2.ZERO + Vector2(-half.x * 0.35, half.y * 0.55), Color("4de0f0"), "Ring Roll")
-		_spawn_minigame(11, Vector2.ZERO + Vector2(half.x * 0.35, -half.y * 0.55), Color("f0a04d"), "Creep Pinball")
-		_spawn_minigame(12, Vector2.ZERO + Vector2(0.0, half.y * 0.65), Color("f05090"), "Balloon Pop")
-		_spawn_minigame(13, Vector2.ZERO + Vector2(-half.x * 0.45, -half.y * 0.45), Color("40e080"), "Slime Splat")
-		_spawn_minigame(14, Vector2.ZERO + Vector2(half.x * 0.50, half.y * 0.30), Color("a080f0"), "Crystal Catch")
-		_spawn_minigame(15, Vector2.ZERO + Vector2(-half.x * 0.50, half.y * 0.35), Color("7dbb5a"), "Crate Stack")
 
 
 ## Look up a minigame's spec (script/accent/name) by index. Empty dict if out of range.

@@ -9,6 +9,7 @@ const RecruitAreasScript := preload("res://scripts/recruit_areas.gd")
 const MinigameAreaScript := preload("res://scripts/minigame_area.gd")
 const _CorpseScript := preload("res://scripts/corpse.gd")
 const GhostWaveSystem := preload("res://scripts/ghost_wave_system.gd")
+const MinigameCampCreepsScript := preload("res://scripts/minigame_camp_creeps.gd")
 
 ## T3.87/T3.92: raised from 70 to 200 to allow the full 3× wave-ramp headcount.
 ## The enemy perf bench (scenes/enemy_perf_bench) confirms 200 on-screen mixed
@@ -90,6 +91,8 @@ var current_wave := 0
 var current_wave_name := ""
 var current_debut_type_id := ""
 var _near_shop_stand := false
+var _near_minigame := false
+var _near_minigame_name := ""
 ## The grass meadow crater is open and visible from the first wave. The bramble seal
 ## and unlock hook remain for a possible future gate; set this above 1 to re-arm it.
 const CRATER_UNLOCK_WAVE := 1
@@ -111,6 +114,7 @@ var _side_quest_director: Node = null
 var _creep_camp: Node = null
 var _recruit_areas: Node = null
 var _minigame_area: Node = null
+var _minigame_camp_creeps: Node = null
 var _ghost_waves: Node = null
 
 const REVIVE_RADIUS := 60.0
@@ -342,6 +346,7 @@ func _physics_process(delta: float) -> void:
 			_send_local_input()
 	if not GameRuntime.is_dedicated_server() and not GameRuntime.is_classic():
 		_update_shop_stand_proximity()
+		_update_minigame_proximity()
 		# Vision-hiding disabled entirely (per user request): neither the dark
 		# fog-of-war overlay nor the per-sprite distance fade runs. The hero and
 		# every enemy stay fully visible everywhere on the map at all times.
@@ -401,6 +406,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif _near_shop_stand and not hud.upgrade_panel.visible and not hud.escape_menu.visible and not hud.dev_panel.visible and not hud.codex_panel.visible:
 			hud.open_shop(GameRuntime.mode == GameRuntime.RuntimeMode.OFFLINE)
 			_cpu_auto_shop()
+	# P starts the nearest idle minigame when standing at its circle.
+	if event.is_action_pressed("interact_minigame") and not game_over:
+		_start_nearby_minigame()
 	# Forward gameplay input to the active village minigame (number keys / WASD /
 	# mouse) so a human standing at the pad can actually play it. Returns early so
 	# the keys don't also fire an ability.
@@ -858,6 +866,74 @@ func _update_shop_stand_proximity() -> void:
 		local_player.set_shop_hint_visible(in_range)
 		if not in_range:
 			hud.close_shop()
+
+
+## Tracks whether the local player is within 120px of an idle minigame circle.
+## Shows a "Press P to enter · <name>" HUD prompt and lets P start the game.
+const MINIGAME_INTERACT_RADIUS := 120.0
+
+func _update_minigame_proximity() -> void:
+	var local_player := _local_player()
+	if local_player == null or not local_player.active or game_over or _minigame_area == null:
+		if _near_minigame:
+			_near_minigame = false
+			_near_minigame_name = ""
+			if hud != null:
+				hud.set_minigame_prompt("")
+		return
+	# Find the nearest idle minigame within interact range.
+	var nearest: Node2D = null
+	var nearest_d := INF
+	for g in _minigame_area.all_minigames():
+		if g == null or not is_instance_valid(g):
+			continue
+		if bool(g.get("active")):
+			continue
+		var d: float = local_player.global_position.distance_to(g.global_position)
+		if d < nearest_d:
+			nearest_d = d
+			nearest = g
+	var in_range := nearest != null and nearest_d <= MINIGAME_INTERACT_RADIUS
+	if in_range:
+		var name_str: String = str(nearest.get("display_name"))
+		if not in_range or _near_minigame_name != name_str:
+			_near_minigame = true
+			_near_minigame_name = name_str
+			if hud != null:
+				hud.set_minigame_prompt("Press P to enter  ·  " + name_str)
+	elif _near_minigame:
+		_near_minigame = false
+		_near_minigame_name = ""
+		if hud != null:
+			hud.set_minigame_prompt("")
+
+
+## Start the nearest idle minigame for the local player (called on P keypress).
+func _start_nearby_minigame() -> void:
+	if _minigame_area == null or not is_instance_valid(_minigame_area):
+		return
+	var local_player := _local_player()
+	if local_player == null:
+		return
+	var info: Dictionary = _minigame_area.nearest_idle_minigame(local_player.global_position)
+	var idx: int = int(info.get("index", -1))
+	if idx < 0:
+		return
+	# Only start if actually within interact range.
+	var g: Node2D = _minigame_area.get_minigame(idx)
+	if g == null or not is_instance_valid(g):
+		return
+	if local_player.global_position.distance_to(g.global_position) > MINIGAME_INTERACT_RADIUS:
+		return
+	# 2026-09-18: re-roll the corner to a random minigame before starting, so the
+	# player gets a different game each time they enter the same corner.
+	_minigame_area.reassign_random_minigame(idx)
+	var new_g: Node2D = _minigame_area.get_minigame(idx)
+	if new_g == null or not is_instance_valid(new_g):
+		return
+	_minigame_area.start_minigame(idx, local_player)
+	if hud != null:
+		hud.set_minigame_prompt("")
 
 
 ## Fog-of-war: hides enemies and hostile players outside vision range, or with a tree
@@ -2716,6 +2792,10 @@ func _on_player_died(_peer_id: int) -> void:
 					"new_abilities": banked.get("newly_unlocked", []),
 					"ult_now": PlayerProfile.is_ult_unlocked(hero_id),
 				}
+			# 2026-09-18: clear the minigame camp-creep system so idle/recruited
+			# creeps don't linger after game over.
+			if _minigame_camp_creeps != null and _minigame_camp_creeps.has_method("clear_all"):
+				_minigame_camp_creeps.clear_all()
 			hud.show_game_over()
 
 
@@ -4451,6 +4531,39 @@ func _start_side_quests() -> void:
 	_minigame_area.name = "MinigameArea"
 	add_child(_minigame_area)
 	_minigame_area.start(self, arena, _recruit_areas)
+
+	# 2026-09-18: minigame camp creeps — idle light-yellow creeps around each
+	# minigame circle that recruit (turn player-accent orange) and follow when
+	# the minigame is completed.
+	_minigame_camp_creeps = MinigameCampCreepsScript.new()
+	_minigame_camp_creeps.name = "MinigameCampCreeps"
+	add_child(_minigame_camp_creeps)
+	_minigame_camp_creeps.start(self, _minigame_area, actors, arena)
+	_connect_minigame_finished_signals()
+
+
+## Hook each minigame's `finished` signal to the camp-creep recruiter.
+func _connect_minigame_finished_signals() -> void:
+	if _minigame_area == null or not _minigame_area.has_method("all_minigames"):
+		return
+	var games: Array = _minigame_area.all_minigames()
+	for i in games.size():
+		_connect_minigame_finished_signal(i, games[i])
+
+
+## Connect a single minigame node's `finished` signal to the camp-creep
+## recruiter. Used by MinigameArea.reassign_random_minigame so that newly
+## spawned random minigames also recruit their camp when finished.
+func _connect_minigame_finished_signal(index: int, g: Node) -> void:
+	if g == null or not is_instance_valid(g):
+		return
+	if g.has_signal("finished"):
+		g.finished.connect(_on_minigame_finished.bind(index))
+
+
+func _on_minigame_finished(owner_player: Player, _score: int, _rewards: Dictionary, minigame_index: int) -> void:
+	if _minigame_camp_creeps != null and _minigame_camp_creeps.has_method("on_minigame_finished"):
+		_minigame_camp_creeps.on_minigame_finished(minigame_index, owner_player)
 
 
 ## Continuous "ghost trickle": lightweight enemy records that stream in from the

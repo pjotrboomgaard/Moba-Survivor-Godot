@@ -1,0 +1,33 @@
+{
+  "source": "tools\\selftest\\results\\camp_creep_iso\\camp_creep_iso_grid.png",
+  "width": 1920,
+  "height": 1080,
+  "background_rgb": [
+    76,
+    76,
+    76
+  ],
+  "content_fill_ratio": 0.5614,
+  "bounding_box": [
+    250,
+    0,
+    1499,
+    1079
+  ],
+  "coverage": 0.651,
+  "position": "CENTER",
+  "is_centered": true,
+  "quadrant_fractions": {
+    "TL": 0.2495,
+    "TR": 0.2505,
+    "BL": 0.2496,
+    "BR": 0.2505
+  },
+  "edge_fractions": {
+    "top": 0.0186,
+    "bottom": 0.0186,
+    "left": 0.0,
+    "right": 0.0
+  },
+  "thumbnail": "tools\\selftest\\results\\camp_creep_iso\\thumb_camp_creep_iso_grid.png"
+}

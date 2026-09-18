@@ -3684,3 +3684,128 @@ uses its large-radius abilities (slam/cross/volley) effectively.
   normal form; boss-form player uses direct movement (no collision avoidance
   needed since boss walks through trees).
 
+---
+
+## Minigame Camp Creeps (2026-09-18)
+
+**Goal:** Spawn ~20 light-yellow "recruit" creeps around each of the 4 corner
+minigame circles. They are non-combat, 3× HP, and linger in a ring around the
+circle. When the player completes the minigame (P-key), the creeps recolor to
+orange (player accent) and follow the player, actively fighting regular
+creeps / creep camps / enemy heroes.
+
+**Implementation:**
+- `scripts/minigame_camp_creeps.gd` (new) — `MinigameCampCreeps` Node2D:
+  - `BASE_CREEPS_PER_CAMP = 20`, grows up to 30 with wave.
+  - `CAMP_CREEP_HP_MULT = 3.0` — camp creeps get 3× their base-type HP.
+  - `_spawn_camps()` — for each of the 4 idle corner minigames, spawn 20
+    creeps in a ring (40–80 px from centre). Types chosen from
+    `WORLD_1_TYPE_IDS` filtered by `unlock_wave <= current_wave` (relaxed
+    for waves ≥ 4).
+  - Idle state: creeps wander within `LINGER_RADIUS` (80 px); sprite is
+    `<type>_recruit_yellow` (body recolored light yellow via
+    `tools/recruit_sprite_tint.py`). Non-combat: `contact_damage = 0`,
+    `taunt_immune = true`, collision shape disabled.
+  - `on_minigame_finished(index, owner_player)` — on `minigame.finished`
+    signal, swap sprite to `<type>_recruit_orange`, restore original
+    `contact_damage`/`projectile_damage`, set `is_camp_recruit = true`,
+    `recruit_owner = owner_player`, re-enable collision shape.
+  - `on_wave_started()` — top up un-recruited camps to target count as new
+    enemy types unlock.
+  - `get_camp_state_summary()` — per-camp probe data for selftest.
+  - `clear_all()` — frees all camp creeps (called on player death / game over).
+- `scripts/enemy.gd` — new vars: `is_camp_creep`, `is_camp_recruit`,
+  `recruit_owner`, `recruit_sprite`. New method `_process_camp_recruit()`:
+  orbit around `recruit_owner` at `FOLLOW_RADIUS` (30 px); scan
+  `get_tree().get_nodes_in_group("enemies")` + `players` for hostiles;
+  if hostile within `CAMP_RECRUIT_COMBAT_RANGE` (200 px), approach and
+  attack via `_attack_target()`. `_physics_process` dispatches to
+  `_process_camp_recruit` when `is_camp_recruit = true`; early-returns for
+  idle `is_camp_creep` (only depth-z update).
+- `scripts/minigame_area.gd` — `_apply_layout()` spawns only 4 minigames
+  at map corners (indices 0–3). `reassign_random_minigame(index)` picks a
+  random minigame from the full 16-game registry and reconnects the
+  `finished` signal via `_main._connect_minigame_finished_signal`.
+- `scripts/main.gd` — `_minigame_camp_creeps` created in
+  `_start_side_quests()` after `_minigame_area.start()`;
+  `_connect_minigame_finished_signals()` + `_connect_minigame_finished_signal`
+  hook each minigame's `finished` signal; `_on_minigame_finished` calls
+  `_minigame_camp_creeps.on_minigame_finished(index, owner)`.
+  `clear_all()` called in `_on_player_died()`.
+- `tools/recruit_sprite_tint.py` — Python tool: recolors the dominant inner
+  body color of each world-1 enemy sprite to light yellow (`#FFEB50`) and
+  orange (`#FF8A3D`), preserving outlines and eyes. 13 types × 2 variants
+  × 2 (day + night) = 52 sprite files written to `assets/sprites/`.
+- `tools/selftest/requests/camp_creep_ingame.json` — in-game selftest:
+  pin hero at corner 0, capture idle yellow ring, reassign + start random
+  minigame (bot_force), wait for finish, probe recruited state, capture
+  orange follow shot.
+- `tools/selftest/requests/camp_creep_iso.json` — isolated empty-world test:
+  grid of all 13 types, idle yellow row + recruited orange row, verifies
+  sprite names, damage values, 3× HP.
+- `scenes/camp_creep_iso_test/` — isolated test scene (empty world, dark
+  background, camera). Spawns 2×13 grid, writes report + screenshot, quits.
+
+**Sprite recoloring detail:** The grunt sprite has a red inner body with a
+dark outline and white eyes. `recruit_sprite_tint.py` finds the dominant
+non-outline non-eye color and blends 85% target + 15% original, preserving
+subtle shading. Yellow: `#FFEB50` (saturated, clearly distinguishable from
+ambient light). Orange: `#FF8A3D` (player accent family).
+
+**Requirements to verify:**
+1. 4 minigame areas at map corners (exactly 4, no more).
+2. ~20 light-yellow idle creeps at each camp, in a ring around the circle.
+3. Idle creeps are non-combat: `contact_damage = 0`, `taunt_immune = true`,
+   collision disabled, 3× HP.
+4. Completing a minigame (P-key / bot_force) recolors that camp's creeps
+   to orange.
+5. Recruited creeps follow the player in an orbit and actively attack
+   regular enemies / creep camps / enemy heroes.
+6. Recruited creeps are 3× HP of their base type (all types verified).
+7. Un-recruited camps remain yellow and idle.
+8. Hostile creep camps (`scripts/creep_camp.gd`) are unchanged.
+9. Camp creeps use body-recolored sprites (`*_recruit_yellow`,
+   `*_recruit_orange`), not modulate tinting.
+10. When starting a minigame, a random minigame from the pool is chosen
+    (different each time).
+
+**6-step verification (DONE 2026-09-18):**
+
+Isolated:
+- [x] 1. iso_before — `tools/selftest/results/camp_creep_iso/camp_creep_iso_grid.png`
+  (grid: top row idle yellow, bottom row recruited orange; all 13 types visible;
+  verdict=PASS; `idle_row_ok=true`, `recruit_row_ok=true`, `recruit_damage_ok=true`,
+  `hp_3x_ok=true`)
+- [x] 2. iso_after — same grid scene, all assertions PASS
+- [x] 3. iso_compare — report confirms all 4 checks green; screenshot shows
+  2×13 grid with correct yellow/orange coloring per type
+
+In-game (hero=tobor, camp_creep_ingame selftest):
+- [x] 4. ingame_before — `tools/selftest/results/camp_creep_before_tobor/before_corner_idle_6.007_9370.png`
+  (corner with NO camp creeps: just HUD, trees, player; camp creeps disabled
+  via temporary code comment)
+- [x] 5. ingame_after — `tools/selftest/results/camp_creep_ingame_tobor/ingame_camp_corner_idle_6.006_9421.png`
+  (corner with 20 yellow grunts in a ring around the minigame circle; camera
+  at corner; player pinned at (-2520, -1680))
+- [x] 6. ingame_compare — `tools/selftest/results/camp_creep_ingame_tobor/diff_before_after.png`
+  + `diff_before_after.json` (2.08% pixel change, bbox=(31,11,1913,1045);
+  SSIM=0.9675; change concentrated in bottom-left where camp creeps appear)
+
+Recruitment verification (in-game, same run):
+- [x] idle_probe (t=8): 4 camps × 20 creeps, `recruited: false`,
+  `grunt_recruit_yellow`, `all_3x_hp: true`
+- [x] minigame_reassign_start (t=9.5): corner 0 reassigned to "Crate Stack"
+  (random pick), `started: true`
+- [x] minigame_stop (t=24): `finished: true`, `reward_granted: true`,
+  `was_active: false` (bot completed naturally before stop was called)
+- [x] recruit_probe (t=27): camp 0 `recruited: true`,
+  `grunt_recruit_orange`, 20 alive, `all_3x_hp: true`;
+  camps 1–3 still `recruited: false`, `grunt_recruit_yellow`
+- [x] post_recruit_probe (t=38): camp 0 still `recruited: true`, orange,
+  20 alive; sample positions show creeps spreading around the pinned player
+- [x] ingame_after_recruit — `tools/selftest/results/camp_creep_ingame_tobor/ingame_after_recruit_34.001_37412.png`
+  (orange creeps following player at the corner; "Tobor • TAP TO SELECT" banner
+  visible; HUD shows 31 gold, wave 1)
+
+All 6 steps PASS: isolated + in-game before/after/compare complete.
+
