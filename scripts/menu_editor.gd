@@ -50,6 +50,41 @@ func _ready() -> void:
 	add_to_group("menu_editor")
 
 
+## 2026-09-19: Primary input path. While editing, poll the viewport mouse
+## position and button state every frame. This is the ONLY reliable input
+## source in this Godot build — Control.gui_input on a CanvasLayer capture
+## Control does NOT fire for real OS mouse events, and the static
+## Input.get_mouse_position() / Input.is_mouse_button_held() do not exist.
+## get_viewport().get_mouse_position() + Input.is_mouse_button_pressed() DO
+## work and give us a clean, frame-accurate drag loop.
+func _process(_delta: float) -> void:
+	if not _editing:
+		return
+	var mouse_pos: Vector2 = get_viewport().get_mouse_position()
+	var left_held := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	var right_held := Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+
+	# Detect right-click (toggle visibility) — only on the rising edge.
+	if right_held and not _last_right_held:
+		_handle_right_click(mouse_pos)
+
+	# Detect left-button state changes for drag start / end.
+	if left_held and not _last_left_held:
+		_handle_left_press(mouse_pos)
+	elif not left_held and _last_left_held:
+		# Drag released.
+		_drag_ctrl = null
+		_drag_mode = 0
+
+	# While holding left button, drive the active drag (resize or reorder).
+	if left_held and _drag_ctrl != null and _drag_mode != 0:
+		_handle_left_hold(mouse_pos)
+
+	_last_mouse_pos = mouse_pos
+	_last_left_held = left_held
+	_last_right_held = right_held
+
+
 func toggle() -> void:
 	_editing = not _editing
 	if _editing:
@@ -161,7 +196,10 @@ func _enter() -> void:
 	_collect_editables()
 	_set_controls_input(false)
 	_build_ui()
-	_build_capture_layer()
+	# 2026-09-19: capture layer removed — _process polling (get_viewport().
+	# get_mouse_position() + Input.is_mouse_button_pressed) is the reliable
+	# input path. The capture layer's MOUSE_FILTER_STOP was blocking the
+	# toolbar buttons on the lower overlay layer.
 	_msg.text = "EDIT MODE  ·  Drag = reorder · Shift+Drag = resize · Right-click = show/hide · F3 = exit"
 
 
@@ -171,7 +209,7 @@ func _exit() -> void:
 	_drag_ctrl = null
 	_drag_mode = 0
 	_set_controls_input(true)
-	_remove_capture_layer()
+	# 2026-09-19: capture layer no longer used (polling handles input).
 	if _overlay != null and is_instance_valid(_overlay):
 		_overlay.queue_free()
 		_overlay = null
