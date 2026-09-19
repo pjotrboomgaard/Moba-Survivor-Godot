@@ -108,12 +108,20 @@ focus_mode = 0
 text = "PLAY"
 
 [node name="CompactContinueBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock"]
-visible = false
+visible = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
 focus_mode = 0
 text = "CONTINUE"
+
+; --- MODE caption above the mode row ---
+[node name="ModeCaption" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 0.8)
+theme_override_font_sizes/font_size = 12
+text = "MODE:"
 
 ; --- MODE row: < SOLO > (full width, centered) ---
 [node name="CompactModeRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
@@ -141,6 +149,14 @@ custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 focus_mode = 0
 text = ">"
+
+; --- DIFFICULTY caption above the difficulty row ---
+[node name="DiffCaption" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 0.88, 1, 0.8)
+theme_override_font_sizes/font_size = 12
+text = "DIFFICULTY:"
 
 ; --- DIFFICULTY row: < NORMAL > (full width, centered) ---
 [node name="CompactDiffRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
@@ -173,7 +189,6 @@ text = ">"
 [node name="CompactRosterGrid" type="GridContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 4
@@ -184,6 +199,33 @@ layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
 theme_override_constants/separation = 6
+
+; --- MUSIC + SFX toggles ---
+[node name="AudioToggleRow" type="HBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="MusicToggleBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/AudioToggleRow"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.2
+focus_mode = 0
+text = "♪ MUSIC: ON"
+
+[node name="SfxToggleBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/AudioToggleRow"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "🔊 SFX: ON"
+
+; --- Spacer before world editor/settings to push them to the bottom ---
+[node name="MenuBottomSpacer" type="Control" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 8)
 
 ; --- WORLD EDITOR button (standalone, above settings) ---
 [node name="CompactWorldEditorBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]

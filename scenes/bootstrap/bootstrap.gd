@@ -48,10 +48,12 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var compact_hero_name_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock/CompactHeroName
 @onready var compact_start_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock/CompactStartBtn
 @onready var compact_continue_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock/CompactContinueBtn
+@onready var mode_caption: Label = $StatusLayer/LobbyPanel/Margin/Layout/ModeCaption
 @onready var compact_mode_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow
 @onready var mode_prev_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow/ModePrevBtn
 @onready var mode_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow/ModeLabel
 @onready var mode_next_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow/ModeNextBtn
+@onready var diff_caption: Label = $StatusLayer/LobbyPanel/Margin/Layout/DiffCaption
 @onready var compact_diff_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/CompactDiffRow
 @onready var diff_prev_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactDiffRow/DiffPrevBtn
 @onready var diff_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/CompactDiffRow/DiffLabel
@@ -60,6 +62,8 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var compact_ability_strip: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/CompactAbilityStrip
 @onready var compact_settings_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactSettingsBtn
 @onready var compact_world_editor_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactWorldEditorBtn
+@onready var compact_music_toggle_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/AudioToggleRow/MusicToggleBtn
+@onready var compact_sfx_toggle_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/AudioToggleRow/SfxToggleBtn
 
 ## Legacy hero content scroll + loadout (built in _build_overhaul_ui). The compact
 ## menu (2026-09-18) replaces it, so it is hidden at runtime but kept for FFA/co-op
@@ -285,6 +289,13 @@ func _ready() -> void:
 		call_deferred("_attach_compact_menu_test")
 	if FileAccess.file_exists("user://menu_editor_ingame_test"):
 		call_deferred("_attach_menu_editor_ingame_test")
+	# 2026-09-19: one-shot layout diagnostic probe (prints live rects of top block).
+	if FileAccess.file_exists("user://menu_diag_probe"):
+		var _diag_script := load("res://tools/selftest/menu_diag.gd")
+		var _diag_node: Node = _diag_script.new()
+		_diag_node.name = "MenuDiagProbe"
+		get_tree().root.add_child(_diag_node)
+		DirAccess.remove_absolute(ProjectSettings.globalize_path("user://menu_diag_probe"))
 	call_deferred("_start_runtime")
 	set_process(true)
 
@@ -459,7 +470,7 @@ func _constrain_lobby_layout() -> void:
 	# Pin the panel's own width so text/labels inside can never widen it.
 	lobby_panel.custom_minimum_size = Vector2(panel_w, 0)
 	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	panel_style.bg_color = Color(0.0, 0.0, 0.0, 0.82)
 	panel_style.border_color = Color(0.32, 0.26, 0.16, 0.0)
 	panel_style.set_border_width_all(0)
 	panel_style.set_corner_radius_all(0)
@@ -534,11 +545,19 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	compact_start_btn.pressed.connect(_on_solo_pressed)
 	_style_play_button(compact_start_btn)
 
-	# CONTINUE button (full-width, hidden when no save) — from tscn
+	# CONTINUE button (full-width, always visible) — from tscn
 	compact_continue_btn.add_theme_font_size_override("font_size", 15)
 	compact_continue_btn.pressed.connect(_on_continue_pressed)
-	compact_continue_btn.visible = false
+	compact_continue_btn.visible = true
 	_style_action_button(compact_continue_btn)
+
+	# --- MODE / DIFFICULTY captions (small, uppercase, subtle) ---
+	if mode_caption != null:
+		mode_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		mode_caption.add_theme_font_override("font", PIXEL_FONT)
+		if diff_caption != null:
+			diff_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			diff_caption.add_theme_font_override("font", PIXEL_FONT)
 
 	# --- MODE row: < SOLO > (full width, centered) — from tscn ---
 	_mode_prev_btn = mode_prev_btn
@@ -595,6 +614,7 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	compact_hero_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	compact_hero_name_label.add_theme_font_size_override("font_size", 20)
 	compact_hero_name_label.add_theme_color_override("font_color", Color(1.0, 0.55, 0.2, 1.0))
+	compact_hero_name_label.add_theme_font_override("font", PIXEL_FONT)
 	# Show the current hero name immediately.
 	var _init_hero_id: String = PlayerProfile.selected_class_id
 	if not _init_hero_id.is_empty():
@@ -605,6 +625,15 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	compact_world_editor_btn.tooltip_text = "Open the world/level editor to place trees, rocks, grass and landmarks"
 	compact_world_editor_btn.pressed.connect(_on_world_editor_pressed)
 	_style_action_button(compact_world_editor_btn)
+
+	# --- MUSIC + SFX toggle buttons (above world editor) ---
+	_style_action_button(compact_music_toggle_btn)
+	_style_action_button(compact_sfx_toggle_btn)
+	compact_music_toggle_btn.add_theme_font_override("font", PIXEL_FONT)
+	compact_sfx_toggle_btn.add_theme_font_override("font", PIXEL_FONT)
+	compact_music_toggle_btn.pressed.connect(_on_compact_music_toggled)
+	compact_sfx_toggle_btn.pressed.connect(_on_compact_sfx_toggled)
+	_sync_compact_audio_toggles()
 
 	# --- Populate the 4 ability strip with the current hero's kit ---
 	_populate_ability_strip(PlayerProfile.selected_class_id)
@@ -665,34 +694,40 @@ func _setup_menu_editor() -> void:
 	_compact_menu_editor = editor
 
 
+## Pixel-art font for menu buttons.
+const PIXEL_FONT := preload("res://assets/fonts/Silkscreen-Regular.ttf")
+
 ## Shared background style for all action/nav buttons in the compact menu.
+## Pixel-art style: sharp corners, thicker border, no rounding.
 func _style_action_button(btn: Button) -> void:
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = Color(0.12, 0.14, 0.2, 0.85)
-	normal.border_color = Color(0.3, 0.35, 0.5, 0.6)
-	normal.set_border_width_all(1)
-	normal.set_corner_radius_all(6)
+	normal.border_color = Color(0.35, 0.4, 0.55, 0.8)
+	normal.set_border_width_all(2)
+	normal.set_corner_radius_all(0)
 	var hover := normal.duplicate() as StyleBoxFlat
 	hover.bg_color = Color(0.18, 0.22, 0.32, 0.95)
-	hover.border_color = Color(0.5, 0.6, 0.8, 0.8)
-	hover.set_border_width_all(1)
+	hover.border_color = Color(0.55, 0.65, 0.85, 1.0)
+	hover.set_border_width_all(2)
 	var pressed := normal.duplicate() as StyleBoxFlat
 	pressed.bg_color = Color(0.08, 0.09, 0.12, 0.95)
 	pressed.border_color = Color(0.4, 0.45, 0.6, 0.7)
+	pressed.set_border_width_all(2)
 	btn.add_theme_stylebox_override("normal", normal)
 	btn.add_theme_stylebox_override("hover", hover)
 	btn.add_theme_stylebox_override("pressed", pressed)
 	btn.add_theme_stylebox_override("focus", normal)
 	btn.add_theme_color_override("font_color", Color("f4f0e6"))
+	btn.add_theme_font_override("font", PIXEL_FONT)
 
 
-## Yellow play-button style (2026-09-18).
+## Yellow play-button style (2026-09-18). Pixel-art: sharp corners.
 func _style_play_button(btn: Button) -> void:
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = Color(0.85, 0.72, 0.15, 0.95)
 	normal.border_color = Color(1.0, 0.85, 0.3, 1.0)
 	normal.set_border_width_all(2)
-	normal.set_corner_radius_all(8)
+	normal.set_corner_radius_all(0)
 	var hover := normal.duplicate() as StyleBoxFlat
 	hover.bg_color = Color(0.95, 0.82, 0.25, 1.0)
 	hover.border_color = Color(1.0, 0.9, 0.4, 1.0)
@@ -705,6 +740,7 @@ func _style_play_button(btn: Button) -> void:
 	btn.add_theme_stylebox_override("focus", normal)
 	btn.add_theme_color_override("font_color", Color(0.1, 0.08, 0.02, 1.0))
 	btn.add_theme_color_override("font_hover_color", Color(0.1, 0.08, 0.02, 1.0))
+	btn.add_theme_font_override("font", PIXEL_FONT)
 
 
 ## Shared background for the mode/difficulty nav labels (looks like a button slot).
@@ -712,15 +748,16 @@ func _style_nav_label_bg(lbl: Label) -> void:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.1, 0.12, 0.18, 0.8)
 	sb.border_color = Color(0.25, 0.3, 0.45, 0.5)
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(6)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(0)
 	lbl.add_theme_stylebox_override("normal", sb)
+	lbl.add_theme_font_override("font", PIXEL_FONT)
 
 
 ## Show/hide the compact Continue button based on save existence.
 func _sync_compact_continue() -> void:
 	if _compact_continue_btn != null:
-		_compact_continue_btn.visible = RunSave.has_save()
+		_compact_continue_btn.visible = true
 
 
 ## Called when the settings (wrench) button is pressed — toggle audio row.
@@ -744,8 +781,8 @@ func _build_settings_panel() -> void:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.08, 0.09, 0.13, 0.97)
 	sb.border_color = Color(0.3, 0.35, 0.5, 0.8)
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(8)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(0)
 	_settings_panel.add_theme_stylebox_override("panel", sb)
 	_settings_panel.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
 	_settings_panel.anchor_left = 1.0
@@ -780,6 +817,7 @@ func _build_settings_panel() -> void:
 	title.text = "⚙ SETTINGS"
 	title.add_theme_font_size_override("font_size", 16)
 	title.add_theme_color_override("font_color", Color(0.9, 0.85, 0.7, 1.0))
+	title.add_theme_font_override("font", PIXEL_FONT)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
 	var close_btn := Button.new()
@@ -787,6 +825,7 @@ func _build_settings_panel() -> void:
 	close_btn.custom_minimum_size = Vector2(28, 28)
 	close_btn.focus_mode = Control.FOCUS_NONE
 	close_btn.add_theme_font_size_override("font_size", 14)
+	close_btn.add_theme_font_override("font", PIXEL_FONT)
 	close_btn.pressed.connect(func() -> void:
 		_settings_panel_visible = false
 		_settings_panel.visible = false
@@ -802,6 +841,7 @@ func _build_settings_panel() -> void:
 	sfx_lbl.text = "Sound FX"
 	sfx_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sfx_lbl.add_theme_font_size_override("font_size", 14)
+	sfx_lbl.add_theme_font_override("font", PIXEL_FONT)
 	sfx_row.add_child(sfx_lbl)
 	var sfx_chk := CheckButton.new()
 	sfx_chk.button_pressed = AudioService.sfx_enabled
@@ -817,6 +857,7 @@ func _build_settings_panel() -> void:
 	music_lbl.text = "Music"
 	music_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	music_lbl.add_theme_font_size_override("font_size", 14)
+	music_lbl.add_theme_font_override("font", PIXEL_FONT)
 	music_row.add_child(music_lbl)
 	var music_chk := CheckButton.new()
 	music_chk.button_pressed = AudioService.music_enabled
@@ -832,6 +873,7 @@ func _build_settings_panel() -> void:
 	res_lbl.text = "Resolution"
 	res_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	res_lbl.add_theme_font_size_override("font_size", 14)
+	res_lbl.add_theme_font_override("font", PIXEL_FONT)
 	res_row.add_child(res_lbl)
 	var res_opt := OptionButton.new()
 	res_opt.custom_minimum_size = Vector2(140, 0)
@@ -1153,7 +1195,11 @@ func _populate_roster_grid() -> void:
 	for hero_id in heroes:
 		var btn := Button.new()
 		btn.name = "RosterBtn_%s" % hero_id
-		btn.custom_minimum_size = Vector2(52, 52)
+		# 2026-09-19: full-width roster — buttons expand to fill the panel width
+		# (4 cols), matching the width of the PLAY / SETTINGS buttons.
+		btn.custom_minimum_size = Vector2(0, 52)
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		btn.icon = SpriteLibrary.texture_for(hero_id)
 		btn.add_theme_constant_override("icon_max_width", 44)
 		btn.add_theme_constant_override("icon_max_height", 44)
@@ -1183,7 +1229,7 @@ func _set_roster_btn_selected(btn: Button, selected: bool) -> void:
 		style.bg_color = Color(0.08, 0.09, 0.13, 0.4)
 		style.border_color = Color(0.25, 0.3, 0.4, 0.5)
 		style.set_border_width_all(1)
-	style.set_corner_radius_all(4)
+	style.set_corner_radius_all(0)
 	btn.add_theme_stylebox_override("normal", style)
 	btn.add_theme_stylebox_override("hover", style)
 	btn.add_theme_stylebox_override("pressed", style)
@@ -2028,6 +2074,24 @@ func _on_music_toggled(pressed: bool) -> void:
 	AudioService.play("ui_click")
 
 
+func _on_compact_music_toggled() -> void:
+	AudioService.set_music_enabled(not AudioService.music_enabled)
+	AudioService.play("ui_click")
+	_sync_compact_audio_toggles()
+
+
+func _on_compact_sfx_toggled() -> void:
+	AudioService.set_sfx_enabled(not AudioService.sfx_enabled)
+	if AudioService.sfx_enabled:
+		AudioService.play("ui_click")
+	_sync_compact_audio_toggles()
+
+
+func _sync_compact_audio_toggles() -> void:
+	compact_music_toggle_btn.text = "♪ MUSIC: " + ("ON" if AudioService.music_enabled else "OFF")
+	compact_sfx_toggle_btn.text = "🔊 SFX: " + ("ON" if AudioService.sfx_enabled else "OFF")
+
+
 func _refresh_class_selection() -> void:
 	_updating_class_ui = true
 	var hero_ids := ids_in_world(selected_world)
@@ -2590,15 +2654,16 @@ func _layout_ability_hover_panel() -> void:
 	ability_panel.offset_right = 520.0
 	ability_panel.offset_bottom = 690.0
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.05, 0.04, 0.03, 0.55)
+	style.bg_color = Color(0.05, 0.04, 0.03, 0.85)
 	style.border_color = Color(1.0, 0.72, 0.28, 0.9)
 	style.set_border_width_all(2)
-	style.set_corner_radius_all(8)
+	style.set_corner_radius_all(0)
 	style.content_margin_left = 18
 	style.content_margin_right = 18
 	style.content_margin_top = 16
 	style.content_margin_bottom = 16
 	ability_panel.add_theme_stylebox_override("panel", style)
+	ability_hero_header.add_theme_font_override("font", PIXEL_FONT)
 	var layout := ability_panel.get_node_or_null("Margin/Layout") as VBoxContainer
 	if layout != null:
 		ability_hover_icon = layout.get_node_or_null("AbilityHoverIcon") as TextureRect
@@ -2630,6 +2695,7 @@ func _layout_ability_hover_panel() -> void:
 		ability_hover_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		ability_hover_body.add_theme_color_override("default_color", Color("f4f0e6"))
 		ability_hover_body.add_theme_font_size_override("normal_font_size", 16)
+		ability_hover_body.add_theme_font_override("normal_font", PIXEL_FONT)
 		# Rendered ability preview: a real SubViewport running a mini game world where
 		# the hero bot casts the hovered ability on 3 standing creeps (actual in-game
 		# hero sprite + creeps + VFX, not a hand-drawn mimicry). See ability_preview_world.
