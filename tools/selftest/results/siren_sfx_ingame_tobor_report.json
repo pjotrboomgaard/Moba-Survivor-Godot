@@ -1,0 +1,74 @@
+{
+  "effects": [
+    {
+      "command": "toggle_invulnerable",
+      "kind": "dev_command",
+      "t": 0.266666666666666
+    },
+    {
+      "command": "grant_siren",
+      "kind": "dev_command",
+      "t": 0.403784
+    },
+    {
+      "ability_id": "siren",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "siren",
+      "kind": "sound_probe",
+      "label": "siren_sfx",
+      "last_play_ability": "",
+      "last_play_sound_id": "siren",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/siren_2.wav",
+      "t": 1.00933322222222
+    }
+  ],
+  "elapsed": 1.734909,
+  "enemies_spawned": 0,
+  "hero_position": "(35.07599, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 0,
+    "casts": [],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 0,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 0
+  },
+  "shots": [
+    {
+      "label": "siren_sfx_ingame",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_7031/siren_sfx_ingame_1.526_7031.png",
+      "t": 1.52602266666667
+    }
+  ]
+}

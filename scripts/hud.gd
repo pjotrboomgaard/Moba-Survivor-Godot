@@ -25,6 +25,8 @@ signal beacon_bought
 signal beacon_tab_toggled(visible: bool)
 
 const UPGRADE_ICON_MAX_WIDTH := 28
+## 2026-09-19: pixel-art font for all in-game HUD text (matches main menu).
+const HUD_PIXEL_FONT := preload("res://assets/fonts/Silkscreen-Regular.ttf")
 
 @onready var class_label: Label = $MarginContainer/Layout/Title
 @onready var instructions_label: Label = $MarginContainer/Layout/Instructions
@@ -256,6 +258,7 @@ func _ready() -> void:
 	upgrade_panel.visible = false
 	offered_upgrade_ids.clear()
 	_build_fps_counter()
+	_style_hud_pixel_art()
 	if get_tree().paused:
 		get_tree().paused = false
 
@@ -2141,8 +2144,8 @@ func _build_side_quest_label() -> void:
 	quest_label = Label.new()
 	quest_label.name = "QuestLabel"
 	quest_label.visible = false
-	quest_label.position = Vector2(290, 14)
-	quest_label.size = Vector2(620, 68)
+	quest_label.position = Vector2(16, 14)
+	quest_label.size = Vector2(420, 68)
 	# Mouse-enabled so the player can click the quest text to re-aim the arrow.
 	quest_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	quest_label.mouse_entered.connect(_on_quest_label_mouse_entered)
@@ -2388,6 +2391,39 @@ func _build_fps_counter() -> void:
 	fps.size = Vector2(65, 16)
 	add_child(fps)
 	_fps_counter = fps
+
+
+## 2026-09-19: apply a consistent pixel-art look to in-game HUD text and panels.
+## Uses the same pixel font as the main menu and squares off panel corners.
+
+func _style_hud_pixel_art() -> void:
+	# Every Label / Button in the HUD gets the pixel font.
+	_apply_pixel_font_recursive(self)
+	# Square off any rounded panel corners.
+	_style_panels_recursive(self)
+
+
+func _apply_pixel_font_recursive(node: Node) -> void:
+	if node is Label:
+		(node as Label).add_theme_font_override("font", HUD_PIXEL_FONT)
+	elif node is RichTextLabel:
+		(node as RichTextLabel).add_theme_font_override("normal_font", HUD_PIXEL_FONT)
+	elif node is Button:
+		(node as Button).add_theme_font_override("font", HUD_PIXEL_FONT)
+	for child in node.get_children():
+		_apply_pixel_font_recursive(child)
+
+
+func _style_panels_recursive(node: Node) -> void:
+	if node is PanelContainer:
+		var pc := node as PanelContainer
+		for sb_key in ["panel"]:
+			var existing: StyleBox = pc.get_theme_stylebox(sb_key)
+			if existing is StyleBoxFlat:
+				(existing as StyleBoxFlat).set_corner_radius_all(0)
+				(existing as StyleBoxFlat).set_border_width_all(2)
+	for child in node.get_children():
+		_style_panels_recursive(child)
 
 
 func _refresh_fps_counter() -> void:

@@ -1,0 +1,17 @@
+{
+  "hero": "tobor",
+  "comment": "Full LMB/RMB/ability SFX audit for tobor. Verifies all three banks fire correctly.",
+  "events": [
+    {"t": 0.2, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.4, "kind": "spawn", "at": [80, 0], "type": "slime"},
+    {"t": 0.6, "kind": "primary_attack", "aim": [80, 0]},
+    {"t": 0.8, "kind": "sound_probe", "label": "lmb_tobor", "ability_id": "primary_attack_tobor"},
+    {"t": 1.2, "kind": "secondary_hold", "duration": 1.6},
+    {"t": 2.85, "kind": "sound_probe", "label": "rmb_tobor", "ability_id": "secondary_attack_tobor"},
+    {"t": 3.2, "kind": "cast", "slot": 0, "aim": [80, 0]},
+    {"t": 3.4, "kind": "sound_probe", "label": "ability_q_tobor", "ability_id": "tobor_steam_keg"},
+    {"t": 4.0, "kind": "snap", "label": "sfx_tobor"},
+    {"t": 4.2, "kind": "report"}
+  ],
+  "wait_ms": 8000
+}

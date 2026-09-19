@@ -5,8 +5,10 @@ extends RefCounted
 ## Tree shadows stay on the south side of the trunk and only swing with the sun.
 
 const CYCLE_SECONDS := 210.0
-const NIGHT_START := 0.78
-const NIGHT_END := 0.90
+const NIGHT_START := 0.76
+## Night ends just past the cycle boundary (wraps to ~0.00).
+## Duration: 0.76 -> 1.00 + 0.00 = 0.24 of cycle (~50s of 210s).
+const NIGHT_END := 0.02
 
 static var time_of_day := 0.18
 static var revision := 0
@@ -33,7 +35,11 @@ static func tick(delta: float) -> void:
 
 static func _refresh() -> void:
 	var t := time_of_day
-	is_night = t >= NIGHT_START and t < NIGHT_END
+	# NIGHT_END wraps past 1.0 into the next cycle (0.76 → 0.02 = 0.24 span).
+	if NIGHT_START < NIGHT_END:
+		is_night = t >= NIGHT_START and t < NIGHT_END
+	else:
+		is_night = t >= NIGHT_START or t < NIGHT_END
 	# Sun stays in the southern half of the screen and only swings east/west.
 	# It rises in the EAST (+x) and sets in the WEST (-x) to match real-world
 	# convention. The shadow (opposite of sun_dir) therefore points west at
@@ -58,9 +64,15 @@ static func _refresh() -> void:
 	shadow_stretch = lerpf(1.05, 0.38, noon)
 	shadow_alpha = lerpf(0.22, 0.40, 1.0 - noon)
 	if t < 0.16:
-		var k := t / 0.16
-		ambient = Color(1.06, 0.88, 0.72, 1.0).lerp(Color(1.0, 0.98, 0.94, 1.0), k)
-		shadow_alpha = lerpf(0.18, 0.32, k)
+		# Dawn: night ambient (0.38,0.44,0.58) → warm sunrise → bright day.
+		# NIGHT_END (0.02) is the first sliver of "day" still in night colors.
+		if t < NIGHT_END:
+			ambient = Color(0.38, 0.44, 0.58, 1.0)
+			shadow_alpha = 0.08
+		else:
+			var k := (t - NIGHT_END) / maxf(0.001, 0.16 - NIGHT_END)
+			ambient = Color(0.38, 0.44, 0.58, 1.0).lerp(Color(1.0, 0.98, 0.94, 1.0), k)
+			shadow_alpha = lerpf(0.08, 0.32, k)
 	elif t < 0.55:
 		ambient = Color(1.0, 1.0, 1.0, 1.0)
 		shadow_alpha = lerpf(0.34, 0.26, noon)

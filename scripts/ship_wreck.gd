@@ -34,7 +34,7 @@ const SHOP_SPRITE_WHITE := "res://SpritesImport/toborship/shop_combined_white.pn
 ## World width the full ship image renders at. The PNG is 1280x720; its ship
 ## content spans x[0.10,0.91] y[0.26,0.79] so the visual ship is ~0.81 wide and
 ## ~0.53 tall in image space.
-const SHIP_WIDTH_WORLD := 620.0
+const SHIP_WIDTH_WORLD := 820.0
 
 ## Collision segments (left to right), each [x0, x1] in normalized image-uv
 ## space. These are the SOLID parts of the ship that block movement; the gaps

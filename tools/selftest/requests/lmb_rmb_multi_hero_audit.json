@@ -1,0 +1,41 @@
+{
+  "hero": "tobor",
+  "comment": "Multi-hero LMB/RMB SFX audit: verify attack_<hero> and attack_secondary_<hero> fire for 4 sample heroes. The last_attack_play field in AudioService is dedicated to attack SFX, so probes are reliable even with footstep/wave sounds in between.",
+  "events": [
+    {"t": 0.2, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.3, "kind": "spawn", "at": [100, 0], "type": "grunt"},
+    {"t": 0.3, "kind": "spawn", "at": [100, 40], "type": "grunt"},
+
+    {"t": 0.5, "kind": "hero", "id": "tobor"},
+    {"t": 0.6, "kind": "aim", "at": [100, 0]},
+    {"t": 0.7, "kind": "primary_hold", "duration": 0.6},
+    {"t": 1.35, "kind": "sound_probe", "label": "lmb_tobor", "ability_id": "primary_attack_tobor"},
+    {"t": 1.5, "kind": "secondary_hold", "duration": 1.4},
+    {"t": 2.95, "kind": "sound_probe", "label": "rmb_tobor", "ability_id": "secondary_attack_tobor"},
+
+    {"t": 3.2, "kind": "hero", "id": "arclight"},
+    {"t": 3.3, "kind": "aim", "at": [100, 0]},
+    {"t": 3.4, "kind": "primary_hold", "duration": 0.6},
+    {"t": 4.05, "kind": "sound_probe", "label": "lmb_arclight", "ability_id": "primary_attack_arclight"},
+    {"t": 4.2, "kind": "secondary_hold", "duration": 1.4},
+    {"t": 5.65, "kind": "sound_probe", "label": "rmb_arclight", "ability_id": "secondary_attack_arclight"},
+
+    {"t": 5.9, "kind": "hero", "id": "cinder"},
+    {"t": 6.0, "kind": "aim", "at": [100, 0]},
+    {"t": 6.1, "kind": "primary_hold", "duration": 0.6},
+    {"t": 6.75, "kind": "sound_probe", "label": "lmb_cinder", "ability_id": "primary_attack_cinder"},
+    {"t": 6.9, "kind": "secondary_hold", "duration": 1.4},
+    {"t": 8.35, "kind": "sound_probe", "label": "rmb_cinder", "ability_id": "secondary_attack_cinder"},
+
+    {"t": 8.6, "kind": "hero", "id": "rime"},
+    {"t": 8.7, "kind": "aim", "at": [100, 0]},
+    {"t": 8.8, "kind": "primary_hold", "duration": 0.6},
+    {"t": 9.45, "kind": "sound_probe", "label": "lmb_rime", "ability_id": "primary_attack_rime"},
+    {"t": 9.6, "kind": "secondary_hold", "duration": 1.4},
+    {"t": 11.05, "kind": "sound_probe", "label": "rmb_rime", "ability_id": "secondary_attack_rime"},
+
+    {"t": 11.5, "kind": "snap", "label": "lmb_rmb_audit"},
+    {"t": 11.8, "kind": "report"}
+  ],
+  "wait_ms": 14000
+}

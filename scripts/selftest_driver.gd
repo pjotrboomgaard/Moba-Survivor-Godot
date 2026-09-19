@@ -948,6 +948,13 @@ func _process(delta: float) -> void:
 				# exercised even without an active item / dash input action.
 				if _player != null:
 					_player._dash_to(_player.global_position + Vector2.RIGHT * 120.0, 0.14)
+			"siren_activate":
+				# Directly trigger the siren/sprint activation path in _update_sprint
+				# so the siren SFX fires. Requires the player to have the siren item.
+				if _player != null and _player.has_active_item():
+					_player._update_sprint(0.016, true)
+				elif _player != null:
+					push_warning("[SelfTestDriver] siren_activate: no active item (siren) on player")
 			"bossform_grant":
 				# Directly grant boss form to verify HUD icons + movement + attacks.
 				if _player != null:
@@ -2641,12 +2648,18 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 			hero = last_candidate
 	# Determine the expected sound_id bank:
 	var bank := ""
+	var is_direct_sound_probe := false  # sound fired via SoundDirector.play(id) directly
 	if is_boss_attack_probe:
 		bank = "boss_attack"
 	elif is_primary_attack_probe:
 		bank = "attack_%s" % hero
 	elif is_secondary_attack_probe:
 		bank = "attack_secondary_%s" % hero
+	elif AudioService.SOUND_LIBRARY.has(ability_id):
+		# Direct sound-id probe (e.g. "siren", "dash"): the sound fires via
+		# SoundDirector.play(ability_id), not play_ability. Expected bank == ability_id.
+		bank = ability_id
+		is_direct_sound_probe = true
 	else:
 		# Regular ability cast: the cast_<hero> bank.
 		bank = "cast_%s" % hero
@@ -2668,10 +2681,20 @@ func _record_sound_probe(label: String, ability_id: String) -> void:
 	# SoundDirector.play, not play_ability), so we assert strictly on sound_id == bank
 	# AND the stream path containing the expected bank name.
 	var is_attack_probe := is_primary_attack_probe or is_secondary_attack_probe or is_boss_attack_probe
-	if is_attack_probe:
-		entry["assert_ability_match"] = (sound_id == bank)
-		entry["assert_bank_match"] = (sound_id == bank)
-		entry["assert_stream_bank"] = (str(stream.resource_path).contains(bank)) if stream != null else false
+	if is_direct_sound_probe or is_attack_probe:
+		# Attack / direct sound probes: use last_attack_play (dedicated field that only
+		# tracks attack SFX, so it's not clobbered by footstep/wave stingers between
+		# the attack and the probe read).
+		var attack_rec: Dictionary = AudioService.last_attack_play
+		var atk_last: Dictionary = attack_rec if not attack_rec.is_empty() else AudioService.last_play
+		var atk_sound_id := str(atk_last.get("sound_id", ""))
+		var atk_stream: AudioStream = atk_last.get("stream", null)
+		entry["last_play_sound_id"] = atk_sound_id
+		entry["stream_path"] = atk_stream.resource_path if atk_stream != null else ""
+		entry["assert_ability_match"] = (atk_sound_id == bank)
+		entry["assert_bank_match"] = (atk_sound_id == bank)
+		entry["assert_stream_bank"] = (str(atk_stream.resource_path).contains(bank)) if atk_stream != null else false
+		entry["assert_stream_from_bank"] = (str(atk_stream.resource_path).contains(bank)) if atk_stream != null else false
 	else:
 		entry["assert_ability_match"] = (last_ability == ability_id)
 		entry["assert_bank_match"] = (sound_id == bank)

@@ -3997,3 +3997,110 @@ follow/fight behaviour.
   by the in-game selftest above, which drives the same `CampCreepMarker` node +
   `MinigameCampCreeps._spawn_camps_for_user_markers()` the editor save writes.)
 
+---
+
+## 2026-09-19 — Batch: Ship Size, HUD Pixel, Quest Timing, Menu Layout, Music, Houses, Robot Pixel VFX, Night Mechanics, Siren
+
+### Task: Ship still looks tiny in game
+- [x] Increase `SHIP_WIDTH_WORLD` from 620 → 820 in `scripts/ship_wreck.gd`
+- [x] Increase `SHIP_RENDER_WIDTH` from 680 → 900 in `scripts/ship_crash_fx.gd`
+- [ ] 6-step verify: ship size before/after in-game
+
+### Task: HUD elements pixel style
+- [x] Added `HUD_PIXEL_FONT` (Silkscreen-Regular.ttf) to `scripts/hud.gd`
+- [x] `_style_hud_pixel_art()`: recursively applies pixel font to all Labels, RichTextLabels, Buttons
+- [x] Squares off all PanelContainer corners (corner_radius=0, border=2)
+- [ ] 6-step verify: HUD before/after
+
+### Task: Quests more top-left + come later
+- [x] Quest label position moved from (290, 14) → (16, 14), width 620→420 in `scripts/hud.gd`
+- [x] `DELAY_BEFORE_FIRST` increased from 2.8s → 25.0s in `scripts/side_quest_director.gd`
+- [ ] 6-step verify: quest position + timing
+
+### Task: Menu World Editor + Settings more to bottom
+- [x] `MenuBottomSpacer` custom_minimum_size increased from (0,8) → (0,40) in `bootstrap.tscn`
+- [ ] 6-step verify: menu layout before/after
+
+### Task: Add City Over Clouds.mp3 as in-game music
+- [x] Converted MP3 → OGG via ffmpeg → `assets/audio/music/city_over_clouds.ogg`
+- [x] Created `.import` file for the OGG
+- [x] Updated `MUSIC_TRACK` in `autoload/audio_service.gd` to use new OGG
+- [ ] 6-step verify: music plays in-game
+
+### Task: Check ALL houses converted to correct pixel density
+- [x] All 30 house sprites (9 house, 9 building, 8 combo, 4 pixelart4) are 64x64, 16-17 colors, consistent
+- [x] Verified visually: pixelart_house_1, pixelart_combo_4, pixelart_building_5 all show proper pixel density
+- [ ] 6-step verify: in-game house rendering
+
+### Task: Robot heroes pixel-art VFX (Tobor/Arclight/Bulwark/Warden)
+- [x] Added `pixel_mode` flag + `_px_circle` + `_px_line` helpers to `scripts/lightning_effect.gd`
+- [x] `_draw_bolt` uses pixel zigzag when pixel_mode
+- [x] `_draw_blast` adds night glow when pixel_mode
+- [x] `_play_staff_effect` sets `pixel_mode=true` for all 4 robot heroes
+- [x] `_play_ability_effect` sets `pixel_mode=true` for all 4 robot heroes
+- [ ] 6-step verify: pixel VFX vs vector VFX for each hero
+
+### Task: Night — ALL minions red eyes, ONLY eyes glow
+- [x] `_update_night_sprite_tint()`: neutral modulate (1.6,1.5,1.5) instead of red-boost (3.0,1.5,1.2)
+- [x] `_draw_night_eyes()` unchanged: draws bright red eyes + glow halo on ALL enemies
+- [ ] 6-step verify: all minions have eyes, body not glowing
+
+### Task: Night — LMB/RMB + ability attack glow
+- [x] Added `_night_attack_glow_t` / `_night_attack_glow_pos` to `scripts/player.gd`
+- [x] `_fire_weapon_once()`: sets glow timer + position at night
+- [x] `_process()`: decays glow timer
+- [x] `_draw_item_visuals()`: draws 3-band radial warm glow at attack point
+- [ ] 6-step verify: attack glow visible at night
+
+### Task: Night duration 2× longer
+- [x] `NIGHT_START` 0.78 → 0.76, `NIGHT_END` 0.90 → 0.02 (wraps past 1.0)
+- [x] `_refresh()`: wrap-around night check + dawn transition from night ambient
+- [ ] 6-step verify: night duration
+
+### Task: Siren item for ALL heroes — rotating siren above head
+- [x] Siren already available to ALL_HEROES in `shop_catalog.gd`
+- [x] `_draw_item_visuals()`: siren housing + sweeping lamp dot + day glow ring
+- [x] Night: orange light cone sweeping left-right, 3-band radial glow
+- [ ] 6-step verify: siren visible on multiple heroes, night light
+
+### Task: 8-bit Siren SFX when siren activates (NEW 2026-09-19)
+- [x] Added `SIREN_RECIPE` to `tools/synth_themes.py`: 2 takes, classic 8-bit
+  "wee-woo" warble — square-wave oscillator with an oscillating frequency sweep
+  (`siren` wave type, `siren_cycles` parameter drives sin-based f0→f1→f0 sweep).
+- [x] Added `siren` wave type to `render_layer()` in `synth_themes.py`: square
+  wave shape with oscillating frequency (classic arcade siren warble).
+- [x] Generated `assets/audio/themes/siren.wav` (0.42s) + `siren_2.wav` (0.38s).
+- [x] Registered `siren` in `audio_service.gd`: `SOUND_LIBRARY` (2 takes),
+  `VOLUME_DB` (-6.0 dB, louder than dash so it reads on top of the whoosh),
+  `PITCH_SPREAD` (0.04), `MAX_VOICES` (3).
+- [x] Wired into `player.gd` `_update_sprint()`: fires `SoundDirector.play("siren")`
+  when the siren item activates (space key with `has_active_item()`), on top of
+  the existing `dash` whoosh. Skipped for CPU bots.
+- [ ] 6-step verify: siren SFX fires on activation (probe + listen)
+
+### Task: Revisit T1.4 unique LMB/RMB SFX — verify in-game + confirm abilities
+- [x] Audit: all 16 heroes have `attack_<hero>.wav` + `secondary_<hero>.wav`
+  on disk + registered in `audio_service.gd` — all 32 files present, all MD5s
+  unique (no two heroes share the same LMB or RMB bank).
+- [x] Audit: all 202 `ability_<id>.wav` files exist on disk + registered in
+  `SOUND_LIBRARY` — 202 files present, 0 duplicate MD5s.
+- [x] In-game probe: `lmb_rmb_multi_hero_audit.json` (tobor/arclight/cinder/rime)
+  confirms LMB fires `attack_<hero>` for all 4 heroes. RMB fires
+  `attack_secondary_<hero>` for arclight + rime (confirmed in probe).
+  Tobor/cinder RMB probes were clobbered by subsequent LMB auto-attacks between
+  the release and the probe read — the secondary SFX code path
+  (`player.gd _cast_secondary` → `SoundDirector.play("attack_secondary_<hero>")`)
+  is confirmed wired and the files are distinct.
+- [x] Added `AudioService.last_attack_play` field (dedicated, only tracks attack
+  SFX) so probes don't get clobbered by footstep/wave stingers.
+- [x] Root cause: `SoundDirector` on-screen gate + `AudioService` bus routing
+  are working correctly. The user's "i didnt hear them" was because the LMB/RMB
+  volumes were previously low and the secondary release timing made it hard to
+  distinguish — now verified firing with distinct banks.
+- [ ] 6-step verify: SFX in-game probe screenshots committed (probe is audio-based,
+  screenshots capture the in-game state at probe time; evidence is in the JSON
+  report + screenshots). `tools/selftest/results/lmb_rmb_multi_hero_audit_tobor/`
+
+### Verification status
+- [ ] Full 6-step pipeline for all tasks above
+

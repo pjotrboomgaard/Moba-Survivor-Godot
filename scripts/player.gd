@@ -346,6 +346,10 @@ var _charge_lock_impact := Vector2.ZERO
 var _charge_firing := false
 var _attack_held_prev := false
 var charge_rate_mult := 1.0
+## 2026-09-19: night attack glow — brief light flash when attacking at night.
+var _night_attack_glow_t := 0.0
+var _night_attack_glow_pos := Vector2.ZERO
+const NIGHT_GLOW_DURATION := 0.25
 
 ## T3.96: Generic charge bank for ALL heroes' Q + E abilities.
 ## Each hero gets 2 charge-able abilities (kit_q + kit_e). Charges start at 1 at
@@ -474,6 +478,11 @@ func _process(_delta: float) -> void:
 			camera.offset = Vector2.ZERO
 		else:
 			camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * _shake_amp
+	# 2026-09-19: decay night attack glow timer.
+	if _night_attack_glow_t > 0.0:
+		_night_attack_glow_t = maxf(0.0, _night_attack_glow_t - _delta)
+		if _night_attack_glow_t <= 0.0:
+			queue_redraw()
 	_refresh_respawn_label()
 	_tick_boss_form(_delta)
 	if shop_hint != null and shop_hint.visible:
@@ -1641,6 +1650,10 @@ func _update_sprint(delta: float, ability_held: bool) -> void:
 		sprint_timer = sprint_burst_duration()
 		sprint_cooldown = sprint_cycle_length()
 		SoundDirector.play("dash", global_position)
+		# 2026-09-19: siren (dash item) activates — fire the 8-bit warbling siren stinger
+		# on top of the dash whoosh so the rotating siren light has an audio match.
+		if stacks_of(ShopCatalog.ACTIVE_ITEM_ID) > 0 and simulation_mode != SimulationMode.CPU:
+			SoundDirector.play("siren", global_position)
 	## Phase Boots: the sprint genuinely phases through units and obstacles now, not just a
 	## speed boost — collision is off for the whole burst and restored the instant it ends.
 	if sprint_timer > 0.0 and not was_sprinting:
@@ -5751,6 +5764,11 @@ func _fire_weapon_once() -> void:
 	# FFA / the ability-preview viewport don't stack the whole roster at once.
 	if simulation_mode != SimulationMode.CPU:
 		SoundDirector.play("attack_%s" % class_id, global_position)
+	# 2026-09-19: at night, LMB attack lights up the surroundings.
+	if WorldClock.is_night:
+		_night_attack_glow_t = NIGHT_GLOW_DURATION
+		_night_attack_glow_pos = global_position + facing_direction * 30.0
+		queue_redraw()
 	match weapon_kind:
 		PlayerClass.Weapon.CHAIN_BOLT:
 			_cast_chain_bolt()
@@ -6152,6 +6170,11 @@ func lose_half_gold() -> int:
 
 func stacks_of(item_id: String) -> int:
 	return int(shop_stacks.get(item_id, 0))
+
+
+## 2026-09-19: snap a vector to a pixel grid for blocky rendering.
+func _snap_to_grid(v: Vector2, grid: float = 4.0) -> Vector2:
+	return Vector2(roundf(v.x / grid) * grid, roundf(v.y / grid) * grid)
 
 
 func can_afford(item_id: String) -> bool:
@@ -6733,19 +6756,61 @@ func _draw_item_visuals() -> void:
 			draw_arc(Vector2(0.0, 10.0), 10.0, PI * 0.15, PI * 0.85, 12,
 				Color(0.5, 0.9, 1.0, trail_alpha * 1.5), 2.0, true)
 
-	# Siren (dash item): a small speed-line accent when dashing.
+	# Siren (dash item): a rotating siren light above the hero's head.
+	# Day: just the siren light animating (sweeping left-right).
+	# Night: additionally emits an orange glow that lights up the surroundings
+	# in sync with the siren's left-right sweep.
 	if stacks_of("sirene") > 0:
-		var dash_pulse := 0.3 + 0.3 * sin(Time.get_ticks_msec() * 0.006)
-		# Small chevron marks on the front of the hero.
-		var sdir := facing_direction if facing_direction.length_squared() > 0.0 else Vector2.RIGHT
-		var c1 := sdir * 18.0 + Vector2(0, -6.0)
-		var c2 := sdir * 18.0 + Vector2(0, 6.0)
-		draw_line(sdir * 14.0 + Vector2(0, -6.0), c1, Color(0.9, 0.95, 1.0, 0.4 * dash_pulse), 1.5)
-		draw_line(sdir * 14.0 + Vector2(0, 6.0), c2, Color(0.9, 0.95, 1.0, 0.4 * dash_pulse), 1.5)
+		var siren_t := Time.get_ticks_msec() * 0.003
+		# Sweep angle: oscillates left-right (sine wave).
+		var sweep := sin(siren_t)
+		# Siren base position: above the head.
+		var siren_pos := Vector2(0.0, -22.0)
+		# Siren lamp: a small bright dot that moves left-right.
+		var lamp_x := sweep * 4.0
+		# Lamp color: white when active, dims slightly.
+		var lamp_brightness := 0.6 + 0.4 * absf(sweep)
+		var lamp_col := Color(1.0, 0.85, 0.3, lamp_brightness)
+		# Draw the siren housing (small rectangle).
+		draw_rect(Rect2(siren_pos.x - 5.0, siren_pos.y - 3.0, 10.0, 6.0),
+			Color(0.4, 0.4, 0.45, 0.85))
+		# Draw the sweeping lamp dot.
+		draw_circle(siren_pos + Vector2(lamp_x, 0.0), 3.0, lamp_col)
+		# Day: subtle glow ring around the siren.
+		var day_glow := Color(1.0, 0.85, 0.3, 0.15 + 0.1 * absf(sweep))
+		draw_arc(siren_pos, 8.0, 0.0, TAU, 12, day_glow, 1.5, true)
+		# Night: orange light that sweeps with the siren, lighting surroundings.
+		if WorldClock.is_night:
+			var night_sweep := sweep
+			# Light cone: a fan of orange light that follows the siren sweep.
+			var light_center := siren_pos + Vector2(night_sweep * 12.0, 0.0)
+			var light_r := 35.0 + 10.0 * absf(night_sweep)
+			# Outer soft glow.
+			var outer_glow := Color(1.0, 0.6, 0.15, 0.12 + 0.08 * absf(night_sweep))
+			draw_circle(light_center, light_r, outer_glow)
+			# Mid glow.
+			var mid_glow := Color(1.0, 0.7, 0.2, 0.2 + 0.12 * absf(night_sweep))
+			draw_circle(light_center, light_r * 0.6, mid_glow)
+			# Core hot spot.
+			var core_glow := Color(1.0, 0.85, 0.4, 0.35 + 0.2 * absf(night_sweep))
+			draw_circle(light_center, light_r * 0.25, core_glow)
 
 	# Beacon: a small antenna glow on top of the hero's head (the beacon is an
 	# arena-level item, but a subtle indicator on the hero ties the two together).
 	# No visual on the hero itself — the beacon is a separate arena entity.
+
+	# 2026-09-19: night attack glow — brief warm light flash at the attack point.
+	if _night_attack_glow_t > 0.0 and WorldClock.is_night:
+		var glow_frac := _night_attack_glow_t / NIGHT_GLOW_DURATION
+		# Soft radial glow (3 bands for a pixel-art falloff).
+		var band_colors := [
+			Color(1.0, 0.8, 0.3, 0.04 * glow_frac),
+			Color(1.0, 0.7, 0.2, 0.10 * glow_frac),
+			Color(1.0, 0.85, 0.4, 0.18 * glow_frac),
+		]
+		var radii := [52.0, 34.0, 18.0]
+		for i in 3:
+			draw_circle(_night_attack_glow_pos, radii[i], band_colors[i])
 
 
 ## LMB charge indicator: shows the growing damage number above the hero while the

@@ -6,7 +6,7 @@ const SideQuestScript := preload("res://scripts/side_quest.gd")
 ## after a cooldown. Up to MAX_ACTIVE_QUESTS_PER_PEER may be active at once so a
 ## player can choose between several objectives.
 
-const DELAY_BEFORE_FIRST := 2.8
+const DELAY_BEFORE_FIRST := 25.0
 ## Cooldown between spawns. When a quest completes while another is still active, a
 ## new one rolls after this delay (45-60s game time) so the bot sees fresh quests.
 const DELAY_AFTER_COMPLETE := 50.0

@@ -225,7 +225,7 @@ text = "🔊 SFX: ON"
 [node name="MenuBottomSpacer" type="Control" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
 size_flags_vertical = 3
-custom_minimum_size = Vector2(0, 8)
+custom_minimum_size = Vector2(0, 40)
 
 ; --- WORLD EDITOR button (standalone, above settings) ---
 [node name="CompactWorldEditorBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]

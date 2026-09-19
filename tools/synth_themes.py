@@ -139,19 +139,27 @@ def render_layer(data, layer, rng):
     f0, f1 = float(layer["f0"]), float(layer["f1"])
     dur, amp = float(layer["dur"]), float(layer["amp"])
     partials = layer.get("partials", [])
+    siren_cycles = layer.get("siren_cycles", 2.0)  # number of up-down sweeps
     samples = min(int(dur * MIX_RATE), len(data))
     fade = int(FADE_MS * 0.001 * MIX_RATE)
     phase = 0.0
     lp = 0.0  # one-pole lowpass state for whoosh
     for i in range(samples):
         u = i / samples
-        f = f0 * (f1 / f0) ** u
+        if wave_kind == "siren":
+            # Oscillating frequency sweep: sin drives f0->f1->f0 over siren_cycles
+            import math as _m
+            f = f0 + (f1 - f0) * 0.5 * (1.0 + _m.sin(2.0 * _m.pi * siren_cycles * u))
+        else:
+            f = f0 * (f1 / f0) ** u
         phase += f / MIX_RATE
         if phase >= 1.0:
             phase -= math.floor(phase)
         if wave_kind == "sine":
             s = math.sin(2 * math.pi * phase)
-        elif wave_kind == "square":
+        elif wave_kind in ("square", "siren"):
+            # "siren" uses the same square-wave shape but with the oscillating
+            # frequency sweep set up above (classic 8-bit wee-woo warble).
             s = (1.0 if phase < layer.get("duty", 0.5) else -1.0) * 0.7
         elif wave_kind == "saw":
             s = (phase * 2.0 - 1.0) * 0.7
@@ -535,6 +543,19 @@ ELECTRO_RECIPE = [
      dict(wave="chime", f0=2800, f1=1600, dur=0.15, amp=0.15, partials=[1.0, 2.0])],
 ]
 
+# Siren (dash item) activation stinger. An 8-bit style warping "wee-woo" siren:
+# a square-wave oscillator whose pitch sweeps up then down rapidly (~2 cycles),
+# giving the classic arcade police/emergency siren sound. Two takes with slightly
+# different sweep rates so repeated activations don't sound identical.
+SIREN_RECIPE = [
+    # Take 1: classic 2-cycle warble, sharp square wave.
+    [dict(wave="square", f0=520, f1=1400, dur=0.42, amp=0.50, duty=0.5),
+     dict(wave="square", f0=1400, f1=520, dur=0.42, amp=0.35, duty=0.45)],
+    # Take 2: slightly faster 2.5-cycle warble, saw for grit.
+    [dict(wave="saw", f0=480, f1=1500, dur=0.38, amp=0.52, duty=0.5),
+     dict(wave="square", f0=1500, f1=480, dur=0.38, amp=0.32, duty=0.4)],
+]
+
 # T3.13 storm: two parts. "thunder_rumble" is the deep low rumble that follows
 # a lightning flash (delayed). "thunder_crack" is the sharp initial strike
 # crack heard at the instant of the bolt.
@@ -749,6 +770,13 @@ def main():
             write_wav(path, synthesize(take, rng))
             written += 1
             print("wrote %s" % path)
+    # Siren (dash item) activation stinger — 8-bit style warbling siren.
+    for i, take in enumerate(SIREN_RECIPE):
+        suffix = "" if i == 0 else "_%d" % (i + 1)
+        path = os.path.join(OUT_DIR, "siren" + suffix + ".wav")
+        write_wav(path, synthesize(take, rng))
+        written += 1
+        print("wrote %s" % path)
     # T3.6/T3.7 biome-hazard SFX.
     write_wav(os.path.join(OUT_DIR, "lava_cool.wav"), synthesize(LAVA_COOL_RECIPE[0], rng))
     written += 1

@@ -2531,6 +2531,9 @@ func _play_staff_effect(effect_kind: String, points: PackedVector2Array) -> void
 	if effect.style == PlayerClass.EffectStyle.BLAST:
 		effect.lifetime = 0.28
 		effect.draw_mode = "simple_circle"
+	# 2026-09-19: robot heroes use pixel-art VFX (minimal, similar to vector).
+	if effect_kind in ["tobor", "arclight", "bulwark", "warden"]:
+		effect.pixel_mode = true
 	effect.points = points
 	add_child(effect)
 	SoundDirector.play("attack_%s" % effect_kind, points[0] if points.size() > 0 else null)
@@ -2756,6 +2759,9 @@ func _play_ability_effect(ability_id: String, effect_style: int, points: PackedV
 			flash.lifetime = clampf(0.14 + (points[1].x if points.size() >= 2 else 80.0) / 900.0, 0.14, 0.42) * lifetime_scale
 		flash.points = points
 		KitFxLibrary.apply_to_lightning(flash, ability_id)
+		# 2026-09-19: robot heroes use pixel-art VFX (minimal, similar to vector).
+		if class_prefix in ["tobor", "arclight", "bulwark", "warden"]:
+			flash.pixel_mode = true
 		_add_vector_fx(flash, ability_id)
 	# 2026-09-16 user rule: NO pixel-art effect frames on ANY ability — even placed
 	# objects (turrets / wards / mines / zones). The placed object's own sprite
@@ -3266,6 +3272,8 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 			# T3.59 test hook: jump straight into the night window so the surge
 			# triggers this frame (WorldClock.tick will pick it up next tick).
 			WorldClock.time_of_day = WorldClock.NIGHT_START + 0.01
+			WorldClock._refresh()
+			WorldClock.revision += 1
 		"spawn_drone":
 			# T3.62 test hook: spawn a gun drone companion for the local player so
 			# the projectile visibility fix can be verified in a short selftest.
@@ -3279,6 +3287,11 @@ func _apply_dev_command(peer_id: int, command: String) -> void:
 		"clear_active_summons":
 			# Test hook: free all of the player's active summons (turrets/mines).
 			player._clear_active_summons()
+		"grant_siren":
+			# Test hook: grant the siren (active dash item) stacks directly so the
+			# siren SFX + visual can be verified without waiting for a shop buy.
+			player.dev_buy_item(ShopCatalog.ACTIVE_ITEM_ID)
+			print("[main] dev grant_siren: player now has %d siren stacks" % player.stacks_of(ShopCatalog.ACTIVE_ITEM_ID))
 		"mission_warp":
 			# Test hook: run the cinematic ring-of-fire world transition on demand.
 			# Record the current (old) biome, advance to the next one, rebuild the

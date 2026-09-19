@@ -17,6 +17,10 @@ var style: PlayerClass.EffectStyle = PlayerClass.EffectStyle.BOLT
 var points := PackedVector2Array()
 var elapsed := 0.0
 var flicker_seed := 0
+## 2026-09-19: when true, all draw ops snap to a 4px grid for a minimal
+## pixel-art look. Shapes/colors stay the same; edges become blocky.
+var pixel_mode := false
+const _PIXEL_GRID := 4.0
 
 
 func _ready() -> void:
@@ -72,10 +76,67 @@ func _noise(i: int) -> float:
 	return n - floor(n)
 
 
+## 2026-09-19: pixel-art snapping. When pixel_mode is on, quantize a coordinate
+## to the 4px grid so edges look blocky. Returns the input unchanged otherwise.
+func _snap(v: float) -> float:
+	if not pixel_mode:
+		return v
+	return roundf(v / _PIXEL_GRID) * _PIXEL_GRID
+
+
+func _snap_vec(v: Vector2) -> Vector2:
+	if not pixel_mode:
+		return v
+	return Vector2(_snap(v.x), _snap(v.y))
+
+
+## 2026-09-19: pixel-art circle — drawn as a filled diamond/square grid
+## instead of a smooth circle, giving a blocky pixel-art look.
+func _px_circle(center: Vector2, radius: float, color: Color) -> void:
+	if not pixel_mode:
+		draw_circle(center, radius, color)
+		return
+	var c := _snap_vec(center)
+	var r := maxf(_snap(radius), _PIXEL_GRID)
+	var half := int(r / _PIXEL_GRID)
+	for dy in range(-half, half + 1):
+		for dx in range(-half, half + 1):
+			# Diamond-ish shape: |dx| + |dy| <= half (octagonal in pixel grid)
+			if absf(dx) + absf(dy) <= float(half):
+				draw_rect(Rect2(c.x + dx * _PIXEL_GRID - _PIXEL_GRID * 0.5,
+					c.y + dy * _PIXEL_GRID - _PIXEL_GRID * 0.5, _PIXEL_GRID, _PIXEL_GRID), color)
+
+
+## 2026-09-19: pixel-art line — snapped to grid, stepped segments.
+func _px_line(from: Vector2, to: Vector2, color: Color, width: float) -> void:
+	if not pixel_mode:
+		draw_line(from, to, color, width, true)
+		return
+	var a: Vector2 = _snap_vec(from)
+	var b: Vector2 = _snap_vec(to)
+	var steps: int = max(int(ceil((b - a).length() / _PIXEL_GRID)), 1)
+	var prev: Vector2 = a
+	for i in range(1, steps + 1):
+		var t: float = float(i) / float(steps)
+		var node: Vector2 = a.lerp(b, t)
+		draw_line(prev, node, color, width, true)
+		prev = node
+
+
 func _draw() -> void:
 	if points.size() < 2:
 		return
 	var effect_alpha := _fade_alpha()
+	# 2026-09-19: night glow — at night, any ability/explosion lights up the
+	# surroundings with a soft warm radial gradient centered on the impact point.
+	if WorldClock.is_night and points.size() >= 2:
+		var impact_pt: Vector2 = points[1] if points.size() >= 2 else points[0]
+		var glow_alpha := effect_alpha * 0.35
+		for band in 4:
+			var br := 60.0 + float(band) * 30.0
+			var ba := glow_alpha * (1.0 - float(band) / 5.0)
+			if ba > 0.01:
+				draw_circle(impact_pt, br, Color(1.0, 0.7, 0.2, ba))
 	match style:
 		PlayerClass.EffectStyle.BURST:
 			_draw_burst(points[0], points[1].x, effect_alpha)
@@ -209,6 +270,15 @@ func _draw_blast(from: Vector2, impact: Vector2, radius: float, alpha: float) ->
 		var line_color := main_color
 		line_color.a *= alpha
 		_draw_blast_beam(from, impact, line_color, alpha)
+	# 2026-09-19: night glow — light up the surroundings at impact.
+	if pixel_mode and WorldClock.is_night:
+		var night_glow_r := r * 1.8
+		var glow_a := alpha * 0.35
+		for band in 4:
+			var grow := night_glow_r * 0.25 * (float(band) + 1.0)
+			var a := maxf(0.0, glow_a * (1.0 - float(band) * 0.22))
+			if a > 0.01:
+				_px_circle(impact, grow, Color(1.0, 0.75, 0.3, a))
 	match mode:
 		"keg_shatter", "fire_petals", "bomb_pop", "dragon_breath":
 			if mode == "keg_shatter" and not has_beam:
@@ -235,7 +305,7 @@ func _draw_simple_circle(impact: Vector2, radius: float, alpha: float) -> void:
 	var pop := radius * expand
 	var fill := main_color
 	fill.a *= alpha * 0.62
-	draw_circle(impact, pop, fill)
+	_px_circle(impact, pop, fill)
 
 
 func _draw_energy_impact(from: Vector2, impact: Vector2, radius: float, _alpha: float, _has_beam: bool) -> void:
@@ -348,6 +418,9 @@ func _draw_teleport(origin: Vector2, dest: Vector2, ring_r: float, alpha: float)
 
 
 func _draw_arc_wedge(center: Vector2, radius: float, facing: Vector2, half_angle: float, alpha: float) -> void:
+	# 2026-09-19: pixel-art mode snaps the center to the grid.
+	if pixel_mode:
+		center = _snap_vec(center)
 	var mode := _mode()
 	match mode:
 		"cone_mist":
@@ -397,11 +470,12 @@ func _draw_basic_wedge(center: Vector2, radius: float, facing: Vector2, half_ang
 	color.a *= alpha * 0.5
 	var base_angle := facing.angle()
 	var arc_points := PackedVector2Array()
-	arc_points.append(center)
+	arc_points.append(_snap_vec(center) if pixel_mode else center)
 	var steps := 20
 	for i in range(steps + 1):
 		var angle := base_angle - half_angle + (half_angle * 2.0 * float(i) / float(steps))
-		arc_points.append(center + Vector2.from_angle(angle) * radius)
+		var pt: Vector2 = center + Vector2.from_angle(angle) * radius
+		arc_points.append(_snap_vec(pt) if pixel_mode else pt)
 	draw_colored_polygon(arc_points, color)
 	if pulse_count > 1:
 		for i in range(1, pulse_count):
@@ -1000,15 +1074,22 @@ func _draw_wave(from: Vector2, to: Vector2, color: Color, width: float, segment_
 
 
 func _draw_bolt(from: Vector2, to: Vector2, color: Color, width: float, segment_index: int, progress: float) -> void:
-	var midpoints := 4
+	var midpoints := 4 if not pixel_mode else 6
 	var previous := from
 	for i in range(1, midpoints + 1):
 		var t := float(i) / float(midpoints)
-		var offset := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * 4.0 * sin(progress * 20.0 + float(segment_index))
+		var offset := Vector2.ZERO
+		if not pixel_mode:
+			offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * 4.0 * sin(progress * 20.0 + float(segment_index))
+		else:
+			# Pixel mode: snapped zigzag for blocky lightning
+			var zig := 3.0 if i % 2 == 0 else -3.0
+			var perp := Vector2(-(to - from).y, (to - from).x).normalized()
+			offset = perp * zig
 		var node: Vector2 = from.lerp(to, t) + offset
 		if i >= midpoints:
 			node = to
-		draw_line(previous, node, color, width * (1.0 - t * 0.3))
+		_px_line(previous, node, color, width * (1.0 - t * 0.3))
 		previous = node
 
 

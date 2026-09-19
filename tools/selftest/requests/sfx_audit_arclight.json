@@ -1,0 +1,17 @@
+{
+  "hero": "arclight",
+  "comment": "Full LMB/RMB/ability SFX audit for arclight.",
+  "events": [
+    {"t": 0.2, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.4, "kind": "spawn", "at": [80, 0], "type": "slime"},
+    {"t": 0.6, "kind": "primary_attack", "aim": [80, 0]},
+    {"t": 0.8, "kind": "sound_probe", "label": "lmb_arclight", "ability_id": "primary_attack_arclight"},
+    {"t": 1.2, "kind": "secondary_hold", "duration": 1.6},
+    {"t": 2.85, "kind": "sound_probe", "label": "rmb_arclight", "ability_id": "secondary_attack_arclight"},
+    {"t": 3.2, "kind": "cast", "slot": 0, "aim": [80, 0]},
+    {"t": 3.4, "kind": "sound_probe", "label": "ability_q_arclight", "ability_id": "arclight_blast_of_lightning"},
+    {"t": 4.0, "kind": "snap", "label": "sfx_arclight"},
+    {"t": 4.2, "kind": "report"}
+  ],
+  "wait_ms": 8000
+}

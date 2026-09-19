@@ -1,0 +1,15 @@
+{
+  "hero": "tobor",
+  "mode": "solo",
+  "comment": "2026-09-19: night mechanics - red eyes on minions, siren item above head, attack glow at night. Force night, buy siren, capture.",
+  "events": [
+    {"t": 0.4, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.6, "kind": "dev_command", "command": "open_cinematic"},
+    {"t": 1.2, "kind": "dev_command", "command": "force_night"},
+    {"t": 1.5, "kind": "dev_command", "command": "buy_item:sirene"},
+    {"t": 3.0, "kind": "snap", "label": "night_siren_hero"},
+    {"t": 4.5, "kind": "snap", "label": "night_minions_eyes"},
+    {"t": 6.0, "kind": "snap", "label": "night_combat"},
+    {"t": 8.0, "kind": "report"}
+  ]
+}

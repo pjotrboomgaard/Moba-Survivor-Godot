@@ -1,0 +1,136 @@
+{
+  "effects": [
+    {
+      "command": "toggle_invulnerable",
+      "kind": "dev_command",
+      "t": 0.266666666666666
+    },
+    {
+      "ability_id": "primary_attack_tobor",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": true,
+      "assert_stream_from_bank": true,
+      "expected_bank": "attack_tobor",
+      "kind": "sound_probe",
+      "label": "lmb_tobor",
+      "last_play_ability": "",
+      "last_play_sound_id": "attack_tobor",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": false,
+      "stream_path": "res://assets/audio/themes/attack_tobor_2.wav",
+      "t": 0.849729666666666
+    },
+    {
+      "charge_t": 0.535714285714286,
+      "enemies_alive": 63,
+      "kind": "secondary_probe",
+      "label": "mid_charge",
+      "secondary_charge": 0.750000000000001,
+      "secondary_charge_max": 1.4,
+      "secondary_cooldown": 0.0,
+      "secondary_cooldown_max": 9.0,
+      "secondary_kind": "repulse",
+      "t": 1.95
+    },
+    {
+      "charge_t": 1.0,
+      "enemies_alive": 66,
+      "kind": "secondary_probe",
+      "label": "post_release",
+      "secondary_charge": 1.4,
+      "secondary_charge_max": 1.4,
+      "secondary_cooldown": 0.0,
+      "secondary_cooldown_max": 9.0,
+      "secondary_kind": "repulse",
+      "t": 2.7622736031746
+    },
+    {
+      "ability_id": "secondary_attack_tobor",
+      "assert_ability_match": true,
+      "assert_bank_match": true,
+      "assert_distinct_bank": true,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "attack_secondary_tobor",
+      "kind": "sound_probe",
+      "label": "rmb_tobor",
+      "last_play_ability": "",
+      "last_play_sound_id": "attack_secondary_tobor",
+      "ok": true,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/secondary_tobor.wav",
+      "t": 2.86641433333333
+    },
+    {
+      "ability_id": "tobor_steam_keg",
+      "assert_ability_match": true,
+      "assert_bank_match": false,
+      "assert_distinct_bank": false,
+      "assert_player_fired": true,
+      "assert_stream_bank": false,
+      "assert_stream_from_bank": false,
+      "expected_bank": "cast_tobor",
+      "kind": "sound_probe",
+      "label": "ability_q_tobor",
+      "last_play_ability": "tobor_steam_keg",
+      "last_play_sound_id": "ability_tobor_steam_keg",
+      "ok": false,
+      "player_non_null": true,
+      "player_was_playing": true,
+      "stream_path": "res://assets/audio/themes/ability_tobor_steam_keg.wav",
+      "t": 3.41666666666667
+    }
+  ],
+  "elapsed": 4.21666666666667,
+  "enemies_spawned": 1,
+  "hero_position": "(-239.9286, 0.0)",
+  "player_class": "tobor",
+  "results": {
+    "alive": true,
+    "beaten_wave": 0,
+    "build": "",
+    "cast_count": 1,
+    "casts": [
+      {
+        "ability_id": "tobor_steam_keg",
+        "t": 3.901477
+      }
+    ],
+    "creep_kills": 0,
+    "died": false,
+    "errors": [],
+    "ffa": {},
+    "gold": 6,
+    "hero_kills": 0,
+    "hp_samples": [],
+    "landmark_saves": 0,
+    "level": 1,
+    "level_upgrades": {},
+    "max_hp": 0.0,
+    "min_hp": 1.0,
+    "min_hp_late": 1.0,
+    "pressure_boosts": 0,
+    "quest_types": 0,
+    "quests_seen": {},
+    "shop_buy_count": 0,
+    "shop_buys": [],
+    "taken_upgrades": [],
+    "until_wave": 20,
+    "verdict": "",
+    "wave": 1,
+    "xp": 10
+  },
+  "shots": [
+    {
+      "label": "sfx_tobor",
+      "path": "C:/Users/pjotr/AppData/Roaming/Godot/app_userdata/Rift Survivors//selftest_selftest_run_9970/sfx_tobor_4.071_9970.png",
+      "t": 4.070647
+    }
+  ]
+}

@@ -50,7 +50,7 @@ var _ship_sprite: Sprite2D = null
 var _ship_tex: Texture2D = null
 ## How large to render the imported ship artwork in world units. Larger = more
 ## dramatic, clearly-readable crash even at the full-map overhead zoom.
-const SHIP_RENDER_WIDTH := 680.0
+const SHIP_RENDER_WIDTH := 900.0
 
 
 func _ready() -> void:

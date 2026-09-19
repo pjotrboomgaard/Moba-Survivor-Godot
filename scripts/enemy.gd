@@ -2557,18 +2557,17 @@ func _update_night_sprite_tint() -> void:
 	if WorldClock.is_night:
 		if _night_texture != null:
 			sprite.texture = _night_texture
-			# Compensate for the CanvasModulate night ambient (~0.38,0.44,0.58)
-			# so the red eyes pop through the darkness. Strong red boost keeps
-			# the eyes bright; moderate green/blue keeps the body visible but
-			# dimmer than the eyes.
-			sprite.modulate = Color(3.0, 1.5, 1.2, 1.0)
+			# Keep the body dim/neutral — the drawn red eyes (_draw_night_eyes)
+			# provide the glow. A neutral slight-brightness modulate keeps the
+			# body readable without making the whole minion glow red.
+			sprite.modulate = Color(1.6, 1.5, 1.5, 1.0)
 		else:
-			# No night sprite available (boss creeps): fall back to a warm tint.
-			sprite.modulate = Color(1.15, 0.82, 0.82, 1.0)
+			# No night sprite available (boss creeps): neutral dim tint.
+			sprite.modulate = Color(1.3, 1.25, 1.25, 1.0)
 	else:
 		if _day_texture != null:
 			sprite.texture = _day_texture
-		sprite.modulate = Color.WHITE
+			sprite.modulate = Color.WHITE
 
 
 func _draw_status_overlays() -> void:

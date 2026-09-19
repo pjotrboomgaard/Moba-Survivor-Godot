@@ -1,0 +1,13 @@
+{
+  "hero": "tobor",
+  "comment": "Verify the 8-bit siren SFX fires when the siren item is activated. Grants siren via dev_command, then triggers the sprint/siren activation path and probes AudioService.last_play for the siren bank.",
+  "events": [
+    {"t": 0.2, "kind": "dev_command", "command": "toggle_invulnerable"},
+    {"t": 0.4, "kind": "dev_command", "command": "grant_siren"},
+    {"t": 0.8, "kind": "siren_activate", "label": "siren_fire"},
+    {"t": 1.0, "kind": "sound_probe", "ability_id": "siren", "label": "siren_sfx"},
+    {"t": 1.5, "kind": "snap", "label": "siren_sfx_ingame"},
+    {"t": 1.7, "kind": "report"}
+  ],
+  "wait_ms": 5000
+}

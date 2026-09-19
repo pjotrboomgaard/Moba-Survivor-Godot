@@ -68,6 +68,12 @@ const SOUND_LIBRARY: Dictionary = {
 	"ui_hover": [preload("res://assets/audio/themes/ui_hover.wav")],
 	"dash": [preload("res://assets/audio/sfx/dash.ogg")],
 	"charge": [preload("res://assets/audio/sfx/charge.ogg")],
+	# Siren (dash item): 8-bit warbling wee-woo siren that fires when the hero
+	# activates the siren (space). Distinct from the generic "dash" whoosh.
+	"siren": [
+		preload("res://assets/audio/themes/siren.wav"),
+		preload("res://assets/audio/themes/siren_2.wav"),
+	],
 	"player_down": [preload("res://assets/audio/sfx/player_down.ogg")],
 	"revive": [preload("res://assets/audio/sfx/revive.ogg")],
 	# Hero cast banks: 2-3 distinctive takes each, so a cast reads as *that* hero before
@@ -503,6 +509,9 @@ const VOLUME_DB := {
 	"ui_hover": -16.0,  # T3.2: quieter than click so hover never competes with a click
 	"dash": -10.0,
 	"charge": -8.0,
+	# Siren activation: slightly louder than dash so the 8-bit warble reads clearly
+	# on top of the whoosh — but not ear-splitting in FFA.
+	"siren": -6.0,
 	"player_down": -4.0,
 	"revive": -6.0,
 	"cast_arclight": -8.0,
@@ -594,6 +603,7 @@ const PITCH_SPREAD := {
 	"ui_click": 0.04,
 	"dash": 0.05,
 	"charge": 0.03,
+	"siren": 0.04,
 	"cast_arclight": 0.05,
 	"cast_bulwark": 0.04,
 	"cast_warden": 0.14,
@@ -662,6 +672,7 @@ const MAX_VOICES := {
 	"explosion": 1,
 	"ui_click": 2,
 	"dash": 2,
+	"siren": 3,
 	"turret_fire": 6,
 	"drone_fire": 4,
 	"charge": 2,
@@ -697,7 +708,8 @@ const STINGER_IDS := {
 	"level_up": true,
 }
 
-const MUSIC_TRACK: AudioStreamOggVorbis = preload("res://assets/audio/music/arena_theme.ogg")
+const MUSIC_TRACK_PATH: String = "res://assets/audio/music/city_over_clouds.wav"
+var _music_track: AudioStreamWAV
 const MUSIC_VOLUME_DB := -18.0
 const POOL_SIZE := 14
 const DEFAULT_MAX_VOICES := 5
@@ -758,6 +770,10 @@ var _world_theme_biome: int = -1
 var last_play_ability: String = ""
 var last_play: Dictionary = {}
 var last_ability_play: Dictionary = {}
+# 2026-09-19: dedicated record for attack SFX (LMB/RMB/siren) so probes can
+# reliably verify these without being clobbered by unrelated sounds (footsteps,
+# wave stingers, etc.) that fire between the attack and the probe read.
+var last_attack_play: Dictionary = {}
 
 var _music_player: AudioStreamPlayer
 var _sfx_pool: Array[AudioStreamPlayer] = []
@@ -798,6 +814,10 @@ func play(sound_id: String) -> AudioStreamPlayer:
 	player.pitch_scale = 1.0 + randf_range(-spread, spread) if spread > 0.0 else 1.0
 	player.play()
 	last_play = {"sound_id": sound_id, "stream": player.stream, "player": player}
+	# 2026-09-19: also track attack SFX separately so probes don't clobber.
+	# Attack sounds: attack_<hero>, attack_secondary_<hero>, siren, boss_attack.
+	if sound_id.begins_with("attack_") or sound_id == "siren" or sound_id == "boss_attack":
+		last_attack_play = {"sound_id": sound_id, "stream": player.stream, "player": player}
 	if STINGER_IDS.has(sound_id):
 		_duck_music()
 	return player
@@ -823,6 +843,8 @@ func play_ability(ability_id: String, is_ult: bool = false) -> AudioStreamPlayer
 	# cast_<hero> bank (with a per-ability pitch offset) if the specific file is
 	# missing, then the archetype family.
 	var ability_bank := "ability_%s" % ability_id
+	if not SOUND_LIBRARY.has(ability_bank):
+		print("[AudioService] play_ability FALLBACK: '%s' NOT in library (bank=%s)" % [ability_id, ability_bank])
 	if SOUND_LIBRARY.has(ability_bank):
 		var player := play(ability_bank)
 		if player != null:
@@ -1122,7 +1144,10 @@ func _ensure_buses() -> void:
 
 func _make_music_player() -> AudioStreamPlayer:
 	var player := AudioStreamPlayer.new()
-	player.stream = MUSIC_TRACK
+	if _music_track == null:
+		_music_track = load(MUSIC_TRACK_PATH) as AudioStreamWAV
+	if _music_track != null:
+		player.stream = _music_track
 	player.volume_db = MUSIC_VOLUME_DB
 	player.bus = "Music"
 	player.process_mode = Node.PROCESS_MODE_ALWAYS
