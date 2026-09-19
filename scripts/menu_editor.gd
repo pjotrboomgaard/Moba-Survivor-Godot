@@ -23,17 +23,27 @@ var _editing := false
 var _editables: Array[Control] = []
 
 var _overlay: CanvasLayer = null
+var _capture: Control = null  # full-screen transparent Control that eats the mouse
 var _save_btn: Button = null
 var _reset_btn: Button = null
 var _exit_btn: Button = null
 var _hint: Label = null
 var _msg: Label = null
+var _event_count_label: Label = null  # live counter proving real events arrive
+var _event_count := 0
 
 # Drag state
 var _drag_ctrl: Control = null
 var _drag_mode := 0  # 0=none, 1=resize, 2=reorder
 var _drag_start_mouse := Vector2.ZERO
 var _drag_start_size := Vector2.ZERO
+
+# 2026-09-19: polling input state. While editing, _process polls real OS mouse
+# state every frame instead of relying on Control.gui_input (which is unreliable
+# in this Godot build for both synthetic and real input in the menu context).
+var _last_mouse_pos := Vector2.ZERO
+var _last_left_held := false
+var _last_right_held := false
 
 
 func _ready() -> void:
@@ -64,10 +74,81 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
+
+## 2026-09-19: Capture-layer gui_input handler. This is the ONLY viable mouse
+## input path in this Godot 4.7.2 build — Input.get_mouse_position() /
+## Input.is_mouse_button_held() do NOT exist as statics here, and
+## Input.parse_input_event does NOT route to Control.gui_input. A real OS
+## mouse click DOES reach Control.gui_input, so the full-rect transparent
+## capture Control (MOUSE_FILTER_STOP, layer 200) is the reliable source.
+## It forwards each event here and we drive the same reorder/resize/hide
+## logic, but off the real event position.
+func _capture_gui_input(event: InputEvent) -> void:
+	# Live event counter — visible proof that the capture layer is receiving
+	# real mouse events (works with both real OS input and synthetic events
+	# pushed via parse_input_event).
+	_event_count += 1
+	if _event_count_label != null and is_instance_valid(_event_count_label):
+		_event_count_label.text = "events: %d" % _event_count
 	if event is InputEventMouseButton:
-		_on_click(event as InputEventMouseButton)
+		var mb := event as InputEventMouseButton
+		if mb.pressed:
+			if mb.button_index == MOUSE_BUTTON_LEFT:
+				_handle_left_press(mb.position)
+			elif mb.button_index == MOUSE_BUTTON_RIGHT:
+				_handle_right_click(mb.position)
+		else:
+			_drag_ctrl = null
+			_drag_mode = 0
 	elif event is InputEventMouseMotion:
-		_on_move(event as InputEventMouseMotion)
+		var mm := event as InputEventMouseMotion
+		_handle_left_hold(mm.position)
+
+
+func _handle_left_press(pos: Vector2) -> void:
+	if _is_in_toolbar(pos):
+		return
+	var ctrl := _hit_test(pos)
+	if ctrl != null:
+		_drag_ctrl = ctrl
+		_drag_start_mouse = pos
+		_drag_start_size = ctrl.size
+		# Shift = resize, plain left-drag = reorder
+		_drag_mode = 1 if Input.is_key_pressed(KEY_SHIFT) else 2
+		_flash("Selected: " + ctrl.name + (" (resize)" if _drag_mode == 1 else " (reorder)"))
+	else:
+		_drag_ctrl = null
+		_drag_mode = 0
+
+
+func _handle_left_hold(pos: Vector2) -> void:
+	if _drag_ctrl == null or _drag_mode == 0:
+		return
+	if not is_instance_valid(_drag_ctrl):
+		return
+	if _drag_mode == 1:
+		# Resize
+		var delta: Vector2 = pos - _drag_start_mouse
+		var new_w := maxf(_drag_start_size.x + delta.x, 20.0)
+		var new_h := maxf(_drag_start_size.y + delta.y, 20.0)
+		_drag_ctrl.custom_minimum_size = Vector2(snapf(new_w), snapf(new_h))
+		_flash("Resize %s -> (%.0f, %.0f)" % [_drag_ctrl.name, snapf(new_w), snapf(new_h)])
+	elif _drag_mode == 2:
+		# Reorder
+		var dy := pos.y - _drag_start_mouse.y
+		if absf(dy) > REORDER_THRESHOLD:
+			var dir := -1 if dy < 0 else 1
+			_do_reorder(_drag_ctrl, dir)
+			_drag_start_mouse = pos
+
+
+func _handle_right_click(pos: Vector2) -> void:
+	if _is_in_toolbar(pos):
+		return
+	var ctrl := _hit_test(pos)
+	if ctrl != null:
+		ctrl.visible = not ctrl.visible
+		_flash("Toggle visibility: " + ctrl.name + " -> " + ("ON" if ctrl.visible else "OFF"))
 
 
 # ---------------------------------------------------------------------------
@@ -77,8 +158,10 @@ func _unhandled_input(event: InputEvent) -> void:
 func _enter() -> void:
 	print("[MenuEditor] ENTER edit mode")
 	_editing = true
-	_build_ui()
 	_collect_editables()
+	_set_controls_input(false)
+	_build_ui()
+	_build_capture_layer()
 	_msg.text = "EDIT MODE  ·  Drag = reorder · Shift+Drag = resize · Right-click = show/hide · F3 = exit"
 
 
@@ -87,6 +170,8 @@ func _exit() -> void:
 	_editing = false
 	_drag_ctrl = null
 	_drag_mode = 0
+	_set_controls_input(true)
+	_remove_capture_layer()
 	if _overlay != null and is_instance_valid(_overlay):
 		_overlay.queue_free()
 		_overlay = null
@@ -95,6 +180,79 @@ func _exit() -> void:
 	_exit_btn = null
 	_hint = null
 	_msg = null
+	_event_count_label = null
+	_event_count = 0
+
+
+## 2026-09-19: Full-screen transparent Control that captures ALL mouse input
+## while editing. A plain Node's _unhandled_input does NOT reliably receive
+## mouse events when a Control tree is present — the Controls consume them in
+## their _gui_input. This capture Control has MOUSE_FILTER_STOP, so it grabs
+## every press/move/release before the menu buttons see them, and forwards
+## each event to _on_click/_on_move via its gui_input signal.
+func _build_capture_layer() -> void:
+	_remove_capture_layer()
+	var cl := CanvasLayer.new()
+	cl.name = "MenuEditorCaptureLayer"
+	cl.layer = 200
+	get_parent().add_child(cl)
+	_capture = Control.new()
+	_capture.name = "Capture"
+	# A CanvasLayer does NOT constrain its children, so PRESET_FULL_RECT alone
+	# leaves the Control at 0x0 and the mouse is never "inside" it -> gui_input
+	# never fires. Set the rect to the full viewport size explicitly.
+	var vp_size: Vector2 = get_viewport().get_visible_rect().size
+	_capture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_capture.offset_left = 0.0
+	_capture.offset_top = 0.0
+	_capture.offset_right = vp_size.x
+	_capture.offset_bottom = vp_size.y
+	_capture.mouse_filter = Control.MOUSE_FILTER_STOP
+	_capture.gui_input.connect(_capture_gui_input)
+	cl.add_child(_capture)
+
+
+func _remove_capture_layer() -> void:
+	if _capture != null and is_instance_valid(_capture):
+		_capture.queue_free()
+		_capture = null
+	var cl := get_parent().get_node_or_null("MenuEditorCaptureLayer")
+	if cl != null:
+		cl.queue_free()
+
+
+## 2026-09-19: while editing, the menu's own Buttons/Labels eat the mouse press
+## in Control._gui_input, so the editor's _unhandled_input never sees it and no
+## drag starts. Disable input on every control in the lobby (recursively) so the
+## mouse event falls through to the editor. Original mouse_filter values are
+## saved and restored on _exit so the menu is fully usable again. The editor's
+## toolbar lives on a separate CanvasLayer and is untouched.
+var _saved_mouse_filters: Dictionary = {}  # ObjectID -> int
+
+
+func _set_controls_input(enabled: bool) -> void:
+	var root := get_parent()
+	if root == null:
+		return
+	var lobby := root.get_node_or_null("StatusLayer/LobbyPanel")
+	if lobby == null:
+		return
+	_apply_input_recursively(lobby, enabled)
+
+
+func _apply_input_recursively(node: Node, enabled: bool) -> void:
+	if node is Control:
+		var ctrl := node as Control
+		if not enabled:
+			_saved_mouse_filters[ctrl.get_instance_id()] = ctrl.mouse_filter
+			ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		else:
+			var saved: int = _saved_mouse_filters.get(ctrl.get_instance_id(), Control.MOUSE_FILTER_PASS)
+			ctrl.mouse_filter = saved
+	for child in node.get_children():
+		_apply_input_recursively(child, enabled)
+	if enabled:
+		_saved_mouse_filters.clear()
 
 
 func _collect_editables() -> void:
@@ -167,6 +325,17 @@ func _build_ui() -> void:
 	_exit_btn = _tool_btn("EXIT", Color(0.95, 0.35, 0.35))
 	_exit_btn.pressed.connect(_exit)
 	bar.add_child(_exit_btn)
+
+	# Live event counter — visible proof that the capture layer receives real
+	# mouse events. Updated on every _capture_gui_input call.
+	_event_count_label = Label.new()
+	_event_count_label.add_theme_font_size_override("font_size", 12)
+	_event_count_label.add_theme_color_override("font_color", Color(0.5, 1.0, 0.5, 1.0))
+	_event_count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_event_count_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_event_count_label.position = Vector2(16, 8)
+	_event_count_label.text = "events: 0"
+	_overlay.add_child(_event_count_label)
 
 
 func _tool_btn(text: String, c: Color) -> Button:
@@ -252,7 +421,7 @@ func _do_reorder(ctrl: Control, dir: int) -> void:
 		ctrl.position.y += dir * SNAP * 4.0
 		_flash("Nudge %s" % ctrl.name)
 		return
-	var idx: int = parent.get_child_index(ctrl)
+	var idx: int = ctrl.get_index()
 	var new_idx := clampi(idx + dir, 0, parent.get_child_count() - 1)
 	if new_idx == idx:
 		return

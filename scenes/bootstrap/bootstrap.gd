@@ -45,6 +45,7 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var audio_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/AudioRow
 
 # Compact menu nodes (defined in bootstrap.tscn, editable in Godot editor)
+@onready var compact_hero_name_label: Label = $StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock/CompactHeroName
 @onready var compact_start_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock/CompactStartBtn
 @onready var compact_continue_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock/CompactContinueBtn
 @onready var compact_mode_row: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/CompactModeRow
@@ -58,6 +59,7 @@ const GAME_SCENE: PackedScene = preload("res://scenes/main/main.tscn")
 @onready var compact_roster_grid: GridContainer = $StatusLayer/LobbyPanel/Margin/Layout/CompactRosterGrid
 @onready var compact_ability_strip: HBoxContainer = $StatusLayer/LobbyPanel/Margin/Layout/CompactAbilityStrip
 @onready var compact_settings_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactSettingsBtn
+@onready var compact_world_editor_btn: Button = $StatusLayer/LobbyPanel/Margin/Layout/CompactWorldEditorBtn
 
 ## Legacy hero content scroll + loadout (built in _build_overhaul_ui). The compact
 ## menu (2026-09-18) replaces it, so it is hidden at runtime but kept for FFA/co-op
@@ -259,7 +261,6 @@ func _ready() -> void:
 	music_toggle.toggled.connect(_on_music_toggled)
 	_sync_audio_toggles()
 	_build_resolution_options()
-	_build_world_editor_button()
 	if ability_panel != null:
 		ability_panel.visible = false
 		_ability_panel_hero_id = ""
@@ -282,6 +283,8 @@ func _ready() -> void:
 	# 2026-09-16 compact menu verify driver (big hero icon + < > nav + roster + mode nav).
 	if FileAccess.file_exists("user://compact_menu_test"):
 		call_deferred("_attach_compact_menu_test")
+	if FileAccess.file_exists("user://menu_editor_ingame_test"):
+		call_deferred("_attach_menu_editor_ingame_test")
 	call_deferred("_start_runtime")
 	set_process(true)
 
@@ -324,6 +327,16 @@ func _attach_compact_menu_test() -> void:
 	var driver = driver_scene.instantiate()
 	get_tree().root.add_child(driver)
 	print("[compact-menu] driver attached to root")
+
+
+func _attach_menu_editor_ingame_test() -> void:
+	var driver_scene: PackedScene = load("res://scenes/menu_editor_ingame_test/menu_editor_ingame_test.tscn")
+	if driver_scene == null:
+		print("[menu-editor-ingame] driver scene not found")
+		return
+	var driver = driver_scene.instantiate()
+	get_tree().root.add_child(driver)
+	print("[menu-editor-ingame] driver attached to root")
 
 
 ## Builds the WorldRow, LoadoutPanel (LoadoutRow + AbilityPool) and wires them into the
@@ -513,6 +526,8 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	# Alias the tscn buttons for existing call sites that check _compact_*.
 	_compact_start_btn = compact_start_btn
 	_compact_continue_btn = compact_continue_btn
+	# Alias the hero-name label for _sync_hero_nav.
+	_compact_hero_name_label = compact_hero_name_label
 
 	# PLAY button (full-width, yellow) — from tscn
 	compact_start_btn.add_theme_font_size_override("font_size", 18)
@@ -575,6 +590,22 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 	_compact_settings_btn.pressed.connect(_on_compact_settings_pressed)
 	_style_action_button(_compact_settings_btn)
 
+	# --- Orange hero title above the PLAY button — from tscn (CompactTopBlock) ---
+	# The hero name is set in _sync_hero_nav; here we just style it orange.
+	compact_hero_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	compact_hero_name_label.add_theme_font_size_override("font_size", 20)
+	compact_hero_name_label.add_theme_color_override("font_color", Color(1.0, 0.55, 0.2, 1.0))
+	# Show the current hero name immediately.
+	var _init_hero_id: String = PlayerProfile.selected_class_id
+	if not _init_hero_id.is_empty():
+		var _init_cls: Dictionary = PlayerClass.by_id(_init_hero_id)
+		compact_hero_name_label.text = str(_init_cls.get("name", _init_hero_id)).to_upper()
+
+	# --- Standalone WORLD EDITOR button (compact menu, full width) — from tscn ---
+	compact_world_editor_btn.tooltip_text = "Open the world/level editor to place trees, rocks, grass and landmarks"
+	compact_world_editor_btn.pressed.connect(_on_world_editor_pressed)
+	_style_action_button(compact_world_editor_btn)
+
 	# --- Populate the 4 ability strip with the current hero's kit ---
 	_populate_ability_strip(PlayerProfile.selected_class_id)
 
@@ -617,8 +648,10 @@ func _build_compact_menu(layout: VBoxContainer) -> void:
 
 
 ## 2026-09-18: In-game menu layout editor.
-## Creates the MenuEditor node, loads any saved layout, and adds a toggle
-## button to the settings panel so the user can also reach it from the UI.
+## Creates the MenuEditor node and loads any saved layout. The "Edit Menu
+## Layout (F3)" button lives in the settings panel (added in
+## _build_settings_panel via _add_settings_editor_button) since the panel is
+## built lazily — see that function.
 func _setup_menu_editor() -> void:
 	var editor_script: GDScript = load("res://scripts/menu_editor.gd")
 	if editor_script == null:
@@ -629,20 +662,6 @@ func _setup_menu_editor() -> void:
 	add_child(editor)
 	# Apply any previously saved layout on startup.
 	editor.call_deferred("load_layout")
-	# Add a small "Edit Menu Layout (F3)" button to the settings panel so it
-	# can be reached from the UI as well as the F3 key.
-	if _settings_panel != null:
-		var toggle_btn := Button.new()
-		toggle_btn.text = "✏  Edit Menu Layout (F3)"
-		toggle_btn.custom_minimum_size = Vector2(0, 36)
-		toggle_btn.focus_mode = Control.FOCUS_NONE
-		toggle_btn.pressed.connect(editor.toggle)
-		# Attach to the settings panel's VBox if it exists.
-		var sb := _settings_vbox
-		if sb != null:
-			sb.add_child(toggle_btn)
-		else:
-			_settings_panel.add_child(toggle_btn)
 	_compact_menu_editor = editor
 
 
@@ -838,11 +857,37 @@ func _build_settings_panel() -> void:
 	res_opt.item_selected.connect(_on_settings_resolution_selected.bind(res_opt))
 	res_row.add_child(res_opt)
 
+	# 2026-09-19: Menu layout editor toggle. Added here (in _build_settings_panel)
+	# so it always exists — previously _setup_menu_editor() ran before this panel
+	# was built, so the button never appeared.
+	_add_settings_editor_button(vbox)
+
 	# Parent to StatusLayer (sibling of LobbyPanel so it floats above).
 	var status_layer := get_node_or_null("StatusLayer")
 	if status_layer:
 		status_layer.add_child(_settings_panel)
 	_settings_panel.visible = false
+
+
+## Adds the "Edit Menu Layout" button to the settings panel's VBox, wired to
+## the MenuEditor node. Called from _build_settings_panel so the button always
+## exists even though the panel is built lazily.
+func _add_settings_editor_button(vbox: VBoxContainer) -> void:
+	if _compact_menu_editor == null:
+		# Editor node failed to load; still show a hint button? No — skip.
+		return
+	var sep := HSeparator.new()
+	sep.add_theme_constant_override("separation", 2)
+	vbox.add_child(sep)
+	var toggle_btn := Button.new()
+	toggle_btn.text = "✏  Edit Menu Layout (F3)"
+	toggle_btn.tooltip_text = "Enter edit mode: drag to reorder, Shift+drag to resize, right-click to show/hide, then Save."
+	toggle_btn.custom_minimum_size = Vector2(0, 36)
+	toggle_btn.focus_mode = Control.FOCUS_NONE
+	toggle_btn.add_theme_font_size_override("font_size", 14)
+	_style_action_button(toggle_btn)
+	toggle_btn.pressed.connect(_compact_menu_editor.toggle)
+	vbox.add_child(toggle_btn)
 
 
 ## Handler for the settings panel's resolution OptionButton (separate from the
@@ -1001,7 +1046,7 @@ func _cycle_hero(direction: int) -> void:
 
 
 func _init_mode_nav() -> void:
-	_mode_nav_index = _play_mode  # 0=solo, 1=ffa, 2=coop, 3=world editor
+	_mode_nav_index = _play_mode  # 0=solo, 1=ffa, 2=coop
 	_sync_mode_nav()
 
 
@@ -1012,19 +1057,16 @@ func _sync_mode_nav() -> void:
 		0: _mode_label.text = "SOLO"
 		1: _mode_label.text = "FFA"
 		2: _mode_label.text = "CO-OP"
-		3: _mode_label.text = "WORLD EDITOR"
 		_: _mode_label.text = "SOLO"
-	# World editor is not a play mode — it just opens the editor when PLAY is pressed.
-	if _mode_nav_index == 3:
-		_play_mode = 0  # keep solo as the underlying play mode
-	else:
-		_play_mode = _mode_nav_index
+	_play_mode = _mode_nav_index
 	_refresh_play_mode()
 
 
 func _cycle_mode(direction: int) -> void:
 	AudioService.play("ui_click")
-	_mode_nav_index = wrapf(_mode_nav_index + direction, 0, 4)
+	# 2026-09-19: World Editor removed from mode cycling (now a standalone
+	# button in the compact menu). Cycle only among Solo/FFA/Co-op.
+	_mode_nav_index = wrapf(_mode_nav_index + direction, 0, 3)
 	_sync_mode_nav()
 
 
@@ -2860,10 +2902,7 @@ func _add_slot_tag(button: Button, text: String) -> void:
 
 func _on_solo_pressed() -> void:
 	AudioService.play("ui_click")
-	# World Editor mode: open the editor instead of starting a run.
-	if _mode_nav_index == 3:
-		_on_world_editor_pressed()
-		return
+	# World Editor is now a standalone button, not a play mode.
 	RunSave.clear()
 	_pending_run_save = {}
 	if _play_mode == 1:
@@ -3020,23 +3059,11 @@ func _on_host_pressed() -> void:
 
 
 func _build_world_editor_button() -> void:
-	var row := mode_row as HBoxContainer
-	if row == null:
-		return
-	var btn := Button.new()
-	btn.name = "WorldEditorButton"
-	btn.custom_minimum_size = Vector2(0, 36)
-	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn.clip_text = true
-	btn.text = "WORLD EDITOR"
-	btn.tooltip_text = "Open the world/level editor to place trees, rocks, grass and landmarks"
-	btn.pressed.connect(_on_world_editor_pressed)
-	row.add_child(btn)
-	row.move_child(btn, row.get_child_count() - 1)
-	for child in row.get_children():
-		if child is Button:
-			(child as Button).add_theme_font_size_override("font_size", 12)
-			(child as Button).clip_text = true
+	# 2026-09-19: World Editor is now a standalone button in the compact menu
+	# (CompactWorldEditorBtn, wired in _build_compact_menu). It was previously
+	# injected into the legacy mode_row (the sliding modes panel), which the
+	# user asked to remove — so this function is now a no-op.
+	pass
 
 
 func _on_world_editor_pressed() -> void:

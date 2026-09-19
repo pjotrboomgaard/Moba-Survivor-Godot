@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/menu_editor_logic_test/menu_editor_logic_test.gd" id="1"]
+
+[node name="MenuEditorLogicTest" type="Node2D"]
+script = ExtResource("1")

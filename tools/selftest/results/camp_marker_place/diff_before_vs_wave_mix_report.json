@@ -1,0 +1,15 @@
+{
+  "before": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\camp_marker_place\\ingame_before_markers.png",
+  "after": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\camp_marker_place\\ingame_after_wave_mix.png",
+  "out": "C:\\Users\\pjotr\\Documents\\Development\\Coop-MOBA-Survivor-Godot-Phase-1\\tools\\selftest\\results\\camp_marker_place\\diff_before_vs_wave_mix.png",
+  "changed_pixels": 427392,
+  "total_pixels": 2073600,
+  "changed_fraction": 0.206111,
+  "bbox": [
+    0,
+    0,
+    1919,
+    1079
+  ],
+  "has_change": true
+}

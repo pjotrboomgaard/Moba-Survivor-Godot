@@ -87,11 +87,18 @@ theme_override_constants/separation = 8
 ; ==================== COMPACT MENU (2026-09-18) ====================
 ; This is the live menu. Edit in Godot editor: drag, snap, resize.
 
-; --- TOP BLOCK: PLAY + CONTINUE (full-width, stacked) ---
+; --- TOP BLOCK: hero name + PLAY + CONTINUE (full-width, stacked) ---
 [node name="CompactTopBlock" type="VBoxContainer" parent="StatusLayer/LobbyPanel/Margin/Layout"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
+
+[node name="CompactHeroName" type="Label" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.55, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "HERO"
 
 [node name="CompactStartBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout/CompactTopBlock"]
 custom_minimum_size = Vector2(0, 48)
@@ -177,6 +184,14 @@ layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
 theme_override_constants/separation = 6
+
+; --- WORLD EDITOR button (standalone, above settings) ---
+[node name="CompactWorldEditorBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "WORLD EDITOR"
 
 ; --- SETTINGS button (full width, bottom) ---
 [node name="CompactSettingsBtn" type="Button" parent="StatusLayer/LobbyPanel/Margin/Layout"]
